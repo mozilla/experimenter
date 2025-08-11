@@ -38,41 +38,56 @@
     {% csrf_token %}
     <!-- Draft Mode Controls -->
     {% if experiment.is_draft %}
-      <div id="default-controls" class="alert alert-secondary">
-        <p>
-          Do you want to test this experiment before launching to production?
-          <a href="{{ EXTERNAL_URLS.PREVIEW_LAUNCH_DOC }}"
-             target="_blank"
-             class="mr-1">Learn more</a>
-        </p>
-        {% if experiment.can_draft_to_preview %}
-          <button type="button"
-                  id="draft-to-preview-button"
-                  class="btn btn-primary"
-                  hx-post="{% url 'nimbus-ui-draft-to-preview' slug=experiment.slug %}"
-                  hx-select="#content"
-                  hx-target="#content"
-                  hx-swap="outerHTML">Preview for Testing</button>
-        {% endif %}
-        {% if experiment.can_draft_to_review %}
-          <button type="button"
-                  id="draft-to-review-button"
-                  class="btn btn-secondary"
-                  onclick="showRecommendation()">Request Launch without Preview</button>
-        {% endif %}
-      </div>
-      <!-- Recommendation Message -->
-      <div id="recommendation-message" class="d-none">
-        <div id="request-launch-alert" class="alert alert-warning">
-          <p>
-            <strong>We recommend previewing before launch</strong>
+      {% if experiment.can_publish_to_preview %}
+        <div id="default-controls" class="alert alert-secondary">
+          {% if experiment.can_draft_to_preview %}
+            <p>
+              Do you want to test this experiment before launching to production?
+              <a href="{{ EXTERNAL_URLS.PREVIEW_LAUNCH_DOC }}"
+                 target="_blank"
+                 class="mr-1">Learn more</a>
+            </p>
             <button type="button"
+                    id="draft-to-preview-button"
                     class="btn btn-primary"
                     hx-post="{% url 'nimbus-ui-draft-to-preview' slug=experiment.slug %}"
                     hx-select="#content"
                     hx-target="#content"
-                    hx-swap="outerHTML">Preview Now</button>
-          </p>
+                    hx-swap="outerHTML">Preview for Testing</button>
+          {% endif %}
+          {% if experiment.can_draft_to_review %}
+            <button type="button"
+                    id="draft-to-review-button"
+                    class="btn btn-secondary"
+                    onclick="showRecommendation()">Request Launch without Preview</button>
+          {% endif %}
+        </div>
+      {% endif %}
+      <!-- Recommendation Message -->
+      <div id="recommendation-message"
+           {% if experiment.can_publish_to_preview %}class="d-none"{% endif %}>
+        <div id="request-launch-alert" class="alert alert-warning">
+          {% if experiment.can_publish_to_preview %}
+            <p>
+              <strong>We recommend previewing before launch</strong>
+              <button type="button"
+                      class="btn btn-primary"
+                      hx-post="{% url 'nimbus-ui-draft-to-preview' slug=experiment.slug %}"
+                      hx-select="#content"
+                      hx-target="#content"
+                      hx-swap="outerHTML">Preview Now</button>
+            </p>
+          {% else %}
+            <p>
+              <i class="fa-solid fa-circle-exclamation"></i>
+              This experiment cannot be previewed!
+            </p>
+            <p>
+              This experiment uses features that prevent it from being launched
+              to preview. We highly recommend QAing this experiment on stage
+              first.
+            </p>
+          {% endif %}
           <div class="form-check">
             <input type="checkbox"
                    class="form-check-input"
@@ -97,12 +112,14 @@
                   hx-target="#content"
                   hx-swap="outerHTML"
                   disabled>Request Launch</button>
-          <button type="button"
-                  class="btn btn-secondary"
-                  hx-post="{% url 'nimbus-ui-review-to-draft' slug=experiment.slug %}"
-                  hx-select="#content"
-                  hx-target="#content"
-                  hx-swap="outerHTML">Cancel</button>
+          {% if experiment.can_publish_to_preview %}
+            <button type="button"
+                    class="btn btn-secondary"
+                    hx-post="{% url 'nimbus-ui-review-to-draft' slug=experiment.slug %}"
+                    hx-select="#content"
+                    hx-target="#content"
+                    hx-swap="outerHTML">Cancel</button>
+          {% endif %}
         </div>
       </div>
       <!-- Preview Mode Controls -->
