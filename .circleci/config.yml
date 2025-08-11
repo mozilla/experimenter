@@ -94,8 +94,29 @@ commands:
           command: |
             FILES=$(ls -1 << parameters.source >>/*.<< parameters.extension >> 2>/dev/null)
             gsutil cp -n $FILES << parameters.destination >>
-
-
+  setup-github-bot:
+    steps:
+      - run:
+          name: Install Dependencies
+          command: |
+            pip install PyJWT requests cryptography
+      - gh/install
+      - run:
+          name: Generate token and setup git user
+          command: |
+            export GH_TOKEN=$(python .circleci/scripts/create_jwt.py)
+            if [ -z "$GH_TOKEN" ]; then
+              echo "Failed to generate GH_TOKEN"
+              exit 1
+            fi
+            echo "export GH_TOKEN=\"${GH_TOKEN}\"" >> "$BASH_ENV"
+            git config --global user.email "experimenter-ci-bot@mozilla.com"
+            git config --global user.name "Experimenter CircleCI Bot"
+            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/b4handjr/experimenter.git
+            gh auth setup-git
+            gh auth status
+            gh config set git_protocol https
+            gh config set prompt disabled
 jobs:
   check_experimenter_x86_64:
     machine:
@@ -731,18 +752,8 @@ jobs:
       image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "32:8e:72:0b:9a:a1:1c:b8:7e:90:e1:53:a3:73:68:47" # for git pushes from circleci, since relies on ssh
       - checkout
-      - gh/setup:
-          token: GH_EXTERNAL_CONFIG_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
-      - run:
-          name: Setup Git
-          command: |
-            git config --local user.name "dataops-ci-bot"
-            git config --local user.email "dataops+ci-bot@mozilla.com"
-            gh config set git_protocol https
+      - setup-github-bot
       - run:
           name: Check for External Config Update
           command: |
@@ -775,18 +786,8 @@ jobs:
       image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "32:8e:72:0b:9a:a1:1c:b8:7e:90:e1:53:a3:73:68:47" # for git pushes from circleci, since relies on ssh
       - checkout
-      - gh/setup:
-          token: GH_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
-      - run:
-          name: Setup Git
-          command: |
-            git config --local user.name "dataops-ci-bot"
-            git config --local user.email "dataops+ci-bot@mozilla.com"
-            gh config set git_protocol https
+      - setup-github-bot
       - run:
           name: Check for Application Services update
           command: |
@@ -813,18 +814,8 @@ jobs:
       docker_layer_caching: true
     working_directory: ~/experimenter
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "32:8e:72:0b:9a:a1:1c:b8:7e:90:e1:53:a3:73:68:47" # for git pushes from circleci, since relies on ssh
       - checkout
-      - gh/setup:
-          token: GH_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
-      - run:
-          name: Setup Git
-          command: |
-            git config --local user.name "dataops-ci-bot"
-            git config --local user.email "dataops+ci-bot@mozilla.com"
-            gh config set git_protocol https
+      - setup-github-bot
       - run:
           name: Check for external Update
           command: |
