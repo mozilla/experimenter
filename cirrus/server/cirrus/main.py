@@ -18,6 +18,8 @@ from .settings import (
     app_id,
     channel,
     cirrus_sentry_dsn,
+    cirrus_sentry_profiles_sample_rate,
+    cirrus_sentry_traces_sample_rate,
     context,
     env_name,
     fml_path,
@@ -80,11 +82,11 @@ def initialize_sentry():
             # Set traces_sample_rate to 1.0 to capture 100%
             # of transactions for performance monitoring.
             # We recommend adjusting this value in production.
-            traces_sample_rate=0.25,
+            traces_sample_rate=cirrus_sentry_traces_sample_rate,
             # Set profiles_sample_rate to 1.0 to profile 100%
             # of sampled transactions.
             # We recommend adjusting this value in production.
-            profiles_sample_rate=0.25,
+            profiles_sample_rate=cirrus_sentry_profiles_sample_rate,
             environment=env_name,
         )
 
