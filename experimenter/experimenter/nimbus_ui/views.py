@@ -15,6 +15,7 @@ from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
     NimbusExperimentFilter,
+    NimbusExperimentsHomeFilter,
     SortChoices,
     StatusChoices,
 )
@@ -623,7 +624,7 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
 
 class NimbusExperimentsHomeView(FilterView):
     template_name = "nimbus_experiments/home.html"
-    filterset_class = NimbusExperimentFilter
+    filterset_class = NimbusExperimentsHomeFilter
     context_object_name = "experiments"
 
     def get_queryset(self):
@@ -637,26 +638,29 @@ class NimbusExperimentsHomeView(FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        all_experiments = list(context["experiments"])
+        base_qs = self.get_queryset()
 
-        draft_or_preview_experiments = [
-            exp for exp in all_experiments if exp.is_draft or exp.is_preview
-        ]
-        ready_for_attention_experiments = [
-            exp for exp in all_experiments if exp.is_ready_for_attention
-        ]
-        draft_page = self.request.GET.get("draft_page", 1)
-        attention_page = self.request.GET.get("attention_page", 1)
+        # Used for filtering + pagination
+        home_filter = NimbusExperimentsHomeFilter(
+            data=self.request.GET,
+            request=self.request,
+            queryset=base_qs,
+        )
+        context["my_deliveries_filter"] = home_filter
+
         my_deliveries_page = self.request.GET.get("my_deliveries_page", 1)
-        context["draft_or_preview_page"] = Paginator(
-            draft_or_preview_experiments, 5
-        ).get_page(draft_page)
-        context["ready_for_attention_page"] = Paginator(
-            ready_for_attention_experiments, 5
-        ).get_page(attention_page)
-        context["all_my_experiments_page"] = Paginator(all_experiments, 25).get_page(
+        context["all_my_experiments_page"] = Paginator(home_filter.qs, 25).get_page(
             my_deliveries_page
         )
+
+        all_experiments = list(base_qs)
+        context["draft_or_preview_page"] = Paginator(
+            [e for e in all_experiments if e.is_draft or e.is_preview], 5
+        ).get_page(self.request.GET.get("draft_page", 1))
+        context["ready_for_attention_page"] = Paginator(
+            [e for e in all_experiments if e.is_ready_for_attention], 5
+        ).get_page(self.request.GET.get("attention_page", 1))
+
         context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
         context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
         return context

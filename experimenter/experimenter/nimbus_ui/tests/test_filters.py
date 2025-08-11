@@ -1,9 +1,13 @@
 from django.test import TestCase
+from django.urls import reverse
 
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     UserFactory,
     generate_nimbus_changelog,
+)
+from experimenter.nimbus_ui.filtersets import (
+    MyDeliveriesChoices,
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     format_json,
@@ -13,6 +17,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     should_show_remote_settings_pending as filter_should_show_remote_settings_pending,
 )
+from experimenter.nimbus_ui.tests.test_views import AuthTestCase
 
 
 class FilterTests(TestCase):
@@ -71,3 +76,80 @@ class FilterTests(TestCase):
         self.assertFalse(
             filter_should_show_remote_settings_pending(experiment, experiment.owner)
         )
+
+
+class TestHomeFilters(AuthTestCase):
+    def test_my_deliveries_status_field_is_set_to_default_initial(self):
+        NimbusExperimentFactory.create(owner=self.user)
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+        self.assertEqual(response.status_code, 200)
+
+        filterset = response.context.get("my_deliveries_filter")
+        self.assertIsNotNone(filterset)
+
+        field = filterset.form.fields["my_deliveries_status"]
+        self.assertEqual(field.initial, MyDeliveriesChoices.ALL)
+
+    def test_filter_returns_owned_experiments(self):
+        owned_exp = NimbusExperimentFactory.create(owner=self.user)
+        other_exp = NimbusExperimentFactory.create()
+
+        response = response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.OWNED}"
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(owned_exp, experiments)
+        self.assertNotIn(other_exp, experiments)
+
+    def test_filter_returns_subscribed_experiments(self):
+        other_user = UserFactory.create()
+        subscribed_exp = NimbusExperimentFactory.create(owner=other_user)
+        subscribed_exp.subscribers.add(self.user)
+
+        not_subscribed = NimbusExperimentFactory.create()
+
+        response = response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.SUBSCRIBED}"
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(subscribed_exp, experiments)
+        self.assertNotIn(not_subscribed, experiments)
+
+    def test_filter_returns_all_owned_and_subscribed_by_default(self):
+        owned = NimbusExperimentFactory.create(owner=self.user)
+        other_user = UserFactory.create()
+        subscribed = NimbusExperimentFactory.create(owner=other_user)
+        subscribed.subscribers.add(self.user)
+
+        unrelated = NimbusExperimentFactory.create()
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+        self.assertEqual(response.status_code, 200)
+
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(owned, experiments)
+        self.assertIn(subscribed, experiments)
+        self.assertNotIn(unrelated, experiments)
+
+    def test_filter_returns_all_deliveries_experiments(self):
+        owned = NimbusExperimentFactory.create(owner=self.user)
+        other_user = UserFactory.create()
+        subscribed = NimbusExperimentFactory.create(owner=other_user)
+        subscribed.subscribers.add(self.user)
+
+        unrelated = NimbusExperimentFactory.create()
+
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.ALL}"
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(owned, experiments)
+        self.assertIn(subscribed, experiments)
+        self.assertNotIn(unrelated, experiments)
