@@ -31,6 +31,13 @@ pings_path: str = "./telemetry/pings.yaml"
 metrics_path: str = "./telemetry/metrics.yaml"
 
 cirrus_sentry_dsn: str = cast(str, config("CIRRUS_SENTRY_DSN", default=""))
+cirrus_sentry_traces_sample_rate: float = float(
+    config("CIRRUS_SENTRY_TRACES_SAMPLE_RATE", default=0.25)  # type: ignore
+)
+cirrus_sentry_profiles_sample_rate: float = float(
+    config("CIRRUS_SENTRY_PROFILES_SAMPLE_RATE", default=0.25)  # type: ignore
+)
+
 instance_name: str = cast(
     str, config("CIRRUS_INSTANCE_NAME", default="instance name not defined")
 )
