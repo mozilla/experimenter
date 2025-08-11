@@ -126,7 +126,7 @@ features:
       search-bar:
         description: "If true, enables the search bar feature on homepage for users.\n"
         type: Boolean
-        default: false
+        default: true
       shortcuts-library:
         description: "If true, enables the shortcuts library feature, accessible from the homepage\n"
         type: Boolean
@@ -134,7 +134,7 @@ features:
       stories-redesign:
         description: "If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)\n"
         type: Boolean
-        default: false
+        default: true
   hosted-summarizer-feature:
     description: "This feature enables the hosted summarizer feature.\n"
     variables:
