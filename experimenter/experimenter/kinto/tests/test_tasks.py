@@ -5,6 +5,7 @@ from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
+from kinto_http import KintoException
 from parameterized import parameterized
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -1201,7 +1202,7 @@ class TestNimbusEndExperimentInKinto(
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature_config],
         )
-        self.mock_kinto_client.delete_record.side_effect = Exception
+        self.mock_kinto_client.delete_record.side_effect = Exception("test exception")
         with self.assertRaises(Exception):
             tasks.nimbus_end_experiment_in_kinto(
                 settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
@@ -1229,6 +1230,60 @@ class TestNimbusEndExperimentInKinto(
                 "message": NimbusChangeLog.Messages.DELETING_FROM_KINTO,
             },
         )
+
+    @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
+    def test_end_experiment_in_kinto_with_404_moves_to_waiting(
+        self, feature_slug, target_collection, *_unused
+    ):
+        feature_config = create_desktop_feature(feature_slug)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+
+        exception = KintoException()
+        exception.response = mock.Mock()
+        exception.response.status_code = 404
+        self.mock_kinto_client.delete_record.side_effect = exception
+
+        tasks.nimbus_end_experiment_in_kinto(target_collection, experiment.id)
+
+        self.mock_kinto_client.delete_record.assert_called_with(
+            id=experiment.slug,
+            collection=target_collection,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+        self._assert_experiment_status_changed(
+            experiment,
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.LIVE,
+            old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            new_publish_status=NimbusExperiment.PublishStatus.WAITING,
+            filter_kwargs={
+                "message": NimbusChangeLog.Messages.DELETING_FROM_KINTO,
+            },
+        )
+
+    @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
+    def test_end_experiment_in_kinto_with_non_404_reraises(
+        self, feature_slug, target_collection, *_unused
+    ):
+        feature_config = create_desktop_feature(feature_slug)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+
+        exception = KintoException("test exception")
+        exception.response = mock.Mock()
+        exception.response.status_code = 400
+        self.mock_kinto_client.delete_record.side_effect = exception
+
+        with self.assertRaises(KintoException):
+            tasks.nimbus_end_experiment_in_kinto(target_collection, experiment.id)
 
 
 class TestNimbusSynchronizePreviewExperimentsInKinto(

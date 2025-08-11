@@ -3,6 +3,7 @@ from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone
+from kinto_http import KintoException
 
 from experimenter.celery import app
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -365,7 +366,18 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
         logger.info(f"Deleting {experiment.slug} from Kinto")
 
         kinto_client = KintoClient(collection)
-        kinto_client.delete_record(experiment.slug)
+
+        try:
+            kinto_client.delete_record(experiment.slug)
+        except KintoException as e:
+            if (
+                hasattr(e, "response")
+                and e.response is not None
+                and e.response.status_code == 404
+            ):
+                logger.info(f"{experiment.slug} already deleted from Kinto")
+            else:
+                raise e
 
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
