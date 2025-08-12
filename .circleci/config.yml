@@ -112,7 +112,7 @@ commands:
             echo "export GH_TOKEN=\"${GH_TOKEN}\"" >> "$BASH_ENV"
             git config --global user.email "experimenter-ci-bot@mozilla.com"
             git config --global user.name "Experimenter CircleCI Bot"
-            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/b4handjr/experimenter.git
+            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/mozilla/experimenter.git
             gh auth setup-git
             gh auth status
             gh config set git_protocol https
