@@ -316,6 +316,41 @@ class MyDeliveriesChoices(models.TextChoices):
     SUBSCRIBED = "AllSubscribed", "All Subscribed"
 
 
+class HomeSortChoices(models.TextChoices):
+    NAME_UP = "name", "Name"
+    NAME_DOWN = "-name", "Name"
+    STATUS_UP = "status", "Status"
+    STATUS_DOWN = "-status", "Status"
+    QA_UP = "qa_status", "QA"
+    QA_DOWN = "-qa_status", "QA"
+    APPLICATION_UP = "application", "Application"
+    APPLICATION_DOWN = "-application", "Application"
+    TYPE_UP = "is_rollout", "Type"
+    TYPE_DOWN = "-is_rollout", "Type"
+    CHANNEL_UP = "channel", "Channel"
+    CHANNEL_DOWN = "-channel", "Channel"
+    SIZE_UP = "population_percent", "Size"
+    SIZE_DOWN = "-population_percent", "Size"
+    DATES_UP = "_start_date", "Dates"
+    DATES_DOWN = "-_start_date", "Dates"
+    VERSIONS_UP = "firefox_min_version", "Versions"
+    VERSIONS_DOWN = "-firefox_min_version", "Versions"
+    FEATURES_UP = "feature_configs__slug", "Features"
+    FEATURES_DOWN = "-feature_configs__slug", "Features"
+    RESULTS_UP = "results_data", "Results"
+    RESULTS_DOWN = "-results_data", "Results"
+
+
+HOME_SORTABLE_HEADERS = []
+seen = set()
+
+for choice in HomeSortChoices:
+    field = choice.value.lstrip("-")
+    if field not in seen:
+        HOME_SORTABLE_HEADERS.append((field, choice.label))
+        seen.add(field)
+
+
 class NimbusExperimentsHomeFilter(django_filters.FilterSet):
     my_deliveries_status = django_filters.ChoiceFilter(
         label="",
@@ -324,10 +359,15 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
         empty_label=None,
         widget=forms.Select(attrs={"class": "form-select form-select-sm"}),
     )
+    sort = django_filters.ChoiceFilter(
+        method="filter_sort",
+        choices=HomeSortChoices.choices,
+        widget=forms.HiddenInput,
+    )
 
     class Meta:
         model = NimbusExperiment
-        fields = ["my_deliveries_status"]
+        fields = ["my_deliveries_status", "sort"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -344,3 +384,6 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
                 return queryset.filter(subscribers=user)
             case _:
                 return queryset  # Default = All Deliveries
+
+    def filter_sort(self, queryset, name, value):
+        return queryset.order_by(value)

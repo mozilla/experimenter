@@ -7,6 +7,7 @@ from experimenter.experiments.tests.factories import (
     generate_nimbus_changelog,
 )
 from experimenter.nimbus_ui.filtersets import (
+    HomeSortChoices,
     MyDeliveriesChoices,
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
@@ -153,3 +154,15 @@ class TestHomeFilters(AuthTestCase):
         self.assertIn(owned, experiments)
         self.assertIn(subscribed, experiments)
         self.assertNotIn(unrelated, experiments)
+
+    def test_all_home_sort_choices_do_not_error(self):
+        for i, sort_choice in enumerate(HomeSortChoices):
+            with self.subTest(sort=sort_choice.value):
+                NimbusExperimentFactory.create(
+                    owner=self.user,
+                    name=f"Sort Test {i}",
+                )
+                response = self.client.get(
+                    f"{reverse('nimbus-ui-home')}?sort={sort_choice.value}"
+                )
+                self.assertEqual(response.status_code, 200)
