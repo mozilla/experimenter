@@ -4642,6 +4642,13 @@ certCompression:
         pref: security.tls.enable_certificate_compression_brotli
       description: >-
         Whether to enable Brotli for TLS certificate compression.
+    h3EnableBrotli:
+      type: boolean
+      setPref:
+        branch: default
+        pref: network.http.http3.enable_certificate_compression_brotli
+      description: >-
+        Whether to enable Brotli for H3/QUIC certificate compression.
     tlsEnableZstd:
       type: boolean
       setPref:
@@ -5157,6 +5164,13 @@ ipProtection:
         pref: browser.ipProtection.enabled
       description: >-
         Enables the IP Protection feature.
+    variant:
+      type: string
+      setPref:
+        branch: default
+        pref: browser.ipProtection.variant
+      description: >-
+        What variant of the feature to use.
 
 webApps:
   description: Enables or disables web apps.
