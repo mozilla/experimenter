@@ -1,0 +1,36 @@
+name: Experimenter -- Build, Tag and Push Container Images to GAR Repository
+
+on:
+  pull_request:
+    types: [labeled, unlabeled, synchronize]
+    paths:
+      - 'experimenter/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'experimenter/**'
+  workflow_dispatch: {}
+
+jobs:
+  build-and-push:
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, 'preview') &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      )
+    permissions:
+      contents: read
+      id-token: write        
+    secrets: inherit
+    uses: mozilla-it/deploy-actions/.github/workflows/build-and-push.yml@main
+    with:
+      image_name: experimenter
+      gar_name: experimenter-prod
+      project_id: moz-fx-experimenter-prod-6cd5
+      image_build_context: "./experimenter/"
+      should_tag_latest: true
+      prebuild_script: "./scripts/store_git_info.sh"
