@@ -737,6 +737,25 @@
                 "$ref": "#/$defs/linkUrl"
               }
             },
+            "linkActions": {
+              "description": "Map of Fluent data-l10n-name keys to a Special Message Action dispatched when the link is clicked (in addition to opening the URL).",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "SpecialMessageActions action type"
+                  },
+                  "data": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              }
+            },
             "style": {
               "description": "Optional CSS overrides for this infobar. Currently, only `background-color` and `font-size` may be set. `background-color` will only apply when the user does not prefer high-contrast.",
               "type": "object",
