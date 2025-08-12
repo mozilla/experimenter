@@ -1,5 +1,7 @@
-# First stage: Build Python environment with dependencies
-FROM python:3.11-slim-bullseye as python-builder
+# python-builder
+# --------------
+# This image gathers all the required Python dependencies.
+FROM python:3.11-slim-bullseye AS python-builder
 
 # Set working directory for the container
 WORKDIR /cirrus
@@ -14,7 +16,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/sh -s -- -y
 ENV PATH=$PATH:/root/.cargo/bin
 
 # Install poetry package management tool
-RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.6.0
+RUN curl -sSL https://install.python-poetry.org | python3 - --version 2.1.1
 
 # Add poetry to PATH environment variable
 ENV PATH="/root/.local/bin:$PATH"
@@ -27,8 +29,33 @@ COPY poetry.lock /cirrus/
 RUN poetry config virtualenvs.create false && \
     poetry install --only=main --no-interaction --no-ansi
 
-# Second stage: Deploy stage
-FROM python:3.11-slim-bullseye as deploy
+# dev image
+# ---------
+# The dev image contains the regular cirrus image, plus additional developer
+# tools (e.g., poetry) that are not suitable for a deployment.
+FROM python-builder AS dev
+
+WORKDIR /cirrus
+
+# Copy specific Rust components
+COPY --from=experimenter:megazords /application-services/megazords/cirrus/libcirrus.so /application-services/libcirrus.so
+COPY --from=experimenter:megazords /application-services/megazords/cirrus/cirrus.py /application-services/cirrus_sdk.py
+COPY --from=experimenter:megazords /application-services/megazords/cirrus/fml.py /application-services/fml_sdk.py
+
+ENV PYTHONPATH=$PYTHONPATH:/application-services
+
+# Copy fml files
+COPY --from=fml . /fml/
+
+# Copy all other files into the container's working directory
+COPY . .
+
+
+# deploy
+# ------
+# This image contains a lightweight container intended for deployment.
+
+FROM python:3.11-slim-bullseye AS deploy
 
 # Create a non-root user
 ARG USERNAME=cirrus
