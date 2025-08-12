@@ -81,7 +81,7 @@ pytest = "^8.4.0"
 rope = "^0.23.0"
 
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry>=2.1.1"]
 build-backend = "poetry.masonry.api"
 
 [tool.pyright]
