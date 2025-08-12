@@ -120,6 +120,9 @@ homepage-redesign-feature:
   hasExposure: true
   exposureDescription: ""
   variables:
+    discover-more-feature-configuration:
+      type: json
+      description: "A configuration for the Discover More feature\n"
     enabled:
       type: boolean
       description: "Enables the feature.\n"
