@@ -13,8 +13,8 @@ from experimenter.experiments.models import (
 )
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
-    HOME_SORTABLE_HEADERS,
     STATUS_FILTERS,
+    HomeSortChoices,
     NimbusExperimentFilter,
     NimbusExperimentsHomeFilter,
     SortChoices,
@@ -664,5 +664,13 @@ class NimbusExperimentsHomeView(FilterView):
 
         context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
         context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
-        context["sortable_headers"] = HOME_SORTABLE_HEADERS
+
+        seen = set()
+        headers = []
+        for choice in HomeSortChoices:
+            field = choice.value.lstrip("-")
+            if field not in seen:
+                headers.append((field, choice.label))
+                seen.add(field)
+        context["sortable_headers"] = headers
         return context

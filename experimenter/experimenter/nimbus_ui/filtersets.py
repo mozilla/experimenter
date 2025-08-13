@@ -341,16 +341,6 @@ class HomeSortChoices(models.TextChoices):
     RESULTS_DOWN = "-results_data", "Results"
 
 
-HOME_SORTABLE_HEADERS = []
-seen = set()
-
-for choice in HomeSortChoices:
-    field = choice.value.lstrip("-")
-    if field not in seen:
-        HOME_SORTABLE_HEADERS.append((field, choice.label))
-        seen.add(field)
-
-
 class NimbusExperimentsHomeFilter(django_filters.FilterSet):
     my_deliveries_status = django_filters.ChoiceFilter(
         label="",
