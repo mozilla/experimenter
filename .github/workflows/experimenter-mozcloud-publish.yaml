@@ -12,8 +12,12 @@ on:
       - 'experimenter/**'
   workflow_dispatch: {}
 
+env:
+  PROJECT_ID: moz-fx-experimenter-prod-6cd5
+  IMAGE_BASE: us-docker.pkg.dev/moz-fx-experimenter-prod-6cd5/experimenter-prod/experimenter
+
 jobs:
-  build-and-push:
+  build_and_push:
     if: >
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
@@ -22,15 +26,51 @@ jobs:
         contains(github.event.pull_request.labels.*.name, 'preview') &&
         github.event.pull_request.head.repo.full_name == github.repository
       )
-    permissions:
-      contents: read
-      id-token: write        
-    secrets: inherit
-    uses: mozilla-it/deploy-actions/.github/workflows/build-and-push.yml@main
-    with:
-      image_name: experimenter
-      gar_name: experimenter-prod
-      project_id: moz-fx-experimenter-prod-6cd5
-      image_build_context: "./experimenter/"
-      should_tag_latest: true
-      prebuild_script: "./scripts/store_git_info.sh"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.sha) || github.ref }}
+          persist-credentials: false
+          fetch-tags: true
+
+      - name: Build (make build_prod)
+        run: |
+          ./scripts/store_git_info.sh
+          make build_prod
+
+      # Generate MozCloud Tag (use tag name on tag events, else 10-char short SHA)
+      - name: Generate MozCloud Tag
+        id: mozcloud-tag
+        shell: bash
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "${REF_TYPE}" == "tag" ]]; then
+            tag="${REF_NAME}"
+          else
+            tag="$(git rev-parse --short=10 HEAD)"
+          fi
+
+          echo "Setting IMAGE_TAG=${tag} as output"
+          echo "image_tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Tag image(s) for GAR
+        id: meta
+        shell: bash
+        run: |
+          IMAGE_TAG="${{ steps.mozcloud-tag.outputs.image_tag }}"
+          # Re-tag the image built by make build_prod (experimenter:deploy)
+          docker tag experimenter:deploy "${IMAGE_BASE}:latest"
+          docker tag experimenter:deploy "${IMAGE_BASE}:${IMAGE_TAG}"
+          echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Push to Google Artifact Registry
+        uses: mozilla-it/deploy-actions/docker-push@v4.3.2
+        with:
+          image_tags: |
+            ${{ env.IMAGE_BASE }}:latest
+            ${{ env.IMAGE_BASE }}:${{ steps.meta.outputs.image_tag }}
+          workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+          project_id: ${{ env.PROJECT_ID }}
