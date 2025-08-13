@@ -316,6 +316,14 @@ start-at-home-feature:
         - afterFourHours
         - always
         - disabled
+tab-scroll-refactor-feature:
+  description: "The feature flag to manage the rollout of tab scroll refactor feature.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, tab scroll new implementation is used to show and hide toolbar views reacting to user scroll\n"
 tab-tray-ui-experiments:
   description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
   hasExposure: true
