@@ -3065,6 +3065,27 @@ TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN10_FIREFOX_VPN_ELIGIBLE = NimbusTargetingConfig(
+    name="Windows 10 users eligible for Firefox VPN",
+    slug="win10_firefox_vpn",
+    description=(
+        "Windows 10 users who are signed out, at least 7 days old, "
+        "no enterprise, default newtab, no adblock"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion == 10 && "
+        "isFxAEnabled && !isFxASignedIn && "
+        f"{NO_ENTERPRISE.targeting} && "
+        f"{PROFILEMORETHAN7DAYS} && "
+        "'network.proxy.type'|preferenceValue != 2 && "
+        '!("e6eb0d1e856335fc" in attachedFxAOAuthClients|mapToProperty("id"))'
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
