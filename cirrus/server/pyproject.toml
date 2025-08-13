@@ -2,7 +2,8 @@
 name = "cirrus"
 version = "0.1.0"
 description = ""
-authors = [""]
+authors = ["Mozilla"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10.10"
@@ -23,6 +24,10 @@ glean-sdk = "^53.2.0"
 pytest-mock = "^3.14.0"
 mozilla-nimbus-shared = "^2.5.2"
 sentry-sdk = "^2.34.1"
+
+[build-system]
+requires = ["poetry>=2.1.1"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
 typeCheckingMode = "strict"

@@ -1629,14 +1629,14 @@ zcml = ["zope.configuration", "zope.i18nmessageid"]
 
 [[package]]
 name = "zope-deferredimport"
-version = "5.0"
+version = "5.1"
 description = "zope.deferredimport allows you to perform imports names that will only be resolved when used in the code."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "zope.deferredimport-5.0-py3-none-any.whl", hash = "sha256:b26e013b02fd1ee3e26510db66a737105128e48a0d348490f7c901ffd1928f25"},
-    {file = "zope.deferredimport-5.0.tar.gz", hash = "sha256:3abbf0e18c1f1765914ecd1d41b549e4d045b21b28e4065fb0c1de0ad736b2c3"},
+    {file = "zope_deferredimport-5.1-py3-none-any.whl", hash = "sha256:ecbea24c6801eee56bbc06d64262a541c2bd10b9653bcae69e6d33c010868056"},
+    {file = "zope_deferredimport-5.1.tar.gz", hash = "sha256:9a4781b4382cbdb53f661a2b45a0acca8c22b5af835a49f99b548ac9c16d06ef"},
 ]
 
 [package.dependencies]
@@ -1850,4 +1850,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "8440d98656eb0caf9e46394d56907e3700685ee63fef235cf4029fa694eea8a4"
+content-hash = "8cd2b2f0e7387d2620017e1481dffcb7c5249ce83d8c96919e7b90c6636ea508"
