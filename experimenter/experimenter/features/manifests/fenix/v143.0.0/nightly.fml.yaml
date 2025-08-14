@@ -92,7 +92,7 @@ features:
       show-ui:
         description: "When `true`, include DoH settings in the settings UI.\n"
         type: Boolean
-        default: false
+        default: true
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
