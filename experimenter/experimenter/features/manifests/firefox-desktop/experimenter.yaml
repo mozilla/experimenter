@@ -1013,7 +1013,7 @@ newtabAdSizingExperiment:
         Medium rectangle (MREC) ad size and UI.
 
 newtabPromoCard:
-  description: about:newtab reporting ads feature
+  description: the promo card that appears next to the ad banner
   owner: achurchwell@mozilla.com
   hasExposure: false
   variables:
@@ -1774,20 +1774,6 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.onboardingExperience.enabled
       description: >-
         Enables an onboarding experience for Pocket section on newtab.
-    essentialReadsHeader:
-      type: boolean
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.essentialReadsHeader.enabled
-      description: >-
-        Updates the Pocket section header and title to say "Today’s Essential Reads",
-        moves the "Recommended by Pocket" header to the right side.
-    editorsPicksHeader:
-      type: boolean
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.editorsPicksHeader.enabled
-      description: >-
-        Updates the Pocket section header and title to say "Editor’s Picks", if used with
-        essentialReadsHeader, creates a second section 2 rows down for editorsPicksHeader.
     recentSavesEnabled:
       type: boolean
       fallbackPref: >-
@@ -2985,6 +2971,18 @@ localNetworkAccess:
       setPref:
         branch: default
         pref: "network.lna.block_trackers"
+    lnaPromptsEnabled:
+      description: Whether we should prompt users for permission whenever we detect local network access.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.lna.blocking"
+    lnaFeatureEnabled:
+      description: Blanket flag to enable/disable LNA sub-features.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.lna.enabled"
 
 essentialFallbackDomains:
   description: "Whether to retry failing system requests with a backup domain"
@@ -3789,6 +3787,18 @@ mixedContentUpgrading:
       setPref:
         branch: default
         pref: security.mixed_content.upgrade_display_content
+
+unexpectedScriptLoadNotificationBar:
+  description: Pref to control whether we show the Unexpected Script Load Notification Bar
+  owner: tritter@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: True if we want to disable the notification bar
+      type: boolean
+      setPref:
+        branch: default
+        pref: security.hide_parent_unrestricted_js_loads_warning.temporary
 
 gc:
   description: Prefs that control gc heuristics.
