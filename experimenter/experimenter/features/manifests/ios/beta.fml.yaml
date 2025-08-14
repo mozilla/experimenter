@@ -652,6 +652,13 @@ features:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
         default: afterFourHours
+  tab-scroll-refactor-feature:
+    description: "The feature flag to manage the rollout of tab scroll refactor feature.\n"
+    variables:
+      enabled:
+        description: "If true, tab scroll new implementation is used to show and hide toolbar views reacting to user scroll\n"
+        type: Boolean
+        default: false
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
