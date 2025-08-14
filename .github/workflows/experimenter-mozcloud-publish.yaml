@@ -73,7 +73,7 @@ jobs:
       - name: Push to Google Artifact Registry
         uses: mozilla-it/deploy-actions/docker-push@v4.3.2
         with:
-          image_tags: |
+          image_tags: |-
             ${{ env.IMAGE_BASE }}:latest
             ${{ env.IMAGE_BASE }}:${{ steps.meta.outputs.image_tag }}
           workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
