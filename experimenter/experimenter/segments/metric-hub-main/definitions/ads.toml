@@ -8,8 +8,8 @@ description = "Average cost per click (paid to Mozilla, in USD). Calculated as C
 
 [metrics.amp_revenue]
 data_source = "admarketplace"
-select_expression = "SUM(billed_revenue)"
-friendly_name = "Billed Revenue"
+select_expression = "SUM(revenue)"
+friendly_name = "Revenue"
 description = "Total amount paid to Mozilla in USD."
 
 [metrics.amp_valid_clicks]
@@ -24,30 +24,17 @@ select_expression = "SUM(valid_impressions)"
 friendly_name = "Total Valid Impressions"
 description = "Total number of valid impressions recorded."
 
-[metrics.amp_rpm_rate]
-data_source = "admarketplace"
-select_expression = "AVG(rpm_rate)"
-friendly_name = "RPM Rate"
-description = "Average revenue per thousand impressions (paid to Mozilla, in USD), calculated as RPM payout divided by valid impressions times 1000."
-
 [metrics.amp_cpc_rate]
 data_source = "admarketplace"
-select_expression = "SAFE_DIVIDE(SUM(billed_revenue), SUM(valid_clicks))"
+select_expression = "SAFE_DIVIDE(SUM(revenue), SUM(valid_clicks))"
 friendly_name = "CPC Rate"
 description = "Calculated as total payout divided by the number of valid clicks. Returns NULL if number of billed clicks is zero."
 
 [metrics.amp_revenue_per_thousand_impressions]
 data_source = "admarketplace"
-select_expression = "SAFE_DIVIDE(SUM(billed_revenue), SUM(valid_impressions)) * 1000"
+select_expression = "SAFE_DIVIDE(SUM(revenue), SUM(valid_impressions)) * 1000"
 friendly_name = "Revenue Per Thousand Impressions"
 description = "RPM Payout divided by the number of valid impressions times 1000. Returns NULL if number of valid impressions is zero."
-
-[metrics.amp_alternative_revenue]
-data_source = "admarketplace"
-select_expression = "SUM(alternative_revenue)"
-friendly_name = "Alternative Revenue"
-description = "Potential Revenue from the other report. Note that this is zero for all revenue coming from CPC since we don't get data for RPM for mobile tiles or instant suggestions."
-
 
 ### data_sources.ad_metrics_daily
 [metrics.ad_metrics_ad_impressions]
@@ -87,7 +74,7 @@ description = "Impressions in thousands"
 [data_sources]
 
 [data_sources.admarketplace]
-from_expression = "mozdata.revenue.admarketplace"
+from_expression = "mozdata.ads.admarketplace"
 client_id_column = "advertiser"
 friendly_name = "AdMarketplace"
 description = "Data source for AdMarketplace metrics. Includes dimensions such as advertiser, device, country, and more."
@@ -126,15 +113,9 @@ description = "Date field from the adM report. Not the date the report was sent 
 
 [dimensions.amp_created_date]
 data_source = "admarketplace"
-select_expression = "created_date"
+select_expression = "metadata.created_at"
 friendly_name = "Ingestion Date"
 description = "Date field created upon Ingestion."
-
-[dimensions.amp_file_date]
-data_source = "admarketplace"
-select_expression = "file_date"
-friendly_name = "File Date"
-description = "Date field tied to when the file was received."
 
 [dimensions.amp_advertiser]
 data_source = "admarketplace"
@@ -148,10 +129,16 @@ select_expression = "country_code"
 friendly_name = "Country Code"
 description = "Two-letter country code following the ISO 3166-1 alpha-2 standard."
 
-[dimensions.amp_device]
+[dimensions.amp_country_name]
 data_source = "admarketplace"
-select_expression = "device"
-friendly_name = "Device"
+select_expression = "country_name"
+friendly_name = "Country Name"
+description = "Name of the country the ad was displayed in."
+
+[dimensions.amp_surface]
+data_source = "admarketplace"
+select_expression = "surface"
+friendly_name = "Surface"
 description = "Device type from which the ad interaction originated."
 
 [dimensions.amp_partner_name]
@@ -159,12 +146,6 @@ data_source = "admarketplace"
 select_expression = "partner_name"
 friendly_name = "Partner Name"
 description = "Name of the partner associated with the ad data."
-
-[dimensions.amp_placement]
-data_source = "admarketplace"
-select_expression = "placement"
-friendly_name = "Placement"
-description = "Location or position where the ad was displayed."
 
 [dimensions.amp_product]
 data_source = "admarketplace"
