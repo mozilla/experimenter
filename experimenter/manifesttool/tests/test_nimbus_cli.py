@@ -1,5 +1,6 @@
-import subprocess
 import json
+import subprocess
+from dataclasses import dataclass
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
@@ -21,18 +22,45 @@ APP_CONFIG = AppConfig(
 )
 
 
+def get_app_config_by_type(repo_type: RepositoryType):
+    return AppConfig(
+        slug="slug",
+        repo=Repository(
+            type=repo_type,
+            name=None if repo_type == RepositoryType.LOCAL else "owner/repo",
+        ),
+        fml_path="path",
+    )
+
+
+@dataclass
+class MockRef:
+    target: str
+
+
 class NimbusCliTests(TestCase):
     """Tests for nimbus_cli."""
 
+    @parameterized.expand(
+        [
+            RepositoryType.GITHUB,
+            RepositoryType.LOCAL,
+        ]
+    )
     @patch.object(
         nimbus_cli.subprocess,
         "check_output",
         return_value=json.dumps(["staging", "prod"]),
     )
-    def test_get_channels(self, mock_cli):
+    def test_get_channels(self, repo_type, mock_cli):
         """Testing get_channels calls nimbus-cli with correct arguments."""
+        app_config = get_app_config_by_type(repo_type)
         self.assertEqual(
-            nimbus_cli.get_channels(APP_CONFIG, APP_CONFIG.fml_path, "0" * 40),
+            nimbus_cli.get_channels(
+                app_config,
+                app_config.fml_path,
+                None if repo_type == RepositoryType.LOCAL else MockRef("0" * 40),
+            ),
             ["staging", "prod"],
         )
         mock_cli.assert_called_with(
@@ -42,9 +70,11 @@ class NimbusCliTests(TestCase):
                 "--",
                 "channels",
                 "--json",
-                "--ref",
-                "0" * 40,
-                "@owner/repo/path",
+                *(
+                    ["path"]
+                    if repo_type == RepositoryType.LOCAL
+                    else ["--ref", "0" * 40, "@owner/repo/path"]
+                ),
             ],
             stderr=subprocess.PIPE,
         )
@@ -57,17 +87,18 @@ class NimbusCliTests(TestCase):
     def test_get_channels_invalid(self):
         "Testing get_channels handling of invalid JSON."
         with self.assertRaises(json.decoder.JSONDecodeError):
-            nimbus_cli.get_channels(APP_CONFIG, APP_CONFIG.fml_path, "channel")
+            nimbus_cli.get_channels(APP_CONFIG, APP_CONFIG.fml_path, MockRef("channel"))
 
     @parameterized.expand(
         [
-            (None, "slug/channel.fml.yaml"),
-            (Version(1), "slug/v1.0.0/channel.fml.yaml"),
-            (Version(1, 1), "slug/v1.1.0/channel.fml.yaml"),
-            (Version(1, 1, 1), "slug/v1.1.1/channel.fml.yaml"),
+            (RepositoryType.LOCAL, None, "slug/channel.fml.yaml"),
+            (RepositoryType.GITHUB, None, "slug/channel.fml.yaml"),
+            (RepositoryType.GITHUB, Version(1), "slug/v1.0.0/channel.fml.yaml"),
+            (RepositoryType.GITHUB, Version(1, 1), "slug/v1.1.0/channel.fml.yaml"),
+            (RepositoryType.GITHUB, Version(1, 1, 1), "slug/v1.1.1/channel.fml.yaml"),
         ]
     )
-    def test_download_single_file(self, version, fml_path):
+    def test_download_single_file(self, repo_type, version, fml_path):
         """Tesing download_single_file calls nimbus-cli with correct arguments."""
         with (
             TemporaryDirectory() as tmp,
@@ -76,12 +107,14 @@ class NimbusCliTests(TestCase):
             manifest_dir = Path(tmp)
             manifest_dir.joinpath("slug").mkdir()
 
+            app_config = get_app_config_by_type(repo_type)
+
             nimbus_cli.download_single_file(
                 manifest_dir,
-                APP_CONFIG,
-                APP_CONFIG.fml_path,
+                app_config,
+                app_config.fml_path,
                 "channel",
-                "0" * 40,
+                (None if repo_type == RepositoryType.LOCAL else MockRef("0" * 40)),
                 version,
             )
 
@@ -93,9 +126,11 @@ class NimbusCliTests(TestCase):
                     "single-file",
                     "--channel",
                     "channel",
-                    "--ref",
-                    "0" * 40,
-                    "@owner/repo/path",
+                    *(
+                        ["path"]
+                        if repo_type == RepositoryType.LOCAL
+                        else ["--ref", "0" * 40, "@owner/repo/path"]
+                    ),
                     str(manifest_dir / fml_path),
                 ],
                 stderr=subprocess.PIPE,
