@@ -2465,8 +2465,10 @@ TOU_TARGETING_ANDROID_CLICKED_A_PROMPT_LINK = NimbusTargetingConfig(
 
 TOU_TARGETING_ANDROID_CLICKED_REMIND_ME_LATER = NimbusTargetingConfig(
     name="Users that have clicked remind me later on the Terms of Use prompt.",
-    slug="user_clicked_tou_prompt_link",
-    description="Targeting users that have clicked remind me later on the Terms of Use prompt.",
+    slug="user_clicked_tou_prompt_link_remind_me_later",
+    description=(
+        "Targeting users that have clicked remind me later on the Terms of Use prompt."
+    ),
     targeting="user_clicked_tou_prompt_remind_me_later == true",
     desktop_telemetry="",
     sticky_required=False,
