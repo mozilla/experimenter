@@ -2453,9 +2453,9 @@ TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SHORTCUTS_STORIES_OR_MKT = (
 )
 
 TOU_TARGETING_ANDROID_CLICKED_A_PROMPT_LINK = NimbusTargetingConfig(
-    name="Users that have clicked a Terms of Use prompt link",
+    name="Users that have clicked a Terms of Use prompt link.",
     slug="user_clicked_tou_prompt_link",
-    description="Targeting users that have clicked a Terms of Use prompt link e.g. ",
+    description="Targeting users that have clicked a Terms of Use prompt link.",
     targeting="user_clicked_tou_prompt_link == true",
     desktop_telemetry="",
     sticky_required=False,
@@ -2464,9 +2464,9 @@ TOU_TARGETING_ANDROID_CLICKED_A_PROMPT_LINK = NimbusTargetingConfig(
 )
 
 TOU_TARGETING_ANDROID_CLICKED_REMIND_ME_LATER = NimbusTargetingConfig(
-    name="Users that have clicked remind me later on the Terms of Use prompt",
+    name="Users that have clicked remind me later on the Terms of Use prompt.",
     slug="user_clicked_tou_prompt_link",
-    description="Targeting users that have clicked remind me later on the Terms of Use prompt",
+    description="Targeting users that have clicked remind me later on the Terms of Use prompt.",
     targeting="user_clicked_tou_prompt_remind_me_later == true",
     desktop_telemetry="",
     sticky_required=False,
