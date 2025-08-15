@@ -238,11 +238,17 @@ class NimbusExperimentsListTableView(NimbusExperimentsListView):
 def build_experiment_context(experiment):
     outcome_doc_base_url = "https://mozilla.github.io/metric-hub/outcomes/"
     primary_outcome_links = [
-        (outcome, f"{outcome_doc_base_url}{experiment.application}/{outcome}")
+        (
+            outcome,
+            f"{outcome_doc_base_url}{experiment.application.replace('-', '_')}/{outcome}",
+        )
         for outcome in experiment.primary_outcomes
     ]
     secondary_outcome_links = [
-        (outcome, f"{outcome_doc_base_url}{experiment.application}/{outcome}")
+        (
+            outcome,
+            f"{outcome_doc_base_url}{experiment.application.replace('-', '_')}/{outcome}",
+        )
         for outcome in experiment.secondary_outcomes
     ]
 

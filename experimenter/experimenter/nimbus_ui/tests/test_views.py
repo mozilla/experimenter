@@ -1080,21 +1080,21 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         expected_primary_links = [
             (
                 "outcome1",
-                "https://mozilla.github.io/metric-hub/outcomes/firefox-desktop/outcome1",
+                "https://mozilla.github.io/metric-hub/outcomes/firefox_desktop/outcome1",
             ),
             (
                 "outcome2",
-                "https://mozilla.github.io/metric-hub/outcomes/firefox-desktop/outcome2",
+                "https://mozilla.github.io/metric-hub/outcomes/firefox_desktop/outcome2",
             ),
         ]
         expected_secondary_links = [
             (
                 "outcome3",
-                "https://mozilla.github.io/metric-hub/outcomes/firefox-desktop/outcome3",
+                "https://mozilla.github.io/metric-hub/outcomes/firefox_desktop/outcome3",
             ),
             (
                 "outcome4",
-                "https://mozilla.github.io/metric-hub/outcomes/firefox-desktop/outcome4",
+                "https://mozilla.github.io/metric-hub/outcomes/firefox_desktop/outcome4",
             ),
         ]
         expected_segment_links = [
