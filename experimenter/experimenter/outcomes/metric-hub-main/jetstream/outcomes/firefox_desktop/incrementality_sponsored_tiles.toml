@@ -1,0 +1,18 @@
+friendly_name = "Incrementality Sponsored Tiles"
+description = "Interaction metrics for sponsored tiles specifically for incrementality tests."
+
+[metrics.sponsored_tiles_disabled.statistics.binomial]
+[metrics.any_sponsored_tiles_dismissals.statistics.binomial]
+
+[metrics.sponsored_tiles_dismissals.statistics.bootstrap_mean]
+[metrics.sponsored_tiles_dismissals.statistics.deciles]
+
+[metrics.sponsored_tile_clicks.statistics.bootstrap_mean]
+[metrics.sponsored_tile_clicks.statistics.deciles]
+
+[metrics.sponsored_tile_impressions.statistics.bootstrap_mean]
+[metrics.sponsored_tile_impressions.statistics.deciles]
+
+[metrics.sponsored_tile_ctr.statistics.population_ratio]
+numerator='sponsored_tile_clicks'
+denominator='sponsored_tile_impressions'
