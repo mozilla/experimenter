@@ -671,12 +671,5 @@ class NimbusExperimentsHomeView(FilterView):
         context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
         context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
 
-        seen = set()
-        headers = []
-        for choice in HomeSortChoices:
-            field = choice.value.lstrip("-")
-            if field not in seen:
-                headers.append((field, choice.label))
-                seen.add(field)
-        context["sortable_headers"] = headers
+        context["sortable_headers"] = HomeSortChoices.sortable_headers()
         return context
