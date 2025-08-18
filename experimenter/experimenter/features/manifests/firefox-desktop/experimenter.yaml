@@ -268,31 +268,14 @@ urlbar:
       description: >-
         Feature gate that controls whether result deduplication in the urlbar
         is enabled.
+    # TODO Bug 1982966: Remove this after all experiments and rollouts using it
+    # finish.
     fakespotFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.fakespot.featureGate
       description: >-
         Feature gate that controls whether all aspects of the Fakespot suggestion
         feature are exposed to the user.
-    fakespotMinKeywordLength:
-      type: int
-      description: >-
-        The minimum prefix length of a Fakespot keyword the user must type to
-        trigger the suggestion.
-    fakespotShowLessFrequentlyCap:
-      type: int
-      fallbackPref: browser.urlbar.fakespot.showLessFrequentlyCap
-      description: >-
-        If defined and non-zero, this is the maximum number of times the user
-        will be able to click the "Show less frequently" command for Fakespot
-        suggestions. If undefined or zero, the user will be able to click the
-        command without any limit.
-    fakespotSuggestedIndex:
-      type: int
-      fallbackPref: browser.urlbar.fakespot.suggestedIndex
-      description: >-
-        The index of Fakespot results within the Firefox Suggest section. A
-        negative index is relative to the end of the section.
     keywordExposureResults:
       type: string
       setPref:
@@ -1774,12 +1757,6 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.onboardingExperience.enabled
       description: >-
         Enables an onboarding experience for Pocket section on newtab.
-    recentSavesEnabled:
-      type: boolean
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.recentSaves.enabled
-      description: >-
-        Updates the Pocket section with a new header and 1 row of recently saved Pocket stories.
     readTime:
       type: boolean
       fallbackPref: >-
@@ -2009,12 +1986,6 @@ saveToPocket:
         branch: user
         pref: extensions.pocket.refresh.emailButton.enabled
       description: Just for the new Pocket panels, enables the email signup button.
-    hideRecentSaves:
-      type: boolean
-      setPref:
-        branch: user
-        pref: extensions.pocket.refresh.hideRecentSaves.enabled
-      description: Hides the recently saved section in the home panel.
     bffRecentSaves:
       type: boolean
       setPref:
