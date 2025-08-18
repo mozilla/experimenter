@@ -76,17 +76,10 @@
                      class="table table-hover table-borderless align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>QA</th>
-                    <th>Application</th>
-                    <th>Type</th>
-                    <th>Channel</th>
-                    <th>Size</th>
-                    <th>Dates</th>
-                    <th>Versions</th>
-                    <th>Features</th>
-                    <th>Results</th>
+                    {% for field, label in sortable_headers %}
+                      {% include "common/home_sortable_header.html" with field=field label=label form=my_deliveries_filter.form url=request.path hx_target="#my-deliveries-table-section" hx_select="#my-deliveries-table-section" current_sort=request.GET.sort %}
+
+                    {% endfor %}
                   </tr>
                 </thead>
                 <tbody>
@@ -154,25 +147,35 @@
               </table>
             </div>
             {% if all_my_experiments_page.has_other_pages %}
-              <nav class="mt-3">
-                <ul class="pagination pagination-sm justify-content-center">
-                  {% if all_my_experiments_page.has_previous %}
-                    <li class="page-item">
-                      <a class="page-link"
-                         href="?my_deliveries_page={{ all_my_experiments_page.previous_page_number }}">Previous</a>
+              {% with current_sort=request.GET.sort %}
+                <nav class="mt-3">
+                  <ul class="pagination pagination-sm justify-content-center">
+                    {% if all_my_experiments_page.has_previous %}
+                      <li class="page-item">
+                        <a class="page-link"
+                           hx-get="?my_deliveries_page={{ all_my_experiments_page.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                           hx-target="#my-deliveries-table-section"
+                           hx-select="#my-deliveries-table-section"
+                           hx-push-url="true">Previous</a>
+                      </li>
+                    {% endif %}
+                    <li class="page-item disabled">
+                      <span class="page-link">
+                        Page {{ all_my_experiments_page.number }} of {{ all_my_experiments_page.paginator.num_pages }}
+                      </span>
                     </li>
-                  {% endif %}
-                  <li class="page-item disabled">
-                    <span class="page-link">Page {{ all_my_experiments_page.number }} of {{ all_my_experiments_page.paginator.num_pages }}</span>
-                  </li>
-                  {% if all_my_experiments_page.has_next %}
-                    <li class="page-item">
-                      <a class="page-link"
-                         href="?my_deliveries_page={{ all_my_experiments_page.next_page_number }}">Next</a>
-                    </li>
-                  {% endif %}
-                </ul>
-              </nav>
+                    {% if all_my_experiments_page.has_next %}
+                      <li class="page-item">
+                        <a class="page-link"
+                           hx-get="?my_deliveries_page={{ all_my_experiments_page.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                           hx-target="#my-deliveries-table-section"
+                           hx-select="#my-deliveries-table-section"
+                           hx-push-url="true">Next</a>
+                      </li>
+                    {% endif %}
+                  </ul>
+                </nav>
+              {% endwith %}
             {% endif %}
           {% else %}
             <div class="text-center text-muted py-5">

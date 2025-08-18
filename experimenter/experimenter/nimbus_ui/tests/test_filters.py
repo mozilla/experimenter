@@ -1,12 +1,18 @@
+import datetime
+
 from django.test import TestCase
 from django.urls import reverse
+from parameterized import parameterized
 
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
     UserFactory,
     generate_nimbus_changelog,
 )
 from experimenter.nimbus_ui.filtersets import (
+    HomeSortChoices,
     MyDeliveriesChoices,
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
@@ -153,3 +159,98 @@ class TestHomeFilters(AuthTestCase):
         self.assertIn(owned, experiments)
         self.assertIn(subscribed, experiments)
         self.assertNotIn(unrelated, experiments)
+
+    @parameterized.expand([(c.value,) for c in HomeSortChoices])
+    def test_all_home_sort_choices_do_not_error(self, sort_value):
+        NimbusExperimentFactory.create(owner=self.user, name="Sort Smoke")
+        response = self.client.get(f"{reverse('nimbus-ui-home')}?sort={sort_value}")
+        self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(
+        [
+            (HomeSortChoices.NAME_UP, HomeSortChoices.NAME_DOWN),
+            (HomeSortChoices.APPLICATION_UP, HomeSortChoices.APPLICATION_DOWN),
+            (HomeSortChoices.TYPE_UP, HomeSortChoices.TYPE_DOWN),
+            (HomeSortChoices.CHANNEL_UP, HomeSortChoices.CHANNEL_DOWN),
+            (HomeSortChoices.SIZE_UP, HomeSortChoices.SIZE_DOWN),
+            (HomeSortChoices.VERSIONS_UP, HomeSortChoices.VERSIONS_DOWN),
+        ]
+    )
+    def test_sorting_changes_first_row_for_choice(self, sort_up, sort_down):
+        low = NimbusExperimentFactory.create(
+            owner=self.user,
+            name="A Low",
+            application=NimbusExperiment.Application.FENIX,
+            is_rollout=False,
+            channel=NimbusExperiment.Channel.BETA,
+            population_percent=5,
+            firefox_min_version=120,
+        )
+        high = NimbusExperimentFactory.create(
+            owner=self.user,
+            name="Z High",
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            channel=NimbusExperiment.Channel.RELEASE,
+            population_percent=50,
+            firefox_min_version=130,
+        )
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?sort={sort_up.value}")
+        self.assertEqual(resp.status_code, 200)
+        page = resp.context["all_my_experiments_page"].object_list
+        self.assertGreaterEqual(len(page), 2)
+        self.assertEqual(page[0].id, low.id, f"{sort_up} should surface 'low'")
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?sort={sort_down.value}")
+        self.assertEqual(resp.status_code, 200)
+        page = resp.context["all_my_experiments_page"].object_list
+        self.assertGreaterEqual(len(page), 2)
+        self.assertEqual(page[0].id, high.id, f"{sort_down} should surface 'high'")
+
+    def test_sorting_by_dates_uses_start_date(self):
+        older = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date(2024, 1, 1),
+            owner=self.user,
+        )
+        newer = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date(2024, 1, 2),
+            owner=self.user,
+        )
+        resp = self.client.get(
+            f"{reverse('nimbus-ui-home')}?sort={HomeSortChoices.DATES_UP.value}"
+        )
+        self.assertEqual(resp.status_code, 200)
+        page = resp.context["all_my_experiments_page"].object_list
+        self.assertEqual(page[0].id, older.id)
+
+        resp = self.client.get(
+            f"{reverse('nimbus-ui-home')}?sort={HomeSortChoices.DATES_DOWN.value}"
+        )
+        self.assertEqual(resp.status_code, 200)
+        page = resp.context["all_my_experiments_page"].object_list
+        self.assertEqual(page[0].id, newer.id)
+
+    def test_sorting_by_features_slug(self):
+        feat_a = NimbusFeatureConfigFactory.create(slug="aaa")
+        feat_z = NimbusFeatureConfigFactory.create(slug="zzz")
+
+        low = NimbusExperimentFactory.create(owner=self.user, name="Feat Low")
+        high = NimbusExperimentFactory.create(owner=self.user, name="Feat High")
+        low.feature_configs.add(feat_a)
+        high.feature_configs.add(feat_z)
+
+        resp = self.client.get(
+            f"{reverse('nimbus-ui-home')}?sort={HomeSortChoices.FEATURES_UP.value}"
+        )
+        self.assertEqual(resp.status_code, 200)
+        page = resp.context["all_my_experiments_page"].object_list
+        self.assertEqual(page[0].id, low.id)
+
+        resp = self.client.get(
+            f"{reverse('nimbus-ui-home')}?sort={HomeSortChoices.FEATURES_DOWN.value}"
+        )
+        self.assertEqual(resp.status_code, 200)
+        page = resp.context["all_my_experiments_page"].object_list
+        self.assertEqual(page[0].id, high.id)

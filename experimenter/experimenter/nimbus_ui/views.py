@@ -14,6 +14,7 @@ from experimenter.experiments.models import (
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
+    HomeSortChoices,
     NimbusExperimentFilter,
     NimbusExperimentsHomeFilter,
     SortChoices,
@@ -669,4 +670,6 @@ class NimbusExperimentsHomeView(FilterView):
 
         context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
         context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
+
+        context["sortable_headers"] = HomeSortChoices.sortable_headers()
         return context

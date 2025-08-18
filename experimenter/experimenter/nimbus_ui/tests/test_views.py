@@ -3250,6 +3250,20 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertIn(owned, experiments)
         self.assertNotIn(unrelated, experiments)
 
+    def test_sorting_and_pagination_preserved(self):
+        names = ["Charlie", "Alpha", "Foxtrot", "Bravo", "Echo", "Delta"]
+        for name in names:
+            NimbusExperimentFactory.create(owner=self.user, name=name)
+
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?sort=name&my_deliveries_page=1"
+        )
+        self.assertEqual(response.status_code, 200)
+        page1_names = [
+            e.name for e in response.context["all_my_experiments_page"].object_list
+        ]
+        self.assertEqual(page1_names, sorted(names)[:6])
+
 
 class TestSlugRedirectToSummary(AuthTestCase):
     def test_slug_with_trailing_slash_redirects_to_summary(self):
