@@ -297,18 +297,12 @@ urlbar:
         setting the `quickSuggestExposureSuggestionTypes` variable. Keyword
         exposures are recorded in the `urlbar-keyword-exposure` ping. See that
         ping's description for more.
-    marketMinKeywordLength:
-      type: int
+    marketFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.market.featureGate
       description: >-
-        The minimum prefix length of a market keyword the user must type to
-        trigger the suggestion.
-    marketShowLessFrequentlyCap:
-      type: int
-      description: >-
-        If defined and non-zero, this is the maximum number of times the user
-        will be able to click the "Show less frequently" command for Market
-        suggestions. If undefined or zero, the user will be able to click the
-        command without any limit.
+        Feature gate that controls whether all aspects of the stock market
+        suggestions feature are exposed to the user.
     mdnFeatureGate:
       type: boolean
       setPref:
@@ -529,6 +523,18 @@ urlbar:
         * "Sponsored" label is shown as the group label.
         * Change the suggested index to 1.
         * Handle as top pick.
+    realtimeMinKeywordLength:
+      type: int
+      description: >-
+        The minimum prefix length of a realtime keyword the user must type to
+        trigger the suggestion.
+    realtimeShowLessFrequentlyCap:
+      type: int
+      description: >-
+        If defined and non-zero, this is the maximum number of times the user
+        will be able to click the "Show less frequently" command for realtime
+        suggestions. If undefined or zero, the user will be able to click the
+        command without any limit.
     recentSearchesFeatureGate:
       type: boolean
       setPref:
