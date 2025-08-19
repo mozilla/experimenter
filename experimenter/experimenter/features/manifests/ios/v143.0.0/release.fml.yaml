@@ -708,7 +708,7 @@ features:
       status:
         description: "Enables the feature\n"
         type: Boolean
-        default: true
+        default: false
   tracking-protection-refactor:
     description: "The Enhanced Tracking Protection refactor\n"
     variables:
