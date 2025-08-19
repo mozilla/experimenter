@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - release
+  - beta
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -32,22 +32,22 @@ features:
       enabled:
         description: "Enables the apple summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
       shakeGesture:
         description: "Enables the shake gesture for the summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
       toolbarEntrypoint:
         description: "Enables the toolbar entrypoint for the summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:
       enabled:
         description: "Variable description\n"
         type: Boolean
-        default: false
+        default: true
   default-zoom-feature:
     description: "The feature flag to manage the rollout of default zoom feature.\n"
     variables:
@@ -72,7 +72,7 @@ features:
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -94,7 +94,7 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: false
+          status: true
   hnt-sponsored-shortcuts-feature:
     description: This feature manages the visibility of sponsored shortcuts on the homepage
     variables:
@@ -115,16 +115,10 @@ features:
       enabled:
         description: "If true, enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   homepage-redesign-feature:
     description: "This feature is for managing the roll out of the Homepage New Tab Redesign feature.\n"
     variables:
-      discover-more-feature-configuration:
-        description: "A configuration for the Discover More feature\n"
-        type: DiscoverMoreConfiguration
-        default:
-          discover-more-v1-experience: false
-          show-discover-more-button: false
       enabled:
         description: "Enables the feature.\n"
         type: Boolean
@@ -147,15 +141,15 @@ features:
       enabled:
         description: "Enables the hosted summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
       shakeGesture:
         description: "Enables the shake gesture for the summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
       toolbarEntrypoint:
         description: "Enables the toolbar entrypoint for the summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
   logins-verification:
     description: "Feature that enables the logins verification logic.\n"
     variables:
@@ -169,15 +163,15 @@ features:
       enabled:
         description: "Controls which menu users will see\n"
         type: Boolean
-        default: false
+        default: true
       menu-default-browser-banner:
         description: "If true, enables the menu Make Firefox your default banner, on top of the menu.\n"
         type: Boolean
-        default: false
+        default: true
       menu-redesign-hint:
         description: "If true, enables the menu contextual hint for menu redesign.\n"
         type: Boolean
-        default: false
+        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -228,7 +222,25 @@ features:
       messages:
         description: "A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.\n"
         type: "Map<MessageKey, MessageData>"
-        default: {}
+        default:
+          homepage-microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+              - SECOND_HOMEPAGE_VIEW
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with your Firefox homepage?
+            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
+            microsurveyConfig:
+              utm-content: homepage
+              icon: homeLarge
+              options:
+                - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
+                - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -562,21 +574,21 @@ features:
       enabled:
         description: "Enables the feature.\n"
         type: Boolean
-        default: false
+        default: true
   rating-prompt-feature:
     description: "This feature enables the rating prompt so we ask in-app rating to users\n"
     variables:
       enabled:
         description: "Enables the rating prompt\n"
         type: Boolean
-        default: false
+        default: true
   revert-unsafe-continuations-refactor:
     description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
     variables:
       enabled:
         description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
         type: Boolean
-        default: false
+        default: true
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -634,20 +646,13 @@ features:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
         default: afterFourHours
-  tab-scroll-refactor-feature:
-    description: "The feature flag to manage the rollout of tab scroll refactor feature.\n"
-    variables:
-      enabled:
-        description: "If true, tab scroll new implementation is used to show and hide toolbar views reacting to user scroll\n"
-        type: Boolean
-        default: false
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
       enabled:
         description: "If true, enables the tab tray UI experiments.\n"
         type: Boolean
-        default: false
+        default: true
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -662,7 +667,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
       layout:
         description: "The type of layout of the toolbars.\n"
         type: Option<ToolbarLayoutType>
@@ -674,15 +679,15 @@ features:
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
-        default: false
+        default: true
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
-        default: false
+        default: true
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
-        default: false
+        default: true
       toolbar_update_hint:
         description: "If true, enables the toolbar update contextual hint.\n"
         type: Boolean
@@ -690,7 +695,7 @@ features:
       translucency:
         description: "Enables translucency for toolbars.\n"
         type: Boolean
-        default: false
+        default: true
       unified_search:
         description: "Enables the unified search feature.\n"
         type: Boolean
@@ -938,17 +943,6 @@ objects:
         default: false
       use-page-content:
         description: "Search in the open tab's text content when typing."
-        type: Boolean
-        default: false
-  DiscoverMoreConfiguration:
-    description: "A configuration that dictates the behaviour/subfeatures of the Discover More feature\n"
-    fields:
-      discover-more-v1-experience:
-        description: "Whether to show the Discover More experience is enabled\n"
-        type: Boolean
-        default: false
-      show-discover-more-button:
-        description: "Whether to show the Discover More button on the homepage\n"
         type: Boolean
         default: false
   GeneralFeature:

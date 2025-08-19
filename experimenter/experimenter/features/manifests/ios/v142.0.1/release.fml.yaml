@@ -119,12 +119,6 @@ features:
   homepage-redesign-feature:
     description: "This feature is for managing the roll out of the Homepage New Tab Redesign feature.\n"
     variables:
-      discover-more-feature-configuration:
-        description: "A configuration for the Discover More feature\n"
-        type: DiscoverMoreConfiguration
-        default:
-          discover-more-v1-experience: false
-          show-discover-more-button: false
       enabled:
         description: "Enables the feature.\n"
         type: Boolean
@@ -634,13 +628,6 @@ features:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
         default: afterFourHours
-  tab-scroll-refactor-feature:
-    description: "The feature flag to manage the rollout of tab scroll refactor feature.\n"
-    variables:
-      enabled:
-        description: "If true, tab scroll new implementation is used to show and hide toolbar views reacting to user scroll\n"
-        type: Boolean
-        default: false
   tab-tray-ui-experiments:
     description: "The tab tray will undergo some UI experimentation to test potential improvements.\n"
     variables:
@@ -938,17 +925,6 @@ objects:
         default: false
       use-page-content:
         description: "Search in the open tab's text content when typing."
-        type: Boolean
-        default: false
-  DiscoverMoreConfiguration:
-    description: "A configuration that dictates the behaviour/subfeatures of the Discover More feature\n"
-    fields:
-      discover-more-v1-experience:
-        description: "Whether to show the Discover More experience is enabled\n"
-        type: Boolean
-        default: false
-      show-discover-more-button:
-        description: "Whether to show the Discover More button on the homepage\n"
         type: Boolean
         default: false
   GeneralFeature:
