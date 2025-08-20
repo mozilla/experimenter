@@ -392,7 +392,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         null=True,
     )
-    firefox_labs_description_links = models.JSONField[dict[str, str]](
+    firefox_labs_description_links = models.TextField(
         "Firefox Labs Description Links",
         blank=True,
         null=True,

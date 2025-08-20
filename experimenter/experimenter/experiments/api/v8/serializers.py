@@ -116,9 +116,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     isFirefoxLabsOptIn = serializers.ReadOnlyField(source="is_firefox_labs_opt_in")
     firefoxLabsTitle = serializers.ReadOnlyField(source="firefox_labs_title")
     firefoxLabsDescription = serializers.ReadOnlyField(source="firefox_labs_description")
-    firefoxLabsDescriptionLinks = serializers.ReadOnlyField(
-        source="firefox_labs_description_links"
-    )
+    firefoxLabsDescriptionLinks = serializers.SerializerMethodField()
     firefoxLabsGroup = serializers.ReadOnlyField(source="firefox_labs_group")
     requiresRestart = serializers.ReadOnlyField(source="requires_restart")
 
@@ -212,3 +210,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         locale_codes = [locale.code for locale in obj.locales.all()]
         if len(locale_codes):
             return locale_codes
+
+    def get_firefoxLabsDescriptionLinks(self, obj):
+        if obj.firefox_labs_description_links:
+            with contextlib.suppress(json.JSONDecodeError):
+                return json.loads(obj.firefox_labs_description_links)
