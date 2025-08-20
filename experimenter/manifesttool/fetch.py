@@ -55,9 +55,6 @@ def fetch_fml_app(
     if ref is not None and is_local:
         raise ValueError("Cannot fetch specific ref for repository type local.")
 
-    if version is not None and is_local:
-        raise ValueError("Cannot fetch specific version for repository type local.")
-
     result = FetchResult(app_name=app_name, ref=ref, version=version)
 
     try:
