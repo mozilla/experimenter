@@ -860,6 +860,7 @@ class NimbusConstants:
         CUSTOMIZE_BROWSING = "experimental-features-group-customize-browsing"
         WEBPAGE_DISPLAY = "experimental-features-group-webpage-display"
         DEVELOPER_TOOLS = "experimental-features-group-developer-tools"
+        PRODUCTIVITY = "experimental-features-group-productivity"
 
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
     EMAIL_ENROLLMENT_END_SUBJECT = "Action required: Please end experiment enrollment"
@@ -1111,9 +1112,23 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         Application.DESKTOP: Version.FIREFOX_137,
     }
 
+    FIREFOX_LABS_GROUP_AVAILABILITY = {
+        Application.DESKTOP: {
+            FirefoxLabsGroups.CUSTOMIZE_BROWSING: Version.FIREFOX_137,
+            FirefoxLabsGroups.WEBPAGE_DISPLAY: Version.FIREFOX_137,
+            FirefoxLabsGroups.DEVELOPER_TOOLS: Version.FIREFOX_137,
+            FirefoxLabsGroups.PRODUCTIVITY: Version.FIREFOX_144,
+        },
+    }
+
     ERROR_FIREFOX_LABS_MIN_VERSION = (
         "Firefox Labs requires at least version "
         "{version.major}.{version.minor}.{version.micro}."
+    )
+
+    ERROR_FIREFOX_LABS_GROUP_MIN_VERSION = (
+        "This group was added in Firefox version {version.major}.{version.minor}."
+        "{version.micro}"
     )
 
     ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION = (
