@@ -3594,6 +3594,64 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             self.assertEqual(expected_errors, serializer.errors)
 
     @parameterized.expand(
+        chain(
+            (
+                (application, group, required_version, None)
+                for application, available_groups in (
+                    NimbusExperiment.FIREFOX_LABS_GROUP_AVAILABILITY.items()
+                )
+                for group, required_version in available_groups.items()
+            ),
+            (
+                (
+                    application,
+                    group,
+                    NimbusExperiment.Version.FIREFOX_137,
+                    NimbusExperiment.ERROR_FIREFOX_LABS_GROUP_MIN_VERSION.format(
+                        version=NimbusExperiment.Version.parse(required_version),
+                    ),
+                )
+                for application, available_groups in (
+                    NimbusExperiment.FIREFOX_LABS_GROUP_AVAILABILITY.items()
+                )
+                for group, required_version in available_groups.items()
+                if required_version != NimbusExperiment.Version.FIREFOX_137
+            ),
+        )
+    )
+    def test_firefox_labs_group_availability(
+        self, application, firefox_labs_group, firefox_min_version, expected_error
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            firefox_min_version=firefox_min_version,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group=firefox_labs_group,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertEqual(
+            not bool(expected_error),
+            serializer.is_valid(),
+            serializer.errors,
+        )
+        if expected_error:
+            self.assertEqual(
+                {"firefox_labs_group": [expected_error]},
+                serializer.errors,
+                expected_error,
+            )
+
+    @parameterized.expand(
         [
             (None, None),
             ("", None),
