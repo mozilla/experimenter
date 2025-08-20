@@ -2379,6 +2379,22 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             if not len((data.get(field) or "").strip())
         }
 
+        group = data.get("firefox_labs_group")
+        if required_min_version := NimbusExperiment.FIREFOX_LABS_GROUP_AVAILABILITY[
+            self.instance.application
+        ].get(group):
+            required_min_version = NimbusExperiment.Version.parse(required_min_version)
+            if min_version < required_min_version:
+                raise serializers.ValidationError(
+                    {
+                        "firefox_labs_group": (
+                            NimbusExperiment.ERROR_FIREFOX_LABS_GROUP_MIN_VERSION.format(
+                                version=required_min_version
+                            )
+                        ),
+                    }
+                )
+
         if description_links := (
             data.get("firefox_labs_description_links") or ""
         ).strip():
