@@ -2208,11 +2208,13 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         min_version = NimbusExperiment.Version.parse(data["firefox_min_version"])
         channel = data.get("channel")
+        channels = data.get("channels", [])
 
-        if not channel:
+        if not (channel or channels):
             raise serializers.ValidationError(
                 {
                     "channel": NimbusConstants.ERROR_DESKTOP_PREFFLIPS_CHANNEL_REQUIRED,
+                    "channels": NimbusConstants.ERROR_DESKTOP_PREFFLIPS_CHANNEL_REQUIRED,
                 }
             )
 
@@ -2220,7 +2222,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         # version. However, we don't keep track of per-channel manifests. The
         # prefFlips feature landed in 128 Nightly as a placeholder and was only
         # implemented in 129 Nightly+, but it was uplifted to 128 ESR.
-        if channel == NimbusExperiment.Channel.ESR:
+        esr_only = channel == NimbusExperiment.Channel.ESR or set(channels) == {
+            NimbusExperiment.Channel.ESR
+        }
+
+        if esr_only:
             return data
 
         elif min_version.major == 128:

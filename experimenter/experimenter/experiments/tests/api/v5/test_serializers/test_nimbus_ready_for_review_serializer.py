@@ -924,6 +924,35 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         if not expected_valid:
             self.assertIn("channel", serializer.errors)
 
+    @parameterized.expand(
+        [
+            (True, NimbusExperiment.Application.DESKTOP),
+            (False, NimbusExperiment.Application.FENIX),
+            (False, NimbusExperiment.Application.IOS),
+        ]
+    )
+    def test_channels_supported_for_desktop(self, expected_valid, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
+            feature_configs=[NimbusFeatureConfigFactory(application=application)],
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertEqual(serializer.is_valid(), expected_valid, serializer.errors)
+
     def test_serializer_feature_config_validation_application_mismatches_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1576,6 +1605,39 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             "firefox_min_version": NimbusExperiment.Version.FIREFOX_108,
             "changelog_message": "test changelog message",
             "channel": "",
+        }
+        serializer = NimbusReviewSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+    def test_valid_branches_for_rollout_with_channels(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            is_sticky=True,
+            is_rollout=True,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+        )
+        experiment.save()
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        data = {
+            "application": NimbusExperiment.Application.DESKTOP,
+            "is_sticky": "true",
+            "is_rollout": "true",
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "firefox_min_version": NimbusExperiment.Version.FIREFOX_108,
+            "changelog_message": "test changelog message",
+            "channel": "",
+            "channels": [
+                NimbusExperiment.Channel.NIGHTLY,
+                NimbusExperiment.Channel.RELEASE,
+            ],
         }
         serializer = NimbusReviewSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -2953,6 +3015,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             feature_configs=[prefflips_feature],
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
         )
 
         for branch in experiment.treatment_branches:
@@ -2973,8 +3036,40 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"channel": [NimbusExperiment.ERROR_DESKTOP_PREFFLIPS_CHANNEL_REQUIRED]},
+            {
+                "channel": [NimbusExperiment.ERROR_DESKTOP_PREFFLIPS_CHANNEL_REQUIRED],
+                "channels": [NimbusExperiment.ERROR_DESKTOP_PREFFLIPS_CHANNEL_REQUIRED],
+            },
         )
+
+    def test_desktop_prefflips_channels_supported(self):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps({"prefs": {}})
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     @parameterized.expand(
         (
@@ -2995,6 +3090,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             feature_configs=[prefflips_feature],
             channel=channel,
+            channels=[],
         )
 
         for branch in experiment.treatment_branches:
@@ -3044,6 +3140,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             feature_configs=[prefflips_feature],
             channel=channel,
+            channels=[],
         )
 
         for branch in experiment.treatment_branches:
@@ -3062,6 +3159,143 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @parameterized.expand(
+        (
+            NimbusExperiment.Channel.UNBRANDED,
+            NimbusExperiment.Channel.NIGHTLY,
+            NimbusExperiment.Channel.BETA,
+            NimbusExperiment.Channel.RELEASE,
+            NimbusExperiment.Channel.ESR,
+            NimbusExperiment.Channel.AURORA,
+        )
+    )
+    def test_desktop_prefflips_channels_allowed_on_v128_esr_only(self, channel):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_128,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[channel],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps({"prefs": {}})
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        if channel == NimbusExperiment.Channel.ESR:
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+        else:
+            self.assertFalse(serializer.is_valid())
+            self.assertEqual(
+                serializer.errors,
+                {
+                    "firefox_min_version": [
+                        NimbusExperiment.ERROR_DESKTOP_PREFFLIPS_128_ESR_ONLY
+                    ],
+                },
+            )
+
+    @parameterized.expand(
+        (
+            NimbusExperiment.Channel.UNBRANDED,
+            NimbusExperiment.Channel.NIGHTLY,
+            NimbusExperiment.Channel.BETA,
+            NimbusExperiment.Channel.RELEASE,
+            NimbusExperiment.Channel.ESR,
+            NimbusExperiment.Channel.AURORA,
+        )
+    )
+    def test_desktop_prefflips_channels_allowed_on_v129(self, channel):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[channel],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps({"prefs": {}})
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @parameterized.expand(
+        [
+            ([NimbusExperiment.Channel.ESR], True),
+            ([NimbusExperiment.Channel.ESR, NimbusExperiment.Channel.NIGHTLY], False),
+            ([NimbusExperiment.Channel.ESR, NimbusExperiment.Channel.BETA], False),
+        ]
+    )
+    def test_desktop_prefflips_v128_esr_only_validation(self, channels, should_pass):
+        """Test ESR-only channels pass on Firefox 128, but ESR mixed with others fails."""
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_128,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=channels,
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps({"prefs": {}})
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        if should_pass:
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+        else:
+            self.assertFalse(serializer.is_valid())
+            self.assertEqual(
+                serializer.errors,
+                {
+                    "firefox_min_version": [
+                        NimbusExperiment.ERROR_DESKTOP_PREFFLIPS_128_ESR_ONLY
+                    ],
+                },
+            )
 
     @parameterized.expand(
         [
