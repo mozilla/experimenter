@@ -591,7 +591,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         required=False, widget=forms.TextInput(attrs={"class": "form-control"})
     )
     firefox_labs_description = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 5})
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
     )
     firefox_labs_description_links = forms.CharField(
         required=False, widget=forms.HiddenInput()
@@ -691,8 +691,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         for field in self.update_on_change_fields:
             self.fields[field].widget.attrs.update(update_on_change_attrs)
 
-        self.saved_labs_opt_in = self.instance.is_firefox_labs_opt_in
-        self.saved_is_rollout = self.instance.is_rollout
+        self.was_labs_opt_in = self.instance.is_firefox_labs_opt_in
 
     @property
     def errors(self):
@@ -701,17 +700,26 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             errors["branches"] = self.branches.errors
         return errors
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not self.was_labs_opt_in and cleaned_data["is_firefox_labs_opt_in"]:
+            cleaned_data["is_rollout"] = True
+        elif not cleaned_data["is_rollout"]:
+            cleaned_data["is_firefox_labs_opt_in"] = False
+
+        if not cleaned_data["is_firefox_labs_opt_in"]:
+            cleaned_data["firefox_labs_title"] = ""
+            cleaned_data["firefox_labs_description"] = ""
+            cleaned_data["firefox_labs_description_links"] = "null"
+            cleaned_data["firefox_labs_group"] = ""
+            cleaned_data["requires_restart"] = False
+
+        return cleaned_data
+
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
         self.branches.save()
-
-        if not self.saved_labs_opt_in and experiment.is_firefox_labs_opt_in:
-            experiment.is_rollout = True
-            experiment.save(update_fields=["is_rollout"])
-
-        if not experiment.is_rollout:
-            experiment.is_firefox_labs_opt_in = False
-            experiment.save(update_fields=["is_firefox_labs_opt_in"])
 
         if experiment.is_rollout:
             branches = experiment.branches.all()

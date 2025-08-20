@@ -132,9 +132,11 @@ class TestNimbusExperimentSerializer(TestCase):
             is_firefox_labs_opt_in=True,
             firefox_labs_title="test-fx-labs-title",
             firefox_labs_description="test-fx-labs-description",
-            firefox_labs_description_links={
-                "foo": "https://example.com",
-            },
+            firefox_labs_description_links=json.dumps(
+                {
+                    "foo": "https://example.com",
+                }
+            ),
             firefox_labs_group="group",
             requires_restart=True,
         )
