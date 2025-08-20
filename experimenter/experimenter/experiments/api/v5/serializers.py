@@ -8,6 +8,7 @@ import typing
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, NotRequired, Optional, Self, TypedDict
+from urllib.parse import urlparse
 
 import jsonschema
 import packaging
@@ -121,6 +122,18 @@ class TransitionConstants:
         "experiments": [],
         "rollouts": ["population_percent"],
     }
+
+
+def is_valid_http_url(s: Any):
+    if not isinstance(s, str):
+        return False
+
+    try:
+        url = urlparse(s)
+    except Exception:  # pragma: no cover
+        return False
+
+    return url.scheme in ("http", "https")
 
 
 class NestedRefResolver(jsonschema.RefResolver):
@@ -2322,6 +2335,82 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_firefox_labs(self, data):
+        if not data.get("is_firefox_labs_opt_in"):
+            return data
+
+        min_version = NimbusExperiment.Version.parse(data.get("firefox_min_version"))
+        required_min_version = NimbusExperiment.FIREFOX_LABS_MIN_VERSION.get(
+            self.instance.application
+        )
+
+        if required_min_version is None:
+            raise serializers.ValidationError(
+                {
+                    "is_firefox_labs_opt_in": (
+                        NimbusExperiment.ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION
+                    ),
+                }
+            )
+        required_min_version = NimbusExperiment.Version.parse(required_min_version)
+        if min_version < required_min_version:
+            raise serializers.ValidationError(
+                {
+                    "firefox_min_version": (
+                        NimbusExperiment.ERROR_FIREFOX_LABS_MIN_VERSION.format(
+                            version=required_min_version
+                        )
+                    ),
+                }
+            )
+
+        if not data.get("is_rollout"):
+            raise serializers.ValidationError(
+                {"is_rollout": NimbusExperiment.ERROR_FIREFOX_LABS_ROLLOUT_REQUIRED}
+            )
+
+        errors = {
+            field: [NimbusExperiment.ERROR_FIREFOX_LABS_REQUIRED_FIELD]
+            for field in (
+                "firefox_labs_title",
+                "firefox_labs_description",
+                "firefox_labs_group",
+            )
+            if not len((data.get(field) or "").strip())
+        }
+
+        if description_links := (
+            data.get("firefox_labs_description_links") or ""
+        ).strip():
+            try:
+                description_links_obj = json.loads(description_links)
+            except Exception:
+                errors["firefox_labs_description_links"] = [
+                    NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON,
+                ]
+            else:
+                if isinstance(description_links_obj, dict):
+                    if not all(
+                        is_valid_http_url(value)
+                        for value in description_links_obj.values()
+                    ):
+                        errors["firefox_labs_description_links"] = [
+                            NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
+                        ]
+
+                elif (
+                    not isinstance(description_links_obj, dict)
+                    and description_links_obj is not None
+                ):
+                    errors["firefox_labs_description_links"] = [
+                        NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON,
+                    ]
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -2340,6 +2429,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_proposed_release_date(data)
         data = self._validate_feature_value_variables(data)
         data = self._validate_primary_secondary_outcomes(data)
+        data = self._validate_firefox_labs(data)
         if application == NimbusExperiment.Application.DESKTOP:
             data = self._validate_desktop_pref_rollouts(data)
             data = self._validate_desktop_pref_flips(data)

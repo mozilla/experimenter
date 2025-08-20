@@ -325,6 +325,9 @@
                 {{ form.is_firefox_labs_opt_in }}
                 <label class="form-check-label" for="id_is_firefox_labs_opt_in">Is this a Firefox Labs rollout?</label>
               </div>
+              {% for error in validation_errors.is_firefox_labs_opt_in %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
             </div>
           </div>
           {% if experiment.is_firefox_labs_opt_in %}
@@ -335,6 +338,9 @@
                   {{ form.firefox_labs_title }}
                 </label>
                 {{ form.firefox_labs_title.errors }}
+                {% for error in validation_errors.firefox_labs_title %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
               </div>
             </div>
             <div class="row mb-3">
@@ -344,6 +350,9 @@
                   {{ form.firefox_labs_description }}
                 </label>
                 {{ form.firefox_labs_description.errors }}
+                {% for error in validation_errors.firefox_labs_description %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
               </div>
             </div>
             <div class="row mb-3">
@@ -353,6 +362,9 @@
                   {{ form.firefox_labs_description_links }}
                 </label>
                 {{ form.firefox_labs_description_links.errors }}
+                {% for error in validation_errors.firefox_labs_description_links %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
               </div>
             </div>
             <div class="row mb-3">
@@ -362,6 +374,9 @@
                   {{ form.firefox_labs_group }}
                 </label>
                 {{ form.firefox_labs_group.errors }}
+                {% for error in validation_errors.firefox_labs_group %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
               </div>
             </div>
             <div class="row mb-3">
@@ -371,6 +386,7 @@
                   <label class="form-check-label" for="id_requires_restart">Requires restart to take effect?</label>
                 </div>
                 {{ form.requires_restart.errors }}
+                {% for error in validation_errors.requires_restart %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
               </div>
             </div>
           {% endif %}
