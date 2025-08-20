@@ -339,7 +339,11 @@ def create_experiment(base_url, default_data, mobile_apps, application):
 
         # Fill Audience page
         audience = metrics.save_and_continue()
-        audience.channel = default_data.audience.channel.value
+
+        if "desktop" in application.lower():
+            audience.channels = [default_data.audience.channel.value]
+        else:
+            audience.channel = default_data.audience.channel.value
 
         audience.targeting = "no_targeting"
         audience.percentage = "100"
@@ -385,7 +389,7 @@ def trigger_experiment_loader(selenium):
 @pytest.fixture()
 def default_data_api(application, application_feature_ids):
     feature_config_id = application_feature_ids[application]
-    return {
+    data = {
         "hypothesis": "Test Hypothesis",
         "application": application,
         "changelogMessage": "test updates",
@@ -412,6 +416,13 @@ def default_data_api(application, application_feature_ids):
         "totalEnrolledClients": 55,
         "firefoxMinVersion": "FIREFOX_120",
     }
+
+    if "desktop" in application.lower():
+        data["channels"] = ["NIGHTLY", "BETA", "RELEASE"]
+    else:
+        data["channel"] = "RELEASE"
+
+    return data
 
 
 @pytest.fixture(name="telemetry_event_check")

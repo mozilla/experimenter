@@ -25,9 +25,6 @@
   .dropdown-menu {
     .dropdown-item {
       white-space: normal; // Allow text to wrap
-      word-break: break-word; // Break long words
-      overflow-wrap: anywhere; // Ensure long words wrap
-      max-width: 100%; // Prevent overflow
     }
 
     .dropdown-item:hover,

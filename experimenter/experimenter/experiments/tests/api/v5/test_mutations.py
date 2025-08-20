@@ -31,7 +31,7 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
-from experimenter.targeting.constants import TargetingConstants
+from experimenter.targeting.constants import NimbusTargetingConfig, TargetingConstants
 
 CREATE_EXPERIMENT_MUTATION = """\
 mutation($input: ExperimentInput!) {
@@ -785,7 +785,7 @@ class TestUpdateExperimentMutationSingleFeature(
             },
         )
 
-    def test_update_experiment_audience(self):
+    def test_update_experiment_audience_desktop(self):
         user_email = "user@example.com"
         country = CountryFactory.create()
         locale = LocaleFactory.create()
@@ -808,7 +808,7 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "channel": NimbusExperiment.Channel.BETA.name,
+                    "channels": [NimbusExperiment.Channel.BETA.name],
                     "firefoxMinVersion": NimbusExperiment.Version.FIREFOX_83.name,
                     "firefoxMaxVersion": NimbusExperiment.Version.FIREFOX_95.name,
                     "populationPercent": "10",
@@ -816,6 +816,92 @@ class TestUpdateExperimentMutationSingleFeature(
                     "proposedEnrollment": "42",
                     "proposedReleaseDate": "2023-12-12",
                     "targetingConfigSlug": (TargetingConstants.TargetingConfig.FIRST_RUN),
+                    "totalEnrolledClients": 100,
+                    "changelogMessage": "test changelog message",
+                    "countries": [str(country.id)],
+                    "locales": [str(locale.id)],
+                    "languages": [str(language.id)],
+                    "isSticky": True,
+                    "isFirstRun": True,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        self.assertEqual(content["data"]["updateExperiment"]["message"], "success")
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.channels, [NimbusExperiment.Channel.BETA])
+        self.assertEqual(
+            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_83
+        )
+        self.assertEqual(
+            experiment.firefox_max_version, NimbusExperiment.Version.FIREFOX_95
+        )
+        self.assertEqual(experiment.population_percent, 10.0)
+        self.assertEqual(experiment.proposed_duration, 120)
+        self.assertEqual(experiment.proposed_enrollment, 42)
+        self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 12, 12))
+        self.assertEqual(
+            experiment.targeting_config_slug,
+            TargetingConstants.TargetingConfig.FIRST_RUN,
+        )
+        self.assertEqual(experiment.total_enrolled_clients, 100)
+        self.assertEqual(list(experiment.countries.all()), [country])
+        self.assertEqual(list(experiment.locales.all()), [locale])
+        self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertTrue(experiment.is_sticky)
+
+    @parameterized.expand(
+        [
+            (application,)
+            for application in NimbusExperiment.Application
+            if application != NimbusExperiment.Application.DESKTOP
+        ]
+    )
+    def test_update_experiment_audience_desktop_non_desktop(self, application):
+        user_email = "user@example.com"
+        country = CountryFactory.create()
+        locale = LocaleFactory.create()
+        language = LanguageFactory.create()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=0.0,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            proposed_release_date=None,
+            total_enrolled_clients=0,
+            is_sticky=False,
+        )
+
+        targeting_config_slugs = [
+            targeting.slug
+            for targeting in NimbusTargetingConfig.targeting_configs
+            if application.name in targeting.application_choice_names
+        ]
+
+        new_targeting_config_slug = NimbusExperiment.TargetingConfig.NO_TARGETING
+        if targeting_config_slugs:
+            new_targeting_config_slug = targeting_config_slugs[0]
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "channel": NimbusExperiment.Channel.BETA.name,
+                    "firefoxMinVersion": NimbusExperiment.Version.FIREFOX_83.name,
+                    "firefoxMaxVersion": NimbusExperiment.Version.FIREFOX_95.name,
+                    "populationPercent": "10",
+                    "proposedDuration": "120",
+                    "proposedEnrollment": "42",
+                    "proposedReleaseDate": "2023-12-12",
+                    "targetingConfigSlug": new_targeting_config_slug,
                     "totalEnrolledClients": 100,
                     "changelogMessage": "test changelog message",
                     "countries": [str(country.id)],
@@ -845,7 +931,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 12, 12))
         self.assertEqual(
             experiment.targeting_config_slug,
-            TargetingConstants.TargetingConfig.FIRST_RUN,
+            new_targeting_config_slug,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
         self.assertEqual(list(experiment.countries.all()), [country])

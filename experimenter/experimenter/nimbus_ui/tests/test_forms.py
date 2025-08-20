@@ -6,6 +6,7 @@ from unittest.mock import patch
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from parameterized import parameterized
 from PIL import Image
 
 from experimenter.base.tests.factories import (
@@ -1269,7 +1270,7 @@ class TestDocumentationLinkDeleteForm(RequestFormTestCase):
 
 
 class TestAudienceForm(RequestFormTestCase):
-    def test_valid_form_saves(self):
+    def test_valid_form_saves_desktop(self):
         country = CountryFactory.create()
         locale = LocaleFactory.create()
         language = LanguageFactory.create()
@@ -1300,7 +1301,10 @@ class TestAudienceForm(RequestFormTestCase):
             instance=experiment,
             data={
                 "changelog_message": "test changelog message",
-                "channel": NimbusExperiment.Channel.BETA,
+                "channels": [
+                    NimbusExperiment.Channel.NIGHTLY,
+                    NimbusExperiment.Channel.BETA,
+                ],
                 "countries": [country.id],
                 "excluded_experiments_branches": [f"{excluded.slug}:None"],
                 "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
@@ -1323,7 +1327,10 @@ class TestAudienceForm(RequestFormTestCase):
         experiment = form.save()
 
         self.assertEqual(experiment.changes.count(), 1)
-        self.assertEqual(experiment.channel, NimbusExperiment.Channel.BETA)
+        self.assertEqual(
+            set(experiment.channels),
+            {NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.BETA},
+        )
         self.assertEqual(
             experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_83
         )
@@ -1336,6 +1343,112 @@ class TestAudienceForm(RequestFormTestCase):
         self.assertEqual(
             experiment.targeting_config_slug,
             NimbusExperiment.TargetingConfig.FIRST_RUN,
+        )
+        self.assertEqual(experiment.total_enrolled_clients, 100)
+        self.assertEqual(list(experiment.countries.all()), [country])
+        self.assertEqual(list(experiment.locales.all()), [locale])
+        self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertTrue(experiment.is_sticky)
+        self.assertEqual(experiment.excluded_experiments.get(), excluded)
+        self.assertTrue(
+            NimbusExperimentBranchThroughExcluded.objects.filter(
+                parent_experiment=experiment, child_experiment=excluded, branch_slug=None
+            ).exists()
+        )
+        self.assertEqual(experiment.required_experiments.get(), required)
+        self.assertTrue(
+            NimbusExperimentBranchThroughRequired.objects.filter(
+                parent_experiment=experiment, child_experiment=required, branch_slug=None
+            ).exists()
+        )
+
+    @parameterized.expand(
+        [
+            (application,)
+            for application in NimbusExperiment.Application
+            if application != NimbusExperiment.Application.DESKTOP
+        ]
+    )
+    def test_valid_form_saves_non_desktop(self, application):
+        country = CountryFactory.create()
+        locale = LocaleFactory.create()
+        language = LanguageFactory.create()
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+        )
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+        )
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            population_percent=0.0,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            proposed_release_date=None,
+            total_enrolled_clients=0,
+            is_sticky=False,
+            countries=[],
+            locales=[],
+            languages=[],
+        )
+
+        targeting_config_slugs = [
+            targeting.slug
+            for targeting in NimbusTargetingConfig.targeting_configs
+            if application.name in targeting.application_choice_names
+        ]
+
+        new_targeting_config_slug = NimbusExperiment.TargetingConfig.NO_TARGETING
+        if targeting_config_slugs:
+            new_targeting_config_slug = targeting_config_slugs[0]
+
+        new_channel = next(iter(experiment.application_config.channel_app_id.keys()))
+
+        form = AudienceForm(
+            instance=experiment,
+            data={
+                "changelog_message": "test changelog message",
+                "channel": new_channel,
+                "countries": [country.id],
+                "excluded_experiments_branches": [f"{excluded.slug}:None"],
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "is_sticky": True,
+                "languages": [language.id],
+                "locales": [locale.id],
+                "population_percent": 10,
+                "proposed_duration": 120,
+                "proposed_enrollment": 42,
+                "required_experiments_branches": [f"{required.slug}:None"],
+                "targeting_config_slug": new_targeting_config_slug,
+                "total_enrolled_clients": 100,
+            },
+            request=self.request,
+        )
+
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.channel, new_channel)
+        self.assertEqual(
+            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_83
+        )
+        self.assertEqual(
+            experiment.firefox_max_version, NimbusExperiment.Version.FIREFOX_84
+        )
+        self.assertEqual(experiment.population_percent, 10)
+        self.assertEqual(experiment.proposed_duration, 120)
+        self.assertEqual(experiment.proposed_enrollment, 42)
+        self.assertEqual(
+            experiment.targeting_config_slug,
+            new_targeting_config_slug,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
         self.assertEqual(list(experiment.countries.all()), [country])
@@ -1519,31 +1632,54 @@ class TestAudienceForm(RequestFormTestCase):
             else:
                 self.assertTrue(field.disabled, f"{field_name} should be disabled")
 
-    def test_targeting_config_choices_filtered_by_application(self):
-        for application in NimbusExperiment.Application:
-            with self.subTest(application=application.name):
-                experiment = NimbusExperimentFactory(application=application)
+    @parameterized.expand(
+        [(application,) for application in NimbusExperiment.Application]
+    )
+    def test_targeting_config_choices_filtered_by_application(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, application=application
+        )
 
-                form = AudienceForm(instance=experiment, request=self.request)
+        form = AudienceForm(instance=experiment, request=self.request)
 
-                actual_slugs = {
-                    slug for slug, _ in form.fields["targeting_config_slug"].choices
-                }
+        actual_slugs = {slug for slug, _ in form.fields["targeting_config_slug"].choices}
 
-                expected_slugs = {
-                    targeting.slug
-                    for targeting in NimbusTargetingConfig.targeting_configs
-                    if application.name in targeting.application_choice_names
-                }
+        expected_slugs = {
+            targeting.slug
+            for targeting in NimbusTargetingConfig.targeting_configs
+            if application.name in targeting.application_choice_names
+        }
 
-                self.assertEqual(
-                    actual_slugs,
-                    expected_slugs,
-                    msg=(
-                        f"Targeting config slugs did not match for application: "
-                        f"{application.name}"
-                    ),
-                )
+        self.assertEqual(
+            actual_slugs,
+            expected_slugs,
+            msg=(
+                f"Targeting config slugs did not match for application: "
+                f"{application.name}"
+            ),
+        )
+
+    def test_channels_choices_filtered_by_application(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        form = AudienceForm(instance=experiment, request=self.request)
+
+        actual_channels = set(form.fields["channels"].choices)
+        expected_channels = {
+            (channel.value, channel.label)
+            for channel in NimbusExperiment.Channel
+            if channel in experiment.application_config.channel_app_id
+            and channel.value != NimbusExperiment.Channel.NO_CHANNEL
+        }
+
+        self.assertEqual(
+            actual_channels,
+            expected_channels,
+            msg="Channel choices did not match for desktop",
+        )
 
 
 class TestNimbusBranchesForm(RequestFormTestCase):
