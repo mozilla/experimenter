@@ -1107,6 +1107,28 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ENROLLMENT = "Enrollment"
     WHAT_TRAIN_IS_IT_NOW_URL = "https://whattrainisitnow.com/api/firefox/releases/"
 
+    FIREFOX_LABS_MIN_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_137,
+    }
+
+    ERROR_FIREFOX_LABS_MIN_VERSION = (
+        "Firefox Labs requires at least version "
+        "{version.major}.{version.minor}.{version.micro}."
+    )
+
+    ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION = (
+        "This application does not support Firefox Labs."
+    )
+
+    ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON = (
+        "Firefox Labs description links must be a JSON object or null."
+    )
+    ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS = (
+        "Firefox Labs description links values must be HTTP(S) URLs."
+    )
+    ERROR_FIREFOX_LABS_REQUIRED_FIELD = "This field is requried for Firefox Labs Opt-Ins."
+    ERROR_FIREFOX_LABS_ROLLOUT_REQUIRED = "Firefox Labs opt-ins must be rollouts."
+
 
 EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/qa-sign-off",

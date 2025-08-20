@@ -3391,6 +3391,282 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_137,
+                None,
+            ),
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_136,
+                {
+                    "firefox_min_version": [
+                        "Firefox Labs requires at least version 137.0.0."
+                    ]
+                },
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_137,
+                {
+                    "is_firefox_labs_opt_in": [
+                        NimbusExperiment.ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION
+                    ]
+                },
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_137,
+                {
+                    "is_firefox_labs_opt_in": [
+                        NimbusExperiment.ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION
+                    ]
+                },
+            ),
+            (
+                NimbusExperiment.Application.FXA,
+                NimbusExperiment.Version.NO_VERSION,
+                {
+                    "is_firefox_labs_opt_in": [
+                        NimbusExperiment.ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION
+                    ]
+                },
+            ),
+        ]
+    )
+    def test_firefox_labs_applications_verions(
+        self, application, version, expected_errors
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            firefox_min_version=version,
+            is_firefox_labs_opt_in=True,
+            is_rollout=True,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertEqual(
+            not bool(expected_errors),
+            serializer.is_valid(),
+            serializer.errors,
+        )
+        if expected_errors:
+            self.assertEqual(expected_errors, serializer.errors)
+
+    @parameterized.expand(
+        [
+            (True, None),
+            (
+                False,
+                {"is_rollout": [NimbusExperiment.ERROR_FIREFOX_LABS_ROLLOUT_REQUIRED]},
+            ),
+        ]
+    )
+    def test_firefox_labs_rollout_required(self, is_rollout, expected_errors):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_137,
+            is_firefox_labs_opt_in=True,
+            is_rollout=is_rollout,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertEqual(
+            not bool(expected_errors),
+            serializer.is_valid(),
+            serializer.errors,
+        )
+        if expected_errors:
+            self.assertEqual(expected_errors, serializer.errors)
+
+    @parameterized.expand(
+        [
+            ({}, None),
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": "title",
+                    "firefox_labs_description": "description",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                None,
+            ),
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_description": "description",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                ["firefox_labs_title"],
+            ),
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": "title",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                ["firefox_labs_description"],
+            ),
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": "title",
+                    "firefox_labs_description": "description",
+                },
+                ["firefox_labs_group"],
+            ),
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": "",
+                    "firefox_labs_description": "",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                ["firefox_labs_title", "firefox_labs_description"],
+            ),
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": " ",
+                    "firefox_labs_description": " ",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                ["firefox_labs_title", "firefox_labs_description"],
+            ),
+        ]
+    )
+    def test_firefox_labs_required_fields(
+        self, experiment_fields, expected_required_fields
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_137,
+            is_rollout=True,
+            **{
+                "firefox_labs_title": None,
+                "firefox_labs_description": None,
+                "firefox_labs_group": None,
+                **experiment_fields,
+            },
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertEqual(
+            not bool(expected_required_fields),
+            serializer.is_valid(),
+            serializer.errors,
+        )
+        if expected_required_fields:
+            expected_errors = {
+                field: [NimbusExperiment.ERROR_FIREFOX_LABS_REQUIRED_FIELD]
+                for field in expected_required_fields
+            }
+            self.assertEqual(expected_errors, serializer.errors)
+
+    @parameterized.expand(
+        [
+            (None, None),
+            ("", None),
+            ("null", None),
+            ("{}", None),
+            (
+                json.dumps(
+                    {
+                        "foo": "https://mozilla.org",
+                    }
+                ),
+                None,
+            ),
+            ("1", NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON),
+            ("hello", NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON),
+            ("[]", NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON),
+            (
+                json.dumps({"hello": "world"}),
+                NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
+            ),
+            (
+                json.dumps({"foo": "chrome:///bogus.xhtml"}),
+                NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
+            ),
+            (
+                json.dumps({"foo": "resource:///bogus.xhtml"}),
+                NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
+            ),
+            (
+                json.dumps({"foo": "about:blank"}),
+                NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
+            ),
+            (
+                json.dumps({"foo": 1}),
+                NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
+            ),
+        ]
+    )
+    def test_firefox_labs_description_links(
+        self,
+        firefox_labs_description_links,
+        expected_error,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_137,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_description_links=firefox_labs_description_links,
+            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertEqual(
+            not bool(expected_error),
+            serializer.is_valid(),
+            serializer.errors,
+        )
+        if expected_error:
+            self.assertEqual(
+                {"firefox_labs_description_links": [expected_error]},
+                serializer.errors,
+                expected_error,
+            )
+
 
 class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
     maxDiff = None
