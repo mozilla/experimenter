@@ -3293,3 +3293,11 @@ class TestSlugRedirectToSummary(AuthTestCase):
             response.url,
             reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
         )
+
+
+class TestNimbusFeaturesView(AuthTestCase):
+    def test_features_view_renders_template(self):
+        NimbusExperimentFactory.create(owner=self.user)
+        response = self.client.get(reverse("nimbus-ui-features"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/features.html")
