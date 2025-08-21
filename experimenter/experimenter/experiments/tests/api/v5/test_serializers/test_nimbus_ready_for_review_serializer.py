@@ -3446,9 +3446,11 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
             firefox_min_version=version,
             is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
             is_rollout=True,
         )
 
@@ -3481,6 +3483,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_137,
             firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
             is_firefox_labs_opt_in=True,
             is_rollout=is_rollout,
         )
@@ -3573,13 +3577,14 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_137,
             is_rollout=True,
-            **{
-                "firefox_labs_title": None,
-                "firefox_labs_description": None,
-                "firefox_labs_group": None,
-                **experiment_fields,
-            },
         )
+
+        # We cannot pass experiment_fields to the factory due to it enforcing
+        # required fields when is_firefox_labs=True.
+        for field, value in experiment_fields.items():
+            setattr(experiment, field, value)
+
+        experiment.save()
 
         serializer = NimbusReviewSerializer(
             experiment,
