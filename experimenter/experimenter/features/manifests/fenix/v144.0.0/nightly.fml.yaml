@@ -881,6 +881,13 @@ features:
         description: "Whether or not to enable tab strip.\n"
         type: Boolean
         default: true
+  terms-of-use-prompt:
+    description: Enables the terms of use prompt for users who have not accepted ToU
+    variables:
+      enabled:
+        description: When the feature is enabled then the prompt can show for users.
+        type: Boolean
+        default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
