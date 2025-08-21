@@ -38,9 +38,9 @@ FROM python-builder AS dev
 WORKDIR /cirrus
 
 # Copy specific Rust components
-COPY --from=experimenter:megazords /application-services/megazords/cirrus/libcirrus.so /application-services/libcirrus.so
-COPY --from=experimenter:megazords /application-services/megazords/cirrus/cirrus.py /application-services/cirrus_sdk.py
-COPY --from=experimenter:megazords /application-services/megazords/cirrus/fml.py /application-services/fml_sdk.py
+COPY --from=megazords /application-services/megazords/cirrus/libcirrus.so /application-services/libcirrus.so
+COPY --from=megazords /application-services/megazords/cirrus/cirrus.py /application-services/cirrus_sdk.py
+COPY --from=megazords /application-services/megazords/cirrus/fml.py /application-services/fml_sdk.py
 
 ENV PYTHONPATH=$PYTHONPATH:/application-services
 
@@ -68,9 +68,9 @@ RUN groupadd --gid $USER_GID $USERNAME \
 WORKDIR /cirrus
 
 # Copy specific Rust components
-COPY --from=experimenter:megazords /application-services/megazords/cirrus/libcirrus.so /application-services/libcirrus.so
-COPY --from=experimenter:megazords /application-services/megazords/cirrus/cirrus.py /application-services/cirrus_sdk.py
-COPY --from=experimenter:megazords /application-services/megazords/cirrus/fml.py /application-services/fml_sdk.py
+COPY --from=megazords /application-services/megazords/cirrus/libcirrus.so /application-services/libcirrus.so
+COPY --from=megazords /application-services/megazords/cirrus/cirrus.py /application-services/cirrus_sdk.py
+COPY --from=megazords /application-services/megazords/cirrus/fml.py /application-services/fml_sdk.py
 
 # Copy Python site packages and scripts
 COPY --from=python-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages

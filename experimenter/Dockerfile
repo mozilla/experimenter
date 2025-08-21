@@ -80,7 +80,7 @@ COPY --from=node-builder /experimenter/experimenter/nimbus_ui/static/node_module
 COPY --from=node-builder /experimenter/node_modules/ /experimenter/node_modules/
 
 # Rust packages
-COPY --from=experimenter:megazords /application-services/megazords/nimbus-experimenter/ /application-services/nimbus_megazord/
+COPY --from=megazords /application-services/megazords/nimbus-experimenter/ /application-services/nimbus_megazord/
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
 
 # Install nimbus-cli
@@ -128,7 +128,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # System packages
 RUN apt-get update
-RUN apt-get --no-install-recommends install -y apt-utils ca-certificates git postgresql-client 
+RUN apt-get --no-install-recommends install -y apt-utils ca-certificates git postgresql-client
 
 # Copy source from previously built containers
 COPY --from=dev /usr/local/bin/ /usr/local/bin/

@@ -303,6 +303,8 @@ async def compute_features_enrollments_v2(
 
 
 async def fetch_schedule_recipes() -> None:
+    print("fetch_schedule_recipes")
+
     live_failed = False
     preview_failed = False
 
