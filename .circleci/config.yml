@@ -232,6 +232,28 @@ jobs:
           destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
           extension: json
 
+  check_local_feature_manifests:
+    machine:
+      image: ubuntu-2204:2024.11.1
+      docker_layer_caching: true
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "experimenter/experimenter/features/manifests/|experimenter/manifesttool/"
+      - run:
+          name: Check local feature manifests
+          command: |
+            cp .env.sample .env
+            make feature_manifests FETCH_ARGS="--local-apps"
+            if ! git diff --quiet experimenter/experimenter/features/manifests/; then
+              echo 'Please commit generated updates to local feature manifests:'
+              echo
+              echo '    make feature_manifests FETCH_ARGS="--local-apps"'
+              echo
+              exit 1
+            fi
+
   check_schemas:
     machine:
       image: ubuntu-2204:2024.11.1
@@ -888,6 +910,12 @@ workflows:
           name: Check Cirrus x86_64
       - check_cirrus_aarch64:
           name: Check Cirrus aarch64
+      - check_local_feature_manifests:
+          name: Check Local Feature Manifests
+          filters:
+            branches:
+              ignore:
+                - main
       - check_schemas:
           name: Check Schemas
           filters:

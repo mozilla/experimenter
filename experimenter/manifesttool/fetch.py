@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional, TextIO
 
 import yaml
-from mozilla_nimbus_schemas import DesktopFeatureManifest, SdkFeatureManifest
+from mozilla_nimbus_schemas import DesktopFeatureManifest
 
 from manifesttool import github_api, hgmo_api, nimbus_cli
 from manifesttool.appconfig import AppConfig, DiscoveryStrategyType, RepositoryType
@@ -17,13 +17,15 @@ from manifesttool.version import Version
 @dataclass
 class FetchResult:
     app_name: str
-    ref: Ref
+    ref: Optional[Ref]
     version: Optional[Version]
     exc: Optional[Exception] = None
     cached: bool = False
 
     def __str__(self):  # pragma: no cover
-        as_str = f"{self.app_name} at {self.ref} version {self.version}"
+        as_str = self.app_name
+        if self.ref is not None:
+            as_str += f" at {self.ref} version {self.version}"
 
         if self.exc:
             as_str += f"\n{format_exception(self.exc)}"
@@ -49,20 +51,26 @@ def fetch_fml_app(
     if version is not None and ref is None:
         raise ValueError("Cannot fetch specific version without a ref.")
 
-    result = FetchResult(app_name=app_name, ref=ref or Ref("main"), version=version)
+    is_local = app_config.repo.type == RepositoryType.LOCAL
+    if ref is not None and is_local:
+        raise ValueError("Cannot fetch specific ref for repository type local.")
+
+    result = FetchResult(app_name=app_name, ref=ref, version=version)
 
     try:
         # We could operate against "main" for all these calls, but the repository
         # state might change between subsequent calls. That would mean the generated
         # single file manifests could differ because they were based on different
         # commits.
-        if ref is None:
+        if ref is None and not is_local:
             ref = result.ref = github_api.resolve_branch(
                 app_config.repo.name, app_config.repo.default_branch
             )
 
         if version:
             print(f"fetch: {app_name} at {ref} version {version}")
+        elif is_local:
+            print(f"fetch: {app_name} from local")
         else:
             print(f"fetch: {app_name} at {ref}")
 
@@ -70,14 +78,18 @@ def fetch_fml_app(
             fml_path = app_config.fml_path
         elif isinstance(app_config.fml_path, list):
             for fml_path in app_config.fml_path:
-                if github_api.file_exists(app_config.repo.name, fml_path, ref.target):
+                if is_local:
+                    if Path(fml_path).exists():
+                        break
+                elif github_api.file_exists(app_config.repo.name, fml_path, ref.target):
                     break
             else:
+                suffix = "" if is_local else f" at {ref}"
                 raise Exception(
-                    f"Could not find a feature manifest for {app_name} at {ref}"
+                    f"Could not find a feature manifest for {app_name}{suffix}"
                 )
 
-        channels = nimbus_cli.get_channels(app_config, fml_path, ref.target)
+        channels = nimbus_cli.get_channels(app_config, fml_path, ref)
         print(f"fetch: {app_name}: channels are {', '.join(channels)}")
 
         if not channels:
@@ -94,7 +106,7 @@ def fetch_fml_app(
                 app_config,
                 fml_path,
                 channel,
-                ref.target,
+                ref,
                 version,
             )
 

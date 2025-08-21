@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from manifesttool.appconfig import AppConfig, RepositoryType
+from manifesttool.repository import Ref
 from manifesttool.version import Version
 
 NIMBUS_CLI_PATH = "/application-services/bin/nimbus-cli"
@@ -23,18 +24,27 @@ def nimbus_cli(args: list[str]) -> bytes:
     )
 
 
-def get_channels(app_config: AppConfig, fml_path: str, ref: str) -> list[str]:
+def get_channels(app_config: AppConfig, fml_path: str, ref: Optional[Ref]) -> list[str]:
     """Get the list of channels supported by the application."""
-    assert app_config.repo.type == RepositoryType.GITHUB
+    assert app_config.repo.type in (RepositoryType.GITHUB, RepositoryType.LOCAL)
+    if app_config.repo.type == RepositoryType.GITHUB:
+        assert ref is not None
+
     output = nimbus_cli(
         [
             "fml",
             "--",
             "channels",
             "--json",
-            "--ref",
-            ref,
-            f"@{app_config.repo.name}/{fml_path}",
+            *(
+                [fml_path]
+                if app_config.repo.type == RepositoryType.LOCAL
+                else [
+                    "--ref",
+                    ref.target,
+                    f"@{app_config.repo.name}/{fml_path}",
+                ]
+            ),
         ]
     )
 
@@ -54,7 +64,7 @@ def download_single_file(
     app_config: AppConfig,
     fml_path: str,
     channel: str,
-    ref: str,
+    ref: Optional[Ref],
     version: Optional[Version],
 ):
     """Download the single-file FML manifest for the app on the specified
@@ -62,7 +72,9 @@ def download_single_file(
 
     If the AppConfig provides multiple FML paths, they will be tried in order.
     """
-    assert app_config.repo.type == RepositoryType.GITHUB
+    assert app_config.repo.type in (RepositoryType.GITHUB, RepositoryType.LOCAL)
+    if app_config.repo.type == RepositoryType.GITHUB:
+        assert ref is not None
 
     nimbus_cli(
         [
@@ -71,9 +83,15 @@ def download_single_file(
             "single-file",
             "--channel",
             channel,
-            "--ref",
-            ref,
-            f"@{app_config.repo.name}/{fml_path}",
+            *(
+                [fml_path]
+                if app_config.repo.type == RepositoryType.LOCAL
+                else [
+                    "--ref",
+                    ref.target,
+                    f"@{app_config.repo.name}/{fml_path}",
+                ]
+            ),
             str(_get_fml_path(manifest_dir, app_config, channel, version)),
         ],
     )
