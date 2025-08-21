@@ -1511,18 +1511,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def home_type_choice(self):
-        return (
-            NimbusConstants.HomeTypeChoices.LABS
-            if self.is_firefox_labs_opt_in
-            else (
-                NimbusConstants.HomeTypeChoices.ROLLOUT
-                if self.is_rollout
-                else NimbusConstants.HomeTypeChoices.EXPERIMENT
-            )
-        )
+        mapping = {
+            "labs": NimbusConstants.HomeTypeChoices.LABS,
+            "rollout": NimbusConstants.HomeTypeChoices.ROLLOUT,
+            "experiment": NimbusConstants.HomeTypeChoices.EXPERIMENT,
+        }
+
+        if self.is_firefox_labs_opt_in:
+            return mapping["labs"]
+        if self.is_rollout:
+            return mapping["rollout"]
+        return mapping["experiment"]
 
     def get_home_type_display(self):
-        return self.home_type_choice.emoji
+        return self.home_type_choice.label
 
     @property
     def should_timeout(self):

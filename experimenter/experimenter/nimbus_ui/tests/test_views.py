@@ -12,6 +12,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
@@ -3271,9 +3272,15 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         rollout = NimbusExperimentFactory.create(owner=self.user, is_rollout=True)
         experiment = NimbusExperimentFactory.create(owner=self.user, is_rollout=False)
 
-        self.assertEqual(labs.get_home_type_display(), "🧪")
-        self.assertEqual(rollout.get_home_type_display(), "📈")
-        self.assertEqual(experiment.get_home_type_display(), "🔬")
+        self.assertEqual(
+            labs.get_home_type_display(), NimbusConstants.HomeTypeChoices.LABS
+        )
+        self.assertEqual(
+            rollout.get_home_type_display(), NimbusConstants.HomeTypeChoices.ROLLOUT
+        )
+        self.assertEqual(
+            experiment.get_home_type_display(), NimbusConstants.HomeTypeChoices.EXPERIMENT
+        )
 
 
 class TestSlugRedirectToSummary(AuthTestCase):
