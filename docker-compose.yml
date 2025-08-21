@@ -9,7 +9,9 @@
 
 services:
   experimenter-dev:
-    profiles: [dev]
+    profiles:
+     - dev
+
     image: experimenter:dev
 
     depends_on:
@@ -36,7 +38,10 @@ services:
     command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python /experimenter/manage.py runserver 0:7001"
 
   experimenter-prod:
-    profiles: [prod, integration-tests]
+    profiles:
+      - prod
+      - integration-tests
+
     image: experimenter:deploy
 
     depends_on:
@@ -56,7 +61,9 @@ services:
     command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python manage.py collectstatic --noinput&&gunicorn -w 4 -b 0.0.0.0:7001 experimenter.wsgi"
 
   experimenter-test:
-    profiles: [test]
+    profiles:
+      - test
+
     image: experimenter:test
 
     depends_on:
@@ -70,8 +77,11 @@ services:
       - ./docs/experimenter:/experimenter/experimenter/docs
 
   yarn-nimbus_ui:
-    profiles: [dev]
+    profiles:
+      - dev
+
     image: experimenter:dev
+
     env_file: .env
     stdin_open: true
     tty: true
@@ -89,8 +99,11 @@ services:
     command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus_ui watch | cat"
 
   yarn-results:
-    profiles: [dev]
+    profiles:
+      - dev
+
     image: experimenter:dev
+
     env_file: .env
     tty: true
     ports:
@@ -108,35 +121,45 @@ services:
     command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/results start | cat"
 
   worker:
-    profiles: [dev, prod]
+    profiles:
+      - dev
+      - prod
+
     image: experimenter:deploy
-    env_file: .env
     depends_on:
       - db
       - redis
+    env_file: .env
     volumes:
       - ./experimenter:/experimenter
       # - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l DEBUG"
 
   beat:
-    profiles: [dev, prod]
+    profiles:
+      - dev
+      - prod
+
     image: experimenter:deploy
-    env_file: .env
+
     depends_on:
       - db
       - redis
+    env_file: .env
     volumes:
       - ./experimenter:/experimenter
       # - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat -s /tmp/celerybeat-schedule -l DEBUG"
 
   nginx-dev: &nginx
-    profiles: [dev]
+    profiles:
+      - dev
+
     image: experimenter:nginx
-    env_file: .env
+
     depends_on:
       - experimenter-dev
+    env_file: .env
     ports:
       - "443:443"
 
