@@ -5,7 +5,7 @@ from typing import Optional
 
 import click
 
-from manifesttool.appconfig import AppConfigs
+from manifesttool.appconfig import AppConfigs, RepositoryType
 from manifesttool.fetch import (
     fetch_fml_app,
     fetch_legacy_app,
@@ -52,7 +52,21 @@ def main(ctx: click.Context, *, manifest_dir: Path):
     multiple=True,
     help="Only fetch updates for the specified app(s).",
 )
-def fetch(ctx: click.Context, *, summary_filename: Optional[Path], app_names: list[str]):
+@click.option(
+    "--local-apps/--no-local-apps",
+    default=False,
+    help=(
+        "Generate updates to locally configured app(s). "
+        "Otherwise local apps will be excluded."
+    ),
+)
+def fetch(
+    ctx: click.Context,
+    *,
+    summary_filename: Optional[Path],
+    app_names: list[str],
+    local_apps: bool,
+):
     """Fetch the FML manifests and generate experimenter.yaml files."""
     context = ctx.find_object(Context)
 
@@ -60,11 +74,16 @@ def fetch(ctx: click.Context, *, summary_filename: Optional[Path], app_names: li
 
     if app_names:
         for app_name in app_names:
-            if app_name not in context.app_configs.root.keys():
+            if app_name not in context.app_configs.root:
                 print(f"fetch: unknown app {app_name}", file=sys.stderr)
                 sys.exit(1)
     else:
-        app_names = context.app_configs.root.keys()
+        app_names = [
+            app_name
+            for app_name, app_config in context.app_configs.root.items()
+            # use ^ (XOR) to choose exclusively locally or remotely configured apps
+            if local_apps ^ (app_config.repo.type != RepositoryType.LOCAL)
+        ]
 
     for app_name in app_names:
         app_config = context.app_configs.root[app_name]
