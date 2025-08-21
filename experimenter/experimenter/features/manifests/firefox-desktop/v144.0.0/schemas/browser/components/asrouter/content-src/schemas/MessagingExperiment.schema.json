@@ -749,6 +749,10 @@
                   },
                   "data": {
                     "type": "object"
+                  },
+                  "dismiss": {
+                    "type": "boolean",
+                    "description": "If true, dismiss the infobar after handling this link’s action. Defaults to false."
                   }
                 },
                 "required": [

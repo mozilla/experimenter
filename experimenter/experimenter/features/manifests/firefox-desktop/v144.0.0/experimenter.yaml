@@ -4050,6 +4050,18 @@ jitHintsCache:
         branch: user
         pref: "javascript.options.jithints"
 
+asmjs:
+  description: Pref to toggle support for asm.js.
+  owner: dpalmeiro@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: True to enable the asm.js feature.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "javascript.options.asmjs"
+
 raceCacheWithNetwork:
   description: Prefs to toggle the race cache with network.
   owner: dpalmeiro@mozilla.com, acreskey@mozilla.com

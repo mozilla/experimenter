@@ -579,6 +579,14 @@ tab-strip:
     enabled:
       type: boolean
       description: "Whether or not to enable tab strip.\n"
+terms-of-use-prompt:
+  description: Enables the terms of use prompt for users who have not accepted ToU
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: When the feature is enabled then the prompt can show for users.
 third-party-cookie-blocking:
   description: Control third-party cookie blocking.
   hasExposure: true
