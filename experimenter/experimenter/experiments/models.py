@@ -1519,7 +1519,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             case (False, False):
                 return NimbusConstants.HomeTypeChoices.EXPERIMENT
 
-
     def get_home_type_display(self):
         return self.home_type_choice.label
 
