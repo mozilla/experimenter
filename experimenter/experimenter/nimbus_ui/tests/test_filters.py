@@ -85,6 +85,27 @@ class FilterTests(TestCase):
 
 
 class TestHomeFilters(AuthTestCase):
+    def _make_three_types(self):
+        labs = NimbusExperimentFactory.create(
+            owner=self.user,
+            is_firefox_labs_opt_in=True,
+            is_rollout=False,
+            name="Labs One",
+        )
+        rollout = NimbusExperimentFactory.create(
+            owner=self.user,
+            is_firefox_labs_opt_in=False,
+            is_rollout=True,
+            name="Rollout One",
+        )
+        experiment = NimbusExperimentFactory.create(
+            owner=self.user,
+            is_firefox_labs_opt_in=False,
+            is_rollout=False,
+            name="Experiment One",
+        )
+        return labs, rollout, experiment
+
     def test_my_deliveries_status_field_is_set_to_default_initial(self):
         NimbusExperimentFactory.create(owner=self.user)
 
@@ -254,3 +275,57 @@ class TestHomeFilters(AuthTestCase):
         self.assertEqual(resp.status_code, 200)
         page = resp.context["all_my_experiments_page"].object_list
         self.assertEqual(page[0].id, high.id)
+
+    def test_filter_type_labs_only(self):
+        labs, rollout, experiment = self._make_three_types()
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?type=Labs")
+        self.assertEqual(resp.status_code, 200)
+
+        page = list(resp.context["all_my_experiments_page"].object_list)
+        self.assertIn(labs, page)
+        self.assertNotIn(rollout, page)
+        self.assertNotIn(experiment, page)
+
+    def test_filter_type_rollout_only(self):
+        labs, rollout, experiment = self._make_three_types()
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?type=Rollout")
+        self.assertEqual(resp.status_code, 200)
+
+        page = list(resp.context["all_my_experiments_page"].object_list)
+        self.assertIn(rollout, page)
+        self.assertNotIn(labs, page)
+        self.assertNotIn(experiment, page)
+
+    def test_filter_type_experiment_only(self):
+        labs, rollout, experiment = self._make_three_types()
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?type=Experiment")
+        self.assertEqual(resp.status_code, 200)
+
+        page = list(resp.context["all_my_experiments_page"].object_list)
+        self.assertIn(experiment, page)
+        self.assertNotIn(labs, page)
+        self.assertNotIn(rollout, page)
+
+    def test_filter_type_multi_select_labs_and_rollout(self):
+        labs, rollout, experiment = self._make_three_types()
+
+        url = f"{reverse('nimbus-ui-home')}?type=Labs&type=Rollout"
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+        page = list(resp.context["all_my_experiments_page"].object_list)
+        self.assertIn(labs, page)
+        self.assertIn(rollout, page)
+        self.assertNotIn(experiment, page)
+
+    def test_filter_type_with_sort_preserved(self):
+        labs, rollout, experiment = self._make_three_types()
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?type=Labs&sort=name")
+        self.assertEqual(resp.status_code, 200)
+
+        page = list(resp.context["all_my_experiments_page"].object_list)
+        self.assertEqual(page, [labs])
