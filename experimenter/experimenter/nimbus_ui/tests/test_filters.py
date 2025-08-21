@@ -276,50 +276,29 @@ class TestHomeFilters(AuthTestCase):
         page = resp.context["all_my_experiments_page"].object_list
         self.assertEqual(page[0].id, high.id)
 
-    def test_filter_type_labs_only(self):
-        labs, rollout, experiment = self._make_three_types()
-
-        resp = self.client.get(f"{reverse('nimbus-ui-home')}?type=Labs")
-        self.assertEqual(resp.status_code, 200)
-
+    def _assert_page_membership(self, resp, includes, excludes):
         page = list(resp.context["all_my_experiments_page"].object_list)
-        self.assertIn(labs, page)
-        self.assertNotIn(rollout, page)
-        self.assertNotIn(experiment, page)
+        for obj in includes:
+            self.assertIn(obj, page)
+        for obj in excludes:
+            self.assertNotIn(obj, page)
 
-    def test_filter_type_rollout_only(self):
+    def test_filter_type_parametrized(self):
         labs, rollout, experiment = self._make_three_types()
+        base = reverse("nimbus-ui-home")
 
-        resp = self.client.get(f"{reverse('nimbus-ui-home')}?type=Rollout")
-        self.assertEqual(resp.status_code, 200)
+        cases = [
+            ("type=Labs",                 [labs],               [rollout, experiment]),
+            ("type=Rollout",              [rollout],            [labs, experiment]),
+            ("type=Experiment",           [experiment],         [labs, rollout]),
+            ("type=Labs&type=Rollout",    [labs, rollout],      [experiment]),
+        ]
 
-        page = list(resp.context["all_my_experiments_page"].object_list)
-        self.assertIn(rollout, page)
-        self.assertNotIn(labs, page)
-        self.assertNotIn(experiment, page)
-
-    def test_filter_type_experiment_only(self):
-        labs, rollout, experiment = self._make_three_types()
-
-        resp = self.client.get(f"{reverse('nimbus-ui-home')}?type=Experiment")
-        self.assertEqual(resp.status_code, 200)
-
-        page = list(resp.context["all_my_experiments_page"].object_list)
-        self.assertIn(experiment, page)
-        self.assertNotIn(labs, page)
-        self.assertNotIn(rollout, page)
-
-    def test_filter_type_multi_select_labs_and_rollout(self):
-        labs, rollout, experiment = self._make_three_types()
-
-        url = f"{reverse('nimbus-ui-home')}?type=Labs&type=Rollout"
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)
-
-        page = list(resp.context["all_my_experiments_page"].object_list)
-        self.assertIn(labs, page)
-        self.assertIn(rollout, page)
-        self.assertNotIn(experiment, page)
+        for qs, includes, excludes in cases:
+            with self.subTest(qs=qs):
+                resp = self.client.get(f"{base}?{qs}")
+                self.assertEqual(resp.status_code, 200)
+                self._assert_page_membership(resp, includes, excludes)
 
     def test_filter_type_with_sort_preserved(self):
         labs, rollout, experiment = self._make_three_types()
