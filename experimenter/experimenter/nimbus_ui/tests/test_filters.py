@@ -85,6 +85,27 @@ class FilterTests(TestCase):
 
 
 class TestHomeFilters(AuthTestCase):
+    def _make_three_types(self):
+        labs = NimbusExperimentFactory.create(
+            owner=self.user,
+            is_firefox_labs_opt_in=True,
+            is_rollout=False,
+            name="Labs One",
+        )
+        rollout = NimbusExperimentFactory.create(
+            owner=self.user,
+            is_firefox_labs_opt_in=False,
+            is_rollout=True,
+            name="Rollout One",
+        )
+        experiment = NimbusExperimentFactory.create(
+            owner=self.user,
+            is_firefox_labs_opt_in=False,
+            is_rollout=False,
+            name="Experiment One",
+        )
+        return labs, rollout, experiment
+
     def test_my_deliveries_status_field_is_set_to_default_initial(self):
         NimbusExperimentFactory.create(owner=self.user)
 
@@ -254,3 +275,43 @@ class TestHomeFilters(AuthTestCase):
         self.assertEqual(resp.status_code, 200)
         page = resp.context["all_my_experiments_page"].object_list
         self.assertEqual(page[0].id, high.id)
+
+    def _assert_page_membership(self, resp, includes, excludes):
+        page = list(resp.context["all_my_experiments_page"].object_list)
+        for obj in includes:
+            self.assertIn(obj, page)
+        for obj in excludes:
+            self.assertNotIn(obj, page)
+
+    @parameterized.expand(
+        [
+            ("labs_only", "type=Labs", ["labs"], ["rollout", "experiment"]),
+            ("rollout_only", "type=Rollout", ["rollout"], ["labs", "experiment"]),
+            ("experiment_only", "type=Experiment", ["experiment"], ["labs", "rollout"]),
+            (
+                "labs_and_rollout",
+                "type=Labs&type=Rollout",
+                ["labs", "rollout"],
+                ["experiment"],
+            ),
+        ]
+    )
+    def test_filter_type(self, name, querystring, expected_in, expected_not_in):
+        labs, rollout, experiment = self._make_three_types()
+        mapping = {"labs": labs, "rollout": rollout, "experiment": experiment}
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?{querystring}")
+        self.assertEqual(resp.status_code, 200)
+
+        includes = [mapping[k] for k in expected_in]
+        excludes = [mapping[k] for k in expected_not_in]
+        self._assert_page_membership(resp, includes, excludes)
+
+    def test_filter_type_with_sort_preserved(self):
+        labs, rollout, experiment = self._make_three_types()
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?type=Labs&sort=name")
+        self.assertEqual(resp.status_code, 200)
+
+        page = list(resp.context["all_my_experiments_page"].object_list)
+        self.assertEqual(page, [labs])
