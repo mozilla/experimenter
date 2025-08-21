@@ -1511,17 +1511,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def home_type_choice(self):
-        mapping = {
-            "labs": NimbusConstants.HomeTypeChoices.LABS,
-            "rollout": NimbusConstants.HomeTypeChoices.ROLLOUT,
-            "experiment": NimbusConstants.HomeTypeChoices.EXPERIMENT,
-        }
+        match (self.is_firefox_labs_opt_in, self.is_rollout):
+            case (True, _):
+                return NimbusConstants.HomeTypeChoices.LABS
+            case (False, True):
+                return NimbusConstants.HomeTypeChoices.ROLLOUT
+            case (False, False):
+                return NimbusConstants.HomeTypeChoices.EXPERIMENT
 
-        if self.is_firefox_labs_opt_in:
-            return mapping["labs"]
-        if self.is_rollout:
-            return mapping["rollout"]
-        return mapping["experiment"]
 
     def get_home_type_display(self):
         return self.home_type_choice.label
