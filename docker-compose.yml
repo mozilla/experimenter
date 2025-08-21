@@ -1,16 +1,25 @@
-version: "3"
+# This compose file contains several profiles:
+#
+# - dev: The Experimenter development server environment.
+# - prod: The Experimenter production environment.
+# - integration-tests: Services required to run our integration tests (e.g.,
+#   headless Firefox).
+# - test: The Experimenter test environment.
+# - demo: A demo application for testing Cirrus.
 
 services:
-  experimenter:
+  experimenter-dev:
+    profiles: [dev]
     image: experimenter:dev
-    env_file: .env
-    stdin_open: true
-    tty: true
+
     depends_on:
       - db
       - redis
       - kinto
       - cirrus-experimenter
+    env_file: .env
+    stdin_open: true
+    tty: true
     ports:
       - "7001:7001"
     volumes:
@@ -23,10 +32,45 @@ services:
       - /experimenter/experimenter/nimbus_ui/static/node_modules/
       - /experimenter/experimenter/served/
       - /experimenter/node_modules/
-      - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
+      # - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python /experimenter/manage.py runserver 0:7001"
 
+  experimenter-prod:
+    profiles: [prod, integration-tests]
+    image: experimenter:deploy
+
+    depends_on:
+      - db
+      - redis
+      - kinto
+    env_file: .env
+    environment:
+      - DEBUG=True
+      - USE_YARN_DEV=False
+    stdin_open: true
+    tty: true
+    ports:
+      - "7001:7001"
+    volumes:
+      - media_volume:/experimenter/experimenter/media
+    command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python manage.py collectstatic --noinput&&gunicorn -w 4 -b 0.0.0.0:7001 experimenter.wsgi"
+
+  experimenter-test:
+    profiles: [test]
+    image: experimenter:test
+
+    depends_on:
+      - db
+    env_file: .env.sample
+    environment:
+      - DEBUG=false
+      - CIRCLE_PULL_REQUEST
+      - CIRCLE_BRANCH
+    volumes:
+      - ./docs/experimenter:/experimenter/experimenter/docs
+
   yarn-nimbus_ui:
+    profiles: [dev]
     image: experimenter:dev
     env_file: .env
     stdin_open: true
@@ -41,10 +85,11 @@ services:
       - /experimenter/experimenter/nimbus_ui/static/node_modules/
       - /experimenter/experimenter/served/
       - /experimenter/node_modules/
-      - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
+      # - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus_ui watch | cat"
 
   yarn-results:
+    profiles: [dev]
     image: experimenter:dev
     env_file: .env
     tty: true
@@ -59,40 +104,50 @@ services:
       - /experimenter/experimenter/nimbus_ui/static/node_modules/
       - /experimenter/experimenter/served/
       - /experimenter/node_modules/
-      - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
+      # - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/results start | cat"
 
   worker:
-    image: experimenter:dev
+    profiles: [dev, prod]
+    image: experimenter:deploy
     env_file: .env
     depends_on:
       - db
       - redis
     volumes:
       - ./experimenter:/experimenter
-      - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
+      # - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l DEBUG"
 
   beat:
-    image: experimenter:dev
+    profiles: [dev, prod]
+    image: experimenter:deploy
     env_file: .env
     depends_on:
       - db
       - redis
     volumes:
       - ./experimenter:/experimenter
-      - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
+      # - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat -s /tmp/celerybeat-schedule -l DEBUG"
 
-  nginx:
-    build: ./nginx
+  nginx-dev: &nginx
+    profiles: [dev]
+    image: experimenter:nginx
     env_file: .env
     depends_on:
-      - experimenter
+      - experimenter-dev
     ports:
       - "443:443"
 
+  nginx-prod:
+    <<: *nginx
+    profiles: [prod, integration-tests]
+    depends_on:
+      - experimenter-prod
+
   db:
+    profiles: [dev, prod, test]
     restart: always
     image: postgres:14.8
     environment:
@@ -103,11 +158,13 @@ services:
       - db_volume:/var/lib/postgresql
 
   redis:
+    profiles: [dev, prod, integration-test]
     image: redis:6.2.6
     ports:
       - "6379:6379"
 
   kinto:
+    profiles: [dev, prod, integration-test, demo]
     image: mozilla/remote-settings:30.1.1
     environment:
       KINTO_INI: /etc/kinto.ini
@@ -119,16 +176,14 @@ services:
       - ./kinto/server.ini:/etc/kinto.ini
 
   autograph:
+    profiles: [dev, prod, integration-test, demo]
     image: mozilla/autograph:4.1.1
     ports:
       - "8000:8000"
 
-  cirrus-experimenter:
-    build:
-      additional_contexts:
-        - fml=experimenter/experimenter/features/manifests/
-      context: cirrus/server/
-      dockerfile: Dockerfile
+  cirrus-experimenter: &cirrus-experimenter
+    profiles: [dev, prod]
+    image: cirrus:deploy
     env_file: .env
     environment:
       CIRRUS_APP_ID: experimenter.cirrus
@@ -139,7 +194,91 @@ services:
       - kinto
     volumes:
       - ./cirrus/server/:/cirrus
-    working_dir: /cirrus
+
+    cirrus-test:
+      profiles: [test]
+      image: cirrus:deploy
+      env_file: .env.test
+      depends_on:
+        - kinto
+
+  firefox:
+    profiles: [integration-test]
+    image: selenium/standalone-firefox
+    env_file: .env
+    platform: linux/amd64
+    environment:
+      - MOZ_HEADLESS
+      - FIREFOX_CHANNEL
+      - PYTEST_ARGS
+      - PYTEST_BASE_URL
+      - INTEGRATION_TEST_KINTO_URL
+      - INTEGRATION_TEST_NGINX_URL
+      - MOZ_REMOTE_SETTINGS_DEVTOOLS=1
+    volumes:
+      - .:/code
+      - /code/experimenter/tests/integration/.tox
+    depends_on:
+      - nginx
+      - kinto
+      - demo-app-frontend
+    expose:
+      - "4444"
+    ports:
+      - "5900:5900"
+      - "7902:7900"
+    shm_size: 2g
+    working_dir: /code
+
+  rust-sdk:
+    profiles: [integration-test]
+    image: experimenter:integration-tests
+    env_file: .env
+    volumes:
+      - .:/code
+      - /code/experimenter/tests/integration/.tox
+    working_dir: /code
+    depends_on:
+      - nginx
+      - kinto
+
+  yarn-legacy:
+    profiles: [legacy]
+    image: experimenter:dev
+    env_file: .env
+    tty: true
+    volumes:
+      - ./experimenter:/experimenter
+      - media_volume:/experimenter/experimenter/media
+      - /experimenter/experimenter/legacy/legacy-ui/core/.cache/
+      - /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
+      - /experimenter/experimenter/served/
+      - /experimenter/node_modules/
+    command: bash -c "yarn workspace @experimenter/core watch"
+
+  cirrus-demo:
+    <<: *cirrus-experimenter
+    profiles: [demo]
+    environment:
+      CIRRUS_APP_ID: demo-app-beta
+      CIRRUS_APP_NAME: demo_app
+      CIRRUS_CHANNEL: beta
+      CIRRUS_FML_PATH: ./feature_manifests/sample.yml
+
+  demo-app-backend:
+    profiles: [demo]
+    image: demo-app:backend
+    ports:
+      - '3002:3002'
+    restart: always
+    depends_on:
+      - cirrus-demo
+    environment:
+      - CIRRUS=http://cirrus:8001
+
+  demo-app-frontend:
+    profiles: [demo, integration-test]
+    image: demo-app:frontend
 
 volumes:
   db_volume:
