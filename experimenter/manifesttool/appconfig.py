@@ -11,11 +11,12 @@ from manifesttool.version import Version
 class RepositoryType(str, Enum):
     HGMO = "hgmo"  # hg.mozilla.org
     GITHUB = "github"
+    LOCAL = "local"
 
 
 class Repository(BaseModel):
     type: RepositoryType
-    name: str
+    name: str | None = None
     default_branch: str = Field(default="main")
 
     @model_validator(mode="before")
@@ -25,6 +26,16 @@ class Repository(BaseModel):
 
         if ty == RepositoryType.HGMO and default_branch is None:
             raise ValueError("hg.mozilla.org-hosted repositories require default_branch")
+
+        return values
+
+    @model_validator(mode="before")
+    def validate_name(cls, values: dict[str, Any]):
+        _type = values.get("type")
+        name = values.get("name")
+
+        if _type != RepositoryType.LOCAL and name is None:
+            raise ValueError("non-local repositories require name")
 
         return values
 
