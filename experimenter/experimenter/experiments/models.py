@@ -1510,6 +1510,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         }
 
     @property
+    def home_type_choice(self):
+        return (
+            NimbusConstants.HomeTypeChoices.LABS
+            if self.is_firefox_labs_opt_in
+            else (
+                NimbusConstants.HomeTypeChoices.ROLLOUT
+                if self.is_rollout
+                else NimbusConstants.HomeTypeChoices.EXPERIMENT
+            )
+        )
+
+    def get_home_type_display(self):
+        return self.home_type_choice.emoji
+
+    @property
     def should_timeout(self):
         review_expired = (
             timezone.now() - self.changes.latest_change().changed_on
