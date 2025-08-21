@@ -283,22 +283,29 @@ class TestHomeFilters(AuthTestCase):
         for obj in excludes:
             self.assertNotIn(obj, page)
 
-    def test_filter_type_parametrized(self):
-        labs, rollout, experiment = self._make_three_types()
-        base = reverse("nimbus-ui-home")
-
-        cases = [
-            ("type=Labs",                 [labs],               [rollout, experiment]),
-            ("type=Rollout",              [rollout],            [labs, experiment]),
-            ("type=Experiment",           [experiment],         [labs, rollout]),
-            ("type=Labs&type=Rollout",    [labs, rollout],      [experiment]),
+    @parameterized.expand(
+        [
+            ("labs_only", "type=Labs", ["labs"], ["rollout", "experiment"]),
+            ("rollout_only", "type=Rollout", ["rollout"], ["labs", "experiment"]),
+            ("experiment_only", "type=Experiment", ["experiment"], ["labs", "rollout"]),
+            (
+                "labs_and_rollout",
+                "type=Labs&type=Rollout",
+                ["labs", "rollout"],
+                ["experiment"],
+            ),
         ]
+    )
+    def test_filter_type(self, name, querystring, expected_in, expected_not_in):
+        labs, rollout, experiment = self._make_three_types()
+        mapping = {"labs": labs, "rollout": rollout, "experiment": experiment}
 
-        for qs, includes, excludes in cases:
-            with self.subTest(qs=qs):
-                resp = self.client.get(f"{base}?{qs}")
-                self.assertEqual(resp.status_code, 200)
-                self._assert_page_membership(resp, includes, excludes)
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?{querystring}")
+        self.assertEqual(resp.status_code, 200)
+
+        includes = [mapping[k] for k in expected_in]
+        excludes = [mapping[k] for k in expected_not_in]
+        self._assert_page_membership(resp, includes, excludes)
 
     def test_filter_type_with_sort_preserved(self):
         labs, rollout, experiment = self._make_three_types()
