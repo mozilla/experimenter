@@ -474,14 +474,6 @@ class NimbusConstants:
         EXPERIMENT = "Experiment", "🔬 Experiment"
         LABS = "Labs", "🧪 Labs"
 
-        @property
-        def emoji(self):
-            return self.label.split(" ", 1)[0]
-
-        @property
-        def title(self):
-            return self.value
-
     class Version(models.TextChoices):
         @staticmethod
         def parse(version_str):
