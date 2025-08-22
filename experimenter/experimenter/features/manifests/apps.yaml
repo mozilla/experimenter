@@ -107,9 +107,8 @@ firefox_accounts_cirrus:
 firefox_desktop:
   slug: "firefox-desktop"
   repo:
-    type: "hgmo"
-    name: "mozilla-unified"
-    default_branch: "central"
+    type: "github"
+    name: "mozilla-firefox/firefox"
   experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"
   release_discovery:
     version_file:
@@ -127,7 +126,7 @@ firefox_desktop:
           # In this order, if two consecutive branches have the same version,
           # then the latter will take precedence. e.g., if both beta and release
           # report the same version, we will use the feature manifest from release.
-          - "central"
+          - "main"
           - "beta"
           - "release"
           - "esr115"

@@ -6,7 +6,6 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import responses
-from parameterized import parameterized
 
 import manifesttool
 from manifesttool.appconfig import (
@@ -393,46 +392,19 @@ class ReleaseTests(TestCase):
             ):
                 discover_tagged_releases("app", app_config, strategy.root)
 
-    @parameterized.expand(
-        [
-            (
-                AppConfig(
-                    slug="fml-app",
-                    repo=Repository(
-                        type=RepositoryType.GITHUB,
-                        name="fml-repo",
-                    ),
-                    fml_path="nimbus.fml.yaml",
-                    release_discovery=ReleaseDiscovery(
-                        version_file=VersionFile.create_plain_text("version.txt"),
-                        strategies=[
-                            DiscoveryStrategy.create_branched(["foo", "bar", "baz"])
-                        ],
-                    ),
-                ),
-                manifesttool.releases.github_api,
+    def test_discover_branched_releases(self):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
             ),
-            (
-                AppConfig(
-                    slug="legacy-app",
-                    repo=Repository(
-                        type=RepositoryType.HGMO,
-                        name="legacy-repo",
-                        default_branch="foo",
-                    ),
-                    experimenter_yaml_path="experimenter.yaml",
-                    release_discovery=ReleaseDiscovery(
-                        version_file=VersionFile.create_plain_text("version.txt"),
-                        strategies=[
-                            DiscoveryStrategy.create_branched(["foo", "bar", "baz"])
-                        ],
-                    ),
-                ),
-                manifesttool.releases.hgmo_api,
+            fml_path="nimbus.fml.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[DiscoveryStrategy.create_branched(["foo", "bar", "baz"])],
             ),
-        ]
-    )
-    def test_discover_branched_releases(self, app_config: AppConfig, api):
+        )
         strategy = app_config.release_discovery.strategies[0].root
         app_name = app_config.slug.replace("-", "_")
 
@@ -449,12 +421,12 @@ class ReleaseTests(TestCase):
 
             with (
                 patch.object(
-                    api,
+                    manifesttool.releases.github_api,
                     "resolve_branch",
                     make_mock_resolve_branch(branches),
                 ),
                 patch.object(
-                    api,
+                    manifesttool.releases.github_api,
                     "fetch_file",
                     make_mock_fetch_file(paths_by_ref=paths_by_ref),
                 ),
@@ -471,7 +443,7 @@ class ReleaseTests(TestCase):
             )
 
     @patch.object(
-        manifesttool.releases.hgmo_api,
+        manifesttool.releases.github_api,
         "resolve_branch",
         side_effect=make_mock_resolve_branch(
             {
@@ -480,7 +452,7 @@ class ReleaseTests(TestCase):
         ),
     )
     @patch.object(
-        manifesttool.releases.hgmo_api,
+        manifesttool.releases.github_api,
         "fetch_file",
         make_mock_fetch_file(
             paths_by_ref={
@@ -493,7 +465,7 @@ class ReleaseTests(TestCase):
         app_config = AppConfig(
             slug="legacy-app",
             repo=Repository(
-                type=RepositoryType.HGMO,
+                type=RepositoryType.GITHUB,
                 name="legacy-repo",
                 default_branch="default",
             ),
