@@ -3272,9 +3272,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         rollout = NimbusExperimentFactory.create(owner=self.user, is_rollout=True)
         experiment = NimbusExperimentFactory.create(owner=self.user, is_rollout=False)
 
-        self.assertEqual(
-            labs.get_home_type_choice, NimbusConstants.HomeTypeChoices.LABS
-        )
+        self.assertEqual(labs.get_home_type_choice, NimbusConstants.HomeTypeChoices.LABS)
         self.assertEqual(
             rollout.get_home_type_choice, NimbusConstants.HomeTypeChoices.ROLLOUT
         )
