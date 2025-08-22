@@ -2,17 +2,18 @@ from __future__ import annotations
 
 import plistlib
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
-from pydantic import ValidationInfo
-from typing import Any, Iterable, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
+from pydantic import ValidationInfo
 from requests import HTTPError
 
 from manifesttool import github_api, hgmo_api
 from manifesttool.repository import Ref
 
 if TYPE_CHECKING:  # pragma: no cover
-    from manifesttool.appconfig import AppConfig, Repository, VersionFile
+    from manifesttool.appconfig import AppConfig, VersionFile
 
 
 @dataclass
@@ -29,7 +30,7 @@ class Version:
     patch: int = 0
 
     @classmethod
-    def from_match(cls, groups: dict[str, str]) -> "Version":
+    def from_match(cls, groups: dict[str, str]) -> Version:
         """Parse a Version out of regular expression match groups.
 
         Args:
@@ -52,7 +53,7 @@ class Version:
     VERSION_RE = re.compile(r"^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?")
 
     @classmethod
-    def parse(cls, s: str) -> Optional["Version"]:
+    def parse(cls, s: str) -> Optional[Version]:
         """Parse a version out of a given string.
 
         Any missing component will be assumed zero.
@@ -71,16 +72,16 @@ class Version:
     def __hash__(self) -> int:
         return hash(self.as_tuple())
 
-    def __lt__(self, other: "Version") -> bool:
+    def __lt__(self, other: Version) -> bool:
         return self.as_tuple() < other.as_tuple()
 
-    def __le__(self, other: "Version") -> bool:
+    def __le__(self, other: Version) -> bool:
         return self.as_tuple() <= other.as_tuple()
 
-    def __gt__(self, other: "Version") -> bool:
+    def __gt__(self, other: Version) -> bool:
         return self.as_tuple() > other.as_tuple()
 
-    def __ge__(self, other: "Version") -> bool:
+    def __ge__(self, other: Version) -> bool:
         return self.as_tuple() >= other.as_tuple()
 
     def __str__(self):  # pragma: no cover
@@ -102,7 +103,7 @@ class Version:
         if version := cls.parse(value):
             return version
 
-        raise ValueError(f"Invalid version {repr(value)}")
+        raise ValueError(f"Invalid version {value!r}")
 
 
 def find_versioned_refs(
@@ -234,7 +235,8 @@ def resolve_ref_versions(
                 break
         else:
             raise Exception(
-                f"Could not find version file for app {app_config.slug} at ref {ref.name} ({ref.target})"
+                f"Could not find version file for app {app_config.slug} at ref "
+                f"{ref.name} ({ref.target})"
             )
 
     return versions

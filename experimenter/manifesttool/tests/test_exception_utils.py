@@ -23,25 +23,29 @@ class ExceptionUtilsTests(TestCase):
         [
             (
                 CalledProcessError(1, ["/bin/bogus"]),
-                "subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.\n",
+                "subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.\n",  # noqa: E501
             ),
             (
                 CalledProcessError(1, ["/bin/bogus"], output=b"stdout"),
-                "subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.\n"
-                "\n"
-                "stdout:\n"
-                "-----\n"
-                "stdout\n"
-                "-----\n",
+                """\
+subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.
+
+stdout:
+-----
+stdout
+-----
+""",
             ),
             (
                 CalledProcessError(1, ["/bin/bogus"], stderr=b"stderr"),
-                "subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.\n"
-                "\n"
-                "stderr:\n"
-                "-----\n"
-                "stderr\n"
-                "-----\n",
+                """\
+subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.
+
+stderr:
+-----
+stderr
+-----
+""",
             ),
             (
                 CalledProcessError(
@@ -50,47 +54,53 @@ class ExceptionUtilsTests(TestCase):
                     output=b"multi-line\nstdout\n",
                     stderr=b"multi-line\nstderr\n",
                 ),
-                "subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.\n"
-                "\n"
-                "stdout:\n"
-                "-----\n"
-                "multi-line\n"
-                "stdout\n"
-                "-----\n"
-                "\n"
-                "stderr:\n"
-                "-----\n"
-                "multi-line\n"
-                "stderr\n"
-                "-----\n",
+                """\
+subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.
+
+stdout:
+-----
+multi-line
+stdout
+-----
+
+stderr:
+-----
+multi-line
+stderr
+-----
+""",
             ),
             (
                 CalledProcessError(1, ["/bin/bogus"], output=b"\xff", stderr=b"stderr"),
-                "subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.\n"
-                "\n"
-                "stdout:\n"
-                "-----\n"
-                "b'\\xff'\n"
-                "-----\n"
-                "\n"
-                "stderr:\n"
-                "-----\n"
-                "stderr\n"
-                "-----\n",
+                """\
+subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.
+
+stdout:
+-----
+b'\\xff'
+-----
+
+stderr:
+-----
+stderr
+-----
+""",
             ),
             (
                 CalledProcessError(2, ["/bin/bogus"], output=b"stdout", stderr=b"\xff"),
-                "subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 2.\n"
-                "\n"
-                "stdout:\n"
-                "-----\n"
-                "stdout\n"
-                "-----\n"
-                "\n"
-                "stderr:\n"
-                "-----\n"
-                "b'\\xff'\n"
-                "-----\n",
+                """\
+subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 2.
+
+stdout:
+-----
+stdout
+-----
+
+stderr:
+-----
+b'\\xff'
+-----
+""",
             ),
         ],
     )
@@ -112,8 +122,8 @@ class ExceptionUtilsTests(TestCase):
         # Replace the line number in the test so that we don't have to update
         # this test if line numbers change.
         formatted = re.sub(
-            r"""File "/experimenter/manifesttool/tests/test_exception_utils.py", line \d+, in test_format_exception_tb""",
-            """File "/experimenter/manifesttool/tests/test_exception_utils.py", line 0000, in test_format_exception_tb""",
+            r"""File "/experimenter/manifesttool/tests/test_exception_utils.py", line \d+, in test_format_exception_tb""",  # noqa: E501
+            """File "/experimenter/manifesttool/tests/test_exception_utils.py", line 0000, in test_format_exception_tb""",  # noqa: E501
             format_exception(exc),
         )
 
@@ -136,6 +146,6 @@ this
 is
 stderr
 -----
-"""
+"""  # noqa: E501
 
         self.assertEqual(formatted, expected)
