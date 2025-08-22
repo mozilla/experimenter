@@ -32,7 +32,7 @@ def make_app_configs(app_configs: list[AppConfig]) -> AppConfigs:
 
 
 @contextmanager
-def cli_runner(*, app_configs: AppConfig, manifest_path: Path = Path(".")):
+def cli_runner(*, app_configs: AppConfig, manifest_path: Path = Path()):
     """Create a CliRunner with an isolated filesystem.
 
     The given AppConfigs will be written to disk before yielding the runner.
@@ -41,7 +41,8 @@ def cli_runner(*, app_configs: AppConfig, manifest_path: Path = Path(".")):
     runner = CliRunner()
     with runner.isolated_filesystem():
         with manifest_path.joinpath("apps.yaml").open("w") as f:
-            # We can't use app_configs.dict() because it will not translate Enums to strings.
+            # We can't use app_configs.dict() because it will not translate
+            # Enums to strings.
             as_json = app_configs.json()
             as_dict = json.loads(as_json)
 
@@ -68,13 +69,19 @@ class CliTests(TestCase):
         self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
         fetch_fml_app.assert_called_with(
-            Path("."),
+            Path(),
             "fml_app",
             FML_APP_CONFIG,
         )
 
         self.assertIn(
-            "SUMMARY:\n\nSUCCESS:\n\nfml_app at main (resolved) version None\n",
+            """\
+SUMMARY:
+
+SUCCESS:
+
+fml_app at main (resolved) version None
+""",
             result.stdout,
         )
 
@@ -96,7 +103,14 @@ class CliTests(TestCase):
         self.assertEqual(result.exit_code, 1, result.exception or result.stdout)
 
         self.assertIn(
-            "SUMMARY:\n\nFAILURES:\n\nfml_app at main version None\nException: Connection error\n",
+            """\
+SUMMARY:
+
+FAILURES:
+
+fml_app at main version None
+Exception: Connection error
+""",
             result.stdout,
         )
 
@@ -118,13 +132,19 @@ class CliTests(TestCase):
         self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
         fetch_legacy_app.assert_called_with(
-            Path("."),
+            Path(),
             "legacy_app",
             LEGACY_APP_CONFIG,
         )
 
         self.assertIn(
-            "SUMMARY:\n\nSUCCESS:\n\nlegacy_app at tip (resolved) version None\n",
+            """\
+SUMMARY:
+
+SUCCESS:
+
+legacy_app at tip (resolved) version None
+""",
             result.stdout,
         )
 
@@ -146,7 +166,14 @@ class CliTests(TestCase):
         self.assertEqual(result.exit_code, 1, result.exception or result.stdout)
 
         self.assertIn(
-            "SUMMARY:\n\nFAILURES:\n\nlegacy_app at tip version None\nException: Connection error\n",
+            """\
+SUMMARY:
+
+FAILURES:
+
+legacy_app at tip version None
+Exception: Connection error
+""",
             result.stdout,
         )
 
@@ -203,7 +230,7 @@ class CliTests(TestCase):
         # object that the mock cached. Hence, we need to provide the filled out
         # cache to this assertion.
         fetch_releases.assert_called_once_with(
-            Path("."),
+            Path(),
             "fml_app",
             app_config,
             cache,
@@ -280,7 +307,7 @@ class CliTests(TestCase):
         self.assertEqual(result.exit_code, 0, result.exception or result.stdout)
 
         fetch_legacy_app.assert_not_called()
-        fetch_fml_app.assert_called_once_with(Path("."), "fml_app", FML_APP_CONFIG)
+        fetch_fml_app.assert_called_once_with(Path(), "fml_app", FML_APP_CONFIG)
 
         self.assertIn(
             "SUMMARY:\n\nSUCCESS:\n\nfml_app at main (resolved) version None\n\n",

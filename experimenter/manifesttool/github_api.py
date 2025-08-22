@@ -1,13 +1,13 @@
 import os
+from collections.abc import Generator
 from pathlib import Path
-from typing import Any, Generator, TYPE_CHECKING, Optional, overload
+from typing import Any, Optional, overload
 
 import requests
 
 from manifesttool import download
 from manifesttool.http import http_client
 from manifesttool.repository import Ref
-
 
 GITHUB_API_URL = "https://api.github.com"
 GITHUB_API_HEADERS = {
@@ -37,7 +37,9 @@ def api_request(
 
 
 def paginated_api_request(path: str, per_page: int = 100) -> Generator[Any, None, None]:
-    """Make several reqeusts to a paginated API resource and yield each page of results."""
+    """Make several reqeusts to a paginated API resource and yield each page of
+    results.
+    """
     page = 1
 
     while True:
