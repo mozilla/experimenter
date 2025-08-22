@@ -10,6 +10,9 @@ from decouple import config  # type: ignore
 remote_setting_refresh_rate_in_seconds: int = int(
     config("CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS", default=10)  # type: ignore
 )
+remote_setting_refresh_jitter_in_seconds: int = int(
+    config("CIRRUS_REMOTE_SETTING_REFRESH_JITTER_IN_SECONDS", default=1)  # type: ignore
+)
 remote_setting_refresh_retry_delay_in_seconds: int = int(
     config("CIRRUS_REMOTE_SETTING_REFRESH_RETRY_DELAY_IN_SECONDS", default=30)  # type: ignore
 )
