@@ -3,8 +3,8 @@ from unittest import TestCase
 
 import responses
 from parameterized import parameterized
-from responses import matchers
 from pydantic import BaseModel, ValidationError
+from responses import matchers
 
 from manifesttool.appconfig import (
     AppConfig,
@@ -356,7 +356,7 @@ class VersionTests(TestCase):
             model = VersionModel.parse_obj(obj)
             self.assertEqual(model.version, expected)
         else:
-            with self.assertRaisesRegex(ValidationError, f"Invalid version {repr(s)}"):
+            with self.assertRaisesRegex(ValidationError, f"Invalid version {s!r}"):
                 VersionModel.parse_obj(obj)
 
     @parameterized.expand(

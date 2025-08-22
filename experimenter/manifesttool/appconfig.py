@@ -20,6 +20,7 @@ class Repository(BaseModel):
     default_branch: str = Field(default="main")
 
     @model_validator(mode="before")
+    @classmethod
     def validate_default_branch(cls, values: dict[str, Any]):
         ty = values.get("type")
         default_branch = values.get("default_branch")
@@ -30,6 +31,7 @@ class Repository(BaseModel):
         return values
 
     @model_validator(mode="before")
+    @classmethod
     def validate_name(cls, values: dict[str, Any]):
         _type = values.get("type")
         name = values.get("name")
@@ -162,6 +164,7 @@ class AppConfig(BaseModel):
     release_discovery: ReleaseDiscovery | None = None
 
     @model_validator(mode="before")
+    @classmethod
     def validate_one_manifest_path(cls, values):
         has_fml_path = values.get("fml_path") is not None
         has_legacy_path = values.get("experimenter_yaml_path") is not None

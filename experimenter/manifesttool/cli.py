@@ -96,7 +96,7 @@ def fetch(
         elif app_config.experimenter_yaml_path is not None:
             results.append(fetch_legacy_app(context.manifest_dir, app_name, app_config))
         else:  # pragma: no cover
-            assert False, "unreachable"
+            raise AssertionError("unreachable")
 
         if app_config.release_discovery:
             ref_cache_path = app_dir / ".ref-cache.yaml"

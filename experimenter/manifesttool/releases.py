@@ -92,7 +92,7 @@ def discover_branched_releases(
     elif app_config.repo.type == RepositoryType.HGMO:
         resolve_branch = hgmo_api.resolve_branch
     else:  # pragma: no cover
-        raise AssertionError()
+        raise AssertionError
 
     # If there are no branches listed, we will only scan the default branch.
     branches = strategy.branches

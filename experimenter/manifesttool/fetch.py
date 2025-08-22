@@ -240,7 +240,7 @@ def fetch_releases(
         else:  # pragma: no cover
             raise AssertionError("unreachable")
 
-    if app_config.fml_path:
+    if app_config.fml_path:  # noqa: SIM108
         fetch_app = fetch_fml_app
     else:
         fetch_app = fetch_legacy_app
