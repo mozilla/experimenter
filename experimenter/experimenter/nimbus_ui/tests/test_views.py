@@ -3264,6 +3264,17 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         ]
         self.assertEqual(page1_names, sorted(names)[:6])
 
+    def test_home_type_display_returns_only_emoji(self):
+        labs = NimbusExperimentFactory.create(
+            owner=self.user, is_firefox_labs_opt_in=True
+        )
+        rollout = NimbusExperimentFactory.create(owner=self.user, is_rollout=True)
+        experiment = NimbusExperimentFactory.create(owner=self.user, is_rollout=False)
+
+        self.assertEqual(labs.get_home_type_display(), "🧪")
+        self.assertEqual(rollout.get_home_type_display(), "📈")
+        self.assertEqual(experiment.get_home_type_display(), "🔬")
+
 
 class TestSlugRedirectToSummary(AuthTestCase):
     def test_slug_with_trailing_slash_redirects_to_summary(self):

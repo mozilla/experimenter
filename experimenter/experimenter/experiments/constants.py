@@ -469,6 +469,19 @@ class NimbusConstants:
         ENG_TICKET = "ENG_TICKET", "Engineering Ticket (Bugzilla/Jira/GitHub)"
         QA_TICKET = "QA_TICKET", "QA Testing Ticket (Bugzilla/Jira/Github)"
 
+    class HomeTypeChoices(models.TextChoices):
+        ROLLOUT = "Rollout", "📈 Rollout"
+        EXPERIMENT = "Experiment", "🔬 Experiment"
+        LABS = "Labs", "🧪 Labs"
+
+        @property
+        def emoji(self):
+            return self.label.split(" ", 1)[0]
+
+        @property
+        def title(self):
+            return self.value
+
     class Version(models.TextChoices):
         @staticmethod
         def parse(version_str):
@@ -860,6 +873,7 @@ class NimbusConstants:
         CUSTOMIZE_BROWSING = "experimental-features-group-customize-browsing"
         WEBPAGE_DISPLAY = "experimental-features-group-webpage-display"
         DEVELOPER_TOOLS = "experimental-features-group-developer-tools"
+        PRODUCTIVITY = "experimental-features-group-productivity"
 
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
     EMAIL_ENROLLMENT_END_SUBJECT = "Action required: Please end experiment enrollment"
@@ -1106,6 +1120,42 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"
     WHAT_TRAIN_IS_IT_NOW_URL = "https://whattrainisitnow.com/api/firefox/releases/"
+
+    FIREFOX_LABS_MIN_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_137,
+    }
+
+    FIREFOX_LABS_GROUP_AVAILABILITY = {
+        Application.DESKTOP: {
+            FirefoxLabsGroups.CUSTOMIZE_BROWSING: Version.FIREFOX_137,
+            FirefoxLabsGroups.WEBPAGE_DISPLAY: Version.FIREFOX_137,
+            FirefoxLabsGroups.DEVELOPER_TOOLS: Version.FIREFOX_137,
+            FirefoxLabsGroups.PRODUCTIVITY: Version.FIREFOX_144,
+        },
+    }
+
+    ERROR_FIREFOX_LABS_MIN_VERSION = (
+        "Firefox Labs requires at least version "
+        "{version.major}.{version.minor}.{version.micro}."
+    )
+
+    ERROR_FIREFOX_LABS_GROUP_MIN_VERSION = (
+        "This group was added in Firefox version {version.major}.{version.minor}."
+        "{version.micro}"
+    )
+
+    ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION = (
+        "This application does not support Firefox Labs."
+    )
+
+    ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON = (
+        "Firefox Labs description links must be a JSON object or null."
+    )
+    ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS = (
+        "Firefox Labs description links values must be HTTP(S) URLs."
+    )
+    ERROR_FIREFOX_LABS_REQUIRED_FIELD = "This field is requried for Firefox Labs Opt-Ins."
+    ERROR_FIREFOX_LABS_ROLLOUT_REQUIRED = "Firefox Labs opt-ins must be rollouts."
 
 
 EXTERNAL_URLS = {

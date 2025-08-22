@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.db.models.functions import Concat
 
 from experimenter.base.models import Country, Language, Locale
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 from experimenter.nimbus_ui.forms import MultiSelectWidget
 from experimenter.projects.models import Project
@@ -365,6 +366,16 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
         choices=HomeSortChoices.choices,
         widget=forms.HiddenInput,
     )
+    type = django_filters.MultipleChoiceFilter(
+        method="filter_type",
+        choices=NimbusConstants.HomeTypeChoices.choices,
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-flask-vial",
+            attrs={
+                "title": "All Types",
+            },
+        ),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -388,3 +399,18 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
 
     def filter_sort(self, queryset, name, value):
         return queryset.order_by(value)
+
+    def filter_type(self, queryset, name, values):
+        query = Q()
+        for v in values:
+            t = NimbusConstants.HomeTypeChoices(v)
+
+            match t:
+                case NimbusConstants.HomeTypeChoices.LABS:
+                    query |= Q(is_firefox_labs_opt_in=True)
+                case NimbusConstants.HomeTypeChoices.ROLLOUT:
+                    query |= Q(is_firefox_labs_opt_in=False, is_rollout=True)
+                case NimbusConstants.HomeTypeChoices.EXPERIMENT:
+                    query |= Q(is_firefox_labs_opt_in=False, is_rollout=False)
+
+        return queryset.filter(query)
