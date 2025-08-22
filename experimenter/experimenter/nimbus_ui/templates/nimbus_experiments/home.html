@@ -108,9 +108,7 @@
                         {% endif %}
                       </td>
                       <td>{{ experiment.get_application_display }}</td>
-                      <td>
-                        <span title="{{ experiment.home_type_choice.title }}">{{ experiment.get_home_type_display }}</span>
-                      </td>
+                      <td>{{ experiment.home_type_choice }}</td>
                       <td>{{ experiment.get_channel_display }}</td>
                       <td>{{ experiment.population_percent|floatformat:2 }}%</td>
                       <td>
