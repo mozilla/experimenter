@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseModel, Field, RootModel
 import yaml
+from pydantic import Field, RootModel
 
 
 @dataclass
