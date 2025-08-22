@@ -403,9 +403,9 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
     def filter_type(self, queryset, name, values):
         query = Q()
         for v in values:
-            t = NimbusConstants.HomeTypeChoices(v)
+            delivery_type = NimbusConstants.HomeTypeChoices(v)
 
-            match t:
+            match delivery_type:
                 case NimbusConstants.HomeTypeChoices.LABS:
                     query |= Q(is_firefox_labs_opt_in=True)
                 case NimbusConstants.HomeTypeChoices.ROLLOUT:
