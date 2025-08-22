@@ -10,6 +10,12 @@ from decouple import config  # type: ignore
 remote_setting_refresh_rate_in_seconds: int = int(
     config("CIIRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS", default=10)  # type: ignore
 )
+remote_setting_refresh_retry_delay_in_seconds: int = int(
+    config("CIIRUS_REMOTE_SETTING_REFRESH_RETRY_DELAY_IN_SECONDS", default=30)  # type: ignore
+)
+remote_setting_refresh_max_attempts: int = int(
+    config("CIIRUS_REMOTE_SETTING_REFRESH_MAX_ATTEMPTS", default=3)  # type: ignore
+)
 remote_setting_url: str = cast(str, config("CIRRUS_REMOTE_SETTING_URL", default=""))
 remote_setting_preview_url: str = cast(
     str, config("CIRRUS_REMOTE_SETTING_PREVIEW_URL", default="")
