@@ -695,6 +695,7 @@ class NimbusConstants:
         FIREFOX_142_3_0 = "142.3.0"
         FIREFOX_142_4_0 = "142.4.0"
         FIREFOX_143 = "143.!"
+        FIREFOX_143_B3 = "143.0b3"
         FIREFOX_143_0_1 = "143.0.1"
         FIREFOX_143_0_2 = "143.0.2"
         FIREFOX_143_0_3 = "143.0.3"
@@ -1122,7 +1123,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             FirefoxLabsGroups.CUSTOMIZE_BROWSING: Version.FIREFOX_137,
             FirefoxLabsGroups.WEBPAGE_DISPLAY: Version.FIREFOX_137,
             FirefoxLabsGroups.DEVELOPER_TOOLS: Version.FIREFOX_137,
-            FirefoxLabsGroups.PRODUCTIVITY: Version.FIREFOX_144,
+            FirefoxLabsGroups.PRODUCTIVITY: Version.FIREFOX_143_B3,
         },
     }
 
