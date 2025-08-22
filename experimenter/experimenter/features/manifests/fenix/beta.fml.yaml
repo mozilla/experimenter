@@ -711,11 +711,11 @@ features:
       enabled:
         description: "Whether or not to enable recent searches.\n"
         type: Boolean
-        default: false
+        default: true
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 4
+        default: 5
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -901,11 +901,11 @@ features:
       enabled:
         description: "Whether or not to enable top sites suggestions.\n"
         type: Boolean
-        default: false
+        default: true
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 4
+        default: 2
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -943,11 +943,11 @@ features:
       enabled:
         description: "Whether or not to enable trending searches.\n"
         type: Boolean
-        default: false
+        default: true
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 4
+        default: 5
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
