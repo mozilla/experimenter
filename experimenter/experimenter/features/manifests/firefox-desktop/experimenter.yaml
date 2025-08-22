@@ -5071,18 +5071,6 @@ css-masonry:
         branch: user
         pref: "layout.css.grid-template-masonry-value.enabled"
 
-contextual-password-manager:
-  description: Enabling the contextual password manager feature
-  owner: issozi@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.contextual-password-manager.enabled
-      description: If true, we will allow user to add the contextual password manager feature to the sidebar.
-
 windowsUIAutomation:
   description: Support for the Windows UI Automation API
   owner: jteh@mozilla.com
