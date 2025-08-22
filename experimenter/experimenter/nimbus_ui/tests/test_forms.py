@@ -671,6 +671,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.status = NimbusExperiment.Status.PREVIEW
         self.experiment.status_next = NimbusExperiment.Status.PREVIEW
         self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.published_dto = NimbusExperimentSerializer(self.experiment).data
         self.experiment.save()
 
         form = PreviewToReviewForm(
@@ -682,6 +683,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertEqual(experiment.published_dto, None)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
@@ -691,6 +693,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.status = NimbusExperiment.Status.PREVIEW
         self.experiment.status_next = NimbusExperiment.Status.PREVIEW
         self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        self.experiment.published_dto = NimbusExperimentSerializer(self.experiment).data
 
         form = PreviewToDraftForm(data={}, instance=self.experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
@@ -699,6 +702,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertEqual(experiment.published_dto, None)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
@@ -745,6 +749,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.status = NimbusExperiment.Status.DRAFT
         self.experiment.status_next = NimbusExperiment.Status.LIVE
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.published_dto = NimbusExperimentSerializer(self.experiment).data
         self.experiment.save()
 
         form = ReviewToDraftForm(
@@ -758,6 +763,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertEqual(experiment.published_dto, None)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
@@ -769,6 +775,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.experiment.status = NimbusExperiment.Status.DRAFT
         self.experiment.status_next = NimbusExperiment.Status.LIVE
         self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        self.experiment.published_dto = NimbusExperimentSerializer(self.experiment).data
         self.experiment.save()
 
         form = ReviewToDraftForm(
@@ -782,6 +789,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertEqual(experiment.published_dto, None)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
