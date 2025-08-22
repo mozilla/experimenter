@@ -1,5 +1,3 @@
-import json
-
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 from experimenter.experiments.constants import NimbusConstants
@@ -8,33 +6,12 @@ from experimenter.experiments.constants import NimbusConstants
 class TestMigrations(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0287_nimbusexperiment_channels",
+        "0289_alter_nimbusexperiment_firefox_labs_group",
     )
     migrate_to = (
         "experiments",
-        "0288_nimbusexperiment_firefox_labs_description_links_text_field",
+        "0290_draft_published_dto_to_none",
     )
-
-    VALUES = {
-        "empty-string": ['""', None],
-        "null-as-string": ["null", None],
-        "null-as-value": [None, None],
-        "empty-object-as-string": ["{}", "{}"],
-        "empty-object-as-value": [{}, "{}"],
-        "object-as-string": [
-            json.dumps({"foo": "bar"}),
-            json.dumps({"foo": "bar"}),
-        ],
-        "object-as-value": [
-            {"foo": "bar"},
-            json.dumps({"foo": "bar"}),
-        ],
-        "list-as-string": ["[]", "[]"],
-        "list-as-value": [[], "[]"],
-        "string": ["bogus", '"bogus"'],
-        "number-as-string": ["1", "1"],
-        "number-as-value": [1, "1"],
-    }
 
     def prepare(self):
         """Prepare some data before the migration."""
@@ -45,36 +22,92 @@ class TestMigrations(MigratorTestCase):
 
         user = User.objects.create_user("user", "user@example.com", "password")
 
-        for slug, (before, _after) in self.VALUES.items():
-            NimbusExperiment.objects.create(
-                name=slug,
-                slug=slug,
-                application=NimbusConstants.Application.DESKTOP,
-                firefox_min_version=NimbusConstants.MIN_REQUIRED_VERSION,
-                channel=NimbusConstants.Channel.NIGHTLY,
-                is_firefox_labs_opt_in=True,
-                firefox_labs_title="test-title",
-                firefox_labs_description="test-description",
-                firefox_labs_description_links=before,
-                firefox_labs_group="group",
-                requires_restart=False,
-                owner=user,
-                status=NimbusConstants.Status.DRAFT,
-                status_next=None,
-                publish_status=NimbusConstants.PublishStatus.IDLE,
-            )
+        NimbusExperiment.objects.create(
+            name="draft-with-published-dto",
+            slug="draft-with-published-dto",
+            application=NimbusConstants.Application.DESKTOP,
+            firefox_min_version=NimbusConstants.MIN_REQUIRED_VERSION,
+            channel=NimbusConstants.Channel.NIGHTLY,
+            owner=user,
+            status=NimbusConstants.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusConstants.PublishStatus.IDLE,
+            published_dto={"some": "data"},
+        )
 
-    def test_migration(self):
-        """Run the test itself."""
+        NimbusExperiment.objects.create(
+            name="draft-without-published-dto",
+            slug="draft-without-published-dto",
+            application=NimbusConstants.Application.DESKTOP,
+            firefox_min_version=NimbusConstants.MIN_REQUIRED_VERSION,
+            channel=NimbusConstants.Channel.NIGHTLY,
+            owner=user,
+            status=NimbusConstants.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusConstants.PublishStatus.IDLE,
+            published_dto=None,
+        )
+
+        NimbusExperiment.objects.create(
+            name="preview-with-published-dto",
+            slug="preview-with-published-dto",
+            application=NimbusConstants.Application.DESKTOP,
+            firefox_min_version=NimbusConstants.MIN_REQUIRED_VERSION,
+            channel=NimbusConstants.Channel.NIGHTLY,
+            owner=user,
+            status=NimbusConstants.Status.PREVIEW,
+            status_next=None,
+            publish_status=NimbusConstants.PublishStatus.IDLE,
+            published_dto={"preview": "data"},
+        )
+
+        NimbusExperiment.objects.create(
+            name="live-with-published-dto",
+            slug="live-with-published-dto",
+            application=NimbusConstants.Application.DESKTOP,
+            firefox_min_version=NimbusConstants.MIN_REQUIRED_VERSION,
+            channel=NimbusConstants.Channel.NIGHTLY,
+            owner=user,
+            status=NimbusConstants.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusConstants.PublishStatus.IDLE,
+            published_dto={"live": "data"},
+        )
+
+        NimbusExperiment.objects.create(
+            name="complete-with-published-dto",
+            slug="complete-with-published-dto",
+            application=NimbusConstants.Application.DESKTOP,
+            firefox_min_version=NimbusConstants.MIN_REQUIRED_VERSION,
+            channel=NimbusConstants.Channel.NIGHTLY,
+            owner=user,
+            status=NimbusConstants.Status.COMPLETE,
+            status_next=None,
+            publish_status=NimbusConstants.PublishStatus.IDLE,
+            published_dto={"complete": "data"},
+        )
+
+    def test_migration_sets_draft_published_dto_to_none(self):
+        """Test that migration sets published_dto to None for draft experiments only."""
         NimbusExperiment = self.new_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
 
-        for slug, (before, after) in self.VALUES.items():
-            experiment = NimbusExperiment.objects.get(slug=slug)
+        draft_with_dto = NimbusExperiment.objects.get(slug="draft-with-published-dto")
+        self.assertIsNone(draft_with_dto.published_dto)
 
-            self.assertEqual(
-                experiment.firefox_labs_description_links,
-                after,
-                f"{slug}: {before!r} => {after!r}",
-            )
+        draft_without_dto = NimbusExperiment.objects.get(
+            slug="draft-without-published-dto"
+        )
+        self.assertIsNone(draft_without_dto.published_dto)
+
+        live_with_dto = NimbusExperiment.objects.get(slug="live-with-published-dto")
+        self.assertEqual(live_with_dto.published_dto, {"live": "data"})
+
+        preview_with_dto = NimbusExperiment.objects.get(slug="preview-with-published-dto")
+        self.assertEqual(preview_with_dto.published_dto, {"preview": "data"})
+
+        complete_with_dto = NimbusExperiment.objects.get(
+            slug="complete-with-published-dto"
+        )
+        self.assertEqual(complete_with_dto.published_dto, {"complete": "data"})

@@ -1195,6 +1195,10 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         if self.is_paused is not None:
             self.instance.is_paused = self.is_paused
+
+        if self.status == NimbusExperiment.Status.DRAFT:
+            self.instance.published_dto = None
+
         return super().save(commit=commit)
 
 
@@ -1240,12 +1244,7 @@ class PreviewToDraftForm(UpdateStatusForm):
         return f"{self.request.user} moved the experiment back to Draft"
 
     def save(self, commit=True):
-        experiment = super().save(commit=False)
-        experiment.published_dto = None
-
-        if commit:  # pragma: nocover
-            experiment.save()
-
+        experiment = super().save(commit=commit)
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
         return experiment
 
