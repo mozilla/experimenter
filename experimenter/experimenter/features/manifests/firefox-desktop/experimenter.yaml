@@ -1875,11 +1875,6 @@ pocketNewtab:
       type: string
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.ctaButtonVariant
-    spocMessageVariant:
-      description: Adds some message dialogs explainging sponsored content to the user
-      type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.spocMessageVariant
     regionStoriesConfig:
       description: A comma-separated list of region to get stories for.
       type: string
