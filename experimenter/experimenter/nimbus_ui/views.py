@@ -8,9 +8,7 @@ from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
-from experimenter.experiments.models import (
-    NimbusExperiment,
-)
+from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
@@ -627,6 +625,15 @@ class ApproveUpdateRolloutView(StatusUpdateView):
 
 class ResultsView(NimbusExperimentViewMixin, DetailView):
     template_name = "nimbus_experiments/results.html"
+
+
+class NimbusFeaturesView(FilterView):
+    template_name = "nimbus_experiments/features.html"
+    filterset_class = NimbusExperimentFilter
+    context_object_name = "features"
+
+    def get_queryset(self):
+        return NimbusFeatureConfig.objects.filter().order_by("-name")
 
 
 class NimbusExperimentsHomeView(FilterView):

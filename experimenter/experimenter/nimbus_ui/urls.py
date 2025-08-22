@@ -30,6 +30,7 @@ from experimenter.nimbus_ui.views import (
     NimbusExperimentsListTableView,
     NimbusExperimentsPromoteToRolloutView,
     NimbusExperimentsSidebarCloneView,
+    NimbusFeaturesView,
     OverviewUpdateView,
     PreviewToDraftView,
     PreviewToReviewView,
@@ -59,6 +60,11 @@ urlpatterns = [
         r"^create/",
         NimbusExperimentsCreateView.as_view(),
         name="nimbus-ui-create",
+    ),
+    re_path(
+        r"^features/",
+        NimbusFeaturesView.as_view(),
+        name="nimbus-ui-features",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)[/]?$",
