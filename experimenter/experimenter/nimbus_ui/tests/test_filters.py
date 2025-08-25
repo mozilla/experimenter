@@ -85,6 +85,28 @@ class FilterTests(TestCase):
 
 
 class TestHomeFilters(AuthTestCase):
+    def _make_all_qa_statuses(self):
+        red = NimbusExperimentFactory.create(owner=self.user, qa_status="RED", name="Red")
+        yellow = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="YELLOW", name="Yellow"
+        )
+        green = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="GREEN", name="Green"
+        )
+        self_red = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="SELF RED", name="Self Red"
+        )
+        self_yellow = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="SELF YELLOW", name="Self Yellow"
+        )
+        self_green = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="SELF GREEN", name="Self Green"
+        )
+        not_set = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="NOT SET", name="Not Set"
+        )
+        return red, yellow, green, self_red, self_yellow, self_green, not_set
+
     def _make_three_types(self):
         labs = NimbusExperimentFactory.create(
             owner=self.user,
@@ -315,3 +337,76 @@ class TestHomeFilters(AuthTestCase):
 
         page = list(resp.context["all_my_experiments_page"].object_list)
         self.assertEqual(page, [labs])
+
+    @parameterized.expand(
+        [
+            (
+                "red_only",
+                "qa_status=RED",
+                ["red"],
+                ["yellow", "green", "self_red", "self_yellow", "self_green", "not_set"],
+            ),
+            (
+                "yellow_only",
+                "qa_status=YELLOW",
+                ["yellow"],
+                ["red", "green", "self_red", "self_yellow", "self_green", "not_set"],
+            ),
+            (
+                "green_only",
+                "qa_status=GREEN",
+                ["green"],
+                ["red", "yellow", "self_red", "self_yellow", "self_green", "not_set"],
+            ),
+            (
+                "self_red_only",
+                "qa_status=SELF RED",
+                ["self_red"],
+                ["red", "yellow", "green", "self_yellow", "self_green", "not_set"],
+            ),
+            (
+                "self_yellow_only",
+                "qa_status=SELF YELLOW",
+                ["self_yellow"],
+                ["red", "yellow", "green", "self_red", "self_green", "not_set"],
+            ),
+            (
+                "self_green_only",
+                "qa_status=SELF GREEN",
+                ["self_green"],
+                ["red", "yellow", "green", "self_red", "self_yellow", "not_set"],
+            ),
+            (
+                "not_set_only",
+                "qa_status=NOT SET",
+                ["not_set"],
+                ["red", "yellow", "green", "self_red", "self_yellow", "self_green"],
+            ),
+            (
+                "red_and_yellow",
+                "qa_status=RED&qa_status=YELLOW",
+                ["red", "yellow"],
+                ["green", "self_red", "self_yellow", "self_green", "not_set"],
+            ),
+        ]
+    )
+    def test_filter_qa_status(self, name, querystring, expected_in, expected_not_in):
+        red, yellow, green, self_red, self_yellow, self_green, not_set = (
+            self._make_all_qa_statuses()
+        )
+        mapping = {
+            "red": red,
+            "yellow": yellow,
+            "green": green,
+            "self_red": self_red,
+            "self_yellow": self_yellow,
+            "self_green": self_green,
+            "not_set": not_set,
+        }
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?{querystring}")
+        self.assertEqual(resp.status_code, 200)
+
+        includes = [mapping[k] for k in expected_in]
+        excludes = [mapping[k] for k in expected_not_in]
+        self._assert_page_membership(resp, includes, excludes)

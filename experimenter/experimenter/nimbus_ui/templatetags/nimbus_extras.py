@@ -92,3 +92,8 @@ def should_show_remote_settings_pending(experiment, reviewer):
 def can_review_experiment(context, experiment):
     user = context["request"].user
     return experiment.can_review(user)
+
+
+@register.filter
+def qa_icon_info(value):
+    return NimbusConstants.QAStatus.get_icon_info(value)
