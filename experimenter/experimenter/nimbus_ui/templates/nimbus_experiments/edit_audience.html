@@ -22,10 +22,17 @@
       <div class="card-body">
         <div class="row mb-3">
           <div class="col-4">
-            <label for="id_channel" class="form-label">Channel</label>
-            {{ form.channel|add_class:"form-control"|add_error_class:"is-invalid" }}
-            {% for error in form.channel.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-            {% for error in validation_errors.channel %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+            {% if experiment.is_desktop %}
+              <label for="id_channels" class="form-label">Channels</label>
+              {{ form.channels|add_class:"form-control"|add_error_class:"is-invalid" }}
+              {% for error in form.channels.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              {% for error in validation_errors.channels %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+            {% else %}
+              <label for="id_channel" class="form-label">Channel</label>
+              {{ form.channel|add_class:"form-control"|add_error_class:"is-invalid" }}
+              {% for error in form.channel.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              {% for error in validation_errors.channel %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+            {% endif %}
           </div>
           <div class="col-4">
             <label for="id_firefox_min_version" class="form-label">Min Version</label>
