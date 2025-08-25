@@ -43,7 +43,7 @@ To set up the Cirrus environment, follow these steps:
 
 - `CIRRUS_REMOTE_SETTING_PREVIEW_URL`: The URL of the remote settings where the preview experiments data is stored. In this case, it points to the collection of nimbus web preview experiments.
 - `CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS`: The refresh rate in seconds for fetching the experiments recipes from the remote settings. Set it to `10` to retrieve the latest data every 10 seconds.
-- `CIRRUS_REMOTE_SETTING_REFRESH_DELAY_IN_SECONDS`: The delay in seconds bewteen attempts after failing to fetch from remote settings. Set it to `30` to wait 30 between attempts.
+- `CIRRUS_REMOTE_SETTING_REFRESH_DELAY_IN_SECONDS`: The delay in seconds bewteen attempts after failing to fetch from remote settings. Set it to `30` to wait 30 seconds between attempts.
 - `CIRRUS_REMOTE_SETTING_REFRESH_MAX_ATTEMPTS`: The maximum number of attempts when failing to fetch from remote settings between which `CIRRUS_REMOTE_SETTING_REFRESH_DELAY_IN_SECONDS` should be used instead of `CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS`. Set it to `3` to revert to `CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS` on the third consecutive failure.
 - `CIRRUS_APP_ID`: Replace `test_app_id` with the actual ID of your application for example `firefox-desktop`.
 - `CIRRUS_APP_NAME`: Replace `test_app_name` with the desired name for your application for example `firefox_desktop`.
