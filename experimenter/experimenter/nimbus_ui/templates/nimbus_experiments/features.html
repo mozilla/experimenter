@@ -3,21 +3,8 @@
 {% block content %}
   <div id="feature-page" class="bg-body-tertiary py-4">
     <div class="container">
-      <div class="card shadow-sm border-0 p-4 mb-4">
-        <div class="d-flex flex-column align-items-center text-center justify-content-center">
-          <div id="feature-page-banner" class="text-center">
-            <h3 id="feature-page-welcome-message" class="fw-semibold mb-1">
-              Welcome to your Feature Health Dashboard, {{ request.user }}!
-            </h3>
-            <p class="fw-semibold mb-2 text-muted fs-6">Track a feature's Nimbus history and QA status in this summary view!</p>
-            <a href="{{ links.feature_learn_more_url }}"
-               id="feature-page-learn-more-link"
-               class="btn btn-primary btn-sm"
-               target="_blank"
-               rel="noopener noreferrer">Learn More</a>
-          </div>
-        </div>
-      </div>
+      {% include "nimbus_experiments/heading_card.html" with page_name="feature" heading_text="Welcome to your Feature Health Dashboard," subheading_text="Track a feature's Nimbus history and QA status in this summary view!" link_url=links.feature_learn_more_url btn_text="Learn More" %}
+
     </div>
   </div>
 {% endblock %}
