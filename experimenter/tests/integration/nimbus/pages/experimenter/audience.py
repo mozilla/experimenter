@@ -14,6 +14,9 @@ class AudiencePage(ExperimenterBase):
 
     _page_wait_locator = (By.CSS_SELECTOR, "#audience-form")
     _channel_select_locator = (By.CSS_SELECTOR, "#id_channel")
+    _channels_button_locator = (By.CSS_SELECTOR, '[data-id="id_channels"]')
+    _channels_input_locator = (By.CSS_SELECTOR, ".bs-searchbox input")
+    _channels_text_locator = (By.CSS_SELECTOR, "#id_channels .filter-option-inner-inner")
     _min_version_select_locator = (By.CSS_SELECTOR, "#id_firefox_min_version")
     _targeting_select_locator = (By.CSS_SELECTOR, "#id_targeting_config_slug")
     _population_fill_locator = (
@@ -70,6 +73,20 @@ class AudiencePage(ExperimenterBase):
         el = self.wait_for_and_find_element(*self._channel_select_locator)
         select = Select(el)
         select.select_by_visible_text(channel)
+
+    @property
+    def channels(self):
+        els = self.wait_for_and_find_elements(*self._channels_text_locator)
+        return els[0]
+
+    @channels.setter
+    def channels(self, channels):
+        els = self.wait_for_and_find_elements(*self._channels_button_locator)
+
+        for channel in channels:
+            els[0].click()
+            search_box = self.wait_for_and_find_elements(*self._channels_input_locator)
+            search_box[0].send_keys(channel, Keys.RETURN)
 
     @property
     def min_version(self):
