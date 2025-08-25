@@ -28,11 +28,15 @@ from .settings import (
     metrics_path,
     pings_path,
     remote_setting_preview_url,
+    remote_setting_refresh_max_attempts,
     remote_setting_refresh_rate_in_seconds,
+    remote_setting_refresh_retry_delay_in_seconds,
     remote_setting_url,
 )
 
 logger = logging.getLogger(__name__)
+
+FETCH_SCHEDULE_RECIPES_JOB_ID = "FETCH_SCHEDULE_RECIPES_JOB_ID"
 
 
 class FeatureRequest(BaseModel):
@@ -129,12 +133,7 @@ def create_scheduler():
 
 def start_and_set_initial_job():
     app.state.scheduler.start()
-    app.state.scheduler.add_job(
-        fetch_schedule_recipes,
-        "interval",
-        seconds=remote_setting_refresh_rate_in_seconds,
-        max_instances=1,
-    )
+    schedule_next_attempt(attempt=1, failed=False)
 
 
 def initialize_glean():
@@ -302,35 +301,49 @@ async def compute_features_enrollments_v2(
     }
 
 
-async def fetch_schedule_recipes() -> None:
-    live_failed = False
-    preview_failed = False
+async def fetch_schedule_recipes(attempt: int = 0) -> None:
+    failed = False
 
     try:
         app.state.remote_setting_live.fetch_recipes()
     except Exception as e:
         logger.error(f"Failed to fetch live recipes: {e}")
-        live_failed = True
+        failed = True
 
     try:
         if app.state.remote_setting_preview:
             app.state.remote_setting_preview.fetch_recipes()
     except Exception as e:
         logger.error(f"Failed to fetch preview recipes: {e}")
-        preview_failed = True
+        failed = True
 
-    if live_failed or preview_failed:
-        schedule_retry()
+    schedule_next_attempt(attempt=attempt, failed=failed)
 
 
-def schedule_retry():
-    app.state.scheduler.add_job(
-        fetch_schedule_recipes,
-        "interval",
-        seconds=30,
-        max_instances=1,
-        max_retries=3,
-    )
+def schedule_next_attempt(attempt: int, failed: bool):
+    if attempt == 0 and not failed:
+        pass
+    elif attempt < remote_setting_refresh_max_attempts and failed:
+        # increase attempt and set retry delay
+        app.state.scheduler.add_job(
+            fetch_schedule_recipes,
+            "interval",
+            seconds=remote_setting_refresh_retry_delay_in_seconds,
+            max_instances=1,
+            id=FETCH_SCHEDULE_RECIPES_JOB_ID,
+            replace_existing=True,
+            kwargs={"attempt": attempt + 1},
+        )
+    else:
+        # reset attempt and set refresh rate
+        app.state.scheduler.add_job(
+            fetch_schedule_recipes,
+            "interval",
+            seconds=remote_setting_refresh_rate_in_seconds,
+            max_instances=1,
+            id=FETCH_SCHEDULE_RECIPES_JOB_ID,
+            replace_existing=True,
+        )
 
 
 @app.get("/__lbheartbeat__")
