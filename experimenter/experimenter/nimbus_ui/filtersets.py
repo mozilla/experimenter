@@ -424,6 +424,4 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
         return queryset.filter(query)
 
     def filter_qa_status(self, queryset, name, values):
-        if not values:
-            return queryset
         return queryset.filter(qa_status__in=values)
