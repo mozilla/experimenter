@@ -29,7 +29,7 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
-from experimenter.targeting.constants import TargetingConstants
+from experimenter.targeting.constants import NimbusTargetingConfig, TargetingConstants
 
 
 @mock_valid_outcomes
@@ -472,7 +472,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 treatment_feature_value.value, f"{{'{feature.name}': 'value'}}"
             )
 
-    def test_serializer_updates_audience_on_experiment(self):
+    def test_serializer_updates_audience_on_experiment_desktop(self):
         country = CountryFactory.create()
         locale = LocaleFactory.create()
         language = LanguageFactory.create()
@@ -480,6 +480,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
         experiment = NimbusExperimentFactory(
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             population_percent=0.0,
@@ -492,13 +493,92 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             {
-                "channel": NimbusExperiment.Channel.BETA,
+                "channels": [NimbusExperiment.Channel.BETA],
                 "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
                 "population_percent": 10,
                 "proposed_duration": 120,
                 "proposed_enrollment": 42,
                 "proposed_release_date": "2023-12-12",
                 "targeting_config_slug": (TargetingConstants.TargetingConfig.FIRST_RUN),
+                "total_enrolled_clients": 100,
+                "changelog_message": "test changelog message",
+                "countries": [country.id],
+                "locales": [locale.id],
+                "languages": [language.id],
+                "projects": [project.id],
+                "is_sticky": True,
+            },
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.channels, [NimbusExperiment.Channel.BETA])
+        self.assertEqual(
+            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_83
+        )
+        self.assertEqual(experiment.population_percent, 10)
+        self.assertEqual(experiment.proposed_duration, 120)
+        self.assertEqual(experiment.proposed_enrollment, 42)
+        self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 12, 12))
+        self.assertEqual(
+            experiment.targeting_config_slug,
+            TargetingConstants.TargetingConfig.FIRST_RUN,
+        )
+        self.assertEqual(experiment.total_enrolled_clients, 100)
+        self.assertEqual(list(experiment.countries.all()), [country])
+        self.assertEqual(list(experiment.locales.all()), [locale])
+        self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertEqual(list(experiment.projects.all()), [project])
+        self.assertTrue(experiment.is_sticky)
+
+    @parameterized.expand(
+        [
+            (application,)
+            for application in NimbusExperiment.Application
+            if application != NimbusExperiment.Application.DESKTOP
+        ]
+    )
+    def test_serializer_updates_audience_on_experiment_non_desktop(self, application):
+        country = CountryFactory.create()
+        locale = LocaleFactory.create()
+        language = LanguageFactory.create()
+        project = ProjectFactory.create()
+
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=0.0,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            proposed_release_date=None,
+            total_enrolled_clients=0,
+            is_sticky=False,
+        )
+
+        targeting_config_slugs = [
+            targeting.slug
+            for targeting in NimbusTargetingConfig.targeting_configs
+            if application.name in targeting.application_choice_names
+        ]
+
+        new_targeting_config_slug = NimbusExperiment.TargetingConfig.NO_TARGETING
+        if targeting_config_slugs:
+            new_targeting_config_slug = targeting_config_slugs[0]
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {
+                "channel": NimbusExperiment.Channel.BETA,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "population_percent": 10,
+                "proposed_duration": 120,
+                "proposed_enrollment": 42,
+                "proposed_release_date": "2023-12-12",
+                "targeting_config_slug": new_targeting_config_slug,
                 "total_enrolled_clients": 100,
                 "changelog_message": "test changelog message",
                 "countries": [country.id],
@@ -521,10 +601,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.proposed_duration, 120)
         self.assertEqual(experiment.proposed_enrollment, 42)
         self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 12, 12))
-        self.assertEqual(
-            experiment.targeting_config_slug,
-            TargetingConstants.TargetingConfig.FIRST_RUN,
-        )
+        self.assertEqual(experiment.targeting_config_slug, new_targeting_config_slug)
         self.assertEqual(experiment.total_enrolled_clients, 100)
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])

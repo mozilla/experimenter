@@ -628,6 +628,10 @@ class NimbusExperimentSerializer(
     channel = serializers.ChoiceField(
         choices=NimbusExperiment.Channel.choices, required=False
     )
+    channels = serializers.ListField(
+        child=serializers.ChoiceField(choices=NimbusExperiment.Channel.choices),
+        required=False,
+    )
     public_description = serializers.CharField(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
@@ -746,6 +750,7 @@ class NimbusExperimentSerializer(
             "application",
             "changelog_message",
             "channel",
+            "channels",
             "conclusion_recommendations",
             "countries",
             "documentation_links",
@@ -1185,7 +1190,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         NimbusExperiment.Version.choices, required=True
     )
     channels = serializers.MultipleChoiceField(
-        choices=NimbusExperiment.Channel.choices, required=False
+        choices=NimbusExperiment.Channel.choices,
+        required=False,
     )
     application = serializers.ChoiceField(
         NimbusExperiment.Application.choices, required=True
@@ -2220,24 +2226,13 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             return data
 
         min_version = NimbusExperiment.Version.parse(data["firefox_min_version"])
-        channel = data.get("channel")
         channels = data.get("channels", [])
-
-        if not (channel or channels):
-            raise serializers.ValidationError(
-                {
-                    "channel": NimbusConstants.ERROR_DESKTOP_PREFFLIPS_CHANNEL_REQUIRED,
-                    "channels": NimbusConstants.ERROR_DESKTOP_PREFFLIPS_CHANNEL_REQUIRED,
-                }
-            )
 
         # We have already validated that the feature is supported by the current
         # version. However, we don't keep track of per-channel manifests. The
         # prefFlips feature landed in 128 Nightly as a placeholder and was only
         # implemented in 129 Nightly+, but it was uplifted to 128 ESR.
-        esr_only = channel == NimbusExperiment.Channel.ESR or set(channels) == {
-            NimbusExperiment.Channel.ESR
-        }
+        esr_only = set(channels) == {NimbusExperiment.Channel.ESR}
 
         if esr_only:
             return data
@@ -2433,6 +2428,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if application != NimbusExperiment.Application.DESKTOP and not channel:
             raise serializers.ValidationError(
                 {"channel": "Channel is required for this application."}
+            )
+        channels = data.get("channels")
+        if application == NimbusExperiment.Application.DESKTOP and not channels:
+            raise serializers.ValidationError(
+                {"channels": "Please select at least one channel."}
             )
         data = super().validate(data)
         data = self._validate_versions(data)

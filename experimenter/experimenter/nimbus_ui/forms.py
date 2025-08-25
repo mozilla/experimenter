@@ -924,6 +924,12 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             },
         ),
     )
+    channels = forms.MultipleChoiceField(
+        required=False,
+        label="",
+        choices=NimbusExperiment.Channel.choices,
+        widget=MultiSelectWidget(),
+    )
     firefox_min_version = forms.ChoiceField(
         required=False,
         label="",
@@ -996,6 +1002,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         model = NimbusExperiment
         fields = [
             "channel",
+            "channels",
             "countries",
             "excluded_experiments_branches",
             "firefox_max_version",
@@ -1019,12 +1026,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         self.setup_experiment_branch_choices()
         self.setup_initial_experiments_branches("required_experiments_branches")
         self.setup_initial_experiments_branches("excluded_experiments_branches")
-
-        self.fields["channel"].choices = [
-            (channel.value, channel.label)
-            for channel in NimbusExperiment.Channel
-            if channel in self.instance.application_config.channel_app_id
-        ]
+        self.setup_channel_choices()
 
         self.fields["is_first_run"].widget.attrs.update(
             {
@@ -1108,6 +1110,22 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                     child_experiment=NimbusExperiment.objects.get(slug=experiment_slug),
                     branch_slug=branch_slug,
                 )
+
+    def setup_channel_choices(self):
+        self.fields["channel"].choices = [
+            (channel.value, channel.label)
+            for channel in NimbusExperiment.Channel
+            if channel in self.instance.application_config.channel_app_id
+        ]
+
+        self.fields["channels"].choices = [
+            (channel.value, channel.label)
+            for channel in NimbusExperiment.Channel
+            if (
+                channel in self.instance.application_config.channel_app_id
+                and channel != NimbusExperiment.Channel.NO_CHANNEL
+            )
+        ]
 
     def check_rollout_dirty(self, instance):
         if not instance.is_rollout:

@@ -767,6 +767,7 @@ input ExperimentInput {
   application: NimbusExperimentApplicationEnum
   changelogMessage: String
   channel: NimbusExperimentChannelEnum
+  channels: [NimbusExperimentChannelEnum]
   conclusionRecommendations: [NimbusExperimentConclusionRecommendationEnum]
   countries: [String]
   documentationLinks: [DocumentationLinkInput]
