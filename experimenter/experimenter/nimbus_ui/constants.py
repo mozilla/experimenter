@@ -91,6 +91,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             <a href="https://experimenter.info/for-product">Learn</a> how to get started.
         """,
     }
+    # TODO: Add learn more URL for feature page (EXP-5876)
     FEATURE_PAGE_LINKS = {"feature_learn_more_url": ""}
 
     class ReviewRequestMessages(Enum):
