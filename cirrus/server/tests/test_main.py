@@ -56,9 +56,10 @@ async def test_job_retry_scheduling(app_state_mock):
     scheduler = create_scheduler()
 
     with (
-        patch("cirrus.main.remote_setting_refresh_max_attempts", 3),
         patch("cirrus.main.remote_setting_refresh_rate_in_seconds", 10),
+        patch("cirrus.main.remote_setting_refresh_jitter_in_seconds", 1),
         patch("cirrus.main.remote_setting_refresh_retry_delay_in_seconds", 30),
+        patch("cirrus.main.remote_setting_refresh_max_attempts", 3),
         patch("cirrus.main.app.state.scheduler", scheduler),
     ):
 
@@ -75,6 +76,7 @@ async def test_job_retry_scheduling(app_state_mock):
             assert job.max_instances == 1
             assert isinstance(job.trigger, IntervalTrigger)
             assert job.trigger.interval == timedelta(seconds=10)
+            assert job.trigger.jitter == 1
 
             schedule_next_attempt(attempt=0, failed=True)
 
@@ -86,6 +88,7 @@ async def test_job_retry_scheduling(app_state_mock):
             assert job.max_instances == 1
             assert isinstance(job.trigger, IntervalTrigger)
             assert job.trigger.interval == timedelta(seconds=30)
+            assert job.trigger.jitter == 1
 
             schedule_next_attempt(attempt=1, failed=False)
 
@@ -97,6 +100,7 @@ async def test_job_retry_scheduling(app_state_mock):
             assert job.max_instances == 1
             assert isinstance(job.trigger, IntervalTrigger)
             assert job.trigger.interval == timedelta(seconds=10)
+            assert job.trigger.jitter == 1
 
         finally:
             scheduler.shutdown(wait=False)
@@ -403,9 +407,10 @@ async def test_fetch_schedule_recipes(
     remote_setting_preview_mock.__bool__.return_value = has_preview
 
     with (
-        patch("cirrus.main.remote_setting_refresh_max_attempts", 3),
         patch("cirrus.main.remote_setting_refresh_rate_in_seconds", 10),
+        patch("cirrus.main.remote_setting_refresh_jitter_in_seconds", 1),
         patch("cirrus.main.remote_setting_refresh_retry_delay_in_seconds", 30),
+        patch("cirrus.main.remote_setting_refresh_max_attempts", 3),
     ):
         await fetch_schedule_recipes(attempt=attempt)
 
@@ -421,6 +426,7 @@ async def test_fetch_schedule_recipes(
             fetch_schedule_recipes,
             "interval",
             seconds=30,
+            jitter=1,
             max_instances=1,
             id=FETCH_SCHEDULE_RECIPES_JOB_ID,
             replace_existing=True,
@@ -431,6 +437,7 @@ async def test_fetch_schedule_recipes(
             fetch_schedule_recipes,
             "interval",
             seconds=10,
+            jitter=1,
             max_instances=1,
             id=FETCH_SCHEDULE_RECIPES_JOB_ID,
             replace_existing=True,
