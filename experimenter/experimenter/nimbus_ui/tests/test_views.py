@@ -2983,6 +2983,101 @@ class TestBranchScreenshotDeleteView(AuthTestCase):
 
 
 class TestNimbusExperimentsHomeView(AuthTestCase):
+    def _make_all_qa_statuses(self):
+        red = NimbusExperimentFactory.create(owner=self.user, qa_status="RED", name="Red")
+        yellow = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="YELLOW", name="Yellow"
+        )
+        green = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="GREEN", name="Green"
+        )
+        self_red = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="SELF RED", name="Self Red"
+        )
+        self_yellow = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="SELF YELLOW", name="Self Yellow"
+        )
+        self_green = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="SELF GREEN", name="Self Green"
+        )
+        not_set = NimbusExperimentFactory.create(
+            owner=self.user, qa_status="NOT SET", name="Not Set"
+        )
+        return red, yellow, green, self_red, self_yellow, self_green, not_set
+
+    @parameterized.expand(
+        [
+            (
+                "red_only",
+                "qa=RED",
+                ["red"],
+                ["yellow", "green", "self_red", "self_yellow", "self_green", "not_set"],
+            ),
+            (
+                "yellow_only",
+                "qa=YELLOW",
+                ["yellow"],
+                ["red", "green", "self_red", "self_yellow", "self_green", "not_set"],
+            ),
+            (
+                "green_only",
+                "qa=GREEN",
+                ["green"],
+                ["red", "yellow", "self_red", "self_yellow", "self_green", "not_set"],
+            ),
+            (
+                "self_red_only",
+                "qa=SELF RED",
+                ["self_red"],
+                ["red", "yellow", "green", "self_yellow", "self_green", "not_set"],
+            ),
+            (
+                "self_yellow_only",
+                "qa=SELF YELLOW",
+                ["self_yellow"],
+                ["red", "yellow", "green", "self_red", "self_green", "not_set"],
+            ),
+            (
+                "self_green_only",
+                "qa=SELF GREEN",
+                ["self_green"],
+                ["red", "yellow", "green", "self_red", "self_yellow", "not_set"],
+            ),
+            (
+                "not_set_only",
+                "qa=NOT SET",
+                ["not_set"],
+                ["red", "yellow", "green", "self_red", "self_yellow", "self_green"],
+            ),
+            (
+                "red_and_yellow",
+                "qa=RED&qa=YELLOW",
+                ["red", "yellow"],
+                ["green", "self_red", "self_yellow", "self_green", "not_set"],
+            ),
+        ]
+    )
+    def test_filter_qa_status(self, name, querystring, expected_in, expected_not_in):
+        red, yellow, green, self_red, self_yellow, self_green, not_set = (
+            self._make_all_qa_statuses()
+        )
+        mapping = {
+            "red": red,
+            "yellow": yellow,
+            "green": green,
+            "self_red": self_red,
+            "self_yellow": self_yellow,
+            "self_green": self_green,
+            "not_set": not_set,
+        }
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?{querystring}")
+        self.assertEqual(resp.status_code, 200)
+
+        includes = [mapping[k] for k in expected_in]
+        excludes = [mapping[k] for k in expected_not_in]
+        self._assert_page_membership(resp, includes, excludes)
+
     def test_home_view_shows_owned_and_subscribed_experiments(self):
         # Owned by current user
         owned_exp = NimbusExperimentFactory.create_with_lifecycle(

@@ -1520,6 +1520,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 return NimbusConstants.HomeTypeChoices.EXPERIMENT.label
 
     @property
+    def qa_status_icon_info(self):
+        return NimbusConstants.QAStatus.get_icon_info(self.qa_status)
+
+    @property
     def should_timeout(self):
         review_expired = (
             timezone.now() - self.changes.latest_change().changed_on

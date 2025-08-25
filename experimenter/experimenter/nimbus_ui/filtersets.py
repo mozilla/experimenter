@@ -376,6 +376,14 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
             },
         ),
     )
+    qa_status = django_filters.MultipleChoiceFilter(
+        method="filter_qa_status",
+        choices=NimbusExperiment.QAStatus.choices,
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-user-shield",
+            attrs={"title": "All QA Statuses"},
+        ),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -414,3 +422,8 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
                     query |= Q(is_firefox_labs_opt_in=False, is_rollout=False)
 
         return queryset.filter(query)
+
+    def filter_qa_status(self, queryset, name, values):
+        if not values:
+            return queryset
+        return queryset.filter(qa_status__in=values)
