@@ -431,13 +431,17 @@ class NimbusConstants:
     )
 
     class QAStatus(models.TextChoices):
-        RED = ("RED", "QA: Red")
-        YELLOW = ("YELLOW", "QA: Yellow")
-        GREEN = ("GREEN", "QA: Green")
-        SELF_RED = ("SELF RED", "Self QA: Red")
-        SELF_YELLOW = ("SELF YELLOW", "Self QA: Yellow")
-        SELF_GREEN = ("SELF GREEN", "Self QA: Green")
-        NOT_SET = "NOT SET"
+        RED = "RED", "QA: Red"
+        YELLOW = "YELLOW", "QA: Yellow"
+        GREEN = "GREEN", "QA: Green"
+        SELF_RED = "SELF RED", "Self QA: Red"
+        SELF_YELLOW = "SELF YELLOW", "Self QA: Yellow"
+        SELF_GREEN = "SELF GREEN", "Self QA: Green"
+        NOT_SET = "NOT SET", "Not Set"
+
+        @staticmethod
+        def get_icon_info(status):
+            return QA_STATUS_ICON_MAP.get(status, QA_STATUS_ICON_MAP["NOT SET"])
 
     APPLICATION_CONFIGS = {
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,
@@ -1171,4 +1175,14 @@ RISK_QUESTIONS = {
         "Does this experiment have a risk to negatively impact revenue "
         "(e.g. search, Pocket revenue)?"
     ),
+}
+
+QA_STATUS_ICON_MAP = {
+    "NOT SET": {"icon": "fa-regular fa-circle-question", "color": ""},
+    "GREEN": {"icon": "fa-regular fa-circle-check", "color": "text-success"},
+    "SELF GREEN": {"icon": "fa-solid fa-check", "color": "text-success"},
+    "YELLOW": {"icon": "fa-regular fa-circle-pause", "color": "text-warning"},
+    "SELF YELLOW": {"icon": "fa-regular fa-circle-pause", "color": "text-warning"},
+    "RED": {"icon": "fa-regular fa-circle-xmark", "color": "text-danger"},
+    "SELF RED": {"icon": "fa-regular fa-circle-xmark", "color": "text-danger"},
 }
