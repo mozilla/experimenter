@@ -81,7 +81,6 @@ def fetch(
         app_names = [
             app_name
             for app_name, app_config in context.app_configs.root.items()
-            # use ^ (XOR) to choose exclusively locally or remotely configured apps
             if local_apps ^ (app_config.repo.type != RepositoryType.LOCAL)
         ]
 

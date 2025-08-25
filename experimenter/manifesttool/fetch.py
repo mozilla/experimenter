@@ -6,7 +6,7 @@ from typing import Optional, TextIO
 import yaml
 from mozilla_nimbus_schemas import DesktopFeatureManifest
 
-from manifesttool import github_api, hgmo_api, nimbus_cli
+from manifesttool import github_api, nimbus_cli
 from manifesttool.appconfig import AppConfig, DiscoveryStrategyType, RepositoryType
 from manifesttool.exception_utils import format_exception
 from manifesttool.releases import discover_branched_releases, discover_tagged_releases
@@ -42,9 +42,6 @@ def fetch_fml_app(
     ref: Optional[Ref] = None,
     version: Optional[Version] = None,
 ) -> FetchResult:
-    if app_config.repo.type == RepositoryType.HGMO:
-        raise Exception("FML-based apps on hg.mozilla.org are not supported.")
-
     if ref is not None and not ref.is_resolved:
         raise ValueError(f"fetch_fml_app: ref `{ref.name}` is not resolved")
 
@@ -53,15 +50,15 @@ def fetch_fml_app(
 
     is_local = app_config.repo.type == RepositoryType.LOCAL
     if ref is not None and is_local:
-        raise ValueError("Cannot fetch specific ref for repository type local.")
+        raise ValueError("Cannot fetch specific ref for a local repository.")
 
     result = FetchResult(app_name=app_name, ref=ref, version=version)
 
     try:
-        # We could operate against "main" for all these calls, but the repository
-        # state might change between subsequent calls. That would mean the generated
-        # single file manifests could differ because they were based on different
-        # commits.
+        # We could operate against the default branch for all these calls, but
+        # the repository state might change between subsequent calls. That would
+        # mean the generated single file manifests could differ because they
+        # were based on different commits.
         if ref is None and not is_local:
             ref = result.ref = github_api.resolve_branch(
                 app_config.repo.name, app_config.repo.default_branch
@@ -133,9 +130,6 @@ def fetch_legacy_app(
     ref: Optional[Ref] = None,
     version: Optional[Version] = None,
 ) -> FetchResult:
-    if app_config.repo.type == RepositoryType.GITHUB:
-        raise Exception("Legacy experimenter.yaml apps on GitHub are not supported.")
-
     if ref is not None and not ref.is_resolved:
         raise ValueError(f"fetch_legacy_app: ref {ref.name} is not resolved")
 
@@ -150,7 +144,7 @@ def fetch_legacy_app(
         # feature schemas could differ or not be present if they were removed in a
         # subsequent commit.
         if ref is None:
-            ref = result.ref = hgmo_api.resolve_branch(
+            ref = result.ref = github_api.resolve_branch(
                 app_config.repo.name, app_config.repo.default_branch
             )
 
@@ -168,7 +162,7 @@ def fetch_legacy_app(
         app_dir.mkdir(exist_ok=True)
         manifest_path = app_dir / "experimenter.yaml"
 
-        hgmo_api.fetch_file(
+        github_api.fetch_file(
             app_config.repo.name,
             app_config.experimenter_yaml_path,
             ref.target,
@@ -203,7 +197,7 @@ def fetch_legacy_app(
                 schema_path = schema_dir.joinpath(*feature.json_schema.path.split("/"))
                 schema_path.parent.mkdir(exist_ok=True, parents=True)
 
-                hgmo_api.fetch_file(
+                github_api.fetch_file(
                     app_config.repo.name,
                     feature.json_schema.path,
                     ref.target,
