@@ -2,6 +2,9 @@
 
 {% block content %}
   <div id="feature-page" class="bg-body-tertiary py-4">
-    <div class="container"></div>
+    <div class="container">
+      {% include "nimbus_experiments/heading_card.html" with page_name="feature" heading_text="Welcome to your Feature Health Dashboard," subheading_text="Track a feature's Nimbus history and QA status in this summary view!" link_url=links.feature_learn_more_url btn_text="Learn More" %}
+
+    </div>
   </div>
 {% endblock %}

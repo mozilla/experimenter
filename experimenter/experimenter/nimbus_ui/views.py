@@ -635,6 +635,11 @@ class NimbusFeaturesView(FilterView):
     def get_queryset(self):
         return NimbusFeatureConfig.objects.filter().order_by("-name")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["links"] = NimbusUIConstants.FEATURE_PAGE_LINKS
+        return context
+
 
 class NimbusExperimentsHomeView(FilterView):
     template_name = "nimbus_experiments/home.html"

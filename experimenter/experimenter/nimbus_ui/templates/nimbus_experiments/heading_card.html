@@ -1,0 +1,14 @@
+<div id="{{ page_name }}-page-card"
+     class="card shadow-sm border-0 p-4 mb-4">
+  <div class="d-flex flex-column align-items-center text-center justify-content-center">
+    <div id="{{ page_name }}-page-banner" class="text-center">
+      <h3 id="{{ page_name }}-page-heading-message" class="fw-semibold mb-1">{{ heading_text }} {{ request.user }}!</h3>
+      <p class="fw-semibold mb-2 text-muted fs-6">{{ subheading_text }}</p>
+      <a href="{{ link_url }}"
+         id="{{ page_name }}-page-learn-more-link"
+         class="btn btn-primary btn-sm"
+         target="_blank"
+         rel="noopener noreferrer">{{ btn_text }}</a>
+    </div>
+  </div>
+</div>
