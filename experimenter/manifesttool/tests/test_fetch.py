@@ -42,7 +42,7 @@ FML_APP_CONFIG = AppConfig(
 LEGACY_APP_CONFIG = AppConfig(
     slug="legacy-app",
     repo=Repository(
-        type=RepositoryType.HGMO,
+        type=RepositoryType.GITHUB,
         name="legacy-repo",
         default_branch="tip",
     ),
@@ -356,7 +356,7 @@ class FetchTests(TestCase):
             manifest_dir.joinpath("fml-app").mkdir()
 
             with self.assertRaisesRegex(
-                ValueError, "Cannot fetch specific ref for repository type local."
+                ValueError, "Cannot fetch specific ref for a local repository."
             ):
                 fetch_fml_app(
                     manifest_dir,
@@ -625,24 +625,6 @@ class FetchTests(TestCase):
             self.assertIsNotNone(result.exc)
             self.assertEqual(str(result.exc), "Connection error")
 
-    def test_fetch_fml_hgmo(self):
-        """Testing fetch_fml_app with an hg.mozilla.org repository fails."""
-        app_config = AppConfig(
-            slug="invalid",
-            repo=Repository(
-                type=RepositoryType.HGMO,
-                name="invalid",
-                default_branch="tip",
-            ),
-            fml_path="nimbus.fml.yaml",
-        )
-
-        with self.assertRaisesRegex(
-            Exception,
-            "FML-based apps on hg.mozilla.org are not supported.",
-        ):
-            fetch_fml_app(Path(), "invalid", app_config)
-
     def test_fetch_fml_unresolved_ref(self):
         """Testing fetch_fml_app with an unresolved ref."""
         with self.assertRaisesRegex(
@@ -676,10 +658,10 @@ class FetchTests(TestCase):
         generate_experimenter_yaml.assert_not_called()
 
     @patch.object(
-        manifesttool.fetch.hgmo_api, "resolve_branch", lambda *args: Ref("tip", "ref")
+        manifesttool.fetch.github_api, "resolve_branch", lambda *args: Ref("tip", "ref")
     )
     @patch.object(
-        manifesttool.fetch.hgmo_api,
+        manifesttool.fetch.github_api,
         "fetch_file",
         side_effect=make_mock_fetch_file(ref="ref"),
     )
@@ -713,9 +695,9 @@ class FetchTests(TestCase):
             )
             self.assertEqual(fetch_file.call_count, 2)
 
-    @patch.object(manifesttool.fetch.hgmo_api, "resolve_branch")
+    @patch.object(manifesttool.fetch.github_api, "resolve_branch")
     @patch.object(
-        manifesttool.fetch.hgmo_api,
+        manifesttool.fetch.github_api,
         "fetch_file",
         side_effect=make_mock_fetch_file(ref="resolved"),
     )
@@ -763,9 +745,9 @@ class FetchTests(TestCase):
                     manifest_dir, "app", LEGACY_APP_CONFIG, version=Version(1)
                 )
 
-    @patch.object(manifesttool.fetch.hgmo_api, "resolve_branch")
+    @patch.object(manifesttool.fetch.github_api, "resolve_branch")
     @patch.object(
-        manifesttool.fetch.hgmo_api,
+        manifesttool.fetch.github_api,
         "fetch_file",
         side_effect=make_mock_fetch_file(ref="foo"),
     )
@@ -809,10 +791,10 @@ class FetchTests(TestCase):
             )
 
     @patch.object(
-        manifesttool.fetch.hgmo_api, "resolve_branch", lambda *args: Ref("tip", "ref")
+        manifesttool.fetch.github_api, "resolve_branch", lambda *args: Ref("tip", "ref")
     )
     @patch.object(
-        manifesttool.fetch.hgmo_api,
+        manifesttool.fetch.github_api,
         "fetch_file",
         side_effect=make_mock_fetch_file(
             paths_by_ref={
@@ -857,7 +839,7 @@ class FetchTests(TestCase):
             self.assertEqual(fetch_file.call_count, 2)
 
     @patch.object(
-        manifesttool.fetch.hgmo_api,
+        manifesttool.fetch.github_api,
         "resolve_branch",
         side_effect=Exception("Connection error"),
     )
@@ -871,7 +853,7 @@ class FetchTests(TestCase):
             self.assertEqual(str(result.exc), "Connection error")
 
     def test_fetch_legacy_github(self):
-        """Testing fetch_legacy_app with a GitHub repository fails."""
+        """Testing fetch_legacy_app with a GitHub repository"""
         app_config = AppConfig(
             slug="invalid",
             repo=Repository(
@@ -883,10 +865,6 @@ class FetchTests(TestCase):
 
         with (
             TemporaryDirectory() as tmp,
-            self.assertRaisesRegex(
-                Exception,
-                "Legacy experimenter.yaml apps on GitHub are not supported.",
-            ),
         ):
             fetch_legacy_app(Path(tmp), "invalid", app_config)
 
@@ -1020,7 +998,7 @@ class FetchTests(TestCase):
         app_config = AppConfig(
             slug="legacy-app",
             repo=Repository(
-                type=RepositoryType.HGMO,
+                type=RepositoryType.GITHUB,
                 name="legacy-repo",
                 default_branch="tip",
             ),

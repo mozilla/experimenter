@@ -18,7 +18,6 @@ from manifesttool.appconfig import (
 )
 from manifesttool.cli import MANIFEST_DIR
 from manifesttool.github_api import GITHUB_API_URL
-from manifesttool.hgmo_api import HGMO_URL
 from manifesttool.repository import Ref
 from manifesttool.tests.test_github_api import make_responses_for_fetch
 from manifesttool.version import (
@@ -412,177 +411,113 @@ class VersionTests(TestCase):
 
         self.assertEqual(parse_version_file(version_file, contents), expected)
 
-    @parameterized.expand(
-        [
-            (
-                app_config,
-                [
-                    (Ref("v120", "r0"), b"120.0a1\n"),
-                    (Ref("v120.1", "r1"), b"120.1a1\n"),
-                    (Ref("v121", "r2"), b"121.0a1\n"),
-                ],
-                {
-                    Version(120): Ref("v120", "r0"),
-                    Version(120, 1): Ref("v120.1", "r1"),
-                    Version(121): Ref("v121", "r2"),
-                },
-            )
-            for app_config in (
-                AppConfig(
-                    slug="fml-app",
-                    repo=Repository(
-                        type=RepositoryType.GITHUB,
-                        name="fml-app",
-                    ),
-                    fml_path="nimbus.fml.yaml",
-                    release_discovery=ReleaseDiscovery(
-                        version_file=VersionFile.create_plain_text("version.txt"),
-                        strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
-                    ),
-                ),
-                AppConfig(
-                    slug="legacy-app",
-                    repo=Repository(
-                        type=RepositoryType.HGMO,
-                        name="legacy-app",
-                        default_branch="tip",
-                    ),
-                    experimenter_yaml_path="nimbus.yaml",
-                    release_discovery=ReleaseDiscovery(
-                        version_file=VersionFile.create_plain_text("version.txt"),
-                        strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
-                    ),
-                ),
-            )
-        ]
-    )
+    @parameterized.expand([()])
     @responses.activate
-    def test_resolve_ref_versions(
-        self,
-        app_config: AppConfig,
-        bodies: list[tuple[Ref, str]],
-        expected: dict[Version, Ref],
-    ):
+    def test_resolve_ref_versions(self):
         """Testing resolve_ref_versions."""
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-app",
+            ),
+            fml_path="nimbus.fml.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
+            ),
+        )
+
         refs = []
         rsps = []
-        for ref, body in bodies:
+        for ref, body in (
+            (Ref("v120", "r0"), b"120.0a1\n"),
+            (Ref("v120.1", "r1"), b"120.1a1\n"),
+            (Ref("v121", "r2"), b"121.0a1\n"),
+        ):
             refs.append(ref)
 
-            if app_config.repo.type == RepositoryType.GITHUB:
-                rsps.extend(
-                    make_responses_for_fetch(
-                        app_config.repo.name,
-                        ref.target,
-                        app_config.release_discovery.version_file[0].root.path,
-                        body,
-                    )
+            rsps.extend(
+                make_responses_for_fetch(
+                    app_config.repo.name,
+                    ref.target,
+                    app_config.release_discovery.version_file[0].root.path,
+                    body,
                 )
-            else:
-                rsps.append(
-                    responses.get(
-                        f"{HGMO_URL}/{app_config.repo.name}/raw-file/"
-                        f"{ref.target}/{app_config.release_discovery.version_file[0].root.path}",
-                        body=body,
-                    )
-                )
+            )
 
         result = resolve_ref_versions(app_config, refs)
 
         for rsp in rsps:
             self.assertEqual(rsp.call_count, 1)
 
-        self.assertEqual(result, expected)
+        self.assertEqual(
+            result,
+            {
+                Version(120): Ref("v120", "r0"),
+                Version(120, 1): Ref("v120.1", "r1"),
+                Version(121): Ref("v121", "r2"),
+            },
+        )
 
-    @parameterized.expand(
-        [
-            (
-                app_config,
-                [
-                    (Ref("v120", "r0"), "a/version.txt", b"120.0a1\n"),
-                    (Ref("v120.1", "r1"), "a/version.txt", b"120.1a1\n"),
-                    (Ref("v121", "r2"), "b/version.txt", b"121.0a1\n"),
-                ],
-                {
-                    Version(120): Ref("v120", "r0"),
-                    Version(120, 1): Ref("v120.1", "r1"),
-                    Version(121): Ref("v121", "r2"),
-                },
-            )
-            for app_config in (
-                AppConfig(
-                    slug="fml-app",
-                    repo=Repository(
-                        type=RepositoryType.GITHUB,
-                        name="fml-app",
-                    ),
-                    fml_path="nimbus.fml.yaml",
-                    release_discovery=ReleaseDiscovery(
-                        version_file=[
-                            VersionFile.create_plain_text("a/version.txt"),
-                            VersionFile.create_plain_text("b/version.txt"),
-                        ],
-                        strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
-                    ),
-                ),
-                AppConfig(
-                    slug="legacy-app",
-                    repo=Repository(
-                        type=RepositoryType.HGMO,
-                        name="legacy-app",
-                        default_branch="default",
-                    ),
-                    fml_path="experimenter.yaml",
-                    release_discovery=ReleaseDiscovery(
-                        version_file=[
-                            VersionFile.create_plain_text("a/version.txt"),
-                            VersionFile.create_plain_text("b/version.txt"),
-                        ],
-                        strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
-                    ),
-                ),
-            )
-        ]
-    )
     @responses.activate
-    def test_resolve_ref_versions_multiple_files(self, app_config, bodies, expected):
+    def test_resolve_ref_versions_multiple_files(self):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-app",
+            ),
+            fml_path="nimbus.fml.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=[
+                    VersionFile.create_plain_text("a/version.txt"),
+                    VersionFile.create_plain_text("b/version.txt"),
+                ],
+                strategies=[DiscoveryStrategy.create_tagged(branch_re="")],
+            ),
+        )
         version_paths = [vf.root.path for vf in app_config.release_discovery.version_file]
 
         refs = []
         rsps = []
-        for ref, good_path, body in bodies:
+        for ref, good_path, body in (
+            (Ref("v120", "r0"), "a/version.txt", b"120.0a1\n"),
+            (Ref("v120.1", "r1"), "a/version.txt", b"120.1a1\n"),
+            (Ref("v121", "r2"), "b/version.txt", b"121.0a1\n"),
+        ):
             refs.append(ref)
 
-            bad_path = next(p for p in version_paths if p != good_path)
+            rsps.extend(
+                make_responses_for_fetch(
+                    app_config.repo.name,
+                    ref.target,
+                    good_path,
+                    body,
+                )
+            )
 
-            if app_config.repo.type == RepositoryType.GITHUB:
-                rsps.extend(
-                    make_responses_for_fetch(
-                        app_config.repo.name,
-                        ref.target,
-                        good_path,
-                        body,
-                    )
-                )
-                responses.get(
-                    f"{GITHUB_API_URL}/repos/{app_config.repo.name}/contents/{bad_path}",
-                    match=[matchers.query_param_matcher({"ref": ref.target})],
-                    status=404,
-                    body=b"",
-                )
-            else:
-                url_template = (
-                    f"{HGMO_URL}/{app_config.repo.name}/raw-file/{ref.target}/{{path}}"
-                )
-                rsps.append(responses.get(url_template.format(path=good_path), body=body))
-                responses.get(url_template.format(path=bad_path), status=404, body=b"")
+            bad_path = next(p for p in version_paths if p != good_path)
+            responses.get(
+                f"{GITHUB_API_URL}/repos/{app_config.repo.name}/contents/{bad_path}",
+                match=[matchers.query_param_matcher({"ref": ref.target})],
+                status=404,
+                body=b"",
+            )
 
         result = resolve_ref_versions(app_config, refs)
 
         for rsp in rsps:
             self.assertEqual(rsp.call_count, 1)
 
-        self.assertEqual(result, expected)
+        self.assertEqual(
+            result,
+            {
+                Version(120): Ref("v120", "r0"),
+                Version(120, 1): Ref("v120.1", "r1"),
+                Version(121): Ref("v121", "r2"),
+            },
+        )
 
     @responses.activate
     def test_resolve_ref_cannot_find_version(self):

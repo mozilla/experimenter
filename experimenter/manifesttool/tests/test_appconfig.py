@@ -43,23 +43,6 @@ class AppConfigTests(TestCase):
                 }
             )
 
-    def test_parse_hgmo_no_default(self):
-        """Testing that parsing apps.yaml fails if an app has an
-        hg.mozilla.org-hosted repository but does not specify a default branch.
-        """
-        with self.assertRaisesRegex(
-            ValueError, "hg.mozilla.org-hosted repositories require default_branch"
-        ):
-            AppConfigs.parse_obj(
-                {
-                    "app": {
-                        "slug": "app",
-                        "repo": {"type": "hgmo", "name": "repo"},
-                        "experimenter_yaml_path": "experimenter.yaml",
-                    },
-                }
-            )
-
     def test_parse_github_no_name(self):
         """Testing that parsing apps.yaml fails if an app has an
         hg.mozilla.org-hosted repository but does not specify a default branch.

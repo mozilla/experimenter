@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from pydantic import ValidationInfo
 from requests import HTTPError
 
-from manifesttool import github_api, hgmo_api
+from manifesttool import github_api
 from manifesttool.repository import Ref
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -203,12 +203,8 @@ def resolve_ref_versions(
     """
     from manifesttool.appconfig import RepositoryType
 
-    if app_config.repo.type == RepositoryType.GITHUB:
-        fetch_file = github_api.fetch_file
-    elif app_config.repo.type == RepositoryType.HGMO:
-        fetch_file = hgmo_api.fetch_file
-    else:  # pragma: no cover
-        raise AssertionError("unreachable")
+    if app_config.repo.type == RepositoryType.LOCAL:  # pragma: no cover
+        raise AssertionError("local repositories are unsupported")
 
     versions = {}
 
@@ -217,7 +213,7 @@ def resolve_ref_versions(
     for ref in refs:
         for version_file in version_files:
             try:
-                version_file_contents = fetch_file(
+                version_file_contents = github_api.fetch_file(
                     app_config.repo.name,
                     version_file.root.path,
                     ref.target,
