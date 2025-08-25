@@ -10,9 +10,6 @@ COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
 COMPOSE_TEST = docker compose -f docker-compose-test.yml
 COMPOSE_TEST_RUN = ${COMPOSE_TEST} run --name experimenter_test
 COMPOSE_PROD = docker compose -f docker-compose-prod.yml $$(${COMPOSE_CIRRUS})
-COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml $$(${COMPOSE_CIRRUS})
-COMPOSE_INTEGRATION_RUN = ${COMPOSE_INTEGRATION} run --name experimenter_integration
-DOCKER_BUILD = docker buildx build
 
 WORKFLOW := build
 EPOCH_TIME := $(shell date +"%s")
@@ -111,42 +108,30 @@ fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests 
 update_kinto:  ## Update latest Kinto/Remote Settings container
 	docker pull mozilla/kinto-dist:latest
 
-compose_build:  ## Build containers
-	$(COMPOSE) build
-
-build_megazords:
-	$(DOCKER_BUILD) -f application-services/Dockerfile -t experimenter:megazords application-services/
-
-update_application_services: build_megazords
+update_application_services:
+	docker bake megazords
 	docker run \
 		-v ./application-services/application-services.env:/application-services/application-services.env \
 		experimenter:megazords \
 		/application-services/update-application-services.sh
 
-build_dev: ssl build_megazords
-	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
+build_dev: ssl
+	docker bake default
 
-build_integration_test: ssl build_megazords
-	$(DOCKER_BUILD) -f experimenter/tests/integration/Dockerfile -t experimenter:integration-tests experimenter/
+build_integration_test: ssl
+	docker bake integration-tests
 
-build_test: ssl build_megazords
-	$(DOCKER_BUILD) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
+build_test: ssl
+	docker bake experimenter-test
 
-build_ui: ssl
-	$(DOCKER_BUILD) --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
-
-build_prod: ssl build_megazords
-	$(DOCKER_BUILD) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
+build_prod: ssl
+	docker bake prod
 
 compose_stop:
-	$(COMPOSE) kill || true
-	$(COMPOSE_INTEGRATION) kill || true
-	$(COMPOSE_PROD) kill || true
+	$(COMPOSE) --profile dev --profile prod --profile integration-tests kill || true
 
 compose_rm:
-	$(COMPOSE) rm -f -v || true
-	$(COMPOSE_INTEGRATION) rm -f -v || true
-	$(COMPOSE_PROD) rm -f -v || true
+	$(COMPOSE) --profile dev --profile prod --profile integration-tests rm -f -v || true
 
 docker_prune:
 	docker container prune -f
@@ -183,10 +168,11 @@ check_and_report: build_test  ## Only to be used on CI
 
 test: build_test  ## Run tests
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
+
 pytest: test
 
-start: build_dev  ## Start containers
-	$(COMPOSE) up
+start: build_dev ## Start containers
+	$(COMPOSE) --profile dev up
 
 up: start
 
@@ -227,7 +213,7 @@ migrate: build_dev  ## Run database migrations
 bash: build_dev
 	$(COMPOSE_RUN) experimenter bash
 
-refresh: kill build_dev compose_build refresh_db  ## Rebuild all containers and the database
+refresh: kill build_dev refresh_db  ## Rebuild all containers and the database
 
 refresh_db:  # Rebuild the database
 	$(COMPOSE_RUN) -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
@@ -282,13 +268,13 @@ CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 CIRRUS_COVERAGE_JSON := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)unit__coverage.json
 CIRRUS_JUNIT_XML := $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)integration__results.xml
 
-cirrus_build: build_megazords
+cirrus_build:
 	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-context=fml=experimenter/experimenter/features/manifests/ cirrus/server/
 
-cirrus_build_dev: build_megazords
+cirrus_build_dev:
 	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target dev -f cirrus/server/Dockerfile -t cirrus:dev --build-context=fml=experimenter/experimenter/features/manifests/ cirrus/server/
 
-cirrus_build_test: build_megazords
+cirrus_build_test:
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST) build cirrus
 
 cirrus_bash: cirrus_build_dev
