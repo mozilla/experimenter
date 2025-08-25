@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from manifesttool.appconfig import AppConfig, RepositoryType
+from manifesttool.appconfig import AppConfig, Repository, RepositoryType
 from manifesttool.repository import Ref
 from manifesttool.version import Version
 
@@ -24,11 +24,34 @@ def nimbus_cli(args: list[str]) -> bytes:
     )
 
 
+def _assert_ref_xor_github_repo(repo_type: RepositoryType, ref: Optional[Ref]):
+    if repo_type == RepositoryType.GITHUB and ref is None:
+        raise AssertionError("GitHub repositories require a ref")
+
+    if repo_type == RepositoryType.LOCAL and ref is not None:
+        raise AssertionError("local repositories do not support specific refs")
+
+
+def _repo_path_cli_args(repo: Repository, ref: Optional[Ref], fml_path: str) -> list[str]:
+    """Return the appropriate arguments to pass to nimbus-cli to refer to a
+    local or remote (i.e., GitHub) FML file.
+    """
+    _assert_ref_xor_github_repo(repo.type, ref)
+
+    match repo.type:
+        case RepositoryType.LOCAL:
+            return [fml_path]
+
+        case RepositoryType.GITHUB:
+            return [
+                "--ref",
+                ref.target,
+                f"@{repo.name}/{fml_path}",
+            ]
+
+
 def get_channels(app_config: AppConfig, fml_path: str, ref: Optional[Ref]) -> list[str]:
     """Get the list of channels supported by the application."""
-    assert app_config.repo.type in (RepositoryType.GITHUB, RepositoryType.LOCAL)
-    if app_config.repo.type == RepositoryType.GITHUB:
-        assert ref is not None
 
     output = nimbus_cli(
         [
@@ -36,15 +59,7 @@ def get_channels(app_config: AppConfig, fml_path: str, ref: Optional[Ref]) -> li
             "--",
             "channels",
             "--json",
-            *(
-                [fml_path]
-                if app_config.repo.type == RepositoryType.LOCAL
-                else [
-                    "--ref",
-                    ref.target,
-                    f"@{app_config.repo.name}/{fml_path}",
-                ]
-            ),
+            *_repo_path_cli_args(app_config.repo, ref, fml_path),
         ]
     )
 
@@ -69,13 +84,7 @@ def download_single_file(
 ):
     """Download the single-file FML manifest for the app on the specified
     channel.
-
-    If the AppConfig provides multiple FML paths, they will be tried in order.
     """
-    assert app_config.repo.type in (RepositoryType.GITHUB, RepositoryType.LOCAL)
-    if app_config.repo.type == RepositoryType.GITHUB:
-        assert ref is not None
-
     nimbus_cli(
         [
             "fml",
@@ -83,15 +92,7 @@ def download_single_file(
             "single-file",
             "--channel",
             channel,
-            *(
-                [fml_path]
-                if app_config.repo.type == RepositoryType.LOCAL
-                else [
-                    "--ref",
-                    ref.target,
-                    f"@{app_config.repo.name}/{fml_path}",
-                ]
-            ),
+            *_repo_path_cli_args(app_config.repo, ref, fml_path),
             str(_get_fml_path(manifest_dir, app_config, channel, version)),
         ],
     )
