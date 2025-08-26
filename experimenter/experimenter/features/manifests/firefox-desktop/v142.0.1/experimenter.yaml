@@ -1365,6 +1365,11 @@ newtabInferredPersonalization:
       type: int
       description: >-
         Time to refresh interest vector in hours
+    iv_unary_dp_in_request:
+      type: boolean
+      description: >-
+        Whether to use Unary encoding with differential privacy in the interest vector. If false or not set, we default to laplace noise with real values
+
 
 newtabSmartShortcuts:
   description: about:newtab personalized shortcuts
