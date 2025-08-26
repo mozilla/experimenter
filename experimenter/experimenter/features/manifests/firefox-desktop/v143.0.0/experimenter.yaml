@@ -5141,7 +5141,7 @@ ipProtection:
     enabled:
       type: boolean
       setPref:
-        branch: default
+        branch: user
         pref: browser.ipProtection.enabled
       description: >-
         Enables the IP Protection feature.
