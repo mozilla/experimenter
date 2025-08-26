@@ -226,6 +226,7 @@ class TestHomeFilters(AuthTestCase):
             application=NimbusExperiment.Application.FENIX,
             is_rollout=False,
             channel=NimbusExperiment.Channel.BETA,
+            channels=[],
             population_percent=5,
             firefox_min_version=120,
         )
@@ -234,7 +235,8 @@ class TestHomeFilters(AuthTestCase):
             name="Z High",
             application=NimbusExperiment.Application.DESKTOP,
             is_rollout=True,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
             population_percent=50,
             firefox_min_version=130,
         )
