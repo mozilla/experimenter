@@ -4170,6 +4170,10 @@
             ],
             "type": "string"
           },
+          "channels": {
+            "type": "string",
+            "readOnly": true
+          },
           "userFacingName": {
             "type": "string",
             "readOnly": true
