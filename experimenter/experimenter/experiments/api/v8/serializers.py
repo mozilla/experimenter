@@ -92,6 +92,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     appName = serializers.SerializerMethodField()
     appId = serializers.SerializerMethodField()
     branches = serializers.SerializerMethodField()
+    channels = serializers.SerializerMethodField()
     userFacingName = serializers.ReadOnlyField(source="name")
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     isEnrollmentPaused = serializers.ReadOnlyField(source="is_paused")
@@ -131,6 +132,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "appName",
             "appId",
             "channel",
+            "channels",
             "userFacingName",
             "userFacingDescription",
             "isEnrollmentPaused",
@@ -177,6 +179,13 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             serializer_cls = NimbusBranchSerializerMobile
 
         return serializer_cls(obj.branches.all(), many=True).data
+
+    def get_channels(self, obj):
+        if obj.channels:
+            return obj.channels
+        elif obj.channel:
+            return [obj.channel]
+        return []
 
     def get_featureIds(self, obj):
         return sorted(
