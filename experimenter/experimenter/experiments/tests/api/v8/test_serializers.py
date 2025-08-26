@@ -30,8 +30,8 @@ class TestNimbusExperimentSerializer(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
-            channel=NimbusExperiment.Channel.NIGHTLY,
-            channels=[],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
             segments=["segment1", "segment2"],
@@ -106,8 +106,8 @@ class TestNimbusExperimentSerializer(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
-            channel=NimbusExperiment.Channel.NIGHTLY,
-            channels=[],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
             segments=["segment1", "segment2"],
@@ -161,7 +161,8 @@ class TestNimbusExperimentSerializer(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
-            channel=NimbusExperiment.Channel.NIGHTLY,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
             segments=["segment1", "segment2"],
@@ -273,15 +274,29 @@ class TestNimbusExperimentSerializer(TestCase):
         channel,
         channel_app_id,
     ):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
-            application=application,
-            channel=channel,
-        )
+        if application == NimbusExperiment.Application.DESKTOP:
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                application=application,
+                channel=NimbusExperiment.Channel.NO_CHANNEL,
+                channels=[channel],
+            )
+        else:
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                application=application,
+                channel=channel,
+                channels=[],
+            )
 
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["application"], channel_app_id)
-        self.assertEqual(serializer.data["channel"], channel)
+        if application == NimbusExperiment.Application.DESKTOP:
+            # Desktop uses channels, not channel
+            self.assertEqual(serializer.data["channel"], "")
+            self.assertIn(channel.value, serializer.data["channels"])
+        else:
+            self.assertEqual(serializer.data["channel"], channel)
         self.assertEqual(
             serializer.data["appName"],
             NimbusExperiment.APPLICATION_CONFIGS[application].app_name,
@@ -293,7 +308,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
         )
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["targeting"], experiment.targeting)
@@ -316,7 +331,7 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.NIGHTLY,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["qux", "quux"],
             segments=["segment1", "segment2"],
@@ -356,6 +371,16 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("locales", serializer.data)
         self.assertIsNone(serializer.data["locales"])
 
+    def test_serializer_no_channel(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+        )
+
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(serializer.data["channels"], [])
+
     @parameterized.expand(
         [
             ("invalid json", None),
@@ -386,7 +411,8 @@ class TestNimbusExperimentSerializer(TestCase):
             "application": "firefox-desktop",
             "appName": "firefox_desktop",
             "appId": "firefox-desktop",
-            "channel": "nightly",
+            "channel": "",
+            "channels": ["nightly"],
             # DRF manually replaces the isoformat suffix so we have to do the same
             "startDate": experiment_data.start_date.isoformat().replace("+00:00", "Z"),
             "enrollmentEndDate": (
@@ -404,7 +430,7 @@ class TestNimbusExperimentSerializer(TestCase):
             "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
             "slug": experiment_data.slug,
             "targeting": (
-                f'(browserSettings.update.channel == "nightly") '
+                f'(browserSettings.update.channel in ["nightly"]) '
                 f"&& (version|versionCompare('{min_required_version}') >= 0) "
                 f"&& (locale in ['en-US'])"
             ),
