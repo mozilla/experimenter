@@ -18,14 +18,6 @@ alternative-app-launcher-icon:
     reset-to-default:
       type: boolean
       description: "If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.\n"
-app-icon-selection:
-  description: Allows the user to set an alternative app launcher icon.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: Whether or not the feature is available for the user.
 awesomebar-suggestion-provider:
   description: Configuration for the Firefox Suggest awesomebar suggestion provider.
   hasExposure: true
@@ -212,9 +204,6 @@ juno-onboarding:
     conditions:
       type: json
       description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
-    use-onboarding-redesign:
-      type: boolean
-      description: "If true, use the onboarding redesign."
 menu-redesign:
   description: Control the new menu redesign.
   hasExposure: true
@@ -555,14 +544,6 @@ suggest-shipped-domains:
     enabled:
       type: boolean
       description: "Suggest domains from the shipped domain list.\n"
-suppress-sponsored-top-sites:
-  description: Suppress sponsored top sites for new users for 14 days.
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "If true, new users won’t see sponsored tiles for 14 days."
 tab-management-enhancements:
   description: Control the visibility of the tab management enhancements.
   hasExposure: true
@@ -582,14 +563,6 @@ tab-strip:
     enabled:
       type: boolean
       description: "Whether or not to enable tab strip.\n"
-terms-of-use-prompt:
-  description: Enables the terms of use prompt for users who have not accepted ToU
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: When the feature is enabled then the prompt can show for users.
 third-party-cookie-blocking:
   description: Control third-party cookie blocking.
   hasExposure: true
