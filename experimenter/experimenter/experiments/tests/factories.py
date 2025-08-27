@@ -451,6 +451,8 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 NimbusExperiment.APPLICATION_CONFIGS[o.application].channel_app_id.keys()
             )
         ).value
+        if o.application != NimbusExperiment.Application.DESKTOP
+        else NimbusExperiment.Channel.NO_CHANNEL
     )
     channels = factory.LazyAttribute(
         lambda o: [
@@ -469,6 +471,8 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 )
             )
         ]
+        if o.application == NimbusExperiment.Application.DESKTOP
+        else []
     )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
     targeting_config_slug = NimbusExperiment.TargetingConfig.NO_TARGETING
@@ -654,6 +658,16 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                     )
 
         experiment = super().create(*args, **kwargs)
+
+        if experiment.is_desktop and experiment.channel:
+            raise factory.FactoryError(
+                "A desktop experiment must not use channel.  Use channels instead."
+            )
+
+        if not experiment.is_desktop and experiment.channels:
+            raise factory.FactoryError(
+                "A non-desktop experiment must not use channels.  Use channel instead."
+            )
 
         if excluded_experiments is not None:
             experiment.excluded_experiments.add(*excluded_experiments)
