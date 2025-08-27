@@ -1213,7 +1213,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.end_date:
             end_date = self.end_date + datetime.timedelta(days=2)
         else:
-            # add a day to account for Looker data being in UTC
+            # add a day to account for Looker data being in UTC adding test
             end_date = datetime.date.today() + datetime.timedelta(days=1)
 
         return settings.MONITORING_URL.format(
