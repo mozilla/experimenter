@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load widget_tweaks %}
+{% load nimbus_extras %}
 
 {% block content %}
   <div id="home-page" class="bg-body-tertiary py-4">
@@ -64,7 +65,7 @@
                 hx-select="#my-deliveries-table-section"
                 hx-target="#my-deliveries-table-section"
                 hx-trigger="change"
-                hx-include=".type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked"
+                hx-include=".type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked"
                 class="d-inline-block ms-auto">
             <div class="form-group mb-0">
               {% render_field my_deliveries_filter.form.my_deliveries_status class="form-select form-select-sm w-auto" %}
@@ -103,7 +104,7 @@
                       </td>
                       <td>{{ experiment.get_application_display }}</td>
                       <td>{{ experiment.home_type_choice }}</td>
-                      <td>{{ experiment.get_channel_display }}</td>
+                      <td>{% render_channel_icons experiment %}</td>
                       <td>{{ experiment.population_percent|floatformat:2 }}%</td>
                       <td>
                         {% if experiment.enrollment_start_date and experiment.computed_end_date %}
@@ -156,7 +157,7 @@
                   {% if all_my_experiments_page.has_previous %}
                     <li class="page-item">
                       <a class="page-link"
-                         hx-get="?my_deliveries_page={{ all_my_experiments_page.previous_page_number }}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                         hx-get="?my_deliveries_page={{ all_my_experiments_page.previous_page_number }}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.channel.value %}{% for c in my_deliveries_filter.form.channel.value %}&channel={{ c }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
                          hx-target="#my-deliveries-table-section"
                          hx-select="#my-deliveries-table-section"
                          hx-push-url="true">Previous</a>
@@ -170,7 +171,7 @@
                   {% if all_my_experiments_page.has_next %}
                     <li class="page-item">
                       <a class="page-link"
-                         hx-get="?my_deliveries_page={{ all_my_experiments_page.next_page_number }}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                         hx-get="?my_deliveries_page={{ all_my_experiments_page.next_page_number }}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.channel.value %}{% for c in my_deliveries_filter.form.channel.value %}&channel={{ c }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
                          hx-target="#my-deliveries-table-section"
                          hx-select="#my-deliveries-table-section"
                          hx-push-url="true">Next</a>

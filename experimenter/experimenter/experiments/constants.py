@@ -27,6 +27,10 @@ class Channel(models.TextChoices):
     STAGING = "staging"
     PRODUCTION = "production"
 
+    @staticmethod
+    def get_icon_info(channel):
+        return CHANNEL_ICON_MAP.get(channel, CHANNEL_ICON_MAP[""])
+
 
 class ChangeEventType(Enum):
     GENERAL = "GENERAL"
@@ -1185,4 +1189,33 @@ QA_STATUS_ICON_MAP = {
     "SELF YELLOW": {"icon": "fa-regular fa-circle-pause", "color": "text-warning"},
     "RED": {"icon": "fa-regular fa-circle-xmark", "color": "text-danger"},
     "SELF RED": {"icon": "fa-regular fa-circle-xmark", "color": "text-danger"},
+}
+
+CHANNEL_ICON_MAP = {
+    Channel.NO_CHANNEL: {"icon": "fa-regular fa-circle-question", "color": "text-muted"},
+    Channel.UNBRANDED: {"icon": "fa-solid fa-globe", "color": "text-secondary"},
+    Channel.NIGHTLY: {
+        "icon": "fa-brands fa-firefox",
+        "color": "text-primary",
+    },
+    Channel.BETA: {
+        "icon": "fa-brands fa-firefox",
+        "color": "text-warning",
+    },
+    Channel.RELEASE: {
+        "icon": "fa-brands fa-firefox",
+        "color": "text-success",
+    },
+    Channel.ESR: {
+        "icon": "fa-brands fa-firefox",
+        "color": "text-info",
+    },
+    Channel.TESTFLIGHT: {"icon": "fa-solid fa-plane", "color": "text-primary"},
+    Channel.AURORA: {
+        "icon": "fa-solid fa-bolt",
+        "color": "text-warning",
+    },
+    Channel.DEVELOPER: {"icon": "fa-solid fa-code", "color": "text-secondary"},
+    Channel.STAGING: {"icon": "fa-solid fa-cog", "color": "text-muted"},
+    Channel.PRODUCTION: {"icon": "fa-solid fa-star", "color": "text-success"},
 }

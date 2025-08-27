@@ -4,6 +4,7 @@ from django import template
 from django.utils.safestring import mark_safe
 
 from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment
 
 register = template.Library()
 
@@ -97,3 +98,61 @@ def can_review_experiment(context, experiment):
 @register.filter
 def qa_icon_info(value):
     return NimbusConstants.QAStatus.get_icon_info(value)
+
+
+@register.filter
+def channel_icon_info(value):
+    return NimbusExperiment.Channel.get_icon_info(value)
+
+
+@register.simple_tag
+def render_channel_icons(experiment):
+    channel_items = []
+
+    if experiment.is_desktop and experiment.channels:
+        # For multi-channel desktop experiments, show icon + name for each channel
+        for channel in sorted(experiment.channels):
+            icon_info = NimbusExperiment.Channel.get_icon_info(channel)
+            channel_label = experiment.Channel(channel).label
+            channel_items.append(
+                f'<span class="d-inline-flex align-items-center me-2 mb-1">'
+                f'<span class="{icon_info["color"]} me-1">'
+                f'<i class="{icon_info["icon"]}"></i></span>'
+                f'<span class="small">{channel_label}</span>'
+                f"</span>"
+            )
+    elif experiment.channel:
+        # For single channel experiments
+        icon_info = NimbusExperiment.Channel.get_icon_info(experiment.channel)
+        channel_label = experiment.Channel(experiment.channel).label
+        channel_items.append(
+            f'<span class="d-inline-flex align-items-center">'
+            f'<span class="{icon_info["color"]} me-1">'
+            f'<i class="{icon_info["icon"]}"></i></span>'
+            f'<span class="small">{channel_label}</span>'
+            f"</span>"
+        )
+
+    if channel_items:
+        return mark_safe(
+            '<div class="d-flex flex-wrap">' + "".join(channel_items) + "</div>"
+        )
+    return ""
+
+
+@register.simple_tag
+def choices_with_icons(choices, icon_filter_type):
+    enriched_choices = []
+
+    for value, label in choices:
+        icon_info = None
+        if icon_filter_type == "qa_icon_info":
+            from experimenter.experiments.constants import NimbusConstants
+
+            icon_info = NimbusConstants.QAStatus.get_icon_info(value)
+        elif icon_filter_type == "channel_icon_info":
+            icon_info = NimbusExperiment.Channel.get_icon_info(value)
+
+        enriched_choices.append({"value": value, "label": label, "icon_info": icon_info})
+
+    return enriched_choices
