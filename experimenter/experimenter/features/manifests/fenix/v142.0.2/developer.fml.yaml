@@ -23,13 +23,6 @@ features:
         description: "If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.\n"
         type: Boolean
         default: false
-  app-icon-selection:
-    description: Allows the user to set an alternative app launcher icon.
-    variables:
-      enabled:
-        description: Whether or not the feature is available for the user.
-        type: Boolean
-        default: true
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -68,7 +61,7 @@ features:
       enabled:
         description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
         type: Boolean
-        default: true
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -92,7 +85,7 @@ features:
       show-ui:
         description: "When `true`, include DoH settings in the settings UI.\n"
         type: Boolean
-        default: true
+        default: false
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
@@ -362,7 +355,7 @@ features:
               marketing-data:
                 body-line-one-text: onboarding_marketing_learn_more
                 body-line-one-link-text: onboarding_marketing_learn_more
-                body-line-two-text: onboarding_marketing_opt_out_checkbox
+                body-line-two-text: onboarding_marketing_opt_in_checkbox
             image-res: ic_onboarding_welcome
             ordering: 40
             prerequisites:
@@ -382,7 +375,7 @@ features:
               marketing-data:
                 body-line-one-text: onboarding_marketing_learn_more
                 body-line-one-link-text: onboarding_marketing_learn_more
-                body-line-two-text: onboarding_marketing_opt_out_checkbox
+                body-line-two-text: onboarding_marketing_opt_in_checkbox
         string-alias: OnboardingCardKey
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
@@ -391,10 +384,6 @@ features:
           ALWAYS: "true"
           NEVER: "false"
         string-alias: ConditionName
-      use-onboarding-redesign:
-        description: "If true, use the onboarding redesign."
-        type: Boolean
-        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
@@ -754,11 +743,11 @@ features:
       enabled:
         description: "Whether or not to enable recent searches.\n"
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 5
+        default: 4
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -876,13 +865,6 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: false
-  suppress-sponsored-top-sites:
-    description: Suppress sponsored top sites for new users for 14 days.
-    variables:
-      enabled:
-        description: "If true, new users won’t see sponsored tiles for 14 days."
-        type: Boolean
-        default: false
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
@@ -901,13 +883,6 @@ features:
         description: "Whether or not to enable tab strip.\n"
         type: Boolean
         default: true
-  terms-of-use-prompt:
-    description: Enables the terms of use prompt for users who have not accepted ToU
-    variables:
-      enabled:
-        description: When the feature is enabled then the prompt can show for users.
-        type: Boolean
-        default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -944,11 +919,11 @@ features:
       enabled:
         description: "Whether or not to enable top sites suggestions.\n"
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 2
+        default: 4
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -986,11 +961,11 @@ features:
       enabled:
         description: "Whether or not to enable trending searches.\n"
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 5
+        default: 4
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
