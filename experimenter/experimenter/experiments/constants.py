@@ -10,8 +10,6 @@ from django.db import models
 from mozilla_nimbus_schemas.experiments import RandomizationUnit
 from packaging import version
 
-from experimenter.nimbus_ui.constants import CHANNEL_ICON_MAP, QA_STATUS_ICON_MAP
-
 if TYPE_CHECKING:  # pragma: no cover
     from experimenter.experiments.models import NimbusExperiment
 
@@ -31,6 +29,8 @@ class Channel(models.TextChoices):
 
     @staticmethod
     def get_icon_info(channel):
+        from experimenter.nimbus_ui.constants import CHANNEL_ICON_MAP
+
         return CHANNEL_ICON_MAP.get(channel, CHANNEL_ICON_MAP[Channel.NO_CHANNEL])
 
 
@@ -447,7 +447,11 @@ class NimbusConstants:
 
         @staticmethod
         def get_icon_info(status):
-            return QA_STATUS_ICON_MAP.get(status, QA_STATUS_ICON_MAP["NOT SET"])
+            from experimenter.nimbus_ui.constants import QA_STATUS_ICON_MAP
+
+            return QA_STATUS_ICON_MAP.get(
+                status, QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.NOT_SET]
+            )
 
     APPLICATION_CONFIGS = {
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,

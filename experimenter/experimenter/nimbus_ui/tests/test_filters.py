@@ -465,36 +465,45 @@ class TestHomeFilters(AuthTestCase):
         [
             (
                 "nightly_only",
-                "channel=nightly",
-                ["nightly"],
-                ["beta", "release", "multi_channel"],
+                f"channel={NimbusExperiment.Channel.NIGHTLY}",
+                [NimbusExperiment.Channel.NIGHTLY],
+                [
+                    NimbusExperiment.Channel.BETA,
+                    NimbusExperiment.Channel.RELEASE,
+                    "multi_channel",
+                ],
             ),
             (
                 "beta_only",
-                "channel=beta",
-                ["beta", "multi_channel"],
-                ["nightly", "release"],
+                f"channel={NimbusExperiment.Channel.BETA}",
+                [NimbusExperiment.Channel.BETA, "multi_channel"],
+                [NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
             ),
             (
                 "release_only",
-                "channel=release",
-                ["release", "multi_channel"],
-                ["nightly", "beta"],
+                f"channel={NimbusExperiment.Channel.RELEASE}",
+                [NimbusExperiment.Channel.RELEASE, "multi_channel"],
+                [NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.BETA],
             ),
             (
                 "nightly_and_beta",
-                "channel=nightly&channel=beta",
-                ["nightly", "beta", "multi_channel"],
-                ["release"],
+                f"channel={NimbusExperiment.Channel.NIGHTLY}",
+                f"&channel={NimbusExperiment.Channel.BETA}",
+                [
+                    NimbusExperiment.Channel.NIGHTLY,
+                    NimbusExperiment.Channel.BETA,
+                    "multi_channel",
+                ],
+                [NimbusExperiment.Channel.RELEASE],
             ),
         ]
     )
     def test_filter_channel(self, name, querystring, expected_in, expected_not_in):
         nightly, beta, release, multi_channel = self._make_different_channels()
         mapping = {
-            "nightly": nightly,
-            "beta": beta,
-            "release": release,
+            NimbusExperiment.Channel.NIGHTLY: nightly,
+            NimbusExperiment.Channel.BETA: beta,
+            NimbusExperiment.Channel.RELEASE: release,
             "multi_channel": multi_channel,
         }
 
@@ -595,6 +604,8 @@ class TestHomeFilters(AuthTestCase):
     )
     def test_qa_icon_info_filter(self, qa_status):
         result = qa_icon_info(qa_status)
-        expected = QA_STATUS_ICON_MAP.get(qa_status, QA_STATUS_ICON_MAP["NOT SET"])
+        expected = QA_STATUS_ICON_MAP.get(
+            qa_status, QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.NOT_SET]
+        )
         self.assertEqual(result["icon"], expected["icon"])
         self.assertEqual(result["color"], expected["color"])

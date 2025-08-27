@@ -4,8 +4,12 @@ from django import template
 from django.utils.safestring import mark_safe
 
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment
-from experimenter.nimbus_ui.constants import QA_STATUS_ICON_MAP
+from experimenter.nimbus_ui.constants import (
+    CHANNEL_ICON_FILTER_TYPE,
+    CHANNEL_ICON_MAP,
+    QA_ICON_FILTER_TYPE,
+    QA_STATUS_ICON_MAP,
+)
 
 register = template.Library()
 
@@ -98,12 +102,14 @@ def can_review_experiment(context, experiment):
 
 @register.filter
 def qa_icon_info(value):
-    return NimbusConstants.QAStatus.get_icon_info(value)
+    return QA_STATUS_ICON_MAP.get(
+        value, QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.NOT_SET]
+    )
 
 
 @register.filter
 def channel_icon_info(value):
-    return NimbusExperiment.Channel.get_icon_info(value)
+    return NimbusConstants.Channel.get_icon_info(value)
 
 
 @register.simple_tag
@@ -112,7 +118,7 @@ def render_channel_icons(experiment):
 
     if experiment.is_desktop and experiment.channels:
         for channel in sorted(experiment.channels):
-            icon_info = NimbusExperiment.Channel.get_icon_info(channel)
+            icon_info = NimbusConstants.Channel.get_icon_info(channel)
             channel_label = experiment.Channel(channel).label
             channels_data.append(
                 {
@@ -122,7 +128,7 @@ def render_channel_icons(experiment):
                 }
             )
     elif experiment.channel:
-        icon_info = NimbusExperiment.Channel.get_icon_info(experiment.channel)
+        icon_info = NimbusConstants.Channel.get_icon_info(experiment.channel)
         channel_label = experiment.Channel(experiment.channel).label
         channels_data.append(
             {
@@ -141,10 +147,14 @@ def choices_with_icons(choices, icon_filter_type):
 
     for value, label in choices:
         icon_info = None
-        if icon_filter_type == "qa_icon_info":
-            icon_info = QA_STATUS_ICON_MAP.get(value, QA_STATUS_ICON_MAP["NOT SET"])
-        elif icon_filter_type == "channel_icon_info":
-            icon_info = NimbusExperiment.Channel.get_icon_info(value)
+        if icon_filter_type == QA_ICON_FILTER_TYPE:
+            icon_info = QA_STATUS_ICON_MAP.get(
+                value, QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.NOT_SET]
+            )
+        elif icon_filter_type == CHANNEL_ICON_FILTER_TYPE:
+            icon_info = CHANNEL_ICON_MAP.get(
+                value, CHANNEL_ICON_MAP[NimbusConstants.Channel.NO_CHANNEL]
+            )
 
         enriched_choices.append({"value": value, "label": label, "icon_info": icon_info})
 
