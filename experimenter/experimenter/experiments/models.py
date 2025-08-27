@@ -18,7 +18,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Count, F, Q, QuerySet
+from django.db.models import Case, Count, F, Q, QuerySet, When
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -131,6 +131,15 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
         return self.for_collection(
             self.filter(NimbusExperiment.Filters.IS_ENDING, application__in=applications),
             collection,
+        )
+
+    def with_merged_channel(self):
+        return self.get_queryset().annotate(
+            merged_channel=Case(
+                When(Q(channel__isnull=False) & ~Q(channel=""), then=F("channel")),
+                default=F("channels__0"),
+                output_field=models.CharField(),
+            )
         )
 
 

@@ -802,12 +802,32 @@ class NimbusExperimentsListViewTest(AuthTestCase):
 
     def test_sort_by_channel(self):
         experiment1 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="desktop-beta",
             status=NimbusExperiment.Status.LIVE,
-            channel=NimbusExperiment.Channel.BETA,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.BETA],
         )
         experiment2 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="desktop-release",
+            status=NimbusExperiment.Status.LIVE,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+        )
+        experiment3 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.FENIX,
+            slug="fenix-beta",
+            status=NimbusExperiment.Status.LIVE,
+            channel=NimbusExperiment.Channel.BETA,
+            channels=[],
+        )
+        experiment4 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.FENIX,
+            slug="fenix-release",
             status=NimbusExperiment.Status.LIVE,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
         )
 
         response = self.client.get(
@@ -819,7 +839,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
 
         self.assertEqual(
             [e.slug for e in response.context["experiments"]],
-            [experiment1.slug, experiment2.slug],
+            [experiment1.slug, experiment3.slug, experiment2.slug, experiment4.slug],
         )
 
         response = self.client.get(
@@ -831,7 +851,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
 
         self.assertEqual(
             [e.slug for e in response.context["experiments"]],
-            [experiment2.slug, experiment1.slug],
+            [experiment2.slug, experiment4.slug, experiment1.slug, experiment3.slug],
         )
 
     def test_sort_by_size(self):
