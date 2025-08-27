@@ -487,7 +487,7 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "nightly_and_beta",
-                f"channel={NimbusExperiment.Channel.NIGHTLY}",
+                f"channel={NimbusExperiment.Channel.NIGHTLY}"
                 f"&channel={NimbusExperiment.Channel.BETA}",
                 [
                     NimbusExperiment.Channel.NIGHTLY,
