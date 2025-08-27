@@ -53,6 +53,7 @@ from experimenter.nimbus_ui.forms import (
     TakeawaysForm,
     ToggleArchiveForm,
     UnsubscribeForm,
+    FeaturesForm,
 )
 
 
@@ -629,6 +630,7 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
 
 class NimbusFeaturesView(FilterView):
     template_name = "nimbus_experiments/features.html"
+    form_class = FeaturesForm
     filterset_class = NimbusExperimentFilter
     context_object_name = "features"
 

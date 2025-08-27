@@ -1449,3 +1449,24 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
             countdown=5, args=[experiment.kinto_collection]
         )
         return experiment
+
+
+class FeaturesForm(forms.ModelForm):
+    application = forms.ChoiceField(
+        label="",
+        choices=NimbusExperiment.Application.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+    )
+    feature_configs = FeatureConfigModelChoiceField(
+        required=False,
+        queryset=NimbusFeatureConfig.objects.all(),
+        widget=FeatureConfigMultiSelectWidget(attrs={}),
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["application", "feature_configs"]
