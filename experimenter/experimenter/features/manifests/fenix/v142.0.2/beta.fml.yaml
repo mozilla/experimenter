@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - developer
+  - beta
 features:
   address-sync:
     description: Turns on address sync.
@@ -11,7 +11,7 @@ features:
       enabled:
         description: "Whether or not to turn on address sync.\n"
         type: Boolean
-        default: true
+        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -23,13 +23,6 @@ features:
         description: "If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.\n"
         type: Boolean
         default: false
-  app-icon-selection:
-    description: Allows the user to set an alternative app launcher icon.
-    variables:
-      enabled:
-        description: Whether or not the feature is available for the user.
-        type: Boolean
-        default: true
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -68,7 +61,7 @@ features:
       enabled:
         description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
         type: Boolean
-        default: true
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -76,9 +69,9 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: "Map<CookieBannersSection, Int>"
         default:
-          feature-ui: 1
+          feature-ui: 0
           feature-setting-value: 0
-          feature-setting-value-pbm: 1
+          feature-setting-value-pbm: 0
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
@@ -92,7 +85,7 @@ features:
       show-ui:
         description: "When `true`, include DoH settings in the settings UI.\n"
         type: Boolean
-        default: true
+        default: false
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
@@ -140,11 +133,11 @@ features:
       boost-amp-wiki:
         description: "The feature boost wiki and AMP suggestions to the top of its group.\n"
         type: Boolean
-        default: true
+        default: false
       enabled:
         description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
         type: Boolean
-        default: true
+        default: false
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -235,7 +228,7 @@ features:
             card-type: terms-of-service
             disqualifiers:
               - NEVER
-            enabled: false
+            enabled: true
             extra-data:
               term-of-service-data:
                 line-one-text: onboarding_term_of_service_line_one_2
@@ -245,7 +238,7 @@ features:
                 line-three-text: onboarding_term_of_service_line_three
                 line-three-link-text: onboarding_term_of_service_line_three_link_text
             image-res: ic_firefox
-            ordering: 0
+            ordering: 1
             prerequisites:
               - ALWAYS
             primary-button-label: onboarding_term_of_service_agree_and_continue_button_label_2
@@ -259,7 +252,7 @@ features:
             enabled: true
             extra-data: ~
             image-res: ic_onboarding_welcome
-            ordering: 5
+            ordering: 10
             prerequisites:
               - ALWAYS
             primary-button-label: juno_onboarding_default_browser_positive_button
@@ -273,7 +266,7 @@ features:
             enabled: true
             extra-data: ~
             image-res: ic_onboarding_search_widget
-            ordering: 10
+            ordering: 15
             prerequisites:
               - ALWAYS
             primary-button-label: juno_onboarding_add_search_widget_positive_button
@@ -287,7 +280,7 @@ features:
             enabled: true
             extra-data: ~
             image-res: ic_onboarding_sync
-            ordering: 15
+            ordering: 20
             prerequisites:
               - ALWAYS
             primary-button-label: juno_onboarding_sign_in_positive_button
@@ -301,7 +294,7 @@ features:
             enabled: true
             extra-data: ~
             image-res: ic_notification_permission
-            ordering: 20
+            ordering: 30
             prerequisites:
               - ALWAYS
             primary-button-label: juno_onboarding_enable_notifications_positive_button
@@ -312,7 +305,7 @@ features:
             card-type: theme-selection
             disqualifiers:
               - NEVER
-            enabled: false
+            enabled: true
             extra-data:
               customization-theme-data:
                 - theme-type: theme-system
@@ -325,7 +318,7 @@ features:
                   label: onboarding_customize_theme_dark_option
                   image-res: ic_pick_a_theme_dark
             image-res: ic_pick_a_theme
-            ordering: 30
+            ordering: 33
             prerequisites:
               - ALWAYS
             primary-button-label: onboarding_save_and_continue_button
@@ -336,7 +329,7 @@ features:
             card-type: toolbar-placement
             disqualifiers:
               - NEVER
-            enabled: false
+            enabled: true
             extra-data:
               customization-toolbar-data:
                 - toolbar-type: toolbar-top
@@ -346,10 +339,10 @@ features:
                   label: onboarding_customize_toolbar_bottom_option
                   image-res: ic_onboarding_bottom_toolbar
             image-res: ic_onboarding_customize_toolbar
-            ordering: 35
+            ordering: 37
             prerequisites:
               - ALWAYS
-            primary-button-label: onboarding_save_and_start_button
+            primary-button-label: onboarding_save_and_continue_button
             secondary-button-label: ""
             title: onboarding_customize_toolbar_title
           marketing:
@@ -362,7 +355,7 @@ features:
               marketing-data:
                 body-line-one-text: onboarding_marketing_learn_more
                 body-line-one-link-text: onboarding_marketing_learn_more
-                body-line-two-text: onboarding_marketing_opt_out_checkbox
+                body-line-two-text: onboarding_marketing_opt_in_checkbox
             image-res: ic_onboarding_welcome
             ordering: 40
             prerequisites:
@@ -370,19 +363,6 @@ features:
             primary-button-label: onboarding_marketing_positive_button
             secondary-button-label: ""
             title: onboarding_marketing_title
-          marketing-data:
-            card-type: marketing-data
-            enabled: false
-            title: onboarding_marketing_title
-            body: onboarding_marketing_body
-            image-res: ic_onboarding_welcome
-            ordering: 40
-            primary-button-label: onboarding_marketing_positive_button
-            extra-data:
-              marketing-data:
-                body-line-one-text: onboarding_marketing_learn_more
-                body-line-one-link-text: onboarding_marketing_learn_more
-                body-line-two-text: onboarding_marketing_opt_out_checkbox
         string-alias: OnboardingCardKey
       conditions:
         description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
@@ -391,10 +371,6 @@ features:
           ALWAYS: "true"
           NEVER: "false"
         string-alias: ConditionName
-      use-onboarding-redesign:
-        description: "If true, use the onboarding redesign."
-        type: Boolean
-        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
@@ -482,35 +458,12 @@ features:
             exclude-if-any:
               - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example:
-            title: microsurvey_prompt_printing_title
-            text: microsurvey_survey_printing_title
-            surface: microsurvey
-            trigger-if-all:
-              - RECENTLY_PRINTED
-            style: MICROSURVEY
-            microsurvey-config:
-              utm-content: homepage
-              icon: ic_print
-              answers:
-                - text: likert_scale_option_1
-                  ordering: 0
-                - text: likert_scale_option_2
-                  ordering: 1
-                - text: likert_scale_option_3
-                  ordering: 2
-                - text: likert_scale_option_4
-                  ordering: 3
-                - text: likert_scale_option_5
-                  ordering: 4
-                - text: likert_scale_option_6
-                  ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
         type: NotificationConfig
         default:
-          refresh-interval: 120
+          refresh-interval: 240
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -521,7 +474,7 @@ features:
         default:
           DEFAULT:
             priority: 50
-            max-display-count: 100
+            max-display-count: 5
           SURVEY:
             priority: 55
             max-display-count: 1
@@ -540,9 +493,6 @@ features:
           MICROSURVEY:
             priority: 50
             max-display-count: 5
-          EXPIRES_QUICKLY:
-            priority: 100
-            max-display-count: 1
         string-alias: StyleName
       triggers:
         description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
@@ -613,7 +563,7 @@ features:
       enabled:
         description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
         type: Boolean
-        default: true
+        default: false
   networking:
     description: Enables networking features
     variables:
@@ -754,11 +704,11 @@ features:
       enabled:
         description: "Whether or not to enable recent searches.\n"
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 5
+        default: 4
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -779,7 +729,7 @@ features:
       enabled:
         description: "Overrides the loadType when it is a same document navigation\n"
         type: Boolean
-        default: false
+        default: true
       force-disable-uri:
         description: "Disable overriding the loadType during same document navigation on the domain specified by this URI.\n"
         type: String
@@ -816,26 +766,26 @@ features:
       enabled:
         description: "If true, the feature shows up on the homescreen and on the new tab screen."
         type: Boolean
-        default: true
+        default: false
   sent-from-firefox:
     description: A feature that allows the user to add a download firefox footer to a shared link.
     variables:
       download-link:
         description: A store download link.
         type: Text
-        default: "[Download Link]"
+        default: ""
       enabled:
         description: "If true, the feature is available for the user."
         type: Boolean
-        default: true
+        default: false
       show-snackbar:
         description: "If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings."
         type: Boolean
-        default: true
+        default: false
       template-message:
         description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
         type: Text
-        default: sent_from_firefox_template
+        default: ""
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
@@ -853,7 +803,7 @@ features:
       disabled:
         description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
     variables:
@@ -876,13 +826,6 @@ features:
         description: "Suggest domains from the shipped domain list.\n"
         type: Boolean
         default: false
-  suppress-sponsored-top-sites:
-    description: Suppress sponsored top sites for new users for 14 days.
-    variables:
-      enabled:
-        description: "If true, new users won’t see sponsored tiles for 14 days."
-        type: Boolean
-        default: false
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
@@ -901,13 +844,6 @@ features:
         description: "Whether or not to enable tab strip.\n"
         type: Boolean
         default: true
-  terms-of-use-prompt:
-    description: Enables the terms of use prompt for users who have not accepted ToU
-    variables:
-      enabled:
-        description: When the feature is enabled then the prompt can show for users.
-        type: Boolean
-        default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -944,11 +880,11 @@ features:
       enabled:
         description: "Whether or not to enable top sites suggestions.\n"
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 2
+        default: 4
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -986,11 +922,11 @@ features:
       enabled:
         description: "Whether or not to enable trending searches.\n"
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 5
+        default: 4
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
