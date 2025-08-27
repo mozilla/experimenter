@@ -65,7 +65,7 @@ const setupSlugCopyToast = () => {
   var copiedToast = document.getElementById("slug-toast");
   if (slug && copiedToast) {
     slug.addEventListener("click", function () {
-      navigator.clipboard.writeText(slug.textContent);
+      navigator.clipboard.writeText(slug.textContent.trim());
       var toast = bootstrap.Toast.getOrCreateInstance(copiedToast);
       toast.show();
     });
