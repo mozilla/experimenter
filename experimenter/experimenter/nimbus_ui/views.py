@@ -176,7 +176,7 @@ class NimbusChangeLogsView(
 
 class NimbusExperimentsListView(NimbusExperimentViewMixin, FilterView):
     queryset = (
-        NimbusExperiment.objects.all()
+        NimbusExperiment.objects.with_merged_channel()
         .order_by("-_updated_date_time")
         .prefetch_related("feature_configs")
     )
@@ -648,7 +648,8 @@ class NimbusExperimentsHomeView(FilterView):
 
     def get_queryset(self):
         return (
-            NimbusExperiment.objects.filter(is_archived=False)
+            NimbusExperiment.objects.with_merged_channel()
+            .filter(is_archived=False)
             .filter(Q(owner=self.request.user) | Q(subscribers=self.request.user))
             .distinct()
             .order_by("-_updated_date_time")
