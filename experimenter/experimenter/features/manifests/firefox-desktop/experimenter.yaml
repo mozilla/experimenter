@@ -5172,3 +5172,18 @@ webApps:
         pref: browser.taskbarTabs.enabled
       description: >-
         Controls whether web apps can be installed and accessed.
+
+passwordManager:
+  description: Password manager related prefs
+  owner: maltejur@mozilla.com
+  hasExposure: false
+  variables:
+    reencryptionNeeded:
+      isEarlyStartup: true
+      type: boolean
+      setPref:
+        branch: default
+        pref: signon.reencryptionNeeded
+      description: >-
+        Triggers a reencryption of all passwords on the next startup for
+        migration purposes.
