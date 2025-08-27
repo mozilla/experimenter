@@ -1,5 +1,7 @@
 from enum import Enum
 
+from experimenter.experiments.models import NimbusExperiment
+
 
 class NimbusUIConstants:
     HYPOTHESIS_PLACEHOLDER = """
@@ -101,3 +103,61 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         LAUNCH_ROLLOUT = "launch this rollout"
         UPDATE_ROLLOUT = "update this rollout"
         END_ROLLOUT = "end this rollout"
+
+
+QA_STATUS_ICON_MAP = {
+    "NOT SET": {"icon": "fa-regular fa-circle-question", "color": ""},
+    "GREEN": {"icon": "fa-regular fa-circle-check", "color": "text-success"},
+    "SELF GREEN": {"icon": "fa-solid fa-check", "color": "text-success"},
+    "YELLOW": {"icon": "fa-regular fa-circle-pause", "color": "text-warning"},
+    "SELF YELLOW": {"icon": "fa-regular fa-circle-pause", "color": "text-warning"},
+    "RED": {"icon": "fa-regular fa-circle-xmark", "color": "text-danger"},
+    "SELF RED": {"icon": "fa-regular fa-circle-xmark", "color": "text-danger"},
+}
+
+CHANNEL_ICON_MAP = {
+    NimbusExperiment.Channel.NO_CHANNEL: {
+        "icon": "fa-regular fa-circle-question",
+        "color": "text-muted",
+    },
+    NimbusExperiment.Channel.UNBRANDED: {
+        "icon": "fa-solid fa-globe",
+        "color": "text-secondary",
+    },
+    NimbusExperiment.Channel.NIGHTLY: {
+        "icon": "fa-brands fa-firefox",
+        "color": "text-primary",
+    },
+    NimbusExperiment.Channel.BETA: {
+        "icon": "fa-brands fa-firefox",
+        "color": "text-warning",
+    },
+    NimbusExperiment.Channel.RELEASE: {
+        "icon": "fa-brands fa-firefox",
+        "color": "text-success",
+    },
+    NimbusExperiment.Channel.ESR: {
+        "icon": "fa-brands fa-firefox",
+        "color": "text-info",
+    },
+    NimbusExperiment.Channel.TESTFLIGHT: {
+        "icon": "fa-solid fa-plane",
+        "color": "text-primary",
+    },
+    NimbusExperiment.Channel.AURORA: {
+        "icon": "fa-solid fa-bolt",
+        "color": "text-warning",
+    },
+    NimbusExperiment.Channel.DEVELOPER: {
+        "icon": "fa-solid fa-code",
+        "color": "text-secondary",
+    },
+    NimbusExperiment.Channel.STAGING: {
+        "icon": "fa-solid fa-cog",
+        "color": "text-muted",
+    },
+    NimbusExperiment.Channel.PRODUCTION: {
+        "icon": "fa-solid fa-star",
+        "color": "text-success",
+    },
+}

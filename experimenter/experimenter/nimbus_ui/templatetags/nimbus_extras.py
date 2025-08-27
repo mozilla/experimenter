@@ -5,6 +5,7 @@ from django.utils.safestring import mark_safe
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
+from experimenter.nimbus_ui.constants import QA_STATUS_ICON_MAP
 
 register = template.Library()
 
@@ -107,37 +108,31 @@ def channel_icon_info(value):
 
 @register.simple_tag
 def render_channel_icons(experiment):
-    channel_items = []
+    channels_data = []
 
     if experiment.is_desktop and experiment.channels:
-        # For multi-channel desktop experiments, show icon + name for each channel
         for channel in sorted(experiment.channels):
             icon_info = NimbusExperiment.Channel.get_icon_info(channel)
             channel_label = experiment.Channel(channel).label
-            channel_items.append(
-                f'<span class="d-inline-flex align-items-center me-2 mb-1">'
-                f'<span class="{icon_info["color"]} me-1">'
-                f'<i class="{icon_info["icon"]}"></i></span>'
-                f'<span class="small">{channel_label}</span>'
-                f"</span>"
+            channels_data.append(
+                {
+                    "icon_info": icon_info,
+                    "label": channel_label,
+                    "is_multi": True,
+                }
             )
     elif experiment.channel:
-        # For single channel experiments
         icon_info = NimbusExperiment.Channel.get_icon_info(experiment.channel)
         channel_label = experiment.Channel(experiment.channel).label
-        channel_items.append(
-            f'<span class="d-inline-flex align-items-center">'
-            f'<span class="{icon_info["color"]} me-1">'
-            f'<i class="{icon_info["icon"]}"></i></span>'
-            f'<span class="small">{channel_label}</span>'
-            f"</span>"
+        channels_data.append(
+            {
+                "icon_info": icon_info,
+                "label": channel_label,
+                "is_multi": False,
+            }
         )
 
-    if channel_items:
-        return mark_safe(
-            '<div class="d-flex flex-wrap">' + "".join(channel_items) + "</div>"
-        )
-    return ""
+    return channels_data
 
 
 @register.simple_tag
@@ -147,9 +142,7 @@ def choices_with_icons(choices, icon_filter_type):
     for value, label in choices:
         icon_info = None
         if icon_filter_type == "qa_icon_info":
-            from experimenter.experiments.constants import NimbusConstants
-
-            icon_info = NimbusConstants.QAStatus.get_icon_info(value)
+            icon_info = QA_STATUS_ICON_MAP.get(value, QA_STATUS_ICON_MAP["NOT SET"])
         elif icon_filter_type == "channel_icon_info":
             icon_info = NimbusExperiment.Channel.get_icon_info(value)
 

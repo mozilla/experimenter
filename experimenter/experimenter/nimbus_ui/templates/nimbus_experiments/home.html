@@ -104,7 +104,21 @@
                       </td>
                       <td>{{ experiment.get_application_display }}</td>
                       <td>{{ experiment.home_type_choice }}</td>
-                      <td>{% render_channel_icons experiment %}</td>
+                      <td>
+                        {% render_channel_icons experiment as channel_data %}
+                        {% if channel_data %}
+                          <div class="d-flex flex-wrap">
+                            {% for channel in channel_data %}
+                              <span class="d-inline-flex align-items-center{% if channel.is_multi %} me-2 mb-1{% endif %}">
+                                <span class="{{ channel.icon_info.color }} me-1">
+                                  <i class="{{ channel.icon_info.icon }}"></i>
+                                </span>
+                                <span class="small">{{ channel.label }}</span>
+                              </span>
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                      </td>
                       <td>{{ experiment.population_percent|floatformat:2 }}%</td>
                       <td>
                         {% if experiment.enrollment_start_date and experiment.computed_end_date %}
