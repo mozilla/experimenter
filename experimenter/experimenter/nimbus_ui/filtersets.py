@@ -384,6 +384,14 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
             attrs={"title": "All QA Statuses"},
         ),
     )
+    channel = django_filters.MultipleChoiceFilter(
+        method="filter_channel",
+        choices=NimbusExperiment.Channel.choices,
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-tv",
+            attrs={"title": "All Channels"},
+        ),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -425,3 +433,9 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
 
     def filter_qa_status(self, queryset, name, values):
         return queryset.filter(qa_status__in=values)
+
+    def filter_channel(self, queryset, name, values):
+        query = Q(channel__in=values)
+        for value in values:
+            query |= Q(channels__contains=[value])
+        return queryset.filter(query)

@@ -7,7 +7,7 @@
       hx-target="{{ hx_target }}"
       hx-select="{{ hx_select }}"
       hx-swap="outerHTML"
-      hx-include=".type-filter input[name='type']:checked"  {# keep current Type when sorting #}
+      hx-include=".type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked"  {# keep current filters when sorting #}
       class="d-inline-block m-0">
       {# Preserve ALL existing filters except "sort" (we set it explicitly) #}
       {% for form_field in form %}
@@ -43,6 +43,11 @@
     {# ------------------------ FILTER FORM (QA) ------------------------ #}
     {% if field == "qa_status" %}
       {% include "common/filter_dropdown.html" with filter_name="qa_status" filter_label="QA" choices=form.fields.qa_status.choices selected_values=form.qa_status.value icon_filter="qa_icon_info" url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
+
+    {% endif %}
+    {# ------------------------ FILTER FORM (Channel) ------------------------ #}
+    {% if field == "channel" %}
+      {% include "common/filter_dropdown.html" with filter_name="channel" filter_label="Channel" choices=form.fields.channel.choices selected_values=form.channel.value icon_filter="channel_icon_info" url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
 
     {% endif %}
   </div>
