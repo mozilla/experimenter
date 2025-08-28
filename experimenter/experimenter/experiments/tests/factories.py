@@ -491,20 +491,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.QAStatus)).value
     )
     is_firefox_labs_opt_in = factory.LazyAttribute(lambda o: False)
-    firefox_labs_title = factory.LazyAttribute(
-        lambda o: faker.catch_phrase() if o.is_firefox_labs_opt_in else None
-    )
-    firefox_labs_description = factory.LazyAttribute(
-        lambda o: faker.catch_phrase() if o.is_firefox_labs_opt_in else None
-    )
     firefox_labs_description_links = factory.LazyAttribute(lambda o: "null")
-    firefox_labs_group = factory.LazyAttribute(
-        lambda o: (
-            random.choice(NimbusExperiment.FirefoxLabsGroups.choices)[0]
-            if o.is_firefox_labs_opt_in
-            else None
-        )
-    )
     requires_restart = factory.LazyAttribute(
         lambda o: (random.choice([True, False]) if o.is_firefox_labs_opt_in else False)
     )
@@ -648,14 +635,25 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         *args,
         **kwargs,
     ):
-        experiment = super().create(*args, **kwargs)
-
         if branches is not None:
             raise factory.FactoryError(
                 "A NimbusExperiment factory can not specify branches at creation time, "
                 "please modify the branches that are created or delete them and add "
                 "new ones."
             )
+
+        if kwargs.get("is_firefox_labs_opt_in", False):
+            for field in (
+                "firefox_labs_title",
+                "firefox_labs_description",
+                "firefox_labs_group",
+            ):
+                if kwargs.get(field) is None:
+                    raise factory.FactoryError(
+                        f"The field {field} is required when is_firefox_labs_opt_in=True"
+                    )
+
+        experiment = super().create(*args, **kwargs)
 
         if excluded_experiments is not None:
             experiment.excluded_experiments.add(*excluded_experiments)
