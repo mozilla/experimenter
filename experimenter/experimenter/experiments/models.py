@@ -18,7 +18,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Count, F, Q, QuerySet
+from django.db.models import Case, Count, F, Q, QuerySet, When
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -131,6 +131,15 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
         return self.for_collection(
             self.filter(NimbusExperiment.Filters.IS_ENDING, application__in=applications),
             collection,
+        )
+
+    def with_merged_channel(self):
+        return self.get_queryset().annotate(
+            merged_channel=Case(
+                When(Q(channel__isnull=False) & ~Q(channel=""), then=F("channel")),
+                default=F("channels__0"),
+                output_field=models.CharField(),
+            )
         )
 
 
@@ -572,12 +581,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.targeting_config and self.targeting_config.targeting:
             sticky_expressions.append(self.targeting_config.targeting)
 
-        if self.is_desktop:
-            if self.channels:
-                channels = json.dumps(sorted(self.channels))
-                expressions.append(f"browserSettings.update.channel in {channels}")
-            elif self.channel:  # TODO remove in #13224
-                expressions.append(f'browserSettings.update.channel == "{self.channel}"')
+        if self.is_desktop and self.channels:
+            channels = json.dumps(sorted(self.channels))
+            expressions.append(f"browserSettings.update.channel in {channels}")
 
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())

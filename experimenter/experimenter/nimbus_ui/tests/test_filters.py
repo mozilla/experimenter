@@ -133,18 +133,19 @@ class TestHomeFilters(AuthTestCase):
         labs = NimbusExperimentFactory.create(
             owner=self.user,
             is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
             is_rollout=False,
             name="Labs One",
         )
         rollout = NimbusExperimentFactory.create(
             owner=self.user,
-            is_firefox_labs_opt_in=False,
             is_rollout=True,
             name="Rollout One",
         )
         experiment = NimbusExperimentFactory.create(
             owner=self.user,
-            is_firefox_labs_opt_in=False,
             is_rollout=False,
             name="Experiment One",
         )
@@ -276,6 +277,7 @@ class TestHomeFilters(AuthTestCase):
             application=NimbusExperiment.Application.FENIX,
             is_rollout=False,
             channel=NimbusExperiment.Channel.BETA,
+            channels=[],
             population_percent=5,
             firefox_min_version=120,
         )
@@ -284,7 +286,8 @@ class TestHomeFilters(AuthTestCase):
             name="Z High",
             application=NimbusExperiment.Application.DESKTOP,
             is_rollout=True,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
             population_percent=50,
             firefox_min_version=130,
         )

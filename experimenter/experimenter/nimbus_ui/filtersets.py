@@ -59,8 +59,8 @@ class SortChoices(models.TextChoices):
     QA_DOWN = "-qa_status"
     APPLICATION_UP = "application"
     APPLICATION_DOWN = "-application"
-    CHANNEL_UP = "channel"
-    CHANNEL_DOWN = "-channel"
+    CHANNEL_UP = "merged_channel"
+    CHANNEL_DOWN = "-merged_channel"
     SIZE_UP = "population_percent"
     SIZE_DOWN = "-population_percent"
     FEATURES_UP = "feature_configs__slug"
@@ -263,7 +263,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ]
 
     def filter_sort(self, queryset, name, value):
-        return queryset.order_by(value)
+        return queryset.order_by(value, "slug")
 
     def filter_status(self, queryset, name, value):
         return queryset.filter(STATUS_FILTERS[value](self.request))
@@ -286,9 +286,9 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     def filter_type(self, queryset, name, value):
         query = Q()
         if TypeChoices.EXPERIMENT in value:
-            query |= Q(is_rollout=False)
+            query |= Q(is_rollout=False, is_firefox_labs_opt_in=False)
         if TypeChoices.ROLLOUT in value:
-            query |= Q(is_rollout=True)
+            query |= Q(is_rollout=True, is_firefox_labs_opt_in=False)
         if TypeChoices.LABS in value:
             query |= Q(is_firefox_labs_opt_in=True)
         return queryset.filter(query)
@@ -328,8 +328,8 @@ class HomeSortChoices(models.TextChoices):
     APPLICATION_DOWN = "-application", "Application"
     TYPE_UP = "is_rollout", "Type"
     TYPE_DOWN = "-is_rollout", "Type"
-    CHANNEL_UP = "channel", "Channel"
-    CHANNEL_DOWN = "-channel", "Channel"
+    CHANNEL_UP = "merged_channel", "Channel"
+    CHANNEL_DOWN = "-merged_channel", "Channel"
     SIZE_UP = "population_percent", "Size"
     SIZE_DOWN = "-population_percent", "Size"
     DATES_UP = "_start_date", "Dates"
@@ -414,7 +414,7 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
                 return queryset  # Default = All Deliveries
 
     def filter_sort(self, queryset, name, value):
-        return queryset.order_by(value)
+        return queryset.order_by(value, "slug")
 
     def filter_type(self, queryset, name, values):
         query = Q()
