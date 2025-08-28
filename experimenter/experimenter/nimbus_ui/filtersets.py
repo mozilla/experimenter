@@ -286,9 +286,9 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     def filter_type(self, queryset, name, value):
         query = Q()
         if TypeChoices.EXPERIMENT in value:
-            query |= Q(is_rollout=False)
+            query |= Q(is_rollout=False, is_firefox_labs_opt_in=False)
         if TypeChoices.ROLLOUT in value:
-            query |= Q(is_rollout=True)
+            query |= Q(is_rollout=True, is_firefox_labs_opt_in=False)
         if TypeChoices.LABS in value:
             query |= Q(is_firefox_labs_opt_in=True)
         return queryset.filter(query)

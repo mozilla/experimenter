@@ -2497,6 +2497,9 @@ class TestNimbusBranchesForm(RequestFormTestCase):
             feature_configs=[feature_config],
             is_rollout=True,
             is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
         )
         experiment.branches.all().delete()
         experiment.changes.all().delete()
