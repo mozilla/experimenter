@@ -3592,7 +3592,18 @@ class TestBranchFeatureValueForm(RequestFormTestCase):
             for fv in experiment.reference_branch.feature_values.all()
         }
 
-        self.assertIn("data-schema", forms["with-schema"].fields["value"].widget.attrs)
+        self.assertEqual(
+            json.loads(forms["with-schema"].fields["value"].widget.attrs["data-schema"]),
+            {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "description": (
+                    "Fake schema that matches NimbusBranchFactory feature_value factory"
+                ),
+                "type": "object",
+                "patternProperties": {"^.*$": {"type": "string"}},
+                "additionalProperties": False,
+            },
+        )
         self.assertNotIn(
             "data-schema", forms["without-schema"].fields["value"].widget.attrs
         )
