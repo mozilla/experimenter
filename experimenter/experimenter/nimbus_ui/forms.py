@@ -1,4 +1,3 @@
-import json
 from collections import defaultdict
 
 from django import forms
@@ -451,7 +450,7 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         ):
             self.fields["value"].widget.attrs.update(
                 {
-                    "data-schema": json.dumps(schema.schema),
+                    "data-schema": schema.schema,
                 }
             )
 
