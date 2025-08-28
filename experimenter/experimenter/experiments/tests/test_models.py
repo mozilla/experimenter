@@ -1118,15 +1118,14 @@ class TestNimbusExperiment(TestCase):
                     list(NimbusExperiment.Application),
                     [
                         ([], [], "true"),
-                        ([("foo", None)], [], "('foo' in enrollments)"),
+                        ([("foo", None)], [], "((('foo' in enrollments)))"),
                         ([], [("bar", None)], "(('bar' in enrollments) == false)"),
                         (
                             [("foo", None), ("bar", None)],
                             [("baz", None)],
                             (
-                                "(('baz' in enrollments) == false) && "
-                                "('foo' in enrollments) && "
-                                "('bar' in enrollments)"
+                                "(('baz' in enrollments) == false) "
+                                "&& ((('foo' in enrollments) || ('bar' in enrollments)))"
                             ),
                         ),
                     ],
@@ -1137,7 +1136,7 @@ class TestNimbusExperiment(TestCase):
                         (
                             [("foo", "control")],
                             [],
-                            "(enrollmentsMap['foo'] == 'control')",
+                            "(((enrollmentsMap['foo'] == 'control')))",
                         ),
                     ),
                     (
@@ -1159,7 +1158,7 @@ class TestNimbusExperiment(TestCase):
                         (
                             [("foo", "control")],
                             [],
-                            "(enrollments_map['foo'] == 'control')",
+                            "(((enrollments_map['foo'] == 'control')))",
                         ),
                         (
                             [],

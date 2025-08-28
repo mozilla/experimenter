@@ -627,16 +627,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if required_experiments := NimbusExperimentBranchThroughRequired.objects.filter(
             parent_experiment=self
         ).order_by("id"):
+            required_expressions = []
             for required in required_experiments:
                 if required.branch_slug:
-                    sticky_expressions.append(
+                    required_expressions.append(
                         f"{enrollments_map_key}['{required.child_experiment.slug}'] "
                         f"== '{required.branch_slug}'"
                     )
                 else:
-                    sticky_expressions.append(
+                    required_expressions.append(
                         f"'{required.child_experiment.slug}' in enrollments"
                     )
+            required_expression = " || ".join([f"({e})" for e in required_expressions])
+            sticky_expressions.append(f"({required_expression})")
 
         if self.is_sticky and sticky_expressions:
             expressions.append(
