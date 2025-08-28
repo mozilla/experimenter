@@ -12,13 +12,19 @@ from experimenter.experiments.tests.factories import (
     UserFactory,
     generate_nimbus_changelog,
 )
-from experimenter.nimbus_ui.constants import CHANNEL_ICON_MAP, QA_STATUS_ICON_MAP
+from experimenter.nimbus_ui.constants import (
+    CHANNEL_ICON_FILTER_TYPE,
+    CHANNEL_ICON_MAP,
+    QA_ICON_FILTER_TYPE,
+    QA_STATUS_ICON_MAP,
+)
 from experimenter.nimbus_ui.filtersets import (
     HomeSortChoices,
     MyDeliveriesChoices,
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     channel_icon_info,
+    choices_with_icons,
     format_json,
     format_not_set,
     qa_icon_info,
@@ -616,3 +622,50 @@ class TestHomeFilters(AuthTestCase):
         )
         self.assertEqual(result["icon"], expected["icon"])
         self.assertEqual(result["color"], expected["color"])
+
+    def test_choices_with_icons_qa_filter(self):
+        choices = [
+            (NimbusConstants.QAStatus.GREEN, "Green"),
+            (NimbusConstants.QAStatus.RED, "Red"),
+        ]
+
+        result = choices_with_icons(choices, QA_ICON_FILTER_TYPE)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["value"], NimbusConstants.QAStatus.GREEN)
+        self.assertEqual(result[0]["label"], "Green")
+        self.assertIn("icon_info", result[0])
+        self.assertEqual(
+            result[0]["icon_info"]["icon"],
+            QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.GREEN]["icon"],
+        )
+
+    def test_choices_with_icons_channel_filter(self):
+        choices = [
+            (NimbusExperiment.Channel.NIGHTLY, "Nightly"),
+            (NimbusExperiment.Channel.BETA, "Beta"),
+        ]
+
+        result = choices_with_icons(choices, CHANNEL_ICON_FILTER_TYPE)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["value"], NimbusExperiment.Channel.NIGHTLY)
+        self.assertEqual(result[0]["label"], "Nightly")
+        self.assertIn("icon_info", result[0])
+        self.assertEqual(
+            result[0]["icon_info"]["icon"],
+            CHANNEL_ICON_MAP[NimbusExperiment.Channel.NIGHTLY]["icon"],
+        )
+
+    def test_choices_with_icons_unknown_filter(self):
+        choices = [
+            ("value1", "Label 1"),
+            ("value2", "Label 2"),
+        ]
+
+        result = choices_with_icons(choices, "unknown_filter")
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["value"], "value1")
+        self.assertEqual(result[0]["label"], "Label 1")
+        self.assertIsNone(result[0]["icon_info"])
