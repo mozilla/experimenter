@@ -3099,9 +3099,6 @@ WIN10_FIREFOX_VPN_ELIGIBLE = NimbusTargetingConfig(
 
 
 class TargetingConstants:
-    TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
-    TARGETING_CHANNEL = 'browserSettings.update.channel == "{channel}"'
-
     TARGETING_CONFIGS = {
         targeting.slug: targeting for targeting in NimbusTargetingConfig.targeting_configs
     }
