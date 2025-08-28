@@ -154,18 +154,21 @@ class TestHomeFilters(AuthTestCase):
     def _make_different_channels(self):
         nightly = NimbusExperimentFactory.create(
             owner=self.user,
+            application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.NIGHTLY,
             channels=[],
             name="Nightly Experiment",
         )
         beta = NimbusExperimentFactory.create(
             owner=self.user,
+            application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.BETA,
             channels=[],
             name="Beta Experiment",
         )
         release = NimbusExperimentFactory.create(
             owner=self.user,
+            application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.RELEASE,
             channels=[],
             name="Release Experiment",
@@ -522,6 +525,7 @@ class TestHomeFilters(AuthTestCase):
             (
                 "single_channel_with_icon",
                 {
+                    "application": NimbusExperiment.Application.FENIX,
                     "channel": NimbusExperiment.Channel.NIGHTLY,
                     "channels": [],
                 },
