@@ -696,6 +696,36 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 True,
                 0,
             ),
+        ]
+    )
+    def test_experiments_with_is_sticky_error_desktop(
+        self, targeting_config, is_sticky, serializer_result, errors
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=targeting_config,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            is_sticky=is_sticky,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertEqual(serializer_result, serializer.is_valid())
+
+        self.assertEqual(len(serializer.errors), errors)
+        if not serializer_result:
+            self.assertIn("is_sticky", serializer.errors)
+
+    @parameterized.expand(
+        [
             (
                 NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
                 False,
@@ -710,11 +740,12 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             ),
         ]
     )
-    def test_experiments_with_is_sticky_error(
+    def test_experiments_with_is_sticky_error_non_desktop(
         self, targeting_config, is_sticky, serializer_result, errors
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
             targeting_config_slug=targeting_config,
             channel=NimbusExperiment.Channel.RELEASE,
             is_sticky=is_sticky,
@@ -924,20 +955,19 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         if not expected_valid:
             self.assertIn("channel", serializer.errors)
 
-    @parameterized.expand(
-        [
-            (True, NimbusExperiment.Application.DESKTOP),
-            (False, NimbusExperiment.Application.FENIX),
-            (False, NimbusExperiment.Application.IOS),
-        ]
-    )
-    def test_channels_supported_for_desktop(self, expected_valid, application):
+    def test_channels_supported_for_desktop(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
-            feature_configs=[NimbusFeatureConfigFactory(application=application)],
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[
+                NimbusExperiment.Channel.NIGHTLY,
+                NimbusExperiment.Channel.RELEASE,
+            ],
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
             is_sticky=True,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
         )
@@ -951,14 +981,13 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             context={"user": self.user},
         )
 
-        self.assertEqual(serializer.is_valid(), expected_valid, serializer.errors)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_desktop_experiments_require_channels(self):
         """Test that desktop experiments must select at least one channel."""
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
             channels=[],
             feature_configs=[
                 NimbusFeatureConfigFactory(
@@ -1723,44 +1752,41 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             (
                 NimbusExperiment.Application.DESKTOP,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.Channel.NO_CHANNEL,
+                [NimbusExperiment.Channel.RELEASE],
                 NimbusExperiment.TargetingConfig.URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED,
             ),
             (
                 NimbusExperiment.Application.FENIX,
                 NimbusExperiment.Version.FIREFOX_105,
-                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.Channel.RELEASE,
+                [],
                 NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
             (
                 NimbusExperiment.Application.IOS,
                 NimbusExperiment.Version.FIREFOX_105,
-                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.Channel.RELEASE,
+                [],
                 NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
         ]
     )
     def test_rollout_valid_version_support(
-        self, application, firefox_version, targeting_config
+        self, application, firefox_version, channel, channels, targeting_config
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            channels=[NimbusExperiment.Channel.RELEASE],
+            channel=channel,
+            channels=channels,
             firefox_min_version=firefox_version,
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
             is_sticky=True,
             is_rollout=True,
             targeting_config_slug=targeting_config,
         )
+
         experiment.save()
         for branch in experiment.treatment_branches:
             branch.delete()
@@ -1786,44 +1812,41 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             (
                 NimbusExperiment.Application.DESKTOP,
                 NimbusExperiment.Version.FIREFOX_101,
+                NimbusExperiment.Channel.NO_CHANNEL,
+                [NimbusExperiment.Channel.RELEASE],
                 NimbusExperiment.TargetingConfig.URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED,
             ),
             (
                 NimbusExperiment.Application.FENIX,
                 NimbusExperiment.Version.FIREFOX_101,
-                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_101,
+                NimbusExperiment.Channel.RELEASE,
+                [],
                 NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
             (
                 NimbusExperiment.Application.IOS,
                 NimbusExperiment.Version.FIREFOX_101,
-                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_101,
+                NimbusExperiment.Channel.RELEASE,
+                [],
                 NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
         ]
     )
     def test_rollout_invalid_version_support(
-        self, application, firefox_version, targeting_config
+        self, application, firefox_version, channel, channels, targeting_config
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            channels=[NimbusExperiment.Channel.RELEASE],
+            channel=channel,
+            channels=channels,
             firefox_min_version=firefox_version,
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
             is_sticky=True,
             is_rollout=True,
             targeting_config_slug=targeting_config,
         )
+
         experiment.save()
         for branch in experiment.treatment_branches:
             branch.delete()
@@ -3334,7 +3357,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[prefflips_feature],
         )
 
@@ -5659,7 +5682,11 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
         )
 
     @parameterized.expand(
-        [(application,) for application in NimbusExperiment.Application]
+        [
+            (application,)
+            for application in NimbusExperiment.Application
+            if application != NimbusExperiment.Application.DESKTOP
+        ]
     )
     def test_allows_empty_channels(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -5668,7 +5695,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
-            channels=[NimbusExperiment.Channel.NIGHTLY],
+            channels=[],
         )
 
         serializer = NimbusReviewSerializer(
