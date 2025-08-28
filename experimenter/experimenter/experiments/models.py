@@ -581,12 +581,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.targeting_config and self.targeting_config.targeting:
             sticky_expressions.append(self.targeting_config.targeting)
 
-        if self.is_desktop:
-            if self.channels:
-                channels = json.dumps(sorted(self.channels))
-                expressions.append(f"browserSettings.update.channel in {channels}")
-            elif self.channel:  # TODO remove in #13224
-                expressions.append(f'browserSettings.update.channel == "{self.channel}"')
+        if self.is_desktop and self.channels:
+            channels = json.dumps(sorted(self.channels))
+            expressions.append(f"browserSettings.update.channel in {channels}")
 
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())

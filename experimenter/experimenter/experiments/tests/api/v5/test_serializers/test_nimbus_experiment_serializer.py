@@ -478,7 +478,7 @@ class TestNimbusExperimentSerializer(TestCase):
         language = LanguageFactory.create()
         project = ProjectFactory.create()
 
-        experiment = NimbusExperimentFactory(
+        experiment = NimbusExperimentFactory.create(
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             channels=[],
             application=NimbusExperiment.Application.DESKTOP,
@@ -546,7 +546,7 @@ class TestNimbusExperimentSerializer(TestCase):
         language = LanguageFactory.create()
         project = ProjectFactory.create()
 
-        experiment = NimbusExperimentFactory(
+        experiment = NimbusExperimentFactory.create(
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             channels=[],
             application=application,
@@ -622,7 +622,7 @@ class TestNimbusExperimentSerializer(TestCase):
         ]
     )
     def test_population_percent_bounds_check(self, expected_valid, population_percent):
-        experiment = NimbusExperimentFactory()
+        experiment = NimbusExperimentFactory.create()
         serializer = NimbusExperimentSerializer(
             experiment,
             {
@@ -644,7 +644,7 @@ class TestNimbusExperimentSerializer(TestCase):
         ]
     )
     def test_valid_status_update(self, from_status, to_status):
-        experiment = NimbusExperimentFactory(status=from_status)
+        experiment = NimbusExperimentFactory.create(status=from_status)
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
@@ -660,7 +660,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.status, to_status)
 
     def test_status_with_invalid_target_status(self):
-        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
+        experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
@@ -682,7 +682,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
 
     def test_status_with_invalid_target_status_next(self):
-        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
+        experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
@@ -706,7 +706,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
 
     def test_status_restrictions(self):
-        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.LIVE)
+        experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.LIVE)
         serializer = NimbusExperimentSerializer(
             experiment,
             data={

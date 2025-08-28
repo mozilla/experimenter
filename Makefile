@@ -182,7 +182,8 @@ check_and_report: build_test  ## Only to be used on CI
 	cp workspace/test-results/junit.xml $(UI_JUNIT_XML)
 
 test: build_test  ## Run tests
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
+	-docker rm experimenter_test;
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) python manage.py test --parallel'
 pytest: test
 
 start: build_dev  ## Start containers
