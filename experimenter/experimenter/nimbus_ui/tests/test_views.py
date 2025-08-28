@@ -251,25 +251,62 @@ class NimbusExperimentsListViewTest(AuthTestCase):
 
     @parameterized.expand(
         (
-            (TypeChoices.ROLLOUT, True, False),
-            (TypeChoices.EXPERIMENT, False, False),
-            (TypeChoices.LABS, False, True),
+            (
+                TypeChoices.ROLLOUT,
+                {"slug": "experiment", "is_rollout": True},
+                [
+                    {"slug": "rollout", "is_rollout": False},
+                    {
+                        "slug": "labs",
+                        "is_rollout": True,
+                        "is_firefox_labs_opt_in": True,
+                        "firefox_labs_title": "title",
+                        "firefox_labs_description": "description",
+                        "firefox_labs_group": (
+                            NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                        ),
+                    },
+                ],
+            ),
+            (
+                TypeChoices.EXPERIMENT,
+                {"slug": "experiment"},
+                [
+                    {"slug": "rollout", "is_rollout": True},
+                    {
+                        "slug": "labs",
+                        "is_firefox_labs_opt_in": True,
+                        "firefox_labs_title": "title",
+                        "firefox_labs_description": "description",
+                        "firefox_labs_group": (
+                            NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                        ),
+                    },
+                ],
+            ),
+            (
+                TypeChoices.LABS,
+                {
+                    "slug": "labs",
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": "title",
+                    "firefox_labs_description": "description",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                [{"slug": "experiment"}, {"slug": "rollout", "is_rollout": True}],
+            ),
         )
     )
-    def test_filter_type(self, type_choice, is_rollout, is_labs):
+    def test_filter_type(self, type_choice, experiment_kwargs, other_experiments):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
-            is_rollout=is_rollout,
-            is_firefox_labs_opt_in=is_labs,
+            **experiment_kwargs,
         )
-        [
-            NimbusExperimentFactory.create(
-                status=NimbusExperiment.Status.LIVE,
-                is_rollout=(not is_rollout),
-                is_firefox_labs_opt_in=(not is_labs),
-            )
-            for _i in range(3)
-        ]
+
+        for kwargs in other_experiments:
+            NimbusExperimentFactory.create(status=NimbusExperiment.Status.LIVE, **kwargs)
 
         response = self.client.get(
             reverse("nimbus-list"),
@@ -3285,22 +3322,34 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         ]
         self.assertEqual(page1_names, sorted(names)[:6])
 
-    def test_home_type_display_returns_only_emoji(self):
-        labs = NimbusExperimentFactory.create(
-            owner=self.user, is_firefox_labs_opt_in=True
-        )
-        rollout = NimbusExperimentFactory.create(owner=self.user, is_rollout=True)
-        experiment = NimbusExperimentFactory.create(owner=self.user, is_rollout=False)
-
-        self.assertEqual(
-            labs.home_type_choice, NimbusConstants.HomeTypeChoices.LABS.label
-        )
-        self.assertEqual(
-            rollout.home_type_choice, NimbusConstants.HomeTypeChoices.ROLLOUT.label
-        )
-        self.assertEqual(
-            experiment.home_type_choice, NimbusConstants.HomeTypeChoices.EXPERIMENT.label
-        )
+    @parameterized.expand(
+        [
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": "title",
+                    "firefox_labs_description": "description",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                NimbusConstants.HomeTypeChoices.LABS.label,
+            ),
+            (
+                {"is_rollout": True},
+                NimbusConstants.HomeTypeChoices.ROLLOUT.label,
+            ),
+            (
+                {},
+                NimbusConstants.HomeTypeChoices.EXPERIMENT.label,
+            ),
+        ]
+    )
+    def test_home_type_display_returns_only_emoji(
+        self, experiment_kwargs, expected_label
+    ):
+        experiment = NimbusExperimentFactory.create(owner=self.user, **experiment_kwargs)
+        self.assertEqual(experiment.home_type_choice, expected_label)
 
 
 class TestSlugRedirectToSummary(AuthTestCase):
