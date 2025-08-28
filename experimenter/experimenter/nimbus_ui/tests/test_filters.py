@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
@@ -11,14 +12,24 @@ from experimenter.experiments.tests.factories import (
     UserFactory,
     generate_nimbus_changelog,
 )
+from experimenter.nimbus_ui.constants import (
+    CHANNEL_ICON_FILTER_TYPE,
+    CHANNEL_ICON_MAP,
+    QA_ICON_FILTER_TYPE,
+    QA_STATUS_ICON_MAP,
+)
 from experimenter.nimbus_ui.filtersets import (
     HomeSortChoices,
     MyDeliveriesChoices,
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
+    channel_icon_info,
+    choices_with_icons,
     format_json,
     format_not_set,
+    qa_icon_info,
     remove_underscores,
+    render_channel_icons,
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     should_show_remote_settings_pending as filter_should_show_remote_settings_pending,
@@ -83,6 +94,23 @@ class FilterTests(TestCase):
             filter_should_show_remote_settings_pending(experiment, experiment.owner)
         )
 
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Channel.NIGHTLY,),
+            (NimbusExperiment.Channel.BETA,),
+            (NimbusExperiment.Channel.RELEASE,),
+            (NimbusExperiment.Channel.ESR,),
+            ("unknown_channel",),
+        ]
+    )
+    def test_channel_icon_info(self, channel):
+        result = channel_icon_info(channel)
+        expected = CHANNEL_ICON_MAP.get(
+            channel, CHANNEL_ICON_MAP[NimbusExperiment.Channel.NO_CHANNEL]
+        )
+        self.assertEqual(result["icon"], expected["icon"])
+        self.assertEqual(result["color"], expected["color"])
+
 
 class TestHomeFilters(AuthTestCase):
     def _make_all_qa_statuses(self):
@@ -128,6 +156,37 @@ class TestHomeFilters(AuthTestCase):
             name="Experiment One",
         )
         return labs, rollout, experiment
+
+    def _make_different_channels(self):
+        nightly = NimbusExperimentFactory.create(
+            owner=self.user,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.NIGHTLY,
+            channels=[],
+            name="Nightly Experiment",
+        )
+        beta = NimbusExperimentFactory.create(
+            owner=self.user,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.BETA,
+            channels=[],
+            name="Beta Experiment",
+        )
+        release = NimbusExperimentFactory.create(
+            owner=self.user,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
+            name="Release Experiment",
+        )
+        multi_channel = NimbusExperimentFactory.create(
+            owner=self.user,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.BETA, NimbusExperiment.Channel.RELEASE],
+            name="Multi Channel Experiment",
+        )
+        return nightly, beta, release, multi_channel
 
     def test_my_deliveries_status_field_is_set_to_default_initial(self):
         NimbusExperimentFactory.create(owner=self.user)
@@ -413,3 +472,200 @@ class TestHomeFilters(AuthTestCase):
         includes = [mapping[k] for k in expected_in]
         excludes = [mapping[k] for k in expected_not_in]
         self._assert_page_membership(resp, includes, excludes)
+
+    @parameterized.expand(
+        [
+            (
+                "nightly_only",
+                f"channel={NimbusExperiment.Channel.NIGHTLY}",
+                [NimbusExperiment.Channel.NIGHTLY],
+                [
+                    NimbusExperiment.Channel.BETA,
+                    NimbusExperiment.Channel.RELEASE,
+                    "multi_channel",
+                ],
+            ),
+            (
+                "beta_only",
+                f"channel={NimbusExperiment.Channel.BETA}",
+                [NimbusExperiment.Channel.BETA, "multi_channel"],
+                [NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
+            ),
+            (
+                "release_only",
+                f"channel={NimbusExperiment.Channel.RELEASE}",
+                [NimbusExperiment.Channel.RELEASE, "multi_channel"],
+                [NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.BETA],
+            ),
+            (
+                "nightly_and_beta",
+                f"channel={NimbusExperiment.Channel.NIGHTLY}"
+                f"&channel={NimbusExperiment.Channel.BETA}",
+                [
+                    NimbusExperiment.Channel.NIGHTLY,
+                    NimbusExperiment.Channel.BETA,
+                    "multi_channel",
+                ],
+                [NimbusExperiment.Channel.RELEASE],
+            ),
+        ]
+    )
+    def test_filter_channel(self, name, querystring, expected_in, expected_not_in):
+        nightly, beta, release, multi_channel = self._make_different_channels()
+        mapping = {
+            NimbusExperiment.Channel.NIGHTLY: nightly,
+            NimbusExperiment.Channel.BETA: beta,
+            NimbusExperiment.Channel.RELEASE: release,
+            "multi_channel": multi_channel,
+        }
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?{querystring}")
+        self.assertEqual(resp.status_code, 200)
+
+        includes = [mapping[k] for k in expected_in]
+        excludes = [mapping[k] for k in expected_not_in]
+        self._assert_page_membership(resp, includes, excludes)
+
+    @parameterized.expand(
+        [
+            (
+                "single_channel_with_icon",
+                {
+                    "application": NimbusExperiment.Application.FENIX,
+                    "channel": NimbusExperiment.Channel.NIGHTLY,
+                    "channels": [],
+                },
+                1,
+                "Nightly",
+                False,
+            ),
+            (
+                "multi_channel_with_icons",
+                {
+                    "application": NimbusExperiment.Application.DESKTOP,
+                    "channel": NimbusExperiment.Channel.NO_CHANNEL,
+                    "channels": [
+                        NimbusExperiment.Channel.BETA,
+                        NimbusExperiment.Channel.RELEASE,
+                    ],
+                },
+                2,
+                None,
+                True,
+            ),
+            (
+                "no_channels",
+                {
+                    "channel": NimbusExperiment.Channel.NO_CHANNEL,
+                    "channels": [],
+                },
+                0,
+                None,
+                None,
+            ),
+        ]
+    )
+    def test_render_channel_icons(
+        self, name, experiment_kwargs, expected_count, expected_label, is_multi
+    ):
+        experiment = NimbusExperimentFactory.create(**experiment_kwargs)
+        result = render_channel_icons(experiment)
+
+        self.assertEqual(len(result), expected_count)
+
+        if expected_count > 0:
+            for channel_data in result:
+                self.assertIn("icon_info", channel_data)
+                self.assertIn("label", channel_data)
+                self.assertIn("is_multi", channel_data)
+                self.assertIn("icon", channel_data["icon_info"])
+                self.assertIn("color", channel_data["icon_info"])
+
+            if expected_label:
+                self.assertEqual(result[0]["label"], expected_label)
+                self.assertEqual(result[0]["is_multi"], is_multi)
+            elif is_multi is not None:
+                self.assertTrue(all(channel["is_multi"] for channel in result))
+                labels = [channel["label"] for channel in result]
+                self.assertIn("Beta", labels)
+                self.assertIn("Release", labels)
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Channel.NIGHTLY,),
+            (NimbusExperiment.Channel.BETA,),
+            (NimbusExperiment.Channel.RELEASE,),
+            (NimbusExperiment.Channel.ESR,),
+        ]
+    )
+    def test_channel_icon_info_filter(self, channel):
+        result = channel_icon_info(channel)
+        expected = NimbusExperiment.Channel.get_icon_info(channel)
+        self.assertEqual(result["icon"], expected["icon"])
+        self.assertEqual(result["color"], expected["color"])
+
+    @parameterized.expand(
+        [
+            (NimbusConstants.QAStatus.RED,),
+            (NimbusConstants.QAStatus.YELLOW,),
+            (NimbusConstants.QAStatus.GREEN,),
+            (NimbusConstants.QAStatus.SELF_RED,),
+            (NimbusConstants.QAStatus.SELF_YELLOW,),
+            (NimbusConstants.QAStatus.SELF_GREEN,),
+            (NimbusConstants.QAStatus.NOT_SET,),
+        ]
+    )
+    def test_qa_icon_info_filter(self, qa_status):
+        result = qa_icon_info(qa_status)
+        expected = QA_STATUS_ICON_MAP.get(
+            qa_status, QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.NOT_SET]
+        )
+        self.assertEqual(result["icon"], expected["icon"])
+        self.assertEqual(result["color"], expected["color"])
+
+    def test_choices_with_icons_qa_filter(self):
+        choices = [
+            (NimbusConstants.QAStatus.GREEN, "Green"),
+            (NimbusConstants.QAStatus.RED, "Red"),
+        ]
+
+        result = choices_with_icons(choices, QA_ICON_FILTER_TYPE)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["value"], NimbusConstants.QAStatus.GREEN)
+        self.assertEqual(result[0]["label"], "Green")
+        self.assertIn("icon_info", result[0])
+        self.assertEqual(
+            result[0]["icon_info"]["icon"],
+            QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.GREEN]["icon"],
+        )
+
+    def test_choices_with_icons_channel_filter(self):
+        choices = [
+            (NimbusExperiment.Channel.NIGHTLY, "Nightly"),
+            (NimbusExperiment.Channel.BETA, "Beta"),
+        ]
+
+        result = choices_with_icons(choices, CHANNEL_ICON_FILTER_TYPE)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["value"], NimbusExperiment.Channel.NIGHTLY)
+        self.assertEqual(result[0]["label"], "Nightly")
+        self.assertIn("icon_info", result[0])
+        self.assertEqual(
+            result[0]["icon_info"]["icon"],
+            CHANNEL_ICON_MAP[NimbusExperiment.Channel.NIGHTLY]["icon"],
+        )
+
+    def test_choices_with_icons_unknown_filter(self):
+        choices = [
+            ("value1", "Label 1"),
+            ("value2", "Label 2"),
+        ]
+
+        result = choices_with_icons(choices, "unknown_filter")
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["value"], "value1")
+        self.assertEqual(result[0]["label"], "Label 1")
+        self.assertIsNone(result[0]["icon_info"])
