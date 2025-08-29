@@ -194,51 +194,51 @@ def _get_application_icon_map():
 
     return {
         NimbusConstants.Application.DESKTOP: {
-            "icon": "fa-solid fa-computer",
+            "icon": "fa-fw fa-solid fa-computer",
             "color": "text-primary",
         },
         NimbusConstants.Application.FENIX: {
-            "icon": "fa-brands fa-android",
+            "icon": "fa-fw fa-brands fa-android",
             "color": "text-success",
         },
         NimbusConstants.Application.IOS: {
-            "icon": "fa-brands fa-apple",
+            "icon": "fa-fw fa-brands fa-apple",
             "color": "text-secondary",
         },
         NimbusConstants.Application.FOCUS_ANDROID: {
-            "icon": "fa-brands fa-android",
+            "icon": "fa-fw fa-brands fa-android",
             "color": "text-success",
         },
         NimbusConstants.Application.KLAR_ANDROID: {
-            "icon": "fa-brands fa-android",
+            "icon": "fa-fw fa-brands fa-android",
             "color": "text-success",
         },
         NimbusConstants.Application.FOCUS_IOS: {
-            "icon": "fa-brands fa-apple",
+            "icon": "fa-fw fa-brands fa-apple",
             "color": "text-secondary",
         },
         NimbusConstants.Application.KLAR_IOS: {
-            "icon": "fa-brands fa-apple",
+            "icon": "fa-fw fa-brands fa-apple",
             "color": "text-secondary",
         },
         NimbusConstants.Application.MONITOR: {
-            "icon": "fa-solid fa-shield-alt",
+            "icon": "fa-fw fa-solid fa-shield-alt",
             "color": "text-info",
         },
         NimbusConstants.Application.VPN: {
-            "icon": "fa-solid fa-user-shield",
+            "icon": "fa-fw fa-solid fa-user-shield",
             "color": "text-warning",
         },
         NimbusConstants.Application.FXA: {
-            "icon": "fa-solid fa-user-circle",
+            "icon": "fa-fw fa-solid fa-user-circle",
             "color": "text-primary",
         },
         NimbusConstants.Application.DEMO_APP: {
-            "icon": "fa-solid fa-flask",
+            "icon": "fa-fw fa-solid fa-flask",
             "color": "text-danger",
         },
         NimbusConstants.Application.EXPERIMENTER: {
-            "icon": "fa-solid fa-vial",
+            "icon": "fa-fw fa-solid fa-vial",
             "color": "text-purple",
         },
     }
