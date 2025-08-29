@@ -2,13 +2,20 @@
 {% load nimbus_extras %}
 
 <div class="dropdown dropup ms-1 position-static">
-  <button class="btn btn-sm p-0 border-0 bg-transparent"
+  <button class="btn btn-sm p-0 border-0 bg-transparent position-relative"
           type="button"
           id="{{ filter_name }}FilterDropdown-{{ dropdown_id|default:'0' }}"
           data-bs-toggle="dropdown"
           aria-expanded="false"
           title="Filter by {{ filter_label }}">
     <i class="fa-solid fa-filter text-body"></i>
+    {% if selected_values %}
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" 
+            style="font-size: 0.6rem; padding: 0.2rem 0.35rem;">
+        {{ selected_values|length }}
+        <span class="visually-hidden">{{ selected_values|length }} filters selected</span>
+      </span>
+    {% endif %}
   </button>
   <div class="dropdown-menu p-2 shadow-sm border rounded-2"
        id="filter-dropdown-{{ filter_name }}"
