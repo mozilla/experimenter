@@ -189,9 +189,66 @@ def _get_channel_icon_map():
     }
 
 
+def _get_application_icon_map():
+    from experimenter.experiments.constants import NimbusConstants
+
+    return {
+        NimbusConstants.Application.DESKTOP: {
+            "icon": "fa-fw fa-solid fa-computer",
+            "color": "text-primary",
+        },
+        NimbusConstants.Application.FENIX: {
+            "icon": "fa-fw fa-brands fa-android",
+            "color": "text-success",
+        },
+        NimbusConstants.Application.IOS: {
+            "icon": "fa-fw fa-brands fa-apple",
+            "color": "text-secondary",
+        },
+        NimbusConstants.Application.FOCUS_ANDROID: {
+            "icon": "fa-fw fa-brands fa-android",
+            "color": "text-success",
+        },
+        NimbusConstants.Application.KLAR_ANDROID: {
+            "icon": "fa-fw fa-brands fa-android",
+            "color": "text-success",
+        },
+        NimbusConstants.Application.FOCUS_IOS: {
+            "icon": "fa-fw fa-brands fa-apple",
+            "color": "text-secondary",
+        },
+        NimbusConstants.Application.KLAR_IOS: {
+            "icon": "fa-fw fa-brands fa-apple",
+            "color": "text-secondary",
+        },
+        NimbusConstants.Application.MONITOR: {
+            "icon": "fa-fw fa-solid fa-shield-alt",
+            "color": "text-info",
+        },
+        NimbusConstants.Application.VPN: {
+            "icon": "fa-fw fa-solid fa-user-shield",
+            "color": "text-warning",
+        },
+        NimbusConstants.Application.FXA: {
+            "icon": "fa-fw fa-solid fa-user-circle",
+            "color": "text-primary",
+        },
+        NimbusConstants.Application.DEMO_APP: {
+            "icon": "fa-fw fa-solid fa-flask",
+            "color": "text-danger",
+        },
+        NimbusConstants.Application.EXPERIMENTER: {
+            "icon": "fa-fw fa-solid fa-vial",
+            "color": "text-purple",
+        },
+    }
+
+
 QA_STATUS_ICON_MAP = _get_qa_status_icon_map()
 CHANNEL_ICON_MAP = _get_channel_icon_map()
+APPLICATION_ICON_MAP = _get_application_icon_map()
 
 # Icon filter type constants for template tags
 QA_ICON_FILTER_TYPE = "qa_icon_info"
 CHANNEL_ICON_FILTER_TYPE = "channel_icon_info"
+APPLICATION_ICON_FILTER_TYPE = "application_icon_info"
