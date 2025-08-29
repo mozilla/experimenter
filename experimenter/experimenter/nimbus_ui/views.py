@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
-
+from django.shortcuts import render
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 from experimenter.nimbus_ui.constants import NimbusUIConstants
@@ -628,7 +628,7 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
     template_name = "nimbus_experiments/results.html"
 
 
-class NimbusFeaturesView(FilterView):
+class NimbusFeaturesView(CreateView):
     template_name = "nimbus_experiments/features.html"
     form_class = FeaturesForm
     filterset_class = NimbusExperimentFilter
@@ -640,7 +640,37 @@ class NimbusFeaturesView(FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["links"] = NimbusUIConstants.FEATURE_PAGE_LINKS
+        data = self.request.GET if self.request.method == "GET" else {}
+        context["application"] = data.get("application")
+        context["id_application"] = data.get("application")
+        context["feature_configs"] = data.get("feature_configs")
         return context
+
+
+class FeaturesPartialUpdateView(DetailView):
+    template_name = "nimbus_experiments/features.html"
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Bind on GET so the form sees the selected application
+        if self.request.method == "GET" and "application" in self.request.GET:
+            kwargs["data"] = self.request.GET
+        return kwargs
+
+
+    def load_selections(self, request, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["selected_application"] = request.GET.get("application")
+        context["selected_feature"] = request.GET.get("feature_configs")
+        return render(request, self.template_name, context=context)
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context["selected_application"] = self.request.GET.get("application")
+    #     context["selected_feature"] = self.request.GET.get("feature_configs")
+    #     return context
 
 
 class NimbusExperimentsHomeView(FilterView):

@@ -10,6 +10,7 @@ from django.utils.text import slugify
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
+from experimenter.features import Feature
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -1467,6 +1468,31 @@ class FeaturesForm(forms.ModelForm):
         widget=FeatureConfigMultiSelectWidget(attrs={}),
     )
 
+
+    update_on_change_fields = (
+        "application",
+        "feature_configs"
+    )
+
     class Meta:
-        model = NimbusExperiment
+        model = NimbusFeatureConfig
         fields = ["application", "feature_configs"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        base_url = reverse(
+            "nimbus-ui-features",
+        )
+        self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
+            application=self.data.get("application")
+        ).order_by("slug")
+        update_on_change_attrs = {
+            "hx-get": f"{base_url}",
+            "hx-trigger": "change",
+            "hx-select": "#features-form",
+            "hx-target": "#features-form",
+        }
+        for field in self.update_on_change_fields:
+            self.fields[field].widget.attrs.update(update_on_change_attrs)
+        # self.fields["feature_configs"].widget.attrs["disabled"] = True

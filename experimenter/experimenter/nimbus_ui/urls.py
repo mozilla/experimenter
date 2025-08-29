@@ -43,6 +43,7 @@ from experimenter.nimbus_ui.views import (
     TakeawaysUpdateView,
     ToggleArchiveView,
     UnsubscribeView,
+    FeaturesPartialUpdateView,
 )
 
 urlpatterns = [
@@ -60,6 +61,11 @@ urlpatterns = [
         r"^create/",
         NimbusExperimentsCreateView.as_view(),
         name="nimbus-ui-create",
+    ),
+    re_path(
+        r"^features_save/",
+        FeaturesPartialUpdateView.as_view(),
+        name="nimbus-ui-features-partial-update",
     ),
     re_path(
         r"^features/",
