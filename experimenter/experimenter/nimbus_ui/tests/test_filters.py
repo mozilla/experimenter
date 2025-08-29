@@ -13,6 +13,8 @@ from experimenter.experiments.tests.factories import (
     generate_nimbus_changelog,
 )
 from experimenter.nimbus_ui.constants import (
+    APPLICATION_ICON_FILTER_TYPE,
+    APPLICATION_ICON_MAP,
     CHANNEL_ICON_FILTER_TYPE,
     CHANNEL_ICON_MAP,
     QA_ICON_FILTER_TYPE,
@@ -23,6 +25,7 @@ from experimenter.nimbus_ui.filtersets import (
     MyDeliveriesChoices,
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
+    application_icon_info,
     channel_icon_info,
     choices_with_icons,
     format_json,
@@ -187,6 +190,24 @@ class TestHomeFilters(AuthTestCase):
             name="Multi Channel Experiment",
         )
         return nightly, beta, release, multi_channel
+
+    def _make_different_applications(self):
+        desktop_exp = NimbusExperimentFactory.create(
+            owner=self.user,
+            application=NimbusExperiment.Application.DESKTOP,
+            name="Desktop Experiment",
+        )
+        fenix_exp = NimbusExperimentFactory.create(
+            owner=self.user,
+            application=NimbusExperiment.Application.FENIX,
+            name="Fenix Experiment",
+        )
+        ios_exp = NimbusExperimentFactory.create(
+            owner=self.user,
+            application=NimbusExperiment.Application.IOS,
+            name="iOS Experiment",
+        )
+        return desktop_exp, fenix_exp, ios_exp
 
     def test_my_deliveries_status_field_is_set_to_default_initial(self):
         NimbusExperimentFactory.create(owner=self.user)
@@ -529,6 +550,56 @@ class TestHomeFilters(AuthTestCase):
     @parameterized.expand(
         [
             (
+                "desktop_only",
+                f"application={NimbusExperiment.Application.DESKTOP}",
+                [NimbusExperiment.Application.DESKTOP],
+                [NimbusExperiment.Application.FENIX, NimbusExperiment.Application.IOS],
+            ),
+            (
+                "fenix_only",
+                f"application={NimbusExperiment.Application.FENIX}",
+                [NimbusExperiment.Application.FENIX],
+                [NimbusExperiment.Application.DESKTOP, NimbusExperiment.Application.IOS],
+            ),
+            (
+                "ios_only",
+                f"application={NimbusExperiment.Application.IOS}",
+                [NimbusExperiment.Application.IOS],
+                [
+                    NimbusExperiment.Application.DESKTOP,
+                    NimbusExperiment.Application.FENIX,
+                ],
+            ),
+            (
+                "desktop_and_fenix",
+                f"application={NimbusExperiment.Application.DESKTOP}"
+                f"&application={NimbusExperiment.Application.FENIX}",
+                [
+                    NimbusExperiment.Application.DESKTOP,
+                    NimbusExperiment.Application.FENIX,
+                ],
+                [NimbusExperiment.Application.IOS],
+            ),
+        ]
+    )
+    def test_filter_application(self, name, querystring, expected_in, expected_not_in):
+        desktop, fenix, ios = self._make_different_applications()
+        mapping = {
+            NimbusExperiment.Application.DESKTOP: desktop,
+            NimbusExperiment.Application.FENIX: fenix,
+            NimbusExperiment.Application.IOS: ios,
+        }
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?{querystring}")
+        self.assertEqual(resp.status_code, 200)
+
+        includes = [mapping[k] for k in expected_in]
+        excludes = [mapping[k] for k in expected_not_in]
+        self._assert_page_membership(resp, includes, excludes)
+
+    @parameterized.expand(
+        [
+            (
                 "single_channel_with_icon",
                 {
                     "application": NimbusExperiment.Application.FENIX,
@@ -669,3 +740,44 @@ class TestHomeFilters(AuthTestCase):
         self.assertEqual(result[0]["value"], "value1")
         self.assertEqual(result[0]["label"], "Label 1")
         self.assertIsNone(result[0]["icon_info"])
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.DESKTOP,),
+            (NimbusExperiment.Application.FENIX,),
+            (NimbusExperiment.Application.IOS,),
+            (NimbusExperiment.Application.FOCUS_ANDROID,),
+            (NimbusExperiment.Application.KLAR_ANDROID,),
+            (NimbusExperiment.Application.FOCUS_IOS,),
+            (NimbusExperiment.Application.KLAR_IOS,),
+            (NimbusExperiment.Application.MONITOR,),
+            (NimbusExperiment.Application.VPN,),
+            (NimbusExperiment.Application.FXA,),
+            (NimbusExperiment.Application.DEMO_APP,),
+            (NimbusExperiment.Application.EXPERIMENTER,),
+        ]
+    )
+    def test_application_icon_info_filter(self, application):
+        result = application_icon_info(application)
+        expected = APPLICATION_ICON_MAP.get(
+            application, APPLICATION_ICON_MAP[NimbusExperiment.Application.DESKTOP]
+        )
+        self.assertEqual(result["icon"], expected["icon"])
+        self.assertEqual(result["color"], expected["color"])
+
+    def test_choices_with_icons_application_filter(self):
+        choices = [
+            (NimbusExperiment.Application.DESKTOP, "Desktop"),
+            (NimbusExperiment.Application.FENIX, "Fenix"),
+        ]
+
+        result = choices_with_icons(choices, APPLICATION_ICON_FILTER_TYPE)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["value"], NimbusExperiment.Application.DESKTOP)
+        self.assertEqual(result[0]["label"], "Desktop")
+        self.assertIn("icon_info", result[0])
+        self.assertEqual(
+            result[0]["icon_info"]["icon"],
+            APPLICATION_ICON_MAP[NimbusExperiment.Application.DESKTOP]["icon"],
+        )
