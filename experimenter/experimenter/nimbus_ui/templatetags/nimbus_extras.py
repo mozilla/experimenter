@@ -5,6 +5,8 @@ from django.utils.safestring import mark_safe
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.nimbus_ui.constants import (
+    APPLICATION_ICON_FILTER_TYPE,
+    APPLICATION_ICON_MAP,
     CHANNEL_ICON_FILTER_TYPE,
     CHANNEL_ICON_MAP,
     QA_ICON_FILTER_TYPE,
@@ -108,6 +110,13 @@ def qa_icon_info(value):
 
 
 @register.filter
+def application_icon_info(value):
+    return APPLICATION_ICON_MAP.get(
+        value, APPLICATION_ICON_MAP[NimbusConstants.Application.DESKTOP]
+    )
+
+
+@register.filter
 def channel_icon_info(value):
     return NimbusConstants.Channel.get_icon_info(value)
 
@@ -154,6 +163,10 @@ def choices_with_icons(choices, icon_filter_type):
         elif icon_filter_type == CHANNEL_ICON_FILTER_TYPE:
             icon_info = CHANNEL_ICON_MAP.get(
                 value, CHANNEL_ICON_MAP[NimbusConstants.Channel.NO_CHANNEL]
+            )
+        elif icon_filter_type == APPLICATION_ICON_FILTER_TYPE:
+            icon_info = APPLICATION_ICON_MAP.get(
+                value, APPLICATION_ICON_MAP[NimbusConstants.Application.DESKTOP]
             )
 
         enriched_choices.append({"value": value, "label": label, "icon_info": icon_info})
