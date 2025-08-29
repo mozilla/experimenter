@@ -3081,15 +3081,16 @@ WIN10_FIREFOX_VPN_ELIGIBLE = NimbusTargetingConfig(
     slug="win10_firefox_vpn",
     description=(
         "Windows 10 users who are signed out, at least 7 days old, "
-        "no enterprise, default newtab, no adblock"
+        "no enterprise, are not using a proxy, and "
+        "do not have the VPN extension installed"
     ),
     targeting=(
-        "os.isWindows && os.windowsVersion == 10 && "
+        "os.isWindows && os.windowsVersion >= 10.0 && os.windowsBuildNumber < 22000 &&"
         "isFxAEnabled && !isFxASignedIn && "
         f"{NO_ENTERPRISE.targeting} && "
         f"{PROFILEMORETHAN7DAYS} && "
-        "'network.proxy.type'|preferenceValue != 2 && "
-        '!("e6eb0d1e856335fc" in attachedFxAOAuthClients|mapToProperty("id"))'
+        "'network.proxy.type'|preferenceValue != 1 && "
+        "addonsInfo.addons['vpn@mozilla.com'] == null"
     ),
     desktop_telemetry="",
     sticky_required=False,
