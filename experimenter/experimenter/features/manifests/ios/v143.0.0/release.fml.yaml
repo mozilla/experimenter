@@ -562,13 +562,6 @@ features:
         description: "Enables the feature.\n"
         type: Boolean
         default: false
-  rating-prompt-feature:
-    description: "This feature enables the rating prompt so we ask in-app rating to users\n"
-    variables:
-      enabled:
-        description: "Enables the rating prompt\n"
-        type: Boolean
-        default: false
   revert-unsafe-continuations-refactor:
     description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
     variables:
@@ -661,7 +654,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: false
+        default: true
       layout:
         description: "The type of layout of the toolbars.\n"
         type: Option<ToolbarLayoutType>
@@ -673,11 +666,11 @@ features:
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
-        default: false
+        default: true
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
-        default: false
+        default: true
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
@@ -689,7 +682,7 @@ features:
       translucency:
         description: "Enables translucency for toolbars.\n"
         type: Boolean
-        default: false
+        default: true
       unified_search:
         description: "Enables the unified search feature.\n"
         type: Boolean

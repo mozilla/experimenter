@@ -590,13 +590,6 @@ features:
         description: "Enables the feature.\n"
         type: Boolean
         default: true
-  rating-prompt-feature:
-    description: "This feature enables the rating prompt so we ask in-app rating to users\n"
-    variables:
-      enabled:
-        description: "Enables the rating prompt\n"
-        type: Boolean
-        default: true
   revert-unsafe-continuations-refactor:
     description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
     variables:
