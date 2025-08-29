@@ -392,6 +392,14 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
             attrs={"title": "All Channels"},
         ),
     )
+    application = django_filters.MultipleChoiceFilter(
+        method="filter_application",
+        choices=NimbusConstants.Application.choices,
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-mobile-alt",
+            attrs={"title": "All Applications"},
+        ),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -439,3 +447,6 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
         for value in values:
             query |= Q(channels__contains=[value])
         return queryset.filter(query)
+
+    def filter_application(self, queryset, name, values):
+        return queryset.filter(application__in=values)
