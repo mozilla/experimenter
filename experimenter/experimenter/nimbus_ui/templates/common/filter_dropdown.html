@@ -10,8 +10,9 @@
           title="Filter by {{ filter_label }}">
     <i class="fa-solid fa-filter text-body"></i>
     {% if selected_values %}
-      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" 
-            style="font-size: 0.6rem; padding: 0.2rem 0.35rem;">
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary"
+            style="font-size: 0.6rem;
+                   padding: 0.2rem 0.35rem">
         {{ selected_values|length }}
         <span class="visually-hidden">{{ selected_values|length }} filters selected</span>
       </span>
