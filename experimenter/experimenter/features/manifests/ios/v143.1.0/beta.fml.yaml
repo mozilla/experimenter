@@ -3,7 +3,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-  - release
+  - beta
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -32,22 +32,22 @@ features:
       enabled:
         description: "Enables the apple summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
       shakeGesture:
         description: "Enables the shake gesture for the summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
       toolbarEntrypoint:
         description: "Enables the toolbar entrypoint for the summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
   deeplink-optimization-refactor-feature:
     description: "The feature flag to manage the rollout of deeplink optimization feature.\n"
     variables:
       enabled:
         description: "Variable description\n"
         type: Boolean
-        default: false
+        default: true
   default-zoom-feature:
     description: "The feature flag to manage the rollout of default zoom feature.\n"
     variables:
@@ -72,7 +72,7 @@ features:
       simplified-ui-enabled:
         description: "If true, enable simplified UI part of Felt Privacy"
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -94,7 +94,7 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: false
+          status: true
   hnt-sponsored-shortcuts-feature:
     description: This feature manages the visibility of sponsored shortcuts on the homepage
     variables:
@@ -115,7 +115,7 @@ features:
       enabled:
         description: "If true, enables the feature\n"
         type: Boolean
-        default: false
+        default: true
   homepage-redesign-feature:
     description: "This feature is for managing the roll out of the Homepage New Tab Redesign feature.\n"
     variables:
@@ -132,7 +132,7 @@ features:
       search-bar:
         description: "If true, enables the search bar feature on homepage for users.\n"
         type: Boolean
-        default: false
+        default: true
       shortcuts-library:
         description: "If true, enables the shortcuts library feature, accessible from the homepage\n"
         type: Boolean
@@ -140,22 +140,22 @@ features:
       stories-redesign:
         description: "If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)\n"
         type: Boolean
-        default: false
+        default: true
   hosted-summarizer-feature:
     description: "This feature enables the hosted summarizer feature.\n"
     variables:
       enabled:
         description: "Enables the hosted summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
       shakeGesture:
         description: "Enables the shake gesture for the summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
       toolbarEntrypoint:
         description: "Enables the toolbar entrypoint for the summarizer feature.\n"
         type: Boolean
-        default: false
+        default: true
   logins-verification:
     description: "Feature that enables the logins verification logic.\n"
     variables:
@@ -228,7 +228,25 @@ features:
       messages:
         description: "A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.\n"
         type: "Map<MessageKey, MessageData>"
-        default: {}
+        default:
+          homepage-microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+              - SECOND_HOMEPAGE_VIEW
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with your Firefox homepage?
+            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
+            microsurveyConfig:
+              utm-content: homepage
+              icon: homeLarge
+              options:
+                - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
+                - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
+                - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -561,14 +579,14 @@ features:
       enabled:
         description: "Enables the feature.\n"
         type: Boolean
-        default: false
+        default: true
   revert-unsafe-continuations-refactor:
     description: "A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).\n"
     variables:
       enabled:
         description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
         type: Boolean
-        default: false
+        default: true
   search:
     description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
     variables:
@@ -639,7 +657,7 @@ features:
       enabled:
         description: "If true, enables the tab tray UI experiments.\n"
         type: Boolean
-        default: false
+        default: true
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -674,7 +692,7 @@ features:
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
-        default: false
+        default: true
       toolbar_update_hint:
         description: "If true, enables the toolbar update contextual hint.\n"
         type: Boolean
