@@ -59,22 +59,33 @@
               data-bs-delay={"hide":2000}>
             </i>
           </h5>
-          {# include selected Type + force page=1 on this change #}
-          <form method="get"
-                hx-get="{% url 'nimbus-ui-home' %}"
-                hx-select="#my-deliveries-table-section"
-                hx-target="#my-deliveries-table-section"
-                hx-trigger="change"
-                hx-include=".type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked"
-                class="d-inline-block ms-auto">
-            <div class="form-group mb-0">
-              {% render_field my_deliveries_filter.form.my_deliveries_status class="form-select form-select-sm w-auto" %}
-            </div>
-            {# keep current sort as-is (no toggling here) #}
-            {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
-            {# ALWAYS reset to first page when this filter changes #}
-            <input type="hidden" name="my_deliveries_page" value="1">
-          </form>
+          <div class="d-flex gap-2 ms-auto">
+            <a href="{% url 'nimbus-ui-home' %}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
+               class="btn btn-outline-primary btn-sm"
+               hx-get="{% url 'nimbus-ui-home' %}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
+               hx-target="#my-deliveries-table-section"
+               hx-select="#my-deliveries-table-section"
+               title="Clear all applied filters">
+              <i class="fa-solid fa-rotate-left me-1"></i>
+              Reset Filters
+            </a>
+            {# include selected Type + force page=1 on this change #}
+            <form method="get"
+                  hx-get="{% url 'nimbus-ui-home' %}"
+                  hx-select="#my-deliveries-table-section"
+                  hx-target="#my-deliveries-table-section"
+                  hx-trigger="change"
+                  hx-include=".type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked"
+                  class="d-inline-block">
+              <div class="form-group mb-0">
+                {% render_field my_deliveries_filter.form.my_deliveries_status class="form-select form-select-sm w-auto" %}
+              </div>
+              {# keep current sort as-is (no toggling here) #}
+              {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
+              {# ALWAYS reset to first page when this filter changes #}
+              <input type="hidden" name="my_deliveries_page" value="1">
+            </form>
+          </div>
         </div>
         <div id="my-deliveries-table-section">
           <div class="table-responsive shadow-sm rounded-3">
