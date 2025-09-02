@@ -169,15 +169,15 @@ features:
       enabled:
         description: "Controls which menu users will see\n"
         type: Boolean
-        default: true
+        default: false
       menu-default-browser-banner:
         description: "If true, enables the menu Make Firefox your default banner, on top of the menu.\n"
         type: Boolean
-        default: true
+        default: false
       menu-redesign-hint:
         description: "If true, enables the menu contextual hint for menu redesign.\n"
         type: Boolean
-        default: true
+        default: false
   messaging:
     description: "The in-app messaging system\n"
     documentation:
@@ -459,7 +459,7 @@ features:
             order: 10
             title: Onboarding/Onboarding.Modern.Welcome.Title.v140
             body: Onboarding/Onboarding.Modern.Welcome.Description.v140
-            image: trackers
+            image: welcome-globe
             buttons:
               primary:
                 title: Onboarding/Onboarding.Modern.Welcome.ActionTreatementA.v140
@@ -506,20 +506,21 @@ features:
                 title: Onboarding/Onboarding.Modern.Customization.Theme.Continue.Action.v140
                 action: forward-one-card
             multiple-choice-buttons:
-              - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Bottom.Action.v140
-                image: toolbar-bottom
-                action: toolbar-bottom
               - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Top.Action.v140
                 image: toolbar-top
                 action: toolbar-top
+              - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Bottom.Action.v140
+                image: toolbar-bottom
+                action: toolbar-bottom
             onboarding-type: fresh-install
             prerequisites:
               - ALWAYS
             uiVariant: modern
           customization-theme-modern:
             card-type: multiple-choice
-            order: 25
-            title: Onboarding/Onboarding.Customization.Theme.Title.v143
+            order: 19
+            title: Onboarding/Onboarding.Customization.Theme.Title.v123
+            body: Onboarding/Onboarding.Customization.Theme.Description.v123
             image: themeing
             buttons:
               primary:
@@ -560,6 +561,13 @@ features:
     variables:
       enabled:
         description: "Enables the feature.\n"
+        type: Boolean
+        default: false
+  rating-prompt-feature:
+    description: "This feature enables the rating prompt so we ask in-app rating to users\n"
+    variables:
+      enabled:
+        description: "Enables the rating prompt\n"
         type: Boolean
         default: false
   revert-unsafe-continuations-refactor:
@@ -654,7 +662,7 @@ features:
       enabled:
         description: "Enables the feature\n"
         type: Boolean
-        default: true
+        default: false
       layout:
         description: "The type of layout of the toolbars.\n"
         type: Option<ToolbarLayoutType>
@@ -666,11 +674,11 @@ features:
       navigation_hint:
         description: "If true, enables the navigation contextual hint.\n"
         type: Boolean
-        default: true
+        default: false
       one_tap_new_tab:
         description: "If true, enables the one tap new tab feature for users.\n"
         type: Boolean
-        default: true
+        default: false
       swiping_tabs:
         description: "Enables swipe gestures to switch between browser tabs.\n"
         type: Boolean
@@ -682,7 +690,7 @@ features:
       translucency:
         description: "Enables translucency for toolbars.\n"
         type: Boolean
-        default: true
+        default: false
       unified_search:
         description: "Enables the unified search feature.\n"
         type: Boolean
