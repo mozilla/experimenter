@@ -2444,7 +2444,10 @@ TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SHORTCUTS_OR_STORIES_OPT_OUTS = (
             "Targeting users who have NOT accepted the Terms of Use "
             "and have NOT opted out of any sponsored content"
         ),
-        targeting="user_accepted_tou == false && no_shortcuts_or_stories_opt_outs == true",
+        targeting=(
+            "user_accepted_tou == false && "
+            "no_shortcuts_or_stories_opt_outs == true"
+        ),
         desktop_telemetry="",
         sticky_required=False,
         is_first_run_required=False,
