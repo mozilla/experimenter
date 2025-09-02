@@ -1448,3 +1448,50 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
             countdown=5, args=[experiment.kinto_collection]
         )
         return experiment
+
+
+class FeaturesForm(forms.ModelForm):
+    application = forms.ChoiceField(
+        label="",
+        choices=NimbusExperiment.Application.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+        initial="firefox-desktop",
+    )
+    feature_configs = FeatureConfigModelChoiceField(
+        required=False,
+        queryset=NimbusFeatureConfig.objects.all(),
+        widget=FeatureConfigMultiSelectWidget(attrs={}),
+    )
+
+    update_on_change_fields = ("application", "feature_configs")
+
+    class Meta:
+        model = NimbusFeatureConfig
+        fields = ["application", "feature_configs"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        selected_app = self.data.get("application") or self.get_initial_for_field(
+            self.fields["application"], "application"
+        )
+
+        self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
+            application=selected_app
+        ).order_by("slug")
+
+        base_url = reverse("nimbus-ui-features")
+        htmx_attrs = {
+            "hx-get": base_url,
+            "hx-trigger": "change",
+            "hx-include": "#features-form",
+            "hx-select": "#features-form",
+            "hx-target": "#features-form",
+            "hx-swap": "outerHTML",
+        }
+        self.fields["application"].widget.attrs.update(htmx_attrs)
+        self.fields["feature_configs"].widget.attrs.update(htmx_attrs)

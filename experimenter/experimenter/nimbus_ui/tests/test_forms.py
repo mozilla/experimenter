@@ -47,6 +47,7 @@ from experimenter.nimbus_ui.forms import (
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
+    FeaturesForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -3635,3 +3636,27 @@ class TestBranchFeatureValueForm(RequestFormTestCase):
         self.assertNotIn(
             "data-schema", forms["without-schema"].fields["value"].widget.attrs
         )
+
+
+class TestFeaturesViewForm(RequestFormTestCase):
+    def test_features_view_default_fields(self):
+        NimbusExperimentFactory.create(owner=self.user)
+        form = FeaturesForm()
+        application = form.fields["application"]
+        feature_configs = form.fields["feature_configs"]
+        self.assertEqual(application.initial, "firefox-desktop")
+        self.assertIsNone(feature_configs.initial)
+
+    def test_features_view_feature_config_field_updates_correctly(self):
+        NimbusExperimentFactory.create(owner=self.user)
+        form = FeaturesForm()
+        feature_configs = form.fields["feature_configs"]
+        self.assertTrue(
+            feature_configs.queryset.filter(slug="no-feature-firefox-desktop").exists()
+        )
+
+    def test_features_view_configs_update_correctly(self):
+        NimbusExperimentFactory.create(owner=self.user)
+        form = FeaturesForm(data={"application": "firefox-desktop"})
+        feature_configs = form.fields["feature_configs"]
+        self.assertFalse(feature_configs.queryset.filter(slug="No Feature iOS").exists())

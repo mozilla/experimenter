@@ -33,10 +33,7 @@ from experimenter.nimbus_ui.filtersets import (
     SortChoices,
     TypeChoices,
 )
-from experimenter.nimbus_ui.forms import (
-    QAStatusForm,
-    TakeawaysForm,
-)
+from experimenter.nimbus_ui.forms import QAStatusForm, TakeawaysForm
 from experimenter.nimbus_ui.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -3363,3 +3360,21 @@ class TestNimbusFeaturesView(AuthTestCase):
         response = self.client.get(reverse("nimbus-ui-features"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/features.html")
+
+    def test_features_view_dropdown_loads_correct_default(self):
+        NimbusExperimentFactory.create(owner=self.user)
+        response = self.client.get(reverse("nimbus-ui-features"))
+        form = response.context["form"]
+        self.assertTrue(form.fields["application"])
+        self.assertEqual(form.fields["application"].initial, "firefox-desktop")
+        self.assertTrue(form.fields["feature_configs"])
+        self.assertEqual(form.fields["feature_configs"].initial, None)
+
+    def test_features_view_dropdown_loads_correct_fields_on_request(self):
+        NimbusExperimentFactory.create(owner=self.user)
+        url = reverse("nimbus-ui-features")
+        response = self.client.get(f"{url}/?application=ios&feature_configs=3")
+        form = response.context["form"]
+        self.assertTrue(form.fields["application"])
+        self.assertEqual(form["application"].value(), "ios")
+        self.assertEqual(form["feature_configs"].value()[0], "3")
