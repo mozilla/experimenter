@@ -169,15 +169,15 @@ features:
       enabled:
         description: "Controls which menu users will see\n"
         type: Boolean
-        default: false
+        default: true
       menu-default-browser-banner:
         description: "If true, enables the menu Make Firefox your default banner, on top of the menu.\n"
         type: Boolean
-        default: false
+        default: true
       menu-redesign-hint:
         description: "If true, enables the menu contextual hint for menu redesign.\n"
         type: Boolean
-        default: false
+        default: true
   messaging:
     description: "The in-app messaging system\n"
     documentation:
