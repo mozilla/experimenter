@@ -1,5 +1,7 @@
 from collections import defaultdict
+from datetime import UTC, datetime
 
+import markus
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
@@ -29,6 +31,8 @@ from experimenter.projects.models import Project
 from experimenter.segments import Segments
 from experimenter.targeting.constants import NimbusTargetingConfig
 
+metrics = markus.get_metrics("experimenter.nimbus_ui_forms")
+
 
 class NimbusChangeLogFormMixin:
     def __init__(self, *args, request: HttpRequest = None, **kwargs):
@@ -43,6 +47,7 @@ class NimbusChangeLogFormMixin:
         generate_nimbus_changelog(
             experiment, self.request.user, self.get_changelog_message()
         )
+        metrics.incr("changelog_form.save", tags=[f"form:{type(self).__name__}"])
         return experiment
 
 
@@ -1208,6 +1213,7 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self, commit=True):
         self.instance.status = self.status
         self.instance.status_next = self.status_next
+        previous_publish_status = self.instance.publish_status
         self.instance.publish_status = self.publish_status
 
         if self.is_paused is not None:
@@ -1215,6 +1221,13 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         if self.status == NimbusExperiment.Status.DRAFT:
             self.instance.published_dto = None
+
+        if previous_publish_status == NimbusExperiment.PublishStatus.REVIEW:
+            delta = datetime.now(UTC) - self.instance._updated_date_time
+            delta_ms = int(delta.total_seconds() * 1000)
+            metrics.timing(
+                "review_timing", value=delta_ms, tags=[f"status:{self.publish_status}"]
+            )
 
         return super().save(commit=commit)
 
