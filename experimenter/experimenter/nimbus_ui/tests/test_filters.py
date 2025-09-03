@@ -212,6 +212,39 @@ class TestHomeFilters(AuthTestCase):
         )
         return desktop_exp, fenix_exp, ios_exp
 
+    def _make_all_statuses(self):
+        draft = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        preview = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.PREVIEW,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        live = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        complete = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.COMPLETE,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        review = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
+
+        return draft, preview, live, complete, review
+
     def test_my_deliveries_status_field_is_set_to_default_initial(self):
         NimbusExperimentFactory.create(owner=self.user)
 
@@ -678,39 +711,6 @@ class TestHomeFilters(AuthTestCase):
         includes = [status_to_experiment[status] for status in expected_in_statuses]
         excludes = [status_to_experiment[status] for status in expected_not_in_statuses]
         self._assert_page_membership(resp, includes, excludes)
-
-    def _make_all_statuses(self):
-        draft = NimbusExperimentFactory.create(
-            owner=self.user,
-            status=NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
-        )
-
-        preview = NimbusExperimentFactory.create(
-            owner=self.user,
-            status=NimbusExperiment.Status.PREVIEW,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
-        )
-
-        live = NimbusExperimentFactory.create(
-            owner=self.user,
-            status=NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
-        )
-
-        complete = NimbusExperimentFactory.create(
-            owner=self.user,
-            status=NimbusExperiment.Status.COMPLETE,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
-        )
-
-        review = NimbusExperimentFactory.create(
-            owner=self.user,
-            status=NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.REVIEW,
-        )
-
-        return draft, preview, live, complete, review
 
     def test_home_status_display_filter(self):
         draft, preview, live, complete, review = self._make_all_statuses()
