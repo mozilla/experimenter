@@ -129,9 +129,9 @@
         <div class="row mb-4">
           <div class="col">
             {{ form.is_sticky|add_error_class:"is-invalid" }}
-            <label for="id_is_sticky">Sticky Enrollment (Clients remain enrolled until the experiment ends)</label>
+            <label for="id_is_sticky">Sticky Targeting (Clients remain enrolled even if they no longer meet the targeting)</label>
             <a target="_blank"
-               href="https://experimenter.info/workflow/implementing/custom-audiences">Learn more</a>
+               href="https://experimenter.info/workflow/implementing/custom-audiences#sticky-targeting">Learn more</a>
             {% for error in form.is_sticky.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
             {% for error in validation_errors.is_sticky %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
           </div>
