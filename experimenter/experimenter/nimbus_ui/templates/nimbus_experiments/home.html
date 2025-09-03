@@ -75,7 +75,7 @@
                   hx-select="#my-deliveries-table-section"
                   hx-target="#my-deliveries-table-section"
                   hx-trigger="change"
-                  hx-include=".type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked"
+                  hx-include=".status-filter input[name='status']:checked, .type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked"
                   class="d-inline-block">
               <div class="form-group mb-0">
                 {% render_field my_deliveries_filter.form.my_deliveries_status class="form-select form-select-sm w-auto" %}
@@ -107,7 +107,16 @@
                         <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
                            class="text-decoration-none fw-medium">{{ experiment.name }}</a>
                       </td>
-                      <td>{{ experiment.status|capfirst }}</td>
+                      <td>
+                        {% with status_info=experiment|home_status_display_with_icon %}
+                          {% if status_info.icon_info.icon %}
+                            <span class="me-1 {{ status_info.icon_info.color }}">
+                              <i class="{{ status_info.icon_info.icon }}"></i>
+                            </span>
+                          {% endif %}
+                          {{ status_info.status }}
+                        {% endwith %}
+                      </td>
                       <td>
                         {% with icon_info=experiment.qa_status_icon_info %}
                           {% if icon_info.icon %}<span class="{{ icon_info.color }}"><i class="{{ icon_info.icon }}"></i></span>{% endif %}

@@ -23,6 +23,14 @@ class StatusChoices(models.TextChoices):
     MY_EXPERIMENTS = "MyExperiments"
 
 
+class HomeStatusChoices(models.TextChoices):
+    DRAFT = NimbusExperiment.Status.DRAFT
+    PREVIEW = NimbusExperiment.Status.PREVIEW
+    LIVE = NimbusExperiment.Status.LIVE
+    COMPLETE = NimbusExperiment.Status.COMPLETE
+    REVIEW = NimbusExperiment.PublishStatus.REVIEW
+
+
 STATUS_FILTERS = {
     StatusChoices.DRAFT: lambda request: Q(
         is_archived=False, status=NimbusExperiment.Status.DRAFT
@@ -366,6 +374,14 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
         choices=HomeSortChoices.choices,
         widget=forms.HiddenInput,
     )
+    status = django_filters.MultipleChoiceFilter(
+        method="filter_status",
+        choices=HomeStatusChoices.choices,
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-circle-dot",
+            attrs={"title": "All Statuses"},
+        ),
+    )
     type = django_filters.MultipleChoiceFilter(
         method="filter_type",
         choices=NimbusConstants.HomeTypeChoices.choices,
@@ -403,7 +419,7 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
 
     class Meta:
         model = NimbusExperiment
-        fields = ["my_deliveries_status", "sort"]
+        fields = ["my_deliveries_status", "sort", "status"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -423,6 +439,32 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
 
     def filter_sort(self, queryset, name, value):
         return queryset.order_by(value, "slug")
+
+    def filter_status(self, queryset, name, values):
+        query = Q()
+        for value in values:
+            if value == HomeStatusChoices.REVIEW:
+                # Review: DRAFT or PREVIEW with non-IDLE publish_status
+                query |= Q(
+                    is_archived=False,
+                    status__in=[
+                        NimbusExperiment.Status.DRAFT,
+                        NimbusExperiment.Status.PREVIEW,
+                    ],
+                    publish_status__in=[
+                        NimbusExperiment.PublishStatus.REVIEW,
+                        NimbusExperiment.PublishStatus.APPROVED,
+                        NimbusExperiment.PublishStatus.WAITING,
+                    ],
+                )
+            else:
+                # Other statuses: status match with IDLE publish_status
+                query |= Q(
+                    is_archived=False,
+                    status=value,
+                    publish_status=NimbusExperiment.PublishStatus.IDLE,
+                )
+        return queryset.filter(query)
 
     def filter_type(self, queryset, name, values):
         query = Q()
