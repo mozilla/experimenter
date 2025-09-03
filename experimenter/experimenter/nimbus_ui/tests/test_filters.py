@@ -19,6 +19,7 @@ from experimenter.nimbus_ui.constants import (
     CHANNEL_ICON_MAP,
     QA_ICON_FILTER_TYPE,
     QA_STATUS_ICON_MAP,
+    STATUS_ICON_MAP,
 )
 from experimenter.nimbus_ui.filtersets import (
     HomeSortChoices,
@@ -30,9 +31,11 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     choices_with_icons,
     format_json,
     format_not_set,
+    home_status_display,
     qa_icon_info,
     remove_underscores,
     render_channel_icons,
+    status_icon_info,
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     should_show_remote_settings_pending as filter_should_show_remote_settings_pending,
@@ -600,6 +603,191 @@ class TestHomeFilters(AuthTestCase):
     @parameterized.expand(
         [
             (
+                "draft_only",
+                f"status={NimbusExperiment.Status.DRAFT}",
+                [NimbusExperiment.Status.DRAFT],
+                [
+                    NimbusExperiment.Status.PREVIEW,
+                    NimbusExperiment.Status.LIVE,
+                    NimbusExperiment.Status.COMPLETE,
+                    NimbusExperiment.PublishStatus.REVIEW,
+                ],
+            ),
+            (
+                "preview_only",
+                f"status={NimbusExperiment.Status.PREVIEW}",
+                [NimbusExperiment.Status.PREVIEW],
+                [
+                    NimbusExperiment.Status.DRAFT,
+                    NimbusExperiment.Status.LIVE,
+                    NimbusExperiment.Status.COMPLETE,
+                    NimbusExperiment.PublishStatus.REVIEW,
+                ],
+            ),
+            (
+                "live_only",
+                f"status={NimbusExperiment.Status.LIVE}",
+                [NimbusExperiment.Status.LIVE],
+                [
+                    NimbusExperiment.Status.DRAFT,
+                    NimbusExperiment.Status.PREVIEW,
+                    NimbusExperiment.Status.COMPLETE,
+                    NimbusExperiment.PublishStatus.REVIEW,
+                ],
+            ),
+            (
+                "complete_only",
+                f"status={NimbusExperiment.Status.COMPLETE}",
+                [NimbusExperiment.Status.COMPLETE],
+                [
+                    NimbusExperiment.Status.DRAFT,
+                    NimbusExperiment.Status.PREVIEW,
+                    NimbusExperiment.Status.LIVE,
+                    NimbusExperiment.PublishStatus.REVIEW,
+                ],
+            ),
+            (
+                "review_only",
+                f"status={NimbusExperiment.PublishStatus.REVIEW}",
+                [NimbusExperiment.PublishStatus.REVIEW],
+                [
+                    NimbusExperiment.Status.DRAFT,
+                    NimbusExperiment.Status.PREVIEW,
+                    NimbusExperiment.Status.LIVE,
+                    NimbusExperiment.Status.COMPLETE,
+                ],
+            ),
+        ]
+    )
+    def test_filter_status(
+        self, name, querystring, expected_in_statuses, expected_not_in_statuses
+    ):
+        draft, preview, live, complete, review = self._make_all_statuses()
+
+        status_to_experiment = {
+            NimbusExperiment.Status.DRAFT: draft,
+            NimbusExperiment.Status.PREVIEW: preview,
+            NimbusExperiment.Status.LIVE: live,
+            NimbusExperiment.Status.COMPLETE: complete,
+            NimbusExperiment.PublishStatus.REVIEW: review,
+        }
+
+        resp = self.client.get(f"{reverse('nimbus-ui-home')}?{querystring}")
+        self.assertEqual(resp.status_code, 200)
+
+        includes = [status_to_experiment[status] for status in expected_in_statuses]
+        excludes = [status_to_experiment[status] for status in expected_not_in_statuses]
+        self._assert_page_membership(resp, includes, excludes)
+
+    def _make_all_statuses(self):
+        draft = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        preview = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.PREVIEW,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        live = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        complete = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.COMPLETE,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        review = NimbusExperimentFactory.create(
+            owner=self.user,
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
+
+        return draft, preview, live, complete, review
+
+    def test_home_status_display_filter(self):
+        draft, preview, live, complete, review = self._make_all_statuses()
+
+        self.assertEqual(home_status_display(draft), NimbusExperiment.Status.DRAFT)
+        self.assertEqual(home_status_display(preview), NimbusExperiment.Status.PREVIEW)
+        self.assertEqual(home_status_display(live), NimbusExperiment.Status.LIVE)
+        self.assertEqual(home_status_display(complete), NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(
+            home_status_display(review), NimbusExperiment.PublishStatus.REVIEW
+        )
+
+        archived = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_archived=True,
+        )
+        self.assertEqual(home_status_display(archived), NimbusConstants.Status.DRAFT)
+
+    @parameterized.expand(
+        [
+            (
+                "draft_status",
+                NimbusConstants.Status.DRAFT,
+                NimbusConstants.Status.DRAFT,
+            ),
+            (
+                "preview_status",
+                NimbusConstants.Status.PREVIEW,
+                NimbusConstants.Status.PREVIEW,
+            ),
+            (
+                "live_status",
+                NimbusConstants.Status.LIVE,
+                NimbusConstants.Status.LIVE,
+            ),
+            (
+                "complete_status",
+                NimbusConstants.Status.COMPLETE,
+                NimbusConstants.Status.COMPLETE,
+            ),
+            (
+                "review_status",
+                NimbusConstants.PublishStatus.REVIEW,
+                NimbusConstants.PublishStatus.REVIEW,
+            ),
+        ]
+    )
+    def test_home_status_display_with_icon_filter(
+        self, name, status_constant, expected_status
+    ):
+        from experimenter.nimbus_ui.templatetags.nimbus_extras import (
+            home_status_display_with_icon,
+        )
+
+        draft, preview, live, complete, review = self._make_all_statuses()
+        status_to_experiment = {
+            NimbusConstants.Status.DRAFT: draft,
+            NimbusConstants.Status.PREVIEW: preview,
+            NimbusConstants.Status.LIVE: live,
+            NimbusConstants.Status.COMPLETE: complete,
+            NimbusConstants.PublishStatus.REVIEW: review,
+        }
+
+        experiment = status_to_experiment[status_constant]
+        result = home_status_display_with_icon(experiment)
+
+        self.assertEqual(result["status"], expected_status)
+        self.assertIn("icon", result["icon_info"])
+        self.assertIn("color", result["icon_info"])
+        self.assertIsInstance(result, dict)
+        self.assertIn("status", result)
+        self.assertIn("icon_info", result)
+
+    @parameterized.expand(
+        [
+            (
                 "single_channel_with_icon",
                 {
                     "application": NimbusExperiment.Application.FENIX,
@@ -781,3 +969,24 @@ class TestHomeFilters(AuthTestCase):
             result[0]["icon_info"]["icon"],
             APPLICATION_ICON_MAP[NimbusExperiment.Application.DESKTOP]["icon"],
         )
+
+    @parameterized.expand(
+        [
+            (NimbusConstants.Status.DRAFT,),
+            (NimbusConstants.Status.PREVIEW,),
+            (NimbusConstants.Status.LIVE,),
+            (NimbusConstants.Status.COMPLETE,),
+            (NimbusConstants.PublishStatus.REVIEW,),
+        ]
+    )
+    def test_status_icon_info_filter(self, status):
+        result = status_icon_info(status)
+        expected = STATUS_ICON_MAP.get(status, {"icon": "", "color": ""})
+        self.assertEqual(result["icon"], expected["icon"])
+        self.assertEqual(result["color"], expected["color"])
+
+    def test_status_icon_info_filter_unknown_status(self):
+        # Test the default case when status is not found in STATUS_ICON_MAP
+        result = status_icon_info("unknown_status")
+        self.assertEqual(result["icon"], "")
+        self.assertEqual(result["color"], "")

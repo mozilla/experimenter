@@ -244,11 +244,40 @@ def _get_application_icon_map():
     }
 
 
+def _get_status_icon_map():
+    from experimenter.experiments.constants import NimbusConstants
+
+    return {
+        NimbusConstants.Status.DRAFT: {
+            "icon": "fa-regular fa-file-lines",
+            "color": "text-muted",
+        },
+        NimbusConstants.Status.PREVIEW: {
+            "icon": "fa-regular fa-eye",
+            "color": "text-info",
+        },
+        NimbusConstants.Status.LIVE: {
+            "icon": "fa-solid fa-play",
+            "color": "text-success",
+        },
+        NimbusConstants.Status.COMPLETE: {
+            "icon": "fa-solid fa-flag-checkered",
+            "color": "text-primary",
+        },
+        NimbusConstants.PublishStatus.REVIEW: {
+            "icon": "fa-regular fa-hourglass-half",
+            "color": "text-warning",
+        },
+    }
+
+
 QA_STATUS_ICON_MAP = _get_qa_status_icon_map()
 CHANNEL_ICON_MAP = _get_channel_icon_map()
 APPLICATION_ICON_MAP = _get_application_icon_map()
+STATUS_ICON_MAP = _get_status_icon_map()
 
 # Icon filter type constants for template tags
 QA_ICON_FILTER_TYPE = "qa_icon_info"
 CHANNEL_ICON_FILTER_TYPE = "channel_icon_info"
 APPLICATION_ICON_FILTER_TYPE = "application_icon_info"
+STATUS_ICON_FILTER_TYPE = "status_icon_info"
