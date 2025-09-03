@@ -174,12 +174,8 @@ check_and_report: build_test  ## Only to be used on CI
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_COVERAGE)") ${COLOR_CHECK}' || true
 	docker cp experimenter_test:/experimenter/experimenter_coverage.json workspace/test-results
 	docker cp experimenter_test:/experimenter/experimenter_tests.xml workspace/test-results
-	docker cp experimenter_test:/experimenter/experimenter/nimbus-ui/coverage_report workspace/test-results
-	docker cp experimenter_test:/experimenter/experimenter/nimbus-ui/junit.xml workspace/test-results
 	cp workspace/test-results/experimenter_coverage.json $(UNIT_COVERAGE_JSON)
 	cp workspace/test-results/experimenter_tests.xml $(UNIT_JUNIT_XML)
-	cp workspace/test-results/coverage_report/coverage-final.json $(UI_COVERAGE_JSON)
-	cp workspace/test-results/junit.xml $(UI_JUNIT_XML)
 
 test: build_test  ## Run tests
 	-docker rm experimenter_test;
