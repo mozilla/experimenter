@@ -156,11 +156,11 @@ jobs:
       - store_test_results:
           path: workspace/test-results/junit.xml
       - upload-to-gcs:
-          source: workspace/test-results
+          source: dashboard/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/junit
           extension: xml
       - upload-to-gcs:
-          source: workspace/test-results
+          source: dashboard/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
           extension: json
 

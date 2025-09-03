@@ -382,6 +382,13 @@ features:
         description: "If true, use the onboarding redesign."
         type: Boolean
         default: false
+  lna-blocking:
+    description: Feature that allows blocking local network or device access.
+    variables:
+      enabled:
+        description: "Whether or not to turn on local network / device access blocking\n"
+        type: Boolean
+        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
