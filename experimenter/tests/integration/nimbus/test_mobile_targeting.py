@@ -109,6 +109,8 @@ def test_check_mobile_targeting(
             "is_large_device": True,
             "user_accepted_tou": True,
             "no_shortcuts_or_stories_opt_outs": True,
+            "user_clicked_tou_prompt_link": True,
+            "user_clicked_tou_prompt_remind_me_later": True,
         }
     )
     client = sdk_client(load_app_context(context))
