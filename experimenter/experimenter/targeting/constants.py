@@ -2450,6 +2450,30 @@ TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingCo
     application_choice_names=(Application.FENIX.name,),
 )
 
+TOU_TARGETING_ANDROID_CLICKED_A_PROMPT_LINK = NimbusTargetingConfig(
+    name="Users that have clicked a Terms of Use prompt link.",
+    slug="user_clicked_tou_prompt_link",
+    description="Targeting users that have clicked a Terms of Use prompt link.",
+    targeting="user_clicked_tou_prompt_link == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+TOU_TARGETING_ANDROID_CLICKED_REMIND_ME_LATER = NimbusTargetingConfig(
+    name="Users that have clicked remind me later on the Terms of Use prompt.",
+    slug="user_clicked_tou_prompt_link_remind_me_later",
+    description=(
+        "Targeting users that have clicked remind me later on the Terms of Use prompt."
+    ),
+    targeting="user_clicked_tou_prompt_remind_me_later == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 CHATBOT_IS_HUGGINGCHAT = NimbusTargetingConfig(
     name="Chatbot provider is HuggingChat",
     slug="chatbot_is_huggingchat",
