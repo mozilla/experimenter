@@ -215,6 +215,14 @@ juno-onboarding:
     use-onboarding-redesign:
       type: boolean
       description: "If true, use the onboarding redesign."
+lna-blocking:
+  description: Feature that allows blocking local network or device access.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "Whether or not to turn on local network / device access blocking\n"
 menu-redesign:
   description: Control the new menu redesign.
   hasExposure: true
