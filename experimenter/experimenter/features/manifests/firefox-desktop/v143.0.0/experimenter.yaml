@@ -1434,14 +1434,30 @@ newtabSmartShortcuts:
       type: int
       description: >-
         Percentage weight of frecency
+    hour_weight:
+      type: int
+      description: >-
+        Percentage weight of hourly seasonality
+    daily_weight:
+      type: int
+      description: >-
+        Percentage weight of daily seasonality
     bias_weight:
       type: int
       description: >-
         Percentage weight for bias for computing final ranking
+    fset:
+      type: int
+      description: >-
+        Key for smartshortcuts feature set
     eta:
       type: int
       description: >-
         Learning rate for shortcut ranking weights, will divide by 10000
+    click_bonus:
+      type: int
+      description: >-
+        bonus multiplier for clicks, will divide by 10
 
 newtabSpocsCache:
   description: The about:newtab sponsored content cache.
