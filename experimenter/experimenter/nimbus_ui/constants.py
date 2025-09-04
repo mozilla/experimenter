@@ -79,6 +79,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "sticky_targeting_url": "https://experimenter.info/workflow/implementing/custom-audiences#sticky-targeting",
         "experimentation_office_hours_url": "https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849684/Experimentation+Office+Hours",
     }
+    OVERVIEW_PAGE_LINKS = {
+        "risk_link": "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
+        "message_consult_link": "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation",
+        "revenue_risk_link": "https://experimenter.info/vp-sign-off",
+        "partner_related_risk_link": "https://experimenter.info/legal-sign-off",
+    }
     HOME_PAGE_TOOLTIPS = {
         "draft_or_preview": """This is anything that you own or are subscribed
             to follow - which are in Draft or Preview states. Go to the link to

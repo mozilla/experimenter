@@ -447,6 +447,11 @@ class OverviewUpdateView(
     def can_edit(self):
         return self.object.can_edit_overview()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["links"] = NimbusUIConstants.OVERVIEW_PAGE_LINKS
+        return context
+
 
 class DocumentationLinkCreateView(RenderParentDBResponseMixin, OverviewUpdateView):
     form_class = DocumentationLinkCreateForm
