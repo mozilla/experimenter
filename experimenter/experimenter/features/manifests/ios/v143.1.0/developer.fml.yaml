@@ -156,13 +156,6 @@ features:
         description: "Enables the toolbar entrypoint for the summarizer feature.\n"
         type: Boolean
         default: true
-  logins-verification:
-    description: "Feature that enables the logins verification logic.\n"
-    variables:
-      logins-verification-enabled:
-        description: "Whether the logins verification logic is enabled. When enabled, an attempt will be made to decrypt all stored logins when sync is enabled. If a login cannot be decrypted, it will be locally deleted to unblock syncing.\n"
-        type: Boolean
-        default: true
   menu-refactor-feature:
     description: "Controls the menu refactor feature\n"
     variables:
