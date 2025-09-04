@@ -3370,11 +3370,30 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertTrue(form.fields["feature_configs"])
         self.assertEqual(form.fields["feature_configs"].initial, None)
 
-    def test_features_view_dropdown_loads_correct_fields_on_request(self):
+    @parameterized.expand(
+        [
+            ("firefox-desktop", 1),
+            ("fenix", 2),
+            ("ios", "3"),
+            ("focus-android", 4),
+            ("klar-android", 5),
+            ("focus-ios", 6),
+            ("klar-ios", 7),
+            ("monitor-web", 286),
+            ("vpn-web", 292),
+            ("demo-app", 293),
+            ("experimenter", 294),
+        ]
+    )
+    def test_features_view_dropdown_loads_correct_fields_on_request(
+        self, application, feature_config
+    ):
         NimbusExperimentFactory.create(owner=self.user)
         url = reverse("nimbus-ui-features")
-        response = self.client.get(f"{url}/?application=ios&feature_configs=3")
+        response = self.client.get(
+            f"{url}/?application={application}&feature_configs={feature_config}"
+        )
         form = response.context["form"]
         self.assertTrue(form.fields["application"])
-        self.assertEqual(form["application"].value(), "ios")
-        self.assertEqual(form["feature_configs"].value()[0], "3")
+        self.assertEqual(form["application"].value(), application)
+        self.assertEqual(form["feature_configs"].value(), str(feature_config))

@@ -3639,7 +3639,7 @@ class TestBranchFeatureValueForm(RequestFormTestCase):
 
 
 class TestFeaturesViewForm(RequestFormTestCase):
-    def test_features_view_default_fields(self):
+    def test_features_view_default_fields_are_firefox_desktop(self):
         NimbusExperimentFactory.create(owner=self.user)
         form = FeaturesForm()
         application = form.fields["application"]

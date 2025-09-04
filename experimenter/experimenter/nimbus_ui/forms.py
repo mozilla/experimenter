@@ -1461,12 +1461,15 @@ class FeaturesForm(forms.ModelForm):
         ),
         initial="firefox-desktop",
     )
-    feature_configs = FeatureConfigModelChoiceField(
-        required=False,
-        queryset=NimbusFeatureConfig.objects.all(),
-        widget=FeatureConfigMultiSelectWidget(attrs={}),
+    feature_configs = forms.ChoiceField(
+        label="",
+        choices=[],
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
     )
-
     update_on_change_fields = ("application", "feature_configs")
 
     class Meta:
@@ -1479,10 +1482,10 @@ class FeaturesForm(forms.ModelForm):
         selected_app = self.data.get("application") or self.get_initial_for_field(
             self.fields["application"], "application"
         )
-
-        self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
-            application=selected_app
-        ).order_by("slug")
+        features = NimbusFeatureConfig.objects.filter(application=selected_app).order_by(
+            "slug"
+        )
+        self.fields["feature_configs"].choices = list(features.values_list("pk", "slug"))
 
         base_url = reverse("nimbus-ui-features")
         htmx_attrs = {
