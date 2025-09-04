@@ -1376,3 +1376,15 @@ objects:
         description: The text for line two.
         type: Text
         default: ""
+      subheader-one-text:
+        description: Optional text for the first subheader of the card.
+        type: Option<Text>
+        default: ~
+      subheader-three-text:
+        description: Optional text for the third subheader of the card.
+        type: Option<Text>
+        default: ~
+      subheader-two-text:
+        description: Optional text for the second subheader of the card.
+        type: Option<Text>
+        default: ~
