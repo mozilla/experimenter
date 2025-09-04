@@ -189,7 +189,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "cirrus/application-services/"
+          paths: "cirrus/|application-services/"
       - create_test_result_workspace
       - run:
           name: Run Cirrus tests and linting
