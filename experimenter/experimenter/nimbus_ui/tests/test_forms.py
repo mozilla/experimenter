@@ -3649,14 +3649,16 @@ class TestFeaturesViewForm(RequestFormTestCase):
 
     def test_features_view_feature_config_field_updates_correctly(self):
         NimbusExperimentFactory.create(owner=self.user)
+        name = "No Feature Firefox Desktop - None"
+        pk = 1
         form = FeaturesForm()
         feature_configs = form.fields["feature_configs"]
-        self.assertTrue(
-            feature_configs.queryset.filter(slug="no-feature-firefox-desktop").exists()
-        )
+        self.assertIn((pk, name), feature_configs.choices)
 
     def test_features_view_configs_update_correctly(self):
         NimbusExperimentFactory.create(owner=self.user)
+        name = "No Feature iOS - None"
+        pk = 3
         form = FeaturesForm(data={"application": "firefox-desktop"})
         feature_configs = form.fields["feature_configs"]
-        self.assertFalse(feature_configs.queryset.filter(slug="No Feature iOS").exists())
+        self.assertNotIn((pk, name), feature_configs.choices)

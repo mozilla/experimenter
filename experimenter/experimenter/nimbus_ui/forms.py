@@ -1464,13 +1464,19 @@ class FeaturesForm(forms.ModelForm):
     feature_configs = forms.ChoiceField(
         label="",
         choices=[],
-        widget=forms.widgets.Select(
-            attrs={
-                "class": "form-select",
-            },
-        ),
+        widget=SingleSelectWidget(),
     )
     update_on_change_fields = ("application", "feature_configs")
+
+    def get_feature_config_choices(self, application, qs):
+        return sorted(
+            [
+                (application.pk, f"{application.name} - {application.description}")
+                for application in NimbusFeatureConfig.objects.all()
+                if application in qs
+            ],
+            key=lambda choice: choice[1].lower(),
+        )
 
     class Meta:
         model = NimbusFeatureConfig
@@ -1485,7 +1491,9 @@ class FeaturesForm(forms.ModelForm):
         features = NimbusFeatureConfig.objects.filter(application=selected_app).order_by(
             "slug"
         )
-        self.fields["feature_configs"].choices = list(features.values_list("pk", "slug"))
+        self.fields["feature_configs"].choices = self.get_feature_config_choices(
+            selected_app, features
+        )
 
         base_url = reverse("nimbus-ui-features")
         htmx_attrs = {
