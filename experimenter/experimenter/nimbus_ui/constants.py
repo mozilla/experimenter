@@ -43,12 +43,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ROLLOUT_BUCKET_WARNING = (
         "https://experimenter.info/faq/warnings/#rollout-bucketing-warning"
     )
-    TARGETING_CRITERIA_REQUEST = (
-        "https://github.com/mozilla/experimenter/issues/new"
-        "?template=targeting_request_template.yml"
-        "&title=Targeting%20criteria%20request"
-    )
-    CUSTOM_AUDIENCES = "https://experimenter.info/workflow/implementing/custom-audiences#how-to-add-a-new-custom-audience"
     TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
     targeting list - file a new targeting request with this link, and share the created
     request with either your feature engineering team or in #ask-experimenter
@@ -74,6 +68,16 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     }
     HOME_PAGE_LINKS = {
         "welcome_learn_more_url": "https://experimenter.info/workflow/overview/"
+    }
+    AUDIENCE_PAGE_LINKS = {
+        "custom_audiences_url": "https://experimenter.info/workflow/implementing/custom-audiences#how-to-add-a-new-custom-audience",
+        "targeting_criteria_request_url": (
+            "https://github.com/mozilla/experimenter/issues/new"
+            "?template=targeting_request_template.yml"
+            "&title=Targeting%20criteria%20request"
+        ),
+        "sticky_targeting_url": "https://experimenter.info/workflow/implementing/custom-audiences#sticky-targeting",
+        "experimentation_office_hours_url": "https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849684/Experimentation+Office+Hours",
     }
     HOME_PAGE_TOOLTIPS = {
         "draft_or_preview": """This is anything that you own or are subscribed

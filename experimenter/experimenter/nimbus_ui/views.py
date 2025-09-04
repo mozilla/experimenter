@@ -531,12 +531,9 @@ class AudienceUpdateView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["links"] = NimbusUIConstants.AUDIENCE_PAGE_LINKS
         context.update(
             {
-                "custom_audiences_url": NimbusUIConstants.CUSTOM_AUDIENCES,
-                "targeting_criteria_request_url": (
-                    NimbusUIConstants.TARGETING_CRITERIA_REQUEST
-                ),
                 "targeting_criteria_request_info": (
                     NimbusUIConstants.TARGETING_CRITERIA_REQUEST_INFO
                 ),
