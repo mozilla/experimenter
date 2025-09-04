@@ -370,6 +370,24 @@ features:
             primary-button-label: onboarding_marketing_positive_button
             secondary-button-label: ""
             title: onboarding_marketing_title
+          terms-of-service-redesign:
+            card-type: terms-of-service
+            enabled: false
+            title: onboarding_redesign_tou_title
+            ordering: 0
+            image-res: ic_firefox
+            primary-button-label: onboarding_redesign_tou_agree_and_continue_button_label
+            extra-data:
+              term-of-service-data:
+                subheader-one-text: onboarding_redesign_tou_subheader_one
+                subheader-two-text: onboarding_redesign_tou_subheader_two
+                subheader-three-text: onboarding_redesign_tou_subheader_three
+                line-one-text: onboarding_redesign_tou_body_one
+                line-one-link-text: onboarding_redesign_tou_body_one_link_text
+                line-two-text: onboarding_redesign_tou_body_two
+                line-two-link-text: onboarding_redesign_tou_body_two_link_text
+                line-three-text: onboarding_redesign_tou_body_three
+                line-three-link-text: onboarding_redesign_tou_body_three_link_text
           marketing-data:
             card-type: marketing-data
             enabled: false
@@ -1392,3 +1410,15 @@ objects:
         description: The text for line two.
         type: Text
         default: ""
+      subheader-one-text:
+        description: Optional text for the first subheader of the card.
+        type: Option<Text>
+        default: ~
+      subheader-three-text:
+        description: Optional text for the third subheader of the card.
+        type: Option<Text>
+        default: ~
+      subheader-two-text:
+        description: Optional text for the second subheader of the card.
+        type: Option<Text>
+        default: ~

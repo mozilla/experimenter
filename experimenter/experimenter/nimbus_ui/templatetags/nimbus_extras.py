@@ -11,6 +11,8 @@ from experimenter.nimbus_ui.constants import (
     CHANNEL_ICON_MAP,
     QA_ICON_FILTER_TYPE,
     QA_STATUS_ICON_MAP,
+    STATUS_ICON_FILTER_TYPE,
+    STATUS_ICON_MAP,
 )
 
 register = template.Library()
@@ -121,6 +123,11 @@ def channel_icon_info(value):
     return NimbusConstants.Channel.get_icon_info(value)
 
 
+@register.filter
+def status_icon_info(value):
+    return STATUS_ICON_MAP.get(value, {"icon": "", "color": ""})
+
+
 @register.simple_tag
 def render_channel_icons(experiment):
     channels_data = []
@@ -168,7 +175,25 @@ def choices_with_icons(choices, icon_filter_type):
             icon_info = APPLICATION_ICON_MAP.get(
                 value, APPLICATION_ICON_MAP[NimbusConstants.Application.DESKTOP]
             )
+        elif icon_filter_type == STATUS_ICON_FILTER_TYPE:
+            icon_info = STATUS_ICON_MAP.get(value, {"icon": "", "color": ""})
 
         enriched_choices.append({"value": value, "label": label, "icon_info": icon_info})
 
     return enriched_choices
+
+
+@register.filter
+def home_status_display(experiment):
+    if not experiment.is_archived and experiment.is_review_timeline:
+        return NimbusConstants.PublishStatus.REVIEW
+
+    return experiment.status
+
+
+@register.filter
+def home_status_display_with_icon(experiment):
+    status = home_status_display(experiment)
+    icon_info = STATUS_ICON_MAP.get(status, {"icon": "", "color": ""})
+
+    return {"status": status, "icon_info": icon_info}

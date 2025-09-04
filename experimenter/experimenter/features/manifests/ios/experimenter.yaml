@@ -149,14 +149,6 @@ hosted-summarizer-feature:
     toolbarEntrypoint:
       type: boolean
       description: "Enables the toolbar entrypoint for the summarizer feature.\n"
-logins-verification:
-  description: "Feature that enables the logins verification logic.\n"
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    logins-verification-enabled:
-      type: boolean
-      description: "Whether the logins verification logic is enabled. When enabled, an attempt will be made to decrypt all stored logins when sync is enabled. If a login cannot be decrypted, it will be locally deleted to unblock syncing.\n"
 menu-refactor-feature:
   description: "Controls the menu refactor feature\n"
   hasExposure: true
@@ -219,6 +211,14 @@ native-error-page-feature:
     no_internet_connection_error:
       type: boolean
       description: "This feature is for managing the roll out of the no interet connection native error page feature\n"
+ohttp-glean-uploader-capability-feature:
+  description: "Feature flag used to enabled the OHTTP Glean uploader capability.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    enabled:
+      type: boolean
+      description: "If true, enables the OHTTP Glean uploader capability feature.\n"
 onboarding-framework-feature:
   description: "The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.\n"
   hasExposure: true
@@ -252,6 +252,14 @@ revert-unsafe-continuations-refactor:
     enabled:
       type: boolean
       description: "If true, revert unsafe continuations usage back to normal checked continuations usage.\n"
+rust-fxa-keychain:
+  description: "Feature that enables the rust FxA keychain logic.\n"
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    rust-fxa-keychain-enabled:
+      type: boolean
+      description: "Whether the rust FxA keychain logic is enabled. When enabled, the rust keychain is used to store and retrieve encryption key data for the FxA rust comoponent. Otherwise, the pre-existing MZKeychainWrapper logic is used.\n"
 search:
   description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
   hasExposure: true
