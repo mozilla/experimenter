@@ -17,6 +17,7 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
+    NimbusFeatureConfig,
 )
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
@@ -3355,15 +3356,28 @@ class TestSlugRedirectToSummary(AuthTestCase):
 
 
 class TestNimbusFeaturesView(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        features = {
+            "feature-desktop": NimbusExperiment.Application.DESKTOP,
+            "feature-mobile": NimbusExperiment.Application.IOS,
+            "feature-web": NimbusExperiment.Application.EXPERIMENTER,
+        }
+        for item, value in features.items():
+            NimbusFeatureConfigFactory.create(
+                slug=item, name=item.replace("-", " "), application=value
+            )
+
     def test_features_view_renders_template(self):
-        NimbusExperimentFactory.create(owner=self.user)
         response = self.client.get(reverse("nimbus-ui-features"))
+
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/features.html")
 
     def test_features_view_dropdown_loads_correct_default(self):
-        NimbusExperimentFactory.create(owner=self.user)
         response = self.client.get(reverse("nimbus-ui-features"))
+        self.assertEqual(response.status_code, 200)
+
         form = response.context["form"]
         self.assertTrue(form.fields["application"])
         self.assertEqual(form.fields["application"].initial, "firefox-desktop")
@@ -3372,28 +3386,24 @@ class TestNimbusFeaturesView(AuthTestCase):
 
     @parameterized.expand(
         [
-            ("firefox-desktop", 1),
-            ("fenix", 2),
-            ("ios", "3"),
-            ("focus-android", 4),
-            ("klar-android", 5),
-            ("focus-ios", 6),
-            ("klar-ios", 7),
-            ("monitor-web", 286),
-            ("vpn-web", 292),
-            ("demo-app", 293),
-            ("experimenter", 294),
+            (NimbusExperiment.Application.DESKTOP, "feature-desktop"),
+            (NimbusExperiment.Application.IOS, "feature-mobile"),
+            (NimbusExperiment.Application.EXPERIMENTER, "feature-web"),
         ]
     )
     def test_features_view_dropdown_loads_correct_fields_on_request(
         self, application, feature_config
     ):
-        NimbusExperimentFactory.create(owner=self.user)
+        feature_id = NimbusFeatureConfig.objects.values_list("pk", flat=True).get(
+            slug=feature_config
+        )
         url = reverse("nimbus-ui-features")
         response = self.client.get(
-            f"{url}/?application={application}&feature_configs={feature_config}"
+            f"{url}?application={application.value}&feature_configs={feature_id}"
         )
+
+        self.assertEqual(response.status_code, 200)
         form = response.context["form"]
         self.assertTrue(form.fields["application"])
         self.assertEqual(form["application"].value(), application)
-        self.assertEqual(form["feature_configs"].value(), str(feature_config))
+        self.assertEqual(form["feature_configs"].value(), str(feature_id))
