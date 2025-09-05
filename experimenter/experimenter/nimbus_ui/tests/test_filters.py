@@ -245,6 +245,72 @@ class TestHomeFilters(AuthTestCase):
 
         return draft, preview, live, complete, review
 
+    def _make_different_feature_configs(self):
+        feature_desktop = NimbusFeatureConfigFactory.create(
+            slug="feature-desktop",
+            name="Desktop Feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        feature_fenix = NimbusFeatureConfigFactory.create(
+            slug="feature-fenix",
+            name="Fenix Feature",
+            application=NimbusExperiment.Application.FENIX,
+        )
+        feature_ios = NimbusFeatureConfigFactory.create(
+            slug="feature-ios",
+            name="iOS Feature",
+            application=NimbusExperiment.Application.IOS,
+        )
+
+        exp_with_desktop_feature = NimbusExperimentFactory.create(
+            owner=self.user,
+            name="Experiment with Desktop Feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        exp_with_desktop_feature.feature_configs.add(feature_desktop)
+
+        exp_with_fenix_feature = NimbusExperimentFactory.create(
+            owner=self.user,
+            name="Experiment with Fenix Feature",
+            application=NimbusExperiment.Application.FENIX,
+        )
+        exp_with_fenix_feature.feature_configs.add(feature_fenix)
+
+        exp_with_ios_feature = NimbusExperimentFactory.create(
+            owner=self.user,
+            name="Experiment with iOS Feature",
+            application=NimbusExperiment.Application.IOS,
+        )
+        exp_with_ios_feature.feature_configs.add(feature_ios)
+
+        exp_with_multiple_features = NimbusExperimentFactory.create(
+            owner=self.user,
+            name="Experiment with Multiple Features",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        exp_with_multiple_features.feature_configs.add(feature_desktop, feature_fenix)
+
+        exp_with_no_features = NimbusExperimentFactory.create(
+            owner=self.user,
+            name="Experiment with No Features",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        return {
+            "features": {
+                NimbusExperiment.Application.DESKTOP: feature_desktop,
+                NimbusExperiment.Application.FENIX: feature_fenix,
+                NimbusExperiment.Application.IOS: feature_ios,
+            },
+            "experiments": {
+                NimbusExperiment.Application.DESKTOP: exp_with_desktop_feature,
+                NimbusExperiment.Application.FENIX: exp_with_fenix_feature,
+                NimbusExperiment.Application.IOS: exp_with_ios_feature,
+                "multiple": exp_with_multiple_features,
+                "none": exp_with_no_features,
+            },
+        }
+
     def test_my_deliveries_status_field_is_set_to_default_initial(self):
         NimbusExperimentFactory.create(owner=self.user)
 
@@ -711,6 +777,68 @@ class TestHomeFilters(AuthTestCase):
         includes = [status_to_experiment[status] for status in expected_in_statuses]
         excludes = [status_to_experiment[status] for status in expected_not_in_statuses]
         self._assert_page_membership(resp, includes, excludes)
+
+    @parameterized.expand(
+        [
+            (
+                "desktop_feature",
+                NimbusExperiment.Application.DESKTOP,
+                [NimbusExperiment.Application.DESKTOP, "multiple"],
+                [
+                    NimbusExperiment.Application.FENIX,
+                    NimbusExperiment.Application.IOS,
+                    "none",
+                ],
+            ),
+            (
+                "fenix_feature",
+                NimbusExperiment.Application.FENIX,
+                [NimbusExperiment.Application.FENIX, "multiple"],
+                [
+                    NimbusExperiment.Application.DESKTOP,
+                    NimbusExperiment.Application.IOS,
+                    "none",
+                ],
+            ),
+            (
+                "ios_feature",
+                NimbusExperiment.Application.IOS,
+                [NimbusExperiment.Application.IOS],
+                [
+                    NimbusExperiment.Application.DESKTOP,
+                    NimbusExperiment.Application.FENIX,
+                    "multiple",
+                    "none",
+                ],
+            ),
+        ]
+    )
+    def test_filter_feature_configs_single_feature(
+        self, name, feature_key, expected_in_keys, expected_not_in_keys
+    ):
+        test_data = self._make_different_feature_configs()
+        features = test_data["features"]
+        experiments = test_data["experiments"]
+
+        feature_id = features[feature_key].id
+        resp = self.client.get(
+            f"{reverse('nimbus-ui-home')}?feature_configs={feature_id}"
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        includes = [experiments[key] for key in expected_in_keys]
+        excludes = [experiments[key] for key in expected_not_in_keys]
+        self._assert_page_membership(resp, includes, excludes)
+
+    def test_filter_feature_configs_returns_all_by_default(self):
+        test_data = self._make_different_feature_configs()
+        experiments = test_data["experiments"]
+
+        resp = self.client.get(reverse("nimbus-ui-home"))
+        self.assertEqual(resp.status_code, 200)
+
+        all_experiments = list(experiments.values())
+        self._assert_page_membership(resp, all_experiments, [])
 
     def test_home_status_display_filter(self):
         draft, preview, live, complete, review = self._make_all_statuses()

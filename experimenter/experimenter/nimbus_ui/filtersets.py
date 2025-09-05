@@ -416,6 +416,14 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
             attrs={"title": "All Applications"},
         ),
     )
+    feature_configs = django_filters.ModelMultipleChoiceFilter(
+        method="filter_feature_configs",
+        queryset=NimbusFeatureConfig.objects.all().order_by("application", "slug"),
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-boxes-stacked",
+            attrs={"title": "All Features"},
+        ),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -425,6 +433,23 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
         if not self.data.get("my_deliveries_status"):
             self.filters["my_deliveries_status"].field.initial = MyDeliveriesChoices.ALL
+
+        # Limit feature_configs to only features used in user's deliveries
+        if hasattr(self, "request") and self.request.user.is_authenticated:
+            user_feature_ids = (
+                NimbusExperiment.objects.filter(
+                    Q(owner=self.request.user) | Q(subscribers=self.request.user)
+                )
+                .values_list("feature_configs", flat=True)
+                .distinct()
+            )
+
+            user_features = NimbusFeatureConfig.objects.filter(
+                id__in=user_feature_ids
+            ).order_by("application", "slug")
+
+            if user_features.exists():
+                self.filters["feature_configs"].queryset = user_features
 
     def filter_my_deliveries(self, queryset, name, value):
         user = self.request.user
@@ -492,3 +517,8 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
 
     def filter_application(self, queryset, name, values):
         return queryset.filter(application__in=values)
+
+    def filter_feature_configs(self, queryset, name, values):
+        if not values:
+            return queryset
+        return queryset.filter(feature_configs__in=values).distinct()
