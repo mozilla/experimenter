@@ -71,11 +71,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     }
     AUDIENCE_PAGE_LINKS = {
         "custom_audiences_url": "https://experimenter.info/workflow/implementing/custom-audiences#how-to-add-a-new-custom-audience",
-        "targeting_criteria_request_url": (
-            "https://github.com/mozilla/experimenter/issues/new"
-            "?template=targeting_request_template.yml"
-            "&title=Targeting%20criteria%20request"
-        ),
+        "targeting_criteria_request_url": "https://github.com/mozilla/experimenter/issues/new?template=targeting_request_template.yml&title=Targeting%20criteria%20request",
         "sticky_targeting_url": "https://experimenter.info/workflow/implementing/custom-audiences#sticky-targeting",
         "experimentation_office_hours_url": "https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849684/Experimentation+Office+Hours",
     }
