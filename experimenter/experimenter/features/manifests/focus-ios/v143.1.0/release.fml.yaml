@@ -1,9 +1,8 @@
----
 version: 1.0.0
 about:
   description: The root level Feature Manifest for Focus for iOS
 channels:
-  - release
+- release
 features:
   nimbus-validation:
     description: A tiny feature to validate that Nimbus is working
