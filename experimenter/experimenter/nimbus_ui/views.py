@@ -447,6 +447,11 @@ class OverviewUpdateView(
     def can_edit(self):
         return self.object.can_edit_overview()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["links"] = NimbusUIConstants.OVERVIEW_PAGE_LINKS
+        return context
+
 
 class DocumentationLinkCreateView(RenderParentDBResponseMixin, OverviewUpdateView):
     form_class = DocumentationLinkCreateForm
@@ -533,13 +538,10 @@ class AudienceUpdateView(
         context = super().get_context_data(**kwargs)
         context.update(
             {
-                "custom_audiences_url": NimbusUIConstants.CUSTOM_AUDIENCES,
-                "targeting_criteria_request_url": (
-                    NimbusUIConstants.TARGETING_CRITERIA_REQUEST
-                ),
                 "targeting_criteria_request_info": (
                     NimbusUIConstants.TARGETING_CRITERIA_REQUEST_INFO
                 ),
+                "links": NimbusUIConstants.AUDIENCE_PAGE_LINKS,
             }
         )
         return context
