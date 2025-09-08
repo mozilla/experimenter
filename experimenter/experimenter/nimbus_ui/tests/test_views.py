@@ -28,6 +28,7 @@ from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
+from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.filtersets import (
     MyDeliveriesChoices,
     SortChoices,
@@ -2206,6 +2207,7 @@ class TestLaunchViews(AuthTestCase):
         self.mock_allocate_bucket_range = patch.object(
             NimbusExperiment, "allocate_bucket_range"
         ).start()
+        self.mock_klaatu_task = patch.object(klaatu_start_job, "delay").start()
 
         self.addCleanup(patch.stopall)
 
@@ -2225,6 +2227,9 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
+        self.mock_klaatu_task.assert_called_once_with(
+            experiment=experiment, application=experiment.application
+        )
         self.mock_preview_task.assert_called_once_with(countdown=5)
         self.mock_allocate_bucket_range.assert_called_once()
 
