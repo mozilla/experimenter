@@ -240,7 +240,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/features/manifests/|experimenter/manifesttool/"
+          paths: "experimenter/experimenter/features/manifests/|experimenter/manifesttool/|^experimenter/[^/]+$|application-services/"
       - run:
           name: Check local feature manifests
           command: |
