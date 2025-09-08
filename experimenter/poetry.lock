@@ -1537,14 +1537,14 @@ referencing = ">=0.28.0"
 
 [[package]]
 name = "kinto-http"
-version = "11.8.0"
+version = "11.9.0"
 description = "Kinto client"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "kinto_http-11.8.0-py3-none-any.whl", hash = "sha256:9eb24aa8e9a34c9760342df523b8e36826e7f942d090475711da32843a0a30e3"},
-    {file = "kinto_http-11.8.0.tar.gz", hash = "sha256:39ad4594dd63f4e6debfff1b1c7842d73fe3ab6ecb8997892c22460ba498cd27"},
+    {file = "kinto_http-11.9.0-py3-none-any.whl", hash = "sha256:f5175441d6c88d3ff642bfd889c643e75e31c172fdbd636a566fe351ba62601d"},
+    {file = "kinto_http-11.9.0.tar.gz", hash = "sha256:2dac1ad51e01ead49e0e950bb12bb11d791235fd3252ba52e9adcaf864243e51"},
 ]
 
 [package.dependencies]
@@ -3491,4 +3491,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "7c5f427e60668934d5514f90f1901ee46fbaa40d1517b521ecddadb17b7f0894"
+content-hash = "7edb03ca9f4ac6fdba120a633d261712189e47e95a0fb9397517c913bd27570e"
