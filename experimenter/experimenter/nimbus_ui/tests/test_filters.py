@@ -1126,7 +1126,7 @@ class TestHomeFilters(AuthTestCase):
             # N/A states
             (
                 "draft_na",
-                "CREATED",
+                NimbusExperimentFactory.Lifecycles.CREATED,
                 None,
                 None,
                 None,
@@ -1142,7 +1142,7 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "preview_na",
-                "PREVIEW",
+                NimbusExperimentFactory.Lifecycles.PREVIEW,
                 None,
                 None,
                 None,
@@ -1158,7 +1158,7 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "review_na",
-                "LAUNCH_APPROVE_WAITING",
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
                 None,
                 None,
                 None,
@@ -1175,7 +1175,7 @@ class TestHomeFilters(AuthTestCase):
             # Complete state
             (
                 "completed",
-                "ENDING_APPROVE_APPROVE",
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
                 5,
                 -3,
                 15,
@@ -1192,7 +1192,7 @@ class TestHomeFilters(AuthTestCase):
             # Live Enrolling states
             (
                 "enrolling_early",
-                "LIVE_ENROLLING",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
                 3,
                 12,
                 15,
@@ -1208,7 +1208,7 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "enrolling_mid",
-                "LIVE_ENROLLING",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
                 8,
                 7,
                 15,
@@ -1224,7 +1224,7 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "enrolling_late",
-                "LIVE_ENROLLING",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
                 12,
                 3,
                 15,
@@ -1241,7 +1241,7 @@ class TestHomeFilters(AuthTestCase):
             # Live Paused/Observation states
             (
                 "paused_early",
-                "LIVE_PAUSED",
+                NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
                 4,
                 16,
                 20,
@@ -1257,7 +1257,7 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "paused_mid",
-                "LIVE_PAUSED",
+                NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
                 10,
                 10,
                 20,
@@ -1273,7 +1273,7 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "paused_late",
-                "LIVE_PAUSED",
+                NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
                 8,
                 4,
                 20,
@@ -1290,7 +1290,7 @@ class TestHomeFilters(AuthTestCase):
             # Overdue experiments
             (
                 "overdue_enrolling",
-                "LIVE_ENROLLING",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
                 20,
                 -5,
                 15,
@@ -1306,7 +1306,7 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "overdue_paused",
-                "LIVE_PAUSED",
+                NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
                 25,
                 -3,
                 20,
@@ -1323,7 +1323,7 @@ class TestHomeFilters(AuthTestCase):
             # Edge cases
             (
                 "cross_year",
-                "LIVE_ENROLLING",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
                 365,
                 365,
                 730,
@@ -1339,7 +1339,7 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "zero_duration",
-                "LIVE_ENROLLING",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
                 "force_zero_duration",
                 2,
                 0,
@@ -1372,14 +1372,12 @@ class TestHomeFilters(AuthTestCase):
         expected_has_alert,
         expected_progress_range,
     ):
-        if lifecycle_state == "ENDING_APPROVE_APPROVE":
+        if lifecycle_state == NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE:
             lifecycle_state_value = (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
             )
         else:
-            lifecycle_state_value = getattr(
-                NimbusExperimentFactory.Lifecycles, lifecycle_state
-            )
+            lifecycle_state_value = lifecycle_state
 
         kwargs = {}
         if proposed_duration is not None:
