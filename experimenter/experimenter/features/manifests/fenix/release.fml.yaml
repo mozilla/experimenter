@@ -85,6 +85,13 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
+  custom-review-prompt:
+    description: Feature that controls the Play store in-app custom review prompt.
+    variables:
+      enabled:
+        description: Whether or not to enable the custom review prompt.
+        type: Boolean
+        default: false
   doh:
     description: Feature controlling DNS over HTTPS (DoH).
     variables:
