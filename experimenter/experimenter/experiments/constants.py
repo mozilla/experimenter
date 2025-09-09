@@ -1166,7 +1166,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/qa-sign-off",
     "TRAINING_AND_PLANNING_DOC": "https://experimenter.info/for-product",
-    "PREVIEW_LAUNCH_DOC": "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
+    "PREVIEW_LAUNCH_DOC": "https://experimenter.info/previewing-experiments",
 }
 
 

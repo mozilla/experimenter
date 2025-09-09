@@ -46,7 +46,7 @@ export const EXTERNAL_URLS = {
   METRICS_EXPERIMENTER_DOC:
     "https://experimenter.info/deep-dives/jetstream/metrics",
   // EXP-866 TBD URL
-  PREVIEW_LAUNCH_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
+  PREVIEW_LAUNCH_DOC: "https://experimenter.info/previewing-experiments",
   RISK_BRAND: "https://experimenter.info/comms-sign-off",
   RISK_MESSAGE:
     "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation",
