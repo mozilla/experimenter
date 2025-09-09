@@ -105,7 +105,10 @@ nimbusStore:
 search:
   description: Search service related features.
   owner: search-and-suggest-program@mozilla.com
-  hasExposure: false
+  hasExposure: true
+  exposureDescription: >
+    Exposure is recorded when the visual search context menu item is shown or
+    would have been shown.
   variables:
     scotchBonnetEnableOverride:
       type: boolean
@@ -234,6 +237,14 @@ urlbar:
         will be able to click the "Show less frequently" command for addon
         suggestions. If undefined or zero, the user will be able to click the
         command without any limit.
+    allowSearchSuggestionsForSimpleOrigins:
+      type: boolean
+      fallbackPref: browser.urlbar.allowSearchSuggestionsForSimpleOrigins
+      description: >-
+        Whether remote search suggestions should be fetched for search strings
+        that look like possible simple origins like "mozilla.org". Search
+        suggestions will remain prohibited for search strings that look like
+        more complex origins that include userinfo or ports or are IP addresses.
     ampFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.amp.featureGate
@@ -688,6 +699,12 @@ urlbar:
         If this variable is true, the following things are processed.
         * Change the suggested index to 1.
         * Handle as top pick.
+    yelpRealtimeFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.yelpRealtime.featureGate
+      description: >-
+        Feature gate that controls whether all aspects of Yelp realtime suggestions
+        feature are exposed to the user.
     originsAlternativeEnable:
       description: >-
         Use an alternative ranking algorithm for autofilling origins, that is
@@ -1414,6 +1431,10 @@ newtabSmartShortcuts:
       type: boolean
       description: >-
         Enable personalized shortcuts
+    force_log:
+      type: boolean
+      description: >-
+        Enable logging of shortcut interactions independent of ranking
     over_sample_multiplier:
       type: int
       description: >-
@@ -1442,6 +1463,22 @@ newtabSmartShortcuts:
       type: int
       description: >-
         Percentage weight of daily seasonality
+    bmark_weight:
+      type: int
+      description: >-
+        Percentage weight of is_bookmark
+    rece_weight:
+      type: int
+      description: >-
+        Percentage weight of recency
+    freq_weight:
+      type: int
+      description: >-
+        Percentage weight of frequency
+    refre_weight:
+      type: int
+      description: >-
+        Percentage weight of redone frecency
     bias_weight:
       type: int
       description: >-
