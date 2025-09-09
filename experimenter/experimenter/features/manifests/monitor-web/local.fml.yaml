@@ -1,9 +1,8 @@
----
 version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Monitor Web testing
 channels:
-  - local
+- local
 features:
   data-broker-removal-time-estimates:
     description: Show the data broker removal time estimates
@@ -29,7 +28,7 @@ features:
       something:
         description: Another variable
         type: Option<String>
-        default: ~
+        default: null
   landing-page-free-scan-cta:
     description: Landing page free scan CTA
     variables:
@@ -53,7 +52,7 @@ features:
         type: LandingPageVariant
         default: redesign
   last-scan-date:
-    description: "Show the date of the user's last scan in the top right-hand corner"
+    description: Show the date of the user's last scan in the top right-hand corner
     variables:
       enabled:
         description: If the feature is enabled

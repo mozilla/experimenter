@@ -1,26 +1,27 @@
----
 version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-  - release
+- release
 features:
   address-sync:
     description: Turns on address sync.
     variables:
       enabled:
-        description: "Whether or not to turn on address sync.\n"
+        description: |
+          Whether or not to turn on address sync.
         type: Boolean
         default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
       enabled:
-        description: "If true, the feature is active."
+        description: If true, the feature is active.
         type: Boolean
         default: false
       reset-to-default:
-        description: "If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.\n"
+        description: |
+          If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.
         type: Boolean
         default: false
   app-icon-selection:
@@ -34,8 +35,9 @@ features:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
       available-suggestion-types:
-        description: "A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.\n"
-        type: "Map<SuggestionType, Boolean>"
+        description: |
+          A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.
+        type: Map<SuggestionType, Boolean>
         default:
           amp: true
           ampMobile: false
@@ -48,25 +50,26 @@ features:
         type: Boolean
         default: true
       feat-enabled:
-        description: "If true, the feature is active."
+        description: If true, the feature is active.
         type: Boolean
         default: false
       overrides:
-        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string."
+        description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
         type: String
-        default: ""
+        default: ''
   bookmarks:
     description: Feature for Bookmarks
     variables:
       new-compose-ui:
-        description: "if true, enable new compose based UI"
+        description: if true, enable new compose based UI
         type: Boolean
         default: false
   composable-toolbar:
     description: Use a composable toolbar instead of the View based one.
     variables:
       enabled:
-        description: "When the feature is enabled the user will see a new composable toolbar instead the previous View based one.\n"
+        description: |
+          When the feature is enabled the user will see a new composable toolbar instead the previous View based one.
         type: Boolean
         default: false
   cookie-banners:
@@ -74,7 +77,7 @@ features:
     variables:
       sections-enabled:
         description: This property provides a lookup table of whether or not the given section should be enabled.
-        type: "Map<CookieBannersSection, Int>"
+        type: Map<CookieBannersSection, Int>
         default:
           feature-ui: 0
           feature-setting-value: 0
@@ -86,11 +89,13 @@ features:
     description: Feature controlling DNS over HTTPS (DoH).
     variables:
       autoselect-enabled:
-        description: "Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.\n"
+        description: |
+          Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.
         type: Boolean
         default: false
       show-ui:
-        description: "When `true`, include DoH settings in the settings UI.\n"
+        description: |
+          When `true`, include DoH settings in the settings UI.
         type: Boolean
         default: true
   encourage-search-cfr:
@@ -99,50 +104,57 @@ features:
       cfrText:
         description: The text to show in the CFR
         type: Text
-        default: ""
+        default: ''
       enabled:
-        description: "When true, the CFR will show"
+        description: When true, the CFR will show
         type: Boolean
         default: false
   fingerprinting-protection:
     description: Control Fingerprinting Protection
     variables:
       enabled:
-        description: "If true, the feature is active."
+        description: If true, the feature is active.
         type: Boolean
         default: false
       enabled-normal:
-        description: "Enables / disables fingerprinting protection in normal browsing mode.\n"
+        description: |
+          Enables / disables fingerprinting protection in normal browsing mode.
         type: Boolean
         default: false
       enabled-private:
-        description: "Enables / disables fingerprinting protection in private browsing mode.\n"
+        description: |
+          Enables / disables fingerprinting protection in private browsing mode.
         type: Boolean
         default: true
       fdlibm-math:
-        description: "Uses a different math backend for Math.sin/cos/tan in JavaScript that exposes less entropy\n"
+        description: |
+          Uses a different math backend for Math.sin/cos/tan in JavaScript that exposes less entropy
         type: Boolean
         default: false
       overrides:
-        description: "The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.\n"
+        description: |
+          The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
         type: String
-        default: ""
+        default: ''
   fission:
     description: The feature that controls whether fission is enabled or not in Gecko.
     variables:
       enabled:
-        description: "Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.\n"
+        description: |
+          Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
         type: Boolean
         default: false
   fx-suggest:
     description: A feature that provides Firefox Suggest search suggestions.
     variables:
       boost-amp-wiki:
-        description: "The feature boost wiki and AMP suggestions to the top of its group.\n"
+        description: |
+          The feature boost wiki and AMP suggestions to the top of its group.
         type: Boolean
         default: false
       enabled:
-        description: "Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.\n"
+        description: |
+          Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
         default: false
   glean:
@@ -160,7 +172,7 @@ features:
         description: Configuration for Glean Server Knobs
         type: GleanServerKnobsConfiguration
         default:
-          event_threshold: ~
+          event_threshold: null
           metrics_enabled: {}
           pings_enabled: {}
       ping-lifetime-max-time:
@@ -176,36 +188,39 @@ features:
     description: A feature measuring campaign growth data
     variables:
       enabled:
-        description: "If true, the feature is active"
+        description: If true, the feature is active
         type: Boolean
         default: true
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
       enabled:
-        description: "Whether or not to enable homepage as a new tab\n"
+        description: |
+          Whether or not to enable homepage as a new tab
         type: Boolean
         default: false
   homepage-hide-frecent-top-sites:
     description: Hides frecent top sites on the homepage.
     variables:
       enabled:
-        description: "Whether or not to hide frecent top sites on the homepage.\n"
+        description: |
+          Whether or not to hide frecent top sites on the homepage.
         type: Boolean
         default: false
   homepage-search-bar:
     description: Enables the homepage search bar.
     variables:
       enabled:
-        description: "Whether or not to enable the homepage search bar.\n"
+        description: |
+          Whether or not to enable the homepage search bar.
         type: Boolean
         default: false
   homescreen:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
       sections-enabled:
-        description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
-        type: "Map<HomeScreenSection, Boolean>"
+        description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
+        type: Map<HomeScreenSection, Boolean>
         default:
           header: true
           top-sites: true
@@ -220,7 +235,8 @@ features:
     description: Enables Javascript Engine (Spidermonkey) features
     variables:
       parallelMarkingEnabled:
-        description: "Enables or disables javascript.options.mem.gc_parallel_marking preference.\n"
+        description: |
+          Enables or disables javascript.options.mem.gc_parallel_marking preference.
         type: Boolean
         default: false
   juno-onboarding:
@@ -228,13 +244,13 @@ features:
     variables:
       cards:
         description: Collection of user facing onboarding cards.
-        type: "Map<OnboardingCardKey, OnboardingCardData>"
+        type: Map<OnboardingCardKey, OnboardingCardData>
         default:
           terms-of-service:
             body: onboarding_terms_of_service_sub_header_2
             card-type: terms-of-service
             disqualifiers:
-              - NEVER
+            - NEVER
             enabled: true
             extra-data:
               term-of-service-data:
@@ -247,21 +263,21 @@ features:
             image-res: ic_firefox
             ordering: 1
             prerequisites:
-              - ALWAYS
+            - ALWAYS
             primary-button-label: onboarding_term_of_service_agree_and_continue_button_label_2
-            secondary-button-label: ""
+            secondary-button-label: ''
             title: onboarding_welcome_to_firefox
           default-browser:
             body: juno_onboarding_default_browser_description_nimbus_3
             card-type: default-browser
             disqualifiers:
-              - NEVER
+            - NEVER
             enabled: true
-            extra-data: ~
+            extra-data: null
             image-res: ic_onboarding_welcome
             ordering: 10
             prerequisites:
-              - ALWAYS
+            - ALWAYS
             primary-button-label: juno_onboarding_default_browser_positive_button
             secondary-button-label: juno_onboarding_default_browser_negative_button
             title: juno_onboarding_default_browser_title_nimbus_2
@@ -269,13 +285,13 @@ features:
             body: juno_onboarding_add_search_widget_description
             card-type: add-search-widget
             disqualifiers:
-              - NEVER
+            - NEVER
             enabled: true
-            extra-data: ~
+            extra-data: null
             image-res: ic_onboarding_search_widget
             ordering: 15
             prerequisites:
-              - ALWAYS
+            - ALWAYS
             primary-button-label: juno_onboarding_add_search_widget_positive_button
             secondary-button-label: juno_onboarding_add_search_widget_negative_button
             title: juno_onboarding_add_search_widget_title
@@ -283,13 +299,13 @@ features:
             body: juno_onboarding_sign_in_description_3
             card-type: sync-sign-in
             disqualifiers:
-              - NEVER
+            - NEVER
             enabled: true
-            extra-data: ~
+            extra-data: null
             image-res: ic_onboarding_sync
             ordering: 20
             prerequisites:
-              - ALWAYS
+            - ALWAYS
             primary-button-label: juno_onboarding_sign_in_positive_button
             secondary-button-label: juno_onboarding_sign_in_negative_button
             title: juno_onboarding_sign_in_title_2
@@ -297,13 +313,13 @@ features:
             body: juno_onboarding_enable_notifications_description_nimbus_2
             card-type: notification-permission
             disqualifiers:
-              - NEVER
+            - NEVER
             enabled: true
-            extra-data: ~
+            extra-data: null
             image-res: ic_notification_permission
             ordering: 30
             prerequisites:
-              - ALWAYS
+            - ALWAYS
             primary-button-label: juno_onboarding_enable_notifications_positive_button
             secondary-button-label: juno_onboarding_enable_notifications_negative_button
             title: juno_onboarding_enable_notifications_title_nimbus_2
@@ -311,52 +327,52 @@ features:
             body: onboarding_customize_theme_description
             card-type: theme-selection
             disqualifiers:
-              - NEVER
+            - NEVER
             enabled: true
             extra-data:
               customization-theme-data:
-                - theme-type: theme-system
-                  label: onboarding_customize_theme_system_option
-                  image-res: ic_pick_a_theme_system_auto
-                - theme-type: theme-light
-                  label: onboarding_customize_theme_light_option
-                  image-res: ic_pick_a_theme_light
-                - theme-type: theme-dark
-                  label: onboarding_customize_theme_dark_option
-                  image-res: ic_pick_a_theme_dark
+              - theme-type: theme-system
+                label: onboarding_customize_theme_system_option
+                image-res: ic_pick_a_theme_system_auto
+              - theme-type: theme-light
+                label: onboarding_customize_theme_light_option
+                image-res: ic_pick_a_theme_light
+              - theme-type: theme-dark
+                label: onboarding_customize_theme_dark_option
+                image-res: ic_pick_a_theme_dark
             image-res: ic_pick_a_theme
             ordering: 33
             prerequisites:
-              - ALWAYS
+            - ALWAYS
             primary-button-label: onboarding_save_and_continue_button
-            secondary-button-label: ""
+            secondary-button-label: ''
             title: onboarding_customize_theme_title
           toolbar-placement:
             body: onboarding_customize_toolbar_description
             card-type: toolbar-placement
             disqualifiers:
-              - NEVER
+            - NEVER
             enabled: true
             extra-data:
               customization-toolbar-data:
-                - toolbar-type: toolbar-top
-                  label: onboarding_customize_toolbar_top_option
-                  image-res: ic_onboarding_top_toolbar
-                - toolbar-type: toolbar-bottom
-                  label: onboarding_customize_toolbar_bottom_option
-                  image-res: ic_onboarding_bottom_toolbar
+              - toolbar-type: toolbar-top
+                label: onboarding_customize_toolbar_top_option
+                image-res: ic_onboarding_top_toolbar
+              - toolbar-type: toolbar-bottom
+                label: onboarding_customize_toolbar_bottom_option
+                image-res: ic_onboarding_bottom_toolbar
             image-res: ic_onboarding_customize_toolbar
             ordering: 37
             prerequisites:
-              - ALWAYS
+            - ALWAYS
             primary-button-label: onboarding_save_and_continue_button
-            secondary-button-label: ""
+            secondary-button-label: ''
             title: onboarding_customize_toolbar_title
           marketing:
             body: onboarding_marketing_body
             card-type: marketing-data
             disqualifiers:
-              - NEVER
+            - NEVER
             enabled: true
             extra-data:
               marketing-data:
@@ -366,82 +382,87 @@ features:
             image-res: ic_onboarding_welcome
             ordering: 40
             prerequisites:
-              - ALWAYS
+            - ALWAYS
             primary-button-label: onboarding_marketing_positive_button
-            secondary-button-label: ""
+            secondary-button-label: ''
             title: onboarding_marketing_title
         string-alias: OnboardingCardKey
       conditions:
-        description: "A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.\n"
-        type: "Map<ConditionName, String>"
+        description: |
+          A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
+        type: Map<ConditionName, String>
         default:
-          ALWAYS: "true"
-          NEVER: "false"
+          ALWAYS: 'true'
+          NEVER: 'false'
         string-alias: ConditionName
   menu-redesign:
     description: Control the new menu redesign.
     variables:
       enabled:
-        description: "If true, the new menu redesign is available."
+        description: If true, the new menu redesign is available.
         type: Boolean
         default: false
       menu-banner:
-        description: "If true, the menu banner is visible."
+        description: If true, the menu banner is visible.
         type: Boolean
         default: true
       report-site-issue:
-        description: "If true, report site issue menu item and preview is available."
+        description: If true, report site issue menu item and preview is available.
         type: Boolean
         default: false
   messaging:
-    description: "The in-app messaging system.\n"
+    description: |
+      The in-app messaging system.
     variables:
       $$experiment:
-        description: "The only acceptable value for `MessageData#experiment`. This should not be set by experiment."
+        description: The only acceptable value for `MessageData#experiment`. This should not be set by experiment.
         type: ExperimentSlug
-        default: "{experiment}"
+        default: '{experiment}'
         string-alias: ExperimentSlug
       $$surfaces:
-        description: "A list available surfaces for this app.\n\nThis should not be written to by experiments, and should be hidden to users.\n"
+        description: |
+          A list available surfaces for this app.
+
+          This should not be written to by experiments, and should be hidden to users.
         type: List<SurfaceName>
         default:
-          - homescreen
-          - notification
-          - survey
-          - microsurvey
+        - homescreen
+        - notification
+        - survey
+        - microsurvey
         string-alias: SurfaceName
       actions:
         description: A growable map of action URLs.
-        type: "Map<ActionName, String>"
+        type: Map<ActionName, String>
         default:
-          OPEN_URL: "://open"
-          ENABLE_PRIVATE_BROWSING: "://enable_private_browsing"
-          INSTALL_SEARCH_WIDGET: "://install_search_widget"
-          MAKE_DEFAULT_BROWSER: "://make_default_browser"
-          VIEW_BOOKMARKS: "://urls_bookmarks"
-          VIEW_COLLECTIONS: "://home_collections"
-          VIEW_HISTORY: "://urls_history"
-          VIEW_HOMESCREEN: "://home"
-          OPEN_SETTINGS_ACCESSIBILITY: "://settings_accessibility"
-          OPEN_SETTINGS_ADDON_MANAGER: "://settings_addon_manager"
-          OPEN_SETTINGS_DELETE_BROWSING_DATA: "://settings_delete_browsing_data"
-          OPEN_SETTINGS_LOGINS: "://settings_logins"
-          OPEN_SETTINGS_NOTIFICATIONS: "://settings_notifications"
-          OPEN_SETTINGS_PRIVACY: "://settings_privacy"
-          OPEN_SETTINGS_SEARCH_ENGINE: "://settings_search_engine"
-          OPEN_SETTINGS_TRACKING_PROTECTION: "://settings_tracking_protection"
-          OPEN_SETTINGS_WALLPAPERS: "://settings_wallpapers"
-          OPEN_SETTINGS: "://settings"
-          OPEN_SHARE_SHEET: "://share_sheet"
-          TURN_ON_SYNC: "://turn_on_sync"
+          OPEN_URL: ://open
+          ENABLE_PRIVATE_BROWSING: ://enable_private_browsing
+          INSTALL_SEARCH_WIDGET: ://install_search_widget
+          MAKE_DEFAULT_BROWSER: ://make_default_browser
+          VIEW_BOOKMARKS: ://urls_bookmarks
+          VIEW_COLLECTIONS: ://home_collections
+          VIEW_HISTORY: ://urls_history
+          VIEW_HOMESCREEN: ://home
+          OPEN_SETTINGS_ACCESSIBILITY: ://settings_accessibility
+          OPEN_SETTINGS_ADDON_MANAGER: ://settings_addon_manager
+          OPEN_SETTINGS_DELETE_BROWSING_DATA: ://settings_delete_browsing_data
+          OPEN_SETTINGS_LOGINS: ://settings_logins
+          OPEN_SETTINGS_NOTIFICATIONS: ://settings_notifications
+          OPEN_SETTINGS_PRIVACY: ://settings_privacy
+          OPEN_SETTINGS_SEARCH_ENGINE: ://settings_search_engine
+          OPEN_SETTINGS_TRACKING_PROTECTION: ://settings_tracking_protection
+          OPEN_SETTINGS_WALLPAPERS: ://settings_wallpapers
+          OPEN_SETTINGS: ://settings
+          OPEN_SHARE_SHEET: ://share_sheet
+          TURN_ON_SYNC: ://turn_on_sync
         string-alias: ActionName
       message-under-experiment:
-        description: "Deprecated in favor of `MessageData#experiment`. This will be removed in future releases."
+        description: Deprecated in favor of `MessageData#experiment`. This will be removed in future releases.
         type: Option<MessageKey>
-        default: ~
+        default: null
       messages:
         description: A growable collection of messages
-        type: "Map<MessageKey, MessageData>"
+        type: Map<MessageKey, MessageData>
         default:
           default-browser:
             title: default_browser_experiment_card_title
@@ -449,10 +470,10 @@ features:
             surface: homescreen
             action: MAKE_DEFAULT_BROWSER
             trigger-if-all:
-              - USER_ESTABLISHED_INSTALL
-              - ANDROID_API_BELOW_29
+            - USER_ESTABLISHED_INSTALL
+            - ANDROID_API_BELOW_29
             exclude-if-any:
-              - I_AM_DEFAULT_BROWSER
+            - I_AM_DEFAULT_BROWSER
             style: PERSISTENT
             button-label: preferences_set_as_default_browser
           default-browser-notification:
@@ -461,9 +482,9 @@ features:
             surface: notification
             style: NOTIFICATION
             trigger-if-all:
-              - DAY_3_AFTER_INSTALL
+            - DAY_3_AFTER_INSTALL
             exclude-if-any:
-              - I_AM_DEFAULT_BROWSER
+            - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
         string-alias: MessageKey
       notification-config:
@@ -476,8 +497,9 @@ features:
         type: ControlMessageBehavior
         default: show-next-message
       styles:
-        description: "A map of styles to configure message appearance.\n"
-        type: "Map<StyleName, StyleData>"
+        description: |
+          A map of styles to configure message appearance.
+        type: Map<StyleName, StyleData>
         default:
           DEFAULT:
             priority: 50
@@ -502,22 +524,23 @@ features:
             max-display-count: 5
         string-alias: StyleName
       triggers:
-        description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
-        type: "Map<TriggerName, String>"
+        description: |
+          A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.
+        type: Map<TriggerName, String>
         default:
           USER_ESTABLISHED_INSTALL: number_of_app_launches >=4
           ANDROID_API_BELOW_29: android_version < 29
           USER_RECENTLY_INSTALLED: days_since_install < 7
           USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
-          USER_TIER_ONE_COUNTRY: "('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)"
-          USER_EN_SPEAKER: "'en' in locale"
-          USER_ES_SPEAKER: "'es' in locale"
-          USER_DE_SPEAKER: "'de' in locale"
-          USER_FR_SPEAKER: "'fr' in locale"
-          DEVICE_ANDROID: "os == 'Android'"
-          DEVICE_IOS: "os == 'iOS'"
-          ALWAYS: "true"
-          NEVER: "false"
+          USER_TIER_ONE_COUNTRY: ('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)
+          USER_EN_SPEAKER: '''en'' in locale'
+          USER_ES_SPEAKER: '''es'' in locale'
+          USER_DE_SPEAKER: '''de'' in locale'
+          USER_FR_SPEAKER: '''fr'' in locale'
+          DEVICE_ANDROID: os == 'Android'
+          DEVICE_IOS: os == 'iOS'
+          ALWAYS: 'true'
+          NEVER: 'false'
           DAY_1_AFTER_INSTALL: days_since_install == 1
           DAY_2_AFTER_INSTALL: days_since_install == 2
           DAY_3_AFTER_INSTALL: days_since_install == 3
@@ -526,32 +549,33 @@ features:
           MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
           I_AM_DEFAULT_BROWSER: is_default_browser
           I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
-          FUNNEL_PAID: "adjust_campaign != ''"
-          FUNNEL_ORGANIC: "adjust_campaign == ''"
-          INACTIVE_1_DAY: "'app_launched'|eventLastSeen('Hours') >= 24"
-          INACTIVE_2_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 2"
-          INACTIVE_3_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 3"
-          INACTIVE_4_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 4"
-          INACTIVE_5_DAYS: "'app_launched'|eventLastSeen('Days', 0) >= 5"
-          RECENTLY_PRINTED: "'print_tapped'|eventLastSeen('Hours') <= 24"
-          SECOND_HOMEPAGE_VIEW: "'home_screen_displayed'|eventSum('Years', 4, 0) >= 2"
-          PERFORMED_A_SEARCH_AGAIN_RECENTLY: "'performed_search'|eventSum('Years', 4, 0) >= 2 && 'performed_search'|eventLastSeen('Minutes') < 1"
+          FUNNEL_PAID: adjust_campaign != ''
+          FUNNEL_ORGANIC: adjust_campaign == ''
+          INACTIVE_1_DAY: '''app_launched''|eventLastSeen(''Hours'') >= 24'
+          INACTIVE_2_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 2'
+          INACTIVE_3_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 3'
+          INACTIVE_4_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 4'
+          INACTIVE_5_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 5'
+          RECENTLY_PRINTED: '''print_tapped''|eventLastSeen(''Hours'') <= 24'
+          SECOND_HOMEPAGE_VIEW: '''home_screen_displayed''|eventSum(''Years'', 4, 0) >= 2'
+          PERFORMED_A_SEARCH_AGAIN_RECENTLY: '''performed_search''|eventSum(''Years'', 4, 0) >= 2 && ''performed_search''|eventLastSeen(''Minutes'') < 1'
           FXA_CURRENTLY_SIGNED_IN: is_fxa_signed_in == true
           FXA_MORE_THAN_1_DEVICE: fxa_connected_devices > 1
-          FXA_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) <= 4"
-          FXA_NOT_SIGNED_IN: "'sync_auth.sign_in'|eventLastSeen('Years', 0) > 4"
-          USER_INFREQUENT: "'app_launched'|eventCountNonZero('Days', 28) >= 1 && 'app_launched'|eventCountNonZero('Days', 28) < 7"
-          USER_CASUAL: "'app_launched'|eventCountNonZero('Days', 28) >= 7 && 'app_launched'|eventCountNonZero('Days', 28) < 14"
-          USER_REGULAR: "'app_launched'|eventCountNonZero('Days', 28) >= 14 && 'app_launched'|eventCountNonZero('Days', 28) < 21"
-          USER_CORE_ACTIVE: "'app_launched'|eventCountNonZero('Days', 28) >= 21"
-          LAUNCHED_ONCE_THIS_WEEK: "'app_launched'|eventSum('Days', 7) == 1"
+          FXA_SIGNED_IN: '''sync_auth.sign_in''|eventLastSeen(''Years'', 0) <= 4'
+          FXA_NOT_SIGNED_IN: '''sync_auth.sign_in''|eventLastSeen(''Years'', 0) > 4'
+          USER_INFREQUENT: '''app_launched''|eventCountNonZero(''Days'', 28) >= 1 && ''app_launched''|eventCountNonZero(''Days'', 28) < 7'
+          USER_CASUAL: '''app_launched''|eventCountNonZero(''Days'', 28) >= 7 && ''app_launched''|eventCountNonZero(''Days'', 28) < 14'
+          USER_REGULAR: '''app_launched''|eventCountNonZero(''Days'', 28) >= 14 && ''app_launched''|eventCountNonZero(''Days'', 28) < 21'
+          USER_CORE_ACTIVE: '''app_launched''|eventCountNonZero(''Days'', 28) >= 21'
+          LAUNCHED_ONCE_THIS_WEEK: '''app_launched''|eventSum(''Days'', 7) == 1'
         string-alias: TriggerName
     allow-coenrollment: true
   microsurveys:
     description: Feature for microsurveys.
     variables:
       enabled:
-        description: "When the feature is enabled then microsurveys can be used.\n"
+        description: |
+          When the feature is enabled then microsurveys can be used.
         type: Boolean
         default: false
   mr2022:
@@ -559,7 +583,7 @@ features:
     variables:
       sections-enabled:
         description: This property provides a lookup table of whether or not the given section should be enabled.
-        type: "Map<MR2022Section, Boolean>"
+        type: Map<MR2022Section, Boolean>
         default:
           wallpapers-selection-tool: true
           tcp-cfr: true
@@ -568,14 +592,16 @@ features:
     description: Feature for navigation toolbar.
     variables:
       enabled:
-        description: "When the feature is enabled then the user will see the new navigation toolbar.\n"
+        description: |
+          When the feature is enabled then the user will see the new navigation toolbar.
         type: Boolean
         default: false
   networking:
     description: Enables networking features
     variables:
       fetchPriorityEnabled:
-        description: "Enables or disables network.fetchpriority.enabled preference.\n"
+        description: |
+          Enables or disables network.fetchpriority.enabled preference.
         type: Boolean
         default: true
   networkingBannedPorts:
@@ -584,19 +610,23 @@ features:
       bannedPortList:
         description: A comma-separated list of ports that Firefox will refuse to connect to. These ports will be appended to nsIOService gBadPortList
         type: String
-        default: ""
+        default: ''
   nimbus-is-ready:
-    description: "A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.\n"
+    description: |
+      A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.
     variables:
       event-count:
         description: The number of events that should be sent.
         type: Int
         default: 1
   nimbus-system:
-    description: "Configuration of the Nimbus System in Android.\n"
+    description: |
+      Configuration of the Nimbus System in Android.
     variables:
       refresh-interval-foreground:
-        description: "The minimum interval in minutes between fetching experiment\nrecipes in the foreground.\n"
+        description: |
+          The minimum interval in minutes between fetching experiment
+          recipes in the foreground.
         type: Int
         default: 60
   nimbus-validation:
@@ -609,35 +639,36 @@ features:
       settings-punctuation:
         description: The emoji displayed in the Settings screen title.
         type: String
-        default: ""
+        default: ''
       settings-title:
         description: The title of displayed in the Settings screen and app menu.
         type: Text
         default: browser_menu_settings
   onboarding:
-    description: "A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments."
+    description: A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments.
     variables:
       order:
         description: Determines the order of the onboarding page panels
         type: List<OnboardingPanel>
         default:
-          - themes
-          - toolbar-placement
-          - sync
-          - tcp
-          - privacy-notice
+        - themes
+        - toolbar-placement
+        - sync
+        - tcp
+        - privacy-notice
   one-click-search:
     description: Enable/disable the one click search feature.
     variables:
       enabled:
-        description: "If true, the one click search will be enabled."
+        description: If true, the one click search will be enabled.
         type: Boolean
         default: false
   override-user-specified-homepage-sections:
     description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
     variables:
       enabled:
-        description: "When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.\n"
+        description: |
+          When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.
         type: Boolean
         default: false
   pdfjs:
@@ -655,32 +686,35 @@ features:
     description: Certificate verification configuration
     variables:
       certificateTransparencyMode:
-        description: "What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).\n"
+        description: |
+          What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
         type: Int
         default: 0
   pqcrypto:
     description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
     variables:
       postQuantumKeyExchangeEnabled:
-        description: "Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.\n"
+        description: |
+          Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.
         type: Option<Boolean>
-        default: ~
+        default: null
   print:
     description: A feature for printing from the share or browser menu.
     variables:
       browser-print-enabled:
-        description: "If true, a print button from the browser menu is available."
+        description: If true, a print button from the browser menu is available.
         type: Boolean
         default: true
       share-print-enabled:
-        description: "If true, a print button from the share menu is available."
+        description: If true, a print button from the share menu is available.
         type: Boolean
         default: true
   private-browsing-lock:
     description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
     variables:
       enabled:
-        description: "Whether or not to enable private browsing mode lock.\n"
+        description: |
+          Whether or not to enable private browsing mode lock.
         type: Boolean
         default: true
   query-parameter-stripping:
@@ -688,17 +722,17 @@ features:
     variables:
       sections-enabled:
         description: This property provides a lookup table of whether or not the given section should be enabled.
-        type: "Map<QueryParameterStrippingSection, String>"
+        type: Map<QueryParameterStrippingSection, String>
         default:
-          query-parameter-stripping: "0"
-          query-parameter-stripping-pmb: "0"
-          query-parameter-stripping-allow-list: ""
-          query-parameter-stripping-strip-list: ""
+          query-parameter-stripping: '0'
+          query-parameter-stripping-pmb: '0'
+          query-parameter-stripping-allow-list: ''
+          query-parameter-stripping-strip-list: ''
   re-engagement-notification:
     description: A feature that shows the re-engagement notification if the user is inactive.
     variables:
       enabled:
-        description: "If true, the re-engagement notification is shown to the inactive user."
+        description: If true, the re-engagement notification is shown to the inactive user.
         type: Boolean
         default: false
       type:
@@ -709,7 +743,8 @@ features:
     description: Enables recent searches.
     variables:
       enabled:
-        description: "Whether or not to enable recent searches.\n"
+        description: |
+          Whether or not to enable recent searches.
         type: Boolean
         default: false
       max-suggestions:
@@ -720,58 +755,64 @@ features:
     description: Feature to use search configurations from remote servers.
     variables:
       enabled:
-        description: "Uses search configuration from remote servers .\n"
+        description: |
+          Uses search configuration from remote servers .
         type: Boolean
         default: true
   remote-tab-management:
-    description: "Features that let users manage tabs on other devices that are connected to the same Mozilla account.\n"
+    description: |
+      Features that let users manage tabs on other devices that are connected to the same Mozilla account.
     variables:
       close-tabs-enabled:
-        description: "Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a \"close\" button for tabs that are currently open on other supported devices in the synced tabs tray.\n"
+        description: |
+          Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
         type: Boolean
         default: true
   same-document-navigation-overrides-load-type:
     description: Control whether the same document navigation overrides the load type.
     variables:
       enabled:
-        description: "Overrides the loadType when it is a same document navigation\n"
+        description: |
+          Overrides the loadType when it is a same document navigation
         type: Boolean
         default: true
       force-disable-uri:
-        description: "Disable overriding the loadType during same document navigation on the domain specified by this URI.\n"
+        description: |
+          Disable overriding the loadType during same document navigation on the domain specified by this URI.
         type: String
-        default: ""
+        default: ''
   search-extra-params:
     description: A feature that provides additional args for search.
     variables:
       channel-id:
         description: The channel Id param name with arg.
-        type: "Map<String, String>"
+        type: Map<String, String>
         default: {}
       enabled:
-        description: "If true, the feature is active."
+        description: If true, the feature is active.
         type: Boolean
         default: false
       feature-enabler:
-        description: "The feature enabler param name with arg, NOTE this map could be empty."
-        type: "Map<String, String>"
+        description: The feature enabler param name with arg, NOTE this map could be empty.
+        type: Map<String, String>
         default: {}
       search-engine:
         description: The search engine name.
         type: String
-        default: ""
+        default: ''
   search-suggestions-on-homepage:
     description: Enables search suggestions on homepage.
     variables:
       enabled:
-        description: "Whether or not to enable search suggestions on homepage.\n"
+        description: |
+          Whether or not to enable search suggestions on homepage.
         type: Boolean
         default: false
   search-term-groups:
     description: A feature allowing the grouping of URLs around the search term that it came from.
     variables:
       enabled:
-        description: "If true, the feature shows up on the homescreen and on the new tab screen."
+        description: If true, the feature shows up on the homescreen and on the new tab screen.
         type: Boolean
         default: false
   sent-from-firefox:
@@ -780,24 +821,24 @@ features:
       download-link:
         description: A store download link.
         type: Text
-        default: ""
+        default: ''
       enabled:
-        description: "If true, the feature is available for the user."
+        description: If true, the feature is available for the user.
         type: Boolean
         default: false
       show-snackbar:
-        description: "If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings."
+        description: If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings.
         type: Boolean
         default: false
       template-message:
-        description: "A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link."
+        description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
         type: Text
-        default: ""
+        default: ''
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
       enabled:
-        description: "If true, the setup checklist will be enabled."
+        description: If true, the setup checklist will be enabled.
         type: Boolean
         default: false
       setup-checklist-type:
@@ -808,14 +849,15 @@ features:
     description: The feature that controls Session History in Parent (SHIP) in Gecko.
     variables:
       disabled:
-        description: "Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.\n"
+        description: |
+          Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.
         type: Boolean
         default: true
   splash-screen:
-    description: "A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run."
+    description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
       enabled:
-        description: "If true, the feature is active."
+        description: If true, the feature is active.
         type: Boolean
         default: false
       maximum_duration_ms:
@@ -823,76 +865,86 @@ features:
         type: Int
         default: 0
       off-train-onboarding:
-        description: "If true, the fetched data will be applied and used during the session."
+        description: If true, the fetched data will be applied and used during the session.
         type: Boolean
         default: false
   suggest-shipped-domains:
     description: Feature that suggests domains from the shipped domain list.
     variables:
       enabled:
-        description: "Suggest domains from the shipped domain list.\n"
+        description: |
+          Suggest domains from the shipped domain list.
         type: Boolean
         default: false
   suppress-sponsored-top-sites:
     description: Suppress sponsored top sites for new users for 14 days.
     variables:
       enabled:
-        description: "If true, new users won’t see sponsored tiles for 14 days."
+        description: If true, new users won’t see sponsored tiles for 14 days.
         type: Boolean
         default: false
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
       enabled:
-        description: "Whether or not to enable the tab management enhancements.\n"
+        description: |
+          Whether or not to enable the tab management enhancements.
         type: Boolean
         default: false
   tab-strip:
     description: Enables tab strip.
     variables:
       allow-on-all-devices:
-        description: "Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior. This still requires the feature to be `enabled`.\n"
+        description: |
+          Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior. This still requires the feature to be `enabled`.
         type: Boolean
         default: false
       enabled:
-        description: "Whether or not to enable tab strip.\n"
+        description: |
+          Whether or not to enable tab strip.
         type: Boolean
         default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
       enabled:
-        description: "If true, the feature is active."
+        description: If true, the feature is active.
         type: Boolean
         default: false
       enabled-normal:
-        description: "Enables / disables third-party cookie blocking in normal browsing mode.\n"
+        description: |
+          Enables / disables third-party cookie blocking in normal browsing mode.
         type: Boolean
         default: false
       enabled-private:
-        description: "Enables / disables third-party cookie blocking in private browsing mode.\n"
+        description: |
+          Enables / disables third-party cookie blocking in private browsing mode.
         type: Boolean
         default: true
   toolbar-redesign-option:
     description: Control the visibility of toolbar redesign option in settings.
     variables:
       show-expanded-customization:
-        description: "Whether or not the expanded toolbar customization option is visible to the user.\n"
+        description: |
+          Whether or not the expanded toolbar customization option is visible to the user.
         type: Boolean
         default: false
       show-options:
-        description: "Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.\n"
+        description: |
+          Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.
         type: Boolean
         default: false
       show-simple-customization:
-        description: "Whether or not the simple toolbar customization option is visible to the user.\n"
+        description: |
+          Whether or not the simple toolbar customization option is visible to the user.
         type: Boolean
         default: false
   top-sites-suggestions:
     description: Enables top sites suggestions.
     variables:
       enabled:
-        description: "Whether or not to enable top sites suggestions.\n"
+        description: |
+          Whether or not to enable top sites suggestions.
         type: Boolean
         default: false
       max-suggestions:
@@ -903,38 +955,46 @@ features:
     description: The feature that allows on-device translations of web content.
     variables:
       downloads-enabled:
-        description: "Show the global language model download options entry point for translations. ('Download languages' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.\n"
+        description: |
+          Show the global language model download options entry point for translations. ('Download languages' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
       global-lang-settings-enabled:
-        description: "Show the global language options entry point for automatically translating. ('Automatic Translation' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.\n"
+        description: |
+          Show the global language options entry point for automatically translating. ('Automatic Translation' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
       global-settings-enabled:
-        description: "Show the global settings entry point within the translations feature. ('Translation Settings' on the page settings view.) 'page-settings-enabled' must also be enabled for users to access this feature.\n"
+        description: |
+          Show the global settings entry point within the translations feature. ('Translation Settings' on the page settings view.) 'page-settings-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
       global-site-settings-enabled:
-        description: "Show the global never translate this site options entry point for site management. ('Never translate these sites' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.\n"
+        description: |
+          Show the global never translate this site options entry point for site management. ('Never translate these sites' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
       main-flow-browser-menu-enabled:
-        description: "Show the browser menu entry point into the translations feature. ('Translate Page' on browser menu.)\n"
+        description: |
+          Show the browser menu entry point into the translations feature. ('Translate Page' on browser menu.)
         type: Boolean
         default: true
       main-flow-toolbar-enabled:
-        description: "Show the primary toolbar entry point into the translations feature. (Translations icon on URL toolbar.)\n"
+        description: |
+          Show the primary toolbar entry point into the translations feature. (Translations icon on URL toolbar.)
         type: Boolean
         default: true
       page-settings-enabled:
-        description: "Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.\n"
+        description: |
+          Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
   trending-searches:
     description: Enables trending searches.
     variables:
       enabled:
-        description: "Whether or not to enable trending searches.\n"
+        description: |
+          Whether or not to enable trending searches.
         type: Boolean
         default: false
       max-suggestions:
@@ -960,17 +1020,17 @@ enums:
     description: The identifiers for the sections of the MR 2022.
     variants:
       feature-setting-detect-only:
-        description: "An integer either 0 or 1 indicating if cookie banner detect only mode should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting."
+        description: An integer either 0 or 1 indicating if cookie banner detect only mode should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting.
       feature-setting-global-rules:
-        description: "An integer either 0 or 1 indicating if cookie banner global rules should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting."
+        description: An integer either 0 or 1 indicating if cookie banner global rules should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting.
       feature-setting-global-rules-sub-frames:
-        description: "An integer either 0 or 1 indicating if cookie banner global rules sub-frames should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting."
+        description: An integer either 0 or 1 indicating if cookie banner global rules sub-frames should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting.
       feature-setting-value:
-        description: "An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all."
+        description: An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all.
       feature-setting-value-pbm:
-        description: "An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all."
+        description: An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all.
       feature-ui:
-        description: "An integer either 0 or 1 indicating if the UI for cookie banner handling should be visible, 0 to hide the UI and 1 to show the UI. The actual UI is composed by cookie banner section in the settings page, the toolbar section and the re-engagement dialog."
+        description: An integer either 0 or 1 indicating if the UI for cookie banner handling should be visible, 0 to hide the UI and 1 to show the UI. The actual UI is composed by cookie banner section in the settings page, the toolbar section and the re-engagement dialog.
   HomeScreenSection:
     description: The identifiers for the sections of the homescreen.
     variants:
@@ -1037,11 +1097,11 @@ enums:
     description: The identifiers for the options for the Query Parameter Stripping feature.
     variants:
       query-parameter-stripping:
-        description: "An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in normal mode. 0 for setting to be disabled, and 1 for enabling the setting."
+        description: An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in normal mode. 0 for setting to be disabled, and 1 for enabling the setting.
       query-parameter-stripping-allow-list:
         description: An string separated by commas indicating the sites where should from query stripping should be exempted.
       query-parameter-stripping-pmb:
-        description: "An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in private mode. 0 for setting to be disabled, and 1 for enabling the setting."
+        description: An integer either 0 or 1 indicating if query parameter stripping should be enabled or disabled in private mode. 0 for setting to be disabled, and 1 for enabling the setting.
       query-parameter-stripping-strip-list:
         description: An string separated by commas indicating the list of query params to be stripped from URIs. This list will be merged with records coming from RemoteSettings.
   SetupChecklistType:
@@ -1068,7 +1128,7 @@ enums:
       theme-light:
         description: Sets the theme to light mode.
       theme-system:
-        description: "Adapts the theme to match the device's system setting."
+        description: Adapts the theme to match the device's system setting.
   ToolbarType:
     description: An enum to describe a toolbar placement option.
     variants:
@@ -1085,9 +1145,9 @@ objects:
         type: Image
         default: ic_pick_a_theme_system_auto
       label:
-        description: "Display text for the theme option (e.g., \"Light Theme\")."
+        description: Display text for the theme option (e.g., "Light Theme").
         type: Text
-        default: ""
+        default: ''
       theme-type:
         description: The type of the theming option.
         type: ThemeType
@@ -1100,46 +1160,49 @@ objects:
         type: Image
         default: ic_onboarding_customize_toolbar
       label:
-        description: "Display text for the toolbar placement option (e.g. \"Top placement\")."
+        description: Display text for the toolbar placement option (e.g. "Top placement").
         type: Text
-        default: ""
+        default: ''
       toolbar-type:
         description: The type of toolbar placement.
         type: ToolbarType
         default: toolbar-top
   ExtraCardData:
-    description: "Holds data for cards that require additional data, e.g. toolbar placement cards."
+    description: Holds data for cards that require additional data, e.g. toolbar placement cards.
     fields:
       customization-theme-data:
         description: An optional list of theme choices for the theme selection card.
         type: List<CustomizationThemeData>
         default: []
       customization-toolbar-data:
-        description: "An optional list of toolbar placements for the toolbar placement card.\n"
+        description: |
+          An optional list of toolbar placements for the toolbar placement card.
         type: List<CustomizationToolbarData>
         default: []
       marketing-data:
-        description: "An optional marketing data for the onboarding card.\n"
+        description: |
+          An optional marketing data for the onboarding card.
         type: Option<MarketingData>
-        default: ~
+        default: null
       term-of-service-data:
-        description: "An optional terms of service data for the onboarding card.\n"
+        description: |
+          An optional terms of service data for the onboarding card.
         type: Option<TermsOfServiceData>
-        default: ~
+        default: null
   GleanServerKnobsConfiguration:
     description: A configuration object for Glean server knobs.
     fields:
       event_threshold:
         description: The threshold of events that will be buffered before an events ping is collected and submitted.
         type: Option<Int>
-        default: ~
+        default: null
       metrics_enabled:
-        description: "A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric."
-        type: "Map<String, Boolean>"
+        description: A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric.
+        type: Map<String, Boolean>
         default: {}
       pings_enabled:
-        description: "A map of ping names to booleans representing the state of the 'enabled' flag for that ping."
-        type: "Map<String, Boolean>"
+        description: A map of ping names to booleans representing the state of the 'enabled' flag for that ping.
+        type: Map<String, Boolean>
         default: {}
   MarketingData:
     description: An object to describe the marketing data onboarding card.
@@ -1147,48 +1210,55 @@ objects:
       body-line-one-link-text:
         description: The link text from line one of the body.
         type: Text
-        default: ""
+        default: ''
       body-line-one-text:
         description: The text for line one of the body.
         type: Text
-        default: ""
+        default: ''
       body-line-two-text:
         description: The text for line two of the body.
         type: Text
-        default: ""
+        default: ''
   MessageData:
-    description: "An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.\n"
+    description: |
+      An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.
     fields:
       action:
-        description: "A URL of a page or a deeplink. This may have substitution variables in.\n"
+        description: |
+          A URL of a page or a deeplink. This may have substitution variables in.
         type: ActionName
         default: OPEN_URL
       action-params:
-        description: "A string map containing query parameters that will be appended to the action URL. This is useful for opening URLs in tabs, or specifying that the tab should be private. The values may have substitutions, e.g. \"url\": \"https://example.com/id={uuid}\", \"private\": \"true\".\nThe params and their values are all determined downstream of the messaging component, by the embedding app's deeplink processing machinery.\n"
-        type: "Map<String, String>"
+        description: |
+          A string map containing query parameters that will be appended to the action URL. This is useful for opening URLs in tabs, or specifying that the tab should be private. The values may have substitutions, e.g. "url": "https://example.com/id={uuid}", "private": "true".
+          The params and their values are all determined downstream of the messaging component, by the embedding app's deeplink processing machinery.
+        type: Map<String, String>
         default: {}
       button-label:
-        description: "The text on the button. If no text is present, the whole message is clickable.\n"
+        description: |
+          The text on the button. If no text is present, the whole message is clickable.
         type: Option<Text>
-        default: ~
+        default: null
       exclude-if-any:
-        description: "A list of strings corresponding to targeting expressions. The message will not be shown if any of the expressions are `true`.\n"
+        description: |
+          A list of strings corresponding to targeting expressions. The message will not be shown if any of the expressions are `true`.
         type: List<TriggerName>
         default: []
       experiment:
         description: The slug of the experiment that this message came from.
         type: Option<ExperimentSlug>
-        default: ~
+        default: null
       is-control:
-        description: "Indicates if this message is the control message, if true shouldn't be displayed"
+        description: Indicates if this message is the control message, if true shouldn't be displayed
         type: Boolean
         default: false
       microsurvey-config:
         description: Optional configuration data for a microsurvey.
         type: Option<MicrosurveyConfig>
-        default: ~
+        default: null
       style:
-        description: "The style as described in a `StyleData` from the styles table.\n"
+        description: |
+          The style as described in a `StyleData` from the styles table.
         type: StyleName
         default: DEFAULT
       surface:
@@ -1198,46 +1268,49 @@ objects:
       text:
         description: The message text displayed to the user
         type: Text
-        default: ""
+        default: ''
       title:
         description: The title text displayed to the user
         type: Option<Text>
-        default: ~
+        default: null
       trigger-if-all:
-        description: "A list of strings corresponding to targeting expressions. The message will be shown if all expressions are `true`.\n"
+        description: |
+          A list of strings corresponding to targeting expressions. The message will be shown if all expressions are `true`.
         type: List<TriggerName>
         default: []
   MicrosurveyAnswer:
     description: Attributes relating to microsurvey content.
     fields:
       ordering:
-        description: "Used to sequence the answers top to bottom. E.g. 0 will be the first/top item, 1 will be next and so on. Always set either ALL the provided answers ordering or NONE. If ALL answers are default, the the ordering used will be the same as provided by the experiment.\n"
+        description: |
+          Used to sequence the answers top to bottom. E.g. 0 will be the first/top item, 1 will be next and so on. Always set either ALL the provided answers ordering or NONE. If ALL answers are default, the the ordering used will be the same as provided by the experiment.
         type: Int
         default: 0
       text:
         description: The text for the answer.
         type: Text
-        default: ""
+        default: ''
   MicrosurveyConfig:
     description: Attributes relating to microsurvey content.
     fields:
       answers:
-        description: "The list of answers to present to the user e.g. \"Satisfied, Dissatisfied...\"."
+        description: The list of answers to present to the user e.g. "Satisfied, Dissatisfied...".
         type: List<MicrosurveyAnswer>
         default: []
       icon:
         description: The icon shown in the survey.
         type: Option<Image>
-        default: ~
+        default: null
       utm-content:
-        description: "Optional \"utm_content\" parameter for the privacy notice URL to specify the feature being surveyed."
+        description: Optional "utm_content" parameter for the privacy notice URL to specify the feature being surveyed.
         type: Option<String>
-        default: ~
+        default: null
   NotificationConfig:
     description: Attributes controlling the global configuration of notification messages.
     fields:
       refresh-interval:
-        description: "How often, in minutes, the notification message worker will wake up and check for new messages.\n"
+        description: |
+          How often, in minutes, the notification message worker will wake up and check for new messages.
         type: Int
         default: 240
   OnboardingCardData:
@@ -1246,24 +1319,25 @@ objects:
       body:
         description: The message text displayed to the user. May contain linkable text.
         type: Text
-        default: ""
+        default: ''
       card-type:
         description: The type of the card.
         type: OnboardingCardType
         default: default-browser
       disqualifiers:
-        description: "A list of strings corresponding to targeting expressions. The card will not be shown if any expression is `true`.\n"
+        description: |
+          A list of strings corresponding to targeting expressions. The card will not be shown if any expression is `true`.
         type: List<ConditionName>
         default:
-          - NEVER
+        - NEVER
       enabled:
-        description: "If true, this card is shown to the user."
+        description: If true, this card is shown to the user.
         type: Boolean
         default: true
       extra-data:
         description: Optional extra data for cards that require additional data.
         type: Option<ExtraCardData>
-        default: ~
+        default: null
       image-res:
         description: The resource id of the image to be displayed.
         type: Image
@@ -1273,31 +1347,35 @@ objects:
         type: Int
         default: 0
       prerequisites:
-        description: "A list of strings corresponding to targeting expressions. The card will be shown if all expressions are `true` and if no expressions in the `disqualifiers` table are true, or if the `disqualifiers` table is empty.\n"
+        description: |
+          A list of strings corresponding to targeting expressions. The card will be shown if all expressions are `true` and if no expressions in the `disqualifiers` table are true, or if the `disqualifiers` table is empty.
         type: List<ConditionName>
         default:
-          - ALWAYS
+        - ALWAYS
       primary-button-label:
         description: The text to display on the primary button.
         type: Text
-        default: ""
+        default: ''
       secondary-button-label:
         description: The text to display on the secondary button.
         type: Text
-        default: ""
+        default: ''
       title:
         description: The title text displayed to the user.
         type: Text
-        default: ""
+        default: ''
   StyleData:
-    description: "A group of properties (predominantly visual) to describe the style of the message.\n"
+    description: |
+      A group of properties (predominantly visual) to describe the style of the message.
     fields:
       max-display-count:
-        description: "How many sessions will this message be shown to the user before it is expired.\n"
+        description: |
+          How many sessions will this message be shown to the user before it is expired.
         type: Int
         default: 5
       priority:
-        description: "The importance of this message. 0 is not very important, 100 is very important.\n"
+        description: |
+          The importance of this message. 0 is not very important, 100 is very important.
         type: Int
         default: 50
   TermsOfServiceData:
@@ -1306,32 +1384,32 @@ objects:
       line-one-link-text:
         description: The text for the link of line one.
         type: Text
-        default: ""
+        default: ''
       line-one-link-url:
         description: The url for the link of line one.
         type: Text
-        default: ""
+        default: ''
       line-one-text:
         description: The text for line one.
         type: Text
-        default: ""
+        default: ''
       line-three-link-text:
         description: The text for the link of line three.
         type: Text
-        default: ""
+        default: ''
       line-three-text:
         description: The text for line three.
         type: Text
-        default: ""
+        default: ''
       line-two-link-text:
         description: The text for the link of line two.
         type: Text
-        default: ""
+        default: ''
       line-two-link-url:
         description: The url for the link of line two.
         type: Text
-        default: ""
+        default: ''
       line-two-text:
         description: The text for line two.
         type: Text
-        default: ""
+        default: ''
