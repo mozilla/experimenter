@@ -1,4 +1,5 @@
 import datetime
+from datetime import timedelta
 
 from django.test import TestCase
 from django.urls import reverse
@@ -29,6 +30,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     application_icon_info,
     channel_icon_info,
     choices_with_icons,
+    experiment_date_progress,
     format_json,
     format_not_set,
     home_status_display,
@@ -1118,3 +1120,356 @@ class TestHomeFilters(AuthTestCase):
         result = status_icon_info("unknown_status")
         self.assertEqual(result["icon"], "")
         self.assertEqual(result["color"], "")
+
+    @parameterized.expand(
+        [
+            # N/A states
+            (
+                "draft_na",
+                "CREATED",
+                None,
+                None,
+                None,
+                None,
+                False,
+                "",
+                "N/A",
+                False,
+                False,
+                True,
+                False,
+                None,
+            ),
+            (
+                "preview_na",
+                "PREVIEW",
+                None,
+                None,
+                None,
+                None,
+                False,
+                "",
+                "N/A",
+                False,
+                False,
+                True,
+                False,
+                None,
+            ),
+            (
+                "review_na",
+                "LAUNCH_APPROVE_WAITING",
+                None,
+                None,
+                None,
+                None,
+                False,
+                "",
+                "N/A",
+                False,
+                False,
+                True,
+                False,
+                None,
+            ),
+            # Complete state
+            (
+                "completed",
+                "ENDING_APPROVE_APPROVE",
+                5,
+                -3,
+                15,
+                10,
+                True,
+                "bg-secondary",
+                "Complete",
+                False,
+                True,
+                False,
+                False,
+                None,
+            ),
+            # Live Enrolling states
+            (
+                "enrolling_early",
+                "LIVE_ENROLLING",
+                3,
+                12,
+                15,
+                10,
+                True,
+                "bg-success",
+                "days",
+                False,
+                False,
+                False,
+                False,
+                (15, 25),
+            ),
+            (
+                "enrolling_mid",
+                "LIVE_ENROLLING",
+                8,
+                7,
+                15,
+                10,
+                True,
+                "bg-success",
+                "days",
+                False,
+                False,
+                False,
+                False,
+                (45, 65),
+            ),
+            (
+                "enrolling_late",
+                "LIVE_ENROLLING",
+                12,
+                3,
+                15,
+                10,
+                True,
+                "bg-success",
+                "days",
+                False,
+                False,
+                False,
+                False,
+                (75, 85),
+            ),
+            # Live Paused/Observation states
+            (
+                "paused_early",
+                "LIVE_PAUSED",
+                4,
+                16,
+                20,
+                8,
+                True,
+                "bg-info",
+                "days",
+                False,
+                False,
+                False,
+                False,
+                (30, 40),
+            ),
+            (
+                "paused_mid",
+                "LIVE_PAUSED",
+                10,
+                10,
+                20,
+                8,
+                True,
+                "bg-info",
+                "days",
+                False,
+                False,
+                False,
+                False,
+                (80, 90),
+            ),
+            (
+                "paused_late",
+                "LIVE_PAUSED",
+                8,
+                4,
+                20,
+                8,
+                True,
+                "bg-info",
+                "days",
+                False,
+                False,
+                False,
+                False,
+                (65, 75),
+            ),
+            # Overdue experiments
+            (
+                "overdue_enrolling",
+                "LIVE_ENROLLING",
+                20,
+                -5,
+                15,
+                10,
+                True,
+                "bg-danger",
+                "-",
+                True,
+                False,
+                False,
+                True,
+                None,
+            ),
+            (
+                "overdue_paused",
+                "LIVE_PAUSED",
+                25,
+                -3,
+                20,
+                8,
+                True,
+                "bg-danger",
+                "-",
+                True,
+                False,
+                False,
+                True,
+                None,
+            ),
+            # Edge cases
+            (
+                "cross_year",
+                "LIVE_ENROLLING",
+                365,
+                365,
+                730,
+                30,
+                True,
+                "bg-success",
+                "days",
+                False,
+                False,
+                False,
+                False,
+                (49, 51),
+            ),
+            (
+                "zero_duration",
+                "LIVE_ENROLLING",
+                "force_zero_duration",
+                2,
+                0,
+                0,
+                True,
+                "bg-success",
+                "days",
+                False,
+                False,
+                False,
+                False,
+                (0, 10),
+            ),
+        ]
+    )
+    def test_experiment_date_progress_comprehensive(
+        self,
+        test_name,
+        lifecycle_state,
+        start_days_ago,
+        end_days_from_now,
+        proposed_duration,
+        proposed_enrollment,
+        expected_show_bar,
+        expected_bar_class,
+        expected_days_text,
+        expected_is_overdue,
+        expected_is_complete,
+        expected_is_na,
+        expected_has_alert,
+        expected_progress_range,
+    ):
+        if lifecycle_state == "ENDING_APPROVE_APPROVE":
+            lifecycle_state_value = (
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+            )
+        else:
+            lifecycle_state_value = getattr(
+                NimbusExperimentFactory.Lifecycles, lifecycle_state
+            )
+
+        kwargs = {}
+        if proposed_duration is not None:
+            kwargs["proposed_duration"] = proposed_duration
+        if proposed_enrollment is not None:
+            kwargs["proposed_enrollment"] = proposed_enrollment
+
+        if start_days_ago == "force_zero_duration":
+            start_date = datetime.datetime.now().date()
+            end_date = datetime.datetime.now().date() + timedelta(days=end_days_from_now)
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                lifecycle_state_value, start_date=start_date, end_date=end_date, **kwargs
+            )
+        elif start_days_ago == 365 and end_days_from_now == 365:
+            last_year = (
+                datetime.datetime.now()
+                .date()
+                .replace(year=datetime.datetime.now().date().year - 1)
+            )
+            next_year = (
+                datetime.datetime.now()
+                .date()
+                .replace(year=datetime.datetime.now().date().year + 1)
+            )
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                lifecycle_state_value, start_date=last_year, end_date=next_year, **kwargs
+            )
+        elif start_days_ago is not None and end_days_from_now is not None:
+            start_date = datetime.datetime.now().date() - timedelta(days=start_days_ago)
+            end_date = datetime.datetime.now().date() + timedelta(days=end_days_from_now)
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                lifecycle_state_value, start_date=start_date, end_date=end_date, **kwargs
+            )
+        else:
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                lifecycle_state_value, **kwargs
+            )
+
+        result = experiment_date_progress(experiment)
+
+        self.assertEqual(result["show_bar"], expected_show_bar)
+        self.assertEqual(result["bar_class"], expected_bar_class)
+        self.assertEqual(result["is_overdue"], expected_is_overdue)
+        self.assertEqual(result["is_complete"], expected_is_complete)
+        self.assertEqual(result["is_na"], expected_is_na)
+        self.assertEqual(result["has_alert"], expected_has_alert)
+
+        if expected_days_text == "days":
+            self.assertIn("days", result["days_text"])
+        elif expected_days_text == "-":
+            self.assertTrue(result["days_text"].startswith("-"))
+        else:
+            self.assertEqual(result["days_text"], expected_days_text)
+
+        if expected_progress_range:
+            min_progress, max_progress = expected_progress_range
+            self.assertGreaterEqual(result["progress_percentage"], min_progress)
+            self.assertLessEqual(result["progress_percentage"], max_progress)
+
+        required_keys = [
+            "show_bar",
+            "bar_class",
+            "bar_style",
+            "days_text",
+            "progress_percentage",
+            "is_overdue",
+            "is_complete",
+            "is_na",
+            "has_alert",
+            "start_date",
+            "end_date",
+            "date_range_text",
+        ]
+        for key in required_keys:
+            self.assertIn(key, result)
+
+        if test_name == "cross_year":
+            current_year = datetime.datetime.now().date().year
+            self.assertIn(str(current_year - 1), result["date_range_text"])
+            self.assertIn(str(current_year + 1), result["date_range_text"])
+            self.assertIn(",", result["date_range_text"])
+
+    def test_experiment_date_progress_edge_cases(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date.today(),
+            end_date=datetime.date.today(),
+            proposed_duration=0,
+            proposed_enrollment=0,
+        )
+        result = experiment_date_progress(experiment)
+        self.assertGreaterEqual(result["progress_percentage"], 0)
+        self.assertLessEqual(result["progress_percentage"], 100)

@@ -1,4 +1,5 @@
 import json
+from datetime import date
 
 from django import template
 from django.utils.safestring import mark_safe
@@ -197,3 +198,103 @@ def home_status_display_with_icon(experiment):
     icon_info = STATUS_ICON_MAP.get(status, {"icon": "", "color": ""})
 
     return {"status": status, "icon_info": icon_info}
+
+
+@register.filter
+def experiment_date_progress(experiment):
+    today = date.today()
+
+    result = {
+        "show_bar": False,
+        "bar_class": "",
+        "bar_style": "",
+        "days_text": "",
+        "progress_percentage": 0,
+        "is_overdue": False,
+        "is_complete": False,
+        "is_na": True,
+        "has_alert": False,
+        "start_date": None,
+        "end_date": None,
+        "date_range_text": "",
+    }
+
+    # Early states (Draft, Preview, Review) - show N/A
+    if experiment.is_draft or experiment.is_preview or experiment.is_review_timeline:
+        result["days_text"] = "N/A"
+        return result
+
+    start_date = experiment.enrollment_start_date
+    end_date = experiment.computed_end_date
+
+    if start_date:
+        result["start_date"] = start_date.strftime("%b %d, %Y")
+    if end_date:
+        result["end_date"] = end_date.strftime("%b %d, %Y")
+
+    if start_date and end_date:
+        result["date_range_text"] = (
+            f"{start_date.strftime('%b %d, %Y')} - {end_date.strftime('%b %d, %Y')}"
+        )
+
+    total_days = experiment.computed_duration_days
+    if not total_days or total_days <= 0:
+        total_days = (end_date - start_date).days if end_date and start_date else 1
+
+    if experiment.is_complete:
+        result.update(
+            {
+                "show_bar": True,
+                "bar_class": "bg-secondary",
+                "bar_style": "width: 100%",
+                "days_text": "Complete",
+                "progress_percentage": 100,
+                "is_complete": True,
+                "is_na": False,
+            }
+        )
+    elif experiment.is_started and start_date and end_date:
+        days_since_start = (today - start_date).days
+        days_remaining = (end_date - today).days
+
+        # Calculate total days
+        total_days = experiment.computed_duration_days
+        if not total_days or total_days <= 0:
+            total_days = (end_date - start_date).days if end_date and start_date else 1
+
+        if days_remaining < 0:
+            # Overdue
+            result.update(
+                {
+                    "show_bar": True,
+                    "bar_class": "bg-danger",
+                    "bar_style": "width: 100%",
+                    "days_text": f"{days_remaining} days",
+                    "progress_percentage": 100,
+                    "is_overdue": True,
+                    "is_na": False,
+                    "has_alert": True,
+                }
+            )
+        else:
+            progress_percentage = min(
+                100, max(0, (days_since_start / max(1, total_days)) * 100)
+            )
+
+            bar_class = "bg-success" if experiment.is_enrolling else "bg-info"
+
+            result.update(
+                {
+                    "show_bar": True,
+                    "bar_class": bar_class,
+                    "bar_style": f"width: {progress_percentage}%",
+                    "days_text": f"{days_remaining} days",
+                    "progress_percentage": progress_percentage,
+                    "is_na": False,
+                }
+            )
+    else:
+        # default show N/A
+        result["days_text"] = "N/A"
+
+    return result
