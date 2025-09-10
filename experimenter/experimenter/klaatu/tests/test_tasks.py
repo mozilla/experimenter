@@ -1,3 +1,4 @@
+import os
 from unittest import mock
 
 from django.test import TestCase
@@ -19,9 +20,6 @@ class TestNimbusKlaatuTasks(TestCase):
     def setUp(self):
         super().setUp()
         self.user = UserFactory()
-        # self.token_patcher = mock.patch.object(tasks, "_create_auth_token")
-        # self.mock_auth_token = self.token_patcher.start()
-        # self.mock_auth_token.return_value = "gh_123abc456xyz"
         mock_klaatu_client_patcher = mock.patch("experimenter.klaatu.tasks.KlaatuClient")
         self.mock_klaatu_client_creator = mock_klaatu_client_patcher.start()
         self.mock_klaatu_client = mock.Mock()
@@ -181,10 +179,6 @@ class TestNimbusKlaatuTasks(TestCase):
         self.assertEqual(self.experiment.klaatu_status, value)
 
     def test_klaatu_task_auth_token_generation(self):
-        # self.mock_auth_token.stop()
-        # auth_token_mock = mock.Mock()
-        import os
-
         with mock.patch.dict(
             os.environ,
             {
@@ -206,8 +200,6 @@ class TestNimbusKlaatuTasks(TestCase):
 
             mock_response = mock_post.return_value
             mock_response.json.return_value = {"token": "gh_123abc456xyz"}
-            # mock_post.json.return_value = {"token": "tkn-xyz"}
 
             token = tasks._create_auth_token()
         self.assertEqual(token, "gh_123abc456xyz")
-        # self.assertIsInstance(tasks._create_auth_token(), str)
