@@ -3415,25 +3415,19 @@ class TestNimbusFeaturesView(AuthTestCase):
             NimbusExperiment.Application.DESKTOP,
             NimbusExperiment.Application.IOS,
         ]
-        feature_config_desktop = NimbusFeatureConfigFactory.create(
-            slug="feature-desktop-multi",
-            name="Feature Desktop Multi",
+        feature_config_multi = NimbusFeatureConfigFactory.create(
+            slug="feature-multi",
+            name="Multi Feature",
             application=applications,
         )
 
-        feature_id_desktop = NimbusFeatureConfig.objects.values_list("pk", flat=True).get(
-            slug=feature_config_desktop.slug
-        )
-        feature_id_ios = NimbusFeatureConfig.objects.values_list("pk", flat=True).get(
-            slug=feature_config_desktop.slug
-        )
         url = reverse("nimbus-ui-features")
         response = self.client.get(
-            f"{url}?application={applications[0].value}&feature_configs={feature_id_desktop}"
+            f"{url}?application={applications[1].value}&feature_configs={feature_config_multi.id}"
         )
 
         self.assertEqual(response.status_code, 200)
         form = response.context["form"]
         self.assertTrue(form.fields["application"])
-        self.assertEqual(form["application"].value(), applications[0].value)
-        self.assertEqual(form["feature_configs"].value(), str(feature_id_ios))
+        self.assertEqual(form["application"].value(), applications[1].value)
+        self.assertEqual(form["feature_configs"].value(), str(feature_config_multi.id))

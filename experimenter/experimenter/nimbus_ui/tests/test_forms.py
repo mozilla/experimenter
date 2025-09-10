@@ -20,7 +20,6 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
-    NimbusFeatureConfig,
 )
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
@@ -3650,38 +3649,32 @@ class TestFeaturesViewForm(RequestFormTestCase):
 
     def test_features_view_feature_config_field_updates_correctly(self):
         NimbusExperimentFactory.create(owner=self.user)
-        feature_config = NimbusFeatureConfigFactory.create(
+        feature_config_desktop = NimbusFeatureConfigFactory.create(
             slug="feature-desktop",
             name="Feature Desktop",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        feature_id = NimbusFeatureConfig.objects.values_list("pk", flat=True).get(
-            slug=feature_config.slug
-        )
-
-        form = FeaturesForm()
-        feature_configs = form.fields["feature_configs"]
-        self.assertIn(
-            (feature_id, f"{feature_config.name} - {feature_config.description}"),
-            feature_configs.choices,
-        )
-
-    def test_features_view_configs_update_correctly(self):
-        NimbusExperimentFactory.create(owner=self.user)
-        feature_config = NimbusFeatureConfigFactory.create(
+        feature_config_ios = NimbusFeatureConfigFactory.create(
             slug="feature-ios",
             name="Feature iOS",
             application=NimbusExperiment.Application.IOS,
-        )
-        feature_id = NimbusFeatureConfig.objects.values_list("pk", flat=True).get(
-            slug=feature_config.slug
         )
 
         form = FeaturesForm(
             data={"application": NimbusExperiment.Application.DESKTOP.value}
         )
         feature_configs = form.fields["feature_configs"]
+        self.assertIn(
+            (
+                feature_config_desktop.id,
+                f"{feature_config_desktop.name} - {feature_config_desktop.description}",
+            ),
+            feature_configs.choices,
+        )
         self.assertNotIn(
-            (feature_id, f"{feature_config.name} - {feature_config.description}"),
+            (
+                feature_config_ios.id,
+                f"{feature_config_desktop.name} - {feature_config_desktop.description}",
+            ),
             feature_configs.choices,
         )
