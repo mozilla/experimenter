@@ -44,7 +44,9 @@ APP_VERSION = config("APP_VERSION", default=None)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
 
-GITHUB_AUTH_TOKEN = config("GITHUB_AUTH_TOKEN")
+GH_APP_ID = config("GH_APP_ID")
+GH_INSTALLATION_ID = config("GH_INSTALLATION_ID")
+GH_APP_PRIVATE_KEY = config("GH_APP_PRIVATE_KEY")
 
 DEV_USER_EMAIL = "dev@example.com"
 

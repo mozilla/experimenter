@@ -1,3 +1,7 @@
+import os
+import time
+
+import jwt
 import markus
 import requests
 from celery.utils.log import get_task_logger
@@ -18,24 +22,46 @@ metrics = markus.get_metrics("klaatu.nimbus_tasks")
 parse = NimbusConstants.Version.parse
 
 
+def _create_auth_token() -> str:
+    app_id = os.environ["GH_APP_ID"]
+    installation_id = os.environ["GH_INSTALLATION_ID"]
+    private_key = os.environ["GH_APP_PRIVATE_KEY"].replace("\\n", "\n")
+
+    now = int(time.time())
+    payload = {"iat": now, "exp": now + 540, "iss": app_id}
+    jwt_token = jwt.encode(payload, private_key, algorithm="RS256")
+
+    # Get installation token
+    headers = {
+        "Authorization": f"Bearer {jwt_token}",
+        "Accept": "application/vnd.github+json",
+    }
+    response = requests.post(
+        f"https://api.github.com/app/installations/{installation_id}/access_tokens",
+        headers=headers,
+    )
+    token = response.json()["token"]
+    return token
+
+
 def get_release_version() -> int:
     versions = requests.get(NimbusConstants.WHAT_TRAIN_IS_IT_NOW_URL).json()
     version = list(versions.keys())[-1]
     return version
 
 
-def get_workflow(application: str) -> str:
+def get_workflows(application: str) -> list[str]:
     match application:
-        case "windows":
-            return KlaatuWorkflows.WINDOWS
-        case "linux":
-            return KlaatuWorkflows.LINUX
-        case "macos":
-            return KlaatuWorkflows.MACOS
-        case "fenix":
-            return KlaatuWorkflows.ANDROID
-        case "ios":
-            return KlaatuWorkflows.IOS
+        case NimbusConstants.Application.DESKTOP:
+            return [
+                KlaatuWorkflows.WINDOWS.value,
+                KlaatuWorkflows.LINUX.value,
+                KlaatuWorkflows.MACOS.value,
+            ]
+        case NimbusConstants.Application.FENIX:
+            return [KlaatuWorkflows.ANDROID.value]
+        case NimbusConstants.Application.IOS:
+            return [KlaatuWorkflows.IOS.value]
         case _:
             raise KlaatuError("Application selection not allowed.")
 
@@ -86,36 +112,46 @@ def get_branches(experiment: NimbusExperiment) -> list[str]:
     return branches
 
 
-def create_klaatu_client(experiment: NimbusExperiment, application: str) -> KlaatuClient:
-    workflow = get_workflow(application)
-    client = KlaatuClient(workflow)
-    return client
+def create_klaatu_clients(application: str, token: str) -> list[KlaatuClient]:
+    clients = []
+    workflows = get_workflows(application)
+    for workflow in workflows:
+        clients.append(KlaatuClient(workflow, _create_auth_token()))
+    return clients
 
 
 @app.task
 def klaatu_start_job(experiment: NimbusExperiment, application: str) -> None:
-    client = create_klaatu_client(experiment, application)
+    clients = create_klaatu_clients(application, _create_auth_token())
     firefox_targets = get_firefox_targets(experiment)
     branches = get_branches(experiment)
-    client.run_test(
-        experiment_slug=experiment.slug, branch_slugs=branches, targets=firefox_targets
-    )
+    for client in clients:
+        client.run_test(
+            experiment_slug=experiment.slug,
+            branch_slugs=branches,
+            targets=firefox_targets,
+        )
 
 
 @app.task
-def klaatu_get_run_id(experiment: NimbusExperiment, application: str) -> None:
-    client = create_klaatu_client(experiment, application)
-    run_id = client.find_run_id(
+def klaatu_get_run_ids(experiment: NimbusExperiment, application: str) -> None:
+    client = create_klaatu_clients(application, _create_auth_token())[0]
+    run_ids = client.find_run_ids(
         experiment_slug=experiment.slug, dispatched_at=experiment.published_date
     )
-    experiment.klaatu_recent_run_id = run_id
+    experiment.klaatu_recent_run_ids.extend(run_ids)
     experiment.save()
 
 
 @app.task
-def klaatu_check_job_complete(experiment: NimbusExperiment, application: str) -> None:
-    client = create_klaatu_client(experiment, application)
-    client.is_job_complete(job_id=experiment.klaatu_recent_run_id)
-    if client.is_job_complete(job_id=experiment.klaatu_recent_run_id):
+def klaatu_check_jobs_complete(experiment: NimbusExperiment, application: str) -> None:
+    client = create_klaatu_clients(application, _create_auth_token())[0]
+    job_statuses = []
+    for job in experiment.klaatu_recent_run_ids:
+        job_statuses.append(client.is_job_complete(job_id=job))
+    if True in job_statuses:
         experiment.klaatu_status = True
-        experiment.save()
+    else:
+        experiment.klaatu_status = False
+
+    experiment.save()

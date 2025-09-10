@@ -1,8 +1,10 @@
+import os
 from unittest import mock
 
 from django.test import TestCase
 from parameterized import parameterized
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
@@ -18,11 +20,12 @@ class TestNimbusKlaatuTasks(TestCase):
     def setUp(self):
         super().setUp()
         self.user = UserFactory()
-        mock_klaatu_client_patcher = mock.patch("experimenter.klaatu.client.KlaatuClient")
+        mock_klaatu_client_patcher = mock.patch("experimenter.klaatu.tasks.KlaatuClient")
         self.mock_klaatu_client_creator = mock_klaatu_client_patcher.start()
         self.mock_klaatu_client = mock.Mock()
         self.mock_klaatu_client_creator.return_value = self.mock_klaatu_client
-        self.addCleanup(mock_klaatu_client_patcher.stop)
+
+        self.addCleanup(mock.patch.stopall)
 
     def create_experiment(self, application):
         feature_config1 = NimbusFeatureConfigFactory.create(application=application)
@@ -61,25 +64,26 @@ class TestNimbusKlaatuTasks(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperiment.Application.FENIX, "fenix"),
-            (NimbusExperiment.Application.IOS, "ios"),
-            (NimbusExperiment.Application.DESKTOP, "windows"),
-            (NimbusExperiment.Application.DESKTOP, "linux"),
-            (NimbusExperiment.Application.DESKTOP, "macos"),
+            (NimbusExperiment.Application.FENIX),
+            (NimbusExperiment.Application.IOS),
+            (NimbusExperiment.Application.DESKTOP),
         ]
     )
     @mock.patch("experimenter.klaatu.client.requests.post")
-    def test_klaatu_task_starts_sucessfully(self, application, os, mock_post):
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_starts_sucessfully(self, application, mock_client, mock_post):
         mock_post.return_value.status_code = 204
         self.create_experiment(application)
 
-        tasks.klaatu_start_job(self.experiment, os)
+        tasks.klaatu_start_job(self.experiment, application)
 
-    def test_klaatu_task_helper_sets_up_branches_correctly(self):
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_helper_sets_up_branches_correctly(self, mock_client):
         self.create_experiment(NimbusExperiment.Application.DESKTOP)
         self.assertEqual(tasks.get_branches(self.experiment), ["control", "treatment"])
 
-    def test_klaatu_task_helper_creates_targets_with_max_version(self):
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_helper_creates_targets_with_max_version(self, mock_client):
         self.create_experiment(NimbusExperiment.Application.DESKTOP)
         self.experiment.firefox_max_version = NimbusExperiment.Version.FIREFOX_135
         self.experiment.save()
@@ -96,7 +100,8 @@ class TestNimbusKlaatuTasks(TestCase):
             ],
         )
 
-    def test_klaatu_task_helper_creates_targets_with_no_max_version(self):
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_helper_creates_targets_with_no_max_version(self, mock_client):
         self.create_experiment(NimbusExperiment.Application.DESKTOP)
 
         self.assertIsInstance(tasks.get_firefox_targets(self.experiment), list)
@@ -106,48 +111,95 @@ class TestNimbusKlaatuTasks(TestCase):
 
     @parameterized.expand(
         [
-            ("fenix", KlaatuWorkflows.ANDROID),
-            ("ios", KlaatuWorkflows.IOS),
-            ("windows", KlaatuWorkflows.WINDOWS),
-            ("linux", KlaatuWorkflows.LINUX),
-            ("macos", KlaatuWorkflows.MACOS),
+            (NimbusConstants.Application.FENIX, [KlaatuWorkflows.ANDROID]),
+            (NimbusConstants.Application.IOS, [KlaatuWorkflows.IOS]),
+            (
+                NimbusConstants.Application.DESKTOP,
+                [KlaatuWorkflows.WINDOWS, KlaatuWorkflows.LINUX, KlaatuWorkflows.MACOS],
+            ),
         ]
     )
-    def test_klaatu_task_helper_gets_workflows_correctly(self, application, workflow):
-        self.assertEqual(tasks.get_workflow(application), workflow)
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_helper_gets_workflows_correctly(
+        self, application, workflow, mock_client
+    ):
+        self.assertEqual(tasks.get_workflows(application), workflow)
 
-    def test_klaatu_task_helper_raises_on_incorrect_workflows(self):
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_helper_raises_on_incorrect_workflows(self, mock_client):
         with self.assertRaises(KlaatuError):
-            tasks.get_workflow("ATARI 5200")
+            tasks.get_workflows("ATARI 5200")
 
-    def test_klaatu_task_helper_gets_release_firefox_version(self):
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_helper_gets_release_firefox_version(self, mock_client):
         self.assertIsInstance(tasks.get_release_version(), str)
 
     @mock.patch("experimenter.klaatu.client.requests.get")
-    def test_klaatu_task_fetches_run_ids_and_updates_experiment(self, mock_get):
-        self.create_experiment(NimbusExperiment.Application.DESKTOP)
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_fetches_run_ids_and_updates_experiment(
+        self, mock_client, mock_get
+    ):
+        run_ids = [123, 456, 789]
+        self.create_experiment(NimbusConstants.Application.DESKTOP)
 
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {
             "workflow_runs": [
-                {"id": "123", "display_title": f"{self.experiment.slug}"},
-                {"id": "456", "display_title": "Test for other-experiment"},
+                {"id": f"{run_ids[0]}", "display_title": f"{self.experiment.slug}"},
+                {"id": f"{run_ids[1]}", "display_title": f"{self.experiment.slug}"},
+                {"id": f"{run_ids[2]}", "display_title": f"{self.experiment.slug}"},
+                {"id": "321", "display_title": "Test for other-experiment"},
             ]
         }
-        tasks.klaatu_get_run_id(self.experiment, "windows")
+        self.mock_klaatu_client.find_run_ids.return_value = run_ids
+        tasks.klaatu_get_run_ids(self.experiment, NimbusConstants.Application.DESKTOP)
 
-        self.assertEqual(self.experiment.klaatu_recent_run_id, 123)
+        for _id in run_ids:
+            self.assertIn(_id, self.experiment.klaatu_recent_run_ids)
 
+    @parameterized.expand([(True), (False)])
     @mock.patch("experimenter.klaatu.client.requests.get")
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
     def test_klaatu_task_fetches_job_complete_status_and_updates_experiment(
-        self, mock_get
+        self, value, mock_client, mock_get
     ):
         mock_get.return_value.status_code = 204
-        self.create_experiment(NimbusExperiment.Application.DESKTOP)
-        self.experiment.klaatu_recent_run_id = 123
+        self.create_experiment(NimbusConstants.Application.DESKTOP)
+        self.experiment.klaatu_recent_run_ids.append(123)
         self.experiment.save()
 
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {"status": KlaatuStatus.COMPLETE}
-        tasks.klaatu_check_job_complete(self.experiment, "windows")
-        self.assertTrue(self.experiment.klaatu_status)
+        self.mock_klaatu_client.is_job_complete.return_value = value
+
+        tasks.klaatu_check_jobs_complete(
+            self.experiment, NimbusConstants.Application.DESKTOP
+        )
+
+        self.assertEqual(self.experiment.klaatu_status, value)
+
+    def test_klaatu_task_auth_token_generation(self):
+        with mock.patch.dict(
+            os.environ,
+            {
+                "GH_APP_ID": "1",
+                "GH_INSTALLATION_ID": "2",
+                "GH_APP_PRIVATE_KEY": "-----BEGIN KEY-----\\nabc\\n-----END KEY-----",
+            },
+            clear=False,
+        ):
+            jwt_patcher = mock.patch(
+                "experimenter.klaatu.tasks.jwt.encode", return_value="jwt123"
+            )
+            post_patcher = mock.patch("experimenter.klaatu.tasks.requests.post")
+
+            jwt_patcher.start()
+            mock_post = post_patcher.start()
+            self.addCleanup(jwt_patcher.stop)
+            self.addCleanup(post_patcher.stop)
+
+            mock_response = mock_post.return_value
+            mock_response.json.return_value = {"token": "gh_123abc456xyz"}
+
+            token = tasks._create_auth_token()
+        self.assertEqual(token, "gh_123abc456xyz")
