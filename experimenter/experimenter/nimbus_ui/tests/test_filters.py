@@ -1,4 +1,5 @@
 import datetime
+from datetime import timedelta
 
 from django.test import TestCase
 from django.urls import reverse
@@ -29,6 +30,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     application_icon_info,
     channel_icon_info,
     choices_with_icons,
+    experiment_date_progress,
     format_json,
     format_not_set,
     home_status_display,
@@ -1118,3 +1120,314 @@ class TestHomeFilters(AuthTestCase):
         result = status_icon_info("unknown_status")
         self.assertEqual(result["icon"], "")
         self.assertEqual(result["color"], "")
+
+    @parameterized.expand(
+        [
+            (
+                "draft_na",
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                False,
+                "",
+                "N/A",
+                False,
+                False,
+                True,
+                False,
+            ),
+            (
+                "preview_na",
+                NimbusExperimentFactory.Lifecycles.PREVIEW,
+                False,
+                "",
+                "N/A",
+                False,
+                False,
+                True,
+                False,
+            ),
+            (
+                "review_na",
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+                False,
+                "",
+                "N/A",
+                False,
+                False,
+                True,
+                False,
+            ),
+        ]
+    )
+    def test_experiment_date_progress_na_states(
+        self,
+        test_name,
+        lifecycle_state,
+        expected_show_bar,
+        expected_bar_class,
+        expected_days_text,
+        expected_is_overdue,
+        expected_is_complete,
+        expected_is_na,
+        expected_has_alert,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle_state)
+        result = experiment_date_progress(experiment)
+
+        self.assertEqual(result["show_bar"], expected_show_bar)
+        self.assertEqual(result["bar_class"], expected_bar_class)
+        self.assertEqual(result["days_text"], expected_days_text)
+        self.assertEqual(result["is_overdue"], expected_is_overdue)
+        self.assertEqual(result["is_complete"], expected_is_complete)
+        self.assertEqual(result["is_na"], expected_is_na)
+        self.assertEqual(result["has_alert"], expected_has_alert)
+
+    def test_experiment_date_progress_completed_state(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            start_date=datetime.date.today() - timedelta(days=5),
+            end_date=datetime.date.today() - timedelta(days=3),
+            proposed_duration=15,
+            proposed_enrollment=10,
+        )
+        result = experiment_date_progress(experiment)
+
+        self.assertTrue(result["show_bar"])
+        self.assertEqual(result["bar_class"], "bg-secondary")
+        self.assertEqual(result["days_text"], "Complete")
+        self.assertFalse(result["is_overdue"])
+        self.assertTrue(result["is_complete"])
+        self.assertFalse(result["is_na"])
+        self.assertFalse(result["has_alert"])
+
+    @parameterized.expand(
+        [
+            (
+                "enrolling_early",
+                3,
+                12,
+                15,
+                10,
+                (15, 25),
+            ),
+            (
+                "enrolling_mid",
+                8,
+                7,
+                15,
+                10,
+                (45, 65),
+            ),
+            (
+                "enrolling_late",
+                12,
+                3,
+                15,
+                10,
+                (75, 85),
+            ),
+        ]
+    )
+    def test_experiment_date_progress_live_enrolling(
+        self,
+        test_name,
+        start_days_ago,
+        end_days_from_now,
+        proposed_duration,
+        proposed_enrollment,
+        expected_progress_range,
+    ):
+        start_date = datetime.date.today() - timedelta(days=start_days_ago)
+        end_date = datetime.date.today() + timedelta(days=end_days_from_now)
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=start_date,
+            end_date=end_date,
+            proposed_duration=proposed_duration,
+            proposed_enrollment=proposed_enrollment,
+        )
+        result = experiment_date_progress(experiment)
+
+        self.assertTrue(result["show_bar"])
+        self.assertEqual(result["bar_class"], "bg-success")
+        self.assertIn("days", result["days_text"])
+        self.assertFalse(result["is_overdue"])
+        self.assertFalse(result["is_complete"])
+        self.assertFalse(result["is_na"])
+        self.assertFalse(result["has_alert"])
+
+        min_progress, max_progress = expected_progress_range
+        self.assertGreaterEqual(result["progress_percentage"], min_progress)
+        self.assertLessEqual(result["progress_percentage"], max_progress)
+
+    @parameterized.expand(
+        [
+            (
+                "paused_early",
+                4,
+                16,
+                20,
+                8,
+                (30, 40),
+            ),
+            (
+                "paused_mid",
+                10,
+                10,
+                20,
+                8,
+                (80, 90),
+            ),
+            (
+                "paused_late",
+                8,
+                4,
+                20,
+                8,
+                (65, 75),
+            ),
+        ]
+    )
+    def test_experiment_date_progress_live_paused(
+        self,
+        test_name,
+        start_days_ago,
+        end_days_from_now,
+        proposed_duration,
+        proposed_enrollment,
+        expected_progress_range,
+    ):
+        start_date = datetime.date.today() - timedelta(days=start_days_ago)
+        end_date = datetime.date.today() + timedelta(days=end_days_from_now)
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            start_date=start_date,
+            end_date=end_date,
+            proposed_duration=proposed_duration,
+            proposed_enrollment=proposed_enrollment,
+        )
+        result = experiment_date_progress(experiment)
+
+        self.assertTrue(result["show_bar"])
+        self.assertEqual(result["bar_class"], "bg-info")
+        self.assertIn("days", result["days_text"])
+        self.assertFalse(result["is_overdue"])
+        self.assertFalse(result["is_complete"])
+        self.assertFalse(result["is_na"])
+        self.assertFalse(result["has_alert"])
+
+        min_progress, max_progress = expected_progress_range
+        self.assertGreaterEqual(result["progress_percentage"], min_progress)
+        self.assertLessEqual(result["progress_percentage"], max_progress)
+
+    @parameterized.expand(
+        [
+            (
+                "overdue_enrolling",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+                20,
+                -5,
+                15,
+                10,
+            ),
+            (
+                "overdue_paused",
+                NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+                25,
+                -3,
+                20,
+                8,
+            ),
+        ]
+    )
+    def test_experiment_date_progress_overdue(
+        self,
+        test_name,
+        lifecycle_state,
+        start_days_ago,
+        end_days_from_now,
+        proposed_duration,
+        proposed_enrollment,
+    ):
+        start_date = datetime.date.today() - timedelta(days=start_days_ago)
+        end_date = datetime.date.today() + timedelta(days=end_days_from_now)
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle_state,
+            start_date=start_date,
+            end_date=end_date,
+            proposed_duration=proposed_duration,
+            proposed_enrollment=proposed_enrollment,
+        )
+        result = experiment_date_progress(experiment)
+
+        self.assertTrue(result["show_bar"])
+        self.assertEqual(result["bar_class"], "bg-danger")
+        self.assertTrue(result["days_text"].startswith("-"))
+        self.assertTrue(result["is_overdue"])
+        self.assertFalse(result["is_complete"])
+        self.assertFalse(result["is_na"])
+        self.assertTrue(result["has_alert"])
+
+    def test_experiment_date_progress_cross_year_formatting(self):
+        last_year = datetime.date.today().replace(year=datetime.date.today().year - 1)
+        next_year = datetime.date.today().replace(year=datetime.date.today().year + 1)
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=last_year,
+            end_date=next_year,
+            proposed_duration=730,
+            proposed_enrollment=30,
+        )
+        result = experiment_date_progress(experiment)
+
+        current_year = datetime.date.today().year
+        self.assertIn(str(current_year - 1), result["date_range_text"])
+        self.assertIn(str(current_year + 1), result["date_range_text"])
+        self.assertIn(",", result["date_range_text"])
+
+    def test_experiment_date_progress_zero_duration_fallback(self):
+        start_date = datetime.date.today()
+        end_date = datetime.date.today() + timedelta(days=2)
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=start_date,
+            end_date=end_date,
+            proposed_duration=0,
+            proposed_enrollment=0,
+        )
+        result = experiment_date_progress(experiment)
+
+        self.assertTrue(result["show_bar"])
+        self.assertEqual(result["bar_class"], "bg-success")
+        self.assertIn("days", result["days_text"])
+        self.assertGreaterEqual(result["progress_percentage"], 0)
+        self.assertLessEqual(result["progress_percentage"], 100)
+
+    def test_experiment_date_progress_required_keys(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date.today() - timedelta(days=5),
+            end_date=datetime.date.today() + timedelta(days=10),
+        )
+        result = experiment_date_progress(experiment)
+
+        required_keys = [
+            "show_bar",
+            "bar_class",
+            "bar_style",
+            "days_text",
+            "progress_percentage",
+            "is_overdue",
+            "is_complete",
+            "is_na",
+            "has_alert",
+            "start_date",
+            "end_date",
+            "date_range_text",
+        ]
+        for key in required_keys:
+            self.assertIn(key, result)
