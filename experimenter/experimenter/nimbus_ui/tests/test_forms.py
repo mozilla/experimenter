@@ -47,6 +47,7 @@ from experimenter.nimbus_ui.forms import (
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
+    FeaturesForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -3634,4 +3635,77 @@ class TestBranchFeatureValueForm(RequestFormTestCase):
         )
         self.assertNotIn(
             "data-schema", forms["without-schema"].fields["value"].widget.attrs
+        )
+
+
+class TestFeaturesViewForm(RequestFormTestCase):
+    def setUp(self):
+        super().setUp()
+        self.applications = [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.IOS,
+            NimbusExperiment.Application.FENIX,
+        ]
+        self.feature_configs = {}
+        for app in self.applications:
+            self.feature_configs[app] = NimbusFeatureConfigFactory.create(
+                slug=f"feature-{app.value}",
+                name=f"Feature {app.value}",
+                application=app,
+            )
+
+    def test_features_view_default_fields_are_firefox_desktop(self):
+        NimbusExperimentFactory.create(owner=self.user)
+        form = FeaturesForm()
+        application = form.fields["application"]
+        feature_configs = form.fields["feature_configs"]
+        self.assertEqual(application.initial, NimbusExperiment.Application.DESKTOP.value)
+        self.assertIsNone(feature_configs.initial)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                [NimbusExperiment.Application.IOS, NimbusExperiment.Application.FENIX],
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                [
+                    NimbusExperiment.Application.DESKTOP,
+                    NimbusExperiment.Application.FENIX,
+                ],
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                [NimbusExperiment.Application.IOS, NimbusExperiment.Application.DESKTOP],
+            ),
+        ]
+    )
+    def test_features_view_feature_config_field_updates_correctly(
+        self, expected_app, excluded_apps
+    ):
+        NimbusExperimentFactory.create(owner=self.user)
+        form = FeaturesForm(data={"application": expected_app})
+        feature_configs = form.fields["feature_configs"]
+
+        self.assertIn(
+            (
+                self.feature_configs[expected_app].id,
+                f"{self.feature_configs[expected_app].name} - {self.feature_configs[expected_app].description}",  # noqa
+            ),
+            feature_configs.choices,
+        )
+        self.assertNotIn(
+            (
+                self.feature_configs[excluded_apps[0]].id,
+                f"{self.feature_configs[excluded_apps[0]].name} - {self.feature_configs[excluded_apps[0]].description}",  # noqa
+            ),
+            feature_configs.choices,
+        )
+        self.assertNotIn(
+            (
+                self.feature_configs[excluded_apps[1]].id,
+                f"{self.feature_configs[excluded_apps[1]].name} - {self.feature_configs[excluded_apps[1]].description}",  # noqa
+            ),
+            feature_configs.choices,
         )

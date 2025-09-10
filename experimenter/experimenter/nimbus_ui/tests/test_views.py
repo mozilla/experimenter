@@ -17,6 +17,7 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
+    NimbusFeatureConfig,
 )
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
@@ -33,10 +34,7 @@ from experimenter.nimbus_ui.filtersets import (
     SortChoices,
     TypeChoices,
 )
-from experimenter.nimbus_ui.forms import (
-    QAStatusForm,
-    TakeawaysForm,
-)
+from experimenter.nimbus_ui.forms import QAStatusForm, TakeawaysForm
 from experimenter.nimbus_ui.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -3358,8 +3356,78 @@ class TestSlugRedirectToSummary(AuthTestCase):
 
 
 class TestNimbusFeaturesView(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.features = {
+            "feature-desktop": NimbusExperiment.Application.DESKTOP,
+            "feature-mobile": NimbusExperiment.Application.IOS,
+            "feature-web": NimbusExperiment.Application.EXPERIMENTER,
+        }
+        for item, value in self.features.items():
+            NimbusFeatureConfigFactory.create(
+                slug=item, name=item.replace("-", " "), application=value
+            )
+
     def test_features_view_renders_template(self):
-        NimbusExperimentFactory.create(owner=self.user)
         response = self.client.get(reverse("nimbus-ui-features"))
+
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/features.html")
+
+    def test_features_view_dropdown_loads_correct_default(self):
+        response = self.client.get(reverse("nimbus-ui-features"))
+        self.assertEqual(response.status_code, 200)
+
+        form = response.context["form"]
+        self.assertTrue(form.fields["application"])
+        self.assertEqual(
+            form.fields["application"].initial, NimbusExperiment.Application.DESKTOP.value
+        )
+        self.assertTrue(form.fields["feature_configs"])
+        self.assertEqual(form.fields["feature_configs"].initial, None)
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.DESKTOP, "feature-desktop"),
+            (NimbusExperiment.Application.IOS, "feature-mobile"),
+            (NimbusExperiment.Application.EXPERIMENTER, "feature-web"),
+        ]
+    )
+    def test_features_view_dropdown_loads_correct_fields_on_request(
+        self, application, feature_config
+    ):
+        feature_id = NimbusFeatureConfig.objects.values_list("pk", flat=True).get(
+            slug=feature_config
+        )
+        url = reverse("nimbus-ui-features")
+        response = self.client.get(
+            f"{url}?application={application.value}&feature_configs={feature_id}"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        form = response.context["form"]
+        self.assertTrue(form.fields["application"])
+        self.assertEqual(form["application"].value(), application)
+        self.assertEqual(form["feature_configs"].value(), str(feature_id))
+
+    def test_features_view_multiapplication_loads_in_feature_config(self):
+        applications = [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.IOS,
+        ]
+        feature_config_multi = NimbusFeatureConfigFactory.create(
+            slug="feature-multi",
+            name="Multi Feature",
+            application=applications,
+        )
+
+        url = reverse("nimbus-ui-features")
+        response = self.client.get(
+            f"{url}?application={applications[1].value}&feature_configs={feature_config_multi.id}"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        form = response.context["form"]
+        self.assertTrue(form.fields["application"])
+        self.assertEqual(form["application"].value(), applications[1].value)
+        self.assertEqual(form["feature_configs"].value(), str(feature_config_multi.id))

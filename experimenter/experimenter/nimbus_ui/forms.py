@@ -1448,3 +1448,61 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
             countdown=5, args=[experiment.kinto_collection]
         )
         return experiment
+
+
+class FeaturesForm(forms.ModelForm):
+    application = forms.ChoiceField(
+        label="",
+        choices=NimbusExperiment.Application.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+        initial=NimbusExperiment.Application.DESKTOP.value,
+    )
+    feature_configs = forms.ChoiceField(
+        label="",
+        choices=[],
+        widget=SingleSelectWidget(),
+    )
+    update_on_change_fields = ("application", "feature_configs")
+
+    def get_feature_config_choices(self, application, qs):
+        return sorted(
+            [
+                (application.pk, f"{application.name} - {application.description}")
+                for application in NimbusFeatureConfig.objects.all()
+                if application in qs
+            ],
+            key=lambda choice: choice[1].lower(),
+        )
+
+    class Meta:
+        model = NimbusFeatureConfig
+        fields = ["application", "feature_configs"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        selected_app = self.data.get("application") or self.get_initial_for_field(
+            self.fields["application"], "application"
+        )
+        features = NimbusFeatureConfig.objects.filter(application=selected_app).order_by(
+            "slug"
+        )
+        self.fields["feature_configs"].choices = self.get_feature_config_choices(
+            selected_app, features
+        )
+
+        base_url = reverse("nimbus-ui-features")
+        htmx_attrs = {
+            "hx-get": base_url,
+            "hx-trigger": "change",
+            "hx-include": "#features-form",
+            "hx-select": "#features-form",
+            "hx-target": "#features-form",
+            "hx-swap": "outerHTML",
+        }
+        self.fields["application"].widget.attrs.update(htmx_attrs)
+        self.fields["feature_configs"].widget.attrs.update(htmx_attrs)
