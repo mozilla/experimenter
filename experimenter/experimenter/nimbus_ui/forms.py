@@ -23,6 +23,7 @@ from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
+from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
@@ -1231,6 +1232,7 @@ class DraftToPreviewForm(UpdateStatusForm):
         experiment = super().save(commit=commit)
         experiment.allocate_bucket_range()
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+        klaatu_start_job.delay(experiment=experiment, application=experiment.application)
         return experiment
 
 
