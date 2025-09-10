@@ -3,12 +3,12 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
-from django.views.generic import CreateView, DetailView
+from django.views.generic import CreateView, DetailView, TemplateView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
@@ -32,6 +32,7 @@ from experimenter.nimbus_ui.forms import (
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
+    FeaturesForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -634,17 +635,22 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
     template_name = "nimbus_experiments/results.html"
 
 
-class NimbusFeaturesView(FilterView):
+class NimbusFeaturesView(TemplateView):
     template_name = "nimbus_experiments/features.html"
+    form_class = FeaturesForm
     filterset_class = NimbusExperimentFilter
     context_object_name = "features"
 
-    def get_queryset(self):
-        return NimbusFeatureConfig.objects.filter().order_by("-name")
+    def get_form(self):
+        return FeaturesForm(self.request.GET or None)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        form = self.get_form()
+        context["form"] = form
         context["links"] = NimbusUIConstants.FEATURE_PAGE_LINKS
+        context["application"] = self.request.GET.get("application")
+        context["feature_configs"] = self.request.GET.get("feature_configs")
         return context
 
 
