@@ -1718,6 +1718,14 @@ newtabWidgets:
       type: boolean
       description: >-
         Enable Focus Timer widget
+    listsBadgeEnabled:
+      type: boolean
+      description: >-
+        Show badge on Lists widget to indicate new/beta feature
+    listsBadgeLabel:
+      type: string
+      description: >-
+        Label type for Lists widget badge (New or Beta)
 
 pocketNewtab:
   description: The Pocket section in newtab
