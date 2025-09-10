@@ -32,6 +32,7 @@ from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
+from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.forms import (
     ApproveEndEnrollmentForm,
@@ -637,6 +638,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.mock_allocate_bucket_range = patch.object(
             NimbusExperiment, "allocate_bucket_range"
         ).start()
+        self.mock_klaatu_task = patch.object(klaatu_start_job, "delay").start()
 
         self.addCleanup(patch.stopall)
 
@@ -653,6 +655,9 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.mock_klaatu_task.assert_called_once_with(
+            experiment=experiment, application=experiment.application
+        )
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)

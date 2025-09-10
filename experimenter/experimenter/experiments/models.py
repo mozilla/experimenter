@@ -423,8 +423,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     )
     equal_branch_ratio = models.BooleanField(default=True)
     klaatu_status = models.BooleanField("Automated Validation Status", default=False)
-    klaatu_recent_run_id = models.IntegerField(
-        "Recent Klaatu Run ID", blank=True, null=True, default=None
+    klaatu_recent_run_ids = ArrayField(
+        models.BigIntegerField(
+            "Recent Klaatu Run ID", blank=True, null=True, default=None
+        ),
+        blank=True,
+        default=list,
     )
 
     class Meta:
