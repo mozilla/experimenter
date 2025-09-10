@@ -1459,7 +1459,7 @@ class FeaturesForm(forms.ModelForm):
                 "class": "form-select",
             },
         ),
-        initial="firefox-desktop",
+        initial=NimbusExperiment.Application.DESKTOP.value,
     )
     feature_configs = forms.ChoiceField(
         label="",

@@ -20,6 +20,7 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
+    NimbusFeatureConfig,
 )
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
@@ -3644,21 +3645,43 @@ class TestFeaturesViewForm(RequestFormTestCase):
         form = FeaturesForm()
         application = form.fields["application"]
         feature_configs = form.fields["feature_configs"]
-        self.assertEqual(application.initial, "firefox-desktop")
+        self.assertEqual(application.initial, NimbusExperiment.Application.DESKTOP.value)
         self.assertIsNone(feature_configs.initial)
 
     def test_features_view_feature_config_field_updates_correctly(self):
         NimbusExperimentFactory.create(owner=self.user)
-        name = "No Feature Firefox Desktop - None"
-        pk = 1
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="feature-desktop",
+            name="Feature Desktop",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        feature_id = NimbusFeatureConfig.objects.values_list("pk", flat=True).get(
+            slug=feature_config.slug
+        )
+
         form = FeaturesForm()
         feature_configs = form.fields["feature_configs"]
-        self.assertIn((pk, name), feature_configs.choices)
+        self.assertIn(
+            (feature_id, f"{feature_config.name} - {feature_config.description}"),
+            feature_configs.choices,
+        )
 
     def test_features_view_configs_update_correctly(self):
         NimbusExperimentFactory.create(owner=self.user)
-        name = "No Feature iOS - None"
-        pk = 3
-        form = FeaturesForm(data={"application": "firefox-desktop"})
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="feature-ios",
+            name="Feature iOS",
+            application=NimbusExperiment.Application.IOS,
+        )
+        feature_id = NimbusFeatureConfig.objects.values_list("pk", flat=True).get(
+            slug=feature_config.slug
+        )
+
+        form = FeaturesForm(
+            data={"application": NimbusExperiment.Application.DESKTOP.value}
+        )
         feature_configs = form.fields["feature_configs"]
-        self.assertNotIn((pk, name), feature_configs.choices)
+        self.assertNotIn(
+            (feature_id, f"{feature_config.name} - {feature_config.description}"),
+            feature_configs.choices,
+        )

@@ -3358,12 +3358,12 @@ class TestSlugRedirectToSummary(AuthTestCase):
 class TestNimbusFeaturesView(AuthTestCase):
     def setUp(self):
         super().setUp()
-        features = {
+        self.features = {
             "feature-desktop": NimbusExperiment.Application.DESKTOP,
             "feature-mobile": NimbusExperiment.Application.IOS,
             "feature-web": NimbusExperiment.Application.EXPERIMENTER,
         }
-        for item, value in features.items():
+        for item, value in self.features.items():
             NimbusFeatureConfigFactory.create(
                 slug=item, name=item.replace("-", " "), application=value
             )
@@ -3380,7 +3380,9 @@ class TestNimbusFeaturesView(AuthTestCase):
 
         form = response.context["form"]
         self.assertTrue(form.fields["application"])
-        self.assertEqual(form.fields["application"].initial, "firefox-desktop")
+        self.assertEqual(
+            form.fields["application"].initial, NimbusExperiment.Application.DESKTOP.value
+        )
         self.assertTrue(form.fields["feature_configs"])
         self.assertEqual(form.fields["feature_configs"].initial, None)
 
@@ -3407,3 +3409,31 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertTrue(form.fields["application"])
         self.assertEqual(form["application"].value(), application)
         self.assertEqual(form["feature_configs"].value(), str(feature_id))
+
+    def test_features_view_multiapplication_loads_in_feature_config(self):
+        applications = [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.IOS,
+        ]
+        feature_config_desktop = NimbusFeatureConfigFactory.create(
+            slug="feature-desktop-multi",
+            name="Feature Desktop Multi",
+            application=applications,
+        )
+
+        feature_id_desktop = NimbusFeatureConfig.objects.values_list("pk", flat=True).get(
+            slug=feature_config_desktop.slug
+        )
+        feature_id_ios = NimbusFeatureConfig.objects.values_list("pk", flat=True).get(
+            slug=feature_config_desktop.slug
+        )
+        url = reverse("nimbus-ui-features")
+        response = self.client.get(
+            f"{url}?application={applications[0].value}&feature_configs={feature_id_desktop}"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        form = response.context["form"]
+        self.assertTrue(form.fields["application"])
+        self.assertEqual(form["application"].value(), applications[0].value)
+        self.assertEqual(form["feature_configs"].value(), str(feature_id_ios))
