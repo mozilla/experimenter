@@ -1192,7 +1192,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for item in timeline:
             if item["is_active"]:
                 return item["step"]
-        return None
+        return NimbusUIConstants.EXPERIMENT_ORDERING["Draft"]
 
     @property
     def should_end(self):
