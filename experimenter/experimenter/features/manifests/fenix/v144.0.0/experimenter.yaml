@@ -752,6 +752,15 @@ trending-searches:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
+unified-trust-panel:
+  description: Enables the unified trust panel.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable the unified trust panel.
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true
