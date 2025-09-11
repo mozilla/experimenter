@@ -249,16 +249,6 @@ native-error-page-feature:
       type: boolean
       description: |
         This feature is for managing the roll out of the no interet connection native error page feature
-ohttp-glean-uploader-capability-feature:
-  description: |
-    Feature flag used to enabled the OHTTP Glean uploader capability.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        If true, enables the OHTTP Glean uploader capability feature.
 onboarding-framework-feature:
   description: |
     The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
