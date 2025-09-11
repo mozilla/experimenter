@@ -1,10 +1,10 @@
-import os
 import time
 
 import jwt
 import markus
 import requests
 from celery.utils.log import get_task_logger
+from django.conf import settings
 from packaging import version
 
 from experimenter.celery import app
@@ -23,9 +23,9 @@ parse = NimbusConstants.Version.parse
 
 
 def _create_auth_token() -> str:
-    app_id = os.environ["GH_APP_ID"]
-    installation_id = os.environ["GH_INSTALLATION_ID"]
-    private_key = os.environ["GH_APP_PRIVATE_KEY"].replace("\\n", "\n")
+    app_id = settings.GH_APP_ID
+    installation_id = settings.GH_INSTALLATION_ID
+    private_key = settings.GH_APP_PRIVATE_KEY.replace("\\n", "\n")
 
     now = int(time.time())
     payload = {"iat": now, "exp": now + 540, "iss": app_id}
