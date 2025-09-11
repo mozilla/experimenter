@@ -845,6 +845,29 @@ class TestLaunchForms(RequestFormTestCase):
         )
         self.mock_allocate_bucket_range.assert_called_once()
 
+    def test_review_timing_metric(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Experiment",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusExperimentCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        with patch("experimenter.nimbus_ui.forms.metrics") as mock_metrics:
+            experiment = form.save()
+
+        mock_metrics.timing.assert_called_once()
+
     def test_live_to_end_enrollment_form(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
