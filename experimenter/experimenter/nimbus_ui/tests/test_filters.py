@@ -1,5 +1,5 @@
 import datetime
-from datetime import timedelta
+from datetime import date, timedelta
 
 from django.test import TestCase
 from django.urls import reverse
@@ -23,6 +23,7 @@ from experimenter.nimbus_ui.constants import (
     STATUS_ICON_MAP,
 )
 from experimenter.nimbus_ui.filtersets import (
+    DateRangeChoices,
     HomeSortChoices,
     MyDeliveriesChoices,
 )
@@ -1431,3 +1432,263 @@ class TestHomeFilters(AuthTestCase):
         ]
         for key in required_keys:
             self.assertIn(key, result)
+
+    @parameterized.expand(
+        [
+            (
+                "last_7_days",
+                DateRangeChoices.LAST_7_DAYS,
+                5,  # experiment from 5 days ago should be included
+                15,  # experiment from 15 days ago should be excluded
+            ),
+            (
+                "last_30_days",
+                DateRangeChoices.LAST_30_DAYS,
+                25,  # experiment from 25 days ago should be included
+                45,  # experiment from 45 days ago should be excluded
+            ),
+            (
+                "last_3_months",
+                DateRangeChoices.LAST_3_MONTHS,
+                80,  # experiment from 80 days ago should be included
+                100,  # experiment from 100 days ago should be excluded
+            ),
+            (
+                "last_6_months",
+                DateRangeChoices.LAST_6_MONTHS,
+                170,  # experiment from 170 days ago should be included
+                200,  # experiment from 200 days ago should be excluded
+            ),
+        ]
+    )
+    def test_date_range_filter_predefined_ranges(
+        self, name, date_range_choice, included_days_ago, excluded_days_ago
+    ):
+        today = date.today()
+
+        included_exp = NimbusExperimentFactory.create(
+            owner=self.user,
+            _start_date=today - timedelta(days=included_days_ago),
+            name=f"Included Experiment - {included_days_ago} days ago",
+        )
+        excluded_exp = NimbusExperimentFactory.create(
+            owner=self.user,
+            _start_date=today - timedelta(days=excluded_days_ago),
+            name=f"Excluded Experiment - {excluded_days_ago} days ago",
+        )
+
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?date_range={date_range_choice}"
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(included_exp, experiments)
+        self.assertNotIn(excluded_exp, experiments)
+
+    @parameterized.expand(
+        [
+            (
+                "start_date_only",
+                {"start_date": "2024-01-01"},  # Filter from Jan 1, 2024
+                {
+                    "_start_date": date(2024, 2, 1)
+                },  # Should be included (after start date)
+                {
+                    "_start_date": date(2023, 12, 1)
+                },  # Should be excluded (before start date)
+            ),
+            (
+                "end_date_only",
+                {"end_date": "2024-06-01"},  # Filter until June 1, 2024
+                {
+                    "_start_date": date(2024, 1, 1),
+                    "_computed_end_date": date(2024, 5, 1),
+                },  # Should be included (ends before)
+                {
+                    "_start_date": date(2024, 1, 1),
+                    "_computed_end_date": date(2024, 7, 1),
+                },  # Should be excluded (ends after)
+            ),
+            (
+                "both_dates",
+                {
+                    "start_date": "2024-01-01",
+                    "end_date": "2024-06-01",
+                },  # Range: Jan-June 2024
+                {
+                    "_start_date": date(2024, 2, 1),
+                    "_computed_end_date": date(2024, 5, 1),
+                },  # Should be included (within range)
+                {
+                    "_start_date": date(2023, 12, 1),
+                    "_computed_end_date": date(2024, 3, 1),
+                },  # Should be excluded (starts before)
+            ),
+            (
+                "future_dates",
+                {"start_date": "2025-01-01"},  # Future start date
+                {
+                    "_start_date": date(2025, 2, 1)
+                },  # Should be included (future experiment)
+                {
+                    "_start_date": date(2024, 6, 1)
+                },  # Should be excluded (current experiment)
+            ),
+            (
+                "no_custom_dates",
+                {},  # No dates provided with custom range
+                {"_start_date": date(2024, 1, 1)},  # Should be included (all experiments)
+                {},  # All experiments included, so no exclusions
+            ),
+        ]
+    )
+    def test_date_range_filter_custom_ranges(
+        self, name, date_params, included_exp_kwargs, excluded_exp_kwargs
+    ):
+        included_exp = NimbusExperimentFactory.create(
+            owner=self.user, name=f"Included Experiment - {name}", **included_exp_kwargs
+        )
+        excluded_exp = None
+        if excluded_exp_kwargs:
+            excluded_exp = NimbusExperimentFactory.create(
+                owner=self.user,
+                name=f"Excluded Experiment - {name}",
+                **excluded_exp_kwargs,
+            )
+
+        query_params = {"date_range": DateRangeChoices.CUSTOM}
+        query_params.update(date_params)
+
+        query_string = "&".join([f"{k}={v}" for k, v in query_params.items()])
+        response = self.client.get(f"{reverse('nimbus-ui-home')}?{query_string}")
+        self.assertEqual(response.status_code, 200)
+
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(included_exp, experiments)
+
+        if excluded_exp:
+            self.assertNotIn(excluded_exp, experiments)
+
+    def test_date_range_filter_this_year(self):
+        today = date.today()
+
+        this_year_exp = NimbusExperimentFactory.create(
+            owner=self.user,
+            _start_date=date(today.year, 6, 1),
+            name="This Year Experiment",
+        )
+        last_year_exp = NimbusExperimentFactory.create(
+            owner=self.user,
+            _start_date=date(today.year - 1, 6, 1),
+            name="Last Year Experiment",
+        )
+
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?date_range={DateRangeChoices.THIS_YEAR}"
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(this_year_exp, experiments)
+        self.assertNotIn(last_year_exp, experiments)
+
+    def test_date_range_filter_custom_invalid_dates_should_return_all(self):
+        exp = NimbusExperimentFactory.create(owner=self.user, name="Test Experiment")
+
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?date_range={DateRangeChoices.CUSTOM}&start_date=invalid-date"
+        )
+        self.assertEqual(response.status_code, 200)
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(exp, experiments)
+
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?date_range={DateRangeChoices.CUSTOM}&end_date=2024-13-45"
+        )
+        self.assertEqual(response.status_code, 200)
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(exp, experiments)
+
+    def test_date_range_filter_no_value_should_return_all(self):
+        exp = NimbusExperimentFactory.create(owner=self.user, name="Test Experiment")
+
+        response = self.client.get(f"{reverse('nimbus-ui-home')}?date_range=")
+        self.assertEqual(response.status_code, 200)
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(exp, experiments)
+
+    def test_date_range_filter_custom_no_dates_should_return_all(self):
+        exp = NimbusExperimentFactory.create(owner=self.user, name="Test Experiment")
+
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?date_range={DateRangeChoices.CUSTOM}"
+        )
+        self.assertEqual(response.status_code, 200)
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(exp, experiments)
+
+    def test_date_range_filter_with_other_filters_combined(self):
+        today = date.today()
+
+        recent_labs = NimbusExperimentFactory.create(
+            owner=self.user,
+            _start_date=today - timedelta(days=5),
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="Recent Labs",
+            firefox_labs_description="description",
+            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
+            name="Recent Labs Experiment",
+        )
+        recent_rollout = NimbusExperimentFactory.create(
+            owner=self.user,
+            _start_date=today - timedelta(days=5),
+            is_rollout=True,
+            name="Recent Rollout Experiment",
+        )
+        old_labs = NimbusExperimentFactory.create(
+            owner=self.user,
+            _start_date=today - timedelta(days=15),
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="Old Labs",
+            firefox_labs_description="description",
+            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
+            name="Old Labs Experiment",
+        )
+
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?date_range={DateRangeChoices.LAST_7_DAYS}&type=Labs"
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiments = response.context["all_my_experiments_page"].object_list
+        self.assertIn(recent_labs, experiments)  # Recent AND Labs
+        self.assertNotIn(recent_rollout, experiments)  # Recent but NOT Labs
+        self.assertNotIn(old_labs, experiments)  # Labs but NOT recent
+
+    def test_date_range_filter_preserves_sort_order(self):
+        today = date.today()
+
+        exp_a = NimbusExperimentFactory.create(
+            owner=self.user,
+            _start_date=today - timedelta(days=5),
+            name="A Recent Experiment",
+        )
+        exp_z = NimbusExperimentFactory.create(
+            owner=self.user,
+            _start_date=today - timedelta(days=3),
+            name="Z Recent Experiment",
+        )
+
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?date_range={DateRangeChoices.LAST_7_DAYS}&sort=name"
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiments = list(response.context["all_my_experiments_page"].object_list)
+        self.assertIn(exp_a, experiments)
+        self.assertIn(exp_z, experiments)
+
+        exp_a_index = experiments.index(exp_a)
+        exp_z_index = experiments.index(exp_z)
+        self.assertLess(exp_a_index, exp_z_index)
