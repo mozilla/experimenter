@@ -2257,7 +2257,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.audience_url,
             (
-                "/nimbus/?application=firefox-desktop"
+                "/all/?application=firefox-desktop"
                 f"&countries={country1.id}&countries={country2.id}"
                 f"&locales={locale1.id}&locales={locale2.id}"
                 f"&languages={language1.id}&languages={language2.id}"
