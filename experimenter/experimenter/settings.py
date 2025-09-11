@@ -44,9 +44,9 @@ APP_VERSION = config("APP_VERSION", default=None)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
 
-GH_APP_ID = config("GH_APP_ID")
-GH_INSTALLATION_ID = config("GH_INSTALLATION_ID")
-GH_APP_PRIVATE_KEY = config("GH_APP_PRIVATE_KEY")
+GH_APP_ID = config("GH_APP_ID", default=None)
+GH_INSTALLATION_ID = config("GH_INSTALLATION_ID", default=None)
+GH_APP_PRIVATE_KEY = config("GH_APP_PRIVATE_KEY", default=None)
 
 DEV_USER_EMAIL = "dev@example.com"
 

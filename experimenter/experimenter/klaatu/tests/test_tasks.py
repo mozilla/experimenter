@@ -1,7 +1,6 @@
-import os
 from unittest import mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from parameterized import parameterized
 
 from experimenter.experiments.constants import NimbusConstants
@@ -179,14 +178,10 @@ class TestNimbusKlaatuTasks(TestCase):
         self.assertEqual(self.experiment.klaatu_status, value)
 
     def test_klaatu_task_auth_token_generation(self):
-        with mock.patch.dict(
-            os.environ,
-            {
-                "GH_APP_ID": "1",
-                "GH_INSTALLATION_ID": "2",
-                "GH_APP_PRIVATE_KEY": "-----BEGIN KEY-----\\nabc\\n-----END KEY-----",
-            },
-            clear=False,
+        with override_settings(
+            GH_APP_ID=1,
+            GH_INSTALLATION_ID=2,
+            GH_APP_PRIVATE_KEY="-----BEGIN KEY-----\\nabc\\n-----END KEY-----",
         ):
             jwt_patcher = mock.patch(
                 "experimenter.klaatu.tasks.jwt.encode", return_value="jwt123"
