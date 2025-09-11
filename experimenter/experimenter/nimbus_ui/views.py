@@ -286,12 +286,20 @@ class NimbusExperimentDetailView(
         context = super().get_context_data(**kwargs)
         experiment_context = build_experiment_context(self.object)
         context.update(experiment_context)
+        experiment = context["experiment"]
 
         context["promote_to_rollout_forms"] = NimbusExperimentPromoteToRolloutForm(
             instance=self.object
         )
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
         context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
+        context["experiment_order"] = NimbusUIConstants.EXPERIMENT_ORDERING
+
+        for item in experiment.timeline():
+            if item["is_active"]:
+                context["experiment_step"] = item["step"]
+                break
+
         if context["qa_edit_mode"]:
             context["form"] = QAStatusForm(instance=self.object)
         if context["takeaways_edit_mode"]:
