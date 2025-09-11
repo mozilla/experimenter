@@ -1,3 +1,5 @@
+from datetime import date, datetime, timedelta
+
 import django_filters
 from django import forms
 from django.contrib.auth.models import User
@@ -93,6 +95,15 @@ class IconMultiSelectWidget(MultiSelectWidget):
         context = super().get_context(name, value, attrs)
         context["icon"] = self.icon
         return context
+
+
+class DateRangeChoices(models.TextChoices):
+    LAST_7_DAYS = "last_7_days", "Last 7 Days"
+    LAST_30_DAYS = "last_30_days", "Last 30 Days"
+    LAST_3_MONTHS = "last_3_months", "Last 3 Months"
+    LAST_6_MONTHS = "last_6_months", "Last 6 Months"
+    THIS_YEAR = "this_year", "This Year"
+    CUSTOM = "custom", "Custom Date Range"
 
 
 class NimbusExperimentFilter(django_filters.FilterSet):
@@ -424,10 +435,25 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
             attrs={"title": "All Features"},
         ),
     )
+    date_range = django_filters.ChoiceFilter(
+        choices=DateRangeChoices.choices,
+        method="filter_by_date_range",
+        required=False,
+    )
 
     class Meta:
         model = NimbusExperiment
-        fields = ["my_deliveries_status", "sort", "status"]
+        fields = [
+            "my_deliveries_status",
+            "sort",
+            "status",
+            "type",
+            "qa_status",
+            "channel",
+            "application",
+            "feature_configs",
+            "date_range",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -522,3 +548,54 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
         if not values:
             return queryset
         return queryset.filter(feature_configs__in=values).distinct()
+
+    def filter_by_date_range(self, queryset, name, value):
+        today = date.today()
+
+        match value:
+            case DateRangeChoices.LAST_7_DAYS:
+                start_date = today - timedelta(days=7)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.LAST_30_DAYS:
+                start_date = today - timedelta(days=30)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.LAST_3_MONTHS:
+                start_date = today - timedelta(days=90)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.LAST_6_MONTHS:
+                start_date = today - timedelta(days=180)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.THIS_YEAR:
+                start_date = date(today.year, 1, 1)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.CUSTOM:
+                # Handle custom date range - can be start only, end only, or both
+                query = Q()
+                start_date_value = self.data.get("start_date")
+                end_date_value = self.data.get("end_date")
+
+                # Apply start date filter if provided
+                if start_date_value:
+                    try:
+                        parsed_start_date = datetime.strptime(
+                            start_date_value, "%Y-%m-%d"
+                        ).date()
+                        query &= Q(_start_date__gte=parsed_start_date)
+                    except (ValueError, TypeError, AttributeError):
+                        pass
+
+                # Apply end date filter if provided
+                if end_date_value:
+                    try:
+                        parsed_end_date = datetime.strptime(
+                            end_date_value, "%Y-%m-%d"
+                        ).date()
+                        query &= Q(_computed_end_date__lte=parsed_end_date)
+                    except (ValueError, TypeError, AttributeError):
+                        pass
+
+                # Only apply filter if we have at least one valid date
+                if start_date_value or end_date_value:
+                    return queryset.filter(query)
+
+        return queryset
