@@ -11,13 +11,29 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <a class="navbar-brand d-flex align-items-center fs-3"
-         href="{% url 'nimbus-list' %}">
+         href="{% url 'nimbus-ui-home' %}">
         <img src="{% static 'assets/logo.svg' %}"
              alt="Logo"
              width="30"
              class="d-inline-block align-text-top me-2">
         Nimbus Experiments
       </a>
+      <div id="navigation" class="ms-4">
+        <ul class="nav nav-underline">
+          <li class="nav-item">
+            <a href="{% url 'nimbus-ui-home' %}" class="nav-link fw-semibold">
+              <i class="fa-solid fa-home me-1"></i>
+              Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'nimbus-list' %}" class="nav-link fw-semibold">
+              <i class="fa-solid fa-list me-1"></i>
+              All Deliveries
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
     <ul class="nav nav-pills">
       <li class="nav-item">
