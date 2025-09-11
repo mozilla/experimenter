@@ -552,47 +552,50 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
     def filter_by_date_range(self, queryset, name, value):
         today = date.today()
 
-        if value == DateRangeChoices.LAST_7_DAYS:
-            start_date = today - timedelta(days=7)
-            return queryset.filter(_start_date__gte=start_date)
-        elif value == DateRangeChoices.LAST_30_DAYS:
-            start_date = today - timedelta(days=30)
-            return queryset.filter(_start_date__gte=start_date)
-        elif value == DateRangeChoices.LAST_3_MONTHS:
-            start_date = today - timedelta(days=90)
-            return queryset.filter(_start_date__gte=start_date)
-        elif value == DateRangeChoices.LAST_6_MONTHS:
-            start_date = today - timedelta(days=180)
-            return queryset.filter(_start_date__gte=start_date)
-        elif value == DateRangeChoices.THIS_YEAR:
-            start_date = date(today.year, 1, 1)
-            return queryset.filter(_start_date__gte=start_date)
-        elif value == DateRangeChoices.CUSTOM:
-            # Handle custom date range - can be start only, end only, or both
-            query = Q()
-            start_date_value = self.data.get("start_date")
-            end_date_value = self.data.get("end_date")
+        match value:
+            case DateRangeChoices.LAST_7_DAYS:
+                start_date = today - timedelta(days=7)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.LAST_30_DAYS:
+                start_date = today - timedelta(days=30)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.LAST_3_MONTHS:
+                start_date = today - timedelta(days=90)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.LAST_6_MONTHS:
+                start_date = today - timedelta(days=180)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.THIS_YEAR:
+                start_date = date(today.year, 1, 1)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.CUSTOM:
+                # Handle custom date range - can be start only, end only, or both
+                query = Q()
+                start_date_value = self.data.get("start_date")
+                end_date_value = self.data.get("end_date")
 
-            # Apply start date filter if provided
-            if start_date_value:
-                try:
-                    parsed_start_date = datetime.strptime(
-                        start_date_value, "%Y-%m-%d"
-                    ).date()
-                    query &= Q(_start_date__gte=parsed_start_date)
-                except (ValueError, TypeError, AttributeError):
-                    pass
+                # Apply start date filter if provided
+                if start_date_value:
+                    try:
+                        parsed_start_date = datetime.strptime(
+                            start_date_value, "%Y-%m-%d"
+                        ).date()
+                        query &= Q(_start_date__gte=parsed_start_date)
+                    except (ValueError, TypeError, AttributeError):
+                        pass
 
-            # Apply end date filter if provided
-            if end_date_value:
-                try:
-                    parsed_end_date = datetime.strptime(end_date_value, "%Y-%m-%d").date()
-                    query &= Q(_computed_end_date__lte=parsed_end_date)
-                except (ValueError, TypeError, AttributeError):
-                    pass
+                # Apply end date filter if provided
+                if end_date_value:
+                    try:
+                        parsed_end_date = datetime.strptime(
+                            end_date_value, "%Y-%m-%d"
+                        ).date()
+                        query &= Q(_computed_end_date__lte=parsed_end_date)
+                    except (ValueError, TypeError, AttributeError):
+                        pass
 
-            # Only apply filter if we have at least one valid date
-            if start_date_value or end_date_value:
-                return queryset.filter(query)
+                # Only apply filter if we have at least one valid date
+                if start_date_value or end_date_value:
+                    return queryset.filter(query)
 
         return queryset
