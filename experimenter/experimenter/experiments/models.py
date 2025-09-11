@@ -1135,6 +1135,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def timeline(self):
         timeline_entries = [
             {
+                "step": NimbusUIConstants.EXPERIMENT_ORDERING["Draft"],
                 "label": self.Status.DRAFT,
                 "date": self.draft_date,
                 "is_active": self.is_draft,
@@ -1142,6 +1143,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Draft"],
             },
             {
+                "step": NimbusUIConstants.EXPERIMENT_ORDERING["Preview"],
                 "label": self.Status.PREVIEW,
                 "date": self.preview_date,
                 "is_active": self.is_preview,
@@ -1149,6 +1151,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Preview"],
             },
             {
+                "step": NimbusUIConstants.EXPERIMENT_ORDERING["Review"],
                 "label": self.PublishStatus.REVIEW,
                 "date": self.review_date,
                 "is_active": self.is_review_timeline,
@@ -1156,6 +1159,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Review"],
             },
             {
+                "step": NimbusUIConstants.EXPERIMENT_ORDERING["Enrollment"],
                 "label": NimbusConstants.ENROLLMENT,
                 "date": self.start_date,
                 "is_active": self.is_enrolling,
@@ -1163,6 +1167,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Enrollment"],
             },
             {
+                "step": NimbusUIConstants.EXPERIMENT_ORDERING["Complete"],
                 "label": self.Status.COMPLETE,
                 "date": self.computed_end_date,
                 "is_active": self.is_complete,
@@ -1174,6 +1179,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             timeline_entries.insert(
                 4,
                 {
+                    "step": NimbusUIConstants.EXPERIMENT_ORDERING["Observation"],
                     "label": NimbusConstants.OBSERVATION,
                     "date": self._enrollment_end_date,
                     "is_active": self.is_observation,
@@ -1183,6 +1189,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
 
         return timeline_entries
+
+    @property
+    def experiment_active_status(self):
+        timeline = self.timeline()
+        for item in timeline:
+            if item["is_active"]:
+                return item["step"]
 
     @property
     def should_end(self):
