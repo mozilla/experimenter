@@ -68,6 +68,9 @@ ACCEPTED_TOU_IN_PARTIAL_ON_TRAIN_ROLLOUT = """
 # After an upcoming pref migration, users who accepted the initial version of
 # the TOU will have termsofuse.acceptedVersion set to 4
 ACCEPTED_TOU_V4 = "'termsofuse.acceptedVersion'|preferenceValue == 4"
+
+ACCEPTED_TOU_V4_OR_HIGHER = "'termsofuse.acceptedVersion'|preferenceValue >= 4"
+
 ACCEPTED_TOU = f"""
 (
     {ACCEPTED_TOU_IN_NIMBUS_EXPERIMENT}
@@ -3090,6 +3093,51 @@ TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
                 && !{ADS_DISABLED}
             )
         )
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TOU_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
+    name="TOU version 4 or higher accepted, Mac or Win",
+    slug="tou_accepted_mac_win",
+    description=(
+        "Users who have accepted the terms of use, "
+        "and are on Mac or Windows"
+    ),
+    targeting=f"""
+    (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
+        {ACCEPTED_TOU_V4_OR_HIGHER}
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TOU_NOT_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
+    name="TOU version 4 or higher NOT accepted, Mac or Win",
+    slug="tou_not_accepted_mac_win",
+    description=(
+        "Users who have NOT accepted the terms of use, "
+        "are not configured to bypass TOU, "
+        "and are on Mac or Windows"
+    ),
+    targeting=f"""
+    (
+        !{TOU_ACCEPTED_V4PLUS_MAC_OR_WIN}
+        &&
+        !{TOU_NOTIFICATION_BYPASS_ENABLED}
     )
     """,
     desktop_telemetry="",
