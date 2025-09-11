@@ -1187,6 +1187,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return timeline_entries
 
     @property
+    def experiment_active_status(self):
+        timeline = self.timeline()
+        for item in timeline:
+            if item["is_active"]:
+                return item["step"]
+        return None
+
+    @property
     def should_end(self):
         if self.proposed_end_date:
             return datetime.date.today() >= self.proposed_end_date
