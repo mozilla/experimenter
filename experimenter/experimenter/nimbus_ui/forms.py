@@ -1480,6 +1480,7 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
 
 class FeaturesForm(forms.ModelForm):
     application = forms.ChoiceField(
+        required=False,
         label="",
         choices=NimbusExperiment.Application.choices,
         widget=forms.widgets.Select(
@@ -1490,6 +1491,7 @@ class FeaturesForm(forms.ModelForm):
         initial=NimbusExperiment.Application.DESKTOP.value,
     )
     feature_configs = forms.ChoiceField(
+        required=True,
         label="",
         choices=[],
         widget=SingleSelectWidget(),
@@ -1497,14 +1499,18 @@ class FeaturesForm(forms.ModelForm):
     update_on_change_fields = ("application", "feature_configs")
 
     def get_feature_config_choices(self, application, qs):
-        return sorted(
-            [
-                (application.pk, f"{application.name} - {application.description}")
-                for application in NimbusFeatureConfig.objects.all()
-                if application in qs
-            ],
-            key=lambda choice: choice[1].lower(),
+        choices = [("", "Nothing Selected")]  # Add a default blank field.
+        choices.extend(
+            sorted(
+                [
+                    (application.pk, f"{application.name} - {application.description}")
+                    for application in NimbusFeatureConfig.objects.all()
+                    if application in qs
+                ],
+                key=lambda choice: choice[1].lower(),
+            )
         )
+        return choices
 
     class Meta:
         model = NimbusFeatureConfig
@@ -1533,4 +1539,9 @@ class FeaturesForm(forms.ModelForm):
             "hx-swap": "outerHTML",
         }
         self.fields["application"].widget.attrs.update(htmx_attrs)
+        htmx_attrs.update(
+            {
+                "hx-select-oob": "#deliveries-table",
+            }
+        )
         self.fields["feature_configs"].widget.attrs.update(htmx_attrs)
