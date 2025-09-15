@@ -1903,6 +1903,28 @@ class TestNimbusExperiment(TestCase):
             self.assertEqual(timeline[i].get("days"), expected["days"])
             self.assertEqual(timeline[i].get("tooltip"), expected["tooltip"])
 
+    @parameterized.expand(
+        [
+            (NimbusConstants.Status.DRAFT, 1),
+            (NimbusConstants.Status.PREVIEW, 2),
+            (NimbusConstants.PublishStatus.REVIEW, 3),
+            (NimbusConstants.ENROLLMENT, 4),
+            (NimbusConstants.Status.COMPLETE, 6),
+        ]
+    )
+    def test_experiment_active_status_returns_correct_step_for_active_state(
+        self, timeline_status, expected_step
+    ):
+        experiment = NimbusExperimentFactory.create()
+        if timeline_status == NimbusConstants.PublishStatus.REVIEW:
+            experiment.publish_status = timeline_status
+        elif timeline_status == NimbusConstants.ENROLLMENT:
+            experiment.status = NimbusConstants.Status.LIVE
+        else:
+            experiment.status = timeline_status
+
+        self.assertEqual(experiment.experiment_active_status, expected_step)
+
     def test_timeline_dates_complete_is_active_when_status_is_complete(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
