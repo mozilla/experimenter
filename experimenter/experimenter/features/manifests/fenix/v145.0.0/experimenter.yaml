@@ -1,0 +1,771 @@
+address-sync:
+  description: Turns on address sync.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to turn on address sync.
+alternative-app-launcher-icon:
+  description: A feature that changes the app launcher icon background color.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature is active.
+    reset-to-default:
+      type: boolean
+      description: |
+        If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.
+app-icon-selection:
+  description: Allows the user to set an alternative app launcher icon.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not the feature is available for the user.
+awesomebar-suggestion-provider:
+  description: Configuration for the Firefox Suggest awesomebar suggestion provider.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    available-suggestion-types:
+      type: json
+      description: |
+        A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.
+baseline-fpp:
+  description: Control Baseline Fingerprinting Protection
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: Enables / disables baseline fingerprinting protection.
+    feat-enabled:
+      type: boolean
+      description: If true, the feature is active.
+    overrides:
+      type: string
+      description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
+bookmarks:
+  description: Feature for Bookmarks
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    new-compose-ui:
+      type: boolean
+      description: if true, enable new compose based UI
+composable-toolbar:
+  description: Use a composable toolbar instead of the View based one.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        When the feature is enabled the user will see a new composable toolbar instead the previous View based one.
+cookie-banners:
+  description: Features for cookie banner handling.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    sections-enabled:
+      type: json
+      description: This property provides a lookup table of whether or not the given section should be enabled.
+custom-review-prompt:
+  description: Feature that controls the Play store in-app custom review prompt.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not to enable the custom review prompt.
+doh:
+  description: Feature controlling DNS over HTTPS (DoH).
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    autoselect-enabled:
+      type: boolean
+      description: |
+        Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.
+    show-ui:
+      type: boolean
+      description: |
+        When `true`, include DoH settings in the settings UI.
+encourage-search-cfr:
+  description: A feature that shows a CFR on first launch to encourage users to make a search
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    cfrText:
+      type: string
+      description: The text to show in the CFR
+    enabled:
+      type: boolean
+      description: When true, the CFR will show
+fingerprinting-protection:
+  description: Control Fingerprinting Protection
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature is active.
+    enabled-normal:
+      type: boolean
+      description: |
+        Enables / disables fingerprinting protection in normal browsing mode.
+    enabled-private:
+      type: boolean
+      description: |
+        Enables / disables fingerprinting protection in private browsing mode.
+    fdlibm-math:
+      type: boolean
+      description: |
+        Uses a different math backend for Math.sin/cos/tan in JavaScript that exposes less entropy
+    overrides:
+      type: string
+      description: |
+        The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
+fission:
+  description: The feature that controls whether fission is enabled or not in Gecko.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
+fx-suggest:
+  description: A feature that provides Firefox Suggest search suggestions.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    boost-amp-wiki:
+      type: boolean
+      description: |
+        The feature boost wiki and AMP suggestions to the top of its group.
+    enabled:
+      type: boolean
+      description: |
+        Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
+glean:
+  description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    delay-ping-lifetime-io:
+      type: boolean
+      description: Glean will delay io for ping lifetime metrics
+    enable-event-timestamps:
+      type: boolean
+      description: Enables precise event timestamps for Glean events
+    gleanMetricConfiguration:
+      type: json
+      description: Configuration for Glean Server Knobs
+    ping-lifetime-max-time:
+      type: int
+      description: After what time to auto-flush
+    ping-lifetime-threshold:
+      type: int
+      description: Write count threshold when to auto-flush
+growth-data:
+  description: A feature measuring campaign growth data
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature is active
+homepage-as-new-tab:
+  description: Enables homepage as a a new tab.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable homepage as a new tab
+homepage-hide-frecent-top-sites:
+  description: Hides frecent top sites on the homepage.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to hide frecent top sites on the homepage.
+homepage-search-bar:
+  description: Enables the homepage search bar.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable the homepage search bar.
+homescreen:
+  description: The homescreen that the user goes to when they press home or new tab.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    sections-enabled:
+      type: json
+      description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
+isolated-content-processes:
+  description: Feature that controls content process isolation.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable isolated content processes.
+javascript:
+  description: Enables Javascript Engine (Spidermonkey) features
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    parallelMarkingEnabled:
+      type: boolean
+      description: |
+        Enables or disables javascript.options.mem.gc_parallel_marking preference.
+juno-onboarding:
+  description: A feature that shows the onboarding flow.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    cards:
+      type: json
+      description: Collection of user facing onboarding cards.
+    conditions:
+      type: json
+      description: |
+        A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
+    use-onboarding-redesign:
+      type: boolean
+      description: If true, use the onboarding redesign.
+lna-blocking:
+  description: Feature that allows blocking local network or device access.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to turn on local network / device access blocking
+menu-redesign:
+  description: Control the new menu redesign.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the new menu redesign is available.
+    menu-banner:
+      type: boolean
+      description: If true, the menu banner is visible.
+    report-site-issue:
+      type: boolean
+      description: If true, report site issue menu item and preview is available.
+messaging:
+  description: |
+    The in-app messaging system.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    $$experiment:
+      type: string
+      description: The only acceptable value for `MessageData#experiment`. This should not be set by experiment.
+    $$surfaces:
+      type: json
+      description: |
+        A list available surfaces for this app.
+
+        This should not be written to by experiments, and should be hidden to users.
+    actions:
+      type: json
+      description: A growable map of action URLs.
+    message-under-experiment:
+      type: string
+      description: Deprecated in favor of `MessageData#experiment`. This will be removed in future releases.
+    messages:
+      type: json
+      description: A growable collection of messages
+    notification-config:
+      type: json
+      description: Configuration of the notification worker for all notification messages.
+    on-control:
+      type: string
+      description: What should be displayed when a control message is selected.
+      enum:
+      - show-next-message
+      - show-none
+    styles:
+      type: json
+      description: |
+        A map of styles to configure message appearance.
+    triggers:
+      type: json
+      description: |
+        A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.
+microsurveys:
+  description: Feature for microsurveys.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        When the feature is enabled then microsurveys can be used.
+mr2022:
+  description: Features for MR 2022.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    sections-enabled:
+      type: json
+      description: This property provides a lookup table of whether or not the given section should be enabled.
+navigation-toolbar:
+  description: Feature for navigation toolbar.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        When the feature is enabled then the user will see the new navigation toolbar.
+networking:
+  description: Enables networking features
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    fetchPriorityEnabled:
+      type: boolean
+      description: |
+        Enables or disables network.fetchpriority.enabled preference.
+networkingBannedPorts:
+  description: Networking (Necko) Banned Ports
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    bannedPortList:
+      type: string
+      description: A comma-separated list of ports that Firefox will refuse to connect to. These ports will be appended to nsIOService gBadPortList
+nimbus-is-ready:
+  description: |
+    A feature that provides the number of Nimbus is_ready events to send when Nimbus finishes launching.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    event-count:
+      type: int
+      description: The number of events that should be sent.
+nimbus-system:
+  description: |
+    Configuration of the Nimbus System in Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    refresh-interval-foreground:
+      type: int
+      description: |
+        The minimum interval in minutes between fetching experiment
+        recipes in the foreground.
+nimbus-validation:
+  description: A feature that does not correspond to an application feature suitable for showing that Nimbus is working. This should never be used in production.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    settings-icon:
+      type: string
+      description: The drawable displayed in the app menu for Settings
+    settings-punctuation:
+      type: string
+      description: The emoji displayed in the Settings screen title.
+    settings-title:
+      type: string
+      description: The title of displayed in the Settings screen and app menu.
+onboarding:
+  description: A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    order:
+      type: json
+      description: Determines the order of the onboarding page panels
+one-click-search:
+  description: Enable/disable the one click search feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the one click search will be enabled.
+override-user-specified-homepage-sections:
+  description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.
+pdfjs:
+  description: PDF.js features
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    download-button:
+      type: boolean
+      description: Download button
+    open-in-app-button:
+      type: boolean
+      description: Open in app button
+pki:
+  description: Certificate verification configuration
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    certificateTransparencyMode:
+      type: int
+      description: |
+        What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
+pqcrypto:
+  description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    postQuantumKeyExchangeEnabled:
+      type: boolean
+      description: |
+        Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.
+print:
+  description: A feature for printing from the share or browser menu.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    browser-print-enabled:
+      type: boolean
+      description: If true, a print button from the browser menu is available.
+    share-print-enabled:
+      type: boolean
+      description: If true, a print button from the share menu is available.
+private-browsing-lock:
+  description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable private browsing mode lock.
+query-parameter-stripping:
+  description: Features for query parameter stripping.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    sections-enabled:
+      type: json
+      description: This property provides a lookup table of whether or not the given section should be enabled.
+re-engagement-notification:
+  description: A feature that shows the re-engagement notification if the user is inactive.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the re-engagement notification is shown to the inactive user.
+    type:
+      type: int
+      description: The type of re-engagement notification that is shown to the inactive user.
+recent-searches:
+  description: Enables recent searches.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable recent searches.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
+remote-search-configuration:
+  description: Feature to use search configurations from remote servers.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Uses search configuration from remote servers .
+remote-tab-management:
+  description: |
+    Features that let users manage tabs on other devices that are connected to the same Mozilla account.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    close-tabs-enabled:
+      type: boolean
+      description: |
+        Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
+same-document-navigation-overrides-load-type:
+  description: Control whether the same document navigation overrides the load type.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Overrides the loadType when it is a same document navigation
+    force-disable-uri:
+      type: string
+      description: |
+        Disable overriding the loadType during same document navigation on the domain specified by this URI.
+search-extra-params:
+  description: A feature that provides additional args for search.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    channel-id:
+      type: json
+      description: The channel Id param name with arg.
+    enabled:
+      type: boolean
+      description: If true, the feature is active.
+    feature-enabler:
+      type: json
+      description: The feature enabler param name with arg, NOTE this map could be empty.
+    search-engine:
+      type: string
+      description: The search engine name.
+search-suggestions-on-homepage:
+  description: Enables search suggestions on homepage.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable search suggestions on homepage.
+search-term-groups:
+  description: A feature allowing the grouping of URLs around the search term that it came from.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature shows up on the homescreen and on the new tab screen.
+sent-from-firefox:
+  description: A feature that allows the user to add a download firefox footer to a shared link.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    download-link:
+      type: string
+      description: A store download link.
+    enabled:
+      type: boolean
+      description: If true, the feature is available for the user.
+    show-snackbar:
+      type: boolean
+      description: If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings.
+    template-message:
+      type: string
+      description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
+setup-checklist:
+  description: A feature on the home page that allows the user to track onboarding setup progress.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the setup checklist will be enabled.
+    setup-checklist-type:
+      type: string
+      description: The collection used for the setup checklist.
+      enum:
+      - collection-1
+      - collection-2
+ship:
+  description: The feature that controls Session History in Parent (SHIP) in Gecko.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    disabled:
+      type: boolean
+      description: |
+        Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.
+splash-screen:
+  description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature is active.
+    maximum_duration_ms:
+      type: int
+      description: The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
+    off-train-onboarding:
+      type: boolean
+      description: If true, the fetched data will be applied and used during the session.
+suggest-shipped-domains:
+  description: Feature that suggests domains from the shipped domain list.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Suggest domains from the shipped domain list.
+suppress-sponsored-top-sites:
+  description: Suppress sponsored top sites for new users for 14 days.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, new users won’t see sponsored tiles for 14 days.
+tab-management-enhancements:
+  description: Control the visibility of the tab management enhancements.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable the tab management enhancements.
+tab-strip:
+  description: Enables tab strip.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    allow-on-all-devices:
+      type: boolean
+      description: |
+        Experimental: When true, bypasses device restrictions and enables use on all devices. May cause instability or unexpected behavior. This still requires the feature to be `enabled`.
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable tab strip.
+terms-of-use-prompt:
+  description: Enables the terms of use prompt for users who have not accepted ToU
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: When the feature is enabled then the prompt can show for users.
+third-party-cookie-blocking:
+  description: Control third-party cookie blocking.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature is active.
+    enabled-normal:
+      type: boolean
+      description: |
+        Enables / disables third-party cookie blocking in normal browsing mode.
+    enabled-private:
+      type: boolean
+      description: |
+        Enables / disables third-party cookie blocking in private browsing mode.
+toolbar-redesign-option:
+  description: Control the visibility of toolbar redesign option in settings.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    show-expanded-customization:
+      type: boolean
+      description: |
+        Whether or not the expanded toolbar customization option is visible to the user.
+    show-options:
+      type: boolean
+      description: |
+        Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.
+    show-simple-customization:
+      type: boolean
+      description: |
+        Whether or not the simple toolbar customization option is visible to the user.
+top-sites-suggestions:
+  description: Enables top sites suggestions.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable top sites suggestions.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
+translations:
+  description: The feature that allows on-device translations of web content.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    downloads-enabled:
+      type: boolean
+      description: |
+        Show the global language model download options entry point for translations. ('Download languages' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.
+    global-lang-settings-enabled:
+      type: boolean
+      description: |
+        Show the global language options entry point for automatically translating. ('Automatic Translation' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.
+    global-settings-enabled:
+      type: boolean
+      description: |
+        Show the global settings entry point within the translations feature. ('Translation Settings' on the page settings view.) 'page-settings-enabled' must also be enabled for users to access this feature.
+    global-site-settings-enabled:
+      type: boolean
+      description: |
+        Show the global never translate this site options entry point for site management. ('Never translate these sites' on the global settings view.) 'global-settings-enabled' must also be enabled for users to access this feature.
+    main-flow-browser-menu-enabled:
+      type: boolean
+      description: |
+        Show the browser menu entry point into the translations feature. ('Translate Page' on browser menu.)
+    main-flow-toolbar-enabled:
+      type: boolean
+      description: |
+        Show the primary toolbar entry point into the translations feature. (Translations icon on URL toolbar.)
+    page-settings-enabled:
+      type: boolean
+      description: |
+        Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
+trending-searches:
+  description: Enables trending searches.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable trending searches.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
+unified-trust-panel:
+  description: Enables the unified trust panel.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable the unified trust panel.
+user-characteristics:
+  description: A feature for control user characteristic data collection
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    currentVersion:
+      type: int
+      description: The current collection version of the user characteristics.
