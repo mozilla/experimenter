@@ -1604,14 +1604,14 @@ type = ["pytest-mypy"]
 
 [[package]]
 name = "zope-component"
-version = "6.0"
+version = "6.1"
 description = "Zope Component Architecture"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "zope.component-6.0-py3-none-any.whl", hash = "sha256:96d0a04db39643caf2dfaec152340f3e914df1dc3fa32fbb913782620dc6c3c6"},
-    {file = "zope.component-6.0.tar.gz", hash = "sha256:9a0a0472ad201b94b4fe6741ce9ac2c30b8bb22c516077bf03692dec4dfb6906"},
+    {file = "zope_component-6.1-py3-none-any.whl", hash = "sha256:948905a3bf78b548d9f3d9cbf19ef7d1cfe1a9d73f5bce46215af3659f7735a7"},
+    {file = "zope_component-6.1.tar.gz", hash = "sha256:79b807f29d82576e59d82187239549d5715759ab797b60a5bd69cc36e0449c09"},
 ]
 
 [package.dependencies]
@@ -1851,4 +1851,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "04bb5432517743093622747293cd2935b6faa93237f0b587ac46eb0a82fb6e57"
+content-hash = "ecc0e34b8702debdea86a9516d8aec62e91d431af59748a865c35eace447717f"
