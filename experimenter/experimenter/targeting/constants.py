@@ -3104,10 +3104,7 @@ TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
 TOU_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
     name="TOU version 4 or higher accepted, Mac or Win",
     slug="tou_accepted_mac_win",
-    description=(
-        "Users who have accepted the terms of use, "
-        "and are on Mac or Windows"
-    ),
+    description=("Users who have accepted the terms of use, and are on Mac or Windows"),
     targeting=f"""
     (
         (
