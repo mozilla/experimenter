@@ -171,6 +171,14 @@ class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):  # n
     pass
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+    color = models.CharField(max_length=16, default="#cccccc")
+
+    def __str__(self):
+        return self.name
+
+
 class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.Model):
     parent = models.ForeignKey["NimbusExperiment"](
         "experiments.NimbusExperiment", models.SET_NULL, blank=True, null=True
@@ -430,6 +438,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         default=list,
     )
+    tags = models.ManyToManyField(Tag, blank=True, related_name="experiments")
 
     class Meta:
         verbose_name = "Nimbus Experiment"
