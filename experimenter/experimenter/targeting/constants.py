@@ -1035,6 +1035,26 @@ WIN10_EOS_SYNC_TOAST_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN10_EOS_REMINDER_ELIGIBLE = NimbusTargetingConfig(
+    name="Windows 10 users eligible for Windows 10 EoS Reminder messages",
+    slug="win10_eos_reminder_messages_eligible",
+    description=(
+        "Windows 10 users who have FxA enabled, are at least 7 "
+        "days old, without enterprise policies"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && "
+        "os.windowsBuildNumber < 22000 && "
+        "isFxAEnabled && "
+        f"{NO_ENTERPRISE.targeting} && "
+        f"{PROFILEMORETHAN7DAYS}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 INFREQUENT_USER_URIS = NimbusTargetingConfig(
     name="Infrequent user (uris)",
     slug="infrequent_user_uris",
