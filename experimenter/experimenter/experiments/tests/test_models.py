@@ -1905,23 +1905,109 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusConstants.Status.DRAFT, 1),
-            (NimbusConstants.Status.PREVIEW, 2),
-            (NimbusConstants.PublishStatus.REVIEW, 3),
-            (NimbusConstants.ENROLLMENT, 4),
-            (NimbusConstants.Status.COMPLETE, 6),
+            # Draft
+            (
+                {
+                    "status": NimbusConstants.Status.DRAFT,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.CREATED,
+                },
+                1,
+            ),
+            # Preview
+            (
+                {
+                    "status": NimbusConstants.Status.PREVIEW,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.PREVIEW,
+                },
+                2,
+            ),
+            # Review
+            (
+                {
+                    "status": NimbusConstants.Status.PREVIEW,
+                    "publish_status": NimbusConstants.PublishStatus.REVIEW,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,  # noqa E501
+                },
+                3,
+            ),
+            # Enrollment
+            (
+                {
+                    "status": NimbusConstants.Status.LIVE,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                },
+                4,
+            ),
+            # Observation
+            (
+                {
+                    "status": NimbusConstants.Status.LIVE,
+                    "published_dto": {"isEnrollmentPaused": True},
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                },
+                5,
+            ),
+            # Complete
+            (
+                {
+                    "status": NimbusConstants.Status.COMPLETE,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,  # noqa E501
+                },
+                6,
+            ),
+            # Rollout timeline items
+            # Draft
+            (
+                {
+                    "status": NimbusConstants.Status.DRAFT,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.CREATED,
+                    "is_rollout": True,
+                },
+                1,
+            ),
+            # Preview
+            (
+                {
+                    "status": NimbusConstants.Status.PREVIEW,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.PREVIEW,
+                    "is_rollout": True,
+                },
+                2,
+            ),
+            # Review
+            (
+                {
+                    "publish_status": NimbusConstants.PublishStatus.REVIEW,
+                    "status": NimbusConstants.Status.PREVIEW,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,  # noqa E501
+                    "is_rollout": True,
+                },
+                3,
+            ),
+            # Enrollment
+            (
+                {
+                    "status": NimbusConstants.Status.LIVE,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                    "is_rollout": True,
+                },
+                4,
+            ),
+            # Complete
+            (
+                {
+                    "status": NimbusConstants.Status.COMPLETE,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,  # noqa E501
+                    "is_rollout": True,
+                },
+                6,
+            ),
         ]
     )
-    def test_experiment_active_status_returns_correct_step_for_active_state(
-        self, timeline_status, expected_step
+    def test_experiment_active_status_returns_correct_timeline_state(
+        self, experiment_kwargs, expected_step
     ):
-        experiment = NimbusExperimentFactory.create()
-        if timeline_status == NimbusConstants.PublishStatus.REVIEW:
-            experiment.publish_status = timeline_status
-        elif timeline_status == NimbusConstants.ENROLLMENT:
-            experiment.status = NimbusConstants.Status.LIVE
-        else:
-            experiment.status = timeline_status
+        experiment = NimbusExperimentFactory.create_with_lifecycle(**experiment_kwargs)
 
         self.assertEqual(experiment.experiment_active_status, expected_step)
 
