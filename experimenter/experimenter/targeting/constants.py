@@ -3132,9 +3132,17 @@ TOU_NOT_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
     ),
     targeting=f"""
     (
-        !{TOU_ACCEPTED_V4PLUS_MAC_OR_WIN}
+        (
+            (
+                os.isWindows 
+                || 
+                os.isMac
+            )
+            &&
+            !({ACCEPTED_TOU_V4_OR_HIGHER})
+        )
         &&
-        !{TOU_NOTIFICATION_BYPASS_ENABLED}
+        !({TOU_NOTIFICATION_BYPASS_ENABLED})
     )
     """,
     desktop_telemetry="",
