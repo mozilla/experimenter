@@ -3134,8 +3134,8 @@ TOU_NOT_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
     (
         (
             (
-                os.isWindows 
-                || 
+                os.isWindows
+                ||
                 os.isMac
             )
             &&
