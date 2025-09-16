@@ -438,7 +438,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         default=list,
     )
-    tags = models.ManyToManyField(Tag, blank=True, related_name="tags")
+    tags = models.ManyToManyField(Tag, blank=True, related_name="experiments")
 
     class Meta:
         verbose_name = "Nimbus Experiment"

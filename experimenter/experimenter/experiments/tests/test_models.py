@@ -3215,7 +3215,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create()
         experiment.tags.add(tag)
         self.assertIn(tag, experiment.tags.all())
-        self.assertIn(experiment, tag.tags.all())
+        self.assertIn(experiment, tag.experiments.all())
         self.assertEqual(experiment.tags.count(), 1)
         self.assertEqual(str(tag), str(experiment.tags.first()))
 
