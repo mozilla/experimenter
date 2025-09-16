@@ -1,6 +1,9 @@
 <ul class="list-group list-group-horizontal justify-content-between mb-3">
   {% for status in experiment.timeline %}
-    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if status.is_active %}bg-primary text-white{% endif %} {% if status.step > experiment.experiment_active_status %}bg-secondary text-muted{% endif %}">
+    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if status.is_active %}bg-primary text-white{% endif %}"
+        style="{% if status.step > experiment.experiment_active_status %}background-color: var(--bs-gray-500);
+               color: var(--bs-gray-700);
+               {% endif %}">
       <strong>{{ status.label }}</strong>
       <small>{{ status.date|default:'---' }}</small>
       {% if status.days is not None %}
