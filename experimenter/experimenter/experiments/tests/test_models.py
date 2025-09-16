@@ -41,6 +41,7 @@ from experimenter.experiments.models import (
     NimbusFeatureVersion,
     NimbusIsolationGroup,
     NimbusVersionedSchema,
+    Tag,
 )
 from experimenter.experiments.tests import JEXLParser
 from experimenter.experiments.tests.factories import (
@@ -3208,6 +3209,15 @@ class TestNimbusExperiment(TestCase):
     def test_can_archive(self, expected_can_archive, lifecycle):
         experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
         self.assertEqual(experiment.can_archive, expected_can_archive)
+
+    def test_tag_experiment_relationship(self):
+        tag = Tag.objects.create(name="TestTag", color="#123456")
+        experiment = NimbusExperimentFactory.create()
+        experiment.tags.add(tag)
+        self.assertIn(tag, experiment.tags.all())
+        self.assertIn(experiment, tag.tags.all())
+        self.assertEqual(experiment.tags.count(), 1)
+        self.assertEqual(str(tag), str(experiment.tags.first()))
 
     @parameterized.expand([(settings.DEV_USER_EMAIL, True), ("jdoe@mozilla.org", False)])
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
