@@ -32,6 +32,7 @@ from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
+from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.forms import (
     ApproveEndEnrollmentForm,
@@ -47,6 +48,7 @@ from experimenter.nimbus_ui.forms import (
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
+    FeaturesForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -636,6 +638,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.mock_allocate_bucket_range = patch.object(
             NimbusExperiment, "allocate_bucket_range"
         ).start()
+        self.mock_klaatu_task = patch.object(klaatu_start_job, "delay").start()
 
         self.addCleanup(patch.stopall)
 
@@ -652,6 +655,9 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.mock_klaatu_task.assert_called_once_with(
+            experiment=experiment, application=experiment.application
+        )
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
@@ -838,6 +844,29 @@ class TestLaunchForms(RequestFormTestCase):
             countdown=5, args=[experiment.kinto_collection]
         )
         self.mock_allocate_bucket_range.assert_called_once()
+
+    def test_review_timing_metric(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Experiment",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusExperimentCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        with patch("experimenter.nimbus_ui.forms.metrics") as mock_metrics:
+            experiment = form.save()
+
+        mock_metrics.timing.assert_called_once()
 
     def test_live_to_end_enrollment_form(self):
         experiment = NimbusExperimentFactory.create(
@@ -3634,4 +3663,77 @@ class TestBranchFeatureValueForm(RequestFormTestCase):
         )
         self.assertNotIn(
             "data-schema", forms["without-schema"].fields["value"].widget.attrs
+        )
+
+
+class TestFeaturesViewForm(RequestFormTestCase):
+    def setUp(self):
+        super().setUp()
+        self.applications = [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.IOS,
+            NimbusExperiment.Application.FENIX,
+        ]
+        self.feature_configs = {}
+        for app in self.applications:
+            self.feature_configs[app] = NimbusFeatureConfigFactory.create(
+                slug=f"feature-{app.value}",
+                name=f"Feature {app.value}",
+                application=app,
+            )
+
+    def test_features_view_default_fields_are_firefox_desktop(self):
+        NimbusExperimentFactory.create(owner=self.user)
+        form = FeaturesForm()
+        application = form.fields["application"]
+        feature_configs = form.fields["feature_configs"]
+        self.assertEqual(application.initial, NimbusExperiment.Application.DESKTOP.value)
+        self.assertIsNone(feature_configs.initial)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                [NimbusExperiment.Application.IOS, NimbusExperiment.Application.FENIX],
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                [
+                    NimbusExperiment.Application.DESKTOP,
+                    NimbusExperiment.Application.FENIX,
+                ],
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                [NimbusExperiment.Application.IOS, NimbusExperiment.Application.DESKTOP],
+            ),
+        ]
+    )
+    def test_features_view_feature_config_field_updates_correctly(
+        self, expected_app, excluded_apps
+    ):
+        NimbusExperimentFactory.create(owner=self.user)
+        form = FeaturesForm(data={"application": expected_app})
+        feature_configs = form.fields["feature_configs"]
+
+        self.assertIn(
+            (
+                self.feature_configs[expected_app].id,
+                f"{self.feature_configs[expected_app].name} - {self.feature_configs[expected_app].description}",  # noqa
+            ),
+            feature_configs.choices,
+        )
+        self.assertNotIn(
+            (
+                self.feature_configs[excluded_apps[0]].id,
+                f"{self.feature_configs[excluded_apps[0]].name} - {self.feature_configs[excluded_apps[0]].description}",  # noqa
+            ),
+            feature_configs.choices,
+        )
+        self.assertNotIn(
+            (
+                self.feature_configs[excluded_apps[1]].id,
+                f"{self.feature_configs[excluded_apps[1]].name} - {self.feature_configs[excluded_apps[1]].description}",  # noqa
+            ),
+            feature_configs.choices,
         )

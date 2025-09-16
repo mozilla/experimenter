@@ -66,6 +66,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "period ended."
         ),
     }
+    EXPERIMENT_ORDERING = {
+        "Draft": 1,
+        "Preview": 2,
+        "Review": 3,
+        "Enrollment": 4,
+        "Observation": 5,
+        "Complete": 6,
+    }
     HOME_PAGE_LINKS = {
         "welcome_learn_more_url": "https://experimenter.info/workflow/overview/"
     }
