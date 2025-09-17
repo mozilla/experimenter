@@ -2564,6 +2564,38 @@ class TestNimbusExperiment(TestCase):
 
         self.assertIsNone(experiment.rollout_conflict_warning)
 
+    @mock_valid_features
+    def test_pref_targeting_rollout_collision_warning(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+        feature = NimbusFeatureConfig.objects.get(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="setPrefFeature",
+        )
+
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            is_rollout=False,
+            prevent_pref_conflicts=True,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0]["text"], NimbusUIConstants.PREF_TARGETING_WARNING)
+        self.assertEqual(warnings[0]["slugs"], [rollout.slug])
+
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
