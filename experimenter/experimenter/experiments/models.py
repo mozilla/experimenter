@@ -1041,19 +1041,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self.preview_date - self.draft_date).days
         elif self.draft_date and self.review_date is not None:
             return (self.review_date - self.draft_date).days
-        return None
 
     @property
     def computed_preview_days(self):
         if self.preview_date and self.review_date is not None:
             return (self.review_date - self.preview_date).days
-        return None
 
     @property
     def computed_review_days(self):
         if self.review_date and self.enrollment_start_date is not None:
             return (self.enrollment_start_date - self.review_date).days
-        return None
 
     @property
     def enrollment_duration(self):
@@ -1079,7 +1076,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
         ) and self.computed_end_date:
             return (self.computed_end_date - enrollment_end_date).days
-        return None
 
     @property
     def is_live_rollout(self):
@@ -1609,8 +1605,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "learn_more_link": NimbusUIConstants.ROLLOUT_BUCKET_WARNING,
             }
 
-        return None
-
     @property
     def rollout_version_warning(self):
         if not self.is_rollout or not self.firefox_min_version:
@@ -1636,7 +1630,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "learn_more_link": None,
             }
 
-        return None
+    @property
+    def pref_targeting_rollout_collision_warning(self):
+        if self.is_desktop and not self.is_rollout and self.prevent_pref_conflicts:
+            colliding_experiments = NimbusExperiment.objects.filter(
+                status=self.Status.LIVE,
+                application=self.application,
+                channels__overlap=self.channels,
+                feature_configs__id__in=self.feature_configs.exclude(
+                    schemas__set_pref_vars={}
+                )
+                .distinct()
+                .values_list("id", flat=True),
+                is_rollout=True,
+            ).values_list("slug", flat=True)
+
+            if colliding_experiments:
+                return {
+                    "text": NimbusUIConstants.PREF_TARGETING_WARNING,
+                    "variant": "warning",
+                    "slugs": list(colliding_experiments),
+                    "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                }
 
     @property
     def audience_overlap_warnings(self):
@@ -1692,13 +1707,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     }
                 )
 
-            rollout_warning = self.rollout_conflict_warning
-            if rollout_warning:
-                warnings.append(rollout_warning)
+            if rollout_conflict_warning := self.rollout_conflict_warning:
+                warnings.append(rollout_conflict_warning)
 
-            rollout_version_warning = self.rollout_version_warning
-            if rollout_version_warning:
+            if rollout_version_warning := self.rollout_version_warning:
                 warnings.append(rollout_version_warning)
+
+            if pref_collision_warning := self.pref_targeting_rollout_collision_warning:
+                warnings.append(pref_collision_warning)
 
         return warnings
 

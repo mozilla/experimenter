@@ -50,7 +50,11 @@
              role="alert">
           <p class="mb-1">{{ warning.text }}</p>
           <ul class="mb-1">
-            {% for slug in warning.slugs %}<li>{{ slug }}</li>{% endfor %}
+            {% for slug in warning.slugs %}
+              <li>
+                <a target="_blank" href="{% url "nimbus-ui-detail" slug=slug %}">{{ slug }}</a>
+              </li>
+            {% endfor %}
           </ul>
           {% if warning.learn_more_link %}
             <a href="{{ warning.learn_more_link }}"
