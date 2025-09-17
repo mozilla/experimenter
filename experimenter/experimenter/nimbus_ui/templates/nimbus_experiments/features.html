@@ -17,15 +17,15 @@
             hx-swap="outerHTML">
         {% csrf_token %}
         <div class="card mb-3">
-          <div class="card-body">
+          <div class="card-body bg-primary-subtle">
             <div class="row mb-4">
               <div class="col-6">
-                <label for="id_application" class="form-label">Application</label>
+                <h5 class="fw-semibold">Application</h5>
                 {{ form.application|add_class:"form-control"|add_error_class:"is-invalid" }}
                 {% for error in form.application.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               </div>
               <div class="col-6">
-                <label for="id_feature_config" class="form-label">Feature Config</label>
+                <h5 class="fw-semibold">Feature Config</h5>
                 {{ form.feature_configs|add_class:"form-control" }}
                 {% for error in form.feature_configs.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               </div>
