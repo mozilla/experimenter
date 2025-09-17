@@ -38,6 +38,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         If this rollout is launched, a client meeting the advanced
         targeting criteria will be enrolled in one and not the other and
         you will not be able to adjust the sizing for this rollout."""
+    PREF_TARGETING_WARNING = """WARNING: The following rollouts are LIVE
+    that set the same prefs and may reduce the eligible population for your experiment
+    which may result in reduced statistical power and precision or prevent enrollment
+    entirely. Please check that the configured population proportion has accounted for
+    this:"""
 
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
     ROLLOUT_BUCKET_WARNING = (
