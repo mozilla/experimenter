@@ -1038,6 +1038,23 @@ WIN10_EOS_SYNC_TOAST_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN10_EOS_SYNC_TOAST_ROLLOUT_ELIGIBLE = NimbusTargetingConfig(
+    name="Users in the Windows 10 EOS Sync rollout",
+    slug="win10_eos_sync_toast_rollout_eligible",
+    description="Users in the Windows 10 EOS Sync rollout",
+    targeting=(
+        "isBackgroundTaskMode && (("
+        "defaultProfile.enrollmentsMap['optin-windows-10-eos-sync-messaging-rollout'] "
+        "== 'treatment-a')"
+        " || (defaultProfile.enrollmentsMap['windows-10-eos-sync-messaging-rollout'] "
+        "== 'treatment-a'))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIN10_EOS_REMINDER_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10 users eligible for Windows 10 EoS Reminder messages",
     slug="win10_eos_reminder_messages_eligible",
