@@ -2697,6 +2697,7 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         experiment = form.save()
         self.assertTrue(experiment.is_rollout)
         self.assertTrue(experiment.prevent_pref_conflicts)
+        self.assertTrue(form.fields["prevent_pref_conflicts"].disabled)
 
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
