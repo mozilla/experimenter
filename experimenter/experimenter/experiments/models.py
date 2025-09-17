@@ -577,8 +577,26 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         prefs = []
 
         if self.prevent_pref_conflicts:
-            for config in self.feature_configs.all():
-                prefs.extend(config.schemas.get(version=None).set_pref_vars.values())
+            for feature_config in self.feature_configs.all():
+                feature_prefs = feature_config.schemas.get(version=None).set_pref_vars
+                feature_values = NimbusBranchFeatureValue.objects.filter(
+                    branch__experiment=self, feature_config=feature_config
+                ).values_list("value", flat=True)
+
+                if feature_prefs and feature_values:
+                    try:
+                        branch_variables = {
+                            key for value in feature_values for key in json.loads(value)
+                        }
+                    except json.JSONDecodeError:
+                        continue
+
+                    branch_prefs = {
+                        feature_prefs[variable]
+                        for variable in branch_variables
+                        if variable in feature_prefs
+                    }
+                    prefs.extend(branch_prefs)
 
         return prefs
 
