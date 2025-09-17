@@ -2647,6 +2647,57 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         self.assertTrue(experiment.is_rollout)
         self.assertFalse(experiment.is_firefox_labs_opt_in)
 
+    def test_rollout_forces_prevent_pref_conflicts_true(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config],
+            is_rollout=True,
+            prevent_pref_conflicts=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config.id],
+                "equal_branch_ratio": False,
+                "is_rollout": True,
+                "is_firefox_labs_opt_in": False,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 1,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch.feature_values.first().id
+                ),
+                "branches-0-feature-value-0-value": "{}",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+            },
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        self.assertTrue(experiment.is_rollout)
+        self.assertTrue(experiment.prevent_pref_conflicts)
+
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
     def test_form_saves_branches(self):
