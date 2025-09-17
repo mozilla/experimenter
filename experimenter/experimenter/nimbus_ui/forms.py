@@ -720,6 +720,9 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             cleaned_data["firefox_labs_group"] = ""
             cleaned_data["requires_restart"] = False
 
+        if cleaned_data["is_rollout"]:
+            cleaned_data["prevent_pref_conflicts"] = True
+
         return cleaned_data
 
     def save(self, *args, **kwargs):
