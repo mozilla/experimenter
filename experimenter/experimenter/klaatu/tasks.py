@@ -125,11 +125,15 @@ def klaatu_start_job(experiment: NimbusExperiment, application: str) -> None:
     clients = create_klaatu_clients(application, _create_auth_token())
     firefox_targets = get_firefox_targets(experiment)
     branches = get_branches(experiment)
+    server = "prod"
+    if settings.IS_STAGING:
+        server = "stage"
     for client in clients:
         client.run_test(
             experiment_slug=experiment.slug,
             branch_slugs=branches,
             targets=firefox_targets,
+            server=server,
         )
 
 

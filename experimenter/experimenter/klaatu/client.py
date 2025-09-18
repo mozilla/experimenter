@@ -73,6 +73,7 @@ class KlaatuClient:
         experiment_slug: str,
         branch_slugs: list[str],
         targets: list[Union[KlaatuTargets, str]],
+        server: str = "prod",
     ) -> None:
         path = KlaatuEndpoints.DISPATCH.format(workflow=self.workflow_name)
         url = urljoin(self.base_url, path)
@@ -83,6 +84,7 @@ class KlaatuClient:
                 "slug": experiment_slug,
                 "branch": json.dumps(branch_slugs),
                 "firefox-version": json.dumps(targets),
+                "server": server,
             },
         }
 
