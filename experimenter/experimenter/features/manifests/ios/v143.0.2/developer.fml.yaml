@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- release
+- developer
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -10,7 +10,7 @@ features:
       status:
         description: If true, we will allow user to edit the address
         type: Boolean
-        default: false
+        default: true
   address-bar-menu-feature:
     description: |
       This property determines if we show the new address bar menu entry or the toolbar menu in settings
@@ -54,7 +54,7 @@ features:
         description: |
           Variable description
         type: Boolean
-        default: false
+        default: true
   default-zoom-feature:
     description: |
       The feature flag to manage the rollout of default zoom feature.
@@ -63,7 +63,7 @@ features:
         description: |
           If true, page zoom settings and default zoom feature are shown
         type: Boolean
-        default: false
+        default: true
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
@@ -72,7 +72,7 @@ features:
         description: |
           If true, the download live activities feature is enabled
         type: Boolean
-        default: false
+        default: true
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
@@ -83,7 +83,7 @@ features:
       simplified-ui-enabled:
         description: If true, enable simplified UI part of Felt Privacy
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -99,7 +99,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -107,7 +107,7 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: false
+          status: true
   hnt-sponsored-shortcuts-feature:
     description: This feature manages the visibility of sponsored shortcuts on the homepage
     variables:
@@ -121,7 +121,7 @@ features:
       enabled:
         description: Determines whether the top sites visual refresh is shown.
         type: Boolean
-        default: false
+        default: true
   homepage-rebuild-feature:
     description: |
       This feature is for managing the roll out of the Homepage rebuild feature
@@ -130,7 +130,7 @@ features:
         description: |
           If true, enables the feature
         type: Boolean
-        default: false
+        default: true
   homepage-redesign-feature:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.
@@ -151,7 +151,7 @@ features:
         description: |
           If true, enables the search bar feature on homepage for users.
         type: Boolean
-        default: false
+        default: true
       shortcuts-library:
         description: |
           If true, enables the shortcuts library feature, accessible from the homepage
@@ -161,7 +161,7 @@ features:
         description: |
           If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)
         type: Boolean
-        default: false
+        default: true
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
@@ -170,17 +170,26 @@ features:
         description: |
           Enables the hosted summarizer feature.
         type: Boolean
-        default: false
+        default: true
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: false
+        default: true
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: false
+        default: true
+  logins-verification:
+    description: |
+      Feature that enables the logins verification logic.
+    variables:
+      logins-verification-enabled:
+        description: |
+          Whether the logins verification logic is enabled. When enabled, an attempt will be made to decrypt all stored logins when sync is enabled. If a login cannot be decrypted, it will be locally deleted to unblock syncing.
+        type: Boolean
+        default: true
   menu-refactor-feature:
     description: |
       Controls the menu refactor feature
@@ -252,7 +261,35 @@ features:
         description: |
           A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
         type: Map<MessageKey, MessageData>
-        default: {}
+        default:
+          homepage-microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+            - SECOND_HOMEPAGE_VIEW
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with your Firefox homepage?
+            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
+            microsurveyConfig:
+              utm-content: homepage
+              icon: homeLarge
+              options:
+              - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
+              - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+          survey-surface-message:
+            surface: survey
+            style: SURVEY
+            trigger-if-all:
+            - NEVER
+            text: ResearchSurface/Body.Text.v112
+            button-label: ResearchSurface/PrimaryButton.Label.v112
+            action: OPEN_URL
+            action-params:
+              url: https://www.macrumors.com
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -335,7 +372,7 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
@@ -599,7 +636,7 @@ features:
         description: |
           Enables the feature.
         type: Boolean
-        default: false
+        default: true
   revert-unsafe-continuations-refactor:
     description: |
       A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).
@@ -608,16 +645,7 @@ features:
         description: |
           If true, revert unsafe continuations usage back to normal checked continuations usage.
         type: Boolean
-        default: false
-  rust-fxa-keychain:
-    description: |
-      Feature that enables the rust FxA keychain logic.
-    variables:
-      rust-fxa-keychain-enabled:
-        description: |
-          Whether the rust FxA keychain logic is enabled. When enabled, the rust keychain is used to store and retrieve encryption key data for the FxA rust comoponent. Otherwise, the pre-existing MZKeychainWrapper logic is used.
-        type: Boolean
-        default: false
+        default: true
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
@@ -654,19 +682,19 @@ features:
         description: |
           The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
         type: Int
-        default: 0
+        default: 6000
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
         type: Boolean
-        default: false
+        default: true
       icon-type:
         description: |
           The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
         type: Option<IconType>
-        default: letter
+        default: screenshot
       keep-for-days:
         description: |
           Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
@@ -701,12 +729,7 @@ features:
         description: |
           If true, enables the tab tray UI experiments.
         type: Boolean
-        default: false
-      translucency:
-        description: |
-          If true, enables translucency for tab tray actions at the bottom.
-        type: Boolean
-        default: false
+        default: true
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -733,7 +756,7 @@ features:
         description: |
           Enables minimal address bar mode on scroll to ensure the url is always visible.
         type: Boolean
-        default: false
+        default: true
       navigation_hint:
         description: |
           If true, enables the navigation contextual hint.
@@ -748,7 +771,7 @@ features:
         description: |
           Enables swipe gestures to switch between browser tabs.
         type: Boolean
-        default: false
+        default: true
       toolbar_update_hint:
         description: |
           If true, enables the toolbar update contextual hint.
@@ -772,7 +795,7 @@ features:
         description: |
           Enables the feature
         type: Boolean
-        default: true
+        default: false
   tou-feature:
     description: |
       This feature is for managing the rollout of the Terms of Use (ToU) implementation.
