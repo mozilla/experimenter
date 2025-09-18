@@ -25,6 +25,7 @@ class TestKlaatuClient(unittest.TestCase):
             experiment_slug="training-only-for-dev-tools",
             branch_slugs=["control"],
             targets=[KlaatuTargets.LATEST_BETA, "137.0"],
+            server="stage",
         )
 
     @mock.patch("experimenter.klaatu.client.requests.post")

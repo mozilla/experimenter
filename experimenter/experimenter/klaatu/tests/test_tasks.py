@@ -198,3 +198,15 @@ class TestNimbusKlaatuTasks(TestCase):
 
             token = tasks._create_auth_token()
         self.assertEqual(token, "gh_123abc456xyz")
+
+    @mock.patch("experimenter.klaatu.client.requests.post")
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_stage_job_starts_correctly(self, mock_client, mock_post):
+        with override_settings(
+            IS_STAGING=True,
+        ):
+            application = NimbusExperiment.Application.DESKTOP
+            mock_post.return_value.status_code = 204
+            self.create_experiment(application)
+
+            tasks.klaatu_start_job(self.experiment, application)
