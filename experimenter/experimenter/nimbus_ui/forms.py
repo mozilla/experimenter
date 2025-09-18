@@ -698,6 +698,9 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         self.was_labs_opt_in = self.instance.is_firefox_labs_opt_in
 
+        if self.instance.is_rollout:
+            self.fields["prevent_pref_conflicts"].disabled = True
+
     @property
     def errors(self):
         errors = super().errors
