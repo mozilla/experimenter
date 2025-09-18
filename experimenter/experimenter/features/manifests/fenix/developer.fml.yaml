@@ -419,30 +419,6 @@ features:
                 line-two-link-text: onboarding_redesign_tou_body_two_link_text
                 line-three-text: onboarding_redesign_tou_body_three
                 line-three-link-text: onboarding_redesign_tou_body_three_link_text
-          default-browser-redesign:
-            card-type: default-browser
-            enabled: false
-            title: onboarding_redesign_set_default_browser_title
-            ordering: 5
-            body: onboarding_redesign_set_default_browser_body
-            primary-button-label: juno_onboarding_default_browser_positive_button
-            secondary-button-label: juno_onboarding_default_browser_negative_button
-          toolbar-placement-redesign:
-            card-type: toolbar-placement
-            enabled: false
-            title: onboarding_redesign_customize_toolbar_title
-            body: onboarding_customize_toolbar_description
-            image-res: ic_onboarding_customize_toolbar
-            ordering: 35
-            primary-button-label: onboarding_redesign_continue_button
-            extra-data:
-              customization-toolbar-data:
-              - toolbar-type: toolbar-top
-                label: onboarding_customize_toolbar_top_option
-                image-res: ic_onboarding_top_toolbar
-              - toolbar-type: toolbar-bottom
-                label: onboarding_customize_toolbar_bottom_option
-                image-res: ic_onboarding_bottom_toolbar
           marketing-data:
             card-type: marketing-data
             enabled: false
