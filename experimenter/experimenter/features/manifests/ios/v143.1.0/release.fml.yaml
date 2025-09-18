@@ -35,17 +35,17 @@ features:
         description: |
           Enables the apple summarizer feature.
         type: Boolean
-        default: true
+        default: false
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
