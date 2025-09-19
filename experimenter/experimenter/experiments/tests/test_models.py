@@ -2419,6 +2419,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2436,6 +2438,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2460,6 +2464,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            application=NimbusExperiment.Application.DESKTOP,
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2490,6 +2496,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2595,6 +2603,21 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0]["text"], NimbusUIConstants.PREF_TARGETING_WARNING)
         self.assertEqual(warnings[0]["slugs"], [rollout.slug])
+
+    def test_multichannel_experiments_warning(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
+            is_rollout=False,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(
+            warnings[0]["text"], NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING
+        )
+        self.assertEqual(warnings[0]["slugs"], [])
 
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
