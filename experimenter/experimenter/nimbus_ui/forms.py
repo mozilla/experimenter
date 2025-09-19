@@ -1258,7 +1258,7 @@ class DraftToPreviewForm(UpdateStatusForm):
         experiment = super().save(commit=commit)
         experiment.allocate_bucket_range()
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
-        klaatu_start_job.delay(experiment=experiment, application=experiment.application)
+        klaatu_start_job.delay(experiment_id=experiment.id)
         return experiment
 
 

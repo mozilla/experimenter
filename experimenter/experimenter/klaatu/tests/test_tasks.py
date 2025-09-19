@@ -74,7 +74,7 @@ class TestNimbusKlaatuTasks(TestCase):
         mock_post.return_value.status_code = 204
         self.create_experiment(application)
 
-        tasks.klaatu_start_job(self.experiment, application)
+        tasks.klaatu_start_job(self.experiment.id)
 
     @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
     def test_klaatu_task_helper_sets_up_branches_correctly(self, mock_client):
@@ -209,4 +209,4 @@ class TestNimbusKlaatuTasks(TestCase):
             mock_post.return_value.status_code = 204
             self.create_experiment(application)
 
-            tasks.klaatu_start_job(self.experiment, application)
+            tasks.klaatu_start_job(self.experiment.id)
