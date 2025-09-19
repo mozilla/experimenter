@@ -43,6 +43,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     which may result in reduced statistical power and precision or prevent enrollment
     entirely. Please check that the configured population proportion has accounted for
     this:"""
+    EXPERIMENT_MULTICHANNEL_WARNING = """WARNING: This experiment is targeting multiple
+    channels.  Each channel has significantly different population sizes and user
+    behaviour.  Running an experiment on multiple channels can create misleading or
+    inaccurate results.  It is recommended to run experiments only on a single channel."""
 
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
     ROLLOUT_BUCKET_WARNING = (
