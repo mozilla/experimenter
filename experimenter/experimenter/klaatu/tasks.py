@@ -121,8 +121,9 @@ def create_klaatu_clients(application: str, token: str) -> list[KlaatuClient]:
 
 
 @app.task
-def klaatu_start_job(experiment: NimbusExperiment, application: str) -> None:
-    clients = create_klaatu_clients(application, _create_auth_token())
+def klaatu_start_job(experiment_id: str) -> None:
+    experiment = NimbusExperiment.objects.get(id=experiment_id)
+    clients = create_klaatu_clients(experiment.application, _create_auth_token())
     firefox_targets = get_firefox_targets(experiment)
     branches = get_branches(experiment)
     server = "prod"

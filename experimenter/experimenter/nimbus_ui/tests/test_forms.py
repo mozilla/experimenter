@@ -655,9 +655,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.mock_klaatu_task.assert_called_once_with(
-            experiment=experiment, application=experiment.application
-        )
+        self.mock_klaatu_task.assert_called_once_with(experiment_id=experiment.id)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
