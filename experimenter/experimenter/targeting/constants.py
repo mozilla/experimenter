@@ -654,6 +654,17 @@ URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED_NOT_STICKY = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) - Data Collection Enabled (not sticky)",
+    slug="urlbar_firefox_suggest_data_collection_enabled_not_sticky",
+    description="Users with Firefox Suggest data collection enabled and not sticky",
+    targeting="'browser.urlbar.quicksuggest.dataCollection.enabled'|preferenceValue",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_DISABLED = NimbusTargetingConfig(
     name="Urlbar (Firefox Suggest) - Data Collection Disabled",
     slug="urlbar_firefox_suggest_data_collection_disabled",
