@@ -1716,6 +1716,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if pref_collision_warning := self.pref_targeting_rollout_collision_warning:
                 warnings.append(pref_collision_warning)
 
+            if self.is_desktop and not self.is_rollout and len(self.channels) > 1:
+                warnings.append(
+                    {
+                        "text": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
+                        "slugs": [],
+                        "variant": "warning",
+                        "learn_more_link": "",
+                    }
+                )
+
         return warnings
 
     def get_invalid_fields_errors(self):
