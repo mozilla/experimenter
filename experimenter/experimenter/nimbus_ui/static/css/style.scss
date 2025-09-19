@@ -192,3 +192,10 @@
 .nav-link-hover:hover {
   background-color: var(--bs-secondary-bg);
 }
+
+#htmx-loading-overlay {
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease-in;
+}
