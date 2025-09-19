@@ -14,8 +14,17 @@
         hx-post="{% url 'nimbus-ui-update-branches' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
         hx-select="#branches-form"
         hx-target="#branches-form"
-        hx-swap="outerHTML">
+        hx-swap="outerHTML"
+        class="position-relative">
     {% csrf_token %}
+    <!-- Full form overlay -->
+    <div id="htmx-loading-overlay"
+         class="position-absolute bg-secondary top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center rounded">
+      <div class="text-center text-white">
+        <i class="fa-solid fa-spinner fa-spin-pulse fa-3x mb-3"></i>
+        <div class="fs-5">Saving changes...</div>
+      </div>
+    </div>
     <div class="card mb-3">
       <div class="card-header">
         <h4>Branches</h4>
@@ -89,12 +98,12 @@
                 <div class="row">
                   <div class="col-3">
                     <label class="d-block">Branch Name</label>
-                    {{ branch_form.name|add_class:"form-control"|add_error_class:"is-invalid" }}
+                    {{ branch_form.name|add_error_class:"is-invalid" }}
                     {% for error in branch_form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                   </div>
-                  <div class="col-8">
+                  <div class="col-7">
                     <label class="d-block">Description</label>
-                    {{ branch_form.description|add_class:"form-control"|add_error_class:"is-invalid" }}
+                    {{ branch_form.description|add_error_class:"is-invalid" }}
                     {% for error in branch_form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                     {% if forloop.first and validation_errors.reference_branch %}
                       {% for error in validation_errors.reference_branch.description %}
@@ -111,25 +120,32 @@
                       {% endwith %}
                     {% endif %}
                   </div>
-                  <div class="col-1 d-flex flex-column align-items-center pt-1">
-                    <label class="form-label mb-1">Ratio</label>
-                    {% if form.instance.equal_branch_ratio %}
-                      <span class="form-label mb-1">Equal</span>
-                    {% else %}
-                      {{ branch_form.ratio|add_class:"form-control text-center"|add_error_class:"is-invalid" }}
-                      {% for error in branch_form.ratio.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                    {% endif %}
-                    {% if not forloop.first %}
-                      <button type="button"
-                              class="btn btn-link p-0 mt-1"
-                              hx-post="{% url 'nimbus-ui-delete-branch' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-                              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                              hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
-                              hx-select="#branches-form"
-                              hx-target="#branches-form">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                      </button>
-                    {% endif %}
+                  <div class="col-2">
+                    <label class="d-block">Ratio</label>
+                    <div class="d-flex align-items-end">
+                      {% if form.instance.equal_branch_ratio %}
+                        <input type="text" class="form-control text-center" value="Equal" disabled>
+                      {% else %}
+                        {{ branch_form.ratio|add_class:"form-control text-center"|add_error_class:"is-invalid" }}
+                        {% for error in branch_form.ratio.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                      {% endif %}
+                      {% if not forloop.first %}
+                        <button type="button"
+                                id="delete-branch-{{ branch_form.instance.id }}"
+                                class="btn btn-link ms-3 px-0"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                data-bs-title="Delete Branch"
+                                hx-post="{% url 'nimbus-ui-delete-branch' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
+                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
+                                hx-select="#branches-form"
+                                hx-target="#branches-form"
+                                hx-disabled-elt="this">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      {% endif %}
+                    </div>
                   </div>
                 </div>
                 {{ branch_form.branch_feature_values.management_form }}
@@ -138,7 +154,7 @@
                   <div class="row mt-3">
                     <div class="col">
                       <label class="form-label">{{ branch_feature_values_form.instance.feature_config.name }}</label>
-                      {{ branch_feature_values_form.value|add_class:"form-control"|add_error_class:"is-invalid" }}
+                      {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
                       {% for error in branch_feature_values_form.value.errors %}
                         <div class="invalid-feedback d-block">{{ error }}</div>
                       {% endfor %}
@@ -172,14 +188,14 @@
                   </div>
                 {% endfor %}
                 <div class="mt-3">
-                  <p>Screenshots</p>
+                  <label class="d-block">Screenshots</label>
                   {{ branch_form.screenshot_formset.management_form }}
                   {% for screenshot_form in branch_form.screenshot_formset %}
                     {% with forloop.counter0 as screenshot_index %}
                       {{ screenshot_form.id }}
                       <div class="row mb-2">
                         <div class="col-4">
-                          {{ screenshot_form.image|add_class:"form-control"|add_error_class:"is-invalid" }}
+                          {{ screenshot_form.image|add_error_class:"is-invalid" }}
                           {% for error in screenshot_form.image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                           {% if forloop.parentloop.first and validation_errors.reference_branch.screenshots %}
                             {% for ss in validation_errors.reference_branch.screenshots %}
@@ -201,8 +217,8 @@
                             {% endwith %}
                           {% endif %}
                         </div>
-                        <div class="col-7">
-                          {{ screenshot_form.description|add_class:"form-control"|add_error_class:"is-invalid" }}
+                        <div class="col-8 d-flex align-items-end">
+                          {{ screenshot_form.description|add_error_class:"is-invalid" }}
                           {% for error in screenshot_form.description.errors %}
                             <div class="invalid-feedback d-block">{{ error }}</div>
                           {% endfor %}
@@ -225,16 +241,19 @@
                               {% endfor %}
                             {% endwith %}
                           {% endif %}
-                        </div>
-                        <div class="col-1 d-flex align-items-center">
                           <button type="button"
-                                  class="btn btn-link"
+                                  id="delete-screenshot-{{ screenshot_form.instance.id }}"
+                                  class="btn btn-link ms-3 px-0"
+                                  data-bs-toggle="tooltip"
+                                  data-bs-placement="top"
+                                  data-bs-title="Delete Screenshot"
                                   hx-post="{% url 'nimbus-ui-delete-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
                                   hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                                   hx-vals='{"screenshot_id": {{ screenshot_form.instance.id }} }'
                                   hx-select="#branches-form"
-                                  hx-target="#branches-form">
-                            <i class="fa-solid fa-circle-xmark"></i>
+                                  hx-target="#branches-form"
+                                  hx-disabled-elt="this">
+                            <i class="fa-solid fa-trash"></i>
                           </button>
                         </div>
                       </div>
@@ -257,7 +276,8 @@
                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                           hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
                           hx-select="#branches-form"
-                          hx-target="#branches-form">
+                          hx-target="#branches-form"
+                          hx-disabled-elt="this">
                     +
                     Add Screenshot
                   </button>
@@ -271,10 +291,12 @@
                 {% if experiment.branches.count < 20 %}
                   <button class="btn btn-outline-primary btn-sm"
                           type="button"
+                          id="add-branch-button"
                           hx-post="{% url 'nimbus-ui-create-branch' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                           hx-select="#branches-form"
-                          hx-target="#branches-form">
+                          hx-target="#branches-form"
+                          hx-disabled-elt="this">
                     + Add
                     Branch
                   </button>
@@ -307,7 +329,7 @@
             <div class="col">
               <label class="d-block">
                 Localization Substitutions
-                {{ form.localizations|add_class:"form-control"|add_error_class:"is-invalid" }}
+                {{ form.localizations|add_error_class:"is-invalid" }}
               </label>
               {% for error in form.localizations.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
               {% for error in validation_errors.localizations %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
