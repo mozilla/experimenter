@@ -76,7 +76,7 @@ const setupHTMXLoadingOverlay = () => {
   document.addEventListener("htmx:beforeRequest", function () {
     const loadingOverlay = document.querySelector("#htmx-loading-overlay");
     if (loadingOverlay) {
-      loadingOverlay.style.opacity = "1";
+      loadingOverlay.style.opacity = "0.75";
       loadingOverlay.style.pointerEvents = "auto";
     }
   });
