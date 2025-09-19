@@ -2225,9 +2225,7 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
-        self.mock_klaatu_task.assert_called_once_with(
-            experiment=experiment, application=experiment.application
-        )
+        self.mock_klaatu_task.assert_called_once_with(experiment_id=experiment.id)
         self.mock_preview_task.assert_called_once_with(countdown=5)
         self.mock_allocate_bucket_range.assert_called_once()
 
