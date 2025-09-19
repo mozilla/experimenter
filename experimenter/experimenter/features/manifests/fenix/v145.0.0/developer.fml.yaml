@@ -456,6 +456,19 @@ features:
                 body-line-one-text: onboarding_marketing_learn_more
                 body-line-one-link-text: onboarding_marketing_learn_more
                 body-line-two-text: onboarding_marketing_opt_out_checkbox
+          marketing-data-redesign:
+            card-type: marketing-data
+            enabled: false
+            title: onboarding_marketing_redesign_title
+            body: onboarding_marketing_body
+            image-res: ic_onboarding_marketing_redesign
+            ordering: 40
+            primary-button-label: onboarding_marketing_redesign_positive_button
+            extra-data:
+              marketing-data:
+                body-line-one-text: onboarding_marketing_redesign_learn_more
+                body-line-one-link-text: onboarding_marketing_redesign_learn_more
+                body-line-two-text: onboarding_marketing_redesign_opt_out_checkbox
         string-alias: OnboardingCardKey
       conditions:
         description: |
