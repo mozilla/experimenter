@@ -67,18 +67,20 @@ def get_workflows(application: str) -> list[str]:
 
 
 def get_firefox_targets(experiment: NimbusExperiment) -> list[str]:
-    versions = []
-    release_version = get_release_version()
-    latest_per_major = {}
+    major_list = []
+    major_versions = set()
     final_versions = []
     max_version = None
     exp_max_version = parse(f"{experiment.firefox_max_version}")
+    releases = requests.get(NimbusConstants.WHAT_TRAIN_IS_IT_NOW_URL).json()
+    release_version = list(releases)[-1]
 
     # get max version
     try:
         max_version = int(float(f"{exp_max_version}")) + 1
     except ValueError:
         max_version = release_version
+    max_version = version.parse(str(max_version))
 
     # if no max version they want to test against release, so include nightly/beta
     if "desktop" in experiment.application and experiment.firefox_max_version == "":
@@ -86,22 +88,27 @@ def get_firefox_targets(experiment: NimbusExperiment) -> list[str]:
             [KlaatuTargets.LATEST_NIGHTLY.value, KlaatuTargets.LATEST_BETA.value]
         )
 
-    # fill versions up to max version
-    for _version in NimbusConstants.Version:
-        _version = _version.value.replace("!", "0")
-        if version.parse(_version) >= parse(
-            experiment.firefox_min_version
-        ) and version.parse(_version) < version.parse(str(max_version)):
-            versions.append(_version)
+    # get list of all releases within experiment range
+    for item in releases:
+        if (
+            version.parse(item) >= version.parse(experiment.firefox_min_version)
+            and version.parse(item) <= max_version
+        ):
+            major_list.append(item)
 
-    for v in versions:
-        parsed_version = version.parse(v)
-        major = parsed_version.release[0]  # type: ignore
+    # get just the major release version number, i.e.: 140
+    for release in major_list:
+        major_versions.add(version.parse(release).major)
 
-        if major not in latest_per_major or parsed_version > latest_per_major[major]:
-            latest_per_major[major] = parsed_version
-
-    final_versions.extend([str(v) for v in latest_per_major.values()])
+    for item in major_versions:
+        temp_version = None
+        versions = [v for v in major_list if v.startswith(f"{item}.")]
+        for sub_version in versions:
+            if temp_version is None or version.parse(sub_version) > version.parse(
+                temp_version
+            ):
+                temp_version = sub_version
+        final_versions.append(temp_version)
 
     return final_versions
 

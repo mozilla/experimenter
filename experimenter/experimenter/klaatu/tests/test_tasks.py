@@ -81,21 +81,41 @@ class TestNimbusKlaatuTasks(TestCase):
         self.create_experiment(NimbusExperiment.Application.DESKTOP)
         self.assertEqual(tasks.get_branches(self.experiment), ["control", "treatment"])
 
+    @mock.patch("experimenter.klaatu.client.requests.get")
     @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
-    def test_klaatu_task_helper_creates_targets_with_max_version(self, mock_client):
+    def test_klaatu_task_helper_creates_targets_with_max_version(
+        self, mock_client, mock_get
+    ):
         self.create_experiment(NimbusExperiment.Application.DESKTOP)
         self.experiment.firefox_max_version = NimbusExperiment.Version.FIREFOX_135
         self.experiment.save()
+
+        mock_get.return_value.json.return_value = {
+            "130.0": "2024-09-03",
+            "130.0.1": "2024-09-17",
+            "131.0": "2024-10-01",
+            "131.0.2": "2024-10-09",
+            "131.0.3": "2024-10-14",
+            "132.0": "2024-10-29",
+            "132.0.1": "2024-11-04",
+            "132.0.2": "2024-11-12",
+            "133.0": "2024-11-26",
+            "133.0.3": "2024-12-10",
+            "134.0": "2025-01-07",
+            "134.0.1": "2025-01-14",
+            "134.0.2": "2025-01-21",
+            "135.0": "2025-02-04",
+        }
 
         self.assertEqual(
             tasks.get_firefox_targets(self.experiment),
             [
                 "130.0.1",
-                "131.2.0",
-                "132.0",
-                "133.0.1",
-                "134.1.0",
-                "135.1.0",
+                "131.0.3",
+                "132.0.2",
+                "133.0.3",
+                "134.0.2",
+                "135.0",
             ],
         )
 
