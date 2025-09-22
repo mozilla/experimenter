@@ -89,20 +89,20 @@ def get_firefox_targets(experiment: NimbusExperiment) -> list[str]:
         )
 
     # get list of all releases within experiment range
-    for item in releases:
+    for release in releases:
         if (
-            version.parse(item) >= version.parse(experiment.firefox_min_version)
-            and version.parse(item) <= max_version
+            version.parse(release) >= version.parse(experiment.firefox_min_version)
+            and version.parse(release) <= max_version
         ):
-            major_list.append(item)
+            major_list.append(release)
 
     # get just the major release version number, i.e.: 140
     for release in major_list:
         major_versions.add(version.parse(release).major)
 
-    for item in major_versions:
+    for major_version in major_versions:
         temp_version = None
-        versions = [v for v in major_list if v.startswith(f"{item}.")]
+        versions = [v for v in major_list if v.startswith(f"{major_version}.")]
         for sub_version in versions:
             if temp_version is None or version.parse(sub_version) > version.parse(
                 temp_version
