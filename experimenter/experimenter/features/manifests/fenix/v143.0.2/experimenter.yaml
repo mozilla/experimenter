@@ -75,6 +75,14 @@ cookie-banners:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
+custom-review-prompt:
+  description: Feature that controls the Play store in-app custom review prompt.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not to enable the custom review prompt.
 doh:
   description: Feature controlling DNS over HTTPS (DoH).
   hasExposure: true
