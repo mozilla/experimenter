@@ -2890,6 +2890,12 @@ networking:
       setPref:
         branch: default
         pref: "network.http.http3.use_nspr_for_io"
+    prefetchNext:
+      description: Enables the prefetch service (i.e., prefetching of <link rel="next"> and <link rel="prefetch"> URLs).
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.prefetch-next"
 
 networkingEarlyHints:
   description: "Networking (Necko) Early Hints"
@@ -2950,6 +2956,12 @@ networkingConnections:
       setPref:
         branch: default
         pref: "network.http.max-persistent-connections-per-server"
+    httpMaxUrgentStartExcessiveConnectionsPerHost:
+      description: Number of connections that we can open beyond the standard parallelism limit defined by max-persistent-connections-per-server/-proxy to handle urgent-start marked requests.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.max-urgent-start-excessive-connections-per-host"
     speculativeConnectionLimit:
       description: The maximum number of half-open sockets allowed for speculative connections
       type: int
@@ -5267,3 +5279,194 @@ passwordManager:
       description: >-
         Triggers a reencryption of all passwords on the next startup for
         migration purposes.
+
+xpcom:
+  description: Prefs that control the cross-platform component object model
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    idle_period_cross_process_scheduling:
+      description: Whether Firefox allows background processes to use idle time to schedule and run tasks.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "idle_period.cross_process_scheduling"
+    low_commit_space_threshold_mb:
+      description: if defined(XP_WIN) || defined(XP_LINUX) - notify TabUnloader or send the memory pressure if the memory resource notification is signaled AND the available commit space is lower than this value.
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.low_commit_space_threshold_mb"
+    low_commit_space_threshold_percent:
+      description: ifdef XP_LINUX - on Linux we also check available memory in comparison to total memory, and use this percent value (out of 100) to determine if we are in a low memory scenario.
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.low_commit_space_threshold_percent"
+
+layout:
+  description: Prefs that control the DOM or core layout.
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    lower_priority_refresh_driver_during_load:
+      description: Reduces refresh rate between fcp and load. The value is TRUE is there to improve page load.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "layout.lower_priority_refresh_driver_during_load"
+    sessionstore_max_tabs_undo:
+      description: How many tabs can be reopened per window.
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.sessionstore.max_tabs_undo"
+    sessionstore_max_windows_undo:
+      description: How many windows will be saved and can be reopened per session - on non-macOS platforms this pref may be ignored when dealing with pop-up windows to ensure the user actually gets at least one window with a menu bar.
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.sessionstore.max_windows_undo"
+    sessionstore_interval:
+      description: Minimum interval between two save operations in milliseconds (while the user is active).
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.sessionstore.interval"
+    sessionhistory_max_total_viewers:
+      description: Number of content viewers to cache based. If negative, determined by amount of available memory.
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.sessionhistory.max_total_viewers"
+    smooth_scroll:
+      description: Whether to enable smooth scrolling.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "general.smoothScroll"
+    frame_rate:
+      description: Pref to control browser frame rate, in Hz.
+      type: int
+      setPref:
+        branch: user
+        pref: "layout.frame_rate"
+    frame_rate_throttled:
+      description: Throttled frame rate, in frames per second.
+      type: int
+      setPref:
+        branch: user
+        pref: "layout.throttled_frame_rate"
+    initialpaint_delay:
+      description: Reduces the time Firefox waits before starting to render a page.
+      type: int
+      setPref:
+        branch: user
+        pref: "nglayout.initialpaint.delay"
+    initialpaint_delay_oopif:
+      description: Reduces the time Firefox waits before starting to render a page in out-of-process iframes.
+      type: int
+      setPref:
+        branch: user
+        pref: "nglayout.initialpaint.delay_in_oopif"
+    page_load_deprioritization_period:
+      description: Time in milliseconds during which certain tasks are deprioritized during page load.
+      type: int
+      setPref:
+        branch: user
+        pref: "page_load.deprioritization_period"
+
+ipc:
+  description: Prefs that control the inter-process communication system.
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    backend_mach:
+      description: if defined(XP_DARWIN) - Whether or not to use the mach-based IPC backend on macOS/iOS. Only read once at startup by IOThreadParent's constructor.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.ipc.backend.mach"
+    process_count:
+      description: The max number of content processes used for non-isolated origins.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processCount"
+    process_count_web_isolated:
+      description: Maximum number of isolated content processes per-origin.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processCount.webIsolated"
+    preallocated_process_count:
+      description: Process preallocation cache. Only used in fission; in e10s we use 1 always.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPrelaunch.fission.number"
+    preallocated_lowmem_mb:
+      description: Limit preallocated processes below this memory size (in MB).
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPrelaunch.lowmem_mb"
+    priority_manager_enabled:
+      description: Determines whether Firefox uses the Process Priority Manager to adjust CPU priority based on importance.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPriorityManager.enabled"
+    priority_manager_background_grace_period_ms:
+      description: The waiting period before Firefox begins lowering the priority of a content process after it goes into background.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPriorityManager.backgroundGracePeriodMS"
+    priority_manager_background_perceivable_grace_period_ms:
+      description: The waiting period before Firefox begins lowering the priority of a content process that is still considered "perceivable".
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPriorityManager.backgroundPerceivableGracePeriodMS"
+    priority_manager_background_uses_ecoqos:
+      description: Windows only. Determines whether Firefox should use EcoQoS mode for power efficiency.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPriorityManager.backgroundUsesEcoQoS"
+
+graphics:
+  description: Prefs that control media and/or graphics processing.
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    gfx_webrender_all:
+      description: Whether to use the WebRender hardware backend.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "gfx.webrender.all"
+    layers_acceleration_force_enabled:
+      description: Whether to force acceleration on, ignoring blacklists.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "layers.acceleration.force-enabled"
+image:
+  description: Prefs that control image processing.
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    image_cache_size:
+      description: The maximum size, in bytes, of the decoded images we cache.
+      type: int
+      setPref:
+        branch: user
+        pref: "image.cache.size"
+    image_mem_decode_bytes_at_a_time:
+      description: Chunk size for calls to the image decoders.
+      type: int
+      setPref:
+        branch: user
+        pref: "image.mem.decode_bytes_at_a_time"

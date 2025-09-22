@@ -121,7 +121,7 @@ features:
       enabled:
         description: Determines whether the top sites visual refresh is shown.
         type: Boolean
-        default: false
+        default: true
   homepage-rebuild-feature:
     description: |
       This feature is for managing the roll out of the Homepage rebuild feature
