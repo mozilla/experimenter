@@ -1428,6 +1428,10 @@ newtabInferredPersonalization:
       type: boolean
       description: >-
         Whether to use Unary encoding with differential privacy in the interest vector. If false or not set, we default to laplace noise with real values
+    normalized_time_zone_offset:
+      type: boolean
+      description: >-
+        Include normalized (limited to common values) time zone offset in telemetry and requests
 
 
 newtabSmartShortcuts:
