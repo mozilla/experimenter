@@ -70,17 +70,18 @@ def get_firefox_targets(experiment: NimbusExperiment) -> list[str]:
     major_list = []
     major_versions = set()
     final_versions = []
-    max_version = None
-    exp_max_version = parse(f"{experiment.firefox_max_version}")
+    exp_max_version = None
+    exp_min_version = parse(f"{experiment.firefox_min_version}")
     releases = requests.get(NimbusConstants.WHAT_TRAIN_IS_IT_NOW_URL).json()
     release_version = list(releases)[-1]
 
     # get max version
-    try:
-        max_version = int(float(f"{exp_max_version}")) + 1
-    except ValueError:
-        max_version = release_version
-    max_version = version.parse(str(max_version))
+    _max_version = version.parse(release_version)
+    if experiment.firefox_max_version:
+        _max_version = parse(experiment.firefox_max_version)
+
+    # increment version for version compare
+    exp_max_version = version.parse(f"{_max_version.release[0] + 1}.0")  # type: ignore
 
     # if no max version they want to test against release, so include nightly/beta
     if "desktop" in experiment.application and experiment.firefox_max_version == "":
@@ -91,8 +92,8 @@ def get_firefox_targets(experiment: NimbusExperiment) -> list[str]:
     # get list of all releases within experiment range
     for release in releases:
         if (
-            version.parse(release) >= version.parse(experiment.firefox_min_version)
-            and version.parse(release) <= max_version
+            version.parse(release) >= exp_min_version
+            and version.parse(release) < exp_max_version
         ):
             major_list.append(release)
 
