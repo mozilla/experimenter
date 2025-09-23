@@ -2318,6 +2318,28 @@ IOS_TIPS_NOTIFICATIONS_ENABLED_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+IOS_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
+    name="Users Who Accepted Terms of Use",
+    slug="ios_accepted_terms_of_use_user",
+    description="Users that have already accepted the Terms of Use",
+    targeting="has_accepted_terms_of_use == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+IOS_NOT_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
+    name="Users Who Have Not Accepted Terms of Use",
+    slug="ios_not_accepted_terms_of_use_user",
+    description="Users that have not accepted the Terms of Use",
+    targeting="has_accepted_terms_of_use == false",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
     name="Apple Intelligence Available Users",
     slug="ios_apple_intelligence_available_user",
