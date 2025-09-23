@@ -154,7 +154,7 @@
                   {{ link_form.title|add_class:"form-control"|add_error_class:"is-invalid" }}
                   {% for error in link_form.title.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
                 </div>
-                <div class="col-8 d-flex align-items-center">
+                <div class="col-8 d-flex align-items-start">
                   <div class="flex-grow-1 me-2">
                     {{ link_form.link|add_class:"form-control"|add_error_class:"is-invalid" }}
                     {% for error in link_form.link.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
