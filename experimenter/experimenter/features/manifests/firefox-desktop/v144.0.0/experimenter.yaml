@@ -4155,6 +4155,60 @@ asmjs:
         branch: user
         pref: "javascript.options.asmjs"
 
+scriptloader:
+  description: Prefs that control scriptloader heuristics.
+  owner: dpalmeiro@mozilla.com
+  hasExposure: false
+  variables:
+    bytecode_cache_strategy:
+      description: Set the bytecode cache strategy.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.script_loader.bytecode_cache.strategy"
+    delazification_max_size:
+      description: Maximum number of bytes supported for speculate OMT full parsing.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.script_loader.delazification.max_size"
+    delazification_min_mem:
+      description: Minimum memory required, in GB, to enable OMT full parsing.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.script_loader.delazification.min_mem"
+    speculate_async_enabled:
+      description: Enable speculative OMT parsing for async scripts.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.script_loader.external_scripts.speculate_async.enabled"
+    speculate_link_preload_enabled:
+      description: Enable speculative OMT parsing for link=preload scripts.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.script_loader.external_scripts.speculate_link_preload.enabled"
+    speculate_non_parser_inserted_enabled:
+      description: Enable speculative OMT parsing for non parser inserted scripts.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.script_loader.external_scripts.speculate_non_parser_inserted.enabled"
+    speculate_enabled:
+      description: Enable speculative OMT parsing.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.script_loader.external_scripts.speculative_omt_parse.enabled"
+    navigation_cache_enabled:
+      description: Enable the navigation cache.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.script_loader.navigation_cache"
+
 raceCacheWithNetwork:
   description: Prefs to toggle the race cache with network.
   owner: dpalmeiro@mozilla.com, acreskey@mozilla.com
