@@ -3208,8 +3208,7 @@ TOU_EXPERIENCE_0 = NimbusTargetingConfig(
     name="TOU Experience 0",
     slug="tou_experience_0",
     description=(
-        "User has not accepted TOU V4 or higher",
-        "and should see TOU experience 0",
+        "User has not accepted TOU V4 or higher and should see TOU experience 0"
     ),
     targeting=f"""
     (
@@ -3230,8 +3229,7 @@ TOU_EXPERIENCE_1 = NimbusTargetingConfig(
     name="TOU Experience 1",
     slug="tou_experience_1",
     description=(
-        "User has not accepted TOU V4 or higher",
-        "and should see TOU experience 1",
+        "User has not accepted TOU V4 or higher and should see TOU experience 1"
     ),
     targeting=f"""
     (
@@ -3252,8 +3250,7 @@ TOU_EXPERIENCE_2 = NimbusTargetingConfig(
     name="TOU Experience 2",
     slug="tou_experience_2",
     description=(
-        "User has not accepted TOU V4 or higher",
-        "and should see TOU experience 2",
+        "User has not accepted TOU V4 or higher and should see TOU experience 2"
     ),
     targeting=f"""
     (
