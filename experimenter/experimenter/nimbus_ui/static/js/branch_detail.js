@@ -11,10 +11,6 @@ const setupCodemirroReadOnlyJSON = () => {
   const textareas = document.querySelectorAll(selector);
 
   textareas.forEach((textarea) => {
-    if (textarea._codemirrorInitialized) {
-      return;
-    }
-    textarea._codemirrorInitialized = true;
     const extensions = [
       basicSetup,
       json(),
@@ -40,4 +36,8 @@ const setupCodemirroReadOnlyJSON = () => {
 
 $(() => {
   setupCodemirroReadOnlyJSON();
+
+  document.body.addEventListener("htmx:afterSwap", function () {
+    setupCodemirroReadOnlyJSON();
+  });
 });
