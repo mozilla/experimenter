@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- developer
+- release
 features:
   address-sync:
     description: Turns on address sync.
@@ -11,7 +11,7 @@ features:
         description: |
           Whether or not to turn on address sync.
         type: Boolean
-        default: true
+        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -30,7 +30,7 @@ features:
       enabled:
         description: Whether or not the feature is available for the user.
         type: Boolean
-        default: true
+        default: false
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -71,7 +71,7 @@ features:
         description: |
           When the feature is enabled the user will see a new composable toolbar instead the previous View based one.
         type: Boolean
-        default: true
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -79,9 +79,9 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: Map<CookieBannersSection, Int>
         default:
-          feature-ui: 1
+          feature-ui: 0
           feature-setting-value: 0
-          feature-setting-value-pbm: 1
+          feature-setting-value-pbm: 0
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
@@ -158,12 +158,12 @@ features:
         description: |
           The feature boost wiki and AMP suggestions to the top of its group.
         type: Boolean
-        default: true
+        default: false
       enabled:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: true
+        default: false
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -197,7 +197,7 @@ features:
       enabled:
         description: If true, the feature is active
         type: Boolean
-        default: false
+        default: true
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -238,14 +238,6 @@ features:
           pocket-sponsored-stories: true
           synced-tabs: true
           collections: true
-  isolated-content-processes:
-    description: Feature that controls content process isolation.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable isolated content processes.
-        type: Boolean
-        default: false
   javascript:
     description: Enables Javascript Engine (Spidermonkey) features
     variables:
@@ -266,7 +258,7 @@ features:
             card-type: terms-of-service
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data:
               term-of-service-data:
                 line-one-text: onboarding_term_of_service_line_one_2
@@ -276,7 +268,7 @@ features:
                 line-three-text: onboarding_term_of_service_line_three
                 line-three-link-text: onboarding_term_of_service_line_three_link_text
             image-res: ic_firefox
-            ordering: 0
+            ordering: 1
             prerequisites:
             - ALWAYS
             primary-button-label: onboarding_term_of_service_agree_and_continue_button_label_2
@@ -290,7 +282,7 @@ features:
             enabled: true
             extra-data: null
             image-res: ic_onboarding_welcome
-            ordering: 5
+            ordering: 10
             prerequisites:
             - ALWAYS
             primary-button-label: juno_onboarding_default_browser_positive_button
@@ -304,7 +296,7 @@ features:
             enabled: true
             extra-data: null
             image-res: ic_onboarding_search_widget
-            ordering: 10
+            ordering: 15
             prerequisites:
             - ALWAYS
             primary-button-label: juno_onboarding_add_search_widget_positive_button
@@ -318,7 +310,7 @@ features:
             enabled: true
             extra-data: null
             image-res: ic_onboarding_sync
-            ordering: 15
+            ordering: 20
             prerequisites:
             - ALWAYS
             primary-button-label: juno_onboarding_sign_in_positive_button
@@ -332,7 +324,7 @@ features:
             enabled: true
             extra-data: null
             image-res: ic_notification_permission
-            ordering: 20
+            ordering: 30
             prerequisites:
             - ALWAYS
             primary-button-label: juno_onboarding_enable_notifications_positive_button
@@ -343,7 +335,7 @@ features:
             card-type: theme-selection
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data:
               customization-theme-data:
               - theme-type: theme-system
@@ -356,7 +348,7 @@ features:
                 label: onboarding_customize_theme_dark_option
                 image-res: ic_pick_a_theme_dark
             image-res: ic_pick_a_theme
-            ordering: 30
+            ordering: 33
             prerequisites:
             - ALWAYS
             primary-button-label: onboarding_save_and_continue_button
@@ -367,7 +359,7 @@ features:
             card-type: toolbar-placement
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data:
               customization-toolbar-data:
               - toolbar-type: toolbar-top
@@ -377,10 +369,10 @@ features:
                 label: onboarding_customize_toolbar_bottom_option
                 image-res: ic_onboarding_bottom_toolbar
             image-res: ic_onboarding_customize_toolbar
-            ordering: 35
+            ordering: 37
             prerequisites:
             - ALWAYS
-            primary-button-label: onboarding_save_and_start_button
+            primary-button-label: onboarding_save_and_continue_button
             secondary-button-label: ''
             title: onboarding_customize_toolbar_title
           marketing:
@@ -401,82 +393,6 @@ features:
             primary-button-label: onboarding_marketing_positive_button
             secondary-button-label: ''
             title: onboarding_marketing_title
-          terms-of-service-redesign:
-            card-type: terms-of-service
-            enabled: false
-            title: onboarding_redesign_tou_title
-            ordering: 0
-            image-res: ic_firefox
-            primary-button-label: onboarding_redesign_tou_agree_and_continue_button_label
-            extra-data:
-              term-of-service-data:
-                subheader-one-text: onboarding_redesign_tou_subheader_one
-                subheader-two-text: onboarding_redesign_tou_subheader_two
-                subheader-three-text: onboarding_redesign_tou_subheader_three
-                line-one-text: onboarding_redesign_tou_body_one
-                line-one-link-text: onboarding_redesign_tou_body_one_link_text
-                line-two-text: onboarding_redesign_tou_body_two
-                line-two-link-text: onboarding_redesign_tou_body_two_link_text
-                line-three-text: onboarding_redesign_tou_body_three
-                line-three-link-text: onboarding_redesign_tou_body_three_link_text
-          default-browser-redesign:
-            card-type: default-browser
-            enabled: false
-            title: onboarding_redesign_set_default_browser_title
-            ordering: 5
-            body: onboarding_redesign_set_default_browser_body
-            primary-button-label: juno_onboarding_default_browser_positive_button
-            secondary-button-label: juno_onboarding_default_browser_negative_button
-          sync-sign-in-redesign:
-            enabled: false
-            card-type: sync-sign-in
-            title: onboarding_redesign_sync_title
-            body: onboarding_redesign_sync_body
-            ordering: 15
-            primary-button-label: onboarding_redesign_sync_positive_button
-            secondary-button-label: onboarding_redesign_sync_negative_button
-          toolbar-placement-redesign:
-            card-type: toolbar-placement
-            enabled: false
-            title: onboarding_redesign_customize_toolbar_title
-            body: onboarding_customize_toolbar_description
-            image-res: ic_onboarding_customize_toolbar
-            ordering: 35
-            primary-button-label: onboarding_redesign_continue_button
-            extra-data:
-              customization-toolbar-data:
-              - toolbar-type: toolbar-top
-                label: onboarding_customize_toolbar_top_option
-                image-res: ic_onboarding_top_toolbar
-              - toolbar-type: toolbar-bottom
-                label: onboarding_customize_toolbar_bottom_option
-                image-res: ic_onboarding_bottom_toolbar
-          marketing-data:
-            card-type: marketing-data
-            enabled: false
-            title: onboarding_marketing_title
-            body: onboarding_marketing_body
-            image-res: ic_onboarding_welcome
-            ordering: 40
-            primary-button-label: onboarding_marketing_positive_button
-            extra-data:
-              marketing-data:
-                body-line-one-text: onboarding_marketing_learn_more
-                body-line-one-link-text: onboarding_marketing_learn_more
-                body-line-two-text: onboarding_marketing_opt_out_checkbox
-          marketing-data-redesign:
-            card-type: marketing-data
-            enabled: false
-            title: onboarding_marketing_redesign_title
-            body: onboarding_marketing_body
-            image-res: ic_onboarding_marketing_redesign
-            ordering: 40
-            primary-button-label: onboarding_marketing_redesign_positive_button
-            extra-data:
-              marketing-data:
-                body-line-one-text: onboarding_marketing_redesign_learn_more
-                body-line-one-link-text: onboarding_marketing_redesign_learn_more
-                body-line-two-text: onboarding_marketing_redesign_opt_out_checkbox
         string-alias: OnboardingCardKey
       conditions:
         description: |
@@ -486,25 +402,13 @@ features:
           ALWAYS: 'true'
           NEVER: 'false'
         string-alias: ConditionName
-      use-onboarding-redesign:
-        description: If true, use the onboarding redesign.
-        type: Boolean
-        default: false
-  lna-blocking:
-    description: Feature that allows blocking local network or device access.
-    variables:
-      enabled:
-        description: |
-          Whether or not to turn on local network / device access blocking
-        type: Boolean
-        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
       enabled:
         description: If true, the new menu redesign is available.
         type: Boolean
-        default: true
+        default: false
       menu-banner:
         description: If true, the menu banner is visible.
         type: Boolean
@@ -512,7 +416,7 @@ features:
       report-site-issue:
         description: If true, report site issue menu item and preview is available.
         type: Boolean
-        default: true
+        default: false
   messaging:
     description: |
       The in-app messaging system.
@@ -589,35 +493,12 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example:
-            title: microsurvey_prompt_printing_title
-            text: microsurvey_survey_printing_title
-            surface: microsurvey
-            trigger-if-all:
-            - RECENTLY_PRINTED
-            style: MICROSURVEY
-            microsurvey-config:
-              utm-content: homepage
-              icon: ic_print
-              answers:
-              - text: likert_scale_option_1
-                ordering: 0
-              - text: likert_scale_option_2
-                ordering: 1
-              - text: likert_scale_option_3
-                ordering: 2
-              - text: likert_scale_option_4
-                ordering: 3
-              - text: likert_scale_option_5
-                ordering: 4
-              - text: likert_scale_option_6
-                ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
         type: NotificationConfig
         default:
-          refresh-interval: 120
+          refresh-interval: 240
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -629,7 +510,7 @@ features:
         default:
           DEFAULT:
             priority: 50
-            max-display-count: 100
+            max-display-count: 5
           SURVEY:
             priority: 55
             max-display-count: 1
@@ -648,9 +529,6 @@ features:
           MICROSURVEY:
             priority: 50
             max-display-count: 5
-          EXPIRES_QUICKLY:
-            priority: 100
-            max-display-count: 1
         string-alias: StyleName
       triggers:
         description: |
@@ -724,7 +602,7 @@ features:
         description: |
           When the feature is enabled then the user will see the new navigation toolbar.
         type: Boolean
-        default: true
+        default: false
   networking:
     description: Enables networking features
     variables:
@@ -818,7 +696,7 @@ features:
         description: |
           What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
         type: Int
-        default: 2
+        default: 0
   pqcrypto:
     description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
     variables:
@@ -875,11 +753,11 @@ features:
         description: |
           Whether or not to enable recent searches.
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 5
+        default: 4
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -904,7 +782,7 @@ features:
         description: |
           Overrides the loadType when it is a same document navigation
         type: Boolean
-        default: false
+        default: true
       force-disable-uri:
         description: |
           Disable overriding the loadType during same document navigation on the domain specified by this URI.
@@ -943,34 +821,26 @@ features:
       enabled:
         description: If true, the feature shows up on the homescreen and on the new tab screen.
         type: Boolean
-        default: true
+        default: false
   sent-from-firefox:
     description: A feature that allows the user to add a download firefox footer to a shared link.
     variables:
       download-link:
         description: A store download link.
         type: Text
-        default: '[Download Link]'
+        default: ''
       enabled:
         description: If true, the feature is available for the user.
         type: Boolean
-        default: true
+        default: false
       show-snackbar:
         description: If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings.
         type: Boolean
-        default: true
+        default: false
       template-message:
         description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
         type: Text
-        default: sent_from_firefox_template
-  settings-search:
-    description: Feature to allow users to search for settings.
-    variables:
-      enabled:
-        description: |
-          Enables the user to search for settings.
-        type: Boolean
-        default: false
+        default: ''
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
@@ -989,7 +859,7 @@ features:
         description: |
           Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
@@ -1040,13 +910,6 @@ features:
         description: |
           Whether or not to enable tab strip.
         type: Boolean
-        default: true
-  terms-of-use-prompt:
-    description: Enables the terms of use prompt for users who have not accepted ToU
-    variables:
-      enabled:
-        description: When the feature is enabled then the prompt can show for users.
-        type: Boolean
         default: false
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
@@ -1077,7 +940,7 @@ features:
         description: |
           Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.
         type: Boolean
-        default: true
+        default: false
       show-simple-customization:
         description: |
           Whether or not the simple toolbar customization option is visible to the user.
@@ -1090,11 +953,11 @@ features:
         description: |
           Whether or not to enable top sites suggestions.
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 2
+        default: 4
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -1140,19 +1003,11 @@ features:
         description: |
           Whether or not to enable trending searches.
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 5
-  unified-trust-panel:
-    description: Enables the unified trust panel.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the unified trust panel.
-        type: Boolean
-        default: true
+        default: 4
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
@@ -1565,15 +1420,3 @@ objects:
         description: The text for line two.
         type: Text
         default: ''
-      subheader-one-text:
-        description: Optional text for the first subheader of the card.
-        type: Option<Text>
-        default: null
-      subheader-three-text:
-        description: Optional text for the third subheader of the card.
-        type: Option<Text>
-        default: null
-      subheader-two-text:
-        description: Optional text for the second subheader of the card.
-        type: Option<Text>
-        default: null
