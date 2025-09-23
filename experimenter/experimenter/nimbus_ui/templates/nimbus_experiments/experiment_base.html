@@ -6,9 +6,9 @@
 {% endblock %}
 
 {% block main_content_header %}
-  <div class="row mb-2">
+  <div class="d-flex mb-2 justify-content-between flex-column flex-xxl-row column-gap-3">
     <!-- Experiment Details -->
-    <div class="col-md-12 col-xl-5">
+    <div>
       <h4 class="mb-0">{{ experiment.name }}</h4>
       {% if experiment.is_archived %}
         <span class="badge rounded-pill bg-danger" id="archive-badge">Archived</span>
@@ -40,7 +40,7 @@
       {% endif %}
     </div>
     <!-- Experiment Timeline -->
-    <div class="col-md-12 col-xl-7" id="experiment-timeline">
+    <div id="experiment-timeline">
       {% include "nimbus_experiments/timeline.html" %}
 
     </div>
