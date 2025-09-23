@@ -193,7 +193,7 @@
                   {% for screenshot_form in branch_form.screenshot_formset %}
                     {% with forloop.counter0 as screenshot_index %}
                       {{ screenshot_form.id }}
-                      <div class="row mb-2">
+                      <div class="row mb-2 align-items-start">
                         <div class="col-4">
                           {{ screenshot_form.image|add_error_class:"is-invalid" }}
                           {% for error in screenshot_form.image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
