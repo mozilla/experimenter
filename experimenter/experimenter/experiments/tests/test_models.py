@@ -1048,10 +1048,14 @@ class TestNimbusExperiment(TestCase):
         JEXLParser().parse(experiment.targeting)
 
     @mock_valid_features
-    def test_targeting_with_prevent_pref_conflicts_set_prefs(self):
+    def test_targeting_with_prevent_pref_conflicts_set_prefs_from_feature_values(self):
         Features.clear_cache()
         call_command("load_feature_configs")
 
+        feature = NimbusFeatureConfig.objects.get(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="setPrefFeature",
+        )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
@@ -1062,23 +1066,56 @@ class TestNimbusExperiment(TestCase):
             locales=[],
             countries=[],
             prevent_pref_conflicts=True,
-            feature_configs=[
-                NimbusFeatureConfig.objects.get(
-                    application=NimbusExperiment.Application.DESKTOP,
-                    slug="oldSetPrefFeature",
-                )
-            ],
+            feature_configs=[feature],
         )
+        for branch in experiment.branches.all():
+            branch.feature_values.all().delete()
+            branch.feature_values.create(
+                feature_config=feature,
+                value=json.dumps({"user": "something"}),
+            )
 
         self.assertEqual(
             experiment.targeting,
             (
                 '(browserSettings.update.channel in ["release"]) && '
                 "((experiment.slug in activeExperiments) || ("
-                "(!('nimbus.test.boolean'|preferenceIsUserSet)) && "
-                "(!('nimbus.test.int'|preferenceIsUserSet)) && "
-                "(!('nimbus.test.string'|preferenceIsUserSet))))"
+                "(!('nimbus.user'|preferenceIsUserSet))))"
             ),
+        )
+        JEXLParser().parse(experiment.targeting)
+
+    @mock_valid_features
+    def test_targeting_with_prevent_pref_conflicts_invalid_json(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+        feature = NimbusFeatureConfig.objects.get(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="setPrefFeature",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            languages=[],
+            locales=[],
+            countries=[],
+            prevent_pref_conflicts=True,
+            feature_configs=[feature],
+        )
+        for branch in experiment.branches.all():
+            branch.feature_values.all().delete()
+            branch.feature_values.create(
+                feature_config=feature,
+                value="invalid json !@#$",
+            )
+
+        self.assertEqual(
+            experiment.targeting,
+            '(browserSettings.update.channel in ["release"])',
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -2382,6 +2419,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2399,6 +2438,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2423,6 +2464,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            application=NimbusExperiment.Application.DESKTOP,
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2453,6 +2496,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2526,6 +2571,53 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertIsNone(experiment.rollout_conflict_warning)
+
+    @mock_valid_features
+    def test_pref_targeting_rollout_collision_warning(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+        feature = NimbusFeatureConfig.objects.get(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="setPrefFeature",
+        )
+
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            is_rollout=False,
+            prevent_pref_conflicts=True,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0]["text"], NimbusUIConstants.PREF_TARGETING_WARNING)
+        self.assertEqual(warnings[0]["slugs"], [rollout.slug])
+
+    def test_multichannel_experiments_warning(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
+            is_rollout=False,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(
+            warnings[0]["text"], NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING
+        )
+        self.assertEqual(warnings[0]["slugs"], [])
 
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

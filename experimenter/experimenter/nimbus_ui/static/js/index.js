@@ -72,11 +72,30 @@ const setupSlugCopyToast = () => {
   }
 };
 
+const setupHTMXLoadingOverlay = () => {
+  document.addEventListener("htmx:beforeRequest", function () {
+    const loadingOverlay = document.querySelector("#htmx-loading-overlay");
+    if (loadingOverlay) {
+      loadingOverlay.style.opacity = "0.75";
+      loadingOverlay.style.pointerEvents = "auto";
+    }
+  });
+
+  document.addEventListener("htmx:afterRequest", function () {
+    const loadingOverlay = document.querySelector("#htmx-loading-overlay");
+    if (loadingOverlay) {
+      loadingOverlay.style.opacity = "0";
+      loadingOverlay.style.pointerEvents = "none";
+    }
+  });
+};
+
 $(() => {
   setupThemeSwitcher();
   setupTooltips();
   setupToasts();
   setupSlugCopyToast();
+  setupHTMXLoadingOverlay();
 
   document.body.addEventListener("htmx:afterSwap", function () {
     $(".selectpicker").selectpicker();

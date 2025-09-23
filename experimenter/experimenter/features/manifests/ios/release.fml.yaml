@@ -35,17 +35,17 @@ features:
         description: |
           Enables the apple summarizer feature.
         type: Boolean
-        default: false
+        default: true
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: false
+        default: true
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: false
+        default: true
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
@@ -83,7 +83,7 @@ features:
       simplified-ui-enabled:
         description: If true, enable simplified UI part of Felt Privacy
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -121,7 +121,7 @@ features:
       enabled:
         description: Determines whether the top sites visual refresh is shown.
         type: Boolean
-        default: false
+        default: true
   homepage-rebuild-feature:
     description: |
       This feature is for managing the roll out of the Homepage rebuild feature
@@ -130,7 +130,7 @@ features:
         description: |
           If true, enables the feature
         type: Boolean
-        default: false
+        default: true
   homepage-redesign-feature:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.
@@ -600,6 +600,19 @@ features:
           Enables the feature.
         type: Boolean
         default: false
+  recent-searches-feature:
+    description: |
+      Enables recent searches.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable recent searches.
+        type: Boolean
+        default: false
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 5
   revert-unsafe-continuations-refactor:
     description: |
       A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).
@@ -701,7 +714,7 @@ features:
         description: |
           If true, enables the tab tray UI experiments.
         type: Boolean
-        default: false
+        default: true
       translucency:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
@@ -791,6 +804,19 @@ features:
           Whether the Enhanced Tracking Protection refactor is enabled or not
         type: Boolean
         default: true
+  trending-searches-feature:
+    description: |
+      Enables trending searches.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable trending searches.
+        type: Boolean
+        default: false
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 5
   unified-ads:
     description: |
       This property is for managing the roll out of the unified ads API

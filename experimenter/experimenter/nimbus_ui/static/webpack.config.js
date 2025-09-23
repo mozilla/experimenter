@@ -9,6 +9,7 @@ module.exports = {
     edit_audience: "./js/edit_audience.js",
     edit_branches: "./js/edit_branches.js",
     experiment_detail: "./js/experiment_detail.js",
+    branch_detail: "./js/branch_detail.js",
   },
   output: {
     filename: "[name].bundle.js",

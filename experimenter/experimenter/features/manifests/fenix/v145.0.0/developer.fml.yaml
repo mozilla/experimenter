@@ -419,6 +419,38 @@ features:
                 line-two-link-text: onboarding_redesign_tou_body_two_link_text
                 line-three-text: onboarding_redesign_tou_body_three
                 line-three-link-text: onboarding_redesign_tou_body_three_link_text
+          default-browser-redesign:
+            card-type: default-browser
+            enabled: false
+            title: onboarding_redesign_set_default_browser_title
+            ordering: 5
+            body: onboarding_redesign_set_default_browser_body
+            primary-button-label: juno_onboarding_default_browser_positive_button
+            secondary-button-label: juno_onboarding_default_browser_negative_button
+          sync-sign-in-redesign:
+            enabled: false
+            card-type: sync-sign-in
+            title: onboarding_redesign_sync_title
+            body: onboarding_redesign_sync_body
+            ordering: 15
+            primary-button-label: onboarding_redesign_sync_positive_button
+            secondary-button-label: onboarding_redesign_sync_negative_button
+          toolbar-placement-redesign:
+            card-type: toolbar-placement
+            enabled: false
+            title: onboarding_redesign_customize_toolbar_title
+            body: onboarding_customize_toolbar_description
+            image-res: ic_onboarding_customize_toolbar
+            ordering: 35
+            primary-button-label: onboarding_redesign_continue_button
+            extra-data:
+              customization-toolbar-data:
+              - toolbar-type: toolbar-top
+                label: onboarding_customize_toolbar_top_option
+                image-res: ic_onboarding_top_toolbar
+              - toolbar-type: toolbar-bottom
+                label: onboarding_customize_toolbar_bottom_option
+                image-res: ic_onboarding_bottom_toolbar
           marketing-data:
             card-type: marketing-data
             enabled: false
@@ -432,6 +464,19 @@ features:
                 body-line-one-text: onboarding_marketing_learn_more
                 body-line-one-link-text: onboarding_marketing_learn_more
                 body-line-two-text: onboarding_marketing_opt_out_checkbox
+          marketing-data-redesign:
+            card-type: marketing-data
+            enabled: false
+            title: onboarding_marketing_redesign_title
+            body: onboarding_marketing_body
+            image-res: ic_onboarding_marketing_redesign
+            ordering: 40
+            primary-button-label: onboarding_marketing_redesign_positive_button
+            extra-data:
+              marketing-data:
+                body-line-one-text: onboarding_marketing_redesign_learn_more
+                body-line-one-link-text: onboarding_marketing_redesign_learn_more
+                body-line-two-text: onboarding_marketing_redesign_opt_out_checkbox
         string-alias: OnboardingCardKey
       conditions:
         description: |
@@ -918,6 +963,14 @@ features:
         description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
         type: Text
         default: sent_from_firefox_template
+  settings-search:
+    description: Feature to allow users to search for settings.
+    variables:
+      enabled:
+        description: |
+          Enables the user to search for settings.
+        type: Boolean
+        default: false
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:

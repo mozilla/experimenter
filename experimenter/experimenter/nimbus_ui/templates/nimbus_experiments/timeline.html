@@ -1,8 +1,11 @@
 <ul class="list-group list-group-horizontal justify-content-between mb-3">
   {% for status in experiment.timeline %}
-    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-center {% if status.is_active %}bg-primary text-white{% endif %} {% if status.step > experiment.experiment_active_status %}bg-secondary text-muted{% endif %}">
-      <strong>{{ status.label }}</strong>
-      <small>{{ status.date|default:'---' }}</small>
+    <li class="list-group-item flex-fill text-center d-flex flex-column justify-content-start {% if status.is_active %}bg-primary text-white{% endif %} {% if status.step > experiment.experiment_active_status %}bg-body-secondary{% endif %}">
+      <div class="d-flex justify-content-center align-items-center">
+        <i class="me-2 {% if status.step < experiment.experiment_active_status %}fa-solid fa-circle-check text-success{% elif status.step > experiment.experiment_active_status %}fa-solid fa-clock text-warning{% else %}fa-solid fa-rotate{% endif %}"></i>
+        <strong>{{ status.label }}</strong>
+      </div>
+      <small>{{ status.date|default:'<i class="fa-solid fa-minus"></i>' }}</small>
       {% if status.days is not None %}
         <div class="d-flex justify-content-center align-items-center">
           <small class="mr-2">{{ status.days }} day{{ status.days|pluralize }}</small>
@@ -10,6 +13,10 @@
              data-bs-toggle="tooltip"
              data-bs-placement="bottom"
              title="{{ status.tooltip }}"></i>
+        </div>
+      {% else %}
+        <div class="d-flex justify-content-center align-items-center">
+          <small class="mr-2"><i class="fa-solid fa-minus"></i></small>
         </div>
       {% endif %}
     </li>
