@@ -963,6 +963,14 @@ features:
         description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
         type: Text
         default: sent_from_firefox_template
+  settings-search:
+    description: Feature to allow users to search for settings.
+    variables:
+      enabled:
+        description: |
+          Enables the user to search for settings.
+        type: Boolean
+        default: false
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:

@@ -216,15 +216,6 @@ homescreen:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
-isolated-content-processes:
-  description: Feature that controls content process isolation.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable isolated content processes.
 javascript:
   description: Enables Javascript Engine (Spidermonkey) features
   hasExposure: true
@@ -246,18 +237,6 @@ juno-onboarding:
       type: json
       description: |
         A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
-    use-onboarding-redesign:
-      type: boolean
-      description: If true, use the onboarding redesign.
-lna-blocking:
-  description: Feature that allows blocking local network or device access.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to turn on local network / device access blocking
 menu-redesign:
   description: Control the new menu redesign.
   hasExposure: true
@@ -578,15 +557,6 @@ sent-from-firefox:
     template-message:
       type: string
       description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
-settings-search:
-  description: Feature to allow users to search for settings.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables the user to search for settings.
 setup-checklist:
   description: A feature on the home page that allows the user to track onboarding setup progress.
   hasExposure: true
@@ -663,14 +633,6 @@ tab-strip:
       type: boolean
       description: |
         Whether or not to enable tab strip.
-terms-of-use-prompt:
-  description: Enables the terms of use prompt for users who have not accepted ToU
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: When the feature is enabled then the prompt can show for users.
 third-party-cookie-blocking:
   description: Control third-party cookie blocking.
   hasExposure: true
@@ -761,15 +723,6 @@ trending-searches:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
-unified-trust-panel:
-  description: Enables the unified trust panel.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the unified trust panel.
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true
