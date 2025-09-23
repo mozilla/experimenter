@@ -3209,7 +3209,7 @@ TOU_EXPERIENCE_0 = NimbusTargetingConfig(
     slug="tou_experience_0",
     description=(
         "User has not accepted TOU V4 or higher",
-        "and should see TOU experience 0"
+        "and should see TOU experience 0",
     ),
     targeting=f"""
     (
@@ -3231,7 +3231,7 @@ TOU_EXPERIENCE_1 = NimbusTargetingConfig(
     slug="tou_experience_1",
     description=(
         "User has not accepted TOU V4 or higher",
-        "and should see TOU experience 1"
+        "and should see TOU experience 1",
     ),
     targeting=f"""
     (
@@ -3241,7 +3241,8 @@ TOU_EXPERIENCE_1 = NimbusTargetingConfig(
         &&
         TOU_EXPERIENCE_TOTAL == 1
     )
-    """,    desktop_telemetry="",
+    """,
+    desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
@@ -3252,7 +3253,7 @@ TOU_EXPERIENCE_2 = NimbusTargetingConfig(
     slug="tou_experience_2",
     description=(
         "User has not accepted TOU V4 or higher",
-        "and should see TOU experience 2"
+        "and should see TOU experience 2",
     ),
     targeting=f"""
     (
@@ -3268,6 +3269,7 @@ TOU_EXPERIENCE_2 = NimbusTargetingConfig(
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
