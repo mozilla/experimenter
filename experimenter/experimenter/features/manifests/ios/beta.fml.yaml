@@ -618,6 +618,19 @@ features:
           Enables the feature.
         type: Boolean
         default: true
+  recent-searches-feature:
+    description: |
+      Enables recent searches.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable recent searches.
+        type: Boolean
+        default: false
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 5
   revert-unsafe-continuations-refactor:
     description: |
       A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).
@@ -809,6 +822,19 @@ features:
           Whether the Enhanced Tracking Protection refactor is enabled or not
         type: Boolean
         default: true
+  trending-searches-feature:
+    description: |
+      Enables trending searches.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable trending searches.
+        type: Boolean
+        default: false
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 5
   unified-ads:
     description: |
       This property is for managing the roll out of the unified ads API
