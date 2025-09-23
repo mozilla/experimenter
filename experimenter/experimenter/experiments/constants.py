@@ -22,7 +22,7 @@ class Channel(models.TextChoices):
     RELEASE = "release"
     ESR = "esr"
     TESTFLIGHT = "testflight"
-    AURORA = "aurora"
+    AURORA = ("aurora", "Developer Edition")
     DEVELOPER = "developer"
     STAGING = "staging"
     PRODUCTION = "production"
