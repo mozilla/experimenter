@@ -112,6 +112,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "status": NimbusExperiment.Status.DRAFT,
                 "status_next": None,
                 "subscribers": [],
+                "tags": [],
                 "takeaways_gain_amount": None,
                 "takeaways_metric_gain": False,
                 "takeaways_qbr_learning": False,
@@ -123,7 +124,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "warn_feature_schema": False,
                 "published_date": None,
                 "klaatu_status": experiment.klaatu_status,
-                "klaatu_recent_run_id": experiment.klaatu_recent_run_id,
+                "klaatu_recent_run_ids": experiment.klaatu_recent_run_ids,
             },
         )
 
@@ -229,6 +230,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "status": experiment.status,
                 "status_next": experiment.status_next,
                 "subscribers": [subscriber.email],
+                "tags": [],
                 "takeaways_gain_amount": None,
                 "takeaways_metric_gain": False,
                 "takeaways_qbr_learning": False,
@@ -240,7 +242,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "warn_feature_schema": False,
                 "published_date": experiment.published_date,
                 "klaatu_status": experiment.klaatu_status,
-                "klaatu_recent_run_id": experiment.klaatu_recent_run_id,
+                "klaatu_recent_run_ids": experiment.klaatu_recent_run_ids,
             },
         )
 

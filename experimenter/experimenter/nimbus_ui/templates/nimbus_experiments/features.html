@@ -1,10 +1,40 @@
 {% extends "experimenter_base.html" %}
 
+{% load static %}
+{% load nimbus_extras %}
+{% load widget_tweaks %}
+
 {% block content %}
   <div id="feature-page" class="bg-body-tertiary py-4">
     <div class="container">
       {% include "nimbus_experiments/heading_card.html" with page_name="feature" heading_text="Welcome to your Feature Health Dashboard," subheading_text="Track a feature's Nimbus history and QA status in this summary view!" link_url=links.feature_learn_more_url btn_text="Learn More" %}
 
+      <form id="features-form"
+            method="get"
+            hx-get="{% url 'nimbus-ui-features' %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
+            hx-select="#features-form"
+            hx-target="#features-form"
+            hx-swap="outerHTML">
+        {% csrf_token %}
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="row mb-4">
+              <div class="col-6">
+                <label for="id_application" class="form-label">Application</label>
+                {{ form.application|add_class:"form-control"|add_error_class:"is-invalid" }}
+                {% for error in form.application.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              </div>
+              <div class="col-6">
+                <label for="id_feature_config" class="form-label">Feature Config</label>
+                {{ form.feature_configs|add_class:"form-control" }}
+                {% for error in form.feature_configs.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div>{{ application }}</div>
+            <div>{{ feature_configs }}</div>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 {% endblock %}

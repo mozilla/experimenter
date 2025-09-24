@@ -32,6 +32,7 @@ from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
+from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.forms import (
     ApproveEndEnrollmentForm,
@@ -47,6 +48,7 @@ from experimenter.nimbus_ui.forms import (
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
+    FeaturesForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -468,23 +470,20 @@ class TestTakeawaysForm(RequestFormTestCase):
 
 
 class TestSignoffForm(RequestFormTestCase):
-    def setUp(self):
-        super().setUp()
-        self.experiment = NimbusExperimentFactory.create(
+    def test_signoff_form_valid(self):
+        experiment = NimbusExperimentFactory.create(
             name="Test Experiment",
             owner=self.user,
             qa_signoff=False,
             vp_signoff=False,
             legal_signoff=False,
         )
-
-    def test_signoff_form_valid(self):
         data = {
             "qa_signoff": True,
             "vp_signoff": True,
             "legal_signoff": False,
         }
-        form = SignoffForm(data=data, instance=self.experiment, request=self.request)
+        form = SignoffForm(data=data, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -494,12 +493,19 @@ class TestSignoffForm(RequestFormTestCase):
 
     def test_signoff_form_saves_to_changelog(self):
         """Test that saving the form also creates an entry in the changelog."""
+        experiment = NimbusExperimentFactory.create(
+            name="Test Experiment",
+            owner=self.user,
+            qa_signoff=False,
+            vp_signoff=False,
+            legal_signoff=False,
+        )
         data = {
             "qa_signoff": True,
             "vp_signoff": True,
             "legal_signoff": True,
         }
-        form = SignoffForm(data=data, instance=self.experiment, request=self.request)
+        form = SignoffForm(data=data, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
@@ -585,32 +591,36 @@ class TestMetricsForm(RequestFormTestCase):
 
 
 class SubscriptionFormTests(RequestFormTestCase):
-    def setUp(self):
-        super().setUp()
-        self.experiment = NimbusExperimentFactory.create(
+    def test_subscribe_form_adds_subscriber(self):
+        experiment = NimbusExperimentFactory.create(
             name="Test Experiment",
             owner=self.user,
             qa_signoff=False,
             vp_signoff=False,
             legal_signoff=False,
         )
-
-    def test_subscribe_form_adds_subscriber(self):
-        form = SubscribeForm(instance=self.experiment, data={}, request=self.request)
+        form = SubscribeForm(instance=experiment, data={}, request=self.request)
         self.assertTrue(form.is_valid())
         form.save()
-        self.assertIn(self.request.user, self.experiment.subscribers.all())
-        changelog = self.experiment.changes.latest("changed_on")
+        self.assertIn(self.request.user, experiment.subscribers.all())
+        changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("dev@example.com added subscriber", changelog.message)
 
     def test_unsubscribe_form_removes_subscriber(self):
-        self.experiment.subscribers.add(self.request.user)
-        form = UnsubscribeForm(instance=self.experiment, data={}, request=self.request)
+        experiment = NimbusExperimentFactory.create(
+            name="Test Experiment",
+            owner=self.user,
+            qa_signoff=False,
+            vp_signoff=False,
+            legal_signoff=False,
+        )
+        experiment.subscribers.add(self.request.user)
+        form = UnsubscribeForm(instance=experiment, data={}, request=self.request)
         self.assertTrue(form.is_valid())
         form.save()
-        self.assertNotIn(self.request.user, self.experiment.subscribers.all())
-        changelog = self.experiment.changes.latest("changed_on")
+        self.assertNotIn(self.request.user, experiment.subscribers.all())
+        changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("dev@example.com removed subscriber", changelog.message)
 
@@ -618,7 +628,6 @@ class SubscriptionFormTests(RequestFormTestCase):
 class TestLaunchForms(RequestFormTestCase):
     def setUp(self):
         super().setUp()
-        self.experiment = NimbusExperimentFactory.create()
 
         self.mock_preview_task = patch.object(
             nimbus_synchronize_preview_experiments_in_kinto, "apply_async"
@@ -629,21 +638,24 @@ class TestLaunchForms(RequestFormTestCase):
         self.mock_allocate_bucket_range = patch.object(
             NimbusExperiment, "allocate_bucket_range"
         ).start()
+        self.mock_klaatu_task = patch.object(klaatu_start_job, "delay").start()
 
         self.addCleanup(patch.stopall)
 
     def test_draft_to_preview_form(self):
-        self.experiment.status = NimbusExperiment.Status.DRAFT
-        self.experiment.status_next = None
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        self.experiment.save()
-        form = DraftToPreviewForm(data={}, instance=self.experiment, request=self.request)
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        form = DraftToPreviewForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
         self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.mock_klaatu_task.assert_called_once_with(experiment_id=experiment.id)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
@@ -652,11 +664,12 @@ class TestLaunchForms(RequestFormTestCase):
         self.mock_allocate_bucket_range.assert_called_once()
 
     def test_draft_to_review_form(self):
-        self.experiment.status = NimbusExperiment.Status.DRAFT
-        self.experiment.status_next = None
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        self.experiment.save()
-        form = DraftToReviewForm(data={}, instance=self.experiment, request=self.request)
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -669,15 +682,15 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("requested launch without Preview", changelog.message)
 
     def test_preview_to_review_form(self):
-        self.experiment.status = NimbusExperiment.Status.PREVIEW
-        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        self.experiment.published_dto = NimbusExperimentSerializer(self.experiment).data
-        self.experiment.save()
-
-        form = PreviewToReviewForm(
-            data={}, instance=self.experiment, request=self.request
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.PREVIEW,
+            status_next=NimbusExperiment.Status.PREVIEW,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
+        experiment.published_dto = NimbusExperimentSerializer(experiment).data
+        experiment.save()
+
+        form = PreviewToReviewForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -691,12 +704,15 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("requested launch from Preview", changelog.message)
 
     def test_preview_to_draft_form(self):
-        self.experiment.status = NimbusExperiment.Status.PREVIEW
-        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        self.experiment.published_dto = NimbusExperimentSerializer(self.experiment).data
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.PREVIEW,
+            status_next=NimbusExperiment.Status.PREVIEW,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        experiment.published_dto = NimbusExperimentSerializer(experiment).data
+        experiment.save()
 
-        form = PreviewToDraftForm(data={}, instance=self.experiment, request=self.request)
+        form = PreviewToDraftForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -711,51 +727,55 @@ class TestLaunchForms(RequestFormTestCase):
         self.mock_preview_task.assert_called_once_with(countdown=5)
 
     def test_preview_to_draft_form_resets_published_dto_and_targeting(self):
-        self.experiment.status = NimbusExperiment.Status.PREVIEW
-        self.experiment.status_next = NimbusExperiment.Status.PREVIEW
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        self.experiment.firefox_min_version = NimbusExperiment.Version.FIREFOX_116
-        self.experiment.channel = NimbusExperiment.Channel.NIGHTLY
-        self.experiment.channels = []
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            status=NimbusExperiment.Status.PREVIEW,
+            status_next=NimbusExperiment.Status.PREVIEW,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+        )
 
         # Publishing to the preview collection would set the published_dto field
         # to the value in Remote Settings. However, since we're not actually
         # publishing to Remote Settings, we need to fake it.
-        self.experiment.published_dto = NimbusExperimentSerializer(self.experiment).data
-        self.experiment.save()
+        experiment.published_dto = NimbusExperimentSerializer(experiment).data
+        experiment.save()
 
         self.assertEqual(
-            self.experiment.targeting,
-            """(browserSettings.update.channel == "nightly") && """
+            experiment.targeting,
+            """(browserSettings.update.channel in ["nightly"]) && """
             """(version|versionCompare('116.!') >= 0)""",
         )
 
-        form = PreviewToDraftForm(data={}, instance=self.experiment, request=self.request)
+        form = PreviewToDraftForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
-        self.experiment = form.save()
-        self.assertEqual(self.experiment.published_dto, None)
+        experiment = form.save()
+        self.assertEqual(experiment.published_dto, None)
 
-        self.experiment.firefox_min_version = NimbusExperiment.Version.FIREFOX_117
-        self.experiment.channel = NimbusExperiment.Channel.BETA
-        self.experiment.save()
+        experiment.firefox_min_version = NimbusExperiment.Version.FIREFOX_117
+        experiment.channels = [NimbusExperiment.Channel.BETA]
+        experiment.save()
 
         self.assertEqual(
-            self.experiment.targeting,
-            """(browserSettings.update.channel == "beta") && """
+            experiment.targeting,
+            """(browserSettings.update.channel in ["beta"]) && """
             """(version|versionCompare('117.!') >= 0)""",
         )
 
     def test_review_to_draft_form_with_changelog_message(self):
-        self.experiment.status = NimbusExperiment.Status.DRAFT
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.published_dto = NimbusExperimentSerializer(self.experiment).data
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
+        experiment.published_dto = NimbusExperimentSerializer(experiment).data
+        experiment.save()
 
         form = ReviewToDraftForm(
             data={"changelog_message": "Needs further updates."},
-            instance=self.experiment,
+            instance=experiment,
             request=self.request,
         )
         self.assertTrue(form.is_valid(), form.errors)
@@ -773,15 +793,17 @@ class TestLaunchForms(RequestFormTestCase):
         )
 
     def test_review_to_draft_form_with_cancel_message(self):
-        self.experiment.status = NimbusExperiment.Status.DRAFT
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.published_dto = NimbusExperimentSerializer(self.experiment).data
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
+        experiment.published_dto = NimbusExperimentSerializer(experiment).data
+        experiment.save()
 
         form = ReviewToDraftForm(
             data={"cancel_message": "Review was withdrawn by the user."},
-            instance=self.experiment,
+            instance=experiment,
             request=self.request,
         )
         self.assertTrue(form.is_valid(), form.errors)
@@ -797,14 +819,13 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn(f"{self.user} Review was withdrawn by the user.", changelog.message)
 
     def test_review_to_approve_form(self):
-        self.experiment.status = NimbusExperiment.Status.DRAFT
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.save()
-
-        form = ReviewToApproveForm(
-            data={}, instance=self.experiment, request=self.request
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
         )
+
+        form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -822,16 +843,38 @@ class TestLaunchForms(RequestFormTestCase):
         )
         self.mock_allocate_bucket_range.assert_called_once()
 
-    def test_live_to_end_enrollment_form(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = None
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        self.experiment.is_paused = False
-        self.experiment.save()
+    def test_review_timing_metric(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Experiment",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusExperimentCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
 
-        form = LiveToEndEnrollmentForm(
-            data={}, instance=self.experiment, request=self.request
+        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        with patch("experimenter.nimbus_ui.forms.metrics") as mock_metrics:
+            experiment = form.save()
+
+        mock_metrics.timing.assert_called_once()
+
+    def test_live_to_end_enrollment_form(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
         )
+
+        form = LiveToEndEnrollmentForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -845,14 +888,15 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("requested review to end enrollment", changelog.message)
 
     def test_approve_end_enrollment_form(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.is_paused = True
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=True,
+        )
 
         form = ApproveEndEnrollmentForm(
-            data={}, instance=self.experiment, request=self.request
+            data={}, instance=experiment, request=self.request
         )
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -872,13 +916,14 @@ class TestLaunchForms(RequestFormTestCase):
         )
 
     def test_live_to_complete_form(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = None
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        self.experiment.is_paused = False
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
+        )
 
-        form = LiveToCompleteForm(data={}, instance=self.experiment, request=self.request)
+        form = LiveToCompleteForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -891,14 +936,15 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("requested review to end experiment", changelog.message)
 
     def test_approve_end_experiment_form(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.is_paused = True
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.COMPLETE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=True,
+        )
 
         form = ApproveEndExperimentForm(
-            data={}, instance=self.experiment, request=self.request
+            data={}, instance=experiment, request=self.request
         )
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -918,17 +964,18 @@ class TestLaunchForms(RequestFormTestCase):
         )
 
     def test_reject_end_enrollment_request(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.is_paused = True
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=True,
+        )
 
         form = CancelEndEnrollmentForm(
             data={
                 "changelog_message": "Enrollment should continue.",
             },
-            instance=self.experiment,
+            instance=experiment,
             request=self.request,
         )
         self.assertTrue(form.is_valid(), form.errors)
@@ -947,17 +994,18 @@ class TestLaunchForms(RequestFormTestCase):
         )
 
     def test_cancel_end_enrollment_request(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.is_paused = True
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=True,
+        )
 
         form = CancelEndEnrollmentForm(
             data={
                 "cancel_message": "Cancelled end enrollment request.",
             },
-            instance=self.experiment,
+            instance=experiment,
             request=self.request,
         )
         self.assertTrue(form.is_valid(), form.errors)
@@ -973,17 +1021,18 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("Cancelled end enrollment request.", changelog.message)
 
     def test_reject_end_experiment_request(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.is_paused = True
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.COMPLETE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=True,
+        )
 
         form = CancelEndExperimentForm(
             data={
                 "changelog_message": "Experiment should continue.",
             },
-            instance=self.experiment,
+            instance=experiment,
             request=self.request,
         )
         self.assertTrue(form.is_valid(), form.errors)
@@ -1002,17 +1051,18 @@ class TestLaunchForms(RequestFormTestCase):
         )
 
     def test_cancel_end_experiment_request(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = NimbusExperiment.Status.COMPLETE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.is_paused = True
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.COMPLETE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=True,
+        )
 
         form = CancelEndExperimentForm(
             data={
                 "cancel_message": "Cancelled end experiment request.",
             },
-            instance=self.experiment,
+            instance=experiment,
             request=self.request,
         )
         self.assertTrue(form.is_valid(), form.errors)
@@ -1028,16 +1078,15 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("Cancelled end experiment request.", changelog.message)
 
     def test_live_to_update_rollout_form(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = None
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        self.experiment.is_paused = False
-        self.experiment.is_rollout = True
-        self.experiment.save()
-
-        form = LiveToUpdateRolloutForm(
-            data={}, instance=self.experiment, request=self.request
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
+            is_rollout=True,
         )
+
+        form = LiveToUpdateRolloutForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
@@ -1048,15 +1097,16 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("requested review to update Audience", changelog.message)
 
     def test_cancel_update_rollout_form_with_rejection_reason(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.is_rollout = True
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
 
         form = CancelUpdateRolloutForm(
             data={"changelog_message": "Audience update not valid."},
-            instance=self.experiment,
+            instance=experiment,
             request=self.request,
         )
         self.assertTrue(form.is_valid(), form.errors)
@@ -1072,15 +1122,16 @@ class TestLaunchForms(RequestFormTestCase):
         )
 
     def test_cancel_update_rollout_form_with_cancel_message(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.is_rollout = True
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
 
         form = CancelUpdateRolloutForm(
             data={"cancel_message": "Cancelled update rollout."},
-            instance=self.experiment,
+            instance=experiment,
             request=self.request,
         )
         self.assertTrue(form.is_valid(), form.errors)
@@ -1093,14 +1144,15 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("Cancelled update rollout.", changelog.message)
 
     def test_approve_update_rollout_form(self):
-        self.experiment.status = NimbusExperiment.Status.LIVE
-        self.experiment.status_next = NimbusExperiment.Status.LIVE
-        self.experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        self.experiment.is_rollout = True
-        self.experiment.save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
 
         form = ApproveUpdateRolloutForm(
-            data={}, instance=self.experiment, request=self.request
+            data={}, instance=experiment, request=self.request
         )
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -1282,7 +1334,7 @@ class TestAudienceForm(RequestFormTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
         )
-        experiment = NimbusExperimentFactory(
+        experiment = NimbusExperimentFactory.create(
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
@@ -1381,7 +1433,7 @@ class TestAudienceForm(RequestFormTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
         )
-        experiment = NimbusExperimentFactory(
+        experiment = NimbusExperimentFactory.create(
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             application=application,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
@@ -1469,7 +1521,7 @@ class TestAudienceForm(RequestFormTestCase):
         )
 
     def test_mobile_first_run_saves(self):
-        experiment = NimbusExperimentFactory(
+        experiment = NimbusExperimentFactory.create(
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
@@ -1531,7 +1583,7 @@ class TestAudienceForm(RequestFormTestCase):
             application=NimbusExperiment.Application.DESKTOP,
             is_archived=True,
         )
-        experiment = NimbusExperimentFactory(
+        experiment = NimbusExperimentFactory.create(
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
@@ -1573,7 +1625,7 @@ class TestAudienceForm(RequestFormTestCase):
         self.assertIn("required_experiments_branches", form.errors)
 
     def test_check_rollout_dirty_sets_flag(self):
-        experiment = NimbusExperimentFactory(
+        experiment = NimbusExperimentFactory.create(
             is_rollout=True,
             status=NimbusExperiment.Status.LIVE,
             status_next=None,
@@ -1581,7 +1633,7 @@ class TestAudienceForm(RequestFormTestCase):
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             population_percent=5,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.BETA,
+            channels=[NimbusExperiment.Channel.BETA],
         )
 
         form = AudienceForm(
@@ -1613,7 +1665,7 @@ class TestAudienceForm(RequestFormTestCase):
         self.assertTrue(updated_experiment.is_rollout_dirty)
 
     def test_fields_are_disabled_in_live_rollout(self):
-        experiment = NimbusExperimentFactory(
+        experiment = NimbusExperimentFactory.create(
             is_rollout=True,
             status=NimbusExperiment.Status.LIVE,
             status_next=None,
@@ -1621,7 +1673,7 @@ class TestAudienceForm(RequestFormTestCase):
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             population_percent=5,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.BETA,
+            channels=[NimbusExperiment.Channel.BETA],
         )
 
         form = AudienceForm(instance=experiment, request=self.request)
@@ -2497,6 +2549,9 @@ class TestNimbusBranchesForm(RequestFormTestCase):
             feature_configs=[feature_config],
             is_rollout=True,
             is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
         )
         experiment.branches.all().delete()
         experiment.changes.all().delete()
@@ -2589,6 +2644,156 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         experiment = form.save()
         self.assertTrue(experiment.is_rollout)
         self.assertFalse(experiment.is_firefox_labs_opt_in)
+
+    def test_rollout_forces_prevent_pref_conflicts_true(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config],
+            is_rollout=True,
+            prevent_pref_conflicts=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config.id],
+                "equal_branch_ratio": False,
+                "is_rollout": True,
+                "is_firefox_labs_opt_in": False,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 1,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch.feature_values.first().id
+                ),
+                "branches-0-feature-value-0-value": "{}",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+            },
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        self.assertTrue(experiment.is_rollout)
+        self.assertTrue(experiment.prevent_pref_conflicts)
+        self.assertTrue(form.fields["prevent_pref_conflicts"].disabled)
+
+    def test_can_save_with_empty_value(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        feature_config2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1],
+            equal_branch_ratio=False,
+            is_localized=False,
+            is_rollout=False,
+            localizations=None,
+            prevent_pref_conflicts=False,
+            warn_feature_schema=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "prevent_pref_conflicts": True,
+                "warn_feature_schema": True,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 2,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch_feature_config1_value.id
+                ),
+                "branches-0-feature-value-0-value": "",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                "is_localized": True,
+                "localizations": json.dumps({"localization-key": "localization-value"}),
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(
+            set(experiment.feature_configs.all()), {feature_config1, feature_config2}
+        )
+        self.assertFalse(experiment.equal_branch_ratio)
+        self.assertFalse(experiment.is_rollout)
+        self.assertTrue(experiment.prevent_pref_conflicts)
+        self.assertTrue(experiment.warn_feature_schema)
+        self.assertTrue(experiment.is_localized)
+        self.assertEqual(
+            experiment.localizations,
+            json.dumps({"localization-key": "localization-value"}),
+        )
+        self.assertEqual(experiment.reference_branch.name, "Control")
+        self.assertEqual(experiment.reference_branch.slug, "control")
+        self.assertEqual(experiment.reference_branch.description, "Control Description")
+        self.assertEqual(experiment.reference_branch.ratio, 2)
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config1
+            )
+            .get()
+            .value,
+            json.dumps({}),
+        )
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config2
+            )
+            .get()
+            .value,
+            json.dumps({}),
+        )
 
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
@@ -3592,7 +3797,91 @@ class TestBranchFeatureValueForm(RequestFormTestCase):
             for fv in experiment.reference_branch.feature_values.all()
         }
 
-        self.assertIn("data-schema", forms["with-schema"].fields["value"].widget.attrs)
+        self.assertEqual(
+            json.loads(forms["with-schema"].fields["value"].widget.attrs["data-schema"]),
+            {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "description": (
+                    "Fake schema that matches NimbusBranchFactory feature_value factory"
+                ),
+                "type": "object",
+                "patternProperties": {"^.*$": {"type": "string"}},
+                "additionalProperties": False,
+            },
+        )
         self.assertNotIn(
             "data-schema", forms["without-schema"].fields["value"].widget.attrs
+        )
+
+
+class TestFeaturesViewForm(RequestFormTestCase):
+    def setUp(self):
+        super().setUp()
+        self.applications = [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.IOS,
+            NimbusExperiment.Application.FENIX,
+        ]
+        self.feature_configs = {}
+        for app in self.applications:
+            self.feature_configs[app] = NimbusFeatureConfigFactory.create(
+                slug=f"feature-{app.value}",
+                name=f"Feature {app.value}",
+                application=app,
+            )
+
+    def test_features_view_default_fields_are_firefox_desktop(self):
+        NimbusExperimentFactory.create(owner=self.user)
+        form = FeaturesForm()
+        application = form.fields["application"]
+        feature_configs = form.fields["feature_configs"]
+        self.assertEqual(application.initial, NimbusExperiment.Application.DESKTOP.value)
+        self.assertIsNone(feature_configs.initial)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                [NimbusExperiment.Application.IOS, NimbusExperiment.Application.FENIX],
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                [
+                    NimbusExperiment.Application.DESKTOP,
+                    NimbusExperiment.Application.FENIX,
+                ],
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                [NimbusExperiment.Application.IOS, NimbusExperiment.Application.DESKTOP],
+            ),
+        ]
+    )
+    def test_features_view_feature_config_field_updates_correctly(
+        self, expected_app, excluded_apps
+    ):
+        NimbusExperimentFactory.create(owner=self.user)
+        form = FeaturesForm(data={"application": expected_app})
+        feature_configs = form.fields["feature_configs"]
+
+        self.assertIn(
+            (
+                self.feature_configs[expected_app].id,
+                f"{self.feature_configs[expected_app].name} - {self.feature_configs[expected_app].description}",  # noqa
+            ),
+            feature_configs.choices,
+        )
+        self.assertNotIn(
+            (
+                self.feature_configs[excluded_apps[0]].id,
+                f"{self.feature_configs[excluded_apps[0]].name} - {self.feature_configs[excluded_apps[0]].description}",  # noqa
+            ),
+            feature_configs.choices,
+        )
+        self.assertNotIn(
+            (
+                self.feature_configs[excluded_apps[1]].id,
+                f"{self.feature_configs[excluded_apps[1]].name} - {self.feature_configs[excluded_apps[1]].description}",  # noqa
+            ),
+            feature_configs.choices,
         )

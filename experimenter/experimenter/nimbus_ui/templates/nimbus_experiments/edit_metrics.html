@@ -30,10 +30,12 @@
           <div class="col">
             <label for="primary_outcomes" class="form-label">
               Primary Outcomes
-              <i class="fa-regular fa-circle-question"
-                 data-bs-toggle="tooltip"
-                 data-bs-placement="top"
-                 data-bs-title="Specific metrics you’d like to impact in your experiment, which will be part of the analysis."></i>
+              <a target="_blank" href="{{ links.metrics_hub_url }}">
+                <i class="fa-regular fa-circle-question"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   data-bs-title="Specific metrics you’d like to impact in your experiment, which will be part of the analysis."></i>
+              </a>
               {% if form.is_bound %}<i class="fa-solid fa-check text-success"></i>{% endif %}
             </label>
             <div class="rounded border border-1 p-0 {% if form.is_bound %}border-success{% endif %}">
@@ -49,10 +51,12 @@
           <div class="col">
             <label for="secondary_outcomes" class="form-label">
               Secondary Outcomes
-              <i class="fa-regular fa-circle-question"
-                 data-bs-toggle="tooltip"
-                 data-bs-placement="top"
-                 data-bs-title="Specific metrics that you are interested in observing in your experiment but they don't affect the results of your experiment."></i>
+              <a target="_blank" href="{{ links.metrics_hub_url }}">
+                <i class="fa-regular fa-circle-question"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   data-bs-title="Specific metrics that you are interested in observing in your experiment but they don't affect the results of your experiment."></i>
+              </a>
               {% if form.is_bound %}<i class="fa-solid fa-check text-success"></i>{% endif %}
             </label>
             <div class="rounded border border-1 p-0 {% if form.is_bound %}border-success{% endif %}">
@@ -69,10 +73,12 @@
           <div class="col">
             <label for="segments" class="form-label">
               Segments
-              <i class="fa-regular fa-circle-question"
-                 data-bs-toggle="tooltip"
-                 data-bs-placement="top"
-                 data-bs-title="Select user segments if you want to view your results sliced by specific sub-groups of users."></i>
+              <a target="_blank" href="{{ links.segment_metrics_hub_url }}">
+                <i class="fa-regular fa-circle-question"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   data-bs-title="Select user segments if you want to view your results sliced by specific sub-groups of users."></i>
+              </a>
               {% if form.is_bound %}<i class="fa-solid fa-check text-success"></i>{% endif %}
             </label>
             <div class="rounded border border-1 p-0 {% if form.is_bound %}border-success{% endif %}">{{ form.segments }}</div>

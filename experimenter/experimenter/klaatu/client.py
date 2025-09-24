@@ -7,7 +7,6 @@ from typing import Optional, Union
 from urllib.parse import urlencode, urljoin
 
 import requests
-from django.conf import settings
 
 
 class KlaatuStatus(str, Enum):
@@ -59,9 +58,9 @@ class KlaatuError(Exception):
 
 
 class KlaatuClient:
-    def __init__(self, workflow_name: str) -> None:
+    def __init__(self, workflow_name: str, token: str) -> None:
         self.workflow_name = workflow_name
-        self.auth_token = settings.GITHUB_AUTH_TOKEN
+        self.auth_token = token
         self.base_url = "https://api.github.com/repos/mozilla/klaatu/"
         self.headers = {
             "Accept": "application/vnd.github+json",
@@ -74,6 +73,7 @@ class KlaatuClient:
         experiment_slug: str,
         branch_slugs: list[str],
         targets: list[Union[KlaatuTargets, str]],
+        server: str = "prod",
     ) -> None:
         path = KlaatuEndpoints.DISPATCH.format(workflow=self.workflow_name)
         url = urljoin(self.base_url, path)
@@ -84,20 +84,22 @@ class KlaatuClient:
                 "slug": experiment_slug,
                 "branch": json.dumps(branch_slugs),
                 "firefox-version": json.dumps(targets),
+                "server": server,
             },
         }
 
         response = requests.post(url, headers=self.headers, json=data)
         if response.status_code != 204:
             raise KlaatuError(
-                "Failed to trigger workflow",
+                f"Failed to trigger workflow. URL: {url}",
                 status_code=response.status_code,
                 response_text=response.text,
             )
 
-    def find_run_id(
+    def find_run_ids(
         self, experiment_slug: str, dispatched_at: Optional[datetime.datetime] = None
-    ) -> int:
+    ) -> list[int]:
+        run_ids = set()
         query = {"event": "workflow_dispatch"}
         if dispatched_at:
             query["created"] = f">={dispatched_at.isoformat()}Z"
@@ -117,7 +119,8 @@ class KlaatuClient:
         workflow_runs = response.json().get("workflow_runs", [])
         for run in workflow_runs:
             if experiment_slug in run.get("display_title", ""):
-                return int(run["id"])
+                run_ids.add(int(run["id"]))
+        return list(run_ids)
 
     def is_job_complete(self, job_id: int) -> bool:
         path = KlaatuEndpoints.RUN_STATUS.format(run_id=str(job_id))

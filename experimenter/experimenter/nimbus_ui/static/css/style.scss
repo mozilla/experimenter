@@ -35,6 +35,10 @@
       color: var(--bs-primary-text-emphasis, #084298) !important;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
       outline: none;
+
+      .text-muted {
+        color: var(--bs-primary-text-emphasis, #084298) !important;
+      }
     }
   }
 
@@ -191,4 +195,11 @@
 
 .nav-link-hover:hover {
   background-color: var(--bs-secondary-bg);
+}
+
+#htmx-loading-overlay {
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease-in;
 }

@@ -22,10 +22,16 @@ class Channel(models.TextChoices):
     RELEASE = "release"
     ESR = "esr"
     TESTFLIGHT = "testflight"
-    AURORA = "aurora"
+    AURORA = ("aurora", "Developer Edition")
     DEVELOPER = "developer"
     STAGING = "staging"
     PRODUCTION = "production"
+
+    @staticmethod
+    def get_icon_info(channel):
+        from experimenter.nimbus_ui.constants import CHANNEL_ICON_MAP
+
+        return CHANNEL_ICON_MAP.get(channel, CHANNEL_ICON_MAP[Channel.NO_CHANNEL])
 
 
 class ChangeEventType(Enum):
@@ -441,7 +447,11 @@ class NimbusConstants:
 
         @staticmethod
         def get_icon_info(status):
-            return QA_STATUS_ICON_MAP.get(status, QA_STATUS_ICON_MAP["NOT SET"])
+            from experimenter.nimbus_ui.constants import QA_STATUS_ICON_MAP
+
+            return QA_STATUS_ICON_MAP.get(
+                status, QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.NOT_SET]
+            )
 
     APPLICATION_CONFIGS = {
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,
@@ -1156,7 +1166,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/qa-sign-off",
     "TRAINING_AND_PLANNING_DOC": "https://experimenter.info/for-product",
-    "PREVIEW_LAUNCH_DOC": "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
+    "PREVIEW_LAUNCH_DOC": "https://experimenter.info/previewing-experiments",
 }
 
 
@@ -1175,14 +1185,4 @@ RISK_QUESTIONS = {
         "Does this experiment have a risk to negatively impact revenue "
         "(e.g. search, Pocket revenue)?"
     ),
-}
-
-QA_STATUS_ICON_MAP = {
-    "NOT SET": {"icon": "fa-regular fa-circle-question", "color": ""},
-    "GREEN": {"icon": "fa-regular fa-circle-check", "color": "text-success"},
-    "SELF GREEN": {"icon": "fa-solid fa-check", "color": "text-success"},
-    "YELLOW": {"icon": "fa-regular fa-circle-pause", "color": "text-warning"},
-    "SELF YELLOW": {"icon": "fa-regular fa-circle-pause", "color": "text-warning"},
-    "RED": {"icon": "fa-regular fa-circle-xmark", "color": "text-danger"},
-    "SELF RED": {"icon": "fa-regular fa-circle-xmark", "color": "text-danger"},
 }

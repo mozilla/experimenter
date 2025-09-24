@@ -15,7 +15,7 @@ from experimenter.klaatu.client import (
 
 class TestKlaatuClient(unittest.TestCase):
     def setUp(self):
-        self.client = KlaatuClient(KlaatuWorkflows.WINDOWS)
+        self.client = KlaatuClient(KlaatuWorkflows.WINDOWS, "123abc456xzy")
 
     @mock.patch("experimenter.klaatu.client.requests.post")
     def test_run_test_success(self, mock_post):
@@ -25,6 +25,7 @@ class TestKlaatuClient(unittest.TestCase):
             experiment_slug="training-only-for-dev-tools",
             branch_slugs=["control"],
             targets=[KlaatuTargets.LATEST_BETA, "137.0"],
+            server="stage",
         )
 
     @mock.patch("experimenter.klaatu.client.requests.post")
@@ -47,8 +48,8 @@ class TestKlaatuClient(unittest.TestCase):
             ]
         }
 
-        run_id = self.client.find_run_id("test-experiment")
-        self.assertEqual(run_id, 123)
+        run_id = self.client.find_run_ids("test-experiment")
+        self.assertEqual(run_id[0], 123)
 
     @mock.patch("experimenter.klaatu.client.requests.get")
     def test_find_run_id_returns_none_when_not_found(self, mock_get):
@@ -59,8 +60,8 @@ class TestKlaatuClient(unittest.TestCase):
             ]
         }
 
-        run_id = self.client.find_run_id("test-experiment")
-        self.assertIsNone(run_id)
+        run_id = self.client.find_run_ids("test-experiment")
+        self.assertListEqual(run_id, [])
 
     @mock.patch("experimenter.klaatu.client.requests.get")
     def test_find_run_id_raises_on_server_error(self, mock_get):
@@ -68,7 +69,7 @@ class TestKlaatuClient(unittest.TestCase):
         mock_get.return_value.text = "Internal Server Error"
 
         with self.assertRaises(KlaatuError) as error:
-            self.client.find_run_id("test-experiment")
+            self.client.find_run_ids("test-experiment")
 
         self.assertIn("Failed to fetch workflow runs", str(error.exception))
 
@@ -82,7 +83,7 @@ class TestKlaatuClient(unittest.TestCase):
         }
 
         dispatched_at = datetime.datetime(2025, 4, 20, 15, 30)
-        run_id = self.client.find_run_id("test-experiment", dispatched_at)
+        run_id = self.client.find_run_ids("test-experiment", dispatched_at)[0]
 
         self.assertEqual(run_id, 12345)
 

@@ -1,3 +1,5 @@
+from datetime import date, datetime, timedelta
+
 import django_filters
 from django import forms
 from django.contrib.auth.models import User
@@ -21,6 +23,14 @@ class StatusChoices(models.TextChoices):
     REVIEW = "Review"
     ARCHIVED = "Archived"
     MY_EXPERIMENTS = "MyExperiments"
+
+
+class HomeStatusChoices(models.TextChoices):
+    DRAFT = NimbusExperiment.Status.DRAFT
+    PREVIEW = NimbusExperiment.Status.PREVIEW
+    LIVE = NimbusExperiment.Status.LIVE
+    COMPLETE = NimbusExperiment.Status.COMPLETE
+    REVIEW = NimbusExperiment.PublishStatus.REVIEW
 
 
 STATUS_FILTERS = {
@@ -59,8 +69,8 @@ class SortChoices(models.TextChoices):
     QA_DOWN = "-qa_status"
     APPLICATION_UP = "application"
     APPLICATION_DOWN = "-application"
-    CHANNEL_UP = "channel"
-    CHANNEL_DOWN = "-channel"
+    CHANNEL_UP = "merged_channel"
+    CHANNEL_DOWN = "-merged_channel"
     SIZE_UP = "population_percent"
     SIZE_DOWN = "-population_percent"
     FEATURES_UP = "feature_configs__slug"
@@ -85,6 +95,15 @@ class IconMultiSelectWidget(MultiSelectWidget):
         context = super().get_context(name, value, attrs)
         context["icon"] = self.icon
         return context
+
+
+class DateRangeChoices(models.TextChoices):
+    LAST_7_DAYS = "last_7_days", "Last 7 Days"
+    LAST_30_DAYS = "last_30_days", "Last 30 Days"
+    LAST_3_MONTHS = "last_3_months", "Last 3 Months"
+    LAST_6_MONTHS = "last_6_months", "Last 6 Months"
+    THIS_YEAR = "this_year", "This Year"
+    CUSTOM = "custom", "Custom Date Range"
 
 
 class NimbusExperimentFilter(django_filters.FilterSet):
@@ -263,7 +282,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ]
 
     def filter_sort(self, queryset, name, value):
-        return queryset.order_by(value)
+        return queryset.order_by(value, "slug")
 
     def filter_status(self, queryset, name, value):
         return queryset.filter(STATUS_FILTERS[value](self.request))
@@ -286,9 +305,9 @@ class NimbusExperimentFilter(django_filters.FilterSet):
     def filter_type(self, queryset, name, value):
         query = Q()
         if TypeChoices.EXPERIMENT in value:
-            query |= Q(is_rollout=False)
+            query |= Q(is_rollout=False, is_firefox_labs_opt_in=False)
         if TypeChoices.ROLLOUT in value:
-            query |= Q(is_rollout=True)
+            query |= Q(is_rollout=True, is_firefox_labs_opt_in=False)
         if TypeChoices.LABS in value:
             query |= Q(is_firefox_labs_opt_in=True)
         return queryset.filter(query)
@@ -328,8 +347,8 @@ class HomeSortChoices(models.TextChoices):
     APPLICATION_DOWN = "-application", "Application"
     TYPE_UP = "is_rollout", "Type"
     TYPE_DOWN = "-is_rollout", "Type"
-    CHANNEL_UP = "channel", "Channel"
-    CHANNEL_DOWN = "-channel", "Channel"
+    CHANNEL_UP = "merged_channel", "Channel"
+    CHANNEL_DOWN = "-merged_channel", "Channel"
     SIZE_UP = "population_percent", "Size"
     SIZE_DOWN = "-population_percent", "Size"
     DATES_UP = "_start_date", "Dates"
@@ -366,6 +385,14 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
         choices=HomeSortChoices.choices,
         widget=forms.HiddenInput,
     )
+    status = django_filters.MultipleChoiceFilter(
+        method="filter_status",
+        choices=HomeStatusChoices.choices,
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-circle-dot",
+            attrs={"title": "All Statuses"},
+        ),
+    )
     type = django_filters.MultipleChoiceFilter(
         method="filter_type",
         choices=NimbusConstants.HomeTypeChoices.choices,
@@ -384,15 +411,71 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
             attrs={"title": "All QA Statuses"},
         ),
     )
+    channel = django_filters.MultipleChoiceFilter(
+        method="filter_channel",
+        choices=NimbusExperiment.Channel.choices,
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-tv",
+            attrs={"title": "All Channels"},
+        ),
+    )
+    application = django_filters.MultipleChoiceFilter(
+        method="filter_application",
+        choices=NimbusConstants.Application.choices,
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-mobile-alt",
+            attrs={"title": "All Applications"},
+        ),
+    )
+    feature_configs = django_filters.ModelMultipleChoiceFilter(
+        method="filter_feature_configs",
+        queryset=NimbusFeatureConfig.objects.all().order_by("application", "slug"),
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-boxes-stacked",
+            attrs={"title": "All Features"},
+        ),
+    )
+    date_range = django_filters.ChoiceFilter(
+        choices=DateRangeChoices.choices,
+        method="filter_by_date_range",
+        required=False,
+    )
 
     class Meta:
         model = NimbusExperiment
-        fields = ["my_deliveries_status", "sort"]
+        fields = [
+            "my_deliveries_status",
+            "sort",
+            "status",
+            "type",
+            "qa_status",
+            "channel",
+            "application",
+            "feature_configs",
+            "date_range",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.data.get("my_deliveries_status"):
             self.filters["my_deliveries_status"].field.initial = MyDeliveriesChoices.ALL
+
+        # Limit feature_configs to only features used in user's deliveries
+        if hasattr(self, "request") and self.request.user.is_authenticated:
+            user_feature_ids = (
+                NimbusExperiment.objects.filter(
+                    Q(owner=self.request.user) | Q(subscribers=self.request.user)
+                )
+                .values_list("feature_configs", flat=True)
+                .distinct()
+            )
+
+            user_features = NimbusFeatureConfig.objects.filter(
+                id__in=user_feature_ids
+            ).order_by("application", "slug")
+
+            if user_features.exists():
+                self.filters["feature_configs"].queryset = user_features
 
     def filter_my_deliveries(self, queryset, name, value):
         user = self.request.user
@@ -406,7 +489,33 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
                 return queryset  # Default = All Deliveries
 
     def filter_sort(self, queryset, name, value):
-        return queryset.order_by(value)
+        return queryset.order_by(value, "slug")
+
+    def filter_status(self, queryset, name, values):
+        query = Q()
+        for value in values:
+            if value == HomeStatusChoices.REVIEW:
+                # Review: DRAFT or PREVIEW with non-IDLE publish_status
+                query |= Q(
+                    is_archived=False,
+                    status__in=[
+                        NimbusExperiment.Status.DRAFT,
+                        NimbusExperiment.Status.PREVIEW,
+                    ],
+                    publish_status__in=[
+                        NimbusExperiment.PublishStatus.REVIEW,
+                        NimbusExperiment.PublishStatus.APPROVED,
+                        NimbusExperiment.PublishStatus.WAITING,
+                    ],
+                )
+            else:
+                # Other statuses: status match with IDLE publish_status
+                query |= Q(
+                    is_archived=False,
+                    status=value,
+                    publish_status=NimbusExperiment.PublishStatus.IDLE,
+                )
+        return queryset.filter(query)
 
     def filter_type(self, queryset, name, values):
         query = Q()
@@ -425,3 +534,68 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
 
     def filter_qa_status(self, queryset, name, values):
         return queryset.filter(qa_status__in=values)
+
+    def filter_channel(self, queryset, name, values):
+        query = Q(channel__in=values)
+        for value in values:
+            query |= Q(channels__contains=[value])
+        return queryset.filter(query)
+
+    def filter_application(self, queryset, name, values):
+        return queryset.filter(application__in=values)
+
+    def filter_feature_configs(self, queryset, name, values):
+        if not values:
+            return queryset
+        return queryset.filter(feature_configs__in=values).distinct()
+
+    def filter_by_date_range(self, queryset, name, value):
+        today = date.today()
+
+        match value:
+            case DateRangeChoices.LAST_7_DAYS:
+                start_date = today - timedelta(days=7)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.LAST_30_DAYS:
+                start_date = today - timedelta(days=30)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.LAST_3_MONTHS:
+                start_date = today - timedelta(days=90)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.LAST_6_MONTHS:
+                start_date = today - timedelta(days=180)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.THIS_YEAR:
+                start_date = date(today.year, 1, 1)
+                return queryset.filter(_start_date__gte=start_date)
+            case DateRangeChoices.CUSTOM:
+                # Handle custom date range - can be start only, end only, or both
+                query = Q()
+                start_date_value = self.data.get("start_date")
+                end_date_value = self.data.get("end_date")
+
+                # Apply start date filter if provided
+                if start_date_value:
+                    try:
+                        parsed_start_date = datetime.strptime(
+                            start_date_value, "%Y-%m-%d"
+                        ).date()
+                        query &= Q(_start_date__gte=parsed_start_date)
+                    except (ValueError, TypeError, AttributeError):
+                        pass
+
+                # Apply end date filter if provided
+                if end_date_value:
+                    try:
+                        parsed_end_date = datetime.strptime(
+                            end_date_value, "%Y-%m-%d"
+                        ).date()
+                        query &= Q(_computed_end_date__lte=parsed_end_date)
+                    except (ValueError, TypeError, AttributeError):
+                        pass
+
+                # Only apply filter if we have at least one valid date
+                if start_date_value or end_date_value:
+                    return queryset.filter(query)
+
+        return queryset

@@ -1,9 +1,20 @@
 import json
+from datetime import date
 
 from django import template
 from django.utils.safestring import mark_safe
 
 from experimenter.experiments.constants import NimbusConstants
+from experimenter.nimbus_ui.constants import (
+    APPLICATION_ICON_FILTER_TYPE,
+    APPLICATION_ICON_MAP,
+    CHANNEL_ICON_FILTER_TYPE,
+    CHANNEL_ICON_MAP,
+    QA_ICON_FILTER_TYPE,
+    QA_STATUS_ICON_MAP,
+    STATUS_ICON_FILTER_TYPE,
+    STATUS_ICON_MAP,
+)
 
 register = template.Library()
 
@@ -96,4 +107,194 @@ def can_review_experiment(context, experiment):
 
 @register.filter
 def qa_icon_info(value):
-    return NimbusConstants.QAStatus.get_icon_info(value)
+    return QA_STATUS_ICON_MAP.get(
+        value, QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.NOT_SET]
+    )
+
+
+@register.filter
+def application_icon_info(value):
+    return APPLICATION_ICON_MAP.get(
+        value, APPLICATION_ICON_MAP[NimbusConstants.Application.DESKTOP]
+    )
+
+
+@register.filter
+def channel_icon_info(value):
+    return NimbusConstants.Channel.get_icon_info(value)
+
+
+@register.filter
+def status_icon_info(value):
+    return STATUS_ICON_MAP.get(value, {"icon": "", "color": ""})
+
+
+@register.simple_tag
+def render_channel_icons(experiment):
+    channels_data = []
+
+    if experiment.is_desktop and experiment.channels:
+        for channel in sorted(experiment.channels):
+            icon_info = NimbusConstants.Channel.get_icon_info(channel)
+            channel_label = experiment.Channel(channel).label
+            channels_data.append(
+                {
+                    "icon_info": icon_info,
+                    "label": channel_label,
+                    "is_multi": True,
+                }
+            )
+    elif experiment.channel:
+        icon_info = NimbusConstants.Channel.get_icon_info(experiment.channel)
+        channel_label = experiment.Channel(experiment.channel).label
+        channels_data.append(
+            {
+                "icon_info": icon_info,
+                "label": channel_label,
+                "is_multi": False,
+            }
+        )
+
+    return channels_data
+
+
+@register.simple_tag
+def choices_with_icons(choices, icon_filter_type):
+    enriched_choices = []
+
+    for value, label in choices:
+        icon_info = None
+        if icon_filter_type == QA_ICON_FILTER_TYPE:
+            icon_info = QA_STATUS_ICON_MAP.get(
+                value, QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.NOT_SET]
+            )
+        elif icon_filter_type == CHANNEL_ICON_FILTER_TYPE:
+            icon_info = CHANNEL_ICON_MAP.get(
+                value, CHANNEL_ICON_MAP[NimbusConstants.Channel.NO_CHANNEL]
+            )
+        elif icon_filter_type == APPLICATION_ICON_FILTER_TYPE:
+            icon_info = APPLICATION_ICON_MAP.get(
+                value, APPLICATION_ICON_MAP[NimbusConstants.Application.DESKTOP]
+            )
+        elif icon_filter_type == STATUS_ICON_FILTER_TYPE:
+            icon_info = STATUS_ICON_MAP.get(value, {"icon": "", "color": ""})
+
+        enriched_choices.append({"value": value, "label": label, "icon_info": icon_info})
+
+    return enriched_choices
+
+
+@register.filter
+def home_status_display(experiment):
+    if not experiment.is_archived and experiment.is_review_timeline:
+        return NimbusConstants.PublishStatus.REVIEW
+
+    return experiment.status
+
+
+@register.filter
+def home_status_display_with_icon(experiment):
+    status = home_status_display(experiment)
+    icon_info = STATUS_ICON_MAP.get(status, {"icon": "", "color": ""})
+
+    return {"status": status, "icon_info": icon_info}
+
+
+@register.filter
+def experiment_date_progress(experiment):
+    today = date.today()
+
+    result = {
+        "show_bar": False,
+        "bar_class": "",
+        "bar_style": "",
+        "days_text": "",
+        "progress_percentage": 0,
+        "is_overdue": False,
+        "is_complete": False,
+        "is_na": True,
+        "has_alert": False,
+        "start_date": None,
+        "end_date": None,
+        "date_range_text": "",
+    }
+
+    # Early states (Draft, Preview, Review) - show N/A
+    if experiment.is_draft or experiment.is_preview or experiment.is_review_timeline:
+        result["days_text"] = "N/A"
+        return result
+
+    start_date = experiment.enrollment_start_date
+    end_date = experiment.computed_end_date
+
+    if start_date:
+        result["start_date"] = start_date.strftime("%b %d, %Y")
+    if end_date:
+        result["end_date"] = end_date.strftime("%b %d, %Y")
+
+    if start_date and end_date:
+        result["date_range_text"] = (
+            f"{start_date.strftime('%b %d, %Y')} - {end_date.strftime('%b %d, %Y')}"
+        )
+
+    total_days = experiment.computed_duration_days
+    if not total_days or total_days <= 0:
+        total_days = (end_date - start_date).days if end_date and start_date else 1
+
+    if experiment.is_complete:
+        result.update(
+            {
+                "show_bar": True,
+                "bar_class": "bg-secondary",
+                "bar_style": "width: 100%",
+                "days_text": "Complete",
+                "progress_percentage": 100,
+                "is_complete": True,
+                "is_na": False,
+            }
+        )
+    elif experiment.is_started and start_date and end_date:
+        days_since_start = (today - start_date).days
+        days_remaining = (end_date - today).days
+
+        # Calculate total days
+        total_days = experiment.computed_duration_days
+        if not total_days or total_days <= 0:
+            total_days = (end_date - start_date).days if end_date and start_date else 1
+
+        if days_remaining < 0:
+            # Overdue
+            result.update(
+                {
+                    "show_bar": True,
+                    "bar_class": "bg-danger",
+                    "bar_style": "width: 100%",
+                    "days_text": f"{days_remaining} days",
+                    "progress_percentage": 100,
+                    "is_overdue": True,
+                    "is_na": False,
+                    "has_alert": True,
+                }
+            )
+        else:
+            progress_percentage = min(
+                100, max(0, (days_since_start / max(1, total_days)) * 100)
+            )
+
+            bar_class = "bg-success" if experiment.is_enrolling else "bg-info"
+
+            result.update(
+                {
+                    "show_bar": True,
+                    "bar_class": bar_class,
+                    "bar_style": f"width: {progress_percentage}%",
+                    "days_text": f"{days_remaining} days",
+                    "progress_percentage": progress_percentage,
+                    "is_na": False,
+                }
+            )
+    else:
+        # default show N/A
+        result["days_text"] = "N/A"
+
+    return result

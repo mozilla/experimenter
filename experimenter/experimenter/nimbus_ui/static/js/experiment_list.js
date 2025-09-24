@@ -4,8 +4,10 @@ document.body.addEventListener("htmx:afterSwap", function () {
   const urlParams = new URLSearchParams(window.location.search);
   const sortValue = urlParams.get("sort");
   const statusValue = urlParams.get("status");
-  $('#filter-form input[name="status"]').each(
-    (i, e) => (e.value = statusValue),
-  );
-  $('#filter-form input[name="sort"]').each((i, e) => (e.value = sortValue));
+  document
+    .querySelectorAll('#filter-form input[name="status"]')
+    .forEach((e) => (e.value = statusValue));
+  document
+    .querySelectorAll('#filter-form input[name="sort"]')
+    .forEach((e) => (e.value = sortValue));
 });

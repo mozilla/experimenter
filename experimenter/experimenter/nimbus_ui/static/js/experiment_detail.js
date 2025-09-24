@@ -31,7 +31,7 @@ const setupPreviewUrlCopyToast = () => {
   var copiedToast = document.getElementById("preview-toast");
   if (previewUrl && copiedToast) {
     previewUrl.addEventListener("click", function () {
-      navigator.clipboard.writeText(previewUrl.textContent);
+      navigator.clipboard.writeText(previewUrl.textContent.trim());
       var toast = bootstrap.Toast.getOrCreateInstance(copiedToast);
       toast.show();
     });

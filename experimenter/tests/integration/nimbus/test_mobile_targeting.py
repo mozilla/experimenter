@@ -102,13 +102,16 @@ def test_check_mobile_targeting(
             "is_default_browser": True,
             "is_bottom_toolbar_user": True,
             "has_enabled_tips_notifications": True,
+            "has_accepted_terms_of_use": True,
             "is_apple_intelligence_available": True,
             "cannot_use_apple_intelligence": True,
             "install_referrer_response_utm_source": "test",
             "number_of_app_launches": 1,
             "is_large_device": True,
             "user_accepted_tou": True,
-            "no_shortcuts_stories_mkt": True,
+            "no_shortcuts_or_stories_opt_outs": True,
+            "user_clicked_tou_prompt_link": True,
+            "user_clicked_tou_prompt_remind_me_later": True,
         }
     )
     client = sdk_client(load_app_context(context))

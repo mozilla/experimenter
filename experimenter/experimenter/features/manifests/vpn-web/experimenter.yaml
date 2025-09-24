@@ -1,8 +1,7 @@
----
 example-feature:
   description: An example feature
   hasExposure: true
-  exposureDescription: ""
+  exposureDescription: ''
   variables:
     enabled:
       type: boolean

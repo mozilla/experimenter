@@ -1,8 +1,7 @@
----
 nimbus-validation:
   description: A tiny feature to validate that Nimbus is working
   hasExposure: true
-  exposureDescription: ""
+  exposureDescription: ''
   variables:
     bold-tip-title:
       type: boolean
@@ -10,7 +9,7 @@ nimbus-validation:
 onboarding-variables:
   description: A collection of variables about onboarding
   hasExposure: true
-  exposureDescription: ""
+  exposureDescription: ''
   variables:
     show-new-onboarding:
       type: boolean

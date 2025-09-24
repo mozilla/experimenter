@@ -1,4 +1,5 @@
 {% load static %}
+{% load nimbus_extras %}
 
 <div class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle"
      style="min-height: 450px">
@@ -23,7 +24,14 @@
                style="font-size: 1.05rem">{{ experiment.name }}</a>
           </div>
           <div class="text-muted small">
-            {{ experiment.status|capfirst }}
+            {% with status_info=experiment|home_status_display_with_icon %}
+              {% if status_info.icon_info.icon %}
+                <span class="me-1 {{ status_info.icon_info.color }}">
+                  <i class="{{ status_info.icon_info.icon }}"></i>
+                </span>
+              {% endif %}
+              {{ status_info.status }}
+            {% endwith %}
             {% if experiment.application %}• {{ experiment.application }}{% endif %}
             {% with channel=experiment.get_channel_display %}
               {% if channel %}• {{ channel }}{% endif %}

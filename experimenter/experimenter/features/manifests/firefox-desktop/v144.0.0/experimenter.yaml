@@ -105,7 +105,10 @@ nimbusStore:
 search:
   description: Search service related features.
   owner: search-and-suggest-program@mozilla.com
-  hasExposure: false
+  hasExposure: true
+  exposureDescription: >
+    Exposure is recorded when the visual search context menu item is shown or
+    would have been shown.
   variables:
     scotchBonnetEnableOverride:
       type: boolean
@@ -234,6 +237,14 @@ urlbar:
         will be able to click the "Show less frequently" command for addon
         suggestions. If undefined or zero, the user will be able to click the
         command without any limit.
+    allowSearchSuggestionsForSimpleOrigins:
+      type: boolean
+      fallbackPref: browser.urlbar.allowSearchSuggestionsForSimpleOrigins
+      description: >-
+        Whether remote search suggestions should be fetched for search strings
+        that look like possible simple origins like "mozilla.org". Search
+        suggestions will remain prohibited for search strings that look like
+        more complex origins that include userinfo or ports or are IP addresses.
     ampFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.amp.featureGate
@@ -343,6 +354,14 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.merino.timeoutMs
       description: Timeout for Merino fetches (ms)
+    suggestOhttp:
+      type: boolean
+      description: >-
+        Whether search suggestions should be fetched over OHTTP.
+        Currently this applies only to Google suggestions.
+      setPref:
+        pref: browser.search.suggest.ohttp.featureGate
+        branch: user
     exposureResults:
       type: string
       setPref:
@@ -688,6 +707,12 @@ urlbar:
         If this variable is true, the following things are processed.
         * Change the suggested index to 1.
         * Handle as top pick.
+    yelpRealtimeFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.yelpRealtime.featureGate
+      description: >-
+        Feature gate that controls whether all aspects of Yelp realtime suggestions
+        feature are exposed to the user.
     originsAlternativeEnable:
       description: >-
         Use an alternative ranking algorithm for autofilling origins, that is
@@ -1403,6 +1428,10 @@ newtabInferredPersonalization:
       type: boolean
       description: >-
         Whether to use Unary encoding with differential privacy in the interest vector. If false or not set, we default to laplace noise with real values
+    normalized_time_zone_offset:
+      type: boolean
+      description: >-
+        Include normalized (limited to common values) time zone offset in telemetry and requests
 
 
 newtabSmartShortcuts:
@@ -1414,6 +1443,10 @@ newtabSmartShortcuts:
       type: boolean
       description: >-
         Enable personalized shortcuts
+    force_log:
+      type: boolean
+      description: >-
+        Enable logging of shortcut interactions independent of ranking
     over_sample_multiplier:
       type: int
       description: >-
@@ -1442,6 +1475,22 @@ newtabSmartShortcuts:
       type: int
       description: >-
         Percentage weight of daily seasonality
+    bmark_weight:
+      type: int
+      description: >-
+        Percentage weight of is_bookmark
+    rece_weight:
+      type: int
+      description: >-
+        Percentage weight of recency
+    freq_weight:
+      type: int
+      description: >-
+        Percentage weight of frequency
+    refre_weight:
+      type: int
+      description: >-
+        Percentage weight of redone frecency
     bias_weight:
       type: int
       description: >-
@@ -1681,6 +1730,14 @@ newtabWidgets:
       type: boolean
       description: >-
         Enable Focus Timer widget
+    listsBadgeEnabled:
+      type: boolean
+      description: >-
+        Show badge on Lists widget to indicate new/beta feature
+    listsBadgeLabel:
+      type: string
+      description: >-
+        Label type for Lists widget badge (New or Beta)
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -2833,6 +2890,12 @@ networking:
       setPref:
         branch: default
         pref: "network.http.http3.use_nspr_for_io"
+    prefetchNext:
+      description: Enables the prefetch service (i.e., prefetching of <link rel="next"> and <link rel="prefetch"> URLs).
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.prefetch-next"
 
 networkingEarlyHints:
   description: "Networking (Necko) Early Hints"
@@ -2893,6 +2956,12 @@ networkingConnections:
       setPref:
         branch: default
         pref: "network.http.max-persistent-connections-per-server"
+    httpMaxUrgentStartExcessiveConnectionsPerHost:
+      description: Number of connections that we can open beyond the standard parallelism limit defined by max-persistent-connections-per-server/-proxy to handle urgent-start marked requests.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.max-urgent-start-excessive-connections-per-host"
     speculativeConnectionLimit:
       description: The maximum number of half-open sockets allowed for speculative connections
       type: int
@@ -3384,6 +3453,42 @@ dapTelemetry:
       type: json
       description: A list of experiments with URLs for which we want to count visits.
 
+dapIncrementality:
+  description: "Incrementality experiment configuration"
+  owner: gleonard@mozilla.com
+  hasExposure: false
+  variables:
+    measurementType:
+      type: string
+      description:  Indicates the type of measurement to enable.  Valid values are `visitMeasurement`, `referrerMeasurement`.
+    advertiser:
+      type: string
+      description: The advertiser being measured.
+    taskId:
+      type: string
+      description: The DAP taskId specified for report submission.
+    length:
+      type: int
+      description: The number of buckets needed for the report histogram.
+    timePrecision:
+      type: int
+      description: The time precision (seconds) for submitted report.  Must match the time-precision value for the task with the specified taskId.
+    visitCountUrls:
+      type: json
+      description: Used for measurementType `visitMeasurement`. JSON indicating the url (string), bucket (int), and metric_name(string).
+    referrerUrls:
+      type: json
+      description: Used for measurementType `referrerMeasurement`. JSON indicating the url (string), bucket (int), and metric_name(string) The url pattern should be broad.
+    targetUrls:
+      type: string
+      description: Used for measurementType `referrerMeasurement`. Comma separated list of URLs to measure.
+    unknownReferrerBucket:
+      type: int
+      description: Used for measurementType `referrerMeasurement`. Histogram bucket indicating unknown referrer, may be null.
+    unknownReferrerMetricName:
+      type: string
+      description: Used for measurementType `referrerMeasurement`. Metric name indicating count of unknown referrer occurrences, may be null.
+
 dapAggregators:
   description: Aggregator server configuration to use for submitting DAP reports.
   owner: tcampbell@mozilla.com
@@ -3671,19 +3776,6 @@ fingerprintingProtection:
       description: >-
         The protection overrides to add or remove fingerprinting protection
         targets. Please check RFPTargets.inc for all supported targets.
-
-portlessPartitioning:
-  description: When enabled, Site partition keys include non-standard ports
-  owner: bvandersloot@mozilla.com
-  hasExposure: false
-  variables:
-    no_port:
-      type: boolean
-      setPref:
-        branch: default
-        pref: privacy.dynamic_firstparty.use_site.include_port
-      description: >-
-        Controls the port's use in generation of Site partition keys
 
 userCharacteristics:
   description: Control user characteristic data collection
@@ -4062,6 +4154,60 @@ asmjs:
       setPref:
         branch: user
         pref: "javascript.options.asmjs"
+
+scriptloader:
+  description: Prefs that control scriptloader heuristics.
+  owner: dpalmeiro@mozilla.com
+  hasExposure: false
+  variables:
+    bytecode_cache_strategy:
+      description: Set the bytecode cache strategy.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.script_loader.bytecode_cache.strategy"
+    delazification_max_size:
+      description: Maximum number of bytes supported for speculate OMT full parsing.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.script_loader.delazification.max_size"
+    delazification_min_mem:
+      description: Minimum memory required, in GB, to enable OMT full parsing.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.script_loader.delazification.min_mem"
+    speculate_async_enabled:
+      description: Enable speculative OMT parsing for async scripts.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.script_loader.external_scripts.speculate_async.enabled"
+    speculate_link_preload_enabled:
+      description: Enable speculative OMT parsing for link=preload scripts.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.script_loader.external_scripts.speculate_link_preload.enabled"
+    speculate_non_parser_inserted_enabled:
+      description: Enable speculative OMT parsing for non parser inserted scripts.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.script_loader.external_scripts.speculate_non_parser_inserted.enabled"
+    speculate_enabled:
+      description: Enable speculative OMT parsing.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.script_loader.external_scripts.speculative_omt_parse.enabled"
+    navigation_cache_enabled:
+      description: Enable the navigation cache.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.script_loader.navigation_cache"
 
 raceCacheWithNetwork:
   description: Prefs to toggle the race cache with network.
@@ -5172,3 +5318,209 @@ webApps:
         pref: browser.taskbarTabs.enabled
       description: >-
         Controls whether web apps can be installed and accessed.
+
+passwordManager:
+  description: Password manager related prefs
+  owner: maltejur@mozilla.com
+  hasExposure: false
+  variables:
+    reencryptionNeeded:
+      isEarlyStartup: true
+      type: boolean
+      setPref:
+        branch: default
+        pref: signon.reencryptionNeeded
+      description: >-
+        Triggers a reencryption of all passwords on the next startup for
+        migration purposes.
+
+xpcom:
+  description: Prefs that control the cross-platform component object model
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    idle_period_cross_process_scheduling:
+      description: Whether Firefox allows background processes to use idle time to schedule and run tasks.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "idle_period.cross_process_scheduling"
+    low_commit_space_threshold_mb:
+      description: if defined(XP_WIN) || defined(XP_LINUX) - notify TabUnloader or send the memory pressure if the memory resource notification is signaled AND the available commit space is lower than this value.
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.low_commit_space_threshold_mb"
+    low_commit_space_threshold_percent:
+      description: ifdef XP_LINUX - on Linux we also check available memory in comparison to total memory, and use this percent value (out of 100) to determine if we are in a low memory scenario.
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.low_commit_space_threshold_percent"
+
+layout:
+  description: Prefs that control the DOM or core layout.
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    lower_priority_refresh_driver_during_load:
+      description: Reduces refresh rate between fcp and load. The value is TRUE is there to improve page load.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "layout.lower_priority_refresh_driver_during_load"
+    sessionstore_max_tabs_undo:
+      description: How many tabs can be reopened per window.
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.sessionstore.max_tabs_undo"
+    sessionstore_max_windows_undo:
+      description: How many windows will be saved and can be reopened per session - on non-macOS platforms this pref may be ignored when dealing with pop-up windows to ensure the user actually gets at least one window with a menu bar.
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.sessionstore.max_windows_undo"
+    sessionstore_interval:
+      description: Minimum interval between two save operations in milliseconds (while the user is active).
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.sessionstore.interval"
+    sessionhistory_max_total_viewers:
+      description: Number of content viewers to cache based. If negative, determined by amount of available memory.
+      type: int
+      setPref:
+        branch: user
+        pref: "browser.sessionhistory.max_total_viewers"
+    smooth_scroll:
+      description: Whether to enable smooth scrolling.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "general.smoothScroll"
+    frame_rate:
+      description: Pref to control browser frame rate, in Hz.
+      type: int
+      setPref:
+        branch: user
+        pref: "layout.frame_rate"
+    frame_rate_throttled:
+      description: Throttled frame rate, in frames per second.
+      type: int
+      setPref:
+        branch: user
+        pref: "layout.throttled_frame_rate"
+    initialpaint_delay:
+      description: Reduces the time Firefox waits before starting to render a page.
+      type: int
+      setPref:
+        branch: user
+        pref: "nglayout.initialpaint.delay"
+    initialpaint_delay_oopif:
+      description: Reduces the time Firefox waits before starting to render a page in out-of-process iframes.
+      type: int
+      setPref:
+        branch: user
+        pref: "nglayout.initialpaint.delay_in_oopif"
+    page_load_deprioritization_period:
+      description: Time in milliseconds during which certain tasks are deprioritized during page load.
+      type: int
+      setPref:
+        branch: user
+        pref: "page_load.deprioritization_period"
+
+ipc:
+  description: Prefs that control the inter-process communication system.
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    backend_mach:
+      description: if defined(XP_DARWIN) - Whether or not to use the mach-based IPC backend on macOS/iOS. Only read once at startup by IOThreadParent's constructor.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.ipc.backend.mach"
+    process_count:
+      description: The max number of content processes used for non-isolated origins.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processCount"
+    process_count_web_isolated:
+      description: Maximum number of isolated content processes per-origin.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processCount.webIsolated"
+    preallocated_process_count:
+      description: Process preallocation cache. Only used in fission; in e10s we use 1 always.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPrelaunch.fission.number"
+    preallocated_lowmem_mb:
+      description: Limit preallocated processes below this memory size (in MB).
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPrelaunch.lowmem_mb"
+    priority_manager_enabled:
+      description: Determines whether Firefox uses the Process Priority Manager to adjust CPU priority based on importance.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPriorityManager.enabled"
+    priority_manager_background_grace_period_ms:
+      description: The waiting period before Firefox begins lowering the priority of a content process after it goes into background.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPriorityManager.backgroundGracePeriodMS"
+    priority_manager_background_perceivable_grace_period_ms:
+      description: The waiting period before Firefox begins lowering the priority of a content process that is still considered "perceivable".
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPriorityManager.backgroundPerceivableGracePeriodMS"
+    priority_manager_background_uses_ecoqos:
+      description: Windows only. Determines whether Firefox should use EcoQoS mode for power efficiency.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.ipc.processPriorityManager.backgroundUsesEcoQoS"
+
+graphics:
+  description: Prefs that control media and/or graphics processing.
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    gfx_webrender_all:
+      description: Whether to use the WebRender hardware backend.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "gfx.webrender.all"
+    layers_acceleration_force_enabled:
+      description: Whether to force acceleration on, ignoring blacklists.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "layers.acceleration.force-enabled"
+image:
+  description: Prefs that control image processing.
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    image_cache_size:
+      description: The maximum size, in bytes, of the decoded images we cache.
+      type: int
+      setPref:
+        branch: user
+        pref: "image.cache.size"
+    image_mem_decode_bytes_at_a_time:
+      description: Chunk size for calls to the image decoders.
+      type: int
+      setPref:
+        branch: user
+        pref: "image.mem.decode_bytes_at_a_time"
