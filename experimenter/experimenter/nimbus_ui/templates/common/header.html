@@ -82,6 +82,44 @@
           Legacy
         </a>
       </li>
+      <li class="nav-item me-3">
+        <a id="create-new-button"
+           class="btn btn-primary"
+           data-bs-toggle="modal"
+           data-bs-target="#createModal">
+          <i class="fa-regular fa-pen-to-square"></i>
+          Create Experiment
+        </a>
+      </li>
+      <!-- Modal -->
+      <div class="modal fade"
+           id="createModal"
+           tabindex="-1"
+           aria-labelledby="createModalLabel"
+           aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="createModalLabel">
+                <i class="fa-regular fa-pen-to-square"></i>
+                Create Experiment
+              </h1>
+              <button type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-body-tertiary">
+              <form id="createForm"
+                    hx-post="{% url 'nimbus-ui-create' %}"
+                    hx-target="#createForm">
+                {% include "nimbus_experiments/create.html" with form=create_form %}
+
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
       <li class="d-flex align-items-center">
         <i class="fa-regular fa-lightbulb"></i>
         <div class="form-check form-switch ms-2 mt-1">
