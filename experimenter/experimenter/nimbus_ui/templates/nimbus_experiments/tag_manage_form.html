@@ -1,0 +1,32 @@
+<form hx-post="{% url 'nimbus-ui-manage-tags' experiment.slug %}">
+  {% csrf_token %} {% for choice in form.tags %} {% for tag in tags %} {% if
+  tag.id == choice.data.value %}
+  <div
+    class="form-check mb-2 d-flex align-items-center justify-content-between"
+  >
+    <div class="d-flex align-items-center">
+      {{ choice.tag }}
+      <div class="d-flex align-items-center ms-2">
+        <div
+          class="rounded-circle me-2"
+          style="width: 16px; height: 16px; background-color: {{ tag.color }};"
+        ></div>
+        <label class="form-check-label" for="{{ choice.id_for_label }}">
+          {{ choice.choice_label }}
+        </label>
+      </div>
+    </div>
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-secondary"
+      hx-get="{% url 'nimbus-ui-edit-tag' choice.data.value %}"
+      hx-target="#tagModal .modal-body"
+      data-bs-toggle="modal"
+      data-bs-target="#tagModal"
+    >
+      Edit
+    </button>
+  </div>
+  {% endif %} {% endfor %} {% endfor %}
+  <button type="submit" class="btn btn-primary mt-3">Save</button>
+</form>

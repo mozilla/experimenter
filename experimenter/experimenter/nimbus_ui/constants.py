@@ -121,6 +121,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     # TODO: Add learn more URL for feature page (EXP-5876)
     FEATURE_PAGE_LINKS = {"feature_learn_more_url": ""}
 
+    TAGS = {
+        "duplicate_name": "A tag with this name already exists.",
+        "required_name": "Tag name is required.",
+    }
+
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"
         END_ENROLLMENT = "end enrollment for this experiment"
