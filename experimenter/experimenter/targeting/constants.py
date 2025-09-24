@@ -3289,6 +3289,28 @@ TOU_EXPERIENCE_2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_PLUS_SIGNED_OUT_USER = NimbusTargetingConfig(
+    name="Windows 10+ signed out user",
+    slug="windows_10_plus_signed_out",
+    description="Windows users on version 10 or higher who are not signed into FxA",
+    targeting="!isFxASignedIn && (os.isWindows && os.windowsVersion >= 10)",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+MAC_SIGNED_OUT_USER = NimbusTargetingConfig(
+    name="Mac signed out user",
+    slug="mac_signed_out",
+    description="Mac users who are not signed into FxA",
+    targeting="!isFxASignedIn && os.isMac",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
