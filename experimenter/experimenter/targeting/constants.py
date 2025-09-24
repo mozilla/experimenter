@@ -38,54 +38,11 @@ WIN22H2 = "os.windowsBuildNumber >= 19045"
 CORE_ACTIVE_USERS_TARGETING = "'{event}'|eventCountNonZero('Days', 28, 0) >= 21"
 RECENTLY_LOGGED_IN_USERS_TARGETING = "'{event}'|eventCountNonZero('Weeks', 12, 0) >= 1"
 
-# The following indicate whether the user accepted the terms of use in
-# one of our initial phases of experimentation/rollout
-ACCEPTED_TOU_IN_NIMBUS_EXPERIMENT = (
-    "'datareporting.policy.dataSubmissionPolicyAcceptedVersion'|preferenceValue == 3"
-)
-# Accepted in 100% on-train rollout in 139 release (after May 27,
-# 6am PT timestamp)
-ACCEPTED_TOU_IN_FULL_ON_TRAIN_ROLLOUT = """
-(
-    'datareporting.policy.dataSubmissionPolicyNotifiedTime'|preferenceValue >= '1748350800000'
-    &&
-    'datareporting.policy.dataSubmissionPolicyAcceptedVersion'|preferenceValue == 2
-    &&
-    'browser.preonboarding.enrolledInOnTrainRollout'|preferenceValue
-)
-"""  # noqa: E501
-# Accepted in earlier partial rollout indicated by presence of on-train
-# rollout population value
-ACCEPTED_TOU_IN_PARTIAL_ON_TRAIN_ROLLOUT = """
-(
-    'browser.preonboarding.enrolledInOnTrainRollout'|preferenceValue
-    &&
-    'browser.preonboarding.onTrainRolloutPopulation'|preferenceValue
-    &&
-    'datareporting.policy.dataSubmissionPolicyAcceptedVersion'|preferenceValue == 2
-)
-"""
-# After an upcoming pref migration, users who accepted the initial version of
-# the TOU will have termsofuse.acceptedVersion set to 4
 ACCEPTED_TOU_V4 = "'termsofuse.acceptedVersion'|preferenceValue == 4"
-ACCEPTED_TOU = f"""
-(
-    {ACCEPTED_TOU_IN_NIMBUS_EXPERIMENT}
-    ||
-    {ACCEPTED_TOU_IN_FULL_ON_TRAIN_ROLLOUT}
-    ||
-    {ACCEPTED_TOU_IN_PARTIAL_ON_TRAIN_ROLLOUT}
-    ||
-    {ACCEPTED_TOU_V4}
-)
-"""
-TOU_NOTIFICATION_BYPASS_ENABLED = """
-(
-    'datareporting.policy.dataSubmissionPolicyBypassNotification'|preferenceValue
-    ||
-    'termsofuse.bypassNotification'|preferenceValue
-)
-"""
+
+ACCEPTED_TOU_V4_OR_HIGHER = "'termsofuse.acceptedVersion'|preferenceValue >= 4"
+
+TOU_NOTIFICATION_BYPASS_ENABLED = "'termsofuse.bypassNotification'|preferenceValue"
 
 # The following indicate whether the user has changed prefs suggesting
 # they prefer not to see ads or ad-like features
@@ -99,16 +56,28 @@ NEW_TAB_NOT_DEFAULT = """
 HOMEPAGE_NOT_DEFAULT = "!homePageSettings.isDefault"
 TOPSITES_OR_SPONSORED_TOPSITES_DISABLED = """
 (
-    !'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue
+    (
+        'browser.newtabpage.activity-stream.feeds.system.topsites'|preferenceValue
+        &&
+        !'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue
+    )
     ||
     !'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
 )
 """
 RECOMMENDED_OR_SPONSORED_STORIES_DISABLED = """
 (
-    !'browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceValue
+    (
+        'browser.newtabpage.activity-stream.feeds.system.topstories'|preferenceValue
+        &&
+        !'browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceValue
+    )
     ||
-    !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
+    (
+        'browser.newtabpage.activity-stream.system.showSponsored' | preferenceValue
+        &&
+        !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
+    )
 )
 """
 SPONSORED_SEARCH_SUGGESTIONS_DISABLED = (
@@ -130,6 +99,67 @@ ADS_DISABLED = f"""
 # Most sponsored content is off by default in Brazil and Mexico, as of
 # June 26, 2025.
 ADS_DISABLED_BR_MX_2025_06_26 = TOPSITES_OR_SPONSORED_TOPSITES_DISABLED
+
+# User has at least one non-default privacy setting:
+#   ETP strict (see https://searchfox.org/firefox-main/source/browser/base/content/test/protectionsUI/browser_protectionsUI.js#193-200)
+#   Global Privacy Control (see https://searchfox.org/firefox-main/source/modules/libpref/init/StaticPrefList.yaml#16139-16145)
+#   Enable DNS over HTTPS - Max Protection (see https://firefox-source-docs.mozilla.org/networking/dns/dns-over-https-trr.html#implementation)
+#   Enable HTTPS-Only Mode in all windows (see https://searchfox.org/firefox-main/source/modules/libpref/init/StaticPrefList.yaml#4430-4432)
+
+HAS_PRIVACY_SETTING = """
+(
+    (
+        'browser.contentblocking.category'|preferenceValue) == "strict"
+        ||
+        'browser.contentblocking.category'|preferenceValue) == "custom"
+    )
+    ||
+    ('privacy.globalprivacycontrol.enabled'|preferenceValue)
+    ||
+    (
+        (
+            ('network.trr.mode'|preferenceValue) == 3
+            ||
+            ('doh-rollout.mode'|preferenceValue) == 3
+        )
+    ||
+    ('dom.security.https_only_mode'|preferenceValue)
+)
+"""
+# User has uBlock, Adblocker Ultimate, Adblock Plus, or Ghostery extensions
+HAS_AD_BLOCKER = """
+(
+    !!addonsInfo.addons
+    &&
+    (
+        !!addonsInfo.addons["uBlock0@raymondhill.net"]
+        ||
+        !!addonsInfo.addons["adblockultimate@adblockultimate.net"]
+        ||
+        !!addonsInfo.addons["d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d"]
+        ||
+        !!addonsInfo.addons["jid1-NIfFY2CA8fy1tg@jetpack"]
+    )
+)
+"""
+
+TOU_EXPERIENCE_TOTAL = """
+(
+    (
+        (
+            (
+                '' + [
+                        ADS_DISABLED,
+                        HAS_PRIVACY_SETTING,
+                        HAS_AD_BLOCKER
+                    ]
+            ) | regExpMatch('true','g')
+        )
+        ||
+        []
+    ) | length
+)
+"""
 
 NO_TARGETING = NimbusTargetingConfig(
     name="No Targeting",
@@ -651,6 +681,17 @@ URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED_NOT_STICKY = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) - Data Collection Enabled (not sticky)",
+    slug="urlbar_firefox_suggest_data_collection_enabled_not_sticky",
+    description="Users with Firefox Suggest data collection enabled and not sticky",
+    targeting="'browser.urlbar.quicksuggest.dataCollection.enabled'|preferenceValue",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_DISABLED = NimbusTargetingConfig(
     name="Urlbar (Firefox Suggest) - Data Collection Disabled",
     slug="urlbar_firefox_suggest_data_collection_disabled",
@@ -1028,6 +1069,43 @@ WIN10_EOS_SYNC_TOAST_ELIGIBLE = NimbusTargetingConfig(
         "== 'treatment-a')"
         " || (defaultProfile.enrollmentsMap['windows-10-eos-sync-messaging'] "
         "== 'treatment-a'))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WIN10_EOS_SYNC_TOAST_ROLLOUT_ELIGIBLE = NimbusTargetingConfig(
+    name="Users in the Windows 10 EOS Sync rollout",
+    slug="win10_eos_sync_toast_rollout_eligible",
+    description="Users in the Windows 10 EOS Sync rollout",
+    targeting=(
+        "isBackgroundTaskMode && (("
+        "defaultProfile.enrollmentsMap['optin-windows-10-eos-sync-messaging-rollout'] "
+        "== 'treatment-a')"
+        " || (defaultProfile.enrollmentsMap['windows-10-eos-sync-messaging-rollout'] "
+        "== 'treatment-a'))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WIN10_EOS_REMINDER_ELIGIBLE = NimbusTargetingConfig(
+    name="Windows 10 users eligible for Windows 10 EoS Reminder messages",
+    slug="win10_eos_reminder_messages_eligible",
+    description=(
+        "Windows 10 users who have FxA enabled, are at least 7 "
+        "days old, without enterprise policies"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && "
+        "os.windowsBuildNumber < 22000 && "
+        "isFxAEnabled && "
+        f"{NO_ENTERPRISE.targeting} && "
+        f"{PROFILEMORETHAN7DAYS}"
     ),
     desktop_telemetry="",
     sticky_required=False,
@@ -2267,6 +2345,28 @@ IOS_TIPS_NOTIFICATIONS_ENABLED_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+IOS_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
+    name="Users Who Accepted Terms of Use",
+    slug="ios_accepted_terms_of_use_user",
+    description="Users that have already accepted the Terms of Use",
+    targeting="has_accepted_terms_of_use == true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+IOS_NOT_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
+    name="Users Who Have Not Accepted Terms of Use",
+    slug="ios_not_accepted_terms_of_use_user",
+    description="Users that have not accepted the Terms of Use",
+    targeting="has_accepted_terms_of_use == false",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
     name="Apple Intelligence Available Users",
     slug="ios_apple_intelligence_available_user",
@@ -3053,18 +3153,10 @@ SIGNED_OUT_POST_FIRST_RUN_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
-    name="TOU not accepted yet, existing user, ads enabled, Mac or Win",
-    slug="tou_not_accepted_existing_user_ads_enabled_mac_win",
-    description=(
-        "Existing users who have not accepted the terms of use yet, "
-        "have not disabled ads, "
-        "and are on Mac or Windows"
-    ),
-    # For MX/BR users, respect the region-specific ADS_DISABLED_BR_MX_2025_06_26
-    # constant. For all other regions, fall back to the global ADS_DISABLED.
-    # This ensures we never enroll users whose ads have been disabled regionally
-    # due to a mismatch between the two ads disabled constants.
+TOU_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
+    name="TOU version 4 or higher accepted, Mac or Win",
+    slug="tou_accepted_mac_win",
+    description=("Users who have accepted the terms of use, and are on Mac or Windows"),
     targeting=f"""
     (
         (
@@ -3073,23 +3165,36 @@ TOU_NOT_ACCEPTED_EXISTING_USER_ADS_ENABLED_MAC_OR_WIN = NimbusTargetingConfig(
             os.isMac
         )
         &&
-        {PROFILE28DAYS}
-        &&
-        !{ACCEPTED_TOU}
-        &&
-        !{TOU_NOTIFICATION_BYPASS_ENABLED}
-        &&
+        {ACCEPTED_TOU_V4_OR_HIGHER}
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TOU_NOT_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
+    name="TOU version 4 or higher NOT accepted, Mac or Win",
+    slug="tou_not_accepted_mac_win",
+    description=(
+        "Users who have NOT accepted the terms of use, "
+        "are not configured to bypass TOU, "
+        "and are on Mac or Windows"
+    ),
+    targeting=f"""
+    (
         (
             (
-                (region == "MX" || region == "BR")
-                && !{ADS_DISABLED_BR_MX_2025_06_26}
+                os.isWindows
+                ||
+                os.isMac
             )
-            ||
-            (
-                (region != "MX" && region != "BR")
-                && !{ADS_DISABLED}
-            )
+            &&
+            !({ACCEPTED_TOU_V4_OR_HIGHER})
         )
+        &&
+        !({TOU_NOTIFICATION_BYPASS_ENABLED})
     )
     """,
     desktop_telemetry="",
@@ -3114,6 +3219,70 @@ WIN10_FIREFOX_VPN_ELIGIBLE = NimbusTargetingConfig(
         "'network.proxy.type'|preferenceValue != 1 && "
         "addonsInfo.addons['vpn@mozilla.com'] == null"
     ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+# TO DO - add MAC AND WINDOWS ONLY for all three levels
+TOU_EXPERIENCE_0 = NimbusTargetingConfig(
+    name="TOU Experience 0",
+    slug="tou_experience_0",
+    description=(
+        "User has not accepted TOU V4 or higher and should see TOU experience 0"
+    ),
+    targeting=f"""
+    (
+        !({ACCEPTED_TOU_V4_OR_HIGHER})
+        &&
+        !({TOU_NOTIFICATION_BYPASS_ENABLED})
+        &&
+        TOU_EXPERIENCE_TOTAL == 0
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TOU_EXPERIENCE_1 = NimbusTargetingConfig(
+    name="TOU Experience 1",
+    slug="tou_experience_1",
+    description=(
+        "User has not accepted TOU V4 or higher and should see TOU experience 1"
+    ),
+    targeting=f"""
+    (
+        !({ACCEPTED_TOU_V4_OR_HIGHER})
+        &&
+        !({TOU_NOTIFICATION_BYPASS_ENABLED})
+        &&
+        TOU_EXPERIENCE_TOTAL == 1
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TOU_EXPERIENCE_2 = NimbusTargetingConfig(
+    name="TOU Experience 2",
+    slug="tou_experience_2",
+    description=(
+        "User has not accepted TOU V4 or higher and should see TOU experience 2"
+    ),
+    targeting=f"""
+    (
+        !({ACCEPTED_TOU_V4_OR_HIGHER})
+        &&
+        !({TOU_NOTIFICATION_BYPASS_ENABLED})
+        &&
+        TOU_EXPERIENCE_TOTAL >= 2
+    )
+    """,
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

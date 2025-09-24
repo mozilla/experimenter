@@ -101,7 +101,7 @@
         <div class="row mb-3">
           <div class="col">
             <label for="id_excluded_experiments" class="form-label">
-              Exclude users enrolled in all of these experiments/rollouts (past or present)
+              Exclude users enrolled in any of these experiments/rollouts (past or present)
             </label>
             {{ form.excluded_experiments_branches|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.excluded_experiments_branches.errors %}
@@ -115,7 +115,7 @@
         <div class="row mb-3">
           <div class="col">
             <label for="id_required_experiments" class="form-label">
-              Require users to be enrolled in all of these experiments/rollouts (past or present)
+              Require users to be enrolled in any of these experiments/rollouts (past or present)
             </label>
             {{ form.required_experiments_branches|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.required_experiments_branches.errors %}

@@ -655,9 +655,7 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.mock_klaatu_task.assert_called_once_with(
-            experiment=experiment, application=experiment.application
-        )
+        self.mock_klaatu_task.assert_called_once_with(experiment_id=experiment.id)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
@@ -844,6 +842,29 @@ class TestLaunchForms(RequestFormTestCase):
             countdown=5, args=[experiment.kinto_collection]
         )
         self.mock_allocate_bucket_range.assert_called_once()
+
+    def test_review_timing_metric(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Experiment",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusExperimentCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        with patch("experimenter.nimbus_ui.forms.metrics") as mock_metrics:
+            experiment = form.save()
+
+        mock_metrics.timing.assert_called_once()
 
     def test_live_to_end_enrollment_form(self):
         experiment = NimbusExperimentFactory.create(
@@ -2623,6 +2644,156 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         experiment = form.save()
         self.assertTrue(experiment.is_rollout)
         self.assertFalse(experiment.is_firefox_labs_opt_in)
+
+    def test_rollout_forces_prevent_pref_conflicts_true(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config],
+            is_rollout=True,
+            prevent_pref_conflicts=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config.id],
+                "equal_branch_ratio": False,
+                "is_rollout": True,
+                "is_firefox_labs_opt_in": False,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 1,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch.feature_values.first().id
+                ),
+                "branches-0-feature-value-0-value": "{}",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+            },
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        self.assertTrue(experiment.is_rollout)
+        self.assertTrue(experiment.prevent_pref_conflicts)
+        self.assertTrue(form.fields["prevent_pref_conflicts"].disabled)
+
+    def test_can_save_with_empty_value(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        feature_config2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1],
+            equal_branch_ratio=False,
+            is_localized=False,
+            is_rollout=False,
+            localizations=None,
+            prevent_pref_conflicts=False,
+            warn_feature_schema=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "prevent_pref_conflicts": True,
+                "warn_feature_schema": True,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 2,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch_feature_config1_value.id
+                ),
+                "branches-0-feature-value-0-value": "",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                "is_localized": True,
+                "localizations": json.dumps({"localization-key": "localization-value"}),
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(
+            set(experiment.feature_configs.all()), {feature_config1, feature_config2}
+        )
+        self.assertFalse(experiment.equal_branch_ratio)
+        self.assertFalse(experiment.is_rollout)
+        self.assertTrue(experiment.prevent_pref_conflicts)
+        self.assertTrue(experiment.warn_feature_schema)
+        self.assertTrue(experiment.is_localized)
+        self.assertEqual(
+            experiment.localizations,
+            json.dumps({"localization-key": "localization-value"}),
+        )
+        self.assertEqual(experiment.reference_branch.name, "Control")
+        self.assertEqual(experiment.reference_branch.slug, "control")
+        self.assertEqual(experiment.reference_branch.description, "Control Description")
+        self.assertEqual(experiment.reference_branch.ratio, 2)
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config1
+            )
+            .get()
+            .value,
+            json.dumps({}),
+        )
+        self.assertEqual(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config2
+            )
+            .get()
+            .value,
+            json.dumps({}),
+        )
 
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):

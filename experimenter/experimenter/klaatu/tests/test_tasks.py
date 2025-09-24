@@ -1,7 +1,6 @@
-import os
 from unittest import mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from parameterized import parameterized
 
 from experimenter.experiments.constants import NimbusConstants
@@ -75,28 +74,84 @@ class TestNimbusKlaatuTasks(TestCase):
         mock_post.return_value.status_code = 204
         self.create_experiment(application)
 
-        tasks.klaatu_start_job(self.experiment, application)
+        tasks.klaatu_start_job(self.experiment.id)
 
     @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
     def test_klaatu_task_helper_sets_up_branches_correctly(self, mock_client):
         self.create_experiment(NimbusExperiment.Application.DESKTOP)
         self.assertEqual(tasks.get_branches(self.experiment), ["control", "treatment"])
 
+    @mock.patch("experimenter.klaatu.tasks.requests.get", autospec=True)
     @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
-    def test_klaatu_task_helper_creates_targets_with_max_version(self, mock_client):
+    def test_klaatu_task_helper_creates_targets_with_min_and_max_version(
+        self, mock_client, mock_get
+    ):
         self.create_experiment(NimbusExperiment.Application.DESKTOP)
-        self.experiment.firefox_max_version = NimbusExperiment.Version.FIREFOX_135
+        self.experiment.firefox_min_version = NimbusExperiment.Version.FIREFOX_132
+        self.experiment.firefox_max_version = NimbusExperiment.Version.FIREFOX_134
         self.experiment.save()
+
+        mock_get.return_value.json.return_value = {
+            "130.0": "2024-09-03",
+            "130.0.1": "2024-09-17",
+            "131.0": "2024-10-01",
+            "131.0.2": "2024-10-09",
+            "131.0.3": "2024-10-14",
+            "132.0": "2024-10-29",
+            "132.0.1": "2024-11-04",
+            "132.0.2": "2024-11-12",
+            "133.0": "2024-11-26",
+            "133.0.3": "2024-12-10",
+            "134.0": "2025-01-07",
+            "134.0.1": "2025-01-14",
+            "134.0.2": "2025-01-21",
+            "135.0": "2025-02-04",
+        }
 
         self.assertEqual(
             tasks.get_firefox_targets(self.experiment),
             [
-                "130.0.1",
-                "131.2.0",
-                "132.0",
-                "133.0.1",
-                "134.1.0",
-                "135.1.0",
+                "132.0.2",
+                "133.0.3",
+                "134.0.2",
+            ],
+        )
+
+    @mock.patch("experimenter.klaatu.tasks.requests.get", autospec=True)
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_helper_creates_targets_with_min_version_only(
+        self, mock_client, mock_get
+    ):
+        self.create_experiment(NimbusExperiment.Application.DESKTOP)
+        self.experiment.firefox_min_version = NimbusExperiment.Version.FIREFOX_132
+        self.experiment.save()
+
+        mock_get.return_value.json.return_value = {
+            "130.0": "2024-09-03",
+            "130.0.1": "2024-09-17",
+            "131.0": "2024-10-01",
+            "131.0.2": "2024-10-09",
+            "131.0.3": "2024-10-14",
+            "132.0": "2024-10-29",
+            "132.0.1": "2024-11-04",
+            "132.0.2": "2024-11-12",
+            "133.0": "2024-11-26",
+            "133.0.3": "2024-12-10",
+            "134.0": "2025-01-07",
+            "134.0.1": "2025-01-14",
+            "134.0.2": "2025-01-21",
+            "135.0": "2025-02-04",
+        }
+
+        self.assertEqual(
+            tasks.get_firefox_targets(self.experiment),
+            [
+                "latest-nightly",
+                "latest-beta",
+                "132.0.2",
+                "133.0.3",
+                "134.0.2",
+                "135.0",
             ],
         )
 
@@ -179,14 +234,10 @@ class TestNimbusKlaatuTasks(TestCase):
         self.assertEqual(self.experiment.klaatu_status, value)
 
     def test_klaatu_task_auth_token_generation(self):
-        with mock.patch.dict(
-            os.environ,
-            {
-                "GH_APP_ID": "1",
-                "GH_INSTALLATION_ID": "2",
-                "GH_APP_PRIVATE_KEY": "-----BEGIN KEY-----\\nabc\\n-----END KEY-----",
-            },
-            clear=False,
+        with override_settings(
+            GH_APP_ID=1,
+            GH_INSTALLATION_ID=2,
+            GH_APP_PRIVATE_KEY="-----BEGIN KEY-----\\nabc\\n-----END KEY-----",
         ):
             jwt_patcher = mock.patch(
                 "experimenter.klaatu.tasks.jwt.encode", return_value="jwt123"
@@ -203,3 +254,15 @@ class TestNimbusKlaatuTasks(TestCase):
 
             token = tasks._create_auth_token()
         self.assertEqual(token, "gh_123abc456xyz")
+
+    @mock.patch("experimenter.klaatu.client.requests.post")
+    @mock.patch.object(tasks, "_create_auth_token", return_value="gh_123abc456xyz")
+    def test_klaatu_task_stage_job_starts_correctly(self, mock_client, mock_post):
+        with override_settings(
+            IS_STAGING=True,
+        ):
+            application = NimbusExperiment.Application.DESKTOP
+            mock_post.return_value.status_code = 204
+            self.create_experiment(application)
+
+            tasks.klaatu_start_job(self.experiment.id)

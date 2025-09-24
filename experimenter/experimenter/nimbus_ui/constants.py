@@ -38,6 +38,15 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         If this rollout is launched, a client meeting the advanced
         targeting criteria will be enrolled in one and not the other and
         you will not be able to adjust the sizing for this rollout."""
+    PREF_TARGETING_WARNING = """WARNING: The following rollouts are LIVE
+    that set the same prefs and may reduce the eligible population for your experiment
+    which may result in reduced statistical power and precision or prevent enrollment
+    entirely. Please check that the configured population proportion has accounted for
+    this:"""
+    EXPERIMENT_MULTICHANNEL_WARNING = """WARNING: This experiment is targeting multiple
+    channels.  Each channel has significantly different population sizes and user
+    behaviour.  Running an experiment on multiple channels can create misleading or
+    inaccurate results.  It is recommended to run experiments only on a single channel."""
 
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
     ROLLOUT_BUCKET_WARNING = (
@@ -65,6 +74,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "The number of days the experiment was observed after the enrollment "
             "period ended."
         ),
+    }
+    EXPERIMENT_ORDERING = {
+        "Draft": 1,
+        "Preview": 2,
+        "Review": 3,
+        "Enrollment": 4,
+        "Observation": 5,
+        "Complete": 6,
     }
     HOME_PAGE_LINKS = {
         "welcome_learn_more_url": "https://experimenter.info/workflow/overview/"

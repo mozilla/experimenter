@@ -7,7 +7,7 @@
       hx-target="{{ hx_target }}"
       hx-select="{{ hx_select }}"
       hx-swap="outerHTML"
-      hx-include=".status-filter input[name='status']:checked, .type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked, .feature-filter input[name='feature_configs']:checked"  {# keep current filters when sorting #}
+      hx-include=".status-filter input[name='status']:checked, .type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked, .feature-filter input[name='feature_configs']:checked, .date-filter input[name='date_range']:checked"  {# keep current filters when sorting #}
       class="d-inline-block m-0">
       {# Preserve ALL existing filters except "sort" (we set it explicitly) #}
       {% for form_field in form %}
@@ -63,6 +63,11 @@
   {# ------------------------ FILTER FORM (Application) ------------------------ #}
   {% if field == "application" %}
     {% include "common/filter_dropdown.html" with filter_name="application" filter_label="Application" choices=form.fields.application.choices selected_values=form.application.value icon_filter="application_icon_info" url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
+
+  {% endif %}
+  {# ------------------------ FILTER FORM (Date Range) ------------------------ #}
+  {% if field == "_start_date" %}
+    {% include "common/date_filter_dropdown.html" with choices=form.fields.date_range.choices selected_values=form.date_range.value url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
 
   {% endif %}
   {# ------------------------ FILTER FORM (Features) ------------------------ #}

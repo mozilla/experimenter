@@ -13,8 +13,17 @@
         hx-post="{% url 'nimbus-ui-update-overview' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
         hx-select="#overview-form"
         hx-target="#overview-form"
-        hx-swap="outerHTML">
+        hx-swap="outerHTML"
+        class="position-relative">
     {% csrf_token %}
+    <!-- Full form overlay -->
+    <div id="htmx-loading-overlay"
+         class="position-absolute bg-secondary top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center rounded">
+      <div class="text-center text-white">
+        <i class="fa-solid fa-spinner fa-spin-pulse fa-3x mb-3"></i>
+        <div class="fs-5">Saving changes...</div>
+      </div>
+    </div>
     <div class="card mb-3">
       <div class="card-header">
         <h4>Overview</h4>
@@ -145,19 +154,23 @@
                   {{ link_form.title|add_class:"form-control"|add_error_class:"is-invalid" }}
                   {% for error in link_form.title.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
                 </div>
-                <div class="col-8 d-flex align-items-center">
+                <div class="col-8 d-flex align-items-start">
                   <div class="flex-grow-1 me-2">
                     {{ link_form.link|add_class:"form-control"|add_error_class:"is-invalid" }}
                     {% for error in link_form.link.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
                   </div>
                   <button type="button"
-                          class="btn btn-link p-0 mt-1"
+                          class="btn btn-link ms-3 px-0"
+                          data-bs-toggle="tooltip"
+                          data-bs-placement="top"
+                          data-bs-title="Delete Link"
                           hx-post="{% url 'nimbus-ui-delete-documentation-link' slug=experiment.slug %}"
                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                           hx-vals='{"link_id": {{ link_form.instance.id }} }'
                           hx-select="#overview-form"
-                          hx-target="#overview-form">
-                    <i class="fa-solid fa-circle-xmark"></i>
+                          hx-target="#overview-form"
+                          hx-disabled-elt="this">
+                    <i class="fa-solid fa-trash"></i>
                   </button>
                 </div>
               </div>
