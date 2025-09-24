@@ -1082,9 +1082,9 @@ WIN10_EOS_SYNC_TOAST_ROLLOUT_ELIGIBLE = NimbusTargetingConfig(
     description="Users in the Windows 10 EOS Sync rollout",
     targeting=(
         "isBackgroundTaskMode && (("
-        "defaultProfile.enrollmentsMap['optin-windows-10-eos-sync-messaging-rollout'] "
+        "defaultProfile.enrollmentsMap['optin-windows-10-eos-sync-messaging-rollout-1'] "
         "== 'treatment-a')"
-        " || (defaultProfile.enrollmentsMap['windows-10-eos-sync-messaging-rollout'] "
+        " || (defaultProfile.enrollmentsMap['windows-10-eos-sync-messaging-rollout-1'] "
         "== 'treatment-a'))"
     ),
     desktop_telemetry="",
