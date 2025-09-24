@@ -18,7 +18,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Count, F, Q, QuerySet
+from django.db.models import Case, Count, F, Q, QuerySet, When
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -133,6 +133,15 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
             collection,
         )
 
+    def with_merged_channel(self):
+        return self.get_queryset().annotate(
+            merged_channel=Case(
+                When(Q(channel__isnull=False) & ~Q(channel=""), then=F("channel")),
+                default=F("channels__0"),
+                output_field=models.CharField(),
+            )
+        )
+
 
 class NimbusExperimentBranchThrough(models.Model):
     parent_experiment = models.ForeignKey(
@@ -160,6 +169,14 @@ class NimbusExperimentBranchThroughRequired(NimbusExperimentBranchThrough):  # n
 
 class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):  # noqa: DJ008
     pass
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+    color = models.CharField(max_length=16, default="#cccccc")
+
+    def __str__(self):
+        return self.name
 
 
 class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.Model):
@@ -414,9 +431,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     )
     equal_branch_ratio = models.BooleanField(default=True)
     klaatu_status = models.BooleanField("Automated Validation Status", default=False)
-    klaatu_recent_run_id = models.IntegerField(
-        "Recent Klaatu Run ID", blank=True, null=True, default=None
+    klaatu_recent_run_ids = ArrayField(
+        models.BigIntegerField(
+            "Recent Klaatu Run ID", blank=True, null=True, default=None
+        ),
+        blank=True,
+        default=list,
     )
+    tags = models.ManyToManyField(Tag, blank=True, related_name="experiments")
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -555,8 +577,26 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         prefs = []
 
         if self.prevent_pref_conflicts:
-            for config in self.feature_configs.all():
-                prefs.extend(config.schemas.get(version=None).set_pref_vars.values())
+            for feature_config in self.feature_configs.all():
+                feature_prefs = feature_config.schemas.get(version=None).set_pref_vars
+                feature_values = NimbusBranchFeatureValue.objects.filter(
+                    branch__experiment=self, feature_config=feature_config
+                ).values_list("value", flat=True)
+
+                if feature_prefs and feature_values:
+                    try:
+                        branch_variables = {
+                            key for value in feature_values for key in json.loads(value)
+                        }
+                    except json.JSONDecodeError:
+                        continue
+
+                    branch_prefs = {
+                        feature_prefs[variable]
+                        for variable in branch_variables
+                        if variable in feature_prefs
+                    }
+                    prefs.extend(branch_prefs)
 
         return prefs
 
@@ -572,12 +612,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.targeting_config and self.targeting_config.targeting:
             sticky_expressions.append(self.targeting_config.targeting)
 
-        if self.is_desktop:
-            if self.channels:
-                channels = json.dumps(sorted(self.channels))
-                expressions.append(f"browserSettings.update.channel in {channels}")
-            elif self.channel:  # TODO remove in #13224
-                expressions.append(f'browserSettings.update.channel == "{self.channel}"')
+        if self.is_desktop and self.channels:
+            channels = json.dumps(sorted(self.channels))
+            expressions.append(f"browserSettings.update.channel in {channels}")
 
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())
@@ -621,16 +658,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if required_experiments := NimbusExperimentBranchThroughRequired.objects.filter(
             parent_experiment=self
         ).order_by("id"):
+            required_expressions = []
             for required in required_experiments:
                 if required.branch_slug:
-                    sticky_expressions.append(
+                    required_expressions.append(
                         f"{enrollments_map_key}['{required.child_experiment.slug}'] "
                         f"== '{required.branch_slug}'"
                     )
                 else:
-                    sticky_expressions.append(
+                    required_expressions.append(
                         f"'{required.child_experiment.slug}' in enrollments"
                     )
+            required_expression = " || ".join([f"({e})" for e in required_expressions])
+            sticky_expressions.append(f"({required_expression})")
 
         if self.is_sticky and sticky_expressions:
             expressions.append(
@@ -1001,19 +1041,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self.preview_date - self.draft_date).days
         elif self.draft_date and self.review_date is not None:
             return (self.review_date - self.draft_date).days
-        return None
 
     @property
     def computed_preview_days(self):
         if self.preview_date and self.review_date is not None:
             return (self.review_date - self.preview_date).days
-        return None
 
     @property
     def computed_review_days(self):
         if self.review_date and self.enrollment_start_date is not None:
             return (self.enrollment_start_date - self.review_date).days
-        return None
 
     @property
     def enrollment_duration(self):
@@ -1039,7 +1076,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
         ) and self.computed_end_date:
             return (self.computed_end_date - enrollment_end_date).days
-        return None
 
     @property
     def is_live_rollout(self):
@@ -1122,6 +1158,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def timeline(self):
         timeline_entries = [
             {
+                "step": NimbusUIConstants.EXPERIMENT_ORDERING["Draft"],
                 "label": self.Status.DRAFT,
                 "date": self.draft_date,
                 "is_active": self.is_draft,
@@ -1129,6 +1166,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Draft"],
             },
             {
+                "step": NimbusUIConstants.EXPERIMENT_ORDERING["Preview"],
                 "label": self.Status.PREVIEW,
                 "date": self.preview_date,
                 "is_active": self.is_preview,
@@ -1136,6 +1174,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Preview"],
             },
             {
+                "step": NimbusUIConstants.EXPERIMENT_ORDERING["Review"],
                 "label": self.PublishStatus.REVIEW,
                 "date": self.review_date,
                 "is_active": self.is_review_timeline,
@@ -1143,6 +1182,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Review"],
             },
             {
+                "step": NimbusUIConstants.EXPERIMENT_ORDERING["Enrollment"],
                 "label": NimbusConstants.ENROLLMENT,
                 "date": self.start_date,
                 "is_active": self.is_enrolling,
@@ -1150,6 +1190,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "tooltip": NimbusUIConstants.TIMELINE_TOOLTIPS["Enrollment"],
             },
             {
+                "step": NimbusUIConstants.EXPERIMENT_ORDERING["Complete"],
                 "label": self.Status.COMPLETE,
                 "date": self.computed_end_date,
                 "is_active": self.is_complete,
@@ -1161,6 +1202,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             timeline_entries.insert(
                 4,
                 {
+                    "step": NimbusUIConstants.EXPERIMENT_ORDERING["Observation"],
                     "label": NimbusConstants.OBSERVATION,
                     "date": self._enrollment_end_date,
                     "is_active": self.is_observation,
@@ -1170,6 +1212,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
 
         return timeline_entries
+
+    @property
+    def experiment_active_status(self):
+        timeline = self.timeline()
+        for item in timeline:
+            if item["is_active"]:
+                return item["step"]
 
     @property
     def should_end(self):
@@ -1556,8 +1605,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "learn_more_link": NimbusUIConstants.ROLLOUT_BUCKET_WARNING,
             }
 
-        return None
-
     @property
     def rollout_version_warning(self):
         if not self.is_rollout or not self.firefox_min_version:
@@ -1583,7 +1630,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "learn_more_link": None,
             }
 
-        return None
+    @property
+    def pref_targeting_rollout_collision_warning(self):
+        if self.is_desktop and not self.is_rollout and self.prevent_pref_conflicts:
+            colliding_experiments = NimbusExperiment.objects.filter(
+                status=self.Status.LIVE,
+                application=self.application,
+                channels__overlap=self.channels,
+                feature_configs__id__in=self.feature_configs.exclude(
+                    schemas__set_pref_vars={}
+                )
+                .distinct()
+                .values_list("id", flat=True),
+                is_rollout=True,
+            ).values_list("slug", flat=True)
+
+            if colliding_experiments:
+                return {
+                    "text": NimbusUIConstants.PREF_TARGETING_WARNING,
+                    "variant": "warning",
+                    "slugs": list(colliding_experiments),
+                    "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                }
 
     @property
     def audience_overlap_warnings(self):
@@ -1639,13 +1707,24 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     }
                 )
 
-            rollout_warning = self.rollout_conflict_warning
-            if rollout_warning:
-                warnings.append(rollout_warning)
+            if rollout_conflict_warning := self.rollout_conflict_warning:
+                warnings.append(rollout_conflict_warning)
 
-            rollout_version_warning = self.rollout_version_warning
-            if rollout_version_warning:
+            if rollout_version_warning := self.rollout_version_warning:
                 warnings.append(rollout_version_warning)
+
+            if pref_collision_warning := self.pref_targeting_rollout_collision_warning:
+                warnings.append(pref_collision_warning)
+
+            if self.is_desktop and not self.is_rollout and len(self.channels) > 1:
+                warnings.append(
+                    {
+                        "text": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
+                        "slugs": [],
+                        "variant": "warning",
+                        "learn_more_link": "",
+                    }
+                )
 
         return warnings
 

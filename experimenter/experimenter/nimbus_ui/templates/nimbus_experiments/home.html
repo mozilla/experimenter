@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load widget_tweaks %}
+{% load nimbus_extras %}
 
 {% block content %}
   <div id="home-page" class="bg-body-tertiary py-4">
@@ -58,22 +59,33 @@
               data-bs-delay={"hide":2000}>
             </i>
           </h5>
-          {# include selected Type + force page=1 on this change #}
-          <form method="get"
-                hx-get="{% url 'nimbus-ui-home' %}"
-                hx-select="#my-deliveries-table-section"
-                hx-target="#my-deliveries-table-section"
-                hx-trigger="change"
-                hx-include=".type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked"
-                class="d-inline-block ms-auto">
-            <div class="form-group mb-0">
-              {% render_field my_deliveries_filter.form.my_deliveries_status class="form-select form-select-sm w-auto" %}
-            </div>
-            {# keep current sort as-is (no toggling here) #}
-            {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
-            {# ALWAYS reset to first page when this filter changes #}
-            <input type="hidden" name="my_deliveries_page" value="1">
-          </form>
+          <div class="d-flex gap-2 ms-auto">
+            <a href="{% url 'nimbus-ui-home' %}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
+               class="btn btn-outline-primary btn-sm"
+               hx-get="{% url 'nimbus-ui-home' %}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
+               hx-target="#my-deliveries-table-section"
+               hx-select="#my-deliveries-table-section"
+               title="Clear all applied filters">
+              <i class="fa-solid fa-rotate-left me-1"></i>
+              Reset Filters
+            </a>
+            {# include selected Type + force page=1 on this change #}
+            <form method="get"
+                  hx-get="{% url 'nimbus-ui-home' %}"
+                  hx-select="#my-deliveries-table-section"
+                  hx-target="#my-deliveries-table-section"
+                  hx-trigger="change"
+                  hx-include=".status-filter input[name='status']:checked, .type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked, .feature-filter input[name='feature_configs']:checked"
+                  class="d-inline-block">
+              <div class="form-group mb-0">
+                {% render_field my_deliveries_filter.form.my_deliveries_status class="form-select form-select-sm w-auto" %}
+              </div>
+              {# keep current sort as-is (no toggling here) #}
+              {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
+              {# ALWAYS reset to first page when this filter changes #}
+              <input type="hidden" name="my_deliveries_page" value="1">
+            </form>
+          </div>
         </div>
         <div id="my-deliveries-table-section">
           <div class="table-responsive shadow-sm rounded-3">
@@ -95,22 +107,73 @@
                         <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
                            class="text-decoration-none fw-medium">{{ experiment.name }}</a>
                       </td>
-                      <td>{{ experiment.status|capfirst }}</td>
+                      <td>
+                        {% with status_info=experiment|home_status_display_with_icon %}
+                          {% if status_info.icon_info.icon %}
+                            <span class="me-1 {{ status_info.icon_info.color }}">
+                              <i class="{{ status_info.icon_info.icon }}"></i>
+                            </span>
+                          {% endif %}
+                          {{ status_info.status }}
+                        {% endwith %}
+                      </td>
                       <td>
                         {% with icon_info=experiment.qa_status_icon_info %}
                           {% if icon_info.icon %}<span class="{{ icon_info.color }}"><i class="{{ icon_info.icon }}"></i></span>{% endif %}
                         {% endwith %}
                       </td>
-                      <td>{{ experiment.get_application_display }}</td>
+                      <td>
+                        {% with icon_info=experiment.application|application_icon_info %}
+                          {% if icon_info.icon %}
+                            <span class="{{ icon_info.color }} me-1">
+                              <i class="{{ icon_info.icon }}"></i>
+                            </span>
+                          {% endif %}
+                        {% endwith %}
+                        {{ experiment.get_application_display }}
+                      </td>
                       <td>{{ experiment.home_type_choice }}</td>
-                      <td>{{ experiment.get_channel_display }}</td>
+                      <td>
+                        {% render_channel_icons experiment as channel_data %}
+                        {% if channel_data %}
+                          <div class="d-flex flex-wrap">
+                            {% for channel in channel_data %}
+                              <span class="d-inline-flex align-items-center{% if channel.is_multi %} me-2 mb-1{% endif %}">
+                                <span class="{{ channel.icon_info.color }} me-1">
+                                  <i class="{{ channel.icon_info.icon }}"></i>
+                                </span>
+                                <span class="small">{{ channel.label }}</span>
+                              </span>
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                      </td>
                       <td>{{ experiment.population_percent|floatformat:2 }}%</td>
                       <td>
-                        {% if experiment.enrollment_start_date and experiment.computed_end_date %}
-                          {{ experiment.enrollment_start_date|date:"Y-m-d" }} to {{ experiment.computed_end_date|date:"Y-m-d" }}
-                        {% else %}
-                          N/A
-                        {% endif %}
+                        {% with date_progress=experiment|experiment_date_progress %}
+                          {% if date_progress.is_na %}
+                            <span class="text-muted">{{ date_progress.days_text }}</span>
+                          {% else %}
+                            <div class="d-flex flex-column">
+                              <div class="d-flex align-items-center mb-1">
+                                {% if date_progress.show_bar %}
+                                  <div class="progress me-2" style="width: 60px; height: 8px;">
+                                    <div class="progress-bar {{ date_progress.bar_class }}"
+                                         role="progressbar"
+                                         style="{{ date_progress.bar_style }}"
+                                         aria-valuenow="{{ date_progress.progress_percentage }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"></div>
+                                  </div>
+                                {% endif %}
+                                <span class="{% if date_progress.has_bonus_alert %}text-danger fw-bold{% elif date_progress.is_complete %}text-body fw-medium{% endif %}">
+                                  {{ date_progress.days_text }}
+                                </span>
+                              </div>
+                              {% if date_progress.date_range_text %}<small class="text-muted">{{ date_progress.date_range_text }}</small>{% endif %}
+                            </div>
+                          {% endif %}
+                        {% endwith %}
                       </td>
                       <td>
                         {% if experiment.firefox_min_version %}
@@ -156,7 +219,7 @@
                   {% if all_my_experiments_page.has_previous %}
                     <li class="page-item">
                       <a class="page-link"
-                         hx-get="?my_deliveries_page={{ all_my_experiments_page.previous_page_number }}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                         hx-get="?my_deliveries_page={{ all_my_experiments_page.previous_page_number }}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.channel.value %}{% for c in my_deliveries_filter.form.channel.value %}&channel={{ c }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.application.value %}{% for a in my_deliveries_filter.form.application.value %}&application={{ a }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.feature_configs.value %}{% for f in my_deliveries_filter.form.feature_configs.value %}&feature_configs={{ f }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
                          hx-target="#my-deliveries-table-section"
                          hx-select="#my-deliveries-table-section"
                          hx-push-url="true">Previous</a>
@@ -170,7 +233,7 @@
                   {% if all_my_experiments_page.has_next %}
                     <li class="page-item">
                       <a class="page-link"
-                         hx-get="?my_deliveries_page={{ all_my_experiments_page.next_page_number }}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                         hx-get="?my_deliveries_page={{ all_my_experiments_page.next_page_number }}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.channel.value %}{% for c in my_deliveries_filter.form.channel.value %}&channel={{ c }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.application.value %}{% for a in my_deliveries_filter.form.application.value %}&application={{ a }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.feature_configs.value %}{% for f in my_deliveries_filter.form.feature_configs.value %}&feature_configs={{ f }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
                          hx-target="#my-deliveries-table-section"
                          hx-select="#my-deliveries-table-section"
                          hx-push-url="true">Next</a>

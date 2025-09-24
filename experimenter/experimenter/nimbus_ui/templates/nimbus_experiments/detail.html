@@ -50,7 +50,11 @@
              role="alert">
           <p class="mb-1">{{ warning.text }}</p>
           <ul class="mb-1">
-            {% for slug in warning.slugs %}<li>{{ slug }}</li>{% endfor %}
+            {% for slug in warning.slugs %}
+              <li>
+                <a target="_blank" href="{% url "nimbus-ui-detail" slug=slug %}">{{ slug }}</a>
+              </li>
+            {% endfor %}
           </ul>
           {% if warning.learn_more_link %}
             <a href="{{ warning.learn_more_link }}"
@@ -317,11 +321,7 @@
               <th id="recipe-json">Recipe JSON</th>
               <td colspan="3" id="preview-recipe-json">
                 <div class="collapse" id="collapse-recipe">
-                  <code>
-                    <pre class="text-monospace" style="white-space: pre-wrap; word-wrap: break-word;">
-                        {{ experiment.recipe_json|linebreaks|linebreaksbr }}
-                      </pre>
-                  </code>
+                  <textarea class="readonly-json">{{ experiment.recipe_json }}</textarea>
                 </div>
                 <button class="btn btn-outline-primary btn-sm"
                         type="button"
@@ -374,4 +374,5 @@
   <script src="{% static 'nimbus_ui/setup_selectpicker.bundle.js' %}"></script>
   <script src="{% static 'nimbus_ui/review_controls.bundle.js' %}"></script>
   <script src="{% static 'nimbus_ui/experiment_detail.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui/branch_detail.bundle.js' %}"></script>
 {% endblock %}

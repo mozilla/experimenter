@@ -7,7 +7,7 @@
       hx-target="{{ hx_target }}"
       hx-select="{{ hx_select }}"
       hx-swap="outerHTML"
-      hx-include=".type-filter input[name='type']:checked"  {# keep current Type when sorting #}
+      hx-include=".status-filter input[name='status']:checked, .type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked, .feature-filter input[name='feature_configs']:checked, .date-filter input[name='date_range']:checked"  {# keep current filters when sorting #}
       class="d-inline-block m-0">
       {# Preserve ALL existing filters except "sort" (we set it explicitly) #}
       {% for form_field in form %}
@@ -23,27 +23,57 @@
       {% else %}
         <input type="hidden" name="sort" value="{{ field }}">
       {% endif %}
-      <button type="submit"
-              class="btn p-0 text-body fw-semibold text-decoration-none">
-        <span class="d-flex align-items-center">
-          {{ label }}
-          {% if current_sort == field %}
-            <i class="ps-1 fa-solid fa-chevron-up"></i>
-          {% elif current_sort == "-"|add:field %}
-            <i class="ps-1 fa-solid fa-chevron-down"></i>
-          {% endif %}
-        </span>
-      </button>
-    </form>
-    {# ------------------------ FILTER FORM (Type) ------------------------ #}
-    {% if field == "is_rollout" %}
-      {% include "common/filter_dropdown.html" with filter_name="type" filter_label="Type" choices=form.fields.type.choices selected_values=form.type.value icon_filter=None url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
+      <button type="submit" class="btn p-0 text-body fw-semibold text-decoration-none" {% if label == "Dates" %} data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="<div class='text-start'><strong>Progress Bar Colors:</strong><br> <span class='text-success'>●</span> Active enrollment<br> <span class='text-info'>●</span> Observation phase<br> <span class='text-secondary'>●</span> Completed<br> <span class='text-danger'>●</span> Overdue</div>"
+      {% endif %}
+      >
+      <span class="d-flex align-items-center">
+        {{ label }}
+        {% if label == "Dates" %}
+          <i class="fas fa-info-circle ms-1 text-muted opacity-75"
+             style="font-size: 0.75em"></i>
+        {% endif %}
+        {% if current_sort == field %}
+          <i class="ps-1 fa-solid fa-chevron-up"></i>
+        {% elif current_sort == "-"|add:field %}
+          <i class="ps-1 fa-solid fa-chevron-down"></i>
+        {% endif %}
+      </span>
+    </button>
+  </form>
+  {# ------------------------ FILTER FORM (Status) ------------------------ #}
+  {% if field == "status" %}
+    {% include "common/filter_dropdown.html" with filter_name="status" filter_label="Status" choices=form.fields.status.choices selected_values=form.status.value icon_filter="status_icon_info" url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
 
-    {% endif %}
-    {# ------------------------ FILTER FORM (QA) ------------------------ #}
-    {% if field == "qa_status" %}
-      {% include "common/filter_dropdown.html" with filter_name="qa_status" filter_label="QA" choices=form.fields.qa_status.choices selected_values=form.qa_status.value icon_filter="qa_icon_info" url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
+  {% endif %}
+  {# ------------------------ FILTER FORM (Type) ------------------------ #}
+  {% if field == "is_rollout" %}
+    {% include "common/filter_dropdown.html" with filter_name="type" filter_label="Type" choices=form.fields.type.choices selected_values=form.type.value icon_filter=None url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
 
-    {% endif %}
-  </div>
+  {% endif %}
+  {# ------------------------ FILTER FORM (QA) ------------------------ #}
+  {% if field == "qa_status" %}
+    {% include "common/filter_dropdown.html" with filter_name="qa_status" filter_label="QA" choices=form.fields.qa_status.choices selected_values=form.qa_status.value icon_filter="qa_icon_info" url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
+
+  {% endif %}
+  {# ------------------------ FILTER FORM (Channel) ------------------------ #}
+  {% if field == "channel" %}
+    {% include "common/filter_dropdown.html" with filter_name="channel" filter_label="Channel" choices=form.fields.channel.choices selected_values=form.channel.value icon_filter="channel_icon_info" url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
+
+  {% endif %}
+  {# ------------------------ FILTER FORM (Application) ------------------------ #}
+  {% if field == "application" %}
+    {% include "common/filter_dropdown.html" with filter_name="application" filter_label="Application" choices=form.fields.application.choices selected_values=form.application.value icon_filter="application_icon_info" url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
+
+  {% endif %}
+  {# ------------------------ FILTER FORM (Date Range) ------------------------ #}
+  {% if field == "_start_date" %}
+    {% include "common/date_filter_dropdown.html" with choices=form.fields.date_range.choices selected_values=form.date_range.value url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
+
+  {% endif %}
+  {# ------------------------ FILTER FORM (Features) ------------------------ #}
+  {% if field == "feature_configs__slug" %}
+    {% include "common/filter_dropdown.html" with filter_name="feature_configs" filter_label="Features" choices=form.fields.feature_configs.choices selected_values=form.feature_configs.value icon_filter=None url=url hx_target=hx_target hx_select=hx_select current_sort=current_sort form=form dropdown_id=forloop.counter0 %}
+
+  {% endif %}
+</div>
 </th>

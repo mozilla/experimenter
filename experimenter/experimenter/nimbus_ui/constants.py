@@ -38,17 +38,20 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         If this rollout is launched, a client meeting the advanced
         targeting criteria will be enrolled in one and not the other and
         you will not be able to adjust the sizing for this rollout."""
+    PREF_TARGETING_WARNING = """WARNING: The following rollouts are LIVE
+    that set the same prefs and may reduce the eligible population for your experiment
+    which may result in reduced statistical power and precision or prevent enrollment
+    entirely. Please check that the configured population proportion has accounted for
+    this:"""
+    EXPERIMENT_MULTICHANNEL_WARNING = """WARNING: This experiment is targeting multiple
+    channels.  Each channel has significantly different population sizes and user
+    behaviour.  Running an experiment on multiple channels can create misleading or
+    inaccurate results.  It is recommended to run experiments only on a single channel."""
 
     AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
     ROLLOUT_BUCKET_WARNING = (
         "https://experimenter.info/faq/warnings/#rollout-bucketing-warning"
     )
-    TARGETING_CRITERIA_REQUEST = (
-        "https://github.com/mozilla/experimenter/issues/new"
-        "?template=targeting_request_template.yml"
-        "&title=Targeting%20criteria%20request"
-    )
-    CUSTOM_AUDIENCES = "https://experimenter.info/workflow/implementing/custom-audiences#how-to-add-a-new-custom-audience"
     TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
     targeting list - file a new targeting request with this link, and share the created
     request with either your feature engineering team or in #ask-experimenter
@@ -72,8 +75,32 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "period ended."
         ),
     }
+    EXPERIMENT_ORDERING = {
+        "Draft": 1,
+        "Preview": 2,
+        "Review": 3,
+        "Enrollment": 4,
+        "Observation": 5,
+        "Complete": 6,
+    }
     HOME_PAGE_LINKS = {
         "welcome_learn_more_url": "https://experimenter.info/workflow/overview/"
+    }
+    AUDIENCE_PAGE_LINKS = {
+        "custom_audiences_url": "https://experimenter.info/workflow/implementing/custom-audiences#how-to-add-a-new-custom-audience",
+        "targeting_criteria_request_url": "https://github.com/mozilla/experimenter/issues/new?template=targeting_request_template.yml&title=Targeting%20criteria%20request",
+        "sticky_targeting_url": "https://experimenter.info/workflow/implementing/custom-audiences#sticky-targeting",
+        "experimentation_office_hours_url": "https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849684/Experimentation+Office+Hours",
+    }
+    OVERVIEW_PAGE_LINKS = {
+        "risk_link": "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
+        "message_consult_link": "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation",
+        "revenue_risk_link": "https://experimenter.info/vp-sign-off",
+        "partner_related_risk_link": "https://experimenter.info/legal-sign-off",
+    }
+    METRICS_PAGE_LINKS = {
+        "metrics_hub_url": "https://mozilla.github.io/metric-hub/metrics/firefox_desktop/",
+        "segment_metrics_hub_url": "https://mozilla.github.io/metric-hub/segments/firefox_desktop/",
     }
     HOME_PAGE_TOOLTIPS = {
         "draft_or_preview": """This is anything that you own or are subscribed
@@ -101,3 +128,183 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         LAUNCH_ROLLOUT = "launch this rollout"
         UPDATE_ROLLOUT = "update this rollout"
         END_ROLLOUT = "end this rollout"
+
+
+def _get_qa_status_icon_map():
+    from experimenter.experiments.constants import NimbusConstants
+
+    return {
+        NimbusConstants.QAStatus.NOT_SET: {
+            "icon": "fa-regular fa-circle-question",
+            "color": "",
+        },
+        NimbusConstants.QAStatus.GREEN: {
+            "icon": "fa-regular fa-circle-check",
+            "color": "text-success",
+        },
+        NimbusConstants.QAStatus.SELF_GREEN: {
+            "icon": "fa-solid fa-check",
+            "color": "text-success",
+        },
+        NimbusConstants.QAStatus.YELLOW: {
+            "icon": "fa-regular fa-circle-pause",
+            "color": "text-warning",
+        },
+        NimbusConstants.QAStatus.SELF_YELLOW: {
+            "icon": "fa-regular fa-circle-pause",
+            "color": "text-warning",
+        },
+        NimbusConstants.QAStatus.RED: {
+            "icon": "fa-regular fa-circle-xmark",
+            "color": "text-danger",
+        },
+        NimbusConstants.QAStatus.SELF_RED: {
+            "icon": "fa-regular fa-circle-xmark",
+            "color": "text-danger",
+        },
+    }
+
+
+def _get_channel_icon_map():
+    from experimenter.experiments.constants import NimbusConstants
+
+    return {
+        NimbusConstants.Channel.NO_CHANNEL: {
+            "icon": "fa-regular fa-circle-question",
+            "color": "text-muted",
+        },
+        NimbusConstants.Channel.UNBRANDED: {
+            "icon": "fa-solid fa-globe",
+            "color": "text-secondary",
+        },
+        NimbusConstants.Channel.NIGHTLY: {
+            "icon": "fa-brands fa-firefox",
+            "color": "text-info",
+        },
+        NimbusConstants.Channel.BETA: {
+            "icon": "fa-brands fa-firefox",
+            "color": "text-primary",
+        },
+        NimbusConstants.Channel.RELEASE: {
+            "icon": "fa-brands fa-firefox",
+            "color": "text-success",
+        },
+        NimbusConstants.Channel.ESR: {
+            "icon": "fa-brands fa-firefox",
+            "color": "text-info",
+        },
+        NimbusConstants.Channel.TESTFLIGHT: {
+            "icon": "fa-solid fa-plane",
+            "color": "text-primary",
+        },
+        NimbusConstants.Channel.AURORA: {
+            "icon": "fa-solid fa-bolt",
+            "color": "text-warning",
+        },
+        NimbusConstants.Channel.DEVELOPER: {
+            "icon": "fa-solid fa-code",
+            "color": "text-secondary",
+        },
+        NimbusConstants.Channel.STAGING: {
+            "icon": "fa-solid fa-cog",
+            "color": "text-muted",
+        },
+        NimbusConstants.Channel.PRODUCTION: {
+            "icon": "fa-solid fa-star",
+            "color": "text-success",
+        },
+    }
+
+
+def _get_application_icon_map():
+    from experimenter.experiments.constants import NimbusConstants
+
+    return {
+        NimbusConstants.Application.DESKTOP: {
+            "icon": "fa-fw fa-solid fa-computer",
+            "color": "text-primary",
+        },
+        NimbusConstants.Application.FENIX: {
+            "icon": "fa-fw fa-brands fa-android",
+            "color": "text-success",
+        },
+        NimbusConstants.Application.IOS: {
+            "icon": "fa-fw fa-brands fa-apple",
+            "color": "text-secondary",
+        },
+        NimbusConstants.Application.FOCUS_ANDROID: {
+            "icon": "fa-fw fa-brands fa-android",
+            "color": "text-success",
+        },
+        NimbusConstants.Application.KLAR_ANDROID: {
+            "icon": "fa-fw fa-brands fa-android",
+            "color": "text-success",
+        },
+        NimbusConstants.Application.FOCUS_IOS: {
+            "icon": "fa-fw fa-brands fa-apple",
+            "color": "text-secondary",
+        },
+        NimbusConstants.Application.KLAR_IOS: {
+            "icon": "fa-fw fa-brands fa-apple",
+            "color": "text-secondary",
+        },
+        NimbusConstants.Application.MONITOR: {
+            "icon": "fa-fw fa-solid fa-shield-alt",
+            "color": "text-info",
+        },
+        NimbusConstants.Application.VPN: {
+            "icon": "fa-fw fa-solid fa-user-shield",
+            "color": "text-warning",
+        },
+        NimbusConstants.Application.FXA: {
+            "icon": "fa-fw fa-solid fa-user-circle",
+            "color": "text-primary",
+        },
+        NimbusConstants.Application.DEMO_APP: {
+            "icon": "fa-fw fa-solid fa-flask",
+            "color": "text-danger",
+        },
+        NimbusConstants.Application.EXPERIMENTER: {
+            "icon": "fa-fw fa-solid fa-vial",
+            "color": "text-purple",
+        },
+    }
+
+
+def _get_status_icon_map():
+    from experimenter.experiments.constants import NimbusConstants
+
+    return {
+        NimbusConstants.Status.DRAFT: {
+            "icon": "fa-regular fa-file-lines",
+            "color": "text-muted",
+        },
+        NimbusConstants.Status.PREVIEW: {
+            "icon": "fa-regular fa-eye",
+            "color": "text-info",
+        },
+        NimbusConstants.Status.LIVE: {
+            "icon": "fa-solid fa-play",
+            "color": "text-success",
+        },
+        NimbusConstants.Status.COMPLETE: {
+            "icon": "fa-solid fa-flag-checkered",
+            "color": "text-primary",
+        },
+        NimbusConstants.PublishStatus.REVIEW: {
+            "icon": "fa-regular fa-hourglass-half",
+            "color": "text-warning",
+        },
+    }
+
+
+QA_STATUS_ICON_MAP = _get_qa_status_icon_map()
+CHANNEL_ICON_MAP = _get_channel_icon_map()
+APPLICATION_ICON_MAP = _get_application_icon_map()
+STATUS_ICON_MAP = _get_status_icon_map()
+
+# Icon filter type constants for template tags
+QA_ICON_FILTER_TYPE = "qa_icon_info"
+CHANNEL_ICON_FILTER_TYPE = "channel_icon_info"
+APPLICATION_ICON_FILTER_TYPE = "application_icon_info"
+STATUS_ICON_FILTER_TYPE = "status_icon_info"

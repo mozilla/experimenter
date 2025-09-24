@@ -30,7 +30,6 @@ class TestNimbusExperimentSerializer(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
             channels=[NimbusExperiment.Channel.NIGHTLY],
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
@@ -106,7 +105,6 @@ class TestNimbusExperimentSerializer(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
             channels=[NimbusExperiment.Channel.NIGHTLY],
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
@@ -161,7 +159,6 @@ class TestNimbusExperimentSerializer(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
             feature_configs=[feature1, feature2],
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
             channels=[NimbusExperiment.Channel.NIGHTLY],
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
@@ -261,8 +258,41 @@ class TestNimbusExperimentSerializer(TestCase):
 
     @parameterized.expand(
         [
+            (channel, channel_app_id)
+            for (channel, channel_app_id) in NimbusExperiment.APPLICATION_CONFIGS[
+                NimbusExperiment.Application.DESKTOP
+            ].channel_app_id.items()
+        ]
+    )
+    def test_sets_app_id_name_channel_for_desktop(
+        self,
+        channel,
+        channel_app_id,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[channel],
+        )
+
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(serializer.data["application"], channel_app_id)
+        self.assertEqual(serializer.data["channel"], "")
+        self.assertIn(channel.value, serializer.data["channels"])
+
+        self.assertEqual(
+            serializer.data["appName"],
+            NimbusExperiment.APPLICATION_CONFIGS[
+                NimbusExperiment.Application.DESKTOP
+            ].app_name,
+        )
+        self.assertEqual(serializer.data["appId"], channel_app_id)
+
+    @parameterized.expand(
+        [
             (application, channel, channel_app_id)
             for application in NimbusExperiment.Application
+            if application != NimbusExperiment.Application.DESKTOP
             for (channel, channel_app_id) in NimbusExperiment.APPLICATION_CONFIGS[
                 application
             ].channel_app_id.items()
@@ -274,29 +304,15 @@ class TestNimbusExperimentSerializer(TestCase):
         channel,
         channel_app_id,
     ):
-        if application == NimbusExperiment.Application.DESKTOP:
-            experiment = NimbusExperimentFactory.create_with_lifecycle(
-                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
-                application=application,
-                channel=NimbusExperiment.Channel.NO_CHANNEL,
-                channels=[channel],
-            )
-        else:
-            experiment = NimbusExperimentFactory.create_with_lifecycle(
-                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
-                application=application,
-                channel=channel,
-                channels=[],
-            )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            application=application,
+            channel=channel,
+        )
 
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["application"], channel_app_id)
-        if application == NimbusExperiment.Application.DESKTOP:
-            # Desktop uses channels, not channel
-            self.assertEqual(serializer.data["channel"], "")
-            self.assertIn(channel.value, serializer.data["channels"])
-        else:
-            self.assertEqual(serializer.data["channel"], channel)
+        self.assertEqual(serializer.data["channel"], channel)
         self.assertEqual(
             serializer.data["appName"],
             NimbusExperiment.APPLICATION_CONFIGS[application].app_name,

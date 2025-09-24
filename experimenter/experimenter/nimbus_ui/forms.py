@@ -1,6 +1,7 @@
-import json
 from collections import defaultdict
+from datetime import UTC, datetime
 
+import markus
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
@@ -24,11 +25,14 @@ from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
+from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 from experimenter.segments import Segments
 from experimenter.targeting.constants import NimbusTargetingConfig
+
+metrics = markus.get_metrics("experimenter.nimbus_ui_forms")
 
 
 class NimbusChangeLogFormMixin:
@@ -44,6 +48,7 @@ class NimbusChangeLogFormMixin:
         generate_nimbus_changelog(
             experiment, self.request.user, self.get_changelog_message()
         )
+        metrics.incr("changelog_form.save", tags=[f"form:{type(self).__name__}"])
         return experiment
 
 
@@ -451,7 +456,7 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         ):
             self.fields["value"].widget.attrs.update(
                 {
-                    "data-schema": json.dumps(schema.schema),
+                    "data-schema": schema.schema,
                 }
             )
 
@@ -459,7 +464,7 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         value = self.cleaned_data.get("value")
 
         if not value or value.strip() == "":
-            return None
+            return "{}"
         return value
 
 
@@ -693,6 +698,9 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         self.was_labs_opt_in = self.instance.is_firefox_labs_opt_in
 
+        if self.instance.is_rollout:
+            self.fields["prevent_pref_conflicts"].disabled = True
+
     @property
     def errors(self):
         errors = super().errors
@@ -714,6 +722,9 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             cleaned_data["firefox_labs_description_links"] = "null"
             cleaned_data["firefox_labs_group"] = ""
             cleaned_data["requires_restart"] = False
+
+        if cleaned_data["is_rollout"]:
+            cleaned_data["prevent_pref_conflicts"] = True
 
         return cleaned_data
 
@@ -1209,6 +1220,7 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self, commit=True):
         self.instance.status = self.status
         self.instance.status_next = self.status_next
+        previous_publish_status = self.instance.publish_status
         self.instance.publish_status = self.publish_status
 
         if self.is_paused is not None:
@@ -1216,6 +1228,20 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         if self.status == NimbusExperiment.Status.DRAFT:
             self.instance.published_dto = None
+
+        if (
+            previous_publish_status == NimbusExperiment.PublishStatus.REVIEW
+            and self.publish_status != NimbusExperiment.PublishStatus.REVIEW
+        ):
+            last_review_request = self.instance.changes.latest_review_request()
+            if last_review_request is not None:
+                delta = datetime.now(UTC) - last_review_request.changed_on
+                delta_ms = int(delta.total_seconds() * 1000)
+                metrics.timing(
+                    "review_timing",
+                    value=delta_ms,
+                    tags=[f"status:{self.publish_status}"],
+                )
 
         return super().save(commit=commit)
 
@@ -1232,6 +1258,7 @@ class DraftToPreviewForm(UpdateStatusForm):
         experiment = super().save(commit=commit)
         experiment.allocate_bucket_range()
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+        klaatu_start_job.delay(experiment_id=experiment.id)
         return experiment
 
 
@@ -1449,3 +1476,61 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
             countdown=5, args=[experiment.kinto_collection]
         )
         return experiment
+
+
+class FeaturesForm(forms.ModelForm):
+    application = forms.ChoiceField(
+        label="",
+        choices=NimbusExperiment.Application.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+        initial=NimbusExperiment.Application.DESKTOP.value,
+    )
+    feature_configs = forms.ChoiceField(
+        label="",
+        choices=[],
+        widget=SingleSelectWidget(),
+    )
+    update_on_change_fields = ("application", "feature_configs")
+
+    def get_feature_config_choices(self, application, qs):
+        return sorted(
+            [
+                (application.pk, f"{application.name} - {application.description}")
+                for application in NimbusFeatureConfig.objects.all()
+                if application in qs
+            ],
+            key=lambda choice: choice[1].lower(),
+        )
+
+    class Meta:
+        model = NimbusFeatureConfig
+        fields = ["application", "feature_configs"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        selected_app = self.data.get("application") or self.get_initial_for_field(
+            self.fields["application"], "application"
+        )
+        features = NimbusFeatureConfig.objects.filter(application=selected_app).order_by(
+            "slug"
+        )
+        self.fields["feature_configs"].choices = self.get_feature_config_choices(
+            selected_app, features
+        )
+
+        base_url = reverse("nimbus-ui-features")
+        htmx_attrs = {
+            "hx-get": base_url,
+            "hx-trigger": "change",
+            "hx-include": "#features-form",
+            "hx-select": "#features-form",
+            "hx-target": "#features-form",
+            "hx-swap": "outerHTML",
+        }
+        self.fields["application"].widget.attrs.update(htmx_attrs)
+        self.fields["feature_configs"].widget.attrs.update(htmx_attrs)

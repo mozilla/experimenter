@@ -2,13 +2,21 @@
 {% load nimbus_extras %}
 
 <div class="dropdown dropup ms-1 position-static">
-  <button class="btn btn-sm p-0 border-0 bg-transparent"
+  <button class="btn btn-sm p-0 border-0 bg-transparent position-relative"
           type="button"
           id="{{ filter_name }}FilterDropdown-{{ dropdown_id|default:'0' }}"
           data-bs-toggle="dropdown"
           aria-expanded="false"
           title="Filter by {{ filter_label }}">
     <i class="fa-solid fa-filter text-body"></i>
+    {% if selected_values %}
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary"
+            style="font-size: 0.6rem;
+                   padding: 0.2rem 0.35rem">
+        {{ selected_values|length }}
+        <span class="visually-hidden">{{ selected_values|length }} filters selected</span>
+      </span>
+    {% endif %}
   </button>
   <div class="dropdown-menu p-2 shadow-sm border rounded-2"
        id="filter-dropdown-{{ filter_name }}"
@@ -30,25 +38,30 @@
       {% endfor %}
       {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
       <input type="hidden" name="my_deliveries_page" value="1">
-      {% for value, label in choices %}
-        {% if icon_filter == "qa_icon_info" %}
-          {% with icon_info=value|qa_icon_info %}
-            <div class="form-check"
-                 id="filter-choice-{{ filter_name }}-{{ value|slugify }}">
-              <input class="form-check-input"
-                     type="checkbox"
-                     name="{{ filter_name }}"
-                     id="{{ filter_name }}-{{ value|slugify }}"
-                     value="{{ value }}"
-                     {% if selected_values and value in selected_values %}checked{% endif %}>
-              <label class="form-check-label d-flex align-items-center"
-                     for="{{ filter_name }}-{{ value|slugify }}">
-                {% if icon_info.icon %}<span class="me-1 {{ icon_info.color }}"><i class="{{ icon_info.icon }}"></i></span>{% endif %}
-                {{ label }}
-              </label>
-            </div>
-          {% endwith %}
-        {% else %}
+      {% if icon_filter %}
+        {% choices_with_icons choices icon_filter as icon_choices %}
+        {% for choice in icon_choices %}
+          <div class="form-check"
+               id="filter-choice-{{ filter_name }}-{{ choice.value|slugify }}">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="{{ filter_name }}"
+                   id="{{ filter_name }}-{{ choice.value|slugify }}"
+                   value="{{ choice.value }}"
+                   {% if selected_values and choice.value in selected_values %}checked{% endif %}>
+            <label class="form-check-label d-flex align-items-center"
+                   for="{{ filter_name }}-{{ choice.value|slugify }}">
+              {% if choice.icon_info.icon %}
+                <span class="me-1 {{ choice.icon_info.color }}">
+                  <i class="{{ choice.icon_info.icon }}"></i>
+                </span>
+              {% endif %}
+              {{ choice.label }}
+            </label>
+          </div>
+        {% endfor %}
+      {% else %}
+        {% for value, label in choices %}
           <div class="form-check"
                id="filter-choice-{{ filter_name }}-{{ value|slugify }}">
             <input class="form-check-input"
@@ -59,8 +72,8 @@
                    {% if selected_values and value in selected_values %}checked{% endif %}>
             <label class="form-check-label" for="{{ filter_name }}-{{ value|slugify }}">{{ label }}</label>
           </div>
-        {% endif %}
-      {% endfor %}
+        {% endfor %}
+      {% endif %}
     </form>
   </div>
 </div>

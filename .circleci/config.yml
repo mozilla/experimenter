@@ -156,11 +156,11 @@ jobs:
       - store_test_results:
           path: workspace/test-results/junit.xml
       - upload-to-gcs:
-          source: workspace/test-results
+          source: dashboard/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/junit
           extension: xml
       - upload-to-gcs:
-          source: workspace/test-results
+          source: dashboard/test-results
           destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
           extension: json
 
@@ -189,7 +189,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "cirrus/"
+          paths: "cirrus/|application-services/"
       - create_test_result_workspace
       - run:
           name: Run Cirrus tests and linting
@@ -215,7 +215,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "cirrus/"
+          paths: "cirrus/|application-services/"
       - create_test_result_workspace
       - run:
           name: Run Cirrus tests and linting
@@ -240,7 +240,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/features/manifests/|experimenter/manifesttool/"
+          paths: "experimenter/experimenter/features/manifests/|experimenter/manifesttool/|^experimenter/[^/]+$|application-services/"
       - run:
           name: Check local feature manifests
           command: |
