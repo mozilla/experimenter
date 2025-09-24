@@ -45,6 +45,7 @@ description = "Count of clicks on annoyance signals across all results shown in 
 friendly_name = "Urlbar annoyances"
 exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
+bigger_is_better = false
 
 [metrics.search_engine_clicks]
 select_expression = """SUM(

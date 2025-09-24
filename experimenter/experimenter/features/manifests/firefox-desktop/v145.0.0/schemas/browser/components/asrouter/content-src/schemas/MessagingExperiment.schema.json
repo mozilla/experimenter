@@ -685,6 +685,14 @@
                 }
               ]
             },
+            "canReplace": {
+              "description": "IDs of other infobar messages this infobar may replace",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
             "buttons": {
               "type": "array",
               "items": {
