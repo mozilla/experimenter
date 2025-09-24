@@ -20,6 +20,7 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
+    Tag,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -279,6 +280,65 @@ class MultiSelectWidget(forms.SelectMultiple):
         )
 
         super().__init__(*args, attrs=attrs, **kwargs)
+
+
+class TagCreateForm(forms.ModelForm):
+    name = forms.CharField(
+        required=True, 
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Tag name"})
+    )
+    color = forms.CharField(
+        required=False,
+        initial="#cccccc",
+        widget=forms.TextInput(attrs={"class": "form-control", "type": "color"})
+    )
+
+    class Meta:
+        model = Tag
+        fields = ["name", "color"]
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        if not name.strip():
+            raise forms.ValidationError(NimbusUIConstants.TAGS.get("required_name"))
+        existing_tag = Tag.objects.filter(name=name)
+        if self.instance.pk:
+            existing_tag = existing_tag.exclude(pk=self.instance.pk)
+        if existing_tag.exists():
+            raise forms.ValidationError(NimbusUIConstants.TAGS.get("duplicate_name"))
+        return name
+
+
+class TagRemoveForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    tag_id = forms.ModelChoiceField(queryset=Tag.objects.all())
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["tag_id"]
+
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+        tag = self.cleaned_data["tag_id"]
+        experiment.tags.remove(tag)
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} removed tag"
+
+
+class TagManageForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["tags"]
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated tags"
 
 
 class SingleSelectWidget(forms.Select):

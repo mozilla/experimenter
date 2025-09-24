@@ -8,7 +8,7 @@ from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
@@ -51,6 +51,9 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagCreateForm,
+    TagManageForm,
+    TagRemoveForm,
     TakeawaysForm,
     ToggleArchiveForm,
     UnsubscribeForm,
@@ -137,6 +140,8 @@ class NimbusExperimentViewMixin:
             if experiment and experiment.slug
             else []
         )
+        context["tag_form"] = TagCreateForm()
+        context["tag_manage_form"] = TagManageForm(instance=experiment)
         return context
 
 
@@ -652,6 +657,67 @@ class NimbusFeaturesView(TemplateView):
         context["application"] = self.request.GET.get("application")
         context["feature_configs"] = self.request.GET.get("feature_configs")
         return context
+
+
+class TagCreateView(TemplateView):
+    template_name = "nimbus_experiments/tag_form.html"
+
+    def post(self, request, *args, **kwargs):
+        form = TagCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            response = HttpResponse()
+            response.headers["HX-Refresh"] = "true"
+            return response
+        return self.render_to_response({"form": form})
+
+    def get_context_data(self, **kwargs):
+        return {"form": TagCreateForm()}
+
+
+class TagEditView(TemplateView):
+    template_name = "nimbus_experiments/tag_form.html"
+
+    def get(self, request, *args, **kwargs):
+        tag = Tag.objects.get(pk=kwargs['tag_id'])
+        form = TagCreateForm(instance=tag)
+        return self.render_to_response({"form": form})
+
+    def post(self, request, *args, **kwargs):
+        tag = Tag.objects.get(pk=kwargs['tag_id'])
+        form = TagCreateForm(request.POST, instance=tag)
+        if form.is_valid():
+            form.save()
+            response = HttpResponse()
+            response.headers["HX-Refresh"] = "true"
+            return response
+        return self.render_to_response({"form": form})
+
+
+class TagRemoveView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = TagRemoveForm
+    template_name = "nimbus_experiments/tags_section.html"
+
+    def form_valid(self, form):
+        form.save()
+        return self.render_to_response(self.get_context_data())
+
+
+class TagManageView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = TagManageForm
+    template_name = "nimbus_experiments/tag_manage_form.html"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.form_class(instance=self.object)
+        tags = Tag.objects.all()
+        return self.render_to_response({"form": form, "experiment": self.object, "tags": tags})
+
+    def form_valid(self, form):
+        form.save()
+        response = HttpResponse()
+        response.headers["HX-Refresh"] = "true"
+        return response
 
 
 class NimbusExperimentsHomeView(FilterView):

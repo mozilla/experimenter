@@ -1,0 +1,51 @@
+<div id="tag-form-container">
+  <form
+    {%
+    if
+    form.instance.pk
+    %}hx-post="{% url 'nimbus-ui-edit-tag' form.instance.pk %}"
+    {%
+    else
+    %}hx-post="{% url 'nimbus-ui-create-tag' %}"
+    {%
+    endif
+    %}
+    hx-target="#tag-form-container"
+  >
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="{{ form.name.id_for_label }}" class="form-label"
+        >Tag Name</label
+      >
+      {{ form.name }} {% if form.name.errors %}
+      <div class="text-danger">
+        {% for error in form.name.errors %}
+        <small>{{ error }}</small>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="mb-3">
+      <label for="{{ form.color.id_for_label }}" class="form-label"
+        >Color</label
+      >
+      {{ form.color }} {% if form.color.errors %}
+      <div class="text-danger">
+        {% for error in form.color.errors %}
+        <small>{{ error }}</small>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-primary">
+        {% if form.instance.pk %}Update Tag{% else %}Create Tag{% endif %}
+      </button>
+    </div>
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger mt-3">
+      {% for error in form.non_field_errors %} {{ error }} {% endfor %}
+    </div>
+    {% endif %}
+  </form>
+</div>

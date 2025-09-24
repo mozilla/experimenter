@@ -1,78 +1,101 @@
 <div class="nav flex-column nav-pills fw-medium w-100">
-  {% for item in sidebar_links %}
-    {% if item.is_header %}
-      <strong class="ms-3">{{ item.title }}</strong>
-      <hr class="my-0 mb-2">
-    {% else %}
-      {% include "common/sidebar_link.html" with title=item.title link=item.link icon=item.icon active=item.active disabled=item.disabled %}
-
-    {% endif %}
-  {% endfor %}
-  {% if experiment.is_draft and invalid_pages %}
-    <div class="alert alert-primary" role="alert">
-      <p class="mb-1">
-        Missing details in
-        <strong>
-          {% for page in invalid_pages %}
-            {% if page == "overview" %}
-              <a href="{{ experiment.get_update_overview_url }}?show_errors=true"
-                 rel="noopener noreferrer">Overview</a>
-            {% elif page == "branches" %}
-              <a href="{{ experiment.get_update_branches_url }}?show_errors=true"
-                 rel="noopener noreferrer">Branches</a>
-            {% elif page == "metrics" %}
-              <a href="{{ experiment.get_update_metrics_url }}?show_errors=true"
-                 rel="noopener noreferrer">Metrics</a>
-            {% elif page == "audience" %}
-              <a href="{{ experiment.get_update_audience_url }}?show_errors=true"
-                 rel="noopener noreferrer">Audience</a>
-            {% else %}
-              {{ page|capfirst }}
-            {% endif %}
-            {% if not forloop.last %},{% endif %}
-          {% endfor %}
-        </strong>
-      </p>
-    </div>
+  {% for item in sidebar_links %} {% if item.is_header %}
+  <strong class="ms-3">{{ item.title }}</strong>
+  <hr class="my-0 mb-2" />
+  {% else %} {% include "common/sidebar_link.html" with title=item.title
+  link=item.link icon=item.icon active=item.active disabled=item.disabled %} {%
+  endif %} {% endfor %} {% if experiment.is_draft and invalid_pages %}
+  <div class="alert alert-primary" role="alert">
+    <p class="mb-1">
+      Missing details in
+      <strong>
+        {% for page in invalid_pages %} {% if page == "overview" %}
+        <a
+          href="{{ experiment.get_update_overview_url }}?show_errors=true"
+          rel="noopener noreferrer"
+          >Overview</a
+        >
+        {% elif page == "branches" %}
+        <a
+          href="{{ experiment.get_update_branches_url }}?show_errors=true"
+          rel="noopener noreferrer"
+          >Branches</a
+        >
+        {% elif page == "metrics" %}
+        <a
+          href="{{ experiment.get_update_metrics_url }}?show_errors=true"
+          rel="noopener noreferrer"
+          >Metrics</a
+        >
+        {% elif page == "audience" %}
+        <a
+          href="{{ experiment.get_update_audience_url }}?show_errors=true"
+          rel="noopener noreferrer"
+          >Audience</a
+        >
+        {% else %} {{ page|capfirst }} {% endif %} {% if not forloop.last %},{%
+        endif %} {% endfor %}
+      </strong>
+    </p>
+  </div>
   {% endif %}
   <strong class="ms-3">Actions</strong>
-  <hr class="my-0 mb-2">
-  {% include "common/sidebar_link.html" with title="Clone" link="" icon="fa-regular fa-copy fa-lg" data_bs_toggle="modal" data_bs_target="#cloneModal" %}
-  {% include "nimbus_experiments/archive_button.html" with experiment=experiment %}
+  <hr class="my-0 mb-2" />
+  {% include "common/sidebar_link.html" with title="Clone" link=""
+  icon="fa-regular fa-copy fa-lg" data_bs_toggle="modal"
+  data_bs_target="#cloneModal" %} {% include
+  "nimbus_experiments/archive_button.html" with experiment=experiment %}
+
+  <strong class="ms-3">Tags</strong>
+  <hr class="my-0 mb-2" />
+  {% include "nimbus_experiments/tags_section.html" with experiment=experiment
+  %}
+  <div class="ms-3 mt-2">
+    {% include "common/sidebar_link.html" with title="Create Tag" link=""
+    icon="fa-solid fa-plus" data_bs_toggle="modal" data_bs_target="#tagModal" %}
+    {% include "common/sidebar_link.html" with title="Manage Tags" link=""
+    icon="fa-solid fa-tags" data_bs_toggle="modal"
+    data_bs_target="#manageTagsModal" %}
+  </div>
 
   <strong class="ms-3">Links</strong>
-  <hr class="my-0 mb-2">
-  {% for documentation_link in experiment.documentation_links.all %}
-    {% if documentation_link.link %}
-      {% include "common/sidebar_link.html" with title=documentation_link.get_title_display link=documentation_link.link icon="fa-solid fa-arrow-up-right-from-square" external=True %}
-
-    {% endif %}
-  {% endfor %}
-  {% if experiment.is_started %}
-    <a class="nav-link d-flex align-items-center nav-link-hover"
-       href="{{ experiment.monitoring_dashboard_url }}">
-      <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
-      Live Monitoring Dashboard
-    </a>
-    {% if experiment.rollout_monitoring_dashboard_url %}
-      <a class="nav-link d-flex align-items-center nav-link-hover"
-         href="{{ experiment.rollout_monitoring_dashboard_url }}">
-        <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
-        Rollouts OpMon Dashboard
-      </a>
-    {% endif %}
-  {% endif %}
-  <a class="nav-link d-flex align-items-center nav-link-hover"
-     href="{{ experiment.get_detail_preview_recipe_json_url }}">
+  <hr class="my-0 mb-2" />
+  {% for documentation_link in experiment.documentation_links.all %} {% if
+  documentation_link.link %} {% include "common/sidebar_link.html" with
+  title=documentation_link.get_title_display link=documentation_link.link
+  icon="fa-solid fa-arrow-up-right-from-square" external=True %} {% endif %} {%
+  endfor %} {% if experiment.is_started %}
+  <a
+    class="nav-link d-flex align-items-center nav-link-hover"
+    href="{{ experiment.monitoring_dashboard_url }}"
+  >
+    <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
+    Live Monitoring Dashboard
+  </a>
+  {% if experiment.rollout_monitoring_dashboard_url %}
+  <a
+    class="nav-link d-flex align-items-center nav-link-hover"
+    href="{{ experiment.rollout_monitoring_dashboard_url }}"
+  >
+    <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
+    Rollouts OpMon Dashboard
+  </a>
+  {% endif %} {% endif %}
+  <a
+    class="nav-link d-flex align-items-center nav-link-hover"
+    href="{{ experiment.get_detail_preview_recipe_json_url }}"
+  >
     <i class="fa-solid fa-file-code pe-2"></i>
     Preview Recipe JSON
   </a>
 </div>
-<div class="modal fade"
-     id="cloneModal"
-     tabindex="-1"
-     aria-labelledby="cloneModalLabel"
-     aria-hidden="true">
+<div
+  class="modal fade"
+  id="cloneModal"
+  tabindex="-1"
+  aria-labelledby="cloneModalLabel"
+  aria-hidden="true"
+>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -80,20 +103,80 @@
           <i class="fa-regular fa-copy"></i>
           Clone Experiment {{ experiment.name }}
         </h1>
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
       </div>
       <div class="modal-body bg-body-tertiary">
-        <form id="cloneForm"
-              hx-post="{% url 'nimbus-ui-clone' experiment.slug %}"
-              hx-target="#cloneForm">
-          {% csrf_token %}
-          {% include "nimbus_experiments/clone.html" with form=clone_form experiment=experiment form_id_prefix="clone" %}
-
+        <form
+          id="cloneForm"
+          hx-post="{% url 'nimbus-ui-clone' experiment.slug %}"
+          hx-target="#cloneForm"
+        >
+          {% csrf_token %} {% include "nimbus_experiments/clone.html" with
+          form=clone_form experiment=experiment form_id_prefix="clone" %}
         </form>
       </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  id="tagModal"
+  tabindex="-1"
+  aria-labelledby="tagModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="tagModalLabel">
+          <i class="fa-solid fa-tag"></i>
+          Create New Tag
+        </h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body bg-body-tertiary">
+        {% include "nimbus_experiments/tag_form.html" with form=tag_form %}
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  id="manageTagsModal"
+  tabindex="-1"
+  aria-labelledby="manageTagsModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="manageTagsModalLabel">
+          <i class="fa-solid fa-tags"></i>
+          Manage Tags
+        </h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div
+        class="modal-body bg-body-tertiary"
+        hx-get="{% url 'nimbus-ui-manage-tags' experiment.slug %}"
+        hx-trigger="shown.bs.modal from:#manageTagsModal"
+        hx-swap="innerHTML"
+      ></div>
     </div>
   </div>
 </div>
