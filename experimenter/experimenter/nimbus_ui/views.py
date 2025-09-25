@@ -659,39 +659,25 @@ class NimbusFeaturesView(TemplateView):
         return context
 
 
-class TagCreateView(TemplateView):
+class TagViewMixin:
+    def form_valid(self, form):
+        form.save()
+        response = HttpResponse()
+        response.headers["HX-Refresh"] = "true"
+        return response
+
+
+class TagCreateView(TagViewMixin, RenderResponseMixin, CreateView):
+    model = Tag
+    form_class = TagCreateForm
     template_name = "nimbus_experiments/tag_form.html"
 
-    def post(self, request, *args, **kwargs):
-        form = TagCreateForm(request.POST)
-        if form.is_valid():
-            form.save()
-            response = HttpResponse()
-            response.headers["HX-Refresh"] = "true"
-            return response
-        return self.render_to_response({"form": form})
 
-    def get_context_data(self, **kwargs):
-        return {"form": TagCreateForm()}
-
-
-class TagEditView(TemplateView):
+class TagEditView(TagViewMixin, RenderResponseMixin, UpdateView):
+    model = Tag
+    form_class = TagCreateForm
     template_name = "nimbus_experiments/tag_form.html"
-
-    def get(self, request, *args, **kwargs):
-        tag = Tag.objects.get(pk=kwargs['tag_id'])
-        form = TagCreateForm(instance=tag)
-        return self.render_to_response({"form": form})
-
-    def post(self, request, *args, **kwargs):
-        tag = Tag.objects.get(pk=kwargs['tag_id'])
-        form = TagCreateForm(request.POST, instance=tag)
-        if form.is_valid():
-            form.save()
-            response = HttpResponse()
-            response.headers["HX-Refresh"] = "true"
-            return response
-        return self.render_to_response({"form": form})
+    pk_url_kwarg = "tag_id"
 
 
 class TagRemoveView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
@@ -703,21 +689,21 @@ class TagRemoveView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
         return self.render_to_response(self.get_context_data())
 
 
-class TagManageView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class TagManageView(
+    TagViewMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
+):
     form_class = TagManageForm
     template_name = "nimbus_experiments/tag_manage_form.html"
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.form_class(instance=self.object)
-        tags = Tag.objects.all()
-        return self.render_to_response({"form": form, "experiment": self.object, "tags": tags})
-
-    def form_valid(self, form):
-        form.save()
-        response = HttpResponse()
-        response.headers["HX-Refresh"] = "true"
-        return response
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["tags"] = Tag.objects.all()
+        context["experiment"] = self.object
+        return context
 
 
 class NimbusExperimentsHomeView(FilterView):
@@ -756,6 +742,15 @@ class NimbusExperimentsHomeView(FilterView):
         context["draft_or_preview_page"] = Paginator(
             [e for e in all_experiments if e.is_draft or e.is_preview], 5
         ).get_page(self.request.GET.get("draft_page", 1))
+        context["ready_for_attention_page"] = Paginator(
+            [e for e in all_experiments if e.is_ready_for_attention], 5
+        ).get_page(self.request.GET.get("attention_page", 1))
+
+        context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
+        context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
+
+        context["sortable_headers"] = HomeSortChoices.sortable_headers()
+        return context
         context["ready_for_attention_page"] = Paginator(
             [e for e in all_experiments if e.is_ready_for_attention], 5
         ).get_page(self.request.GET.get("attention_page", 1))

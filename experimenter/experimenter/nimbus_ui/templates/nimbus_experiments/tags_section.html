@@ -1,23 +1,22 @@
 <div id="tags-section">
   {% for tag in experiment.tags.all %}
-  <span
-    class="badge me-1 mb-1 d-inline-flex align-items-center"
-    style="background-color: {{ tag.color }}"
-  >
-    {{ tag.name }}
-    <button
-      type="button"
-      class="btn-close btn-close-white ms-1"
-      style="font-size: 0.6em"
-      hx-post="{% url 'nimbus-ui-remove-tag' experiment.slug %}"
-      hx-vals='{"tag_id": "{{ tag.id }}"}'
-      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-      hx-target="#tags-section"
-      hx-swap="outerHTML"
-      aria-label="Remove tag"
-    ></button>
-  </span>
+    <span class="badge me-1 mb-1 d-inline-flex align-items-center px-2 py-1"
+          style="background-color: {{ tag.color }};
+                 font-size: 1em;
+                 border-radius: 0.5rem">
+      <span class="me-1 fw-semibold">{{ tag.name }}</span>
+      <button type="button"
+              class="btn-close btn-close-white ms-1"
+              style="font-size: 0.7em;
+                     opacity: 0.8"
+              hx-post="{% url 'nimbus-ui-remove-tag' experiment.slug %}"
+              hx-vals='{"tag_id": "{{ tag.id }}"}'
+              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+              hx-target="#tags-section"
+              hx-swap="outerHTML"
+              aria-label="Remove tag"></button>
+    </span>
   {% empty %}
-  <small class="text-muted ms-3">No tags assigned</small>
+    <small class="text-muted ms-3">No tags assigned</small>
   {% endfor %}
 </div>

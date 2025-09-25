@@ -1,51 +1,48 @@
-<div id="tag-form-container">
-  <form
-    {%
-    if
-    form.instance.pk
-    %}hx-post="{% url 'nimbus-ui-edit-tag' form.instance.pk %}"
-    {%
-    else
-    %}hx-post="{% url 'nimbus-ui-create-tag' %}"
-    {%
-    endif
-    %}
-    hx-target="#tag-form-container"
-  >
-    {% csrf_token %}
-    <div class="mb-3">
-      <label for="{{ form.name.id_for_label }}" class="form-label"
-        >Tag Name</label
-      >
-      {{ form.name }} {% if form.name.errors %}
-      <div class="text-danger">
-        {% for error in form.name.errors %}
-        <small>{{ error }}</small>
-        {% endfor %}
-      </div>
+{% load widget_tweaks %}
+{% load static %}
+
+<form id="tag-form"
+      {% if form.instance.pk %} hx-post="{% url 'nimbus-ui-edit-tag' form.instance.pk %}" {% else %} hx-post="{% url 'nimbus-ui-create-tag' %}" {% endif %}
+      hx-target="#tag-form"
+      hx-swap="outerHTML"
+      autocomplete="off">
+  {% csrf_token %}
+  <div class="modal-header">
+    <h1 class="modal-title fs-5" id="tagModalLabel">
+      <i class="fa-solid fa-tag"></i>
+      {% if form.instance.pk %}
+        Edit Tag
+      {% else %}
+        Create New Tag
       {% endif %}
-    </div>
-    <div class="mb-3">
-      <label for="{{ form.color.id_for_label }}" class="form-label"
-        >Color</label
-      >
-      {{ form.color }} {% if form.color.errors %}
-      <div class="text-danger">
-        {% for error in form.color.errors %}
-        <small>{{ error }}</small>
-        {% endfor %}
-      </div>
+    </h1>
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"></button>
+  </div>
+  <div class="mb-3 mt-2">
+    <label for="{{ form.name.id_for_label }}" class="form-label">Tag Name</label>
+    {{ form.name|add_class:"form-control"|add_error_class:"is-invalid" }}
+    {% for error in form.name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="mb-3">
+    <label for="{{ form.color.id_for_label }}" class="form-label">Color</label>
+    {{ form.color|add_class:"form-control form-control-color"|add_error_class:"is-invalid" }}
+    {% for error in form.color.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="d-flex justify-content-end">
+    <button type="submit" class="btn btn-primary">
+      {% if form.instance.pk %}
+        Update Tag
+      {% else %}
+        Save Tag
       {% endif %}
-    </div>
-    <div class="d-flex justify-content-end">
-      <button type="submit" class="btn btn-primary">
-        {% if form.instance.pk %}Update Tag{% else %}Create Tag{% endif %}
-      </button>
-    </div>
-    {% if form.non_field_errors %}
+    </button>
+  </div>
+  {% if form.non_field_errors %}
     <div class="alert alert-danger mt-3">
-      {% for error in form.non_field_errors %} {{ error }} {% endfor %}
+      {% for error in form.non_field_errors %}{{ error }}{% endfor %}
     </div>
-    {% endif %}
-  </form>
-</div>
+  {% endif %}
+</form>

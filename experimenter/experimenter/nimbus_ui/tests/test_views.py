@@ -18,12 +18,14 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
+    Tag,
 )
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    TagFactory,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -3434,3 +3436,85 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertTrue(form.fields["application"])
         self.assertEqual(form["application"].value(), applications[1].value)
         self.assertEqual(form["feature_configs"].value(), str(feature_config_multi.id))
+
+
+class TestCreateTagView(AuthTestCase):
+    def test_get_renders_create_tag_modal(self):
+        response = self.client.get(reverse("nimbus-ui-create-tag"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Create New Tag")
+
+    def test_post_creates_tag_and_returns_tags_section(self):
+        response = self.client.post(
+            reverse("nimbus-ui-create-tag"),
+            {"name": "New Tag", "color": "#FF0000"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Tag.objects.filter(name="New Tag").exists())
+
+
+class TestManageTagsView(AuthTestCase):
+    def test_get_renders_manage_tags_modal(self):
+        experiment = NimbusExperimentFactory.create()
+        response = self.client.get(
+            reverse("nimbus-ui-manage-tags", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Tags to Assign")
+
+    def test_post_updates_experiment_tags(self):
+        tag1 = TagFactory.create()
+        tag2 = TagFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        response = self.client.post(
+            reverse("nimbus-ui-manage-tags", kwargs={"slug": experiment.slug}),
+            {"tags": [tag1.id, tag2.id]},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertEqual(set(experiment.tags.all()), {tag1, tag2})
+
+
+class TestEditTagView(AuthTestCase):
+    def test_get_renders_edit_tag_modal(self):
+        tag = TagFactory.create()
+        response = self.client.get(
+            reverse("nimbus-ui-edit-tag", kwargs={"tag_id": tag.id})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Edit Tag")
+
+    def test_post_updates_tag(self):
+        tag = TagFactory.create(name="Old Name")
+        response = self.client.post(
+            reverse("nimbus-ui-edit-tag", kwargs={"tag_id": tag.id}),
+            {"name": "New Name", "color": "#00FF00"},
+        )
+        self.assertEqual(response.status_code, 200)
+        tag.refresh_from_db()
+        self.assertEqual(tag.name, "New Name")
+        self.assertEqual(tag.color, "#00FF00")
+
+
+class TestRemoveTagView(AuthTestCase):
+    def test_post_removes_tag_from_experiment(self):
+        tag = TagFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        experiment.tags.add(tag)
+        response = self.client.post(
+            reverse("nimbus-ui-remove-tag", kwargs={"slug": experiment.slug}),
+            {"tag_id": tag.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertNotIn(tag, experiment.tags.all())
+        response = self.client.post(
+            reverse("nimbus-ui-remove-tag", kwargs={"slug": experiment.slug}),
+            {"tag_id": tag.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertNotIn(tag, experiment.tags.all())
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertNotIn(tag, experiment.tags.all())
