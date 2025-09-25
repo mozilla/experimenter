@@ -3,6 +3,7 @@ import io
 import json
 from unittest.mock import patch
 
+from django import forms
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
@@ -27,6 +28,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
     NimbusVersionedSchemaFactory,
+    TagFactory,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -68,6 +70,9 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagCreateForm,
+    TagManageForm,
+    TagRemoveForm,
     TakeawaysForm,
     ToggleArchiveForm,
     UnsubscribeForm,
@@ -3885,3 +3890,95 @@ class TestFeaturesViewForm(RequestFormTestCase):
             ),
             feature_configs.choices,
         )
+
+
+class TestCreateTagForm(RequestFormTestCase):
+    def test_valid_form_creates_tag(self):
+        data = {
+            "name": "Test Tag",
+            "color": "#FF0000",
+        }
+        form = TagCreateForm(data)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        tag = form.save()
+        self.assertEqual(tag.name, "Test Tag")
+        self.assertEqual(tag.color, "#FF0000")
+
+    def test_invalid_form_duplicate_name(self):
+        TagFactory.create(name="Existing Tag")
+        data = {
+            "name": "Existing Tag",
+            "color": "#00FF00",
+        }
+        form = TagCreateForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+        self.assertEqual(form.errors["name"], [NimbusUIConstants.TAGS["duplicate_name"]])
+
+    def test_invalid_form_empty_name(self):
+        data = {
+            "name": "   ",
+            "color": "#FF0000",
+        }
+        form = TagCreateForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+
+    def test_clean_name_whitespace_only(self):
+        data = {
+            "name": "   ",
+            "color": "#FF0000",
+        }
+        form = TagCreateForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+        self.assertEqual(form.errors["name"], ["This field is required."])
+
+    def test_clean_name_custom_validation(self):
+        form = TagCreateForm()
+        form.cleaned_data = {"name": "   "}
+        with self.assertRaises(forms.ValidationError) as cm:
+            form.clean_name()
+        self.assertEqual(
+            str(cm.exception.message), NimbusUIConstants.TAGS["required_name"]
+        )
+
+
+class TestNimbusExperimentManageTagsForm(RequestFormTestCase):
+    def test_valid_form_updates_experiment_tags(self):
+        tag1 = TagFactory.create()
+        tag2 = TagFactory.create()
+        experiment = NimbusExperimentFactory.create()
+
+        data = {
+            "tags": [tag1.id, tag2.id],
+        }
+        form = TagManageForm(data, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        message = form.get_changelog_message()
+        self.assertEqual(message, f"{self.user} updated tags")
+
+        experiment = form.save()
+        self.assertEqual(set(experiment.tags.all()), {tag1, tag2})
+        self.assertEqual(experiment, form.instance)
+
+
+class TestRemoveTagForm(RequestFormTestCase):
+    def test_valid_form_removes_tag_from_experiment(self):
+        tag = TagFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        experiment.tags.add(tag)
+
+        data = {
+            "tag_id": tag.id,
+        }
+        form = TagRemoveForm(data, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        message = form.get_changelog_message()
+        self.assertEqual(message, f"{self.user} removed tag")
+
+        experiment = form.save()
+        self.assertNotIn(tag, experiment.tags.all())
