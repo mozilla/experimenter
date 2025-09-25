@@ -99,7 +99,7 @@
               <th>Feature config</th>
               <td>
                 {% for feature in experiment.feature_configs.all %}
-                  {{ feature.name }} - {{ feature.description }}
+                  <p>{{ feature.name }} - {{ feature.description }}</p>
                 {% empty %}
                   <span class="text-danger">Not set</span>
                 {% endfor %}
