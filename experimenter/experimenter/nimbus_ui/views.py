@@ -751,4 +751,3 @@ class NimbusExperimentsHomeView(FilterView):
 
         context["sortable_headers"] = HomeSortChoices.sortable_headers()
         return context
-    
