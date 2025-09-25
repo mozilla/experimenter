@@ -751,12 +751,3 @@ class NimbusExperimentsHomeView(FilterView):
 
         context["sortable_headers"] = HomeSortChoices.sortable_headers()
         return context
-        context["ready_for_attention_page"] = Paginator(
-            [e for e in all_experiments if e.is_ready_for_attention], 5
-        ).get_page(self.request.GET.get("attention_page", 1))
-
-        context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
-        context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
-
-        context["sortable_headers"] = HomeSortChoices.sortable_headers()
-        return context
