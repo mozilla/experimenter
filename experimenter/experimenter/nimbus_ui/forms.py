@@ -1465,7 +1465,6 @@ class FeaturesForm(forms.ModelForm):
         initial=NimbusExperiment.Application.DESKTOP.value,
     )
     feature_configs = forms.ChoiceField(
-        required=True,
         label="",
         choices=[],
         widget=SingleSelectWidget(),
@@ -1473,7 +1472,7 @@ class FeaturesForm(forms.ModelForm):
     update_on_change_fields = ("application", "feature_configs")
 
     def get_feature_config_choices(self, application, qs):
-        choices = [("", "Nothing Selected")]  # Add a default blank field.
+        choices = []  # Add a default blank field.
         choices.extend(
             sorted(
                 [
@@ -1511,11 +1510,7 @@ class FeaturesForm(forms.ModelForm):
             "hx-select": "#features-form",
             "hx-target": "#features-form",
             "hx-swap": "outerHTML",
+            "hx-select-oob": "#deliveries-table",
         }
         self.fields["application"].widget.attrs.update(htmx_attrs)
-        htmx_attrs.update(
-            {
-                "hx-select-oob": "#deliveries-table",
-            }
-        )
         self.fields["feature_configs"].widget.attrs.update(htmx_attrs)
