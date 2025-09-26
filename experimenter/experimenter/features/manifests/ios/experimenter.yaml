@@ -425,6 +425,10 @@ toolbar-refactor-feature:
       type: string
       description: |
         The type of layout of the toolbars.
+    middle_button_customization:
+      type: boolean
+      description: |
+        Enables the middle button customization for navigation toolbar.
     minimal_address_bar:
       type: boolean
       description: |
