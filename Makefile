@@ -43,16 +43,16 @@ ESLINT_FIX_RESULTS = yarn workspace @experimenter/results lint-fix
 ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui lint
 ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui format
 TYPECHECK_RESULTS = yarn workspace @experimenter/results lint:tsc
-DJLINT_CHECK = djlint --check experimenter/nimbus_ui/
-DJLINT_FIX = djlint --reformat experimenter/nimbus_ui/
+DJLINT_CHECK = djlint --check experimenter/nimbus_ui/ experimenter/glean/
+DJLINT_FIX = djlint --reformat experimenter/nimbus_ui/ experimenter/glean/
 JS_TEST_LEGACY = yarn workspace @experimenter/core test
 JS_TEST_RESULTS = DEBUG_PRINT_LIMIT=999999 CI=yes yarn workspace @experimenter/results test:cov
 RESULTS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/results/test_schema.graphql&&diff experimenter/results/test_schema.graphql experimenter/results/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
 RESULTS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/results/schema.graphql&&yarn workspace @experimenter/results generate-types
 RUFF_CHECK = ruff check experimenter/ manifesttool/ tests/
 RUFF_FIX = ruff check --fix experimenter/ manifesttool/ tests/
-RUFF_FORMAT_CHECK = ruff format --check --diff . --exclude node_modules
-RUFF_FORMAT_FIX = ruff format . --exclude node_modules
+RUFF_FORMAT_CHECK = ruff format --check --diff .
+RUFF_FORMAT_FIX = ruff format .
 CHECK_DOCS = python manage.py generate_docs --check=true
 GENERATE_DOCS = python manage.py generate_docs
 LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
