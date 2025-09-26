@@ -1082,9 +1082,9 @@ WIN10_EOS_SYNC_TOAST_ROLLOUT_ELIGIBLE = NimbusTargetingConfig(
     description="Users in the Windows 10 EOS Sync rollout",
     targeting=(
         "isBackgroundTaskMode && (("
-        "defaultProfile.enrollmentsMap['optin-windows-10-eos-sync-messaging-rollout'] "
+        "defaultProfile.enrollmentsMap['optin-windows-10-eos-sync-messaging-rollout-1'] "
         "== 'treatment-a')"
-        " || (defaultProfile.enrollmentsMap['windows-10-eos-sync-messaging-rollout'] "
+        " || (defaultProfile.enrollmentsMap['windows-10-eos-sync-messaging-rollout-1'] "
         "== 'treatment-a'))"
     ),
     desktop_telemetry="",
@@ -3285,6 +3285,28 @@ TOU_EXPERIENCE_2 = NimbusTargetingConfig(
     """,
     desktop_telemetry="",
     sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_10_PLUS_SIGNED_OUT_USER = NimbusTargetingConfig(
+    name="Windows 10+ signed out user",
+    slug="windows_10_plus_signed_out",
+    description="Windows users on version 10 or higher who are not signed into FxA",
+    targeting="!isFxASignedIn && (os.isWindows && os.windowsVersion >= 10)",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+MAC_SIGNED_OUT_USER = NimbusTargetingConfig(
+    name="Mac signed out user",
+    slug="mac_signed_out",
+    description="Mac users who are not signed into FxA",
+    targeting="!isFxASignedIn && os.isMac",
+    desktop_telemetry="",
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
