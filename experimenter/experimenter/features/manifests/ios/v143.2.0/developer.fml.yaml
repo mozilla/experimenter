@@ -770,6 +770,11 @@ features:
           The type of layout of the toolbars.
         type: Option<ToolbarLayoutType>
         default: version1
+      middle_button_customization:
+        description: |
+          Enables the middle button customization for navigation toolbar.
+        type: Boolean
+        default: true
       minimal_address_bar:
         description: |
           Enables minimal address bar mode on scroll to ensure the url is always visible.
