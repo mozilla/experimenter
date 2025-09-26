@@ -11,6 +11,8 @@ const setupCodemirroReadOnlyJSON = () => {
   const textareas = document.querySelectorAll(selector);
 
   textareas.forEach((textarea) => {
+    if (textarea.dataset.is_rendered) return;
+    textarea.dataset.is_rendered = true;
     const extensions = [
       basicSetup,
       json(),
