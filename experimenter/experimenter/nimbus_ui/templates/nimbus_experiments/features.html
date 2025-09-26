@@ -43,45 +43,44 @@
         </h5>
         <div>
           <div>
-            <div id="no-deliveries">
-            </div>
-              <table id="deliveries-table"
-                    class="table table-hover table-borderless align-middle mb-0">
-                <thead>
-                  <tr>
-                    <th>Recipe Name</th>
-                    <th>Launch Date</th>
-                    <th>Type Of Delivery</th>
-                    <th>Channel(s)</th>
-                    <th>Minimum Version</th>
-                    <th>Population Size</th>
-                    <th>Delivery Brief</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for experiment in experiments %}
-                    <tr scope="row">
-                      <td id="delivery-name">
-                        <a target="_blank"
-                          href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
-                          class="text-decoration-none fw-medium">{{ experiment.name }}</a>
+            <div id="no-deliveries"></div>
+            <table id="deliveries-table"
+                   class="table table-hover table-borderless align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Recipe Name</th>
+                  <th>Launch Date</th>
+                  <th>Type Of Delivery</th>
+                  <th>Channel(s)</th>
+                  <th>Minimum Version</th>
+                  <th>Population Size</th>
+                  <th>Delivery Brief</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for experiment in experiments %}
+                  <tr scope="row">
+                    <td id="delivery-name">
+                      <a target="_blank"
+                         href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+                         class="text-decoration-none fw-medium">{{ experiment.name }}</a>
+                    </td>
+                    <td id="delivery-published-date">{{ experiment.published_date|format_not_set }}</td>
+                    <td id="delivery-type-{{ experiment.home_type_choice }}">{{ experiment.home_type_choice }}</td>
+                    <td id="delivery-channel">{{ experiment.get_channel_display }}</td>
+                    <td id="delivery-min-version">{{ experiment.firefox_min_version|parse_version }}</td>
+                    <td id="delivery-population-percent">{{ experiment.population_percent|floatformat:"-1" }}</td>
+                    <td id="delivery-brief">{{ experiment.delivery_brief|format_not_set }}</td>
+                  {% empty %}
+                    <tr>
+                      <td colspan="12" class="fw-semibold text-center p-4">
+                        <h4>No Deliveries</h4>
                       </td>
-                      <td id="delivery-published-date">{{ experiment.published_date|format_not_set }}</td>
-                      <td id="delivery-type-{{ experiment.home_type_choice }}">{{ experiment.home_type_choice }}</td>
-                      <td id="delivery-channel">{{ experiment.get_channel_display }}</td>
-                      <td id="delivery-min-version">{{ experiment.firefox_min_version|parse_version }}</td>
-                      <td id="delivery-population-percent">{{ experiment.population_percent|floatformat:"-1" }}</td>
-                      <td id="delivery-brief">{{ experiment.delivery_brief|format_not_set }}</td>
-                    {% empty %}
-                      <tr>
-                        <td colspan="12" class="fw-semibold text-center p-4">
-                          <h4>No Deliveries</h4>
-                        </td>
-                      </tr>
-                    {% endfor %}
-                  </tr>
-                </tbody>
-              </table>
+                    </tr>
+                  {% endfor %}
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

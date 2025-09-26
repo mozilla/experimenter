@@ -1479,9 +1479,26 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
 
 
 class FeaturesForm(forms.ModelForm):
-    def get_feature_config_choices(self, qs):
-        # Add a default blank field.
-        choices = [("", "Nothing selected")]
+    application = forms.ChoiceField(
+        required=False,
+        label="",
+        choices=NimbusExperiment.Application.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+        initial=NimbusExperiment.Application.DESKTOP.value,
+    )
+    feature_configs = forms.ChoiceField(
+        label="",
+        choices=[],
+        widget=SingleSelectWidget(),
+    )
+    update_on_change_fields = ("application", "feature_configs")
+
+    def get_feature_config_choices(self, application, qs):
+        choices = []  # Add a default blank field.
         choices.extend(
             sorted(
                 [
