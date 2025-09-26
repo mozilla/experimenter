@@ -84,7 +84,8 @@ class KlaatuClient:
                 "slug": experiment_slug,
                 "branch": json.dumps(branch_slugs),
                 "firefox-version": json.dumps(targets),
-                "server": server,
+                "experiment-server": server,
+                "feature-name": "smoke",
             },
         }
 
