@@ -32,6 +32,7 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusIsolationGroup,
     NimbusVersionedSchema,
+    Tag,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -868,3 +869,11 @@ class NimbusFmlErrorDataClass:
     col: int
     message: str
     highlight: str
+
+
+class TagFactory(factory.django.DjangoModelFactory):
+    name = factory.LazyAttribute(lambda o: faker.unique.word())
+    color = factory.LazyAttribute(lambda o: faker.hex_color())
+
+    class Meta:
+        model = Tag

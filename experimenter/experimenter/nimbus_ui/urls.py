@@ -40,6 +40,10 @@ from experimenter.nimbus_ui.views import (
     ReviewToDraftView,
     SignoffUpdateView,
     SubscribeView,
+    TagCreateView,
+    TagEditView,
+    TagManageView,
+    TagRemoveView,
     TakeawaysUpdateView,
     ToggleArchiveView,
     UnsubscribeView,
@@ -65,6 +69,26 @@ urlpatterns = [
         r"^features/",
         NimbusFeaturesView.as_view(),
         name="nimbus-ui-features",
+    ),
+    re_path(
+        r"^create_tag/$",
+        TagCreateView.as_view(),
+        name="nimbus-ui-create-tag",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/remove_tag/$",
+        TagRemoveView.as_view(),
+        name="nimbus-ui-remove-tag",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/manage_tags/$",
+        TagManageView.as_view(),
+        name="nimbus-ui-manage-tags",
+    ),
+    re_path(
+        r"^edit_tag/(?P<tag_id>\d+)/$",
+        TagEditView.as_view(),
+        name="nimbus-ui-edit-tag",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)[/]?$",

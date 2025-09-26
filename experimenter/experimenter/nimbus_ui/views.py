@@ -8,7 +8,7 @@ from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
@@ -51,6 +51,9 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagCreateForm,
+    TagManageForm,
+    TagRemoveForm,
     TakeawaysForm,
     ToggleArchiveForm,
     UnsubscribeForm,
@@ -137,6 +140,8 @@ class NimbusExperimentViewMixin:
             if experiment and experiment.slug
             else []
         )
+        context["tag_form"] = TagCreateForm()
+        context["tag_manage_form"] = TagManageForm(instance=experiment)
         return context
 
 
@@ -651,6 +656,53 @@ class NimbusFeaturesView(TemplateView):
         context["links"] = NimbusUIConstants.FEATURE_PAGE_LINKS
         context["application"] = self.request.GET.get("application")
         context["feature_configs"] = self.request.GET.get("feature_configs")
+        return context
+
+
+class TagViewMixin:
+    def form_valid(self, form):
+        form.save()
+        response = HttpResponse()
+        response.headers["HX-Refresh"] = "true"
+        return response
+
+
+class TagCreateView(TagViewMixin, RenderResponseMixin, CreateView):
+    model = Tag
+    form_class = TagCreateForm
+    template_name = "nimbus_experiments/tag_form.html"
+
+
+class TagEditView(TagViewMixin, RenderResponseMixin, UpdateView):
+    model = Tag
+    form_class = TagCreateForm
+    template_name = "nimbus_experiments/tag_form.html"
+    pk_url_kwarg = "tag_id"
+
+
+class TagRemoveView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = TagRemoveForm
+    template_name = "nimbus_experiments/tags_section.html"
+
+    def form_valid(self, form):
+        form.save()
+        return self.render_to_response(self.get_context_data())
+
+
+class TagManageView(
+    TagViewMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
+):
+    form_class = TagManageForm
+    template_name = "nimbus_experiments/tag_manage_form.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["tags"] = Tag.objects.all()
+        context["experiment"] = self.object
         return context
 
 
