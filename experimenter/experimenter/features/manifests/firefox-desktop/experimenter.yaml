@@ -3584,6 +3584,18 @@ thirdPartyTrackerCookieBlocking:
         branch: default
         pref: "network.cookie.cookieBehavior.trackerCookieBlocking"
 
+googleSafeBrowsingV5:
+  description: Control Google Safe Browsing V5 protocol
+  owner: tihuang@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: Whether to enable Google Safe Browsing V5 protocol.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "browser.safebrowsing.provider.google5.enabled"
+
 fxaButtonVisibility:
   description: Prefs to control the visibility of the Firefox Accounts toolbar button when not signed in.
   owner: mconley@mozilla.com
