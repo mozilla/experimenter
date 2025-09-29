@@ -3366,8 +3366,9 @@ class TestNimbusFeaturesView(AuthTestCase):
             "feature-mobile": NimbusExperiment.Application.IOS,
             "feature-web": NimbusExperiment.Application.EXPERIMENTER,
         }
+        self.feature_configs = {}
         for item, value in self.features.items():
-            NimbusFeatureConfigFactory.create(
+            self.feature_configs[item] = NimbusFeatureConfigFactory.create(
                 slug=item, name=item.replace("-", " "), application=value
             )
 
@@ -3383,11 +3384,9 @@ class TestNimbusFeaturesView(AuthTestCase):
 
         form = response.context["form"]
         self.assertTrue(form.fields["application"])
-        self.assertEqual(
-            form.fields["application"].initial, NimbusExperiment.Application.DESKTOP.value
-        )
+        self.assertEqual(form.fields["application"].initial, "")
         self.assertTrue(form.fields["feature_configs"])
-        self.assertEqual(form.fields["feature_configs"].initial, None)
+        self.assertEqual(form.fields["feature_configs"].initial, "")
 
     @parameterized.expand(
         [
@@ -3434,3 +3433,30 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertTrue(form.fields["application"])
         self.assertEqual(form["application"].value(), applications[1].value)
         self.assertEqual(form["feature_configs"].value(), str(feature_config_multi.id))
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.DESKTOP, "feature-desktop"),
+            (NimbusExperiment.Application.IOS, "feature-mobile"),
+            (NimbusExperiment.Application.EXPERIMENTER, "feature-web"),
+        ]
+    )
+    def test_features_view_renders_table_with_correct_elements(
+        self, application, feature_config
+    ):
+        experiment = f"Experiment {feature_config.replace('-', ' ')}"
+        NimbusExperimentFactory.create(
+            name=experiment,
+            application=application,
+            feature_configs=[self.feature_configs[feature_config]],
+        )
+
+        feature_id = self.feature_configs[feature_config].id
+        url = reverse("nimbus-ui-features")
+        response = self.client.get(
+            f"{url}?application={application.value}&feature_configs={feature_id}"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "#deliveries-table")
+        self.assertContains(response, experiment)
