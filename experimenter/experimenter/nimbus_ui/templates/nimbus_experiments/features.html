@@ -83,7 +83,72 @@
             </table>
           </div>
         </div>
+        <hr>
+        <h5 class="fw-semibold">
+          <img src="{% static 'assets/my-deliveries.svg' %}"
+               alt="Hugging Foxes"
+               style="width: 60px;
+                      height: auto" />
+          QA Runs
+        </h5>
+        <div>
+          <div>
+            <table id="qa-info-table"
+                   class="table table-hover table-borderless align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>QA Run</th>
+                  <th>Date</th>
+                  <th>Test Type</th>
+                  <th>QA Status</th>
+                  <th>Test Plan/Experimenter Recipe</th>
+                  <th>TestRail Results</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for experiment in experiments %}
+                  <tr scope="row">
+                    <td id="qa-run">{{ experiment.qa_run|default:forloop.counter }}</td>
+                    <td id="qa-run-date">
+                      <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_date|format_not_set }}</a>
+                    </td>
+                    <td id="qa-run-type">
+                      <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_type|format_not_set }}</a>
+                    </td>
+                    <td id="qa-run-status">
+                      <div>
+                        {{ experiment.get_qa_status_display }}
+                        {% if experiment.qa_status == experiment.QAStatus.NOT_SET %}
+                          <i class="fa-regular fa-circle-question"></i>
+                        {% elif experiment.qa_status == experiment.QAStatus.GREEN or experiment.qa_status == experiment.QAStatus.SELF_GREEN %}
+                          <span class="text-success">
+                            <i class="fa-regular fa-circle-check"></i>
+                          </span>
+                        {% elif experiment.qa_status == experiment.QAStatus.YELLOW or experiment.qa_status == experiment.QAStatus.SELF_YELLOW %}
+                          <span class="text-warning"><i class="fa-regular fa-circle-pause"></i></span>
+                        {% elif experiment.qa_status == experiment.QAStatus.RED or experiment.qa_status == experiment.QAStatus.SELF_RED %}
+                          <span class="text-danger"><i class="fa-regular fa-circle-xmark"></i></span>
+                        {% endif %}
+                      </div>
+                    </td>
+                    <td id="qa-test-plan">
+                      <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_test_plan|format_not_set }}</a>
+                    </td>
+                    <td id="qa-testrail-link">
+                      <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_testrail_link|format_not_set }}</a>
+                    </td>
+                  {% empty %}
+                    <tr>
+                      <td colspan="12" class="fw-semibold text-center p-4">
+                        <h4>No QA Runs</h4>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-{% endblock %}
+  {% endblock %}
