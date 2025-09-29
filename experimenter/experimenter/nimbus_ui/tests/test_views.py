@@ -3459,4 +3459,5 @@ class TestNimbusFeaturesView(AuthTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "#deliveries-table")
+        self.assertContains(response, "#qa-info-table")
         self.assertContains(response, experiment)
