@@ -1479,26 +1479,8 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
 
 
 class FeaturesForm(forms.ModelForm):
-    application = forms.ChoiceField(
-        required=False,
-        label="",
-        choices=NimbusExperiment.Application.choices,
-        widget=forms.widgets.Select(
-            attrs={
-                "class": "form-select",
-            },
-        ),
-        initial=NimbusExperiment.Application.DESKTOP.value,
-    )
-    feature_configs = forms.ChoiceField(
-        label="",
-        choices=[],
-        widget=SingleSelectWidget(),
-    )
-    update_on_change_fields = ("application", "feature_configs")
-
     def get_feature_config_choices(self, application, qs):
-        choices = []  # Add a default blank field.
+        choices = []
         choices.extend(
             sorted(
                 [
@@ -1512,7 +1494,7 @@ class FeaturesForm(forms.ModelForm):
 
     application = forms.ChoiceField(
         required=False,
-        choices=[("", "Nothing selected")] + list(NimbusExperiment.Application.choices),
+        choices=[("", "Nothing selected"), *list(NimbusExperiment.Application.choices)],
         widget=SingleSelectWidget(),
     )
     feature_configs = forms.ChoiceField(
@@ -1532,10 +1514,12 @@ class FeaturesForm(forms.ModelForm):
         # Default: nothing selected for application and features
         selected_app = self.data.get("application") or self.initial.get("application")
         if selected_app:
-            features = NimbusFeatureConfig.objects.filter(application=selected_app).order_by("slug")
-            self.fields["feature_configs"].choices = self.get_feature_config_choices(features)
-        else:
-            self.fields["feature_configs"].choices = [("", "Nothing selected")]
+            features = NimbusFeatureConfig.objects.filter(
+                application=selected_app
+            ).order_by("slug")
+            self.fields["feature_configs"].choices = self.get_feature_config_choices(
+                selected_app, features
+            )
 
         self.fields["application"].initial = ""
         self.fields["feature_configs"].initial = ""

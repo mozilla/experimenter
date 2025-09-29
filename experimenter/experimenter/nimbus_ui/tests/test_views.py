@@ -3384,11 +3384,9 @@ class TestNimbusFeaturesView(AuthTestCase):
 
         form = response.context["form"]
         self.assertTrue(form.fields["application"])
-        self.assertEqual(
-            form.fields["application"].initial, NimbusExperiment.Application.DESKTOP.value
-        )
+        self.assertEqual(form.fields["application"].initial, "")
         self.assertTrue(form.fields["feature_configs"])
-        self.assertEqual(form.fields["feature_configs"].initial, None)
+        self.assertEqual(form.fields["feature_configs"].initial, "")
 
     @parameterized.expand(
         [
