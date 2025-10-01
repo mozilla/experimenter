@@ -646,8 +646,20 @@
               "type": "boolean"
             },
             "dismissOnPrefChange": {
-              "description": "If set, the name of a pref to observe. The infobar will automatically dismiss when this pref is set for the first time or when its value changes.",
-              "type": "string"
+              "description": "If set, one or more prefs to observe. The infobar will automatically dismiss when any of these prefs is set for the first time or when its value changes.",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1,
+                  "uniqueItems": true
+                }
+              ]
             },
             "impression_action": {
               "oneOf": [

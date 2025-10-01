@@ -671,6 +671,9 @@ terms-of-use-prompt:
     enabled:
       type: boolean
       description: When the feature is enabled then the prompt can show for users.
+    max-display-count:
+      type: int
+      description: The maximum number of times to show the prompt.
 third-party-cookie-blocking:
   description: Control third-party cookie blocking.
   hasExposure: true

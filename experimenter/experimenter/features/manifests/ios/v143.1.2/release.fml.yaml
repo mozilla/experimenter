@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- beta
+- release
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -54,7 +54,7 @@ features:
         description: |
           Variable description
         type: Boolean
-        default: true
+        default: false
   default-zoom-feature:
     description: |
       The feature flag to manage the rollout of default zoom feature.
@@ -107,7 +107,7 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: true
+          status: false
   hnt-sponsored-shortcuts-feature:
     description: This feature manages the visibility of sponsored shortcuts on the homepage
     variables:
@@ -121,7 +121,7 @@ features:
       enabled:
         description: Determines whether the top sites visual refresh is shown.
         type: Boolean
-        default: true
+        default: false
   homepage-rebuild-feature:
     description: |
       This feature is for managing the roll out of the Homepage rebuild feature
@@ -151,7 +151,7 @@ features:
         description: |
           If true, enables the search bar feature on homepage for users.
         type: Boolean
-        default: true
+        default: false
       shortcuts-library:
         description: |
           If true, enables the shortcuts library feature, accessible from the homepage
@@ -161,7 +161,7 @@ features:
         description: |
           If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)
         type: Boolean
-        default: true
+        default: false
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
@@ -170,17 +170,17 @@ features:
         description: |
           Enables the hosted summarizer feature.
         type: Boolean
-        default: true
+        default: false
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
   menu-refactor-feature:
     description: |
       Controls the menu refactor feature
@@ -252,25 +252,7 @@ features:
         description: |
           A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
         type: Map<MessageKey, MessageData>
-        default:
-          homepage-microsurvey-message:
-            surface: microsurvey
-            style: MICROSURVEY
-            trigger-if-all:
-            - SECOND_HOMEPAGE_VIEW
-            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
-            text: How satisfied are you with your Firefox homepage?
-            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
-            microsurveyConfig:
-              utm-content: homepage
-              icon: homeLarge
-              options:
-              - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
-              - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+        default: {}
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -617,20 +599,7 @@ features:
         description: |
           Enables the feature.
         type: Boolean
-        default: true
-  recent-searches-feature:
-    description: |
-      Enables recent searches.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable recent searches.
-        type: Boolean
         default: false
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 5
   revert-unsafe-continuations-refactor:
     description: |
       A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).
@@ -639,7 +608,7 @@ features:
         description: |
           If true, revert unsafe continuations usage back to normal checked continuations usage.
         type: Boolean
-        default: true
+        default: false
   rust-fxa-keychain:
     description: |
       Feature that enables the rust FxA keychain logic.
@@ -732,7 +701,7 @@ features:
         description: |
           If true, enables the tab tray UI experiments.
         type: Boolean
-        default: true
+        default: false
       translucency:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
@@ -760,11 +729,6 @@ features:
           The type of layout of the toolbars.
         type: Option<ToolbarLayoutType>
         default: version1
-      middle_button_customization:
-        description: |
-          Enables the middle button customization for navigation toolbar.
-        type: Boolean
-        default: false
       minimal_address_bar:
         description: |
           Enables minimal address bar mode on scroll to ensure the url is always visible.
@@ -784,7 +748,7 @@ features:
         description: |
           Enables swipe gestures to switch between browser tabs.
         type: Boolean
-        default: true
+        default: false
       toolbar_update_hint:
         description: |
           If true, enables the toolbar update contextual hint.
@@ -827,19 +791,6 @@ features:
           Whether the Enhanced Tracking Protection refactor is enabled or not
         type: Boolean
         default: true
-  trending-searches-feature:
-    description: |
-      Enables trending searches.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable trending searches.
-        type: Boolean
-        default: false
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 5
   unified-ads:
     description: |
       This property is for managing the roll out of the unified ads API
@@ -1091,6 +1042,8 @@ enums:
   ToolbarLayoutType:
     description: The type of toolbar layout.
     variants:
+      baseline:
+        description: The default layout of the toolbars.
       version1:
         description: Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar.
       version2:
