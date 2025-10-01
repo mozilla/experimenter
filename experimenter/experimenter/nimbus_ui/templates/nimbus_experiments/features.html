@@ -117,18 +117,10 @@
                     </td>
                     <td id="qa-run-status">
                       <div>
+                        {% with icon_info=experiment.qa_status_icon_info %}
+                          {% if icon_info.icon %}<span class="{{ icon_info.color }}"><i class="{{ icon_info.icon }}"></i></span>{% endif %}
+                        {% endwith %}
                         {{ experiment.get_qa_status_display }}
-                        {% if experiment.qa_status == experiment.QAStatus.NOT_SET %}
-                          <i class="fa-regular fa-circle-question"></i>
-                        {% elif experiment.qa_status == experiment.QAStatus.GREEN or experiment.qa_status == experiment.QAStatus.SELF_GREEN %}
-                          <span class="text-success">
-                            <i class="fa-regular fa-circle-check"></i>
-                          </span>
-                        {% elif experiment.qa_status == experiment.QAStatus.YELLOW or experiment.qa_status == experiment.QAStatus.SELF_YELLOW %}
-                          <span class="text-warning"><i class="fa-regular fa-circle-pause"></i></span>
-                        {% elif experiment.qa_status == experiment.QAStatus.RED or experiment.qa_status == experiment.QAStatus.SELF_RED %}
-                          <span class="text-danger"><i class="fa-regular fa-circle-xmark"></i></span>
-                        {% endif %}
                       </div>
                     </td>
                     <td id="qa-test-plan">
