@@ -146,6 +146,7 @@ ENV PYTHONPATH=$PYTHONPATH:/application-services/
 
 # Ensure the non-root user owns the required directories
 RUN chown -R app:app /experimenter /application-services
+RUN mkdir -p /var/glean && chown -R app:app /var/glean
 
 # Switch to the non-root user
 USER app

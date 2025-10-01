@@ -1,0 +1,26 @@
+{% if request.user.is_authenticated and not request.user.glean_prefs.alert_dismissed %}
+  <div id="glean-alert"
+       class="alert alert-success bg-transparent text-success align-items-center">
+    <form method="post"
+          action="{% url 'glean-alert-dismissed' %}"
+          hx-post="{% url 'glean-alert-dismissed' %}"
+          hx-target="#glean-alert"
+          hx-swap="outerHTML">
+      <input type="hidden" name="alert_dismissed" value="true" />
+      {% csrf_token %}
+      <ul class="nav">
+        <li class="nav-item my-2 ms-2">
+          Nimbus is now tracking user interactions with Glean! You can opt-out of this
+          data collection by clicking "Glean Opt-Out" in the top right. For more
+          information see our
+          <a href="https://mozilla-hub.atlassian.net/wiki/spaces/PR/pages/24450871/Mozillian+Privacy+Notice">
+            Mozillian Privacy Notice.
+          </a>
+        </li>
+        <li class="nav-item ms-2">
+          <button type="submit" class="btn btn-success ms-1">Dismiss</button>
+        </li>
+      </ul>
+    </form>
+  </div>
+{% endif %}
