@@ -30,7 +30,7 @@ features:
       enabled:
         description: Whether or not the feature is available for the user.
         type: Boolean
-        default: true
+        default: false
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -238,14 +238,6 @@ features:
           pocket-sponsored-stories: true
           synced-tabs: true
           collections: true
-  isolated-content-processes:
-    description: Feature that controls content process isolation.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable isolated content processes.
-        type: Boolean
-        default: false
   javascript:
     description: Enables Javascript Engine (Spidermonkey) features
     variables:
@@ -410,18 +402,6 @@ features:
           ALWAYS: 'true'
           NEVER: 'false'
         string-alias: ConditionName
-      use-onboarding-redesign:
-        description: If true, use the onboarding redesign.
-        type: Boolean
-        default: false
-  lna-blocking:
-    description: Feature that allows blocking local network or device access.
-    variables:
-      enabled:
-        description: |
-          Whether or not to turn on local network / device access blocking
-        type: Boolean
-        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
@@ -773,11 +753,11 @@ features:
         description: |
           Whether or not to enable recent searches.
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 5
+        default: 4
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -861,14 +841,6 @@ features:
         description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
         type: Text
         default: ''
-  settings-search:
-    description: Feature to allow users to search for settings.
-    variables:
-      enabled:
-        description: |
-          Enables the user to search for settings.
-        type: Boolean
-        default: false
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
@@ -939,17 +911,6 @@ features:
           Whether or not to enable tab strip.
         type: Boolean
         default: true
-  terms-of-use-prompt:
-    description: Enables the terms of use prompt for users who have not accepted ToU
-    variables:
-      enabled:
-        description: When the feature is enabled then the prompt can show for users.
-        type: Boolean
-        default: false
-      max-display-count:
-        description: The maximum number of times to show the prompt.
-        type: Int
-        default: 2
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -992,11 +953,11 @@ features:
         description: |
           Whether or not to enable top sites suggestions.
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 2
+        default: 4
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -1042,19 +1003,11 @@ features:
         description: |
           Whether or not to enable trending searches.
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 5
-  unified-trust-panel:
-    description: Enables the unified trust panel.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the unified trust panel.
-        type: Boolean
-        default: true
+        default: 4
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
@@ -1467,15 +1420,3 @@ objects:
         description: The text for line two.
         type: Text
         default: ''
-      subheader-one-text:
-        description: Optional text for the first subheader of the card.
-        type: Option<Text>
-        default: null
-      subheader-three-text:
-        description: Optional text for the third subheader of the card.
-        type: Option<Text>
-        default: null
-      subheader-two-text:
-        description: Optional text for the second subheader of the card.
-        type: Option<Text>
-        default: null
