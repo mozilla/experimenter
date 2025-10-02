@@ -2049,42 +2049,6 @@ pocketNewtab:
       description: >-
         Change the layout of the sections to be more compact to account for the added card height with the thumbs up/down enabled.
 
-saveToPocket:
-  description: The save to Pocket feature
-  owner: sdowne@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: extensions.pocket.enabled
-      description: Enabled save to Pocket feature.
-    emailButton:
-      type: boolean
-      setPref:
-        branch: user
-        pref: extensions.pocket.refresh.emailButton.enabled
-      description: Just for the new Pocket panels, enables the email signup button.
-    bffRecentSaves:
-      type: boolean
-      setPref:
-        branch: user
-        pref: extensions.pocket.bffRecentSaves
-      description: Use the new BFF Proxy Service instead of the legacy Pocket Service for Recent Saves
-    bffApi:
-      type: string
-      setPref:
-        branch: user
-        pref: extensions.pocket.bffApi
-      description: BFF Proxy Service domain
-    oAuthConsumerKeyBff:
-      type: string
-      setPref:
-        branch: user
-        pref: extensions.pocket.oAuthConsumerKeyBff
-      description: BFF Proxy Service OAuth Consumer Key
-
 sessionRestore:
   description: Session restore feature
   owner: sfoster@mozilla.com
