@@ -599,3 +599,46 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
                     return queryset.filter(query)
 
         return queryset
+
+
+class FeaturesPageSortChoices(models.TextChoices):
+    class Deliveries(models.TextChoices):
+        NAME_UP = "name", "Recipe Name"
+        NAME_DOWN = "-name", "Recipe Name"
+        TYPE_UP = "is_rollout", "Type"
+        TYPE_DOWN = "-is_rollout", "Type"
+        CHANNEL_UP = "merged_channel", "Channel"
+        CHANNEL_DOWN = "-merged_channel", "Channel"
+        SIZE_UP = "population_percent", "Size"
+        SIZE_DOWN = "-population_percent", "Size"
+        DATES_UP = "_start_date", "Dates"
+        DATES_DOWN = "-_start_date", "Dates"
+        VERSIONS_UP = "firefox_min_version", "Versions"
+        VERSIONS_DOWN = "-firefox_min_version", "Versions"
+        DELIVERY_BRIEF_UP = "delivery_brief", "Delivery Brief"
+        DELIVERY_BRIEF_DOWN = "-delivery_brief", "Delivery Brief"
+
+    class QARuns(models.TextChoices):
+        QA_RUN_UP = "qa_run", "QA Run"
+        QA_RUN_DOWN = "-qa_run", "QA Run"
+        DATES_UP = "_start_date", "Dates"
+        DATES_DOWN = "-_start_date", "Dates"
+        QA_TEST_TYPE_UP = "qa_run_type", "QA Test Type"
+        QA_TEST_TYPE_DOWN = "-qa_run_type", "QA Test Type"
+        QA_UP = "qa_status", "QA"
+        QA_DOWN = "-qa_status", "QA"
+        QA_RUN_TEST_PLAN_UP = "qa_run_test_plan", "Test Plan/Experimenter Recipe"
+        QA_RUN_TEST_PLAN_DOWN = "-qa_run_test_plan", "Test Plan/Experimenter Recipe"
+        QA_TESTRAIL_LINK_UP = "qa_run_testrail_link", "TestRail Results"
+        QA_TESTRAIL_LINK_DOWN = "-qa_run_testrail_link", "TestRail Results"
+
+    @staticmethod
+    def sortable_headers(table_name):
+        seen = set()
+        headers = []
+        for choice in table_name:
+            field = choice.value.lstrip("-")
+            if field not in seen:
+                headers.append((field, choice.label))
+                seen.add(field)
+        return headers
