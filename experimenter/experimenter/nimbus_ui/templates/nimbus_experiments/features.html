@@ -15,7 +15,7 @@
             hx-select="#features-form"
             hx-target="#features-form"
             hx-swap="outerHTML"
-            hx-push-url="true">
+            hx-select-oob="#results">
         {% csrf_token %}
         <div class="card mb-3">
           <div class="card-body bg-primary-subtle">
@@ -34,13 +34,14 @@
           </div>
         </div>
       </form>
-      <div class="mt-5 card shadow-sm border-0 px-3 py-4 h-100 rounded-3 bg-primary-subtle">
+      <div id="results"
+           class="card shadow-sm p-3 border-0 h-100 rounded-3 bg-primary-subtle">
         <h5 class="fw-semibold">
           <img src="{% static 'assets/my-deliveries.svg' %}"
                alt="Hugging Foxes"
                style="width: 60px;
                       height: auto" />
-          All Affiliated Nimbus Deliveries | Total Deliveries: {{ experiments.count }}
+          All Affiliated Nimbus Deliveries | Total Deliveries: {{ paginator.count }}
           <i class="fa-regular fa-circle-question"
              data-bs-toggle="tooltip"
              data-bs-placement="top"
@@ -67,11 +68,11 @@
                          href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
                          class="text-decoration-none fw-medium">{{ experiment.name }}</a>
                     </td>
-                    <td id="delivery-published-date">{{ experiment.published_date|format_not_set }}</td>
+                    <td id="delivery-published-date">{{ experiment.start_date|date:"M j, Y"|format_not_set }}</td>
                     <td id="delivery-type-{{ experiment.home_type_choice }}">{{ experiment.home_type_choice }}</td>
                     <td id="delivery-channel">{{ experiment.get_channel_display }}</td>
                     <td id="delivery-min-version">{{ experiment.firefox_min_version|parse_version }}</td>
-                    <td id="delivery-population-percent">{{ experiment.population_percent|floatformat:"-1" }}</td>
+                    <td id="delivery-population-percent">{{ experiment.total_enrolled_clients|floatformat:"-1" }}</td>
                     <td id="delivery-brief">{{ experiment.delivery_brief|format_not_set }}</td>
                   {% empty %}
                     <tr>
@@ -96,10 +97,10 @@
         <div>
           <div>
             <table id="qa-info-table"
-                   class="table table-hover table-borderless align-middle mb-0">
+                   class="table table-hover table-borderless align-middle mb-3">
               <thead>
                 {% for field, label in sortable_header_qa_runs %}
-                  {% include "common/home_sortable_header.html" with field=field label=label url=request.path hx_target="#qa-info-table" hx_select="#qa-info-table" current_sort=request.GET.sort %}
+                  {% include "common/home_sortable_header.html" with field=field label=label form=form url=request.path hx_target="#qa-info-table" hx_select="#qa-info-table" current_sort=request.GET.sort %}
 
                 {% endfor %}
               </thead>
@@ -136,64 +137,71 @@
                   {% endfor %}
                 </tbody>
               </table>
-              {{page_obj}}
               {% if page_obj.has_other_pages %}
-                <div id="pagination" class="row">
-                  <div class="col text-center">
-                    <ul class="pagination justify-content-center">
-                      {% if page_obj.has_previous %}
+                {% with current_sort=request.GET.sort %}
+                  <div id="pagination" class="row">
+                    <div class="col text-center">
+                      <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                          <li class="page-item">
+                            <a class="page-link" href="{% pagination_url 1 %}"><i class="fa-solid fa-angles-left"></i></a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link"
+                               hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&page={{ page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                               hx-target="#results"
+                               hx-select="#results"
+                               hx-swap="outerHTML"
+                               hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
+                          </li>
+                        {% else %}
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angles-left"></i>
+                            </a>
+                          </li>
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angle-left"></i>
+                            </a>
+                          </li>
+                        {% endif %}
                         <li class="page-item">
-                          <a class="page-link" href="{% pagination_url 1 %}"><i class="fa-solid fa-angles-left"></i></a>
-                        </li>
-                        <li class="page-item">
-                          <a class="page-link"
-                             href="{% pagination_url page_obj.previous_page_number %}"
-                             tabindex="-1"><i class="fa-solid fa-angle-left"></i></a>
-                        </li>
-                      {% else %}
-                        <li class="page-item disabled">
-                          <a class="page-link" href="#">
-                            <i class="fa-solid fa-angles-left"></i>
-                          </a>
-                        </li>
-                        <li class="page-item disabled">
-                          <a class="page-link" href="#">
-                            <i class="fa-solid fa-angle-left"></i>
-                          </a>
-                        </li>
-                      {% endif %}
-                      <li class="page-item">
-                        <div class="page-link">
-                        <a>{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
-                      </li>
-                      {% if page_obj.has_next %}
-                        <li class="page-item">
-                          <a class="page-link"
-                             href="{% pagination_url page_obj.next_page_number %}">
-                            <i class="fa-solid fa-angle-right"></i>
-                          </a>
-                        </li>
-                        <li class="page-item">
-                          <a class="page-link"
-                             href="{% pagination_url page_obj.paginator.num_pages %}">
-                            <i class="fa-solid fa-angles-right"></i>
-                          </a>
-                        </li>
-                      {% else %}
-                        <li class="page-item disabled">
-                          <a class="page-link" href="#">
-                            <i class="fa-solid fa-angle-right"></i>
-                          </a>
-                        </li>
-                        <li class="page-item disabled">
-                          <a class="page-link" href="#">
-                            <i class="fa-solid fa-angles-right"></i>
-                          </a>
-                        </li>
-                      {% endif %}
-                    </ul>
+                          <div class="page-link">
+                            <a>{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
+                          </li>
+                          {% if page_obj.has_next %}
+                            <li class="page-item">
+                              <a class="page-link"
+                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                 hx-target="#results"
+                                 hx-select="#results"
+                                 hx-swap="outerHTML"
+                                 hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
+                            </a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link"
+                               href="{% pagination_url page_obj.paginator.num_pages %}">
+                              <i class="fa-solid fa-angles-right"></i>
+                            </a>
+                          </li>
+                        {% else %}
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angle-right"></i>
+                            </a>
+                          </li>
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angles-right"></i>
+                            </a>
+                          </li>
+                        {% endif %}
+                      </ul>
+                    </div>
                   </div>
-                </div>
+                {% endwith %}
               {% endif %}
             </div>
           </div>
