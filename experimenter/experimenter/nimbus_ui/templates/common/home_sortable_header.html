@@ -7,6 +7,7 @@
       hx-target="{{ hx_target }}"
       hx-select="{{ hx_select }}"
       hx-swap="outerHTML"
+      hx-select-oob="#results"
       hx-include=".status-filter input[name='status']:checked, .type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked, .feature-filter input[name='feature_configs']:checked, .date-filter input[name='date_range']:checked"  {# keep current filters when sorting #}
       class="d-inline-block m-0">
       {# Preserve ALL existing filters except "sort" (we set it explicitly) #}

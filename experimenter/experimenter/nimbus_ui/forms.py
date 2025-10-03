@@ -1532,7 +1532,6 @@ class FeaturesForm(forms.ModelForm):
             "hx-select": "#features-form",
             "hx-target": "#features-form",
             "hx-swap": "outerHTML",
-            "hx-select-oob": "#deliveries-table, #qa-info-table, #pagination",
         }
         self.fields["application"].widget.attrs.update(htmx_attrs)
         self.fields["feature_configs"].widget.attrs.update(htmx_attrs)

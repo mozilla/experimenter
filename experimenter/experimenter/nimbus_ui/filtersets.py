@@ -603,18 +603,18 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
 
 class FeaturesPageSortChoices(models.TextChoices):
     class Deliveries(models.TextChoices):
-        NAME_UP = "name", "Recipe Name"
-        NAME_DOWN = "-name", "Recipe Name"
-        TYPE_UP = "is_rollout", "Type"
-        TYPE_DOWN = "-is_rollout", "Type"
-        CHANNEL_UP = "merged_channel", "Channel"
-        CHANNEL_DOWN = "-merged_channel", "Channel"
-        SIZE_UP = "population_percent", "Size"
-        SIZE_DOWN = "-population_percent", "Size"
+        NAME_UP = "slug", "Recipe Name"
+        NAME_DOWN = "-slug", "Recipe Name"
         DATES_UP = "_start_date", "Dates"
         DATES_DOWN = "-_start_date", "Dates"
-        VERSIONS_UP = "firefox_min_version", "Versions"
-        VERSIONS_DOWN = "-firefox_min_version", "Versions"
+        TYPE_UP = "is_rollout", "Type"
+        TYPE_DOWN = "-is_rollout", "Type"
+        CHANNEL_UP = "merged_channel", "Channel(s)"
+        CHANNEL_DOWN = "-merged_channel", "Channel(s)"
+        VERSIONS_UP = "firefox_min_version", "Min Version"
+        VERSIONS_DOWN = "-firefox_min_version", "Min Version"
+        SIZE_UP = "total_enrolled_clients", "Pop. Size"
+        SIZE_DOWN = "-total_enrolled_clients", "Pop. Size"
         DELIVERY_BRIEF_UP = "delivery_brief", "Delivery Brief"
         DELIVERY_BRIEF_DOWN = "-delivery_brief", "Delivery Brief"
 
