@@ -14,7 +14,8 @@
             hx-get="{% url 'nimbus-ui-features' %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
             hx-select="#features-form"
             hx-target="#features-form"
-            hx-swap="outerHTML">
+            hx-swap="outerHTML"
+            hx-push-url="true">
         {% csrf_token %}
         <div class="card mb-3">
           <div class="card-body bg-primary-subtle">
@@ -135,8 +136,9 @@
                   {% endfor %}
                 </tbody>
               </table>
-              {% if page_obj.paginator.num_pages > 1 %}
-                <div class="row">
+              {{page_obj}}
+              {% if page_obj.has_other_pages %}
+                <div id="pagination" class="row">
                   <div class="col text-center">
                     <ul class="pagination justify-content-center">
                       {% if page_obj.has_previous %}
@@ -162,7 +164,7 @@
                       {% endif %}
                       <li class="page-item">
                         <div class="page-link">
-                        {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
+                        <a>{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
                       </li>
                       {% if page_obj.has_next %}
                         <li class="page-item">

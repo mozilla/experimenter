@@ -664,24 +664,28 @@ class NimbusFeaturesView(TemplateView):
                 .order_by(self.request.GET.get("sort", "name"))
             )
         else:
-            return []
-
+            return qs.none()
         return qs
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = self.get_form()
         qs = self.get_queryset()
+        print("DBG count =", qs.count())
 
         paginator = Paginator(qs, 5)
         page_number = self.request.GET.get("page") or 1
         page_obj = paginator.get_page(page_number)
+
+        print("Is paginated +", page_obj.has_other_pages())
 
         context["form"] = form
         context["links"] = NimbusUIConstants.FEATURE_PAGE_LINKS
         context["application"] = self.request.GET.get("application")
         context["feature_configs"] = self.request.GET.get("feature_configs")
         context["page_obj"] = page_obj
+        context["is_paginated"] = page_obj.has_other_pages()
         context["experiments"] = page_obj.object_list
         context["sortable_header_deliveries"] = FeaturesPageSortChoices.sortable_headers(
             FeaturesPageSortChoices.Deliveries
