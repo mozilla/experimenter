@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- release
+- nightly
 features:
   address-sync:
     description: Turns on address sync.
@@ -30,7 +30,7 @@ features:
       enabled:
         description: Whether or not the feature is available for the user.
         type: Boolean
-        default: false
+        default: true
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -71,7 +71,7 @@ features:
         description: |
           When the feature is enabled the user will see a new composable toolbar instead the previous View based one.
         type: Boolean
-        default: false
+        default: true
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -163,7 +163,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -197,7 +197,7 @@ features:
       enabled:
         description: If true, the feature is active
         type: Boolean
-        default: true
+        default: false
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -238,14 +238,6 @@ features:
           pocket-sponsored-stories: true
           synced-tabs: true
           collections: true
-  isolated-content-processes:
-    description: Feature that controls content process isolation.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable isolated content processes.
-        type: Boolean
-        default: false
   javascript:
     description: Enables Javascript Engine (Spidermonkey) features
     variables:
@@ -410,25 +402,13 @@ features:
           ALWAYS: 'true'
           NEVER: 'false'
         string-alias: ConditionName
-      use-onboarding-redesign:
-        description: If true, use the onboarding redesign.
-        type: Boolean
-        default: false
-  lna-blocking:
-    description: Feature that allows blocking local network or device access.
-    variables:
-      enabled:
-        description: |
-          Whether or not to turn on local network / device access blocking
-        type: Boolean
-        default: false
   menu-redesign:
     description: Control the new menu redesign.
     variables:
       enabled:
         description: If true, the new menu redesign is available.
         type: Boolean
-        default: false
+        default: true
       menu-banner:
         description: If true, the menu banner is visible.
         type: Boolean
@@ -436,7 +416,7 @@ features:
       report-site-issue:
         description: If true, report site issue menu item and preview is available.
         type: Boolean
-        default: false
+        default: true
   messaging:
     description: |
       The in-app messaging system.
@@ -513,6 +493,29 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
+          microsurvey-printing-example-nightly:
+            title: microsurvey_prompt_printing_title
+            text: microsurvey_survey_printing_title
+            surface: microsurvey
+            trigger-if-all:
+            - RECENTLY_PRINTED
+            style: MICROSURVEY
+            microsurvey-config:
+              utm-content: homepage
+              icon: ic_print
+              answers:
+              - text: likert_scale_option_1
+                ordering: 0
+              - text: likert_scale_option_2
+                ordering: 1
+              - text: likert_scale_option_3
+                ordering: 2
+              - text: likert_scale_option_4
+                ordering: 3
+              - text: likert_scale_option_5
+                ordering: 4
+              - text: likert_scale_option_6
+                ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -622,7 +625,7 @@ features:
         description: |
           When the feature is enabled then the user will see the new navigation toolbar.
         type: Boolean
-        default: false
+        default: true
   networking:
     description: Enables networking features
     variables:
@@ -716,7 +719,7 @@ features:
         description: |
           What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
         type: Int
-        default: 0
+        default: 2
   pqcrypto:
     description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
     variables:
@@ -773,11 +776,11 @@ features:
         description: |
           Whether or not to enable recent searches.
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 5
+        default: 4
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -802,7 +805,7 @@ features:
         description: |
           Overrides the loadType when it is a same document navigation
         type: Boolean
-        default: true
+        default: false
       force-disable-uri:
         description: |
           Disable overriding the loadType during same document navigation on the domain specified by this URI.
@@ -841,7 +844,7 @@ features:
       enabled:
         description: If true, the feature shows up on the homescreen and on the new tab screen.
         type: Boolean
-        default: false
+        default: true
   sent-from-firefox:
     description: A feature that allows the user to add a download firefox footer to a shared link.
     variables:
@@ -879,7 +882,7 @@ features:
         description: |
           Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
@@ -930,18 +933,7 @@ features:
         description: |
           Whether or not to enable tab strip.
         type: Boolean
-        default: false
-  terms-of-use-prompt:
-    description: Enables the terms of use prompt for users who have not accepted ToU
-    variables:
-      enabled:
-        description: When the feature is enabled then the prompt can show for users.
-        type: Boolean
-        default: false
-      max-display-count:
-        description: The maximum number of times to show the prompt.
-        type: Int
-        default: 2
+        default: true
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:
@@ -984,11 +976,11 @@ features:
         description: |
           Whether or not to enable top sites suggestions.
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 2
+        default: 4
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -1034,19 +1026,11 @@ features:
         description: |
           Whether or not to enable trending searches.
         type: Boolean
-        default: true
+        default: false
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
-        default: 5
-  unified-trust-panel:
-    description: Enables the unified trust panel.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the unified trust panel.
-        type: Boolean
-        default: true
+        default: 4
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
@@ -1459,15 +1443,3 @@ objects:
         description: The text for line two.
         type: Text
         default: ''
-      subheader-one-text:
-        description: Optional text for the first subheader of the card.
-        type: Option<Text>
-        default: null
-      subheader-three-text:
-        description: Optional text for the third subheader of the card.
-        type: Option<Text>
-        default: null
-      subheader-two-text:
-        description: Optional text for the second subheader of the card.
-        type: Option<Text>
-        default: null
