@@ -817,8 +817,8 @@ features:
       certificateTransparencyMode:
         description: |
           What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
-        type: Int
-        default: 2
+        type: Option<Int>
+        default: null
       crliteChannel:
         description: |
           The channel from which CRLite filters will be installed.
