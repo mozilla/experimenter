@@ -3312,6 +3312,17 @@ FX_145_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+BUILDID_20251006095753 = NimbusTargetingConfig(
+    name="Build ID 20251006095753 or higher",
+    slug="buildid-20251006095753",
+    description="Desktop users having the Build ID 20251006095753 or higher",
+    targeting="buildId >= 20251006095753",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
