@@ -366,7 +366,6 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_144_3_0
   FIREFOX_144_4_0
   FIREFOX_145
-  FIREFOX_145_A1
   FIREFOX_145_0_1
   FIREFOX_145_0_2
   FIREFOX_145_0_3
