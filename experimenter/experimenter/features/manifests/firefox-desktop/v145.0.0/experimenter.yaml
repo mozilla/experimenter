@@ -5623,3 +5623,16 @@ image:
       setPref:
         branch: user
         pref: "image.mem.decode_bytes_at_a_time"
+
+walletCustomSchemes:
+  description: Defines which custom schemes are treated as digital identity requests
+  owner: bvandersloot@mozilla.com
+  hasExposure: false
+  variables:
+    enabledSchemes:
+      type: string
+      setPref:
+        branch: user
+        pref: privacy.wallet_schemes
+      description: >-
+        Comma separated lists of schemes
