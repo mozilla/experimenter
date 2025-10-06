@@ -23,7 +23,7 @@ python-decouple = "^3.8"
 glean-sdk = "^53.2.0"
 pytest-mock = "^3.15.0"
 mozilla-nimbus-shared = "^2.5.2"
-sentry-sdk = "^2.39.0"
+sentry-sdk = "^2.40.0"
 
 [build-system]
 requires = ["poetry>=2.1.1"]
