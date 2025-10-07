@@ -738,8 +738,13 @@ features:
       certificateTransparencyMode:
         description: |
           What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
-        type: Int
-        default: 2
+        type: Option<Int>
+        default: null
+      crliteChannel:
+        description: |
+          The channel from which CRLite filters will be installed.
+        type: Option<String>
+        default: null
   pqcrypto:
     description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
     variables:
@@ -969,6 +974,10 @@ features:
         description: When the feature is enabled then the prompt can show for users.
         type: Boolean
         default: false
+      max-display-count:
+        description: The maximum number of times to show the prompt.
+        type: Int
+        default: 2
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:

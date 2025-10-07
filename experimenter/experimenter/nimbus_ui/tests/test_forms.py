@@ -3835,8 +3835,8 @@ class TestFeaturesViewForm(RequestFormTestCase):
         form = FeaturesForm()
         application = form.fields["application"]
         feature_configs = form.fields["feature_configs"]
-        self.assertEqual(application.initial, NimbusExperiment.Application.DESKTOP.value)
-        self.assertIsNone(feature_configs.initial)
+        self.assertEqual(application.initial, "")
+        self.assertEqual(feature_configs.initial, "")
 
     @parameterized.expand(
         [

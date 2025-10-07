@@ -17,24 +17,73 @@
             hx-swap="outerHTML">
         {% csrf_token %}
         <div class="card mb-3">
-          <div class="card-body">
+          <div class="card-body bg-primary-subtle">
             <div class="row mb-4">
               <div class="col-6">
-                <label for="id_application" class="form-label">Application</label>
+                <h5 class="fw-semibold">Application</h5>
                 {{ form.application|add_class:"form-control"|add_error_class:"is-invalid" }}
                 {% for error in form.application.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               </div>
               <div class="col-6">
-                <label for="id_feature_config" class="form-label">Feature Config</label>
+                <h5 class="fw-semibold">Feature Config</h5>
                 {{ form.feature_configs|add_class:"form-control" }}
                 {% for error in form.feature_configs.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               </div>
             </div>
-            <div>{{ application }}</div>
-            <div>{{ feature_configs }}</div>
           </div>
         </div>
       </form>
+      <div class="mt-5 card shadow-sm border-0 px-3 py-4 h-100 rounded-3 bg-primary-subtle">
+        <h5 class="fw-semibold">
+          <img src="{% static 'assets/my-deliveries.svg' %}"
+               alt="Hugging Foxes"
+               style="width: 60px;
+                      height: auto" />
+          Deliveries
+        </h5>
+        <div>
+          <div>
+            <div id="no-deliveries"></div>
+            <table id="deliveries-table"
+                   class="table table-hover table-borderless align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Recipe Name</th>
+                  <th>Launch Date</th>
+                  <th>Type Of Delivery</th>
+                  <th>Channel(s)</th>
+                  <th>Minimum Version</th>
+                  <th>Population Size</th>
+                  <th>Delivery Brief</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for experiment in experiments %}
+                  <tr scope="row">
+                    <td id="delivery-name">
+                      <a target="_blank"
+                         href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+                         class="text-decoration-none fw-medium">{{ experiment.name }}</a>
+                    </td>
+                    <td id="delivery-published-date">{{ experiment.published_date|format_not_set }}</td>
+                    <td id="delivery-type-{{ experiment.home_type_choice }}">{{ experiment.home_type_choice }}</td>
+                    <td id="delivery-channel">{{ experiment.get_channel_display }}</td>
+                    <td id="delivery-min-version">{{ experiment.firefox_min_version|parse_version }}</td>
+                    <td id="delivery-population-percent">{{ experiment.population_percent|floatformat:"-1" }}</td>
+                    <td id="delivery-brief">{{ experiment.delivery_brief|format_not_set }}</td>
+                  {% empty %}
+                    <tr>
+                      <td colspan="12" class="fw-semibold text-center p-4">
+                        <h4>No Deliveries</h4>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

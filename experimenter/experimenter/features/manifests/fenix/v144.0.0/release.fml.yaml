@@ -938,6 +938,10 @@ features:
         description: When the feature is enabled then the prompt can show for users.
         type: Boolean
         default: false
+      max-display-count:
+        description: The maximum number of times to show the prompt.
+        type: Int
+        default: 2
   third-party-cookie-blocking:
     description: Control third-party cookie blocking.
     variables:

@@ -58,13 +58,6 @@ features:
         description: If the feature is enabled
         type: Boolean
         default: true
-  moscary:
-    description: Use the Moscary API
-    variables:
-      enabled:
-        description: If the feature is enabled
-        type: Boolean
-        default: true
   welcome-scan-optional-info:
     description: Show additional optional input fields for the data broker scan
     variables:

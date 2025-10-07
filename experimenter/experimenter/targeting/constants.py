@@ -3300,6 +3300,29 @@ MAC_SIGNED_OUT_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_145_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx145 9-19 Trainhop",
+    slug="newtab-145-0919-trainhop",
+    description="Desktop users having the New Tab 145.0.20250919 train hop,"
+    "which includes users of Fx143",
+    targeting="newtabAddonVersion|versionCompare('145.0.20250919.173227') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+BUILDID_20251006095753 = NimbusTargetingConfig(
+    name="Build ID 20251006095753 or higher",
+    slug="buildid-20251006095753",
+    description="Desktop users having the Build ID 20251006095753 or higher",
+    targeting="buildId >= 20251006095753",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
