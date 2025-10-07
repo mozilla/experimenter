@@ -248,10 +248,17 @@
               <td>{{ experiment.firefox_max_version|parse_version }}</td>
             </tr>
             <tr>
-              <th>Locales</th>
-              <td>
-                {{ experiment.locales.all|join:"<br>"|default:"All Locales" }}
-              </td>
+              {% if experiment.is_mobile %}
+                <th>Languages</th>
+                <td>
+                  {{ experiment.languages.all|join:"<br>"|default:"All Languages" }}
+                </td>
+              {% else %}
+                <th>Locales</th>
+                <td>
+                  {{ experiment.locales.all|join:"<br>"|default:"All Locales" }}
+                </td>
+              {% endif %}
               <th>Countries</th>
               <td>
                 {{ experiment.countries.all|join:"<br>"| default:"All Countries" }}
@@ -319,8 +326,19 @@
             </tr>
             <tr>
               <th id="recipe-json">Recipe JSON</th>
-              <td colspan="3" id="preview-recipe-json">
+              <td colspan="3" id="preview-recipe-json" class="collapsed-json">
+                <div style="max-height: 120px; overflow: hidden;">
+                  <textarea class="readonly-json">{{ experiment.recipe_json }}</textarea>
+                </div>
+                <button class="btn btn-outline-primary btn-sm mt-2 d-block show-btn d-none">
+                  <i class="fa-solid fa-plus"></i> Show more
+                </button>
+              </td>
+              <td colspan="3" id="preview-recipe-json" class="expanded-json d-none">
                 <textarea class="readonly-json">{{ experiment.recipe_json }}</textarea>
+                <button class="btn btn-outline-primary btn-sm mt-2 d-block hide-btn d-none">
+                  <i class="fa-solid fa-minus"></i> Show less
+                </button>
               </td>
             </tr>
           </tbody>

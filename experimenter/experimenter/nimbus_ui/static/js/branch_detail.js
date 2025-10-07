@@ -30,39 +30,33 @@ const setupCodemirroReadOnlyJSON = () => {
     });
 
     view.dom.style.border = "1px solid #ccc";
-    view.dom.style.maxHeight = `${22.4 * VISIBLE_LINE_COUNT + 5}px`;
-    view.dom.lastChild.style.overflowY = "hidden";
+    view.dom.style.maxHeight = "inherit";
     textarea.parentNode.insertBefore(view.dom, textarea);
     textarea.style.display = "none";
 
-    setupCodemirrorCollapsibleDisplay(textarea, view);
+    setupCodemirrorCollapsibleDisplay(textarea);
 
     return view;
   });
 };
 
-const setupCodemirrorCollapsibleDisplay = (textarea, view) => {
+const setupCodemirrorCollapsibleDisplay = (textarea) => {
   const lines = textarea.value.split("\n").length;
-  console.log(textarea, lines);
 
   if (lines > VISIBLE_LINE_COUNT) {
-    const showHideButton = document.createElement("button");
-    showHideButton.className = "btn btn-outline-primary btn-sm mt-2 d-block";
-    showHideButton.innerHTML = '<i class="fa-solid fa-plus"></i> Show more';
+    // Removes d-none from both buttons for json views that can be collapsed
+    textarea.parentNode.nextElementSibling?.classList.remove("d-none");
+    textarea.nextElementSibling?.classList.remove("d-none");
 
-    let isExpanded = false;
-
-    showHideButton.addEventListener("click", () => {
-      isExpanded = !isExpanded;
-      showHideButton.innerHTML = isExpanded
-        ? '<i class="fa-solid fa-minus"></i> Show less'
-        : '<i class="fa-solid fa-plus"></i> Show more';
-      view.dom.style.maxHeight = isExpanded
-        ? "none"
-        : `${22.4 * VISIBLE_LINE_COUNT + 5}px`;
+    $(".show-btn").on("click", (e) => {
+      e.target.parentNode.classList.add("d-none");
+      e.target.parentNode.nextElementSibling.classList.remove("d-none");
     });
 
-    textarea.parentNode.insertBefore(showHideButton, textarea);
+    $(".hide-btn").on("click", (e) => {
+      e.target.parentNode.classList.add("d-none");
+      e.target.parentNode.previousElementSibling.classList.remove("d-none");
+    });
   }
 };
 

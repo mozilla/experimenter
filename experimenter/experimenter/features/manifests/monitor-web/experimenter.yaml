@@ -62,14 +62,6 @@ last-scan-date:
     enabled:
       type: boolean
       description: If the feature is enabled
-moscary:
-  description: Use the Moscary API
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If the feature is enabled
 welcome-scan-optional-info:
   description: Show additional optional input fields for the data broker scan
   hasExposure: true
