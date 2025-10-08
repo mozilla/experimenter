@@ -63,7 +63,7 @@ features:
         description: |
           If true, page zoom settings and default zoom feature are shown
         type: Boolean
-        default: false
+        default: true
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
