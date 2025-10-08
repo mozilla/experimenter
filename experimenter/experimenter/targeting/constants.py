@@ -74,7 +74,7 @@ RECOMMENDED_OR_SPONSORED_STORIES_DISABLED = """
     )
     ||
     (
-        'browser.newtabpage.activity-stream.system.showSponsored' | preferenceValue
+        'browser.newtabpage.activity-stream.system.showSponsored'|preferenceValue
         &&
         !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
     )
@@ -109,19 +109,18 @@ ADS_DISABLED_BR_MX_2025_06_26 = TOPSITES_OR_SPONSORED_TOPSITES_DISABLED
 HAS_PRIVACY_SETTING = """
 (
     (
-        'browser.contentblocking.category'|preferenceValue) == "strict"
+        ('browser.contentblocking.category'|preferenceValue) == "strict"
         ||
-        'browser.contentblocking.category'|preferenceValue) == "custom"
+        ('browser.contentblocking.category'|preferenceValue) == "custom"
     )
     ||
     ('privacy.globalprivacycontrol.enabled'|preferenceValue)
     ||
     (
-        (
-            ('network.trr.mode'|preferenceValue) == 3
-            ||
-            ('doh-rollout.mode'|preferenceValue) == 3
-        )
+        ('network.trr.mode'|preferenceValue) == 3
+        ||
+        ('doh-rollout.mode'|preferenceValue) == 3
+    )
     ||
     ('dom.security.https_only_mode'|preferenceValue)
 )
@@ -143,21 +142,21 @@ HAS_AD_BLOCKER = """
 )
 """
 
-TOU_EXPERIENCE_TOTAL = """
+TOU_EXPERIENCE_TOTAL = f"""
 (
     (
         (
             (
                 '' + [
-                        ADS_DISABLED,
-                        HAS_PRIVACY_SETTING,
-                        HAS_AD_BLOCKER
+                        {ADS_DISABLED},
+                        {HAS_PRIVACY_SETTING},
+                        {HAS_AD_BLOCKER}
                     ]
-            ) | regExpMatch('true','g')
+            )|regExpMatch('true','g')
         )
         ||
         []
-    ) | length
+    )|length
 )
 """
 
@@ -3219,15 +3218,22 @@ TOU_EXPERIENCE_0 = NimbusTargetingConfig(
     name="TOU Experience 0",
     slug="tou_experience_0",
     description=(
-        "User has not accepted TOU V4 or higher and should see TOU experience 0"
+        "User has not accepted TOU V4 or higher and should see TOU experience 0, "
+        "and is on Mac or Windows"
     ),
     targeting=f"""
     (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
         !({ACCEPTED_TOU_V4_OR_HIGHER})
         &&
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
         &&
-        TOU_EXPERIENCE_TOTAL == 0
+        {TOU_EXPERIENCE_TOTAL} == 0
     )
     """,
     desktop_telemetry="",
@@ -3240,15 +3246,22 @@ TOU_EXPERIENCE_1 = NimbusTargetingConfig(
     name="TOU Experience 1",
     slug="tou_experience_1",
     description=(
-        "User has not accepted TOU V4 or higher and should see TOU experience 1"
+        "User has not accepted TOU V4 or higher and should see TOU experience 1, "
+        "and is on Mac or Windows"
     ),
     targeting=f"""
     (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
         !({ACCEPTED_TOU_V4_OR_HIGHER})
         &&
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
         &&
-        TOU_EXPERIENCE_TOTAL == 1
+        {TOU_EXPERIENCE_TOTAL} == 1
     )
     """,
     desktop_telemetry="",
@@ -3261,15 +3274,22 @@ TOU_EXPERIENCE_2 = NimbusTargetingConfig(
     name="TOU Experience 2",
     slug="tou_experience_2",
     description=(
-        "User has not accepted TOU V4 or higher and should see TOU experience 2"
+        "User has not accepted TOU V4 or higher and should see TOU experience 2, "
+        "and is on Mac or Windows"
     ),
     targeting=f"""
     (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
         !({ACCEPTED_TOU_V4_OR_HIGHER})
         &&
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
         &&
-        TOU_EXPERIENCE_TOTAL >= 2
+        {TOU_EXPERIENCE_TOTAL} >= 2
     )
     """,
     desktop_telemetry="",
