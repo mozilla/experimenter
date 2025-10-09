@@ -867,6 +867,12 @@ jobs:
           paths:
             - tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
             - tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
+      - store_artifacts:
+          path: ~/experimenter/experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+          destination: app-fenix-debug-androidTest.apk
+      - store_artifacts:
+          path: ~/experimenter/experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
+          destination: app-fenix-x86_64-debug.apk
 
 workflows:
   update_configs:
