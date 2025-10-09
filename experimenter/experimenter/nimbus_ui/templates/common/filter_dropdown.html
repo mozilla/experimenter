@@ -30,6 +30,7 @@
           hx-target="{{ hx_target }}"
           hx-select="{{ hx_select }}"
           hx-swap="outerHTML"
+          hx-push-url="true"
           class="m-0 {{ filter_name }}-filter">
       {% for form_field in form %}
         {% if form_field.name != filter_name and form_field.name != "sort" %}
