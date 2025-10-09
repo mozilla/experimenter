@@ -81,7 +81,7 @@ RECOMMENDED_OR_SPONSORED_STORIES_DISABLED = """
 )
 """
 SPONSORED_SEARCH_SUGGESTIONS_DISABLED = (
-    "!'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
+    "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet && !'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
 )
 ADS_DISABLED = f"""
 (
@@ -141,23 +141,65 @@ HAS_AD_BLOCKER = """
     )
 )
 """
+# Does not match any TOU experience conditions
+TOU_SCORE_0 = f"""
+    (
+        !{ADS_DISABLED}
+        &&
+        !{HAS_PRIVACY_SETTING}
+        &&
+        !{HAS_AD_BLOCKER}
+    )
+"""
 
-TOU_EXPERIENCE_TOTAL = f"""
-(
+# Matches exactly 1 TOU experience condition
+TOU_SCORE_1 = f"""
     (
         (
-            (
-                '' + [
-                        {ADS_DISABLED},
-                        {HAS_PRIVACY_SETTING},
-                        {HAS_AD_BLOCKER}
-                    ]
-            )|regExpMatch('true','g')
+            {ADS_DISABLED}
+            &&
+            !{HAS_PRIVACY_SETTING}
+            &&
+            !{HAS_AD_BLOCKER}
         )
         ||
-        []
-    )|length
-)
+        (
+            !{ADS_DISABLED}
+            &&
+            {HAS_PRIVACY_SETTING}
+            &&
+            !{HAS_AD_BLOCKER}
+        )
+        ||
+        (
+            !{ADS_DISABLED}
+            &&
+            !{HAS_PRIVACY_SETTING}
+            &&
+            {HAS_AD_BLOCKER}
+        )
+    )
+"""
+
+# Matches at least 2 TOU experience conditions
+TOU_SCORE_2 = f"""
+    (
+        (
+            {ADS_DISABLED}
+            && {HAS_PRIVACY_SETTING}
+        )
+        ||
+        (
+            {ADS_DISABLED}
+            && {HAS_AD_BLOCKER}
+        )
+        ||
+        (
+            {HAS_PRIVACY_SETTING}
+            &&
+            {HAS_AD_BLOCKER}
+        )
+    )
 """
 
 NO_TARGETING = NimbusTargetingConfig(
@@ -3233,7 +3275,7 @@ TOU_EXPERIENCE_0 = NimbusTargetingConfig(
         &&
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
         &&
-        {TOU_EXPERIENCE_TOTAL} == 0
+        {TOU_EXPERIENCE_0}
     )
     """,
     desktop_telemetry="",
@@ -3261,7 +3303,7 @@ TOU_EXPERIENCE_1 = NimbusTargetingConfig(
         &&
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
         &&
-        {TOU_EXPERIENCE_TOTAL} == 1
+        {TOU_EXPERIENCE_1}
     )
     """,
     desktop_telemetry="",
@@ -3289,7 +3331,7 @@ TOU_EXPERIENCE_2 = NimbusTargetingConfig(
         &&
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
         &&
-        {TOU_EXPERIENCE_TOTAL} >= 2
+        {TOU_EXPERIENCE_2}
     )
     """,
     desktop_telemetry="",
