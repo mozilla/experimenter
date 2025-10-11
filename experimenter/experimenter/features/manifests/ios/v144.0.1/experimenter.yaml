@@ -271,6 +271,16 @@ onboarding-framework-feature:
       type: boolean
       description: |
         Toggle between legacy (false) and modern (true) UI variants.
+pdf-refactor-feature:
+  description: |
+    The feature flag to manage the roll out of the pdf refactor feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
 recent-searches-feature:
   description: |
     Enables recent searches.
@@ -477,16 +487,6 @@ tracking-protection-refactor:
       type: boolean
       description: |
         Whether the Enhanced Tracking Protection refactor is enabled or not
-translations-feature:
-  description: |
-    Enables translations feature.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable translations feature.
 trending-searches-feature:
   description: |
     Enables trending searches.

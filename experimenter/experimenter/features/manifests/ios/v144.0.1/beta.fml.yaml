@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- developer
+- beta
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -10,7 +10,7 @@ features:
       status:
         description: If true, we will allow user to edit the address
         type: Boolean
-        default: true
+        default: false
   address-bar-menu-feature:
     description: |
       This property determines if we show the new address bar menu entry or the toolbar menu in settings
@@ -63,7 +63,7 @@ features:
         description: |
           If true, page zoom settings and default zoom feature are shown
         type: Boolean
-        default: true
+        default: false
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
@@ -72,7 +72,7 @@ features:
         description: |
           If true, the download live activities feature is enabled
         type: Boolean
-        default: true
+        default: false
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
@@ -99,7 +99,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: true
+        default: false
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -271,16 +271,6 @@ features:
               - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
-          survey-surface-message:
-            surface: survey
-            style: SURVEY
-            trigger-if-all:
-            - NEVER
-            text: ResearchSurface/Body.Text.v112
-            button-label: ResearchSurface/PrimaryButton.Label.v112
-            action: OPEN_URL
-            action-params:
-              url: https://www.macrumors.com
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -363,7 +353,7 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: true
+        default: false
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
@@ -619,6 +609,15 @@ features:
           Toggle between legacy (false) and modern (true) UI variants.
         type: Boolean
         default: false
+  pdf-refactor-feature:
+    description: |
+      The feature flag to manage the roll out of the pdf refactor feature.
+    variables:
+      enabled:
+        description: |
+          Enables the feature.
+        type: Boolean
+        default: true
   recent-searches-feature:
     description: |
       Enables recent searches.
@@ -649,7 +648,7 @@ features:
         description: |
           Whether the rust FxA keychain logic is enabled. When enabled, the rust keychain is used to store and retrieve encryption key data for the FxA rust comoponent. Otherwise, the pre-existing MZKeychainWrapper logic is used.
         type: Boolean
-        default: true
+        default: false
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
@@ -672,7 +671,7 @@ features:
         description: |
           Enables the feature
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: |
       A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
@@ -686,19 +685,19 @@ features:
         description: |
           The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
         type: Int
-        default: 6000
+        default: 0
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
         type: Boolean
-        default: true
+        default: false
       icon-type:
         description: |
           The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
         type: Option<IconType>
-        default: screenshot
+        default: letter
       keep-for-days:
         description: |
           Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
@@ -738,7 +737,7 @@ features:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
         type: Boolean
-        default: true
+        default: false
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -765,12 +764,12 @@ features:
         description: |
           Enables the middle button customization for navigation toolbar.
         type: Boolean
-        default: true
+        default: false
       minimal_address_bar:
         description: |
           Enables minimal address bar mode on scroll to ensure the url is always visible.
         type: Boolean
-        default: true
+        default: false
       navigation_hint:
         description: |
           If true, enables the navigation contextual hint.
@@ -828,15 +827,6 @@ features:
           Whether the Enhanced Tracking Protection refactor is enabled or not
         type: Boolean
         default: true
-  translations-feature:
-    description: |
-      Enables translations feature.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable translations feature.
-        type: Boolean
-        default: false
   trending-searches-feature:
     description: |
       Enables trending searches.
