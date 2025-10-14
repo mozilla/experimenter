@@ -6,14 +6,6 @@ data-broker-removal-time-estimates:
     enabled:
       type: boolean
       description: If the feature is enabled
-data-privacy-petition-banner:
-  description: Show the data privacy petition banner to US users
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If the feature is enabled
 example-feature:
   description: An example feature
   hasExposure: true
