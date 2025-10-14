@@ -477,6 +477,16 @@ tracking-protection-refactor:
       type: boolean
       description: |
         Whether the Enhanced Tracking Protection refactor is enabled or not
+translations-feature:
+  description: |
+    Enables translations feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable translations feature.
 trending-searches-feature:
   description: |
     Enables trending searches.

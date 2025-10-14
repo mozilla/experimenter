@@ -4811,6 +4811,16 @@ backupService:
       setPref:
         branch: user
         pref: browser.backup.scheduled.minimum-time-between-backups-seconds
+    archiveKillswitch:
+      type: boolean
+      default: false
+      description: >-
+        Disables backup archiving, overrides all other configs when true.
+    restoreKillswitch:
+      type: boolean
+      default: false
+      description: >-
+        Disables backup restoration, overrides all other configs when true.
 
 pqcrypto:
   description: Prefs that control the use of post-quantum cryptography.
