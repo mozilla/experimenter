@@ -66,7 +66,7 @@ PyYAML = "^6.0"
 redis = "4.6.0"
 requests = { version = "2.32.4", extras = ["security"] }
 responses = "0.25.0"
-ruff = "^0.13.0"
+ruff = "^0.14.0"
 sentry-sdk = "^2.41.0"
 sqlparse = "0.5.0"
 tblib = "1.7.0"
@@ -76,7 +76,7 @@ uritemplate = "3.0.1"
 whitenoise = "5.3.0"
 inflection = "^0.5.1"
 pytest = "^8.4.0"
-pyjwt = {extras = ["crypto"], version = "^2.10.1"}
+pyjwt = { extras = ["crypto"], version = "^2.10.1" }
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
@@ -170,6 +170,7 @@ ignore = [
     "A005",
     "B017",
     "B035",
+    "B905",
     "DJ001",
     "DJ006",
     "DJ012",
