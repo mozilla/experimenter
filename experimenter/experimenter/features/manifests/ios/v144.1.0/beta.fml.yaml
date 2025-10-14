@@ -662,7 +662,7 @@ features:
         description: |
           Enables the feature
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: |
       A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
@@ -818,6 +818,15 @@ features:
           Whether the Enhanced Tracking Protection refactor is enabled or not
         type: Boolean
         default: true
+  translations-feature:
+    description: |
+      Enables translations feature.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable translations feature.
+        type: Boolean
+        default: false
   trending-searches-feature:
     description: |
       Enables trending searches.
