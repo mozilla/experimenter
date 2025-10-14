@@ -14,7 +14,8 @@
             hx-get="{% url 'nimbus-ui-features' %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
             hx-select="#features-form"
             hx-target="#features-form"
-            hx-swap="outerHTML">
+            hx-swap="outerHTML"
+            hx-select-oob="#results">
         {% csrf_token %}
         <div class="card mb-3">
           <div class="card-body bg-primary-subtle">
@@ -33,7 +34,8 @@
           </div>
         </div>
       </form>
-      <div class="mt-5 card shadow-sm border-0 px-3 py-4 h-100 rounded-3 bg-primary-subtle">
+      <div id="results"
+           class="card shadow-sm p-3 border-0 h-100 rounded-3 bg-primary-subtle">
         <h5 class="fw-semibold">
           <img src="{% static 'assets/my-deliveries.svg' %}"
                alt="Hugging Foxes"
@@ -58,7 +60,7 @@
                 </tr>
               </thead>
               <tbody>
-                {% for experiment in experiments %}
+                {% for experiment in experiments_delivered %}
                   <tr scope="row">
                     <td id="delivery-name">
                       <a target="_blank"
@@ -83,7 +85,130 @@
             </table>
           </div>
         </div>
+        <hr>
+        <h5 class="fw-semibold">
+          <img src="{% static 'assets/my-deliveries.svg' %}"
+               alt="Hugging Foxes"
+               style="width: 60px;
+                      height: auto" />
+          QA Runs
+        </h5>
+        <div>
+          <div id="qa-info-table">
+            <table class="table table-hover table-borderless align-middle mb-3">
+              <thead>
+                <tr>
+                  <th>Request Link</th>
+                  <th>Run Date</th>
+                  <th>Run Type</th>
+                  <th>Status</th>
+                  <th>Test Plan</th>
+                  <th>TestRail Link</th>
+                </thead>
+                <tbody>
+                  {% for experiment in experiments_with_qa_status %}
+                    <tr scope="row">
+                      <td id="qa-run">Request for: {{ experiment.name|default:forloop.counter }}</td>
+                      <td id="qa-run-date">
+                        <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_date|format_not_set }}</a>
+                      </td>
+                      <td id="qa-run-type">
+                        <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_type|format_not_set }}</a>
+                      </td>
+                      <td id="qa-run-status">
+                        <div>
+                          {% with icon_info=experiment.qa_status_icon_info %}
+                            {% if icon_info.icon %}<span class="{{ icon_info.color }}"><i class="{{ icon_info.icon }}"></i></span>{% endif %}
+                          {% endwith %}
+                          {{ experiment.get_qa_status_display }}
+                        </div>
+                      </td>
+                      <td id="qa-test-plan">
+                        <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_test_plan|format_not_set }}</a>
+                      </td>
+                      <td id="qa-testrail-link">
+                        <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_testrail_link|format_not_set }}</a>
+                      </td>
+                    {% empty %}
+                      <tr>
+                        <td colspan="12" class="fw-semibold text-center p-4">
+                          <h4>No QA Runs</h4>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <div>
+                  {% if qa_runs_page_obj.has_other_pages %}
+                    {% with current_sort=request.GET.sort %}
+                      <div id="pagination" class="row">
+                        <div class="col text-center">
+                          <ul class="pagination justify-content-center">
+                            {% if qa_runs_page_obj.has_previous %}
+                              <li class="page-item">
+                                <a class="page-link" href="{% pagination_url 1 %}"><i class="fa-solid fa-angles-left"></i></a>
+                              </li>
+                              <li class="page-item">
+                                <a class="page-link"
+                                   hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&qa_runs={{ qa_runs_page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                   hx-target="#qa-info-table"
+                                   hx-select="#qa-info-table"
+                                   hx-swap="outerHTML"
+                                   hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
+                              </li>
+                            {% else %}
+                              <li class="page-item disabled">
+                                <a class="page-link" href="#">
+                                  <i class="fa-solid fa-angles-left"></i>
+                                </a>
+                              </li>
+                              <li class="page-item disabled">
+                                <a class="page-link" href="#">
+                                  <i class="fa-solid fa-angle-left"></i>
+                                </a>
+                              </li>
+                            {% endif %}
+                            <li class="page-item">
+                              <div class="page-link">
+                                <a>{{ qa_runs_page_obj.number }} of {{ qa_runs_page_obj.paginator.num_pages }}</a>
+                              </li>
+                              {% if qa_runs_page_obj.has_next %}
+                                <li class="page-item">
+                                  <a class="page-link"
+                                     hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&qa_runs={{ qa_runs_page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                     hx-target="#qa-info-table"
+                                     hx-select="#qa-info-table"
+                                     hx-swap="outerHTML"
+                                     hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
+                                </a>
+                              </li>
+                              <li class="page-item">
+                                <a class="page-link"
+                                   href="{% pagination_url qa_runs_page_obj.paginator.num_pages %}">
+                                  <i class="fa-solid fa-angles-right"></i>
+                                </a>
+                              </li>
+                            {% else %}
+                              <li class="page-item disabled">
+                                <a class="page-link" href="#">
+                                  <i class="fa-solid fa-angle-right"></i>
+                                </a>
+                              </li>
+                              <li class="page-item disabled">
+                                <a class="page-link" href="#">
+                                  <i class="fa-solid fa-angles-right"></i>
+                                </a>
+                              </li>
+                            {% endif %}
+                          </ul>
+                        </div>
+                      </div>
+                    {% endwith %}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-{% endblock %}
+    {% endblock %}
