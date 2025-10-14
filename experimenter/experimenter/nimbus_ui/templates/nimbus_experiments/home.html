@@ -65,6 +65,7 @@
                hx-get="{% url 'nimbus-ui-home' %}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
                hx-target="#my-deliveries-table-section"
                hx-select="#my-deliveries-table-section"
+               hx-push-url="true"
                title="Clear all applied filters">
               <i class="fa-solid fa-rotate-left me-1"></i>
               Reset Filters
@@ -76,6 +77,7 @@
                   hx-target="#my-deliveries-table-section"
                   hx-trigger="change"
                   hx-include=".status-filter input[name='status']:checked, .type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked, .feature-filter input[name='feature_configs']:checked"
+                  hx-push-url="true"
                   class="d-inline-block">
               <div class="form-group mb-0">
                 {% render_field my_deliveries_filter.form.my_deliveries_status class="form-select form-select-sm w-auto" %}
