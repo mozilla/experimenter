@@ -11,13 +11,6 @@ features:
         description: If the feature is enabled
         type: Boolean
         default: true
-  data-privacy-petition-banner:
-    description: Show the data privacy petition banner to US users
-    variables:
-      enabled:
-        description: If the feature is enabled
-        type: Boolean
-        default: true
   example-feature:
     description: An example feature
     variables:
