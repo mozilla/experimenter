@@ -11,7 +11,7 @@ LOGGER = logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 class XCodeBuild:
     def __init__(self, log, **kwargs):
-        self.device = os.getenv("IOS_DEVICE", "iPhone 16")
+        self.device = os.getenv("SIMULATOR_DEVICE", "iPhone 16")
         self.ios_version = os.getenv("IOS_VERSION", "18.1")
         self.binary = "xcodebuild"
         self.destination = (
