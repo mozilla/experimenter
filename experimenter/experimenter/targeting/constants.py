@@ -2534,7 +2534,7 @@ TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingCo
     targeting="user_accepted_tou == false && no_shortcuts_or_stories_opt_outs == true",
     desktop_telemetry="",
     sticky_required=False,
-    is_first_run_required=False,
+    is_first_run_required=True,
     application_choice_names=(Application.FENIX.name,),
 )
 
