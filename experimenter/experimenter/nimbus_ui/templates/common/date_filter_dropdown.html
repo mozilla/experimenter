@@ -49,7 +49,8 @@
                    hx-swap="outerHTML"
                    hx-trigger="change"
                    hx-include="input:checked, select"
-                   hx-vals='{"date_range": "{{ choice_value }}"}'>
+                   hx-vals='{"date_range": "{{ choice_value }}"}'
+                   hx-push-url="true">
             <label class="form-check-label" for="date_range-{{ choice_value }}">{{ choice_label }}</label>
           </div>
         {% endif %}
@@ -68,7 +69,8 @@
                hx-swap="outerHTML"
                hx-trigger="change"
                hx-include="input:checked, select, input[name='start_date'], input[name='end_date']"
-               hx-vals='{"date_range": "custom"}'>
+               hx-vals='{"date_range": "custom"}'
+               hx-push-url="true">
         <label class="form-check-label w-100" for="date_range-custom">
           <div class="d-flex flex-column">
             <span class="mb-2">Custom Date Range:</span>
@@ -87,7 +89,8 @@
                      hx-swap="outerHTML"
                      hx-trigger="change delay:500ms"
                      hx-include="input:checked, select, input[name='start_date'], input[name='end_date']"
-                     hx-vals='{"date_range": "custom"}'>
+                     hx-vals='{"date_range": "custom"}'
+                     hx-push-url="true">
             </div>
             <div class="d-flex align-items-center">
               <label class="me-2" style="min-width: 80px;">End Date:</label>
@@ -104,7 +107,8 @@
                      hx-swap="outerHTML"
                      hx-trigger="change delay:500ms"
                      hx-include="input:checked, select, input[name='start_date'], input[name='end_date']"
-                     hx-vals='{"date_range": "custom"}'>
+                     hx-vals='{"date_range": "custom"}'
+                     hx-push-url="true">
             </div>
           </div>
         </label>
