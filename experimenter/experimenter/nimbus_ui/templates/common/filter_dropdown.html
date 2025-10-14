@@ -69,7 +69,7 @@
                    name="{{ filter_name }}"
                    id="{{ filter_name }}-{{ value|slugify }}"
                    value="{{ value }}"
-                   {% if selected_values and value in selected_values %}checked{% endif %}>
+                   {% if selected_values and value|to_str in selected_values %}checked{% endif %}>
             <label class="form-check-label" for="{{ filter_name }}-{{ value|slugify }}">{{ label }}</label>
           </div>
         {% endfor %}
