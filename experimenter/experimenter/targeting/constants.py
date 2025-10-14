@@ -81,7 +81,8 @@ RECOMMENDED_OR_SPONSORED_STORIES_DISABLED = """
 )
 """
 SPONSORED_SEARCH_SUGGESTIONS_DISABLED = (
-    "!'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
+    "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet "
+    "&& !'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
 )
 ADS_DISABLED = f"""
 (
