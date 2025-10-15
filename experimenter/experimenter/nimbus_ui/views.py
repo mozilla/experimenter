@@ -137,6 +137,11 @@ class NimbusExperimentViewMixin:
             if experiment and experiment.slug
             else []
         )
+
+        context["common_sidebar_links"] = NimbusUIConstants.SIDEBAR_COMMON_LINKS
+        context["slug_underscore"] = (
+            experiment.slug.replace("-", "_") if experiment and experiment.slug else ""
+        )
         return context
 
 
