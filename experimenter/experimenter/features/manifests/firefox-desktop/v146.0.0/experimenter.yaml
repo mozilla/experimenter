@@ -287,6 +287,12 @@ urlbar:
       description: >-
         Feature gate that controls whether all aspects of the Fakespot suggestion
         feature are exposed to the user.
+    flightStatusFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.flightStatus.featureGate
+      description: >-
+        Feature gate that controls whether all aspects of flight status suggestions
+        feature are exposed to the user.
     importantDatesFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.importantDates.featureGate
