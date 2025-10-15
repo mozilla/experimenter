@@ -3163,7 +3163,9 @@ TOU_NOT_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
 TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Mac or Windows users accepted TOU version 4 and Sponsored TopSites enabled",
     slug="tou_accepted_mac_win_newtab_sponsored_topsites_enabled",
-    description="TOU version 4 or higher accepted, Mac or Win, and Sponsored TopSites enabled",
+    description=(
+        "TOU version 4 or higher accepted, Mac or Win, and Sponsored TopSites enabled"
+    ),
     targeting=f"""
     (
         (
