@@ -144,21 +144,13 @@ HAS_AD_BLOCKER = """
 """
 
 TOU_EXPERIENCE_TOTAL = f"""
-(
     (
-        (
-            (
-                '' + [
-                        {ADS_DISABLED},
-                        {HAS_PRIVACY_SETTING},
-                        {HAS_AD_BLOCKER}
-                    ]
-            )|regExpMatch('true','g')
-        )
-        ||
-        []
-    )|length
-)
+        ({ADS_DISABLED} && 1 || 0)
+        +
+        ({HAS_PRIVACY_SETTING} && 1 || 0)
+        +
+        ({HAS_AD_BLOCKER} && 1 || 0)
+    )
 """
 
 NO_TARGETING = NimbusTargetingConfig(
