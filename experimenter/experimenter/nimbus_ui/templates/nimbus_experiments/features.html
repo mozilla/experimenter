@@ -109,12 +109,8 @@
                   {% for experiment in experiments_with_qa_status %}
                     <tr scope="row">
                       <td id="qa-run">Request for: {{ experiment.name|default:forloop.counter }}</td>
-                      <td id="qa-run-date">
-                        <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_date|format_not_set }}</a>
-                      </td>
-                      <td id="qa-run-type">
-                        <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_type|format_not_set }}</a>
-                      </td>
+                      <td id="qa-run-date">{{ experiment.qa_run_date|format_not_set }}</td>
+                      <td id="qa-run-type">{{ experiment.qa_run_type|format_not_set }}</td>
                       <td id="qa-run-status">
                         <div>
                           {% with icon_info=experiment.qa_status_icon_info %}
@@ -123,12 +119,8 @@
                           {{ experiment.get_qa_status_display }}
                         </div>
                       </td>
-                      <td id="qa-test-plan">
-                        <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_test_plan|format_not_set }}</a>
-                      </td>
-                      <td id="qa-testrail-link">
-                        <a target="_blank" href="" class="text-decoration-none fw-medium">{{ experiment.qa_run_testrail_link|format_not_set }}</a>
-                      </td>
+                      <td id="qa-test-plan">{{ experiment.qa_run_test_plan|format_not_set }}</td>
+                      <td id="qa-testrail-link">{{ experiment.qa_run_testrail_link|format_not_set }}</td>
                     {% empty %}
                       <tr>
                         <td colspan="12" class="fw-semibold text-center p-4">

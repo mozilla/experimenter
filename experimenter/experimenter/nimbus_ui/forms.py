@@ -1480,7 +1480,7 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
 
 class FeaturesForm(forms.ModelForm):
     def get_feature_config_choices(self, application, qs):
-        choices = []
+        choices = [("", "Nothing selected")]
         choices.extend(
             sorted(
                 [
