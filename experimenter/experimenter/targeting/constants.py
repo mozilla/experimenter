@@ -2362,7 +2362,7 @@ IOS_NOT_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
 IOS_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
     name="Existing Users Who Have Not Accepted Terms of Use",
     slug="ios_existing_users_not_accepted_terms_of_use",
-    description="Users that have not accepted the Terms of Use AND have been using the app for 28+ days",
+    description="Existing users for 28+ days who have not accepted Terms of Use",
     targeting="has_accepted_terms_of_use == false && days_since_install >= 28",
     desktop_telemetry="",
     sticky_required=False,
