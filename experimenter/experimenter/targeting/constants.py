@@ -2367,7 +2367,7 @@ IOS_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
-    application_choice_names=(Application.IOS.name,)
+    application_choice_names=(Application.IOS.name,),
 )
 
 IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
