@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, re_path
+from django.views.generic.base import RedirectView
 
 from experimenter.legacy.legacy_experiments.views import (
     ExperimentListView,
@@ -31,6 +32,12 @@ urlpatterns = [
     re_path(r"^experiments/", include("experimenter.legacy.legacy_experiments.urls")),
     re_path(r"^all/", include("experimenter.nimbus_ui.urls")),
     re_path(r"^all/$", NimbusExperimentsListView.as_view(), name="nimbus-list"),
+    # Redirect old /nimbus/* URLs to /all/*
+    re_path(r"^nimbus/$", RedirectView.as_view(url="/all/", permanent=True)),
+    re_path(
+        r"^nimbus/(?P<path>.*)$",
+        RedirectView.as_view(url="/all/%(path)s", permanent=True),
+    ),
     re_path(r"^legacy/$", ExperimentListView.as_view(), name="home"),
 ]
 
