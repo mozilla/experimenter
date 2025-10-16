@@ -1479,32 +1479,30 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
 
 
 class FeaturesForm(forms.ModelForm):
+    def get_feature_config_choices(self, application, qs):
+        choices = [("", "Nothing selected")]
+        choices.extend(
+            sorted(
+                [
+                    (feature.pk, f"{feature.name} - {feature.description}")
+                    for feature in qs
+                ],
+                key=lambda choice: choice[1].lower(),
+            )
+        )
+        return choices
+
     application = forms.ChoiceField(
-        label="",
-        choices=NimbusExperiment.Application.choices,
-        widget=forms.widgets.Select(
-            attrs={
-                "class": "form-select",
-            },
-        ),
-        initial=NimbusExperiment.Application.DESKTOP.value,
+        required=False,
+        choices=[("", "Nothing selected"), *list(NimbusExperiment.Application.choices)],
+        widget=SingleSelectWidget(),
     )
     feature_configs = forms.ChoiceField(
-        label="",
-        choices=[],
+        required=False,
+        choices=[("", "Nothing selected")],
         widget=SingleSelectWidget(),
     )
     update_on_change_fields = ("application", "feature_configs")
-
-    def get_feature_config_choices(self, application, qs):
-        return sorted(
-            [
-                (application.pk, f"{application.name} - {application.description}")
-                for application in NimbusFeatureConfig.objects.all()
-                if application in qs
-            ],
-            key=lambda choice: choice[1].lower(),
-        )
 
     class Meta:
         model = NimbusFeatureConfig
@@ -1513,15 +1511,18 @@ class FeaturesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        selected_app = self.data.get("application") or self.get_initial_for_field(
-            self.fields["application"], "application"
-        )
-        features = NimbusFeatureConfig.objects.filter(application=selected_app).order_by(
-            "slug"
-        )
-        self.fields["feature_configs"].choices = self.get_feature_config_choices(
-            selected_app, features
-        )
+        # Default: nothing selected for application and features
+        selected_app = self.data.get("application") or self.initial.get("application")
+        if selected_app:
+            features = NimbusFeatureConfig.objects.filter(
+                application=selected_app
+            ).order_by("slug")
+            self.fields["feature_configs"].choices = self.get_feature_config_choices(
+                selected_app, features
+            )
+
+        self.fields["application"].initial = ""
+        self.fields["feature_configs"].initial = ""
 
         base_url = reverse("nimbus-ui-features")
         htmx_attrs = {

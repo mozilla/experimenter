@@ -99,7 +99,7 @@
               <th>Feature config</th>
               <td>
                 {% for feature in experiment.feature_configs.all %}
-                  {{ feature.name }} - {{ feature.description }}
+                  <p>{{ feature.name }} - {{ feature.description }}</p>
                 {% empty %}
                   <span class="text-danger">Not set</span>
                 {% endfor %}
@@ -248,10 +248,17 @@
               <td>{{ experiment.firefox_max_version|parse_version }}</td>
             </tr>
             <tr>
-              <th>Locales</th>
-              <td>
-                {{ experiment.locales.all|join:"<br>"|default:"All Locales" }}
-              </td>
+              {% if experiment.is_mobile %}
+                <th>Languages</th>
+                <td>
+                  {{ experiment.languages.all|join:"<br>"|default:"All Languages" }}
+                </td>
+              {% else %}
+                <th>Locales</th>
+                <td>
+                  {{ experiment.locales.all|join:"<br>"|default:"All Locales" }}
+                </td>
+              {% endif %}
               <th>Countries</th>
               <td>
                 {{ experiment.countries.all|join:"<br>"| default:"All Countries" }}

@@ -11,13 +11,6 @@ features:
         description: If the feature is enabled
         type: Boolean
         default: true
-  data-privacy-petition-banner:
-    description: Show the data privacy petition banner to US users
-    variables:
-      enabled:
-        description: If the feature is enabled
-        type: Boolean
-        default: false
   example-feature:
     description: An example feature
     variables:
@@ -58,13 +51,6 @@ features:
         description: If the feature is enabled
         type: Boolean
         default: true
-  moscary:
-    description: Use the Moscary API
-    variables:
-      enabled:
-        description: If the feature is enabled
-        type: Boolean
-        default: false
   welcome-scan-optional-info:
     description: Show additional optional input fields for the data broker scan
     variables:

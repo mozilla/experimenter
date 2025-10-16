@@ -646,13 +646,56 @@ class NimbusFeaturesView(TemplateView):
     def get_form(self):
         return FeaturesForm(self.request.GET or None)
 
+    def get_queryset(self):
+        qs = (
+            NimbusExperiment.objects.with_merged_channel()
+            .filter(is_archived=False)
+            .order_by("-_updated_date_time")
+        )
+
+        app = self.request.GET.get("application")
+        if app:
+            qs = qs.filter(application=app)
+
+        feature_id = self.request.GET.get("feature_configs")
+        if feature_id:
+            qs = (
+                qs.filter(feature_configs=feature_id)
+                .distinct()
+                .order_by(self.request.GET.get("sort", "name"))
+            )
+        else:
+            return qs.none()
+        return qs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = self.get_form()
-        context["form"] = form
-        context["links"] = NimbusUIConstants.FEATURE_PAGE_LINKS
-        context["application"] = self.request.GET.get("application")
-        context["feature_configs"] = self.request.GET.get("feature_configs")
+        qs = self.get_queryset()
+
+        deliveries_paginator = Paginator(qs, 5)
+        page_number = self.request.GET.get("deliveries_page") or 1
+        deliveries_page_obj = deliveries_paginator.get_page(page_number)
+
+        experiments_with_qa_status = qs.exclude(
+            qa_status=NimbusExperiment.QAStatus.NOT_SET.value
+        )
+
+        qa_runs_paginator = Paginator(experiments_with_qa_status, 5)
+        qa_runs_page_number = self.request.GET.get("qa_runs") or 1
+        qa_runs_page_obj = qa_runs_paginator.get_page(qa_runs_page_number)
+
+        context = {
+            "form": form,
+            "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
+            "application": self.request.GET.get("application"),
+            "feature_configs": self.request.GET.get("feature_configs"),
+            "paginator": deliveries_paginator,
+            "page_obj": deliveries_page_obj,
+            "experiments_delivered": deliveries_page_obj.object_list,
+            "qa_runs_page_obj": qa_runs_page_obj,
+            "experiments_with_qa_status": qa_runs_page_obj.object_list,
+        }
         return context
 
 

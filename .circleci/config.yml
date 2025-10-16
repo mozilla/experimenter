@@ -3,7 +3,7 @@ orbs:
   gh: circleci/github-cli@2.2
   gcp-cli: circleci/gcp-cli@3.3.1
   android: circleci/android@2.5.0
-  macos: circleci/macos@2.5.2
+  macos: circleci/macos@2.5.4
 commands:
   check_file_paths:
     description: "Check file paths"
@@ -519,7 +519,8 @@ jobs:
 
   integration_nimbus_ios_enrollment:
     macos:
-      xcode: 16.2
+      xcode: << parameters.ios_version >>
+    resource_class: m4pro.medium
     parameters:
       file_path:
         type: string
@@ -560,6 +561,7 @@ jobs:
             git checkout "$BRANCH"
             sh ./bootstrap.sh
             cd firefox-ios
+            xcodebuild -downloadComponent MetalToolchain
             xcodebuild build-for-testing -scheme Fennec -target Client -destination 'platform=iOS Simulator,name=<< parameters.simulator_device >>,OS=<< parameters.ios_version >>' COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ARCHS="arm64"
       - run:
           name: Run Tests
@@ -867,6 +869,12 @@ jobs:
           paths:
             - tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
             - tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
+      - store_artifacts:
+          path: ~/experimenter/experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+          destination: app-fenix-debug-androidTest.apk
+      - store_artifacts:
+          path: ~/experimenter/experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
+          destination: app-fenix-x86_64-debug.apk
 
 workflows:
   update_configs:
@@ -928,6 +936,7 @@ workflows:
             branches:
               only:
                 - update_firefox_versions
+                - fix-13658
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
           filters:
@@ -986,27 +995,17 @@ workflows:
               only:
                 - update_firefox_versions
       - integration_nimbus_ios_enrollment:
-          name: Test Firefox for iOS Beta
-          requires:
-            - Create Fenix and iOS recipes
-          file_path: experimenter/tests/firefox_fennec_beta_build.env
-          ios_version: "18.2"
-          simulator_device: iPhone 16
-          filters:
-            branches:
-              only:
-                - update_firefox_versions
-      - integration_nimbus_ios_enrollment:
           name: Test Firefox for iOS Release
           requires:
             - Create Fenix and iOS recipes
           file_path: experimenter/tests/firefox_fennec_release_build.env
-          ios_version: "18.2"
-          simulator_device: iPhone 16
+          ios_version: "26.0"
+          simulator_device: iPhone 17
           filters:
             branches:
               only:
                 - update_firefox_versions
+                - fix-13658
       - integration_nimbus_sdk_targeting:
           name: Test SDK Targeting (Release Firefox)
           filters:

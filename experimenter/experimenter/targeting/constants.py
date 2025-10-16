@@ -74,14 +74,15 @@ RECOMMENDED_OR_SPONSORED_STORIES_DISABLED = """
     )
     ||
     (
-        'browser.newtabpage.activity-stream.system.showSponsored' | preferenceValue
+        'browser.newtabpage.activity-stream.system.showSponsored'|preferenceValue
         &&
         !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
     )
 )
 """
 SPONSORED_SEARCH_SUGGESTIONS_DISABLED = (
-    "!'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
+    "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet "
+    "&& !'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
 )
 ADS_DISABLED = f"""
 (
@@ -109,19 +110,18 @@ ADS_DISABLED_BR_MX_2025_06_26 = TOPSITES_OR_SPONSORED_TOPSITES_DISABLED
 HAS_PRIVACY_SETTING = """
 (
     (
-        'browser.contentblocking.category'|preferenceValue) == "strict"
+        ('browser.contentblocking.category'|preferenceValue) == "strict"
         ||
-        'browser.contentblocking.category'|preferenceValue) == "custom"
+        ('browser.contentblocking.category'|preferenceValue) == "custom"
     )
     ||
     ('privacy.globalprivacycontrol.enabled'|preferenceValue)
     ||
     (
-        (
-            ('network.trr.mode'|preferenceValue) == 3
-            ||
-            ('doh-rollout.mode'|preferenceValue) == 3
-        )
+        ('network.trr.mode'|preferenceValue) == 3
+        ||
+        ('doh-rollout.mode'|preferenceValue) == 3
+    )
     ||
     ('dom.security.https_only_mode'|preferenceValue)
 )
@@ -143,22 +143,14 @@ HAS_AD_BLOCKER = """
 )
 """
 
-TOU_EXPERIENCE_TOTAL = """
-(
+TOU_EXPERIENCE_TOTAL = f"""
     (
-        (
-            (
-                '' + [
-                        ADS_DISABLED,
-                        HAS_PRIVACY_SETTING,
-                        HAS_AD_BLOCKER
-                    ]
-            ) | regExpMatch('true','g')
-        )
-        ||
-        []
-    ) | length
-)
+        ({ADS_DISABLED} && 1 || 0)
+        +
+        ({HAS_PRIVACY_SETTING} && 1 || 0)
+        +
+        ({HAS_AD_BLOCKER} && 1 || 0)
+    )
 """
 
 NO_TARGETING = NimbusTargetingConfig(
@@ -1082,9 +1074,9 @@ WIN10_EOS_SYNC_TOAST_ROLLOUT_ELIGIBLE = NimbusTargetingConfig(
     description="Users in the Windows 10 EOS Sync rollout",
     targeting=(
         "isBackgroundTaskMode && (("
-        "defaultProfile.enrollmentsMap['optin-windows-10-eos-sync-messaging-rollout'] "
+        "defaultProfile.enrollmentsMap['optin-windows-10-eos-sync-messaging-rollout-1'] "
         "== 'treatment-a')"
-        " || (defaultProfile.enrollmentsMap['windows-10-eos-sync-messaging-rollout'] "
+        " || (defaultProfile.enrollmentsMap['windows-10-eos-sync-messaging-rollout-1'] "
         "== 'treatment-a'))"
     ),
     desktop_telemetry="",
@@ -2367,6 +2359,17 @@ IOS_NOT_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+IOS_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
+    name="Existing Users Who Have Not Accepted Terms of Use",
+    slug="ios_existing_users_not_accepted_terms_of_use",
+    description="Existing users for 28+ days who have not accepted Terms of Use",
+    targeting="has_accepted_terms_of_use == false && days_since_install >= 28",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
     name="Apple Intelligence Available Users",
     slug="ios_apple_intelligence_available_user",
@@ -2477,17 +2480,6 @@ ANDROID_LATER_APP_LAUNCH_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-IOS_REVIEW_CHECKER_ENABLED_USERS_ONLY = NimbusTargetingConfig(
-    name="Review checker enabled users only",
-    slug="ios_review_checker_enabled_users_only",
-    description="Targeting users who have opted in review checker",
-    targeting="is_review_checker_enabled",
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.IOS.name,),
-)
-
 ANDROID_DMA_USERS_ONLY = NimbusTargetingConfig(
     name="DMA users only",
     slug="android_dma_users_only",
@@ -2544,30 +2536,6 @@ TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingCo
         "and have NOT opted out of any sponsored content"
     ),
     targeting="user_accepted_tou == false && no_shortcuts_or_stories_opt_outs == true",
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name,),
-)
-
-TOU_TARGETING_ANDROID_CLICKED_A_PROMPT_LINK = NimbusTargetingConfig(
-    name="Users that have clicked a Terms of Use prompt link.",
-    slug="user_clicked_tou_prompt_link",
-    description="Targeting users that have clicked a Terms of Use prompt link.",
-    targeting="user_clicked_tou_prompt_link == true",
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name,),
-)
-
-TOU_TARGETING_ANDROID_CLICKED_REMIND_ME_LATER = NimbusTargetingConfig(
-    name="Users that have clicked remind me later on the Terms of Use prompt.",
-    slug="user_clicked_tou_prompt_link_remind_me_later",
-    description=(
-        "Targeting users that have clicked remind me later on the Terms of Use prompt."
-    ),
-    targeting="user_clicked_tou_prompt_remind_me_later == true",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -3203,6 +3171,31 @@ TOU_NOT_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
+    name="Mac or Windows users accepted TOU version 4 and Sponsored TopSites enabled",
+    slug="tou_accepted_mac_win_newtab_sponsored_topsites_enabled",
+    description=(
+        "TOU version 4 or higher accepted, Mac or Win, and Sponsored TopSites enabled"
+    ),
+    targeting=f"""
+    (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
+        {ACCEPTED_TOU_V4_OR_HIGHER}
+        &&
+        'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIN10_FIREFOX_VPN_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10 users eligible for Firefox VPN",
     slug="win10_firefox_vpn",
@@ -3230,15 +3223,22 @@ TOU_EXPERIENCE_0 = NimbusTargetingConfig(
     name="TOU Experience 0",
     slug="tou_experience_0",
     description=(
-        "User has not accepted TOU V4 or higher and should see TOU experience 0"
+        "User has not accepted TOU V4 or higher and should see TOU experience 0, "
+        "and is on Mac or Windows"
     ),
     targeting=f"""
     (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
         !({ACCEPTED_TOU_V4_OR_HIGHER})
         &&
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
         &&
-        TOU_EXPERIENCE_TOTAL == 0
+        {TOU_EXPERIENCE_TOTAL} == 0
     )
     """,
     desktop_telemetry="",
@@ -3251,15 +3251,22 @@ TOU_EXPERIENCE_1 = NimbusTargetingConfig(
     name="TOU Experience 1",
     slug="tou_experience_1",
     description=(
-        "User has not accepted TOU V4 or higher and should see TOU experience 1"
+        "User has not accepted TOU V4 or higher and should see TOU experience 1, "
+        "and is on Mac or Windows"
     ),
     targeting=f"""
     (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
         !({ACCEPTED_TOU_V4_OR_HIGHER})
         &&
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
         &&
-        TOU_EXPERIENCE_TOTAL == 1
+        {TOU_EXPERIENCE_TOTAL} == 1
     )
     """,
     desktop_telemetry="",
@@ -3272,17 +3279,81 @@ TOU_EXPERIENCE_2 = NimbusTargetingConfig(
     name="TOU Experience 2",
     slug="tou_experience_2",
     description=(
-        "User has not accepted TOU V4 or higher and should see TOU experience 2"
+        "User has not accepted TOU V4 or higher and should see TOU experience 2, "
+        "and is on Mac or Windows"
     ),
     targeting=f"""
     (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
         !({ACCEPTED_TOU_V4_OR_HIGHER})
         &&
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
         &&
-        TOU_EXPERIENCE_TOTAL >= 2
+        {TOU_EXPERIENCE_TOTAL} >= 2
     )
     """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_10_PLUS_SIGNED_OUT_USER = NimbusTargetingConfig(
+    name="Windows 10+ signed out user",
+    slug="windows_10_plus_signed_out",
+    description="Windows users on version 10 or higher who are not signed into FxA",
+    targeting="!isFxASignedIn && (os.isWindows && os.windowsVersion >= 10)",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+MAC_SIGNED_OUT_USER = NimbusTargetingConfig(
+    name="Mac signed out user",
+    slug="mac_signed_out",
+    description="Mac users who are not signed into FxA",
+    targeting="!isFxASignedIn && os.isMac",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_145_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx145 9-19 Trainhop",
+    slug="newtab-145-0919-trainhop",
+    description="Desktop users having the New Tab 145.0.20250919 train hop,"
+    "which includes users of Fx143",
+    targeting="newtabAddonVersion|versionCompare('145.0.20250919.173227') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_145_1_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx145 10-09 Trainhop",
+    slug="newtab-145-1009-trainhop",
+    description="Desktop users having the New Tab 145.1.20251009 train hop,"
+    "which includes users of Fx144",
+    targeting="newtabAddonVersion|versionCompare('145.1.20251009.134757') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+BUILDID_20251006095753 = NimbusTargetingConfig(
+    name="Build ID 20251006095753 or higher",
+    slug="buildid-20251006095753",
+    description="Desktop users having the Build ID 20251006095753 or higher",
+    targeting="buildId >= 20251006095753",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

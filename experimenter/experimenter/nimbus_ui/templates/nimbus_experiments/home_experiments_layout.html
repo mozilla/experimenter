@@ -46,7 +46,10 @@
           {% if page_obj.has_previous %}
             <li class="page-item">
               <a class="page-link"
-                 href="?{{ pagination_param }}={{ page_obj.previous_page_number }}">Previous</a>
+                 hx-get="?{{ pagination_param }}={{ page_obj.previous_page_number }}{% if pagination_param != 'draft_page' and request.GET.draft_page %}&draft_page={{ request.GET.draft_page }}{% endif %}{% if pagination_param != 'attention_page' and request.GET.attention_page %}&attention_page={{ request.GET.attention_page }}{% endif %}{% if pagination_param != 'my_deliveries_page' and request.GET.my_deliveries_page %}&my_deliveries_page={{ request.GET.my_deliveries_page }}{% endif %}"
+                 hx-target="#draft-preview-ready-for-attention"
+                 hx-select="#draft-preview-ready-for-attention"
+                 hx-push-url="true">Previous</a>
             </li>
           {% endif %}
           <li class="page-item disabled">
@@ -55,7 +58,10 @@
           {% if page_obj.has_next %}
             <li class="page-item">
               <a class="page-link"
-                 href="?{{ pagination_param }}={{ page_obj.next_page_number }}">Next</a>
+                 hx-get="?{{ pagination_param }}={{ page_obj.next_page_number }}{% if pagination_param != 'draft_page' and request.GET.draft_page %}&draft_page={{ request.GET.draft_page }}{% endif %}{% if pagination_param != 'attention_page' and request.GET.attention_page %}&attention_page={{ request.GET.attention_page }}{% endif %}{% if pagination_param != 'my_deliveries_page' and request.GET.my_deliveries_page %}&my_deliveries_page={{ request.GET.my_deliveries_page }}{% endif %}"
+                 hx-target="#draft-preview-ready-for-attention"
+                 hx-select="#draft-preview-ready-for-attention"
+                 hx-push-url="true">Next</a>
             </li>
           {% endif %}
         </ul>
