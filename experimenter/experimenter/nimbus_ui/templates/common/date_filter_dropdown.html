@@ -34,6 +34,26 @@
               overflow: auto">
     <strong class="dropdown-header">Filter by Date</strong>
     <div class="m-0 date-filter">
+      <div class="form-check" id="filter-choice-date_range-clear">
+        <input class="form-check-input"
+               type="radio"
+               name="date_range"
+               value=""
+               id="date_range-clear"
+               {% if not form.date_range.value %}checked{% endif %}
+               hx-get="{{ url }}"
+               hx-target="{{ hx_target }}"
+               hx-select="{{ hx_select }}"
+               hx-swap="outerHTML"
+               hx-trigger="change"
+               hx-include="input:checked, select"
+               hx-vals='{"date_range": ""}'
+               hx-push-url="true">
+        <label class="form-check-label" for="date_range-clear">
+          <strong>All Dates</strong>
+        </label>
+      </div>
+      <hr class="my-2">
       {% for choice_value, choice_label in choices %}
         {% if choice_value not in "custom" %}
           <div class="form-check" id="filter-choice-date_range-{{ choice_value }}">
