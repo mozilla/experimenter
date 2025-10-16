@@ -284,6 +284,16 @@ recent-searches-feature:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
+relay-integration-feature:
+  description: |
+    This feature is for managing the roll out of Relay email masking integration in iOS
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature
 revert-unsafe-continuations-refactor:
   description: |
     A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).
