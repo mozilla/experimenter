@@ -518,6 +518,17 @@ remote-tab-management:
       type: boolean
       description: |
         Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
+safe-browsing-v5:
+  description: Control Safe Browsing V5.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enable-v5:
+      type: boolean
+      description: Enables / disables the SafeBrowsing V5 protocol.
+    feature-enabled:
+      type: boolean
+      description: If true, this feature is enabled. Otherwise, we follow the SafeBrowsing V5 enabled pref.
 same-document-navigation-overrides-load-type:
   description: Control whether the same document navigation overrides the load type.
   hasExposure: true
