@@ -2359,6 +2359,17 @@ IOS_NOT_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+IOS_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
+    name="Existing Users Who Have Not Accepted Terms of Use",
+    slug="ios_existing_users_not_accepted_terms_of_use",
+    description="Users that have not accepted the Terms of Use AND have been using the app for 28+ days",
+    targeting="has_accepted_terms_of_use == false && days_since_install >= 28",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,)
+)
+
 IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
     name="Apple Intelligence Available Users",
     slug="ios_apple_intelligence_available_user",
