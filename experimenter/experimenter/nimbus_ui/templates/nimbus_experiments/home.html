@@ -29,7 +29,8 @@
         </div>
       </div>
       <!-- Cards Section -->
-      <div class="row g-4 align-items-start">
+      <div class="row g-4 align-items-start"
+           id="draft-preview-ready-for-attention">
         <!-- Draft or Preview -->
         <div id="draft-preview" class="col-md-6">
           {% include "nimbus_experiments/home_experiments_layout.html" with title="Draft or Preview" experiments=draft_or_preview_page.object_list page_obj=draft_or_preview_page pagination_param="draft_page" empty_message="No draft or preview experiments." empty_image_path="assets/empty-draft.svg" tooltip=tooltips.draft_or_preview %}
@@ -221,7 +222,7 @@
                   {% if all_my_experiments_page.has_previous %}
                     <li class="page-item">
                       <a class="page-link"
-                         hx-get="?my_deliveries_page={{ all_my_experiments_page.previous_page_number }}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.channel.value %}{% for c in my_deliveries_filter.form.channel.value %}&channel={{ c }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.application.value %}{% for a in my_deliveries_filter.form.application.value %}&application={{ a }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.feature_configs.value %}{% for f in my_deliveries_filter.form.feature_configs.value %}&feature_configs={{ f }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                         hx-get="?my_deliveries_page={{ all_my_experiments_page.previous_page_number }}{% if request.GET.draft_page %}&draft_page={{ request.GET.draft_page }}{% endif %}{% if request.GET.attention_page %}&attention_page={{ request.GET.attention_page }}{% endif %}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.channel.value %}{% for c in my_deliveries_filter.form.channel.value %}&channel={{ c }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.application.value %}{% for a in my_deliveries_filter.form.application.value %}&application={{ a }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.feature_configs.value %}{% for f in my_deliveries_filter.form.feature_configs.value %}&feature_configs={{ f }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
                          hx-target="#my-deliveries-table-section"
                          hx-select="#my-deliveries-table-section"
                          hx-push-url="true">Previous</a>
@@ -235,7 +236,7 @@
                   {% if all_my_experiments_page.has_next %}
                     <li class="page-item">
                       <a class="page-link"
-                         hx-get="?my_deliveries_page={{ all_my_experiments_page.next_page_number }}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.channel.value %}{% for c in my_deliveries_filter.form.channel.value %}&channel={{ c }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.application.value %}{% for a in my_deliveries_filter.form.application.value %}&application={{ a }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.feature_configs.value %}{% for f in my_deliveries_filter.form.feature_configs.value %}&feature_configs={{ f }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                         hx-get="?my_deliveries_page={{ all_my_experiments_page.next_page_number }}{% if request.GET.draft_page %}&draft_page={{ request.GET.draft_page }}{% endif %}{% if request.GET.attention_page %}&attention_page={{ request.GET.attention_page }}{% endif %}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.channel.value %}{% for c in my_deliveries_filter.form.channel.value %}&channel={{ c }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.application.value %}{% for a in my_deliveries_filter.form.application.value %}&application={{ a }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.feature_configs.value %}{% for f in my_deliveries_filter.form.feature_configs.value %}&feature_configs={{ f }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
                          hx-target="#my-deliveries-table-section"
                          hx-select="#my-deliveries-table-section"
                          hx-push-url="true">Next</a>
