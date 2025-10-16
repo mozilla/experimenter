@@ -902,6 +902,17 @@ features:
           Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
         type: Boolean
         default: true
+  safe-browsing-v5:
+    description: Control Safe Browsing V5.
+    variables:
+      enable-v5:
+        description: Enables / disables the SafeBrowsing V5 protocol.
+        type: Boolean
+        default: false
+      feature-enabled:
+        description: If true, this feature is enabled. Otherwise, we follow the SafeBrowsing V5 enabled pref.
+        type: Boolean
+        default: false
   same-document-navigation-overrides-load-type:
     description: Control whether the same document navigation overrides the load type.
     variables:
