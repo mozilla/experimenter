@@ -118,6 +118,31 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             <a href="https://experimenter.info/for-product">Learn</a> how to get started.
         """,
     }
+    SIDEBAR_COMMON_LINKS = [
+        {
+            "title": "Performance Reports",
+            "url": "https://protosaur.dev/perf-reports/",
+            "tooltip": """Performance Reports are only created for experiments that have
+            ended.""",
+            "icon": "fa-solid fa-chart-line",
+        },
+        {
+            "title": "Messaging Skylight",
+            "url": "https://fxms-skylight.netlify.app/complete#complete_experiments",
+            "tooltip": """Messaging Skylight takes you to Skylight - the messaging team's
+            tool to show message interaction details.""",
+            "icon": "fa-solid fa-envelope-open-text",
+        },
+        {
+            "title": "Detailed Analysis",
+            "url": "https://protosaur.dev/partybal/",
+            "tooltip": """Detailed Analysis is an advanced view into experiment
+            results.""",
+            "icon": "fa-solid fa-magnifying-glass-chart",
+            "is_resource": True,
+        },
+    ]
+
     # TODO: Add learn more URL for feature page (EXP-5876)
     FEATURE_PAGE_LINKS = {"feature_learn_more_url": ""}
 
