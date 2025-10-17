@@ -62,6 +62,11 @@ ARG USERNAME=cirrus
 ARG USER_UID=10001
 ARG USER_GID=$USER_UID
 
+# Install libatomic1 for Node.js dependencies
+RUN apt-get update && \
+    apt-get -y install libatomic1 && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
 
