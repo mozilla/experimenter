@@ -15,7 +15,7 @@
             hx-select="#features-form"
             hx-target="#features-form"
             hx-swap="outerHTML"
-            hx-select-oob="#results">
+            hx-select-oob="#features-tables">
         {% csrf_token %}
         <div class="card mb-3">
           <div class="card-body bg-primary-subtle">
@@ -34,7 +34,7 @@
           </div>
         </div>
       </form>
-      <div id="results"
+      <div id="features-tables"
            class="card shadow-sm p-3 border-0 h-100 rounded-3 bg-primary-subtle">
         <h5 class="fw-semibold">
           <img src="{% static 'assets/my-deliveries.svg' %}"
@@ -44,10 +44,9 @@
           Deliveries
         </h5>
         <div>
-          <div>
+          <div id="deliveries-table">
             <div id="no-deliveries"></div>
-            <table id="deliveries-table"
-                   class="table table-hover table-borderless align-middle mb-0">
+            <table class="table table-hover table-borderless align-middle mb-3">
               <thead>
                 <tr>
                   <th>Recipe Name</th>
@@ -83,6 +82,81 @@
                 </tr>
               </tbody>
             </table>
+            <div>
+              {% if deliveries_page_obj.has_other_pages %}
+                <div id="pagination" class="row">
+                  <div class="col text-center">
+                    <ul class="pagination justify-content-center">
+                      {% if deliveries_page_obj.has_previous %}
+                        <li class="page-item">
+                          <a class="page-link"
+                             hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page=1&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                             hx-target="#deliveries-table"
+                             hx-select="#deliveries-table"
+                             hx-swap="outerHTML"
+                             hx-push-url="true"><i class="fa-solid fa-angles-left"></i></a>
+                        </li>
+                        <li class="page-item">
+                          <a class="page-link"
+                             hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.previous_page_number }}&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                             hx-target="#deliveries-table"
+                             hx-select="#deliveries-table"
+                             hx-swap="outerHTML"
+                             hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
+                        </li>
+                      {% else %}
+                        <li class="page-item disabled">
+                          <a class="page-link" href="#">
+                            <i class="fa-solid fa-angles-left"></i>
+                          </a>
+                        </li>
+                        <li class="page-item disabled">
+                          <a class="page-link" href="#">
+                            <i class="fa-solid fa-angle-left"></i>
+                          </a>
+                        </li>
+                      {% endif %}
+                      <li class="page-item">
+                        <div class="page-link">
+                          <a>{{ deliveries_page_obj.number }} of {{ deliveries_page_obj.paginator.num_pages }}</a>
+                        </li>
+                        {% if deliveries_page_obj.has_next %}
+                          <li class="page-item">
+                            <a class="page-link"
+                               hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.next_page_number }}&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                               hx-target="#deliveries-table"
+                               hx-select="#deliveries-table"
+                               hx-swap="outerHTML"
+                               hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
+                          </a>
+                        </li>
+                        <li class="page-item">
+                          <a class="page-link"
+                             hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.paginator.num_pages }}&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                             hx-target="#deliveries-table"
+                             hx-select="#deliveries-table"
+                             hx-swap="outerHTML"
+                             hx-push-url="true">
+                            <i class="fa-solid fa-angles-right"></i>
+                          </a>
+                        </li>
+                      {% else %}
+                        <li class="page-item disabled">
+                          <a class="page-link" href="#">
+                            <i class="fa-solid fa-angle-right"></i>
+                          </a>
+                        </li>
+                        <li class="page-item disabled">
+                          <a class="page-link" href="#">
+                            <i class="fa-solid fa-angles-right"></i>
+                          </a>
+                        </li>
+                      {% endif %}
+                    </ul>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
           </div>
         </div>
         <hr>
@@ -132,70 +206,77 @@
                 </table>
                 <div>
                   {% if qa_runs_page_obj.has_other_pages %}
-                    {% with current_sort=request.GET.sort %}
-                      <div id="pagination" class="row">
-                        <div class="col text-center">
-                          <ul class="pagination justify-content-center">
-                            {% if qa_runs_page_obj.has_previous %}
-                              <li class="page-item">
-                                <a class="page-link" href="{% pagination_url 1 %}"><i class="fa-solid fa-angles-left"></i></a>
-                              </li>
+                    <div id="pagination" class="row">
+                      <div class="col text-center">
+                        <ul class="pagination justify-content-center">
+                          {% if qa_runs_page_obj.has_previous %}
+                            <li class="page-item">
+                              <a class="page-link"
+                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs=1{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                 hx-target="#qa-info-table"
+                                 hx-select="#qa-info-table"
+                                 hx-swap="outerHTML"
+                                 hx-push-url="true"><i class="fa-solid fa-angles-left"></i></a>
+                            </li>
+                            <li class="page-item">
+                              <a class="page-link"
+                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                 hx-target="#qa-info-table"
+                                 hx-select="#qa-info-table"
+                                 hx-swap="outerHTML"
+                                 hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
+                            </li>
+                          {% else %}
+                            <li class="page-item disabled">
+                              <a class="page-link" href="#">
+                                <i class="fa-solid fa-angles-left"></i>
+                              </a>
+                            </li>
+                            <li class="page-item disabled">
+                              <a class="page-link" href="#">
+                                <i class="fa-solid fa-angle-left"></i>
+                              </a>
+                            </li>
+                          {% endif %}
+                          <li class="page-item">
+                            <div class="page-link">
+                              <a>{{ qa_runs_page_obj.number }} of {{ qa_runs_page_obj.paginator.num_pages }}</a>
+                            </li>
+                            {% if qa_runs_page_obj.has_next %}
                               <li class="page-item">
                                 <a class="page-link"
-                                   hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&qa_runs={{ qa_runs_page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                   hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
                                    hx-target="#qa-info-table"
                                    hx-select="#qa-info-table"
                                    hx-swap="outerHTML"
-                                   hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
-                              </li>
-                            {% else %}
-                              <li class="page-item disabled">
-                                <a class="page-link" href="#">
-                                  <i class="fa-solid fa-angles-left"></i>
-                                </a>
-                              </li>
-                              <li class="page-item disabled">
-                                <a class="page-link" href="#">
-                                  <i class="fa-solid fa-angle-left"></i>
-                                </a>
-                              </li>
-                            {% endif %}
+                                   hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
+                              </a>
+                            </li>
                             <li class="page-item">
-                              <div class="page-link">
-                                <a>{{ qa_runs_page_obj.number }} of {{ qa_runs_page_obj.paginator.num_pages }}</a>
-                              </li>
-                              {% if qa_runs_page_obj.has_next %}
-                                <li class="page-item">
-                                  <a class="page-link"
-                                     hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&qa_runs={{ qa_runs_page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                     hx-target="#qa-info-table"
-                                     hx-select="#qa-info-table"
-                                     hx-swap="outerHTML"
-                                     hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
-                                </a>
-                              </li>
-                              <li class="page-item">
-                                <a class="page-link"
-                                   href="{% pagination_url qa_runs_page_obj.paginator.num_pages %}">
-                                  <i class="fa-solid fa-angles-right"></i>
-                                </a>
-                              </li>
-                            {% else %}
-                              <li class="page-item disabled">
-                                <a class="page-link" href="#">
-                                  <i class="fa-solid fa-angle-right"></i>
-                                </a>
-                              </li>
-                              <li class="page-item disabled">
-                                <a class="page-link" href="#">
-                                  <i class="fa-solid fa-angles-right"></i>
-                                </a>
-                              </li>
-                            {% endif %}
-                          </ul>
-                        </div>
+                              <a class="page-link"
+                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.paginator.num_pages }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                 hx-target="#qa-info-table"
+                                 hx-select="#qa-info-table"
+                                 hx-swap="outerHTML"
+                                 hx-push-url="true">
+                                <i class="fa-solid fa-angles-right"></i>
+                              </a>
+                            </li>
+                          {% else %}
+                            <li class="page-item disabled">
+                              <a class="page-link" href="#">
+                                <i class="fa-solid fa-angle-right"></i>
+                              </a>
+                            </li>
+                            <li class="page-item disabled">
+                              <a class="page-link" href="#">
+                                <i class="fa-solid fa-angles-right"></i>
+                              </a>
+                            </li>
+                          {% endif %}
+                        </ul>
                       </div>
-                    {% endwith %}
+                    </div>
                   {% endif %}
                 </div>
               </div>
