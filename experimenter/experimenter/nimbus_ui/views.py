@@ -12,6 +12,7 @@ from experimenter.experiments.models import NimbusExperiment
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
+    FeaturesPageSortChoices,
     HomeSortChoices,
     NimbusExperimentFilter,
     NimbusExperimentsHomeFilter,
@@ -683,6 +684,18 @@ class NimbusFeaturesView(TemplateView):
         qa_runs_page_number = self.request.GET.get("qa_runs") or 1
         qa_runs_page_obj = qa_runs_paginator.get_page(qa_runs_page_number)
 
+        # header fields for the deliveries table
+        deliveries_sortable_headers = FeaturesPageSortChoices.sortable_headers(
+            FeaturesPageSortChoices.Deliveries
+        )
+        deliveries_non_sortable_headers = [("delivery_brief", "Delivery Brief")]
+        deliveries_sortable_header = (
+            deliveries_sortable_headers + deliveries_non_sortable_headers
+        )
+        deliveries_non_sortable_fields = {
+            field for field, _ in deliveries_non_sortable_headers
+        }
+
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
@@ -693,6 +706,8 @@ class NimbusFeaturesView(TemplateView):
             "experiments_delivered": deliveries_page_obj.object_list,
             "qa_runs_page_obj": qa_runs_page_obj,
             "experiments_with_qa_status": qa_runs_page_obj.object_list,
+            "deliveries_sortable_header": deliveries_sortable_header,
+            "deliveries_non_sortable_header": deliveries_non_sortable_fields,
         }
         return context
 
