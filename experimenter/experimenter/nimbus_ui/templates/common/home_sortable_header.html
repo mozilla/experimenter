@@ -24,14 +24,14 @@
       {% else %}
         <input type="hidden" name="sort" value="{{ field }}">
       {% endif %}
-      <button type="submit" class="btn p-0 text-body fw-semibold text-decoration-none" {% if label == "Dates" %} data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="<div class='text-start'><strong>Progress Bar Colors:</strong><br> <span class='text-success'>●</span> Active enrollment<br> <span class='text-info'>●</span> Observation phase<br> <span class='text-secondary'>●</span> Completed<br> <span class='text-danger'>●</span> Overdue</div>"
-      {% endif %}
-      >
+      <button type="submit" class="btn p-0 text-body fw-semibold text-decoration-none">
       <span class="d-flex align-items-center">
         {{ label }}
         {% if label == "Dates" %}
           <i class="fas fa-info-circle ms-1 text-muted opacity-75"
-             style="font-size: 0.75em"></i>
+             style="font-size: 0.75em"
+             data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" 
+             title="<div class='text-start'><strong>Progress Bar Colors:</strong><br> <span class='text-success'>●</span> Active enrollment<br> <span class='text-info'>●</span> Observation phase<br> <span class='text-secondary'>●</span> Completed<br> <span class='text-danger'>●</span> Overdue</div>"></i>
         {% endif %}
         {% if current_sort == field %}
           <i class="ps-1 fa-solid fa-chevron-up"></i>
