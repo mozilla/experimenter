@@ -616,6 +616,12 @@ class FeaturesPageSortChoices(models.TextChoices):
         SIZE_UP = "total_enrolled_clients", "Pop. Size"
         SIZE_DOWN = "-total_enrolled_clients", "Pop. Size"
 
+    class QARuns(models.TextChoices):
+        DATE_UP = "qa_run_date", "Date"
+        DATE_DOWN = "-qa_run_date", "Date"
+        TYPE_UP = "qa_run_type", "Testing Type"
+        TYPE_DOWN = "-qa_run_type", "Testing Type"
+
     @staticmethod
     def sortable_headers(table_name):
         seen = set()
