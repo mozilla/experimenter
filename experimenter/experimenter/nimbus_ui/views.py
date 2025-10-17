@@ -672,8 +672,8 @@ class NimbusFeaturesView(TemplateView):
         qs = self.get_queryset()
 
         deliveries_paginator = Paginator(qs, 5)
-        page_number = self.request.GET.get("deliveries_page") or 1
-        deliveries_page_obj = deliveries_paginator.get_page(page_number)
+        deliveries_page_number = self.request.GET.get("deliveries_page") or 1
+        deliveries_page_obj = deliveries_paginator.get_page(deliveries_page_number)
 
         experiments_with_qa_status = qs.exclude(
             qa_status=NimbusExperiment.QAStatus.NOT_SET.value
@@ -689,7 +689,7 @@ class NimbusFeaturesView(TemplateView):
             "application": self.request.GET.get("application"),
             "feature_configs": self.request.GET.get("feature_configs"),
             "paginator": deliveries_paginator,
-            "page_obj": deliveries_page_obj,
+            "deliveries_page_obj": deliveries_page_obj,
             "experiments_delivered": deliveries_page_obj.object_list,
             "qa_runs_page_obj": qa_runs_page_obj,
             "experiments_with_qa_status": qa_runs_page_obj.object_list,
