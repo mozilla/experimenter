@@ -3449,6 +3449,7 @@ class TestNimbusFeaturesView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["experiments_delivered"]), 5)
+        self.assertEqual(len(response.context["experiments_with_qa_status"]), 5)
 
     @parameterized.expand(
         [
