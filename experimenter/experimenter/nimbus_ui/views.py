@@ -19,6 +19,7 @@ from experimenter.nimbus_ui.filtersets import (
     SortChoices,
     StatusChoices,
 )
+from experimenter.features.models import FeatureTestRun
 from experimenter.nimbus_ui.forms import (
     ApproveEndEnrollmentForm,
     ApproveEndExperimentForm,
@@ -713,6 +714,10 @@ class NimbusFeaturesView(TemplateView):
         )
         qa_runs_non_sortable_fields = {field for field, _ in qa_runs_non_sortable_headers}
 
+        feature_changes = FeatureTestRun.objects.filter(
+            feature_config=self.request.GET.get("feature_configs")
+            ).order_by("-change_date")[:5]
+
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
@@ -727,6 +732,7 @@ class NimbusFeaturesView(TemplateView):
             "deliveries_non_sortable_header": deliveries_non_sortable_fields,
             "qa_runs_sortable_header": qa_runs_sortable_header,
             "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
+            "feature_changes": feature_changes,
         }
         return context
 

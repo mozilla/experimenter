@@ -1,3 +1,5 @@
+default_app_config = "experimenter.features.apps.FeaturesConfig"
+
 import json
 import re
 from collections.abc import Iterable

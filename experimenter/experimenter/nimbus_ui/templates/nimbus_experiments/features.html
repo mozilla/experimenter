@@ -297,7 +297,7 @@
                style="width: 60px;
                       height: auto" />
           Feature Changes
-          <span class="badge bg-secondary ms-2">Number of changes: </span>
+          <span class="badge bg-secondary ms-2">Number of changes: {{feature_changes.count}} </span>
         </h5>
         <div>
           <div id="feature-changes-table">
@@ -323,8 +323,8 @@
                       {% endif %}
                     </td>
                     <td id="feature-change-date">{{ change.change_date|date:"m/d/Y @ H:i"|format_not_set }}</td>
-                    <td id="feature-change-size">{{ change.change_size|default:"-" }}</td>
-                    <td id="feature-change-complexity">{{ change.softvision_complexity|default:"-" }}</td>
+                    <td id="feature-change-size">{{ change.change_size|format_not_set }}</td>
+                    <td id="feature-change-complexity">{{ change.complexity|format_not_set }}</td>
                   </tr>
                 {% empty %}
                   <tr>
