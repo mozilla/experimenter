@@ -1524,6 +1524,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return False
 
     @property
+    def has_exposures(self):
+        # True if there are any exposures in the results data
+        if self.results_data and "v3" in self.results_data:
+            results_data = self.results_data["v3"]
+            for window in ["overall", "weekly"]:
+                if results_data.get(window):
+                    exposure_data = results_data[window].get("exposures", {}).get("all")
+                    if exposure_data is not None:
+                        return True
+
+        return False
+
+    @property
     def show_results_url(self):
         # if there are results, show them! even if the dates are wrong
         # (the dates may have been overridden in metric-hub)

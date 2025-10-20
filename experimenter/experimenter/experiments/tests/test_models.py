@@ -3194,6 +3194,22 @@ class TestNimbusExperiment(TestCase):
 
         self.assertTrue(experiment.has_displayable_results)
 
+    def test_has_exposures_results_true(self):
+        results_data = {"v3": {"overall": {"exposures": {"all": {}}}}}
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertTrue(experiment.has_exposures)
+
+    def test_has_exposures_results_false(self):
+        results_data = {"v3": {"overall": {"enrollments": {"all": {}}}}}
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertFalse(experiment.has_exposures)
+
     @parameterized.expand(
         [
             ({},),
