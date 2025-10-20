@@ -30,15 +30,14 @@ urlpatterns = [
     re_path(r"^api/v8/", include("experimenter.experiments.api.v8.urls")),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^experiments/", include("experimenter.legacy.legacy_experiments.urls")),
-    re_path(r"^all/", include("experimenter.nimbus_ui.urls")),
-    re_path(r"^all/$", NimbusExperimentsListView.as_view(), name="nimbus-list"),
-    # Redirect old /nimbus/* URLs to /all/*
-    re_path(r"^nimbus/$", RedirectView.as_view(url="/all/", permanent=True)),
-    re_path(
-        r"^nimbus/(?P<path>.*)$",
-        RedirectView.as_view(url="/all/%(path)s", permanent=True),
-    ),
+    re_path(r"^nimbus/", include("experimenter.nimbus_ui.urls")),
+    re_path(r"^nimbus/$", NimbusExperimentsListView.as_view(), name="nimbus-list"),
     re_path(r"^legacy/$", ExperimentListView.as_view(), name="home"),
+    re_path(
+        r"^$",
+        RedirectView.as_view(pattern_name="nimbus-ui-home"),
+        name="redirect-to-nimbus",
+    ),
 ]
 
 handler404 = PageNotFoundView.as_404_view()

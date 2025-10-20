@@ -275,8 +275,8 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -m nimbus_ui -n 4 --reruns 1 --base-url https://nginx/all/
-      PYTEST_BASE_URL: https://nginx/all/
+      PYTEST_ARGS: -m nimbus_ui -n 4 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
@@ -304,8 +304,8 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -m remote_settings_launch --reruns 1 --base-url https://nginx/all/
-      PYTEST_BASE_URL: https://nginx/all/
+      PYTEST_ARGS: -m remote_settings_launch --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
@@ -333,8 +333,8 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings_all --reruns 1 --base-url https://nginx/all/
-      PYTEST_BASE_URL: https://nginx/all/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings_all --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
@@ -362,8 +362,8 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: nightly
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --base-url https://nginx/all/
-      PYTEST_BASE_URL: https://nginx/all/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
@@ -392,8 +392,8 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1 --base-url https://nginx/all/
-      PYTEST_BASE_URL: https://nginx/all/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
@@ -422,8 +422,8 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: beta
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1 --base-url https://nginx/all/
-      PYTEST_BASE_URL: https://nginx/all/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
@@ -452,8 +452,8 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_CHANNEL: nightly
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 1 --reruns 1 --base-url https://nginx/all/
-      PYTEST_BASE_URL: https://nginx/all/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 1 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
@@ -638,8 +638,8 @@ jobs:
       image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     environment:
-      PYTEST_ARGS: -k test_create_mobile_experiment_for_integration_test --reruns 1 --base-url https://nginx/all/
-      PYTEST_BASE_URL: https://nginx/all/
+      PYTEST_ARGS: -k test_create_mobile_experiment_for_integration_test --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - run:
