@@ -1,5 +1,7 @@
 {% load static %}
 
+{% include 'glean/opt_out_alert.html' %}
+
 <nav class="navbar">
   <div class="container-fluid">
     <div class="d-flex align-items-center">
@@ -128,6 +130,10 @@
                  type="checkbox"
                  role="switch">
         </div>
+      </li>
+      <li class="d-flex align-items-center">
+        {% include 'glean/opt_out_button.html' %}
+
       </li>
     </ul>
   </div>
