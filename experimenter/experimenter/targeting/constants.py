@@ -2534,6 +2534,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TOU_AND_NO_SPONSORED_OPT_OUTS = NimbusTarget
     application_choice_names=(Application.FENIX.name,),
 )
 
+# Obselete: To be deleted in https://bugzilla.mozilla.org/show_bug.cgi?id=1995564
 TOU_TARGETING_ANDROID_NOT_ACCEPTED = NimbusTargetingConfig(
     name="Users that have not accepted the Terms of Use",
     slug="users_not_accepted_tou",
@@ -2556,6 +2557,7 @@ TOU_TARGETING_ANDROID_ACCEPTED = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+# Obselete: To be deleted in https://bugzilla.mozilla.org/show_bug.cgi?id=1995564
 TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingConfig(
     name=(
         "Users that have not accepted the Terms of Use "
