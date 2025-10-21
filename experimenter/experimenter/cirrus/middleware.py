@@ -36,7 +36,14 @@ class CirrusMiddleware:
 
     def __call__(self, request):
         request.cirrus = None
-        if hasattr(request, "user") and request.user.id and self.cirrus_url:
+        if (
+            self.cirrus_url
+            and hasattr(request, "user")
+            and request.user.is_authenticated
+            and not (
+                hasattr(request.user, "glean_prefs") and request.user.glean_prefs.opt_out
+            )
+        ):
             params = {}
             if (nimbus_preview := request.GET.get("nimbus_preview")) is not None:
                 params["nimbus_preview"] = nimbus_preview
