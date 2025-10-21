@@ -137,6 +137,8 @@ class NimbusExperimentViewMixin:
             if experiment and experiment.slug
             else []
         )
+        context["create_form"] = NimbusExperimentCreateForm()
+
         return context
 
 
@@ -741,4 +743,5 @@ class NimbusExperimentsHomeView(FilterView):
         context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
 
         context["sortable_headers"] = HomeSortChoices.sortable_headers()
+        context["create_form"] = NimbusExperimentCreateForm()
         return context
