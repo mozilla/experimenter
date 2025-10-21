@@ -3441,6 +3441,7 @@ class TestNimbusFeaturesView(AuthTestCase):
                 name=f"Experiment {num}",
                 application=application,
                 feature_configs=[self.feature_configs["feature-desktop"]],
+                qa_status=NimbusExperiment.QAStatus.GREEN,
             )
 
         base_url = reverse("nimbus-ui-features")
