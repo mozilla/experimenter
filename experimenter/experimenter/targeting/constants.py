@@ -2503,6 +2503,37 @@ ANDROID_LARGE_SCREEN_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
+    name="Existing users who have not accepted Terms of Use",
+    slug="android_existing_users_not_accepted_terms_of_use",
+    description="Existing users for 28+ days who have not accepted Terms of Use",
+    targeting="user_accepted_tou == false && days_since_install >= 28",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TOU_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingConfig(
+    name=(
+        "Existing users for 28+ days who have not accepted Terms of Use "
+        "and have not opted out of any sponsored content"
+    ),
+    slug="android_existing_users_not_accepted_terms_of_use_no_shortcuts_or_stories_opt_outs",
+    description=(
+        "Targeting users who have NOT accepted the Terms of Use "
+        "and have NOT opted out of any sponsored content"
+    ),
+    targeting=(
+        "user_accepted_tou == false && no_shortcuts_or_stories_opt_outs == true "
+        "&& days_since_install >= 28"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 TOU_TARGETING_ANDROID_NOT_ACCEPTED = NimbusTargetingConfig(
     name="Users that have not accepted the Terms of Use",
     slug="users_not_accepted_tou",
