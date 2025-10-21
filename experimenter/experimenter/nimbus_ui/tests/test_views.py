@@ -3434,6 +3434,24 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(form["application"].value(), applications[1].value)
         self.assertEqual(form["feature_configs"].value(), str(feature_config_multi.id))
 
+    def test_features_view_pagination(self):
+        application = NimbusExperiment.Application.DESKTOP
+        for num in range(6):
+            NimbusExperimentFactory.create(
+                name=f"Experiment {num}",
+                application=application,
+                feature_configs=[self.feature_configs["feature-desktop"]],
+                qa_status=NimbusExperiment.QAStatus.GREEN,
+            )
+
+        base_url = reverse("nimbus-ui-features")
+        response = self.client.get(
+            f"{base_url}?application={application.value}&feature_configs={self.feature_configs['feature-desktop'].id}"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["experiments_delivered"]), 5)
+        self.assertEqual(len(response.context["experiments_with_qa_status"]), 5)
+
     @parameterized.expand(
         [
             (NimbusExperiment.Application.DESKTOP, "feature-desktop"),
@@ -3458,5 +3476,6 @@ class TestNimbusFeaturesView(AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "#deliveries-table")
+        self.assertContains(response, "deliveries-table")
+        self.assertContains(response, "qa-info-table")
         self.assertContains(response, experiment)

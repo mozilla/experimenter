@@ -1684,6 +1684,27 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_NEW_NON_DEFAULT_USER = NimbusTarget
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_BACKGROUND_TASK_NOTIFICATION_TASKBAR_TABS_ELIGIBLE = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users with background task notification, "
+        "eligible for the taskbar tabs message"
+    ),
+    slug="windows_10_background_task_notification_taskbar_tabs",
+    description=(
+        "New and Infrequent Windows 10+ users (no MSIX) "
+        "with Firefox running a background task"
+    ),
+    targeting=(
+        "(os.isWindows && os.windowsVersion >= 10) && !isMSIX"
+        "&& defaultProfile.userMonthlyActivity|length <= 14 "
+        "&& isBackgroundTaskMode"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WINDOWS_10_PLUS_WITH_BACKGROUND_TASK_NOTIFICATION = NimbusTargetingConfig(
     name="Windows 10+ users with background task notification",
     slug="windows_10_background_task_notification",
@@ -2359,6 +2380,17 @@ IOS_NOT_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+IOS_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
+    name="Existing Users Who Have Not Accepted Terms of Use",
+    slug="ios_existing_users_not_accepted_terms_of_use",
+    description="Existing users for 28+ days who have not accepted Terms of Use",
+    targeting="has_accepted_terms_of_use == false && days_since_install >= 28",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
     name="Apple Intelligence Available Users",
     slug="ios_apple_intelligence_available_user",
@@ -2492,6 +2524,38 @@ ANDROID_LARGE_SCREEN_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
+    name="Existing users who have not accepted Terms of Use",
+    slug="android_existing_users_not_accepted_terms_of_use",
+    description="Existing users for 28+ days who have not accepted Terms of Use",
+    targeting="user_accepted_tou == false && days_since_install >= 28",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TOU_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingConfig(
+    name=(
+        "Existing users for 28+ days who have not accepted Terms of Use "
+        "and have not opted out of any sponsored content"
+    ),
+    slug="android_existing_users_not_accepted_terms_of_use_no_shortcuts_or_stories_opt_outs",
+    description=(
+        "Targeting users who have NOT accepted the Terms of Use "
+        "and have NOT opted out of any sponsored content"
+    ),
+    targeting=(
+        "user_accepted_tou == false && no_shortcuts_or_stories_opt_outs == true "
+        "&& days_since_install >= 28"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+# Obselete: To be deleted in https://bugzilla.mozilla.org/show_bug.cgi?id=1995564
 TOU_TARGETING_ANDROID_NOT_ACCEPTED = NimbusTargetingConfig(
     name="Users that have not accepted the Terms of Use",
     slug="users_not_accepted_tou",
@@ -2514,6 +2578,7 @@ TOU_TARGETING_ANDROID_ACCEPTED = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+# Obselete: To be deleted in https://bugzilla.mozilla.org/show_bug.cgi?id=1995564
 TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingConfig(
     name=(
         "Users that have not accepted the Terms of Use "
@@ -2527,7 +2592,7 @@ TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingCo
     targeting="user_accepted_tou == false && no_shortcuts_or_stories_opt_outs == true",
     desktop_telemetry="",
     sticky_required=False,
-    is_first_run_required=True,
+    is_first_run_required=False,
     application_choice_names=(Application.FENIX.name,),
 )
 
@@ -3093,6 +3158,23 @@ SIGNED_OUT_EXISTING_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SIGNED_OUT_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Signed-out user, FxA enabled, no enterprise policies",
+    slug="signed_out_user_fxa_enabled_no_enterprise",
+    description=(
+        "Users with profiles older than 7 days, who are NOT signed into FxA, "
+        "with FxA enabled, and no enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILEMORETHAN7DAYS} && {NO_ENTERPRISE.targeting} "
+        "&& !isFxASignedIn && isFxAEnabled"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 SIGNED_OUT_POST_FIRST_RUN_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
     name="Signed-out user, post first run, FxA enabled, no enterprise policies",
     slug="signed_out_user_post_first_run_fxa_enabled_no_enterprise",
@@ -3152,6 +3234,31 @@ TOU_NOT_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
         )
         &&
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
+    name="Mac or Windows users accepted TOU version 4 and Sponsored TopSites enabled",
+    slug="tou_accepted_mac_win_newtab_sponsored_topsites_enabled",
+    description=(
+        "TOU version 4 or higher accepted, Mac or Win, and Sponsored TopSites enabled"
+    ),
+    targeting=f"""
+    (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
+        {ACCEPTED_TOU_V4_OR_HIGHER}
+        &&
+        'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
     )
     """,
     desktop_telemetry="",
@@ -3295,6 +3402,18 @@ FX_145_TRAINHOP = NimbusTargetingConfig(
     description="Desktop users having the New Tab 145.0.20250919 train hop,"
     "which includes users of Fx143",
     targeting="newtabAddonVersion|versionCompare('145.0.20250919.173227') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_145_1_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx145 10-09 Trainhop",
+    slug="newtab-145-1009-trainhop",
+    description="Desktop users having the New Tab 145.1.20251009 train hop,"
+    "which includes users of Fx144",
+    targeting="newtabAddonVersion|versionCompare('145.1.20251009.134757') >= 0",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

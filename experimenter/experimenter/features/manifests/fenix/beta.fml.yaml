@@ -241,6 +241,11 @@ features:
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
+      app-zygote-preloading:
+        description: |
+          Whether or not to enable app Zygote preloaded isolated content processes.
+        type: Boolean
+        default: false
       enabled:
         description: |
           Whether or not to enable isolated content processes.
@@ -578,11 +583,11 @@ features:
           I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
           FUNNEL_PAID: adjust_campaign != ''
           FUNNEL_ORGANIC: adjust_campaign == ''
-          INACTIVE_1_DAY: '''app_launched''|eventLastSeen(''Hours'') >= 24'
-          INACTIVE_2_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 2'
-          INACTIVE_3_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 3'
-          INACTIVE_4_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 4'
-          INACTIVE_5_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 5'
+          INACTIVE_1_DAY: '''app_opened''|eventLastSeen(''Hours'') >= 24'
+          INACTIVE_2_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 2'
+          INACTIVE_3_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 3'
+          INACTIVE_4_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 4'
+          INACTIVE_5_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 5'
           RECENTLY_PRINTED: '''print_tapped''|eventLastSeen(''Hours'') <= 24'
           SECOND_HOMEPAGE_VIEW: '''home_screen_displayed''|eventSum(''Years'', 4, 0) >= 2'
           PERFORMED_A_SEARCH_AGAIN_RECENTLY: '''performed_search''|eventSum(''Years'', 4, 0) >= 2 && ''performed_search''|eventLastSeen(''Minutes'') < 1'
@@ -590,11 +595,11 @@ features:
           FXA_MORE_THAN_1_DEVICE: fxa_connected_devices > 1
           FXA_SIGNED_IN: '''sync_auth.sign_in''|eventLastSeen(''Years'', 0) <= 4'
           FXA_NOT_SIGNED_IN: '''sync_auth.sign_in''|eventLastSeen(''Years'', 0) > 4'
-          USER_INFREQUENT: '''app_launched''|eventCountNonZero(''Days'', 28) >= 1 && ''app_launched''|eventCountNonZero(''Days'', 28) < 7'
-          USER_CASUAL: '''app_launched''|eventCountNonZero(''Days'', 28) >= 7 && ''app_launched''|eventCountNonZero(''Days'', 28) < 14'
-          USER_REGULAR: '''app_launched''|eventCountNonZero(''Days'', 28) >= 14 && ''app_launched''|eventCountNonZero(''Days'', 28) < 21'
-          USER_CORE_ACTIVE: '''app_launched''|eventCountNonZero(''Days'', 28) >= 21'
-          LAUNCHED_ONCE_THIS_WEEK: '''app_launched''|eventSum(''Days'', 7) == 1'
+          USER_INFREQUENT: '''app_opened''|eventCountNonZero(''Days'', 28) >= 1 && ''app_opened''|eventCountNonZero(''Days'', 28) < 7'
+          USER_CASUAL: '''app_opened''|eventCountNonZero(''Days'', 28) >= 7 && ''app_opened''|eventCountNonZero(''Days'', 28) < 14'
+          USER_REGULAR: '''app_opened''|eventCountNonZero(''Days'', 28) >= 14 && ''app_opened''|eventCountNonZero(''Days'', 28) < 21'
+          USER_CORE_ACTIVE: '''app_opened''|eventCountNonZero(''Days'', 28) >= 21'
+          LAUNCHED_ONCE_THIS_WEEK: '''app_opened''|eventSum(''Days'', 7) == 1'
         string-alias: TriggerName
     allow-coenrollment: true
   microsurveys:
@@ -800,6 +805,17 @@ features:
           Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
         type: Boolean
         default: true
+  safe-browsing-v5:
+    description: Control Safe Browsing V5.
+    variables:
+      enable-v5:
+        description: Enables / disables the SafeBrowsing V5 protocol.
+        type: Boolean
+        default: false
+      feature-enabled:
+        description: If true, this feature is enabled. Otherwise, we follow the SafeBrowsing V5 enabled pref.
+        type: Boolean
+        default: false
   same-document-navigation-overrides-load-type:
     description: Control whether the same document navigation overrides the load type.
     variables:
