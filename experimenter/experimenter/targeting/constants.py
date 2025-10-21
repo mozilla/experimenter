@@ -1684,6 +1684,27 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_NEW_NON_DEFAULT_USER = NimbusTarget
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_BACKGROUND_TASK_NOTIFICATION_TASKBAR_TABS_ELIGIBLE = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users with background task notification, "
+        "eligible for the taskbar tabs message"
+    ),
+    slug="windows_10_background_task_notification_taskbar_tabs",
+    description=(
+        "New and Infrequent Windows 10+ users (no MSIX) "
+        "with Firefox running a background task"
+    ),
+    targeting=(
+        "(os.isWindows && os.windowsVersion >= 10) && !isMSIX"
+        "&& defaultProfile.userMonthlyActivity|length <= 14 "
+        "&& isBackgroundTaskMode"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WINDOWS_10_PLUS_WITH_BACKGROUND_TASK_NOTIFICATION = NimbusTargetingConfig(
     name="Windows 10+ users with background task notification",
     slug="windows_10_background_task_notification",
