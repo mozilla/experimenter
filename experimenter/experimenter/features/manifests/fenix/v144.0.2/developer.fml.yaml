@@ -241,11 +241,6 @@ features:
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
-      app-zygote-preloading:
-        description: |
-          Whether or not to enable app Zygote preloaded isolated content processes.
-        type: Boolean
-        default: false
       enabled:
         description: |
           Whether or not to enable isolated content processes.
@@ -424,38 +419,6 @@ features:
                 line-two-link-text: onboarding_redesign_tou_body_two_link_text
                 line-three-text: onboarding_redesign_tou_body_three
                 line-three-link-text: onboarding_redesign_tou_body_three_link_text
-          default-browser-redesign:
-            card-type: default-browser
-            enabled: false
-            title: onboarding_redesign_set_default_browser_title
-            ordering: 5
-            body: onboarding_redesign_set_default_browser_body
-            primary-button-label: juno_onboarding_default_browser_positive_button
-            secondary-button-label: juno_onboarding_default_browser_negative_button
-          sync-sign-in-redesign:
-            enabled: false
-            card-type: sync-sign-in
-            title: onboarding_redesign_sync_title
-            body: onboarding_redesign_sync_body
-            ordering: 15
-            primary-button-label: onboarding_redesign_sync_positive_button
-            secondary-button-label: onboarding_redesign_sync_negative_button
-          toolbar-placement-redesign:
-            card-type: toolbar-placement
-            enabled: false
-            title: onboarding_redesign_customize_toolbar_title
-            body: onboarding_customize_toolbar_description
-            image-res: ic_onboarding_customize_toolbar
-            ordering: 35
-            primary-button-label: onboarding_redesign_continue_button
-            extra-data:
-              customization-toolbar-data:
-              - toolbar-type: toolbar-top
-                label: onboarding_customize_toolbar_top_option
-                image-res: ic_onboarding_top_toolbar
-              - toolbar-type: toolbar-bottom
-                label: onboarding_customize_toolbar_bottom_option
-                image-res: ic_onboarding_bottom_toolbar
           marketing-data:
             card-type: marketing-data
             enabled: false
@@ -469,19 +432,6 @@ features:
                 body-line-one-text: onboarding_marketing_learn_more
                 body-line-one-link-text: onboarding_marketing_learn_more
                 body-line-two-text: onboarding_marketing_opt_out_checkbox
-          marketing-data-redesign:
-            card-type: marketing-data
-            enabled: false
-            title: onboarding_marketing_redesign_title
-            body: onboarding_marketing_body
-            image-res: ic_onboarding_marketing_redesign
-            ordering: 40
-            primary-button-label: onboarding_marketing_redesign_positive_button
-            extra-data:
-              marketing-data:
-                body-line-one-text: onboarding_marketing_redesign_learn_more
-                body-line-one-link-text: onboarding_marketing_redesign_learn_more
-                body-line-two-text: onboarding_marketing_redesign_opt_out_checkbox
         string-alias: OnboardingCardKey
       conditions:
         description: |
@@ -685,11 +635,11 @@ features:
           I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
           FUNNEL_PAID: adjust_campaign != ''
           FUNNEL_ORGANIC: adjust_campaign == ''
-          INACTIVE_1_DAY: '''app_opened''|eventLastSeen(''Hours'') >= 24'
-          INACTIVE_2_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 2'
-          INACTIVE_3_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 3'
-          INACTIVE_4_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 4'
-          INACTIVE_5_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 5'
+          INACTIVE_1_DAY: '''app_launched''|eventLastSeen(''Hours'') >= 24'
+          INACTIVE_2_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 2'
+          INACTIVE_3_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 3'
+          INACTIVE_4_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 4'
+          INACTIVE_5_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 5'
           RECENTLY_PRINTED: '''print_tapped''|eventLastSeen(''Hours'') <= 24'
           SECOND_HOMEPAGE_VIEW: '''home_screen_displayed''|eventSum(''Years'', 4, 0) >= 2'
           PERFORMED_A_SEARCH_AGAIN_RECENTLY: '''performed_search''|eventSum(''Years'', 4, 0) >= 2 && ''performed_search''|eventLastSeen(''Minutes'') < 1'
@@ -697,11 +647,11 @@ features:
           FXA_MORE_THAN_1_DEVICE: fxa_connected_devices > 1
           FXA_SIGNED_IN: '''sync_auth.sign_in''|eventLastSeen(''Years'', 0) <= 4'
           FXA_NOT_SIGNED_IN: '''sync_auth.sign_in''|eventLastSeen(''Years'', 0) > 4'
-          USER_INFREQUENT: '''app_opened''|eventCountNonZero(''Days'', 28) >= 1 && ''app_opened''|eventCountNonZero(''Days'', 28) < 7'
-          USER_CASUAL: '''app_opened''|eventCountNonZero(''Days'', 28) >= 7 && ''app_opened''|eventCountNonZero(''Days'', 28) < 14'
-          USER_REGULAR: '''app_opened''|eventCountNonZero(''Days'', 28) >= 14 && ''app_opened''|eventCountNonZero(''Days'', 28) < 21'
-          USER_CORE_ACTIVE: '''app_opened''|eventCountNonZero(''Days'', 28) >= 21'
-          LAUNCHED_ONCE_THIS_WEEK: '''app_opened''|eventSum(''Days'', 7) == 1'
+          USER_INFREQUENT: '''app_launched''|eventCountNonZero(''Days'', 28) >= 1 && ''app_launched''|eventCountNonZero(''Days'', 28) < 7'
+          USER_CASUAL: '''app_launched''|eventCountNonZero(''Days'', 28) >= 7 && ''app_launched''|eventCountNonZero(''Days'', 28) < 14'
+          USER_REGULAR: '''app_launched''|eventCountNonZero(''Days'', 28) >= 14 && ''app_launched''|eventCountNonZero(''Days'', 28) < 21'
+          USER_CORE_ACTIVE: '''app_launched''|eventCountNonZero(''Days'', 28) >= 21'
+          LAUNCHED_ONCE_THIS_WEEK: '''app_launched''|eventSum(''Days'', 7) == 1'
         string-alias: TriggerName
     allow-coenrollment: true
   microsurveys:
@@ -822,13 +772,8 @@ features:
       certificateTransparencyMode:
         description: |
           What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
-        type: Option<Int>
-        default: null
-      crliteChannel:
-        description: |
-          The channel from which CRLite filters will be installed.
-        type: Option<String>
-        default: null
+        type: Int
+        default: 2
   pqcrypto:
     description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
     variables:
@@ -907,17 +852,6 @@ features:
           Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
         type: Boolean
         default: true
-  safe-browsing-v5:
-    description: Control Safe Browsing V5.
-    variables:
-      enable-v5:
-        description: Enables / disables the SafeBrowsing V5 protocol.
-        type: Boolean
-        default: false
-      feature-enabled:
-        description: If true, this feature is enabled. Otherwise, we follow the SafeBrowsing V5 enabled pref.
-        type: Boolean
-        default: false
   same-document-navigation-overrides-load-type:
     description: Control whether the same document navigation overrides the load type.
     variables:
@@ -984,14 +918,6 @@ features:
         description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
         type: Text
         default: sent_from_firefox_template
-  settings-search:
-    description: Feature to allow users to search for settings.
-    variables:
-      enabled:
-        description: |
-          Enables the user to search for settings.
-        type: Boolean
-        default: false
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
