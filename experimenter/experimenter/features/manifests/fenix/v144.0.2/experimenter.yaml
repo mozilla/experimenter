@@ -221,10 +221,6 @@ isolated-content-processes:
   hasExposure: true
   exposureDescription: ''
   variables:
-    app-zygote-preloading:
-      type: boolean
-      description: |
-        Whether or not to enable app Zygote preloaded isolated content processes.
     enabled:
       type: boolean
       description: |
@@ -439,10 +435,6 @@ pki:
       type: int
       description: |
         What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
-    crliteChannel:
-      type: string
-      description: |
-        The channel from which CRLite filters will be installed.
 pqcrypto:
   description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
   hasExposure: true
@@ -522,17 +514,6 @@ remote-tab-management:
       type: boolean
       description: |
         Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
-safe-browsing-v5:
-  description: Control Safe Browsing V5.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enable-v5:
-      type: boolean
-      description: Enables / disables the SafeBrowsing V5 protocol.
-    feature-enabled:
-      type: boolean
-      description: If true, this feature is enabled. Otherwise, we follow the SafeBrowsing V5 enabled pref.
 same-document-navigation-overrides-load-type:
   description: Control whether the same document navigation overrides the load type.
   hasExposure: true
@@ -597,15 +578,6 @@ sent-from-firefox:
     template-message:
       type: string
       description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
-settings-search:
-  description: Feature to allow users to search for settings.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables the user to search for settings.
 setup-checklist:
   description: A feature on the home page that allows the user to track onboarding setup progress.
   hasExposure: true
