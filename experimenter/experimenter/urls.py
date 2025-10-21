@@ -10,7 +10,6 @@ from experimenter.legacy.legacy_experiments.views import (
 )
 from experimenter.nimbus_ui.views import NimbusExperimentsListView
 
-
 urlpatterns = [
     re_path(
         r"^api/v1/experiments/",
