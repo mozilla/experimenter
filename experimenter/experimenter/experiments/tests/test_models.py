@@ -3715,6 +3715,33 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(experiment.qa_status_badge_class, expected_badge_class)
 
+    @parameterized.expand(
+        [
+            [NimbusExperiment.QATestType.FULL, "Full"],
+            [NimbusExperiment.QATestType.SMOKE, "Smoke"],
+            [NimbusExperiment.QATestType.SELF, "Self"],
+            [NimbusExperiment.QATestType.REGRESSION, "Regression"],
+        ]
+    )
+    def test_qa_run_type_display(self, qa_run_type, expected_display):
+        experiment = NimbusExperimentFactory.create(qa_run_type=qa_run_type)
+        self.assertEqual(experiment.get_qa_run_type_display(), expected_display)
+
+    def test_qa_run_date_accepts_valid_date(self):
+        test_date = datetime.date(2024, 1, 15)
+        experiment = NimbusExperimentFactory.create(qa_run_date=test_date)
+        self.assertEqual(experiment.qa_run_date, test_date)
+
+    def test_qa_run_test_plan_accepts_valid_url(self):
+        test_url = "https://example.com/test-plan"
+        experiment = NimbusExperimentFactory.create(qa_run_test_plan=test_url)
+        self.assertEqual(experiment.qa_run_test_plan, test_url)
+
+    def test_qa_run_testrail_link_accepts_valid_url(self):
+        test_url = "https://testrail.example.com/index.php?/runs/view/12345"
+        experiment = NimbusExperimentFactory.create(qa_run_testrail_link=test_url)
+        self.assertEqual(experiment.qa_run_testrail_link, test_url)
+
     def test_clone_created_experiment(self):
         owner = UserFactory.create()
         required_experiment = NimbusExperimentFactory.create()
@@ -3864,6 +3891,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.conclusion_recommendations, [])
         self.assertEqual(child.qa_status, NimbusExperiment.QAStatus.NOT_SET)
         self.assertEqual(child.qa_comment, None)
+        self.assertEqual(child.qa_run_date, None)
+        self.assertEqual(child.qa_run_type, None)
+        self.assertEqual(child.qa_run_test_plan, None)
+        self.assertEqual(child.qa_run_testrail_link, None)
         self.assertEqual(child._start_date, None)
         self.assertEqual(child._end_date, None)
         self.assertEqual(child._enrollment_end_date, None)

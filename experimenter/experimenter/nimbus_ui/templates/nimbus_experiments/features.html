@@ -183,7 +183,7 @@
         </div>
         <hr>
         <h5 class="fw-semibold">
-          <img src="{% static 'assets/my-deliveries.svg' %}"
+          <img src="{% static 'assets/qa-runs.svg' %}"
                alt="Hugging Foxes"
                style="width: 60px;
                       height: auto" />
@@ -194,39 +194,55 @@
             <table class="table table-hover table-borderless align-middle mb-3">
               <thead>
                 <tr>
-                  <th>Request Link</th>
-                  <th>Run Date</th>
-                  <th>Run Type</th>
-                  <th>Status</th>
-                  <th>Test Plan</th>
-                  <th>TestRail Link</th>
-                </thead>
-                <tbody>
-                  {% for experiment in experiments_with_qa_status %}
-                    <tr scope="row">
-                      <td id="qa-run">Request for: {{ experiment.name|default:forloop.counter }}</td>
-                      <td id="qa-run-date">{{ experiment.qa_run_date|format_not_set }}</td>
-                      <td id="qa-run-type">{{ experiment.qa_run_type|format_not_set }}</td>
-                      <td id="qa-run-status">
-                        <div>
-                          {% with icon_info=experiment.qa_status_icon_info %}
-                            {% if icon_info.icon %}<span class="{{ icon_info.color }}"><i class="{{ icon_info.icon }}"></i></span>{% endif %}
-                          {% endwith %}
-                          {{ experiment.get_qa_status_display }}
+                  {% for field, label in qa_runs_sortable_header %}
+                    {% if field not in qa_runs_non_sortable_header %}
+                      {% include "common/home_sortable_header.html" with field=field label=label url=request.path hx_target="#qa-info-table" hx_select="#qa-info-table" current_sort=request.GET.sort %}
+
+                    {% else %}
+                      <th scope="col" class="fw-semibold text-decoration-none">
+                        <div class="d-flex align-items-center">
+                          <span class="d-flex align-items-center text-body p-0">{{ label }}</span>
                         </div>
+                      </th>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for experiment in experiments_with_qa_status %}
+                  <tr scope="row">
+                    <td id="qa-run" class="text-wrap col-3">
+                      Request for: <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+    class="text-decoration-none fw-medium"
+    title="{{ experiment.name }}">{{ experiment.name }}</a>
+                    </td>
+                    <td id="qa-run-date">{{ experiment.qa_run_date|format_not_set }}</td>
+                    <td id="qa-run-type">{{ experiment.get_qa_run_type_display|format_not_set }}</td>
+                    <td id="qa-run-status">
+                      <div>
+                        {% with icon_info=experiment.qa_status_icon_info %}
+                          {% if icon_info.icon %}<span class="{{ icon_info.color }}"><i class="{{ icon_info.icon }}"></i></span>{% endif %}
+                        {% endwith %}
+                        {{ experiment.get_qa_status_display }}
+                      </div>
+                    </td>
+                    <td id="qa-test-plan">
+                      <a href="{{ experiment.qa_run_test_plan }}" target="_blank">Test Plan Link</a>
+                    </td>
+                    <td id="qa-testrail-link" class="col-2">
+                      <a href="{{ experiment.qa_run_testrail_link }}" target="_blank">TestRail Link</a>
+                    </td>
+                  {% empty %}
+                    <tr>
+                      <td colspan="12" class="fw-semibold text-center p-4">
+                        <h4>No QA Runs</h4>
                       </td>
-                      <td id="qa-test-plan">{{ experiment.qa_run_test_plan|format_not_set }}</td>
-                      <td id="qa-testrail-link">{{ experiment.qa_run_testrail_link|format_not_set }}</td>
-                    {% empty %}
-                      <tr>
-                        <td colspan="12" class="fw-semibold text-center p-4">
-                          <h4>No QA Runs</h4>
-                        </td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                <div>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              <div>
+                {% with current_sort=request.GET.sort %}
                   {% if qa_runs_page_obj.has_other_pages %}
                     <div id="pagination" class="row">
                       <div class="col text-center">
@@ -300,10 +316,11 @@
                       </div>
                     </div>
                   {% endif %}
-                </div>
+                {% endwith %}
               </div>
             </div>
           </div>
         </div>
       </div>
-    {% endblock %}
+    </div>
+  {% endblock %}
