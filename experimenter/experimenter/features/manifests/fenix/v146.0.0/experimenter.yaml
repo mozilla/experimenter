@@ -221,6 +221,10 @@ isolated-content-processes:
   hasExposure: true
   exposureDescription: ''
   variables:
+    app-zygote-preloading:
+      type: boolean
+      description: |
+        Whether or not to enable app Zygote preloaded isolated content processes.
     enabled:
       type: boolean
       description: |

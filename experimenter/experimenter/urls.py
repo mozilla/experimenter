@@ -29,6 +29,7 @@ urlpatterns = [
     re_path(r"^api/v7/", include("experimenter.experiments.api.v7.urls")),
     re_path(r"^api/v8/", include("experimenter.experiments.api.v8.urls")),
     re_path(r"^admin/", admin.site.urls),
+    re_path(r"^glean/", include("experimenter.glean.urls")),
     re_path(r"^experiments/", include("experimenter.legacy.legacy_experiments.urls")),
     re_path(r"^nimbus/", include("experimenter.nimbus_ui.urls")),
     re_path(r"^nimbus/$", NimbusExperimentsListView.as_view(), name="nimbus-list"),
