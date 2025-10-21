@@ -26,7 +26,6 @@ from experimenter.nimbus_ui.views import (
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
-    NimbusExperimentsHomeView,
     NimbusExperimentsListTableView,
     NimbusExperimentsPromoteToRolloutView,
     NimbusExperimentsSidebarCloneView,
