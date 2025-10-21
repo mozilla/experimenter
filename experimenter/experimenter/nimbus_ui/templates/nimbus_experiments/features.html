@@ -66,25 +66,40 @@
               <tbody>
                 {% for experiment in experiments_delivered %}
                   <tr scope="row">
-                    <td id="delivery-name">
+                    <td id="delivery-name" class="text-wrap col-3">
                       <a target="_blank"
                          href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
-                         class="text-decoration-none fw-medium">{{ experiment.name }}</a>
+                         class="text-decoration-none fw-medium"
+                         title="{{ experiment.name }}">{{ experiment.name }}</a>
                     </td>
                     <td id="delivery-published-date">{{ experiment.start_date|date:"M j, Y"|format_not_set }}</td>
                     <td id="delivery-type-{{ experiment.home_type_choice }}">{{ experiment.home_type_choice }}</td>
-                    <td id="delivery-channel">{{ experiment.get_channel_display }}</td>
+                    <td id="delivery-channel" class="col-1">
+                      {% render_channel_icons experiment as channel_data %}
+                      {% if channel_data %}
+                        <div class="d-flex flex-wrap">
+                          {% for channel in channel_data %}
+                            <span class="d-inline-flex align-items-center{% if channel.is_multi %} me-2 mb-1{% endif %}">
+                              <span class="{{ channel.icon_info.color }} me-1">
+                                <i class="{{ channel.icon_info.icon }}"></i>
+                              </span>
+                              <span class="small">{{ channel.label }}</span>
+                            </span>
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    </td>
                     <td id="delivery-min-version">{{ experiment.firefox_min_version|parse_version }}</td>
                     <td id="delivery-population-percent">{{ experiment.total_enrolled_clients|floatformat:"-1" }}</td>
                     <td id="delivery-brief">{{ experiment.delivery_brief|format_not_set }}</td>
-                  {% empty %}
-                    <tr>
-                      <td colspan="12" class="fw-semibold text-center p-4">
-                        <h4>No Deliveries</h4>
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </tr>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="12" class="fw-semibold text-center p-4">
+                      <h4>No Deliveries</h4>
+                    </td>
+                  </tr>
+                {% endfor %}
               </tbody>
             </table>
             <div>

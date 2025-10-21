@@ -3538,7 +3538,7 @@ class TestNimbusFeaturesView(AuthTestCase):
         response = self.client.get(
             reverse("nimbus-ui-features"),
             {
-                "sort": FeaturesPageSortChoices.Deliveries.DATES_UP,
+                "sort": FeaturesPageSortChoices.Deliveries.DATE_UP,
                 "application": NimbusExperiment.Application.DESKTOP.value,
                 "feature_configs": self.feature_configs["feature-desktop"].id,
             },
@@ -3552,7 +3552,7 @@ class TestNimbusFeaturesView(AuthTestCase):
         response = self.client.get(
             reverse("nimbus-ui-features"),
             {
-                "sort": FeaturesPageSortChoices.Deliveries.DATES_DOWN,
+                "sort": FeaturesPageSortChoices.Deliveries.DATE_DOWN,
                 "application": NimbusExperiment.Application.DESKTOP.value,
                 "feature_configs": self.feature_configs["feature-desktop"].id,
             },
