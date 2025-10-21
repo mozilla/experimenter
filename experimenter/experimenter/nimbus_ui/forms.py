@@ -1480,7 +1480,7 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
 
 class FeaturesForm(forms.ModelForm):
     def get_feature_config_choices(self, application, qs):
-        choices = []
+        choices = [("", "Nothing selected")]
         choices.extend(
             sorted(
                 [
@@ -1532,7 +1532,6 @@ class FeaturesForm(forms.ModelForm):
             "hx-select": "#features-form",
             "hx-target": "#features-form",
             "hx-swap": "outerHTML",
-            "hx-select-oob": "#deliveries-table",
         }
         self.fields["application"].widget.attrs.update(htmx_attrs)
         self.fields["feature_configs"].widget.attrs.update(htmx_attrs)

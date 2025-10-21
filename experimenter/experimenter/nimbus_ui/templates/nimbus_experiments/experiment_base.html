@@ -55,4 +55,33 @@
       Slug copied to clipboard!
     </div>
   </div>
+  <div class="modal fade"
+       id="cloneModal"
+       tabindex="-1"
+       aria-labelledby="cloneModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="cloneModalLabel">
+            <i class="fa-regular fa-copy"></i>
+            Clone Experiment {{ experiment.name }}
+          </h1>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body bg-body-tertiary">
+          <form id="cloneForm"
+                hx-post="{% url 'nimbus-ui-clone' experiment.slug %}"
+                hx-target="#cloneForm">
+            {% csrf_token %}
+            {% include "nimbus_experiments/clone.html" with form=clone_form experiment=experiment form_id_prefix="clone" %}
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
