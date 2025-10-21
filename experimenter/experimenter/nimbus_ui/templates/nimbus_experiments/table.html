@@ -13,44 +13,6 @@
 
     </ul>
   </div>
-  <div class="order-1 order-md-2 mb-2 mb-md-0 ms-2">
-    <a id="create-new-button"
-       class="btn btn-primary"
-       data-bs-toggle="modal"
-       data-bs-target="#createModal">
-      <i class="fa-regular fa-pen-to-square"></i>
-      Create Experiment
-    </a>
-    <!-- Modal -->
-    <div class="modal fade"
-         id="createModal"
-         tabindex="-1"
-         aria-labelledby="createModalLabel"
-         aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="createModalLabel">
-              <i class="fa-regular fa-pen-to-square"></i>
-              Create Experiment
-            </h1>
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-          </div>
-          <div class="modal-body bg-body-tertiary">
-            <form id="createForm"
-                  hx-post="{% url 'nimbus-ui-create' %}"
-                  hx-target="#createForm">
-              {% include "nimbus_experiments/create.html" with form=create_form %}
-
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 <div id="experiment-list"></div>
 <div class="border border-1 border-top-0 border-bottom-0 mb-3">
