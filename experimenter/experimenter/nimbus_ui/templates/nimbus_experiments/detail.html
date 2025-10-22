@@ -249,17 +249,38 @@
             </tr>
             <tr>
               {% if experiment.is_mobile %}
-                <th>Languages</th>
+                <th>
+                  {% if experiment.exclude_languages %}
+                    Excluded
+                  {% else %}
+                    Included
+                  {% endif %}
+                  Languages
+                </th>
                 <td>
                   {{ experiment.languages.all|join:"<br>"|default:"All Languages" }}
                 </td>
               {% else %}
-                <th>Locales</th>
+                <th>
+                  {% if experiment.exclude_locales %}
+                    Excluded
+                  {% else %}
+                    Included
+                  {% endif %}
+                  Locales
+                </th>
                 <td>
                   {{ experiment.locales.all|join:"<br>"|default:"All Locales" }}
                 </td>
               {% endif %}
-              <th>Countries</th>
+              <th>
+                {% if experiment.exclude_countries %}
+                  Excluded
+                {% else %}
+                  Included
+                {% endif %}
+                Countries
+              </th>
               <td>
                 {{ experiment.countries.all|join:"<br>"| default:"All Countries" }}
               </td>

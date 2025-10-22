@@ -270,6 +270,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     languages = models.ManyToManyField[Language](
         Language, blank=True, verbose_name="Supported Languages"
     )
+    exclude_locales = models.BooleanField(
+        "Exclude Locales",
+        default=False,
+        help_text="If True, exclude the selected locales instead of including them",
+    )
+    exclude_countries = models.BooleanField(
+        "Exclude Countries",
+        default=False,
+        help_text="If True, exclude the selected countries instead of including them",
+    )
+    exclude_languages = models.BooleanField(
+        "Exclude Languages",
+        default=False,
+        help_text="If True, exclude the selected languages instead of including them",
+    )
     is_sticky = models.BooleanField("Sticky Enrollment Flag", default=False)
     projects = models.ManyToManyField[Project](
         Project, blank=True, verbose_name="Supported Projects"
@@ -622,20 +637,29 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if locales := self.locales.all():
             locales = [locale.code for locale in sorted(locales, key=lambda l: l.code)]
 
-            sticky_expressions.append(f"locale in {locales}")
+            if self.exclude_locales:
+                sticky_expressions.append(f"!(locale in {locales})")
+            else:
+                sticky_expressions.append(f"locale in {locales}")
 
         if languages := self.languages.all():
             languages = [
                 language.code for language in sorted(languages, key=lambda l: l.code)
             ]
 
-            sticky_expressions.append(f"language in {languages}")
+            if self.exclude_languages:
+                sticky_expressions.append(f"!(language in {languages})")
+            else:
+                sticky_expressions.append(f"language in {languages}")
 
         if countries := self.countries.all():
             countries = [
                 country.code for country in sorted(countries, key=lambda c: c.code)
             ]
-            sticky_expressions.append(f"region in {countries}")
+            if self.exclude_countries:
+                sticky_expressions.append(f"!(region in {countries})")
+            else:
+                sticky_expressions.append(f"region in {countries}")
 
         enrollments_map_key = "enrollments_map"
         if self.is_desktop:
