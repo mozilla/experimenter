@@ -141,6 +141,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     LIVE_MONITOR_TOOLTIP = """Live Monitoring shows enrollment/unenrollment for this
     delivery"""
 
+    OVERVIEW_SECTIONS = [
+        "Hypothesis",
+        "Branch overview",
+        "Key takeaways",
+        "Next steps",
+        "Project impact",
+    ]
     FEATURE_PAGE_LINKS = {
         "feature_learn_more_url": "https://experimenter.info/for-product#track-your-feature-health"
     }

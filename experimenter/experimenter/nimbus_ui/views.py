@@ -648,8 +648,8 @@ class ApproveUpdateRolloutView(StatusUpdateView):
     form_class = ApproveUpdateRolloutForm
 
 
-class ResultsView(NimbusExperimentViewMixin, DetailView):
-    template_name = "nimbus_experiments/results.html"
+class NewResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results-new.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -675,12 +675,60 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
 
         selected_segment = self.request.GET.get("segment", "all")
         context["selected_segment"] = selected_segment
+
         analysis_basis = self.request.GET.get(
             "analysis_basis", "exposures" if experiment.has_exposures else "enrollments"
         )
         context["selected_analysis_basis"] = analysis_basis
 
         context["results_data"] = analysis_data
+        context["overview_sections"] = NimbusUIConstants.OVERVIEW_SECTIONS
+
+        branch_data = []
+        overall_results = (
+            analysis_data.get("overall", {})
+            .get(analysis_basis, {})
+            .get(selected_segment, {})
+        )
+
+        branches = []
+        if experiment.reference_branch:
+            branches.append(experiment.reference_branch)
+        branches.extend(experiment.treatment_branches)
+
+        for branch in branches:
+            slug = branch.slug
+            participant_metrics = (
+                overall_results.get(slug, {})
+                .get("branch_data", {})
+                .get("other_metrics", {})
+                .get("identity", {})
+            )
+            num_participants = (
+                participant_metrics.get("absolute", {}).get("first", {}).get("point", 0)
+            )
+
+            branch_data.append(
+                {
+                    "slug": slug,
+                    "name": branch.name,
+                    "screenshots": branch.screenshots.all,
+                    "description": branch.description,
+                    "percentage": participant_metrics.get("percent"),
+                    "num_participants": num_participants,
+                }
+            )
+
+        context["branch_data"] = branch_data
+
+        return context
+
+
+class ResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context
 
 

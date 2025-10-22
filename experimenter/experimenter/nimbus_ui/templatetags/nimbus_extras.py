@@ -1,4 +1,5 @@
 import json
+import humanize
 from datetime import date
 
 from django import template
@@ -303,3 +304,17 @@ def experiment_date_progress(experiment):
         result["days_text"] = "N/A"
 
     return result
+
+
+@register.filter
+def short_number(value, precision=1):
+    formatted_number_components = humanize.intword(value, format=f"%.{precision}f").split(" ")
+    number = formatted_number_components[0]
+
+    if len(formatted_number_components) > 1:
+        magnitude = formatted_number_components[1]
+        if magnitude == "thousand":
+            magnitude = "K"
+        formatted_number = f"{number}{magnitude[0].capitalize()}"
+
+    return formatted_number
