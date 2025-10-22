@@ -599,3 +599,30 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
                     return queryset.filter(query)
 
         return queryset
+
+
+class FeaturesPageSortChoices(models.TextChoices):
+    class Deliveries(models.TextChoices):
+        NAME_UP = "slug", "Recipe Name"
+        NAME_DOWN = "-slug", "Recipe Name"
+        DATE_UP = "_start_date", "Launch Date"
+        DATE_DOWN = "-_start_date", "Launch Date"
+        TYPE_UP = "is_rollout", "Delivery Type"
+        TYPE_DOWN = "-is_rollout", "Delivery Type"
+        CHANNEL_UP = "merged_channel", "Channel(s)"
+        CHANNEL_DOWN = "-merged_channel", "Channel(s)"
+        VERSIONS_UP = "firefox_min_version", "Min Version"
+        VERSIONS_DOWN = "-firefox_min_version", "Min Version"
+        SIZE_UP = "total_enrolled_clients", "Pop. Size"
+        SIZE_DOWN = "-total_enrolled_clients", "Pop. Size"
+
+    @staticmethod
+    def sortable_headers(table_name):
+        seen = set()
+        headers = []
+        for choice in table_name:
+            field = choice.value.lstrip("-")
+            if field not in seen:
+                headers.append((field, choice.label))
+                seen.add(field)
+        return headers
