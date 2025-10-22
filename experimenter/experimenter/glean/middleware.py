@@ -14,7 +14,7 @@ class GleanMiddleware:
         )
         self.pings = glean.load_pings(settings.BASE_DIR / "telemetry" / "pings.yaml")
         glean.Glean.initialize(
-            application_id="experimenter-backend",
+            application_id="experimenter.backend",
             application_version=settings.APP_VERSION,
             data_dir=settings.GLEAN_DATA_DIR,
             upload_enabled=settings.GLEAN_UPLOAD_ENABLED,
