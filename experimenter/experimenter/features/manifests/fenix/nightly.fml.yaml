@@ -92,6 +92,25 @@ features:
         description: Whether or not to enable the custom review prompt.
         type: Boolean
         default: false
+  default-browser-prompt:
+    description: Feature that controls when the default browser prompt is shown.
+    variables:
+      coldStartsBetweenPrompts:
+        description: The minimum number of cold starts between showing the prompt.
+        type: Option<Int>
+        default: 4
+      daysBetweenPrompts:
+        description: The minimum number of days between showing the prompt.
+        type: Option<Int>
+        default: 14
+      enabled:
+        description: Whether or not to enable the default browser prompt.
+        type: Boolean
+        default: true
+      maxPromptsShown:
+        description: The maximum number of times the prompt can shown to the user.
+        type: Option<Int>
+        default: 3
   doh:
     description: Feature controlling DNS over HTTPS (DoH).
     variables:
