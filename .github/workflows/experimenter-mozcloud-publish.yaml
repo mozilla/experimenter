@@ -63,8 +63,9 @@ jobs:
       - name: Tag image(s) for GAR
         id: meta
         shell: bash
+        env:
+          IMAGE_TAG: ${{ steps.mozcloud-tag.outputs.image_tag }}
         run: |
-          IMAGE_TAG="${{ steps.mozcloud-tag.outputs.image_tag }}"
           # Re-tag the image built by make build_prod (experimenter:deploy)
           docker tag experimenter:deploy "${IMAGE_BASE}:latest"
           docker tag experimenter:deploy "${IMAGE_BASE}:${IMAGE_TAG}"
