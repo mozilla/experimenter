@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -136,6 +138,18 @@ class NimbusExperimentViewMixin:
             experiment.sidebar_links(self.request.path)
             if experiment and experiment.slug
             else []
+        )
+
+        context["live_monitor_tooltip"] = NimbusUIConstants.LIVE_MONITOR_TOOLTIP
+        context["common_sidebar_links"] = NimbusUIConstants.SIDEBAR_COMMON_LINKS
+
+        slug_underscore = (
+            experiment.slug.replace("-", "_") if experiment and experiment.slug else ""
+        )
+
+        context["analysis_link"] = urljoin(
+            NimbusUIConstants.SIDEBAR_COMMON_LINKS["Detailed Analysis"]["url"],
+            slug_underscore,
         )
         context["create_form"] = NimbusExperimentCreateForm()
 
