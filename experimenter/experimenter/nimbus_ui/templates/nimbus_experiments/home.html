@@ -108,7 +108,7 @@
                     <tr>
                       <td>
                         <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
-                           class="text-decoration-none fw-medium">{{ experiment.name }}</a>
+                           class="text-decoration-none fw-medium text-break">{{ experiment.name }}</a>
                       </td>
                       <td>
                         {% with status_info=experiment|home_status_display_with_icon %}
