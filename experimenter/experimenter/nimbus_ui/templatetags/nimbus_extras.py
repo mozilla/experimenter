@@ -303,3 +303,25 @@ def experiment_date_progress(experiment):
         result["days_text"] = "N/A"
 
     return result
+
+
+@register.filter
+def short_number(value, precision=1):
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        return value
+
+    n = abs(n)
+
+    if n < 1000:
+        return f"{n}"
+    if n < 1_000_000:
+        v = n / 1000.0
+        if v.is_integer():
+            return f"{int(v)}k"
+        return f"{v:.{int(precision)}f}k"
+    v = n / 1_000_000.0
+    if v.is_integer():
+        return f"{int(v)}M"
+    return f"{v:.{int(precision)}f}M"

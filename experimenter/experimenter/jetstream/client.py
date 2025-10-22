@@ -244,7 +244,6 @@ def get_experiment_data(experiment: NimbusExperiment):
                 experiment_data[window][AnalysisBasis.ENROLLMENTS] = {}
                 raw_data[window][AnalysisBasis.ENROLLMENTS] = {}
             elif point["analysis_basis"] == AnalysisBasis.EXPOSURES:
-                experiment_data["has_exposures"] = point.get("point", 0) > 0
                 segment_points_exposures[segment_key].append(point)
                 experiment_data[window][AnalysisBasis.EXPOSURES] = {}
                 raw_data[window][AnalysisBasis.EXPOSURES] = {}

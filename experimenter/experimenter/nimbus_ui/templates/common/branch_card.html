@@ -1,0 +1,30 @@
+{% load nimbus_extras %}
+
+<div class="d-flex gap-4">
+  {% with shot=branch.screenshots.first %}
+    {% if shot and shot.image %}
+      <img src="{{ shot.image.url }}"
+           alt="{{ shot.description|default:branch.name }}"
+           class="border border-secondary-subtle rounded w-50"
+           style="height: 120px;
+                  object-fit: cover" />
+    {% else %}
+      <div class="border border-secondary-subtle rounded text-center d-flex align-items-center justify-content-center w-50"
+           style="height: 120px">
+        <small class="text-muted">No screenshot</small>
+      </div>
+    {% endif %}
+  {% endwith %}
+  <div class="w-50">
+    <span class="badge rounded-pill text-body-secondary bg-body-secondary border border-secondary-subtle d-flex-inline d-inline-flex flex-wrap gap-2">
+      {{ branch.name }}
+      <div class="d-inline-flex gap-1 fw-normal">
+        {{ branch.percentage|floatformat:"0g" }}%
+        <span>&middot;</span>
+        {{ branch.num_participants|short_number }} users
+      </div>
+    </span>
+    <h6 class="mt-2">{{ branch.name }}</h6>
+    <p class="text-muted">{{ branch.description|truncatechars:100 }}</p>
+  </div>
+</div>

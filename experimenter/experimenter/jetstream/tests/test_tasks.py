@@ -472,7 +472,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "metrics": {},
                 },
                 "show_analysis": False,
-                "has_exposures": True,
                 "errors": ERRORS,
             },
         }
@@ -786,7 +785,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 },
                 "metadata": {},
                 "show_analysis": False,
-                "has_exposures": True,
                 "errors": ERRORS,
             },
         }
