@@ -636,30 +636,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if locales := self.locales.all():
             locales = [locale.code for locale in sorted(locales, key=lambda l: l.code)]
-
+            locales_expression = f"locale in {locales}"
             if self.exclude_locales:
-                sticky_expressions.append(f"!(locale in {locales})")
-            else:
-                sticky_expressions.append(f"locale in {locales}")
+                locales_expression = f"!({locales_expression})"
+            sticky_expressions.append(locales_expression)
 
         if languages := self.languages.all():
             languages = [
                 language.code for language in sorted(languages, key=lambda l: l.code)
             ]
-
+            languages_expression = f"language in {languages}"
             if self.exclude_languages:
-                sticky_expressions.append(f"!(language in {languages})")
-            else:
-                sticky_expressions.append(f"language in {languages}")
+                languages_expression = f"!({languages_expression})"
+            sticky_expressions.append(languages_expression)
 
         if countries := self.countries.all():
             countries = [
                 country.code for country in sorted(countries, key=lambda c: c.code)
             ]
+            countries_expression = f"region in {countries}"
             if self.exclude_countries:
-                sticky_expressions.append(f"!(region in {countries})")
-            else:
-                sticky_expressions.append(f"region in {countries}")
+                countries_expression = f"!({countries_expression})"
+            sticky_expressions.append(countries_expression)
 
         enrollments_map_key = "enrollments_map"
         if self.is_desktop:
