@@ -56,11 +56,19 @@
             {% if experiment.is_desktop %}
               <label for="id_locales" class="form-label">Locales</label>
               {{ form.locales|add_class:"form-control"|add_error_class:"is-invalid" }}
+              <label for="id_exclude_locales" class="form-label mt-2">
+                {{ form.exclude_locales|add_error_class:"is-invalid" }}
+                Exclude selected locales
+              </label>
               {% for error in form.locales.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               {% for error in validation_errors.locales %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             {% else %}
               <label for="id_languages" class="form-label">Languages</label>
               {{ form.languages|add_class:"form-control"|add_error_class:"is-invalid" }}
+              <label for="id_exclude_languages" class="form-label mt-2">
+                {{ form.exclude_languages|add_error_class:"is-invalid" }}
+                Exclude selected languages
+              </label>
               {% for error in form.languages.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               {% for error in validation_errors.languages %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             {% endif %}
@@ -68,6 +76,10 @@
           <div data-testid="countries" class="col-6">
             <label for="id_countries" class="form-label">Countries</label>
             {{ form.countries|add_class:"form-control"|add_error_class:"is-invalid" }}
+            <label for="id_exclude_countries" class="form-label mt-2">
+              {{ form.exclude_countries|add_error_class:"is-invalid" }}
+              Exclude selected countries
+            </label>
             {% for error in form.countries.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
             {% for error in validation_errors.countries %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
           </div>

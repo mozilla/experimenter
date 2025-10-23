@@ -827,6 +827,28 @@ class TestNimbusExperiment(TestCase):
         )
         JEXLParser().parse(experiment.targeting)
 
+    def test_targeting_with_exclude_locales(self):
+        locale_ca = LocaleFactory.create(code="en-CA")
+        locale_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[locale_ca, locale_us],
+            exclude_locales=True,
+            countries=[],
+            languages=[],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            ("(os.isMac) && (!(locale in ['en-CA', 'en-US']))"),
+        )
+        JEXLParser().parse(experiment.targeting)
+
     def test_targeting_with_countries(self):
         country_ca = CountryFactory.create(code="CA")
         country_us = CountryFactory.create(code="US")
@@ -845,6 +867,28 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             ("(os.isMac) && (region in ['CA', 'US'])"),
+        )
+        JEXLParser().parse(experiment.targeting)
+
+    def test_targeting_with_exclude_countries(self):
+        country_ca = CountryFactory.create(code="CA")
+        country_us = CountryFactory.create(code="US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[country_ca, country_us],
+            exclude_countries=True,
+            languages=[],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            ("(os.isMac) && (!(region in ['CA', 'US']))"),
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -888,6 +932,27 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             "(days_since_install < 7) && (language in ['en', 'es', 'fr'])",
+        )
+        JEXLParser().parse(experiment.targeting)
+
+    def test_targeting_with_exclude_languages_mobile(self):
+        language_en = LanguageFactory.create(code="en")
+        language_fr = LanguageFactory.create(code="fr")
+        language_es = LanguageFactory.create(code="es")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.FENIX,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            languages=[language_en, language_es, language_fr],
+            exclude_languages=True,
+        )
+        self.assertEqual(
+            experiment.targeting,
+            "(days_since_install < 7) && (!(language in ['en', 'es', 'fr']))",
         )
         JEXLParser().parse(experiment.targeting)
 
