@@ -966,16 +966,19 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         queryset=Locale.objects.all().order_by("code"),
         widget=MultiSelectWidget(),
     )
+    exclude_locales = forms.BooleanField(required=False)
     languages = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Language.objects.all().order_by("code"),
         widget=MultiSelectWidget(),
     )
+    exclude_languages = forms.BooleanField(required=False)
     countries = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Country.objects.all().order_by("code"),
         widget=MultiSelectWidget(),
     )
+    exclude_countries = forms.BooleanField(required=False)
     targeting_config_slug = forms.ChoiceField(
         required=False,
         label="",
@@ -1015,11 +1018,14 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "channel",
             "channels",
             "countries",
+            "exclude_countries",
+            "exclude_languages",
+            "exclude_locales",
             "excluded_experiments_branches",
             "firefox_max_version",
             "firefox_min_version",
-            "is_sticky",
             "is_first_run",
+            "is_sticky",
             "languages",
             "locales",
             "population_percent",
