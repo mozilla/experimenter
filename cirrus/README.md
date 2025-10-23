@@ -226,6 +226,7 @@ Example input:
 Example usage with nimbus_preview query parameter:
 
 ```shell
+# v1 api
 curl -X POST "http://localhost:8001/v1/features/?nimbus_preview=true" -H 'Content-Type: application/json' -d '{
   "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
   "context": {
@@ -235,11 +236,22 @@ curl -X POST "http://localhost:8001/v1/features/?nimbus_preview=true" -H 'Conten
 }'
 ```
 
-### Output
+```shell
+# v2 api
+curl -X POST "http://localhost:8001/v2/features/?nimbus_preview=true" -H 'Content-Type: application/json' -d '{
+  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
+  "context": {
+    "language": "en",
+    "region": "US"
+  }
+}'
+```
 
-The output will be a JSON object with the following properties:
+## Output
 
-- `features` (object): An object that contains the set of features. Each feature is represented as a sub-object with its own set of variables.
+### V1 API Output
+
+The output will be a JSON object where each feature is represented as a sub-object with its own set of variables.
 
 Example output:
 
@@ -260,21 +272,13 @@ Example output:
 }
 ```
 
-```shell
-curl -X POST "http://localhost:8001/v2/features/?nimbus_preview=true" -H 'Content-Type: application/json' -d '{
-  "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
-  "context": {
-    "language": "en",
-    "region": "US"
-  }
-}'
-```
 
-### Output
+
+### V2 API Output
 
 The output will be a JSON object with the following properties:
 
-- `features` (object): An object that contains the set of features. Each feature is represented as a sub-object with its own set of variables.
+- `Features` (object): An object that contains the set of features. Each feature is represented as a sub-object with its own set of variables.
 - `Enrollments` (array): An array of objects representing the client's enrollment into experiments. Each enrollment object contains details about the experiment, such as the experiment ID, branch, and type.
 
 Example output:
