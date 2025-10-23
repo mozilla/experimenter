@@ -142,7 +142,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     delivery"""
 
     FEATURE_PAGE_LINKS = {
-        "feature_learn_more_url": "https://experimenter.info/for-product#track-your-feature-health"
+        "feature_learn_more_url": "https://experimenter.info/for-product#track-your-feature-health",
+        "deliveries_table_tooltip": """This shows all Nimbus experiments, rollouts, Labs
+        experiences, etc. associated with your selected feature.""",
     }
 
     class ReviewRequestMessages(Enum):
