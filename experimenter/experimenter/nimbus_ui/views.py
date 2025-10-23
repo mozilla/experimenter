@@ -150,7 +150,7 @@ class NimbusExperimentViewMixin:
 
         context["analysis_link"] = urljoin(
             NimbusUIConstants.SIDEBAR_COMMON_LINKS["Detailed Analysis"]["url"],
-            slug_underscore,
+            slug_underscore + ".html",
         )
         context["create_form"] = NimbusExperimentCreateForm()
 
