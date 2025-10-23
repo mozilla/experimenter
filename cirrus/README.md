@@ -274,7 +274,7 @@ Example output:
 
 
 
-### V1 API Output
+### V2 API Output
 
 The output will be a JSON object with the following properties:
 
