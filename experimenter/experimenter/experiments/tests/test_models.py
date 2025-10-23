@@ -3715,14 +3715,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(experiment.qa_status_badge_class, expected_badge_class)
 
-    @parameterized.expand(
-        [
-            [NimbusExperiment.QATestType.FULL, "Full"],
-            [NimbusExperiment.QATestType.SMOKE, "Smoke"],
-            [NimbusExperiment.QATestType.SELF, "Self"],
-            [NimbusExperiment.QATestType.REGRESSION, "Regression"],
-        ]
-    )
+    @parameterized.expand(NimbusExperiment.QATestType.choices)
     def test_qa_run_type_display(self, qa_run_type, expected_display):
         experiment = NimbusExperimentFactory.create(qa_run_type=qa_run_type)
         self.assertEqual(experiment.get_qa_run_type_display(), expected_display)
