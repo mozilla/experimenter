@@ -473,6 +473,10 @@ tou-feature:
   hasExposure: true
   exposureDescription: ''
   variables:
+    max-reminders-count:
+      type: int
+      description: |
+        Maximum number of ToU bottom sheet reminders that can be displayed
     status:
       type: boolean
       description: |
