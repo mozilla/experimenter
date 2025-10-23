@@ -31,6 +31,7 @@ from experimenter.kinto.tasks import (
 )
 from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.filtersets import (
+    FeaturesPageSortChoices,
     MyDeliveriesChoices,
     SortChoices,
     TypeChoices,
@@ -3488,3 +3489,251 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertContains(response, "deliveries-table")
         self.assertContains(response, "qa-info-table")
         self.assertContains(response, experiment)
+
+    def test_features_view_deliveries_table_can_sort_by_recipe_name(self):
+        experiment1 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            name="A Experiment",
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            name="B Experiment",
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.NAME_UP,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.NAME_DOWN,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_features_view_deliveries_table_can_sort_by_date(self):
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            start_date=datetime.date(2024, 1, 1),
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            start_date=datetime.date(2024, 1, 2),
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.DATE_UP,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.DATE_DOWN,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_features_view_deliveries_table_can_sort_by_experiment_type(self):
+        experiment1 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            is_rollout=False,
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            is_rollout=True,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.TYPE_UP,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.TYPE_DOWN,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_features_view_deliveries_table_can_sort_by_experiment_channel(self):
+        experiment1 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            status=NimbusExperiment.Status.LIVE,
+            channels=[NimbusExperiment.Channel.BETA],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            status=NimbusExperiment.Status.LIVE,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.CHANNEL_UP,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.CHANNEL_DOWN,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_features_view_deliveries_table_can_sort_by_versions(self):
+        experiment1 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            status=NimbusExperiment.Status.LIVE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            status=NimbusExperiment.Status.LIVE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_101,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.VERSIONS_UP,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.VERSIONS_DOWN,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_features_view_deliveries_table_can_sort_by_total_clients(self):
+        experiment1 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            total_enrolled_clients=1500,
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            total_enrolled_clients=200000,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.SIZE_UP,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.Deliveries.SIZE_DOWN,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment2.slug, experiment1.slug],
+        )

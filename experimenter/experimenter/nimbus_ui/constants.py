@@ -141,8 +141,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     LIVE_MONITOR_TOOLTIP = """Live Monitoring shows enrollment/unenrollment for this
     delivery"""
 
-    # TODO: Add learn more URL for feature page (EXP-5876)
-    FEATURE_PAGE_LINKS = {"feature_learn_more_url": ""}
+    FEATURE_PAGE_LINKS = {
+        "feature_learn_more_url": "https://experimenter.info/for-product#track-your-feature-health"
+    }
 
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"
