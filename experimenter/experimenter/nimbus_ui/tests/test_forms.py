@@ -1347,6 +1347,9 @@ class TestAudienceForm(RequestFormTestCase):
             countries=[],
             locales=[],
             languages=[],
+            exclude_countries=False,
+            exclude_locales=False,
+            exclude_languages=False,
         )
 
         form = AudienceForm(
@@ -1359,6 +1362,9 @@ class TestAudienceForm(RequestFormTestCase):
                 ],
                 "countries": [country.id],
                 "excluded_experiments_branches": [f"{excluded.slug}:None"],
+                "exclude_countries": True,
+                "exclude_locales": True,
+                "exclude_languages": True,
                 "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
                 "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
                 "is_sticky": True,
@@ -1400,6 +1406,9 @@ class TestAudienceForm(RequestFormTestCase):
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])
         self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertTrue(experiment.exclude_countries)
+        self.assertTrue(experiment.exclude_locales)
+        self.assertTrue(experiment.exclude_languages)
         self.assertTrue(experiment.is_sticky)
         self.assertEqual(experiment.excluded_experiments.get(), excluded)
         self.assertTrue(
@@ -3835,8 +3844,8 @@ class TestFeaturesViewForm(RequestFormTestCase):
         form = FeaturesForm()
         application = form.fields["application"]
         feature_configs = form.fields["feature_configs"]
-        self.assertEqual(application.initial, NimbusExperiment.Application.DESKTOP.value)
-        self.assertIsNone(feature_configs.initial)
+        self.assertEqual(application.initial, "")
+        self.assertEqual(feature_configs.initial, "")
 
     @parameterized.expand(
         [

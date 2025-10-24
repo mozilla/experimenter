@@ -1,5 +1,3 @@
-import * as bootstrap from "bootstrap";
-
 const setupCollapseRecipe = () => {
   const collapseRecipe = document.getElementById("collapse-recipe");
   if (!collapseRecipe) return;
@@ -32,7 +30,7 @@ const setupPreviewUrlCopyToast = () => {
   if (previewUrl && copiedToast) {
     previewUrl.addEventListener("click", function () {
       navigator.clipboard.writeText(previewUrl.textContent.trim());
-      var toast = bootstrap.Toast.getOrCreateInstance(copiedToast);
+      var toast = window.bootstrap.Toast.getOrCreateInstance(copiedToast);
       toast.show();
     });
   }

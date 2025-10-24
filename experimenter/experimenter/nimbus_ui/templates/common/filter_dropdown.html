@@ -30,6 +30,7 @@
           hx-target="{{ hx_target }}"
           hx-select="{{ hx_select }}"
           hx-swap="outerHTML"
+          hx-push-url="true"
           class="m-0 {{ filter_name }}-filter">
       {% for form_field in form %}
         {% if form_field.name != filter_name and form_field.name != "sort" %}
@@ -69,7 +70,7 @@
                    name="{{ filter_name }}"
                    id="{{ filter_name }}-{{ value|slugify }}"
                    value="{{ value }}"
-                   {% if selected_values and value in selected_values %}checked{% endif %}>
+                   {% if selected_values and value|to_str in selected_values %}checked{% endif %}>
             <label class="form-check-label" for="{{ filter_name }}-{{ value|slugify }}">{{ label }}</label>
           </div>
         {% endfor %}

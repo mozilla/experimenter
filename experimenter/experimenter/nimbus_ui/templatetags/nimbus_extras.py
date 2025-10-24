@@ -201,6 +201,11 @@ def home_status_display_with_icon(experiment):
 
 
 @register.filter
+def to_str(value):
+    return str(value)
+
+
+@register.filter
 def experiment_date_progress(experiment):
     today = date.today()
 
