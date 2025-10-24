@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from nimbus.pages.experimenter.home import HomePage
@@ -20,7 +22,7 @@ def test_create_new_experiment_approve_remote_settings(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
@@ -44,7 +46,7 @@ def test_create_new_rollout_approve_remote_settings(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
@@ -65,7 +67,7 @@ def test_create_new_experiment_reject_remote_settings(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.reject()
+    kinto_client().reject()
 
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
@@ -86,7 +88,7 @@ def test_create_new_rollout_reject_remote_settings(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.reject()
+    kinto_client().reject()
 
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
@@ -105,13 +107,13 @@ def test_end_experiment_and_approve_end_set_takeaways(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
     summary.end_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
@@ -139,13 +141,13 @@ def test_end_rollout_and_approve_end_set_takeaways(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
     summary.end_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
@@ -171,13 +173,13 @@ def test_end_experiment_and_reject_end(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
     summary.end_and_approve()
 
-    kinto_client.reject()
+    kinto_client().reject()
 
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
@@ -198,13 +200,13 @@ def test_end_rollout_and_reject_end(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
     summary.end_and_approve()
 
-    kinto_client.reject()
+    kinto_client().reject()
 
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
@@ -225,7 +227,7 @@ def test_rollout_live_update_approve(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
 
     summary.wait_for_live_status()
@@ -236,7 +238,7 @@ def test_rollout_live_update_approve(
 
     summary.wait_for_update_request_visible()
     summary.request_update_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
 
 
 @pytest.mark.remote_settings_all
@@ -255,7 +257,7 @@ def test_rollout_live_update_approve_and_reject(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
 
     summary.wait_for_live_status()
@@ -267,7 +269,7 @@ def test_rollout_live_update_approve_and_reject(
     summary.wait_for_update_request_visible()
 
     summary.request_update_and_approve()
-    kinto_client.reject()
+    kinto_client().reject()
 
     summary.wait_for_rejection_notice_visible()
 
@@ -288,7 +290,7 @@ def test_rollout_live_update_reject_on_experimenter(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
 
     summary.wait_for_live_status()
@@ -320,3 +322,41 @@ def test_create_new_experiment_timeout_remote_settings(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
     summary.wait_for_timeout_alert()
+
+
+@pytest.mark.remote_settings_launch
+def test_create_new_experiment_publish_to_preview_and_unpublish(
+    selenium,
+    experiment_url,
+    kinto_client,
+    base_url,
+    application,
+    default_data_api,
+    experiment_slug,
+):
+    timeout = time.time() + 120
+    records_before = len(kinto_client(collection="nimbus-preview").get_record_data())
+
+    helpers.create_experiment(experiment_slug, application, default_data_api)
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_to_preview()
+
+    while time.time() < timeout:
+        preview_data = kinto_client(collection="nimbus-preview").get_record_data()
+        if any(record.get("slug") == experiment_slug for record in preview_data):
+            break
+        time.sleep(15)
+    else:
+        pytest.fail("Experiment not published to preview in time")
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.back_to_draft()
+
+    while time.time() < timeout:
+        records_after = kinto_client(collection="nimbus-preview").get_record_data()
+        if len(records_after) == records_before:
+            break
+        time.sleep(15)
+    else:
+        pytest.fail("Experiment not unpublished from preview in time")
