@@ -3576,14 +3576,18 @@ class TestNimbusFeaturesView(AuthTestCase):
         )
 
         feature_id = self.feature_configs[feature_config].id
-        url = reverse("nimbus-ui-features")
         response = self.client.get(
-            f"{url}?application={application.value}&feature_configs={feature_id}"
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_id,
+            },
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "deliveries-table")
         self.assertContains(response, "qa-info-table")
+        self.assertContains(response, "feature-changes-table")
         self.assertContains(response, experiment)
 
     def test_features_view_deliveries_table_can_sort_by_recipe_name(self):
