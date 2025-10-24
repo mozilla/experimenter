@@ -150,7 +150,7 @@ class NimbusExperimentViewMixin:
 
         context["analysis_link"] = urljoin(
             NimbusUIConstants.SIDEBAR_COMMON_LINKS["Detailed Analysis"]["url"],
-            slug_underscore,
+            slug_underscore + ".html",
         )
         context["create_form"] = NimbusExperimentCreateForm()
 
@@ -712,6 +712,23 @@ class NimbusFeaturesView(TemplateView):
             field for field, _ in deliveries_non_sortable_headers
         }
 
+        # header fields for the qa runs table
+        qa_runs_sortable_headers = FeaturesPageSortChoices.sortable_headers(
+            FeaturesPageSortChoices.QARuns
+        )
+        qa_runs_non_sortable_headers = [
+            ("qa_run", "QA Run"),
+            ("qa_status", "QA Status"),
+            ("qa_test_plan", "Test Plan/Recipe"),
+            ("qa_testrail_link", "TestRail Results"),
+        ]
+        qa_runs_sortable_header = (
+            qa_runs_non_sortable_headers[:1]
+            + qa_runs_sortable_headers
+            + qa_runs_non_sortable_headers[1:]
+        )
+        qa_runs_non_sortable_fields = {field for field, _ in qa_runs_non_sortable_headers}
+
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
@@ -724,6 +741,8 @@ class NimbusFeaturesView(TemplateView):
             "experiments_with_qa_status": qa_runs_page_obj.object_list,
             "deliveries_sortable_header": deliveries_sortable_header,
             "deliveries_non_sortable_header": deliveries_non_sortable_fields,
+            "qa_runs_sortable_header": qa_runs_sortable_header,
+            "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
         }
         return context
 
