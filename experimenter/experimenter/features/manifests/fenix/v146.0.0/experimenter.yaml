@@ -743,18 +743,6 @@ toolbar-redesign-option:
       type: boolean
       description: |
         Whether or not the simple toolbar customization option is visible to the user.
-top-sites-suggestions:
-  description: Enables top sites suggestions.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable top sites suggestions.
-    max-suggestions:
-      type: int
-      description: The number of maximum suggestions.
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
