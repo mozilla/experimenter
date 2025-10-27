@@ -27,6 +27,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
     NimbusVersionedSchemaFactory,
+    TagFactory,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -68,6 +69,8 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagForm,
+    TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
     UnsubscribeForm,
@@ -3885,3 +3888,67 @@ class TestFeaturesViewForm(RequestFormTestCase):
             ),
             feature_configs.choices,
         )
+
+
+class TestTagForm(TestCase):
+    def test_valid_form(self):
+        data = {"name": "Test Tag", "color": "#ff0000"}
+        form = TagForm(data)
+        self.assertTrue(form.is_valid())
+        tag = form.save()
+        self.assertEqual(tag.name, "Test Tag")
+        self.assertEqual(tag.color, "#ff0000")
+
+    def test_invalid_form_missing_name(self):
+        data = {"color": "#ff0000"}
+        form = TagForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+
+    def test_invalid_form_missing_color(self):
+        data = {"name": "Test Tag"}
+        form = TagForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("color", form.errors)
+
+
+class TestTagFormSet(TestCase):
+    def test_formset_prevents_duplicate_names(self):
+        data = {
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-name": "Duplicate",
+            "form-0-color": "#ff0000",
+            "form-1-name": "duplicate",
+            "form-1-color": "#00ff00",
+        }
+        formset = TagFormSet(data)
+        self.assertFalse(formset.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_TAG_DUPLICATE_NAME, str(formset.non_form_errors())
+        )
+
+    def test_formset_allows_unique_names(self):
+        data = {
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-name": "Tag One",
+            "form-0-color": "#ff0000",
+            "form-1-name": "Tag Two",
+            "form-1-color": "#00ff00",
+        }
+        formset = TagFormSet(data)
+        self.assertTrue(formset.is_valid())
+
+    def test_create_tag_generates_unique_name(self):
+        TagFactory.create(name="Tag 1")
+        TagFactory.create(name="Tag 2")
+        formset = TagFormSet()
+        tag = formset.create_tag()
+        self.assertEqual(tag.name, "Tag 3")
+        self.assertTrue(tag.color.startswith("#"))
+        self.assertEqual(len(tag.color), 7)

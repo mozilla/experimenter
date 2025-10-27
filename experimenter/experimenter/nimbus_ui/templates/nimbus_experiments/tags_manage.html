@@ -1,0 +1,40 @@
+{% load nimbus_extras %}
+
+<div class="modal-header">
+  <h5 class="modal-title">Manage Tags</h5>
+  <button type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+</div>
+<div class="modal-body"
+     id="tags-modal-body"
+     style="height: 400px;
+            overflow-y: auto">
+  <form id="tags-form" method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <div id="tags-list">
+      {% include "nimbus_experiments/tags_list_partial.html" %}
+
+    </div>
+  </form>
+</div>
+<div class="modal-footer d-flex justify-content-between position-sticky bottom-0 bg-white border-top">
+  <button type="button"
+          class="btn btn-outline-primary"
+          hx-post="{% url 'nimbus-ui-tags-create' %}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-target="#tags-list"
+          hx-swap="innerHTML"
+          hx-on::after-request="document.getElementById('tags-modal-body').scrollTop = document.getElementById('tags-modal-body').scrollHeight">
+    + Create
+  </button>
+  <button type="button"
+          class="btn btn-primary"
+          hx-post="{% url 'nimbus-ui-tags-save' %}"
+          hx-include="#tags-form"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-target="#tags-list"
+          hx-swap="innerHTML">Save</button>
+</div>
