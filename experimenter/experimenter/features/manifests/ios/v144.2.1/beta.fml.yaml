@@ -813,11 +813,6 @@ features:
     description: |
       This feature is for managing the rollout of the Terms of Use (ToU) implementation.
     variables:
-      max-reminders-count:
-        description: |
-          Maximum number of ToU bottom sheet reminders that can be displayed
-        type: Int
-        default: 2
       status:
         description: |
           Enables the feature

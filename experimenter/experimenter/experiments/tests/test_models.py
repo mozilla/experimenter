@@ -827,6 +827,28 @@ class TestNimbusExperiment(TestCase):
         )
         JEXLParser().parse(experiment.targeting)
 
+    def test_targeting_with_exclude_locales(self):
+        locale_ca = LocaleFactory.create(code="en-CA")
+        locale_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[locale_ca, locale_us],
+            exclude_locales=True,
+            countries=[],
+            languages=[],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            ("(os.isMac) && (!(locale in ['en-CA', 'en-US']))"),
+        )
+        JEXLParser().parse(experiment.targeting)
+
     def test_targeting_with_countries(self):
         country_ca = CountryFactory.create(code="CA")
         country_us = CountryFactory.create(code="US")
@@ -845,6 +867,28 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             ("(os.isMac) && (region in ['CA', 'US'])"),
+        )
+        JEXLParser().parse(experiment.targeting)
+
+    def test_targeting_with_exclude_countries(self):
+        country_ca = CountryFactory.create(code="CA")
+        country_us = CountryFactory.create(code="US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[country_ca, country_us],
+            exclude_countries=True,
+            languages=[],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            ("(os.isMac) && (!(region in ['CA', 'US']))"),
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -888,6 +932,27 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             "(days_since_install < 7) && (language in ['en', 'es', 'fr'])",
+        )
+        JEXLParser().parse(experiment.targeting)
+
+    def test_targeting_with_exclude_languages_mobile(self):
+        language_en = LanguageFactory.create(code="en")
+        language_fr = LanguageFactory.create(code="fr")
+        language_es = LanguageFactory.create(code="es")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.FENIX,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            languages=[language_en, language_es, language_fr],
+            exclude_languages=True,
+        )
+        self.assertEqual(
+            experiment.targeting,
+            "(days_since_install < 7) && (!(language in ['en', 'es', 'fr']))",
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -2158,6 +2223,88 @@ class TestNimbusExperiment(TestCase):
                         link["active"],
                         f"{link['title']} should not be active for path {path}",
                     )
+
+    def test_default_metrics_set_on_creation(self):
+        experiment = NimbusExperimentFactory.create()
+
+        experiment.results_data = {
+            "v3": {
+                "other_metrics": {"group": {"metricA": "Metric A"}},
+                "metadata": {
+                    "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
+                },
+            }
+        }
+
+        experiment.save()
+
+        self.assertEqual(
+            experiment.default_metrics,
+            {"metricA": "Friendly Metric A"},
+        )
+
+    def test_get_branch_data_returns_correct_data(self):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch B", slug="branch-b"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 150}},
+                                            "percent": 12,
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 75}},
+                                            "percent": 88,
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment.save()
+
+        result = experiment.get_branch_data("enrollments", "all")
+
+        self.assertEqual(len(result), 4)
+
+        index_map = {item.get("slug"): i for i, item in enumerate(result)}
+        first = result[index_map.get("branch-a")]
+        second = result[index_map.get("branch-b")]
+
+        # Validate first branch
+        self.assertEqual(first["slug"], "branch-a")
+        self.assertEqual(first["name"], "Branch A")
+        self.assertEqual(first["percentage"], 12)
+        self.assertEqual(first["num_participants"], 150)
+        self.assertEqual(first["description"], branch_a.description)
+
+        # Validate second branch
+        self.assertEqual(second["slug"], "branch-b")
+        self.assertEqual(second["name"], "Branch B")
+        self.assertEqual(second["percentage"], 88)
+        self.assertEqual(second["num_participants"], 75)
+        self.assertEqual(second["description"], branch_b.description)
 
     def test_conclusion_recommendation_labels(self):
         recommendations = list(NimbusConstants.ConclusionRecommendation)
@@ -3666,6 +3813,26 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(experiment.qa_status_badge_class, expected_badge_class)
 
+    @parameterized.expand(NimbusExperiment.QATestType.choices)
+    def test_qa_run_type_display(self, qa_run_type, expected_display):
+        experiment = NimbusExperimentFactory.create(qa_run_type=qa_run_type)
+        self.assertEqual(experiment.get_qa_run_type_display(), expected_display)
+
+    def test_qa_run_date_accepts_valid_date(self):
+        test_date = datetime.date(2024, 1, 15)
+        experiment = NimbusExperimentFactory.create(qa_run_date=test_date)
+        self.assertEqual(experiment.qa_run_date, test_date)
+
+    def test_qa_run_test_plan_accepts_valid_url(self):
+        test_url = "https://example.com/test-plan"
+        experiment = NimbusExperimentFactory.create(qa_run_test_plan=test_url)
+        self.assertEqual(experiment.qa_run_test_plan, test_url)
+
+    def test_qa_run_testrail_link_accepts_valid_url(self):
+        test_url = "https://testrail.example.com/index.php?/runs/view/12345"
+        experiment = NimbusExperimentFactory.create(qa_run_testrail_link=test_url)
+        self.assertEqual(experiment.qa_run_testrail_link, test_url)
+
     def test_clone_created_experiment(self):
         owner = UserFactory.create()
         required_experiment = NimbusExperimentFactory.create()
@@ -3815,6 +3982,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.conclusion_recommendations, [])
         self.assertEqual(child.qa_status, NimbusExperiment.QAStatus.NOT_SET)
         self.assertEqual(child.qa_comment, None)
+        self.assertEqual(child.qa_run_date, None)
+        self.assertEqual(child.qa_run_type, None)
+        self.assertEqual(child.qa_run_test_plan, None)
+        self.assertEqual(child.qa_run_testrail_link, None)
         self.assertEqual(child._start_date, None)
         self.assertEqual(child._end_date, None)
         self.assertEqual(child._enrollment_end_date, None)

@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- beta
+- developer
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -10,7 +10,7 @@ features:
       status:
         description: If true, we will allow user to edit the address
         type: Boolean
-        default: false
+        default: true
   address-bar-menu-feature:
     description: |
       This property determines if we show the new address bar menu entry or the toolbar menu in settings
@@ -72,7 +72,7 @@ features:
         description: |
           If true, the download live activities feature is enabled
         type: Boolean
-        default: false
+        default: true
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
@@ -99,7 +99,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -271,6 +271,16 @@ features:
               - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+          survey-surface-message:
+            surface: survey
+            style: SURVEY
+            trigger-if-all:
+            - NEVER
+            text: ResearchSurface/Body.Text.v112
+            button-label: ResearchSurface/PrimaryButton.Label.v112
+            action: OPEN_URL
+            action-params:
+              url: https://www.macrumors.com
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -353,7 +363,7 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
@@ -648,7 +658,7 @@ features:
         description: |
           Whether the rust FxA keychain logic is enabled. When enabled, the rust keychain is used to store and retrieve encryption key data for the FxA rust comoponent. Otherwise, the pre-existing MZKeychainWrapper logic is used.
         type: Boolean
-        default: false
+        default: true
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
@@ -685,19 +695,19 @@ features:
         description: |
           The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
         type: Int
-        default: 0
+        default: 6000
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
         type: Boolean
-        default: false
+        default: true
       icon-type:
         description: |
           The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
         type: Option<IconType>
-        default: letter
+        default: screenshot
       keep-for-days:
         description: |
           Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
@@ -737,7 +747,7 @@ features:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
         type: Boolean
-        default: false
+        default: true
   tabTrayFeature:
     description: The tab tray screen that the user goes to when they open the tab tray.
     variables:
@@ -764,12 +774,12 @@ features:
         description: |
           Enables the middle button customization for navigation toolbar.
         type: Boolean
-        default: false
+        default: true
       minimal_address_bar:
         description: |
           Enables minimal address bar mode on scroll to ensure the url is always visible.
         type: Boolean
-        default: false
+        default: true
       navigation_hint:
         description: |
           If true, enables the navigation contextual hint.
@@ -813,11 +823,6 @@ features:
     description: |
       This feature is for managing the rollout of the Terms of Use (ToU) implementation.
     variables:
-      max-reminders-count:
-        description: |
-          Maximum number of ToU bottom sheet reminders that can be displayed
-        type: Int
-        default: 2
       status:
         description: |
           Enables the feature

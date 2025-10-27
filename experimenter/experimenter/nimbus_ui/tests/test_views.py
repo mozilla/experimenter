@@ -2750,6 +2750,9 @@ class TestAudienceUpdateView(AuthTestCase):
             countries=[],
             locales=[],
             languages=[],
+            exclude_countries=False,
+            exclude_locales=False,
+            exclude_languages=False,
         )
 
         response = self.client.post(
@@ -2758,6 +2761,9 @@ class TestAudienceUpdateView(AuthTestCase):
                 "channel": NimbusExperiment.Channel.BETA,
                 "countries": [country.id],
                 "excluded_experiments_branches": [f"{excluded.slug}:None"],
+                "exclude_countries": True,
+                "exclude_locales": True,
+                "exclude_languages": True,
                 "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
                 "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
                 "is_sticky": True,
@@ -2794,6 +2800,9 @@ class TestAudienceUpdateView(AuthTestCase):
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])
         self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertTrue(experiment.exclude_countries)
+        self.assertTrue(experiment.exclude_locales)
+        self.assertTrue(experiment.exclude_languages)
         self.assertTrue(experiment.is_sticky)
         self.assertEqual(experiment.excluded_experiments.get(), excluded)
         self.assertTrue(
@@ -3617,6 +3626,46 @@ class TestNimbusFeaturesView(AuthTestCase):
             [experiment2.slug, experiment1.slug],
         )
 
+    def test_features_view_deliveries_table_can_sort_by_qa_run_date(self):
+        experiment1 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            qa_run_date=datetime.date(2024, 1, 1),
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            qa_run_date=datetime.date(2024, 1, 2),
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.QARuns.DATE_UP,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.QARuns.DATE_DOWN,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
     def test_features_view_deliveries_table_can_sort_by_date(self):
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
@@ -3689,6 +3738,46 @@ class TestNimbusFeaturesView(AuthTestCase):
             reverse("nimbus-ui-features"),
             {
                 "sort": FeaturesPageSortChoices.Deliveries.TYPE_DOWN,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_features_view_deliveries_table_can_sort_by_qa_run_type(self):
+        experiment1 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            qa_run_type=NimbusExperiment.QATestType.FULL,
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            qa_run_type=NimbusExperiment.QATestType.SMOKE,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.QARuns.TYPE_UP,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.QARuns.TYPE_DOWN,
                 "application": NimbusExperiment.Application.DESKTOP.value,
                 "feature_configs": self.feature_configs["feature-desktop"].id,
             },

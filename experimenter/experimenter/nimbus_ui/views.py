@@ -150,7 +150,7 @@ class NimbusExperimentViewMixin:
 
         context["analysis_link"] = urljoin(
             NimbusUIConstants.SIDEBAR_COMMON_LINKS["Detailed Analysis"]["url"],
-            slug_underscore,
+            slug_underscore + ".html",
         )
         context["create_form"] = NimbusExperimentCreateForm()
 
@@ -656,17 +656,8 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         experiment = self.get_object()
 
         analysis_data = experiment.results_data.get("v3", {})
-        other_metrics = analysis_data.get("other_metrics", {})
-        metrics_metadata = analysis_data.get("metadata", {}).get("metrics", {})
-        default_metrics = {}
 
-        for value in other_metrics.values():
-            for metricKey, metricValue in value.items():
-                default_metrics[metricKey] = metrics_metadata.get(metricKey, {}).get(
-                    "friendlyName", metricValue
-                )
-
-        context["default_metrics"] = default_metrics
+        context["default_metrics"] = experiment.default_metrics
 
         selected_reference_branch = self.request.GET.get(
             "reference_branch", experiment.reference_branch.name
@@ -684,42 +675,9 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         context["results_data"] = analysis_data
         context["overview_sections"] = NimbusUIConstants.OVERVIEW_SECTIONS
 
-        branch_data = []
-        overall_results = (
-            analysis_data.get("overall", {})
-            .get(analysis_basis, {})
-            .get(selected_segment, {})
+        context["branch_data"] = experiment.get_branch_data(
+            analysis_basis, selected_segment
         )
-
-        branches = []
-        if experiment.reference_branch:
-            branches.append(experiment.reference_branch)
-        branches.extend(experiment.treatment_branches)
-
-        for branch in branches:
-            slug = branch.slug
-            participant_metrics = (
-                overall_results.get(slug, {})
-                .get("branch_data", {})
-                .get("other_metrics", {})
-                .get("identity", {})
-            )
-            num_participants = (
-                participant_metrics.get("absolute", {}).get("first", {}).get("point", 0)
-            )
-
-            branch_data.append(
-                {
-                    "slug": slug,
-                    "name": branch.name,
-                    "screenshots": branch.screenshots.all,
-                    "description": branch.description,
-                    "percentage": participant_metrics.get("percent"),
-                    "num_participants": num_participants,
-                }
-            )
-
-        context["branch_data"] = branch_data
 
         return context
 
@@ -792,6 +750,23 @@ class NimbusFeaturesView(TemplateView):
             field for field, _ in deliveries_non_sortable_headers
         }
 
+        # header fields for the qa runs table
+        qa_runs_sortable_headers = FeaturesPageSortChoices.sortable_headers(
+            FeaturesPageSortChoices.QARuns
+        )
+        qa_runs_non_sortable_headers = [
+            ("qa_run", "QA Run"),
+            ("qa_status", "QA Status"),
+            ("qa_test_plan", "Test Plan/Recipe"),
+            ("qa_testrail_link", "TestRail Results"),
+        ]
+        qa_runs_sortable_header = (
+            qa_runs_non_sortable_headers[:1]
+            + qa_runs_sortable_headers
+            + qa_runs_non_sortable_headers[1:]
+        )
+        qa_runs_non_sortable_fields = {field for field, _ in qa_runs_non_sortable_headers}
+
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
@@ -804,6 +779,8 @@ class NimbusFeaturesView(TemplateView):
             "experiments_with_qa_status": qa_runs_page_obj.object_list,
             "deliveries_sortable_header": deliveries_sortable_header,
             "deliveries_non_sortable_header": deliveries_non_sortable_fields,
+            "qa_runs_sortable_header": qa_runs_sortable_header,
+            "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
         }
         return context
 

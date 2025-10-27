@@ -1,7 +1,7 @@
 import json
-import humanize
 from datetime import date
 
+import humanize
 from django import template
 from django.utils.safestring import mark_safe
 
@@ -308,7 +308,10 @@ def experiment_date_progress(experiment):
 
 @register.filter
 def short_number(value, precision=1):
-    formatted_number_components = humanize.intword(value, format=f"%.{precision}f").split(" ")
+    formatted_number = str(value)
+    formatted_number_components = humanize.intword(value, format=f"%.{precision}f").split(
+        " "
+    )
     number = formatted_number_components[0]
 
     if len(formatted_number_components) > 1:

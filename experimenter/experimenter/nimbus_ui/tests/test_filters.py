@@ -123,16 +123,16 @@ class FilterTests(TestCase):
 
     def test_short_number(self):
         self.assertEqual(short_number(100), "100")
-        self.assertEqual(short_number(1000), "1k")
-        self.assertEqual(short_number(1500), "1.5k")
-        self.assertEqual(short_number(123456), "123.5k")
-        self.assertEqual(short_number(510951), "511.0k")
-        self.assertEqual(short_number(1000000), "1M")
+        self.assertEqual(short_number(1000), "1.0K")
+        self.assertEqual(short_number(1500), "1.5K")
+        self.assertEqual(short_number(123456), "123.5K")
+        self.assertEqual(short_number(510951), "511.0K")
+        self.assertEqual(short_number(1000000), "1.0M")
         self.assertEqual(short_number(13500000), "13.5M")
 
     def test_invalid_short_number(self):
         self.assertEqual(short_number("invalid"), "invalid")
-        self.assertEqual(short_number(None), None)
+        self.assertEqual(short_number(None), "None")
 
 
 class TestHomeFilters(AuthTestCase):
