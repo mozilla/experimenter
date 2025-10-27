@@ -2291,6 +2291,12 @@ class NimbusFeatureConfig(models.Model):
     )
     owner_email = models.EmailField(blank=True, null=True)
     enabled = models.BooleanField(default=True)
+    subscribers = models.ManyToManyField(
+        User,
+        related_name="subscribed_nimbusfeatures",
+        blank=True,
+        verbose_name="Subscribers",
+    )
 
     class Meta:
         verbose_name = "Nimbus Feature Config"

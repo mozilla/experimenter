@@ -5516,6 +5516,27 @@ class NimbusFeatureConfigTests(TestCase):
             ),
         )
 
+    def test_feature_config_can_have_subscribers(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        feature = NimbusFeatureConfigFactory.create()
+        feature.subscribers.add(user1, user2)
+
+        self.assertEqual(feature.subscribers.count(), 5)
+        self.assertIn(user1, feature.subscribers.all())
+        self.assertIn(user2, feature.subscribers.all())
+
+    def test_user_can_subscribe_to_multiple_feature_configs(self):
+        user = UserFactory.create()
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+        feature1.subscribers.add(user)
+        feature2.subscribers.add(user)
+
+        self.assertEqual(user.subscribed_nimbusfeatures.count(), 2)
+        self.assertIn(feature1, user.subscribed_nimbusfeatures.all())
+        self.assertIn(feature2, user.subscribed_nimbusfeatures.all())
+
 
 class ApplicationConfigTests(TestCase):
     application_config = experimenter.experiments.constants.APPLICATION_CONFIG_DESKTOP
