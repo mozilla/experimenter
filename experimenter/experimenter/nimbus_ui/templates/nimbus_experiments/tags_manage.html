@@ -13,7 +13,6 @@
             overflow-y: auto">
   <form id="tags-form" method="post">
     {% csrf_token %}
-    {{ formset.management_form }}
     <div id="tags-list">
       {% include "nimbus_experiments/tags_list_partial.html" %}
 

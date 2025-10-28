@@ -706,9 +706,7 @@ class NimbusExperimentsHomeView(FilterView):
 class TagFormSetMixin:
     def get_tag_formset(self, data=None):
         queryset = Tag.objects.all().order_by("id")
-        return (
-            TagFormSet(data, queryset=queryset) if data else TagFormSet(queryset=queryset)
-        )
+        return TagFormSet(data, queryset=queryset)
 
 
 class TagsManageView(TagFormSetMixin, TemplateView):
