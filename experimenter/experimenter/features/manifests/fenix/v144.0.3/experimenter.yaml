@@ -83,23 +83,6 @@ custom-review-prompt:
     enabled:
       type: boolean
       description: Whether or not to enable the custom review prompt.
-default-browser-prompt:
-  description: Feature that controls when the default browser prompt is shown.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    coldStartsBetweenPrompts:
-      type: int
-      description: The minimum number of cold starts between showing the prompt.
-    daysBetweenPrompts:
-      type: int
-      description: The minimum number of days between showing the prompt.
-    enabled:
-      type: boolean
-      description: Whether or not to enable the default browser prompt.
-    maxPromptsShown:
-      type: int
-      description: The maximum number of times the prompt can shown to the user.
 doh:
   description: Feature controlling DNS over HTTPS (DoH).
   hasExposure: true
@@ -238,10 +221,6 @@ isolated-content-processes:
   hasExposure: true
   exposureDescription: ''
   variables:
-    app-zygote-preloading:
-      type: boolean
-      description: |
-        Whether or not to enable app Zygote preloaded isolated content processes.
     enabled:
       type: boolean
       description: |
@@ -456,10 +435,6 @@ pki:
       type: int
       description: |
         What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
-    crliteChannel:
-      type: string
-      description: |
-        The channel from which CRLite filters will be installed.
 pqcrypto:
   description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
   hasExposure: true
@@ -508,6 +483,18 @@ re-engagement-notification:
     type:
       type: int
       description: The type of re-engagement notification that is shown to the inactive user.
+recent-searches:
+  description: Enables recent searches.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable recent searches.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
 remote-search-configuration:
   description: Feature to use search configurations from remote servers.
   hasExposure: true
@@ -527,17 +514,6 @@ remote-tab-management:
       type: boolean
       description: |
         Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
-safe-browsing-v5:
-  description: Control Safe Browsing V5.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enable-v5:
-      type: boolean
-      description: Enables / disables the SafeBrowsing V5 protocol.
-    feature-enabled:
-      type: boolean
-      description: If true, this feature is enabled. Otherwise, we follow the SafeBrowsing V5 enabled pref.
 same-document-navigation-overrides-load-type:
   description: Control whether the same document navigation overrides the load type.
   hasExposure: true
@@ -602,15 +578,6 @@ sent-from-firefox:
     template-message:
       type: string
       description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
-settings-search:
-  description: Feature to allow users to search for settings.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables the user to search for settings.
 setup-checklist:
   description: A feature on the home page that allows the user to track onboarding setup progress.
   hasExposure: true
@@ -731,6 +698,18 @@ toolbar-redesign-option:
       type: boolean
       description: |
         Whether or not the simple toolbar customization option is visible to the user.
+top-sites-suggestions:
+  description: Enables top sites suggestions.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable top sites suggestions.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
@@ -764,6 +743,18 @@ translations:
       type: boolean
       description: |
         Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
+trending-searches:
+  description: Enables trending searches.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable trending searches.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
 unified-trust-panel:
   description: Enables the unified trust panel.
   hasExposure: true
