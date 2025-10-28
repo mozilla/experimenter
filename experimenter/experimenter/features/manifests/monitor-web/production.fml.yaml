@@ -11,13 +11,6 @@ features:
         description: If the feature is enabled
         type: Boolean
         default: true
-  data-privacy-petition-banner:
-    description: Show the data privacy petition banner to US users
-    variables:
-      enabled:
-        description: If the feature is enabled
-        type: Boolean
-        default: false
   example-feature:
     description: An example feature
     variables:
@@ -53,13 +46,6 @@ features:
         default: default
   last-scan-date:
     description: Show the date of the user's last scan in the top right-hand corner
-    variables:
-      enabled:
-        description: If the feature is enabled
-        type: Boolean
-        default: false
-  moscary:
-    description: Use the Moscary API
     variables:
       enabled:
         description: If the feature is enabled

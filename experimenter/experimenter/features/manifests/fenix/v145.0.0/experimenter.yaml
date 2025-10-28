@@ -435,6 +435,10 @@ pki:
       type: int
       description: |
         What mode Certificate Transparency is in (0=disable, 1=telemetry only, 2=enforce).
+    crliteChannel:
+      type: string
+      description: |
+        The channel from which CRLite filters will be installed.
 pqcrypto:
   description: Control the use of post-quantum key exchange mechanisms in TLS and HTTP/3.
   hasExposure: true
@@ -671,6 +675,9 @@ terms-of-use-prompt:
     enabled:
       type: boolean
       description: When the feature is enabled then the prompt can show for users.
+    max-display-count:
+      type: int
+      description: The maximum number of times to show the prompt.
 third-party-cookie-blocking:
   description: Control third-party cookie blocking.
   hasExposure: true

@@ -7,10 +7,10 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10.10"
-ruff = "^0.13.0"
-coverage = "^7.10.2"
-fastapi = "^0.117.1"
-uvicorn = "^0.37.0"
+ruff = "^0.14.0"
+coverage = "^7.11.0"
+fastapi = "^0.119.0"
+uvicorn = "^0.38.0"
 pytest = "^7.2.2"
 httpx = "^0.28.0"
 pytest-cov = "^4.0.0"
@@ -23,7 +23,7 @@ python-decouple = "^3.8"
 glean-sdk = "^53.2.0"
 pytest-mock = "^3.15.0"
 mozilla-nimbus-shared = "^2.5.2"
-sentry-sdk = "^2.38.0"
+sentry-sdk = "^2.42.1"
 
 [build-system]
 requires = ["poetry>=2.1.1"]

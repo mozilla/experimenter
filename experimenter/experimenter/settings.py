@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
+import os
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -72,6 +73,10 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CIRRUS_URL = config("CIRRUS_URL", default=None)
 
+GLEAN_UPLOAD_ENABLED = config("GLEAN_UPLOAD_ENABLED", default=False, cast=bool)
+
+GLEAN_DATA_DIR = Path(config("GLEAN_DATA_DIR", default="/var/glean")) / str(os.getpid())
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -98,6 +103,7 @@ INSTALLED_APPS = [
     "experimenter.changelog",
     "experimenter.experiments",
     "experimenter.features",
+    "experimenter.glean",
     "experimenter.jetstream",
     "experimenter.kinto",
     "experimenter.legacy.legacy_experiments",
@@ -123,6 +129,7 @@ MIDDLEWARE = [
     "dockerflow.django.middleware.DockerflowMiddleware",
     "experimenter.openidc.middleware.OpenIDCAuthMiddleware",
     "experimenter.cirrus.middleware.CirrusMiddleware",
+    "experimenter.glean.middleware.GleanMiddleware",
 ]
 
 ROOT_URLCONF = "experimenter.urls"

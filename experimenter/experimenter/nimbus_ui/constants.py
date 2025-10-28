@@ -119,8 +119,34 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             <a href="https://experimenter.info/for-product">Learn</a> how to get started.
         """,
     }
-    # TODO: Add learn more URL for feature page (EXP-5876)
-    FEATURE_PAGE_LINKS = {"feature_learn_more_url": ""}
+    SIDEBAR_COMMON_LINKS = {
+        "Performance Reports": {
+            "url": "https://protosaur.dev/perf-reports/",
+            "tooltip": """Performance Reports are only created for experiments that have
+            ended.""",
+            "icon": "fa-solid fa-chart-line",
+        },
+        "Messaging Skylight": {
+            "url": "https://fxms-skylight.netlify.app/complete#complete_experiments",
+            "tooltip": """Messaging Skylight takes you to Skylight - the messaging team's
+            tool to show message interaction details.""",
+            "icon": "fa-solid fa-envelope-open-text",
+        },
+        "Detailed Analysis": {
+            "url": "https://protosaur.dev/partybal/",
+            "tooltip": """Detailed Analysis is an advanced view into experiment
+            results.""",
+            "icon": "fa-solid fa-magnifying-glass-chart",
+        },
+    }
+    LIVE_MONITOR_TOOLTIP = """Live Monitoring shows enrollment/unenrollment for this
+    delivery"""
+
+    FEATURE_PAGE_LINKS = {
+        "feature_learn_more_url": "https://experimenter.info/for-product#track-your-feature-health",
+        "deliveries_table_tooltip": """This shows all Nimbus experiments, rollouts, Labs
+        experiences, etc. associated with your selected feature.""",
+    }
 
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"

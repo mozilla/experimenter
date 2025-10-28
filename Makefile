@@ -43,16 +43,16 @@ ESLINT_FIX_RESULTS = yarn workspace @experimenter/results lint-fix
 ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui lint
 ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui format
 TYPECHECK_RESULTS = yarn workspace @experimenter/results lint:tsc
-DJLINT_CHECK = djlint --check experimenter/nimbus_ui/
-DJLINT_FIX = djlint --reformat experimenter/nimbus_ui/
+DJLINT_CHECK = djlint --check experimenter/nimbus_ui/ experimenter/glean/
+DJLINT_FIX = djlint --reformat experimenter/nimbus_ui/ experimenter/glean/
 JS_TEST_LEGACY = yarn workspace @experimenter/core test
 JS_TEST_RESULTS = DEBUG_PRINT_LIMIT=999999 CI=yes yarn workspace @experimenter/results test:cov
 RESULTS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/results/test_schema.graphql&&diff experimenter/results/test_schema.graphql experimenter/results/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
 RESULTS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/results/schema.graphql&&yarn workspace @experimenter/results generate-types
 RUFF_CHECK = ruff check experimenter/ manifesttool/ tests/
 RUFF_FIX = ruff check --fix experimenter/ manifesttool/ tests/
-RUFF_FORMAT_CHECK = ruff format --check --diff . --exclude node_modules
-RUFF_FORMAT_FIX = ruff format . --exclude node_modules
+RUFF_FORMAT_CHECK = ruff format --check --diff .
+RUFF_FORMAT_FIX = ruff format .
 CHECK_DOCS = python manage.py generate_docs --check=true
 GENERATE_DOCS = python manage.py generate_docs
 LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
@@ -165,12 +165,13 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 	echo "All containers removed!"
 
 lint: build_test  ## Running linting on source code
-	-docker rm experimenter_test;
+	-docker rm experimenter_test
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_RESULTS)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_RESULTS)" "$(RESULTS_SCHEMA_CHECK)") ${COLOR_CHECK}'
 
 check: lint
 
 check_and_report: build_test  ## Only to be used on CI
+	-docker rm experimenter_test
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_COVERAGE)") ${COLOR_CHECK}' || true
 	docker cp experimenter_test:/experimenter/experimenter_coverage.json workspace/test-results
 	docker cp experimenter_test:/experimenter/experimenter_tests.xml workspace/test-results
@@ -178,7 +179,7 @@ check_and_report: build_test  ## Only to be used on CI
 	cp workspace/test-results/experimenter_tests.xml $(UNIT_JUNIT_XML)
 
 test: build_test  ## Run tests
-	-docker rm experimenter_test;
+	-docker rm experimenter_test
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) python manage.py test --parallel'
 pytest: test
 
@@ -298,12 +299,13 @@ cirrus_down: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE) down cirrus
 
 cirrus_test: cirrus_build_test
+	-docker rm experimenter_test
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c '$(CIRRUS_PYTEST)'
 
 cirrus_check: cirrus_lint
-	docker rm experimenter_test
 
 cirrus_lint: cirrus_build_test integration_clean
+	-docker rm experimenter_test
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_check_and_report: cirrus_lint

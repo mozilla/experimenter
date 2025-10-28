@@ -270,6 +270,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     languages = models.ManyToManyField[Language](
         Language, blank=True, verbose_name="Supported Languages"
     )
+    exclude_locales = models.BooleanField(
+        "Exclude Locales",
+        default=False,
+        help_text="If True, exclude the selected locales instead of including them",
+    )
+    exclude_countries = models.BooleanField(
+        "Exclude Countries",
+        default=False,
+        help_text="If True, exclude the selected countries instead of including them",
+    )
+    exclude_languages = models.BooleanField(
+        "Exclude Languages",
+        default=False,
+        help_text="If True, exclude the selected languages instead of including them",
+    )
     is_sticky = models.BooleanField("Sticky Enrollment Flag", default=False)
     projects = models.ManyToManyField[Project](
         Project, blank=True, verbose_name="Supported Projects"
@@ -439,6 +454,29 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=list,
     )
     tags = models.ManyToManyField(Tag, blank=True, related_name="experiments")
+    qa_run_date = models.DateField("QA Run Date", blank=True, null=True, default=None)
+    qa_run_type = models.CharField(
+        "QA Run Type",
+        max_length=255,
+        blank=True,
+        null=True,
+        default=None,
+        choices=NimbusConstants.QATestType.choices,
+    )
+    qa_run_test_plan = models.URLField(
+        "QA Run Test Plan Link",
+        max_length=500,
+        blank=True,
+        null=True,
+        default=None,
+    )
+    qa_run_testrail_link = models.URLField(
+        "QA Run TestRail Link",
+        max_length=500,
+        blank=True,
+        null=True,
+        default=None,
+    )
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -621,21 +659,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if locales := self.locales.all():
             locales = [locale.code for locale in sorted(locales, key=lambda l: l.code)]
-
-            sticky_expressions.append(f"locale in {locales}")
+            locales_expression = f"locale in {locales}"
+            if self.exclude_locales:
+                locales_expression = f"!({locales_expression})"
+            sticky_expressions.append(locales_expression)
 
         if languages := self.languages.all():
             languages = [
                 language.code for language in sorted(languages, key=lambda l: l.code)
             ]
-
-            sticky_expressions.append(f"language in {languages}")
+            languages_expression = f"language in {languages}"
+            if self.exclude_languages:
+                languages_expression = f"!({languages_expression})"
+            sticky_expressions.append(languages_expression)
 
         if countries := self.countries.all():
             countries = [
                 country.code for country in sorted(countries, key=lambda c: c.code)
             ]
-            sticky_expressions.append(f"region in {countries}")
+            countries_expression = f"region in {countries}"
+            if self.exclude_countries:
+                countries_expression = f"!({countries_expression})"
+            sticky_expressions.append(countries_expression)
 
         enrollments_map_key = "enrollments_map"
         if self.is_desktop:
@@ -1520,6 +1565,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         base_results = results_data[window].get(base, {}).get("all")
                         if base_results is not None:
                             return True
+
+        return False
+
+    @property
+    def has_exposures(self):
+        # True if there are any exposures in the results data
+        if self.results_data and "v3" in self.results_data:
+            results_data = self.results_data["v3"]
+            for window in ["overall", "weekly"]:
+                if results_data.get(window):
+                    exposure_data = results_data[window].get("exposures", {}).get("all")
+                    if exposure_data is not None:
+                        return True
 
         return False
 

@@ -453,6 +453,12 @@ class NimbusConstants:
                 status, QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.NOT_SET]
             )
 
+    class QATestType(models.TextChoices):
+        FULL = "FULL", "Full"
+        SMOKE = "SMOKE", "Smoke"
+        SELF = "SELF", "Self"
+        REGRESSION = "REGRESSION", "Regression"
+
     APPLICATION_CONFIGS = {
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,
         Application.FENIX: APPLICATION_CONFIG_FENIX,
@@ -716,6 +722,7 @@ class NimbusConstants:
         FIREFOX_143_0_3 = "143.0.3"
         FIREFOX_143_0_4 = "143.0.4"
         FIREFOX_143_1_0 = "143.1.0"
+        FIREFOX_143_1_1 = "143.1.1"
         FIREFOX_143_2_0 = "143.2.0"
         FIREFOX_143_3_0 = "143.3.0"
         FIREFOX_143_4_0 = "143.4.0"

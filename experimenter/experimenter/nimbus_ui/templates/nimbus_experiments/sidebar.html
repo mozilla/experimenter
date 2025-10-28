@@ -43,8 +43,8 @@
           data-bs-target="#tagsModal"
           hx-get="{% url 'nimbus-ui-tags-manage' %}"
           hx-target="#tagsModalContent">
-      <i class="fa-solid fa-tags pe-2"></i>
-      Manage Tags
+      <i class="fa-solid fa-tags pe-2"></i>
+      Manage Tags
 </button>
 <strong class="ms-3">Actions</strong>
 <hr class="my-0 mb-2">
@@ -56,14 +56,19 @@
 {% for documentation_link in experiment.documentation_links.all %}
   {% if documentation_link.link %}
     {% include "common/sidebar_link.html" with title=documentation_link.get_title_display link=documentation_link.link icon="fa-solid fa-arrow-up-right-from-square" external=True %}
-
   {% endif %}
 {% endfor %}
 {% if experiment.is_started %}
-  <a class="nav-link d-flex align-items-center nav-link-hover"
+  <a class="nav-link d-flex align-items-center nav-link-hover d-flex justify-content-between"
      href="{{ experiment.monitoring_dashboard_url }}">
-    <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
-    Live Monitoring Dashboard
+    <div>
+      <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
+      Live Monitoring Dashboard
+    </div>
+    <i class="fa-regular fa-circle-question fa-sm ps-1"
+       data-bs-toggle="tooltip"
+       data-bs-placement="bottom"
+       title="{{ live_monitor_tooltip }}"></i>
   </a>
   {% if experiment.rollout_monitoring_dashboard_url %}
     <a class="nav-link d-flex align-items-center nav-link-hover"
@@ -73,6 +78,19 @@
     </a>
   {% endif %}
 {% endif %}
+{% for title, link in common_sidebar_links.items %}
+  <a class="nav-link d-flex align-items-center nav-link-hover d-flex justify-content-between"
+     href="{% if title == 'Detailed Analysis' %}{{ analysis_link }}{% else %}{{ link.url }}{% endif %}">
+    <div>
+      <i class="{{ link.icon }} pe-2"></i>
+      {{ title }}
+    </div>
+    <i class="fa-regular fa-circle-question fa-sm ps-1"
+       data-bs-toggle="tooltip"
+       data-bs-placement="bottom"
+       title="{{ link.tooltip }}"></i>
+  </a>
+{% endfor %}
 <a class="nav-link d-flex align-items-center nav-link-hover"
    href="{{ experiment.get_detail_preview_recipe_json_url }}">
   <i class="fa-solid fa-file-code pe-2"></i>
@@ -96,15 +114,6 @@
                 data-bs-dismiss="modal"
                 aria-label="Close"></button>
       </div>
-      <div class="modal-body bg-body-tertiary">
-        <form id="cloneForm"
-              hx-post="{% url 'nimbus-ui-clone' experiment.slug %}"
-              hx-target="#cloneForm">
-          {% csrf_token %}
-          {% include "nimbus_experiments/clone.html" with form=clone_form experiment=experiment form_id_prefix="clone" %}
-
-        </form>
-      </div>
     </div>
   </div>
 </div>
@@ -113,13 +122,9 @@
      tabindex="-1"
      aria-labelledby="tagsModalLabel"
      aria-hidden="true">
- 
   <div class="modal-dialog">
-   
     <div class="modal-content" id="tagsModalContent">
-            <!-- Content will be loaded via HTMX -->
-   
+      <!-- Content will be loaded via HTMX -->
     </div>
- 
   </div>
 </div>

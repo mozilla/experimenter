@@ -57,18 +57,6 @@ fetch_task_info() {
             mv firefox_fennec_release_build.env experimenter/tests
             return
             ;;
-        fennec_beta)
-            releases=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/releases" | jq '[.[] | select(.prerelease == true) | select(.name | test("^Firefox beta v[0-9]+\\.[0-9]+b[0-9]+$"; "i"))][0]')
-            version=$(echo "$releases" | jq -r '.name')
-            branch=$(echo "$releases" | jq -r '.target_commitish')
-
-            echo "FIREFOX_FENNEC_BETA_VERSION_ID ${version}"
-            echo "FIREFOX_FENNEC_BETA_VERSION_ID=\"${version}\"" > firefox_fennec_beta_build.env
-            echo "BRANCH=\"${branch}\"" >> firefox_fennec_beta_build.env
-            echo "# Firefox version is ${release_version}" >> firefox_fennec_beta_build.env
-            mv firefox_fennec_beta_build.env experimenter/tests
-            return
-            ;;
         *)
             echo "Unknown variant: ${variant}. Please specify a valid variant."
             return
