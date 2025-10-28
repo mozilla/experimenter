@@ -265,8 +265,7 @@ class SummaryPage(ExperimenterBase):
             return self.wait_for_and_find_element(*self._request_launch_locator)
 
     def archive(self):
-        el = self.wait_for_and_find_element(*self._archive_button_locator)
-        el.click()
+        self.wait_for_and_find_element(*self._archive_button_locator).click()
 
     @property
     def archive_label(self):
