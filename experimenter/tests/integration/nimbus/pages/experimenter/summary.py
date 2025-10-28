@@ -262,9 +262,7 @@ class SummaryPage(ExperimenterBase):
             return self.wait_for_and_find_element(*self._request_launch_locator)
 
     def archive(self):
-        archive_button = self.wait_for_and_find_element(*self._archive_button_locator)
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", archive_button)
-        archive_button.click()
+        self.wait_for_and_find_element(*self._archive_button_locator).click()
 
     @property
     def archive_label(self):
