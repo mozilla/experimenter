@@ -1,8 +1,29 @@
-import { basicSetup } from "codemirror";
-import { EditorView } from "@codemirror/view";
+import {
+  drawSelection,
+  EditorView,
+  highlightActiveLine,
+  highlightSpecialChars,
+  keymap,
+  lineNumbers,
+} from "@codemirror/view";
 import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { linter } from "@codemirror/lint";
-import { autocompletion } from "@codemirror/autocomplete";
+import { autocompletion, closeBrackets } from "@codemirror/autocomplete";
+import {
+  HighlightStyle,
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  foldGutter,
+  bracketMatching,
+  indentOnInput,
+} from "@codemirror/language";
+import {
+  highlightSelectionMatches,
+  searchKeymap,
+  search,
+} from "@codemirror/search";
+import { defaultKeymap, historyKeymap, history } from "@codemirror/commands";
+import { tags } from "@lezer/highlight";
 import { schemaAutocomplete, schemaLinter } from "./validator.js";
 import $ from "jquery";
 
@@ -12,8 +33,26 @@ const setupCodemirror = (selector, textarea, extraExtensions) => {
     return;
   }
 
+  const highlightStyle = HighlightStyle.define([
+    { tag: tags.bool, color: "#ffaa00ff", themeType: "dark" },
+  ]);
+
   const extensions = [
-    basicSetup,
+    lineNumbers(),
+    drawSelection(),
+    highlightSpecialChars(),
+    foldGutter(),
+    autocompletion(),
+    bracketMatching(),
+    closeBrackets(),
+    highlightSelectionMatches(),
+    indentOnInput(),
+    highlightActiveLine(),
+    syntaxHighlighting(highlightStyle),
+    syntaxHighlighting(defaultHighlightStyle),
+    history(),
+    search(),
+    keymap.of([...defaultKeymap, ...searchKeymap, ...historyKeymap]),
     EditorView.updateListener.of((v) => {
       if (v.docChanged) {
         const value = v.state.doc.toString();

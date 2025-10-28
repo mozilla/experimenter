@@ -1,8 +1,19 @@
-import { basicSetup } from "codemirror";
-import { EditorView } from "@codemirror/view";
+import {
+  drawSelection,
+  EditorView,
+  highlightSpecialChars,
+  lineNumbers,
+} from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
 import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { linter } from "@codemirror/lint";
+import {
+  HighlightStyle,
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  foldGutter,
+} from "@codemirror/language";
+import { tags } from "@lezer/highlight";
 
 import $ from "jquery";
 
@@ -12,11 +23,20 @@ const setupCodemirroReadOnlyJSON = () => {
   const selector = ".readonly-json";
   const textareas = document.querySelectorAll(selector);
 
+  const highlightStyle = HighlightStyle.define([
+    { tag: tags.bool, color: "#ffaa00ff", themeType: "dark" },
+  ]);
+
   textareas.forEach((textarea) => {
     if (textarea.dataset.is_rendered) return;
     textarea.dataset.is_rendered = true;
     const extensions = [
-      basicSetup,
+      lineNumbers(),
+      drawSelection(),
+      highlightSpecialChars(),
+      foldGutter(),
+      syntaxHighlighting(highlightStyle),
+      syntaxHighlighting(defaultHighlightStyle),
       json(),
       linter(jsonParseLinter()),
       EditorState.readOnly.of(true),
