@@ -818,18 +818,6 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
-  recent-searches:
-    description: Enables recent searches.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable recent searches.
-        type: Boolean
-        default: true
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 5
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -1086,18 +1074,6 @@ features:
           Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
-  trending-searches:
-    description: Enables trending searches.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable trending searches.
-        type: Boolean
-        default: true
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 5
   unified-trust-panel:
     description: Enables the unified trust panel.
     variables:
