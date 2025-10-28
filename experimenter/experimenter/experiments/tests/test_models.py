@@ -5533,9 +5533,9 @@ class NimbusFeatureConfigTests(TestCase):
         feature1.subscribers.add(user)
         feature2.subscribers.add(user)
 
-        self.assertEqual(user.subscribed_nimbusfeatures.count(), 2)
-        self.assertIn(feature1, user.subscribed_nimbusfeatures.all())
-        self.assertIn(feature2, user.subscribed_nimbusfeatures.all())
+        self.assertEqual(user.subscribed_nimbus_features.count(), 2)
+        self.assertIn(feature1, user.subscribed_nimbus_features.all())
+        self.assertIn(feature2, user.subscribed_nimbus_features.all())
 
 
 class ApplicationConfigTests(TestCase):

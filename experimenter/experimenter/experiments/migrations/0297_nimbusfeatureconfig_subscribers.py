@@ -5,16 +5,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('experiments', '0296_nimbusexperiment_qa_run_date_and_more'),
+        ("experiments", "0296_nimbusexperiment_qa_run_date_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='nimbusfeatureconfig',
-            name='subscribers',
-            field=models.ManyToManyField(blank=True, related_name='subscribed_nimbusfeatures', to=settings.AUTH_USER_MODEL, verbose_name='Subscribers'),
+            model_name="nimbusfeatureconfig",
+            name="subscribers",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="subscribed_nimbus_features",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Subscribers",
+            ),
         ),
     ]

@@ -2293,7 +2293,7 @@ class NimbusFeatureConfig(models.Model):
     enabled = models.BooleanField(default=True)
     subscribers = models.ManyToManyField(
         User,
-        related_name="subscribed_nimbusfeatures",
+        related_name="subscribed_nimbus_features",
         blank=True,
         verbose_name="Subscribers",
     )
