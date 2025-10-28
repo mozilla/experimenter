@@ -1,5 +1,7 @@
+import json
 from urllib.parse import urljoin
 
+from deepdiff import DeepDiff
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -11,7 +13,11 @@ from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment, Tag
+from experimenter.experiments.models import (
+    NimbusExperiment,
+    NimbusVersionedSchema,
+    Tag,
+)
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
@@ -727,6 +733,7 @@ class NimbusFeaturesView(TemplateView):
         context = super().get_context_data(**kwargs)
         form = self.get_form()
         qs = self.get_queryset()
+        schemas_with_changes = 0
 
         deliveries_paginator = Paginator(qs, 5)
         deliveries_page_number = self.request.GET.get("deliveries_page") or 1
@@ -769,6 +776,63 @@ class NimbusFeaturesView(TemplateView):
         )
         qa_runs_non_sortable_fields = {field for field, _ in qa_runs_non_sortable_headers}
 
+        # Get feature schema versions with their diffs
+        feature_schemas = []
+        feature_id = self.request.GET.get("feature_configs")
+        if feature_id:
+            schemas = list(
+                NimbusVersionedSchema.objects.filter(feature_config_id=feature_id)
+                .select_related("version")
+                .order_by("-version__major", "-version__minor", "-version__patch")
+            )
+
+            # Pair each schema with its previous version
+            for i, schema in enumerate(schemas):
+                current_json = schema.schema
+                previous_json = schemas[i + 1].schema if i + 1 < len(schemas) else None
+
+                if previous_json is not None:
+                    current_obj = json.loads(current_json)
+                    previous_obj = json.loads(previous_json)
+
+                    diff = DeepDiff(
+                        previous_obj,
+                        current_obj,
+                        ignore_order=True,
+                    )
+
+                    total_changes = sum(
+                        [
+                            len(diff.get("dictionary_item_added", [])),
+                            len(diff.get("dictionary_item_removed", [])),
+                            len(diff.get("values_changed", {})),
+                            len(diff.get("type_changes", {})),
+                        ]
+                    )
+
+                    if total_changes == 0:
+                        size_label = "No Changes"
+                    elif total_changes <= 3:
+                        size_label = "Small"
+                    elif total_changes <= 10:
+                        size_label = "Medium"
+                    else:
+                        size_label = "Large"
+
+                    if total_changes > 0:
+                        schemas_with_changes += 1
+                else:
+                    size_label = None
+
+                feature_schemas.append(
+                    {
+                        "schema": schema,
+                        "current_json": current_json,
+                        "previous_json": previous_json,
+                        "size_label": size_label,
+                    }
+                )
+
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
@@ -784,6 +848,8 @@ class NimbusFeaturesView(TemplateView):
             "deliveries_non_sortable_header": deliveries_non_sortable_fields,
             "qa_runs_sortable_header": qa_runs_sortable_header,
             "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
+            "feature_schemas": feature_schemas,
+            "schemas_with_changes": schemas_with_changes,
         }
         return context
 
