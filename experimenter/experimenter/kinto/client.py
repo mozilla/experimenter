@@ -16,6 +16,9 @@ class KintoClient:
         )
         self.review = review
         self.collection_data = None
+        self.read_bucket = (
+            settings.KINTO_BUCKET_WORKSPACE if not review else settings.KINTO_BUCKET_MAIN
+        )
 
     def _fetch_collection_data(self):
         self.collection_data = (
@@ -94,6 +97,6 @@ class KintoClient:
         return {
             r["id"]: r
             for r in self.kinto_http_client.get_records(
-                bucket=settings.KINTO_BUCKET_MAIN, collection=self.collection
+                bucket=self.read_bucket, collection=self.collection
             )
         }
