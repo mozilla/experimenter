@@ -42,10 +42,7 @@ class SummaryPage(ExperimenterBase):
         ".header-experiment-status .border-primary",
     )
     _end_experiment_button_locator = (By.CSS_SELECTOR, "#end-experiment")
-    _archive_button_locator = (
-        By.CSS_SELECTOR,
-        'form[hx-post*="toggle-archive"] button[data-testid="nav-edit-archive"]',
-    )
+    _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="nav-edit-archive"]')
     _archive_label_locator = (
         By.CSS_SELECTOR,
         "#archive-badge",
