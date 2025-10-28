@@ -108,6 +108,18 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
                 )
             )
 
+    @factory.post_generation
+    def subscribers(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if isinstance(extracted, Iterable):
+            for subscriber in extracted:
+                self.subscribers.add(subscriber)
+        else:
+            for _ in range(3):
+                self.subscribers.add(UserFactory.create())
+
     @classmethod
     def create_desktop_prefflips_feature(cls, **kwargs):
         """Create a feature for Firefox Desktop with the slug "prefFlips"."""
