@@ -27,6 +27,7 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
     TagFactory,
 )
+
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
@@ -38,6 +39,7 @@ from experimenter.nimbus_ui.filtersets import (
     SortChoices,
     TypeChoices,
 )
+from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.forms import QAStatusForm, TakeawaysForm
 from experimenter.nimbus_ui.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
@@ -3972,7 +3974,6 @@ class TestTagSaveView(AuthTestCase):
         self.assertContains(response, "This field is required.")
 
     def test_save_duplicate_tags(self):
-        from experimenter.nimbus_ui.constants import NimbusUIConstants
 
         TagFactory.create(name="Existing Tag")
         tag = TagFactory.create(name="Tag 1", color="#ff0000")

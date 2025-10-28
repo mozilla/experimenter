@@ -5,9 +5,9 @@
       <hr class="my-0 mb-2">
     {% else %}
       {% include "common/sidebar_link.html" with title=item.title link=item.link icon=item.icon active=item.active disabled=item.disabled %}
-
     {% endif %}
   {% endfor %}
+  
   {% if experiment.is_draft and invalid_pages %}
     <div class="alert alert-primary" role="alert">
       <p class="mb-1">
@@ -35,6 +35,7 @@
       </p>
     </div>
   {% endif %}
+
   <strong class="ms-3">Tags</strong>
   <hr class="my-0 mb-2">
   <button type="button"
@@ -45,58 +46,63 @@
           hx-target="#tagsModalContent">
       <i class="fa-solid fa-tags pe-2"></i>
       Manage Tags
-</button>
-<strong class="ms-3">Actions</strong>
-<hr class="my-0 mb-2">
-{% include "common/sidebar_link.html" with title="Clone" link="" icon="fa-regular fa-copy fa-lg" data_bs_toggle="modal" data_bs_target="#cloneModal" %}
-{% include "nimbus_experiments/archive_button.html" with experiment=experiment %}
+  </button>
 
-<strong class="ms-3">Links</strong>
-<hr class="my-0 mb-2">
-{% for documentation_link in experiment.documentation_links.all %}
-  {% if documentation_link.link %}
-    {% include "common/sidebar_link.html" with title=documentation_link.get_title_display link=documentation_link.link icon="fa-solid fa-arrow-up-right-from-square" external=True %}
-  {% endif %}
-{% endfor %}
-{% if experiment.is_started %}
-  <a class="nav-link d-flex align-items-center nav-link-hover d-flex justify-content-between"
-     href="{{ experiment.monitoring_dashboard_url }}">
-    <div>
-      <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
-      Live Monitoring Dashboard
-    </div>
-    <i class="fa-regular fa-circle-question fa-sm ps-1"
-       data-bs-toggle="tooltip"
-       data-bs-placement="bottom"
-       title="{{ live_monitor_tooltip }}"></i>
-  </a>
-  {% if experiment.rollout_monitoring_dashboard_url %}
-    <a class="nav-link d-flex align-items-center nav-link-hover"
-       href="{{ experiment.rollout_monitoring_dashboard_url }}">
-      <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
-      Rollouts OpMon Dashboard
+  <strong class="ms-3">Actions</strong>
+  <hr class="my-0 mb-2">
+  {% include "common/sidebar_link.html" with title="Clone" link="" icon="fa-regular fa-copy fa-lg" data_bs_toggle="modal" data_bs_target="#cloneModal" %}
+  {% include "nimbus_experiments/archive_button.html" with experiment=experiment %}
+
+  <strong class="ms-3">Links</strong>
+  <hr class="my-0 mb-2">
+  {% for documentation_link in experiment.documentation_links.all %}
+    {% if documentation_link.link %}
+      {% include "common/sidebar_link.html" with title=documentation_link.get_title_display link=documentation_link.link icon="fa-solid fa-arrow-up-right-from-square" external=True %}
+    {% endif %}
+  {% endfor %}
+  
+  {% if experiment.is_started %}
+    <a class="nav-link d-flex align-items-center nav-link-hover d-flex justify-content-between"
+       href="{{ experiment.monitoring_dashboard_url }}">
+      <div>
+        <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
+        Live Monitoring Dashboard
+      </div>
+      <i class="fa-regular fa-circle-question fa-sm ps-1"
+         data-bs-toggle="tooltip"
+         data-bs-placement="bottom"
+         title="{{ live_monitor_tooltip }}"></i>
     </a>
+    {% if experiment.rollout_monitoring_dashboard_url %}
+      <a class="nav-link d-flex align-items-center nav-link-hover"
+         href="{{ experiment.rollout_monitoring_dashboard_url }}">
+        <i class="fa-solid fa-arrow-up-right-from-square pe-2"></i>
+        Rollouts OpMon Dashboard
+      </a>
+    {% endif %}
   {% endif %}
-{% endif %}
-{% for title, link in common_sidebar_links.items %}
-  <a class="nav-link d-flex align-items-center nav-link-hover d-flex justify-content-between"
-     href="{% if title == 'Detailed Analysis' %}{{ analysis_link }}{% else %}{{ link.url }}{% endif %}">
-    <div>
-      <i class="{{ link.icon }} pe-2"></i>
-      {{ title }}
-    </div>
-    <i class="fa-regular fa-circle-question fa-sm ps-1"
-       data-bs-toggle="tooltip"
-       data-bs-placement="bottom"
-       title="{{ link.tooltip }}"></i>
+
+  {% for title, link in common_sidebar_links.items %}
+    <a class="nav-link d-flex align-items-center nav-link-hover d-flex justify-content-between"
+       href="{% if title == 'Detailed Analysis' %}{{ analysis_link }}{% else %}{{ link.url }}{% endif %}">
+      <div>
+        <i class="{{ link.icon }} pe-2"></i>
+        {{ title }}
+      </div>
+      <i class="fa-regular fa-circle-question fa-sm ps-1"
+         data-bs-toggle="tooltip"
+         data-bs-placement="bottom"
+         title="{{ link.tooltip }}"></i>
+    </a>
+  {% endfor %}
+
+  <a class="nav-link d-flex align-items-center nav-link-hover"
+     href="{{ experiment.get_detail_preview_recipe_json_url }}">
+    <i class="fa-solid fa-file-code pe-2"></i>
+    Preview Recipe JSON
   </a>
-{% endfor %}
-<a class="nav-link d-flex align-items-center nav-link-hover"
-   href="{{ experiment.get_detail_preview_recipe_json_url }}">
-  <i class="fa-solid fa-file-code pe-2"></i>
-  Preview Recipe JSON
-</a>
 </div>
+
 <div class="modal fade"
      id="cloneModal"
      tabindex="-1"
@@ -117,6 +123,7 @@
     </div>
   </div>
 </div>
+
 <div class="modal fade"
      id="tagsModal"
      tabindex="-1"
