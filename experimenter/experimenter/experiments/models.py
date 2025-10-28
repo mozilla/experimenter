@@ -454,6 +454,29 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=list,
     )
     tags = models.ManyToManyField(Tag, blank=True, related_name="experiments")
+    qa_run_date = models.DateField("QA Run Date", blank=True, null=True, default=None)
+    qa_run_type = models.CharField(
+        "QA Run Type",
+        max_length=255,
+        blank=True,
+        null=True,
+        default=None,
+        choices=NimbusConstants.QATestType.choices,
+    )
+    qa_run_test_plan = models.URLField(
+        "QA Run Test Plan Link",
+        max_length=500,
+        blank=True,
+        null=True,
+        default=None,
+    )
+    qa_run_testrail_link = models.URLField(
+        "QA Run TestRail Link",
+        max_length=500,
+        blank=True,
+        null=True,
+        default=None,
+    )
 
     class Meta:
         verbose_name = "Nimbus Experiment"
@@ -1542,6 +1565,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         base_results = results_data[window].get(base, {}).get("all")
                         if base_results is not None:
                             return True
+
+        return False
+
+    @property
+    def has_exposures(self):
+        # True if there are any exposures in the results data
+        if self.results_data and "v3" in self.results_data:
+            results_data = self.results_data["v3"]
+            for window in ["overall", "weekly"]:
+                if results_data.get(window):
+                    exposure_data = results_data[window].get("exposures", {}).get("all")
+                    if exposure_data is not None:
+                        return True
 
         return False
 

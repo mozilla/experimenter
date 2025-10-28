@@ -651,6 +651,38 @@ class ApproveUpdateRolloutView(StatusUpdateView):
 class ResultsView(NimbusExperimentViewMixin, DetailView):
     template_name = "nimbus_experiments/results.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        experiment = self.get_object()
+
+        analysis_data = experiment.results_data.get("v3", {})
+        other_metrics = analysis_data.get("other_metrics", {})
+        metrics_metadata = analysis_data.get("metadata", {}).get("metrics", {})
+        default_metrics = {}
+
+        for value in other_metrics.values():
+            for metricKey, metricValue in value.items():
+                default_metrics[metricKey] = metrics_metadata.get(metricKey, {}).get(
+                    "friendlyName", metricValue
+                )
+
+        context["default_metrics"] = default_metrics
+
+        selected_reference_branch = self.request.GET.get(
+            "reference_branch", experiment.reference_branch.name
+        )
+        context["selected_reference_branch"] = selected_reference_branch
+
+        selected_segment = self.request.GET.get("segment", "all")
+        context["selected_segment"] = selected_segment
+        analysis_basis = self.request.GET.get(
+            "analysis_basis", "exposures" if experiment.has_exposures else "enrollments"
+        )
+        context["selected_analysis_basis"] = analysis_basis
+
+        context["results_data"] = analysis_data
+        return context
+
 
 class NimbusFeaturesView(TemplateView):
     template_name = "nimbus_experiments/features.html"
@@ -712,6 +744,23 @@ class NimbusFeaturesView(TemplateView):
             field for field, _ in deliveries_non_sortable_headers
         }
 
+        # header fields for the qa runs table
+        qa_runs_sortable_headers = FeaturesPageSortChoices.sortable_headers(
+            FeaturesPageSortChoices.QARuns
+        )
+        qa_runs_non_sortable_headers = [
+            ("qa_run", "QA Run"),
+            ("qa_status", "QA Status"),
+            ("qa_test_plan", "Test Plan/Recipe"),
+            ("qa_testrail_link", "TestRail Results"),
+        ]
+        qa_runs_sortable_header = (
+            qa_runs_non_sortable_headers[:1]
+            + qa_runs_sortable_headers
+            + qa_runs_non_sortable_headers[1:]
+        )
+        qa_runs_non_sortable_fields = {field for field, _ in qa_runs_non_sortable_headers}
+
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
@@ -724,6 +773,8 @@ class NimbusFeaturesView(TemplateView):
             "experiments_with_qa_status": qa_runs_page_obj.object_list,
             "deliveries_sortable_header": deliveries_sortable_header,
             "deliveries_non_sortable_header": deliveries_non_sortable_fields,
+            "qa_runs_sortable_header": qa_runs_sortable_header,
+            "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
         }
         return context
 

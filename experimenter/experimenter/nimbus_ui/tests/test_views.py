@@ -2988,6 +2988,102 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.context["experiment"], experiment)
         self.assertTemplateUsed(response, "nimbus_experiments/results.html")
 
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "other_metrics": {"group": {"metricA": "Metric A"}},
+                        "metadata": {
+                            "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
+                        },
+                        "overall": {
+                            "enrollments": {"all": {}},
+                            "exposures": {"all": {}},
+                        },
+                        "weekly": {
+                            "enrollments": {"all": {}},
+                            "exposures": {"all": {}},
+                        },
+                    }
+                },
+                "exposures",
+                {"metricA": "Friendly Metric A"},
+            ),
+            (
+                {
+                    "v3": {
+                        "other_metrics": {"group": {"metricA": "Metric A"}},
+                        "metadata": {
+                            "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
+                        },
+                        "overall": {"enrollments": {"all": {}}},
+                    }
+                },
+                "enrollments",
+                {"metricA": "Friendly Metric A"},
+            ),
+        ]
+    )
+    def test_results_view_context_and_defaults(
+        self, results_data, selected_analysis_basis, default_metrics
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        experiment.results_data = results_data
+        experiment.save()
+
+        response = self.client.get(
+            reverse("nimbus-ui-results", kwargs={"slug": experiment.slug}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["results_data"], experiment.results_data.get("v3")
+        )
+        self.assertEqual(response.context["default_metrics"], default_metrics)
+        self.assertEqual(
+            response.context["selected_reference_branch"],
+            experiment.reference_branch.name,
+        )
+        self.assertEqual(response.context["selected_segment"], "all")
+        self.assertEqual(
+            response.context["selected_analysis_basis"], selected_analysis_basis
+        )
+
+    def test_results_view_query_param_overrides(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "other_metrics": {},
+                "metadata": {"metrics": {}},
+                "overall": {"enrollments": {"all": {}}, "exposures": {"all": {}}},
+            }
+        }
+        experiment.save()
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-results",
+                kwargs={"slug": experiment.slug},
+                query={
+                    "reference_branch": "treatment-a",
+                    "segment": "foo",
+                    "analysis_basis": "enrollments",
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["selected_reference_branch"], "treatment-a")
+        self.assertEqual(response.context["selected_segment"], "foo")
+        self.assertEqual(response.context["selected_analysis_basis"], "enrollments")
+
 
 class TestBranchScreenshotCreateView(AuthTestCase):
     def test_post_creates_screenshot(self):
@@ -3530,6 +3626,46 @@ class TestNimbusFeaturesView(AuthTestCase):
             [experiment2.slug, experiment1.slug],
         )
 
+    def test_features_view_deliveries_table_can_sort_by_qa_run_date(self):
+        experiment1 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            qa_run_date=datetime.date(2024, 1, 1),
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            qa_run_date=datetime.date(2024, 1, 2),
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.QARuns.DATE_UP,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.QARuns.DATE_DOWN,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
     def test_features_view_deliveries_table_can_sort_by_date(self):
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
@@ -3602,6 +3738,46 @@ class TestNimbusFeaturesView(AuthTestCase):
             reverse("nimbus-ui-features"),
             {
                 "sort": FeaturesPageSortChoices.Deliveries.TYPE_DOWN,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment2.slug, experiment1.slug],
+        )
+
+    def test_features_view_deliveries_table_can_sort_by_qa_run_type(self):
+        experiment1 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            qa_run_type=NimbusExperiment.QATestType.FULL,
+        )
+        experiment2 = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[self.feature_configs["feature-desktop"]],
+            qa_run_type=NimbusExperiment.QATestType.SMOKE,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.QARuns.TYPE_UP,
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": self.feature_configs["feature-desktop"].id,
+            },
+        )
+
+        self.assertEqual(
+            [e.slug for e in response.context["experiments_delivered"]],
+            [experiment1.slug, experiment2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "sort": FeaturesPageSortChoices.QARuns.TYPE_DOWN,
                 "application": NimbusExperiment.Application.DESKTOP.value,
                 "feature_configs": self.feature_configs["feature-desktop"].id,
             },
