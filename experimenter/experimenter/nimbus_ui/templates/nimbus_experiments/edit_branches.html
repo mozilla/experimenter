@@ -217,8 +217,24 @@
                             {% endwith %}
                           {% endif %}
                         </div>
-                        <div class="col-8 d-flex align-items-end">
-                          {{ screenshot_form.description|add_error_class:"is-invalid" }}
+                        <div class="col-8">
+                          <div class=" d-flex align-items-end">
+                            {{ screenshot_form.description|add_error_class:"is-invalid" }}
+                            <button type="button"
+                                    id="delete-screenshot-{{ screenshot_form.instance.id }}"
+                                    class="btn btn-link ms-3 px-0"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-bs-title="Delete Screenshot"
+                                    hx-post="{% url 'nimbus-ui-delete-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
+                                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                    hx-vals='{"screenshot_id": {{ screenshot_form.instance.id }} }'
+                                    hx-select="#branches-form"
+                                    hx-target="#branches-form"
+                                    hx-disabled-elt="this">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
+                          </div>
                           {% for error in screenshot_form.description.errors %}
                             <div class="invalid-feedback d-block">{{ error }}</div>
                           {% endfor %}
@@ -241,20 +257,6 @@
                               {% endfor %}
                             {% endwith %}
                           {% endif %}
-                          <button type="button"
-                                  id="delete-screenshot-{{ screenshot_form.instance.id }}"
-                                  class="btn btn-link ms-3 px-0"
-                                  data-bs-toggle="tooltip"
-                                  data-bs-placement="top"
-                                  data-bs-title="Delete Screenshot"
-                                  hx-post="{% url 'nimbus-ui-delete-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-                                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                                  hx-vals='{"screenshot_id": {{ screenshot_form.instance.id }} }'
-                                  hx-select="#branches-form"
-                                  hx-target="#branches-form"
-                                  hx-disabled-elt="this">
-                            <i class="fa-solid fa-trash"></i>
-                          </button>
                         </div>
                       </div>
                       {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
