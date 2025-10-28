@@ -3542,81 +3542,6 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(form["application"].value(), applications[1].value)
         self.assertEqual(form["feature_configs"].value(), str(feature_config_multi.id))
 
-
-class TestTagsManageView(AuthTestCase):
-    def test_tags_manage_view_renders(self):
-        TagFactory.create(name="Tag 1")
-        TagFactory.create(name="Tag 2")
-        response = self.client.get(reverse("nimbus-ui-tags-manage"))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Tag 1")
-        self.assertContains(response, "Tag 2")
-
-
-class TestTagCreateView(AuthTestCase):
-    def test_create_tag(self):
-        response = self.client.post(reverse("nimbus-ui-tags-create"))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Tag.objects.count(), 1)
-        self.assertEqual(Tag.objects.first().name, "Tag 1")
-
-
-class TestTagSaveView(AuthTestCase):
-    def test_save_valid_tags(self):
-        tag = TagFactory.create(name="Tag 1", color="#ff0000")
-        response = self.client.post(
-            reverse("nimbus-ui-tags-save"),
-            {
-                "form-TOTAL_FORMS": "1",
-                "form-INITIAL_FORMS": "1",
-                "form-MIN_NUM_FORMS": "0",
-                "form-MAX_NUM_FORMS": "1000",
-                "form-0-id": tag.id,
-                "form-0-name": "Updated Tag",
-                "form-0-color": "#00ff00",
-            },
-        )
-        self.assertEqual(response.status_code, 200)
-        tag.refresh_from_db()
-        self.assertEqual(tag.color, "#00ff00")
-
-    def test_save_invalid_tags(self):
-        tag = TagFactory.create(name="Tag 1", color="#ff0000")
-        response = self.client.post(
-            reverse("nimbus-ui-tags-save"),
-            {
-                "form-TOTAL_FORMS": "1",
-                "form-INITIAL_FORMS": "1",
-                "form-MIN_NUM_FORMS": "0",
-                "form-MAX_NUM_FORMS": "1000",
-                "form-0-id": tag.id,
-                "form-0-name": "",
-                "form-0-color": "#00ff00",
-            },
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This field is required.")
-
-    def test_save_duplicate_tags(self):
-        from experimenter.nimbus_ui.constants import NimbusUIConstants
-
-        TagFactory.create(name="Existing Tag")
-        tag = TagFactory.create(name="Tag 1", color="#ff0000")
-
-        response = self.client.post(
-            reverse("nimbus-ui-tags-save"),
-            {
-                "form-TOTAL_FORMS": "1",
-                "form-INITIAL_FORMS": "1",
-                "form-MIN_NUM_FORMS": "0",
-                "form-MAX_NUM_FORMS": "1000",
-                "form-0-id": tag.id,
-                "form-0-name": "Existing Tag",
-                "form-0-color": "#00ff00",
-            },
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, NimbusUIConstants.ERROR_TAG_DUPLICATE_NAME)
     def test_features_view_pagination(self):
         application = NimbusExperiment.Application.DESKTOP
         for num in range(6):
@@ -3990,3 +3915,79 @@ class TestTagSaveView(AuthTestCase):
             [e.slug for e in response.context["experiments_delivered"]],
             [experiment2.slug, experiment1.slug],
         )
+
+
+class TestTagsManageView(AuthTestCase):
+    def test_tags_manage_view_renders(self):
+        TagFactory.create(name="Tag 1")
+        TagFactory.create(name="Tag 2")
+        response = self.client.get(reverse("nimbus-ui-tags-manage"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Tag 1")
+        self.assertContains(response, "Tag 2")
+
+
+class TestTagCreateView(AuthTestCase):
+    def test_create_tag(self):
+        response = self.client.post(reverse("nimbus-ui-tags-create"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Tag.objects.count(), 1)
+        self.assertEqual(Tag.objects.first().name, "Tag 1")
+
+
+class TestTagSaveView(AuthTestCase):
+    def test_save_valid_tags(self):
+        tag = TagFactory.create(name="Tag 1", color="#ff0000")
+        response = self.client.post(
+            reverse("nimbus-ui-tags-save"),
+            {
+                "form-TOTAL_FORMS": "1",
+                "form-INITIAL_FORMS": "1",
+                "form-MIN_NUM_FORMS": "0",
+                "form-MAX_NUM_FORMS": "1000",
+                "form-0-id": tag.id,
+                "form-0-name": "Updated Tag",
+                "form-0-color": "#00ff00",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        tag.refresh_from_db()
+        self.assertEqual(tag.color, "#00ff00")
+
+    def test_save_invalid_tags(self):
+        tag = TagFactory.create(name="Tag 1", color="#ff0000")
+        response = self.client.post(
+            reverse("nimbus-ui-tags-save"),
+            {
+                "form-TOTAL_FORMS": "1",
+                "form-INITIAL_FORMS": "1",
+                "form-MIN_NUM_FORMS": "0",
+                "form-MAX_NUM_FORMS": "1000",
+                "form-0-id": tag.id,
+                "form-0-name": "",
+                "form-0-color": "#00ff00",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This field is required.")
+
+    def test_save_duplicate_tags(self):
+        from experimenter.nimbus_ui.constants import NimbusUIConstants
+
+        TagFactory.create(name="Existing Tag")
+        tag = TagFactory.create(name="Tag 1", color="#ff0000")
+
+        response = self.client.post(
+            reverse("nimbus-ui-tags-save"),
+            {
+                "form-TOTAL_FORMS": "1",
+                "form-INITIAL_FORMS": "1",
+                "form-MIN_NUM_FORMS": "0",
+                "form-MAX_NUM_FORMS": "1000",
+                "form-0-id": tag.id,
+                "form-0-name": "Existing Tag",
+                "form-0-color": "#00ff00",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, NimbusUIConstants.ERROR_TAG_DUPLICATE_NAME)
