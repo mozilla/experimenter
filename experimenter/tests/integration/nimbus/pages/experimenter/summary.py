@@ -17,6 +17,7 @@ class SummaryPage(ExperimenterBase):
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary")
     _promote_rollout_locator = (By.CSS_SELECTOR, 'button[data-testid="promote-rollout"]')
+    _back_to_draft_locator = (By.CSS_SELECTOR, "#back-to-draft-button")
     _header_slug = (By.CSS_SELECTOR, "#experiment-slug")
     _approve_request_button_locator = (By.CSS_SELECTOR, "#review-controls .btn-success")
     _reject_request_button_locator = (By.CSS_SELECTOR, "#reject-button")
@@ -198,6 +199,11 @@ class SummaryPage(ExperimenterBase):
 
     def launch_to_preview(self):
         self.wait_for_and_find_element(*self._launch_to_preview_locator).click()
+        return self
+
+    def back_to_draft(self):
+        self.wait_for_and_find_element(*self._back_to_draft_locator).click()
+        self.wait_for_and_find_element(*self._launch_to_preview_locator)
         return self
 
     @property

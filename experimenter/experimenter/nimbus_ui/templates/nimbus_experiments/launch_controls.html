@@ -161,6 +161,7 @@
         {% endif %}
         {% if experiment.can_preview_to_draft %}
           <button type="button"
+                  id="back-to-draft-button"
                   class="btn btn-secondary"
                   hx-post="{% url 'nimbus-ui-preview-to-draft' slug=experiment.slug %}"
                   hx-select="#content"
