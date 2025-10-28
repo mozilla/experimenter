@@ -42,7 +42,10 @@ class SummaryPage(ExperimenterBase):
         ".header-experiment-status .border-primary",
     )
     _end_experiment_button_locator = (By.CSS_SELECTOR, "#end-experiment")
-    _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="nav-edit-archive"]')
+    _archive_button_locator = (
+        By.CSS_SELECTOR,
+        'form[hx-post*="toggle-archive"] button[data-testid="nav-edit-archive"]',
+    )
     _archive_label_locator = (
         By.CSS_SELECTOR,
         "#archive-badge",
@@ -262,7 +265,8 @@ class SummaryPage(ExperimenterBase):
             return self.wait_for_and_find_element(*self._request_launch_locator)
 
     def archive(self):
-        self.wait_for_and_find_element(*self._archive_button_locator).click()
+        el = self.wait_for_and_find_element(*self._archive_button_locator)
+        el.click()
 
     @property
     def archive_label(self):
