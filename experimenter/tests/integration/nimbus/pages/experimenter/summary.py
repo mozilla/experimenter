@@ -311,8 +311,8 @@ class SummaryPage(ExperimenterBase):
         return self.wait_for_and_find_element(*self._clone_save_locator)
 
     def clone(self):
-        self.clone_action.click()
-        self.clone_save.click()
+        self.js_click(self.clone_action)
+        self.js_click(self.clone_save)
 
     @property
     def promote_to_rollout_buttons(self):
