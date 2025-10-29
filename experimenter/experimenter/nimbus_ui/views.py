@@ -18,7 +18,10 @@ from experimenter.experiments.models import (
     NimbusVersionedSchema,
     Tag,
 )
-from experimenter.nimbus_ui.constants import NimbusUIConstants
+from experimenter.nimbus_ui.constants import (
+    SCHEMA_DIFF_SIZE_CONFIG,
+    NimbusUIConstants,
+)
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
     FeaturesPageSortChoices,
@@ -786,18 +789,19 @@ class NimbusFeaturesView(TemplateView):
                 .order_by("-version__major", "-version__minor", "-version__patch")
             )
 
+            schema_cache = []
+            for schema in schemas:
+                schema_cache.append(json.loads(schema.schema))
+
             # Pair each schema with its previous version
             for i, schema in enumerate(schemas):
                 current_json = schema.schema
-                previous_json = schemas[i + 1].schema if i + 1 < len(schemas) else None
+                previous_json = schemas[i + 1].schema if i + 1 < len(schemas) else '"{}"'
 
-                if previous_json is not None:
-                    current_obj = json.loads(current_json)
-                    previous_obj = json.loads(previous_json)
-
+                if i + 1 < len(schemas):
                     diff = DeepDiff(
-                        previous_obj,
-                        current_obj,
+                        schema_cache[i + 1],
+                        schema_cache[i],
                         ignore_order=True,
                     )
 
@@ -810,14 +814,17 @@ class NimbusFeaturesView(TemplateView):
                         ]
                     )
 
+                    thresholds = SCHEMA_DIFF_SIZE_CONFIG["thresholds"]
+                    labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
+
                     if total_changes == 0:
-                        size_label = "No Changes"
-                    elif total_changes <= 3:
-                        size_label = "Small"
-                    elif total_changes <= 10:
-                        size_label = "Medium"
+                        size_label = labels["no_changes"]
+                    elif total_changes <= thresholds["small"]:
+                        size_label = labels["small"]
+                    elif total_changes <= thresholds["medium"]:
+                        size_label = labels["medium"]
                     else:
-                        size_label = "Large"
+                        size_label = labels["large"]
 
                     if total_changes > 0:
                         schemas_with_changes += 1
@@ -850,6 +857,7 @@ class NimbusFeaturesView(TemplateView):
             "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
             "feature_schemas": feature_schemas,
             "schemas_with_changes": schemas_with_changes,
+            "schema_diff_labels": SCHEMA_DIFF_SIZE_CONFIG["labels"],
         }
         return context
 

@@ -41,6 +41,7 @@ const setupMergeViews = () => {
         ],
       },
       parent: container,
+      collapseUnchanged: {},
     });
 
     // Mark as initialized

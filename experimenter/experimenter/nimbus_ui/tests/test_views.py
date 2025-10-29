@@ -18,22 +18,16 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
-<<<<<<< HEAD
-    Tag,
-=======
     NimbusFeatureVersion,
->>>>>>> 83ca8c737 (feat(nimbus): Add feature schema data to feature changes table.)
+    Tag,
 )
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
-<<<<<<< HEAD
-    TagFactory,
-=======
     NimbusVersionedSchemaFactory,
->>>>>>> 83ca8c737 (feat(nimbus): Add feature schema data to feature changes table.)
+    TagFactory,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -4002,6 +3996,7 @@ class TestTagSaveView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, NimbusUIConstants.ERROR_TAG_DUPLICATE_NAME)
+
     def test_features_view_gets_feature_schemas_with_diffs(self):
         application = NimbusExperiment.Application.DESKTOP
 
@@ -4073,7 +4068,7 @@ class TestTagSaveView(AuthTestCase):
         self.assertEqual(feature_schemas[2]["previous_json"], schema_120)
 
         self.assertEqual(feature_schemas[3]["current_json"], schema_120)
-        self.assertIsNone(feature_schemas[3]["previous_json"])
+        self.assertEqual(feature_schemas[3]["previous_json"], '"{}"')
 
     def test_features_view_feature_changes_loads_feature_versions(self):
         application = NimbusExperiment.Application.DESKTOP

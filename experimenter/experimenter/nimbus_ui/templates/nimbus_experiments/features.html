@@ -367,11 +367,11 @@
                       {{ item.schema.version|default:"current" }}
                     </td>
                     <td scope="col" class="col-4">
-                      {% if item.size_label == "Small" %}
+                      {% if item.size_label == schema_diff_labels.small %}
                         <span class="badge bg-primary">{{ item.size_label }}</span>
-                      {% elif item.size_label == "Medium" %}
+                      {% elif item.size_label == schema_diff_labels.medium %}
                         <span class="badge bg-warning text-dark">{{ item.size_label }}</span>
-                      {% elif item.size_label == "Large" %}
+                      {% elif item.size_label == schema_diff_labels.large %}
                         <span class="badge bg-danger">{{ item.size_label }}</span>
                       {% elif item.size_label is None %}
                         <span class="text-muted">First version</span>
@@ -403,7 +403,7 @@
                           <div class="schema-merge-container"
                                data-current="{{ item.current_json }}"
                                data-previous="{{ item.previous_json }}"
-                               style="height: 600px;
+                               style="max-height: 600px;
                                       max-width: 1200px"></div>
                         </div>
                       </td>

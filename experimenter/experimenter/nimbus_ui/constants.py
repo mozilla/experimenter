@@ -337,10 +337,26 @@ def _get_status_icon_map():
     }
 
 
+def _get_schema_diff_size_config():
+    return {
+        "thresholds": {
+            "small": 3,
+            "medium": 10,
+        },
+        "labels": {
+            "no_changes": "No Changes",
+            "small": "Small",
+            "medium": "Medium",
+            "large": "Large",
+        },
+    }
+
+
 QA_STATUS_ICON_MAP = _get_qa_status_icon_map()
 CHANNEL_ICON_MAP = _get_channel_icon_map()
 APPLICATION_ICON_MAP = _get_application_icon_map()
 STATUS_ICON_MAP = _get_status_icon_map()
+SCHEMA_DIFF_SIZE_CONFIG = _get_schema_diff_size_config()
 
 # Icon filter type constants for template tags
 QA_ICON_FILTER_TYPE = "qa_icon_info"
