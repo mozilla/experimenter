@@ -2224,6 +2224,88 @@ class TestNimbusExperiment(TestCase):
                         f"{link['title']} should not be active for path {path}",
                     )
 
+    def test_default_metrics_set_on_creation(self):
+        experiment = NimbusExperimentFactory.create()
+
+        experiment.results_data = {
+            "v3": {
+                "other_metrics": {"group": {"metricA": "Metric A"}},
+                "metadata": {
+                    "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
+                },
+            }
+        }
+
+        experiment.save()
+
+        self.assertEqual(
+            experiment.default_metrics,
+            {"metricA": "Friendly Metric A"},
+        )
+
+    def test_get_branch_data_returns_correct_data(self):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch B", slug="branch-b"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 150}},
+                                            "percent": 12,
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 75}},
+                                            "percent": 88,
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment.save()
+
+        result = experiment.get_branch_data("enrollments", "all")
+
+        self.assertEqual(len(result), 4)
+
+        index_map = {item.get("slug"): i for i, item in enumerate(result)}
+        first = result[index_map.get("branch-a")]
+        second = result[index_map.get("branch-b")]
+
+        # Validate first branch
+        self.assertEqual(first["slug"], "branch-a")
+        self.assertEqual(first["name"], "Branch A")
+        self.assertEqual(first["percentage"], 12)
+        self.assertEqual(first["num_participants"], 150)
+        self.assertEqual(first["description"], branch_a.description)
+
+        # Validate second branch
+        self.assertEqual(second["slug"], "branch-b")
+        self.assertEqual(second["name"], "Branch B")
+        self.assertEqual(second["percentage"], 88)
+        self.assertEqual(second["num_participants"], 75)
+        self.assertEqual(second["description"], branch_b.description)
+
     def test_conclusion_recommendation_labels(self):
         recommendations = list(NimbusConstants.ConclusionRecommendation)
         experiment = NimbusExperimentFactory.create_with_lifecycle(

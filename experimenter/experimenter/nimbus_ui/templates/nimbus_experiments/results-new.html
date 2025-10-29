@@ -1,0 +1,118 @@
+{% extends "nimbus_experiments/experiment_base.html" %}
+
+{% load static %}
+{% load nimbus_extras %}
+
+{% block title %}{{ experiment.name }}{% endblock %}
+
+{% block main_content %}
+  <div class="card px-5 py-4 shadow-sm">
+    <h3>Overview</h3>
+    <div class="d-inline-flex gap-4">
+      {% for section in overview_sections %}
+        <p class="text-muted">{{ section }}</p>
+        {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
+      {% endfor %}
+    </div>
+    <div class="d-flex flex-column gap-4">
+      <div class="card p-5 mt-4">
+        <div class="row">
+          <div class="col-xxl">
+            <h5>Hypothesis</h5>
+            {% with hyp=experiment.hypothesis|default:"No hypothesis set." %}
+              {% if hyp|length > 300 %}
+                <p>
+                  {{ hyp|truncatechars:300 }}
+                  <a href="{{ experiment.get_detail_url }}" class="ms-1">More</a>
+                </p>
+              {% else %}
+                <p>{{ hyp }}</p>
+              {% endif %}
+            {% endwith %}
+          </div>
+          <div class="col-xxl">
+            <div class="row">
+              <div class="col">
+                <p class="text-muted mb-0">Product Owner</p>
+                <p>{{ experiment.owner|default:"No product owner set." }}</p>
+              </div>
+              <div class="col">
+                <p class="text-muted mb-0">Advanced Targeting</p>
+                <p>{{ experiment.targeting_config.name }}</p>
+              </div>
+              <div class="col">
+                <p class="text-muted mb-0">Application</p>
+                <p>{{ experiment.application|default:"Unknown" }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <p class="text-muted mb-0">Feature tags</p>
+                {% for tag in experiment.tags.all %}
+                  <span class="badge bg-light text-dark">{{ tag.name }}</span>
+                {% empty %}
+                  <p>None</p>
+                {% endfor %}
+              </div>
+              <div class="col">
+                <p class="text-muted mb-0">Localization</p>
+                {% for locale in experiment.locales.all %}
+                  <p class="mb-0">{{ locale.name }}</p>
+                {% empty %}
+                  <p class="mb-0">None</p>
+                {% endfor %}
+              </div>
+              <div class="col">
+                <p class="text-muted mb-0">Version</p>
+                <p>
+                  {{ experiment.firefox_min_version }}
+                  {% if experiment.firefox_max_version %}
+                    - {{ experiment.firefox_max_version }}
+                  {% else %}
+                    +
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card p-5">
+        <div class="row row-cols-2 row-cols-xxl-3 g-4">
+          {% for branch in branch_data %}
+            <div class="col">
+              {% include "common/branch_card.html" with branch=branch %}
+
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card p-5">
+        <div class="row">
+          <div class="col">
+            <h5>Key takeaways</h5>
+            <p class="text-muted">
+              {{ experiment.key_takeaways|default:"Highlight the most important learnings or patterns from this experiment." }}
+            </p>
+          </div>
+          <div class="col">
+            <h5>Next steps</h5>
+            <p class="text-muted">
+              {{ experiment.key_takeaways|default:"Outline what should happen next based on these results — fixes, follow-ups, or future tests." }}
+            </p>
+          </div>
+          <div class="col">
+            <div class="d-flex align-items-start gap-2">
+              {% comment %} TODO:  {% endcomment %}
+              <h5>Project Impact</h5>
+              <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
+            </div>
+            <p class="text-muted">
+              {{ experiment.key_takeaways|default:"Set an impact rating so others can understand the scale of this experiment’s effect." }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock main_content %}
