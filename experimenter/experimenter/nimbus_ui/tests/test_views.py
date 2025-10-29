@@ -3039,7 +3039,7 @@ class TestResultsView(AuthTestCase):
         experiment.save()
 
         response = self.client.get(
-            reverse("nimbus-ui-results", kwargs={"slug": experiment.slug}),
+            reverse("nimbus-ui-new-results", kwargs={"slug": experiment.slug}),
         )
 
         self.assertEqual(response.status_code, 200)
@@ -3072,7 +3072,7 @@ class TestResultsView(AuthTestCase):
 
         response = self.client.get(
             reverse(
-                "nimbus-ui-results",
+                "nimbus-ui-new-results",
                 kwargs={"slug": experiment.slug},
                 query={
                     "reference_branch": "treatment-a",

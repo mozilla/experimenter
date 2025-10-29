@@ -23,6 +23,7 @@ from experimenter.nimbus_ui.views import (
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
     MetricsUpdateView,
+    NewResultsView,
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
@@ -257,6 +258,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/results/.*",
         ResultsView.as_view(),
         name="nimbus-ui-results",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/results-new/$",
+        NewResultsView.as_view(),
+        name="nimbus-ui-new-results",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/create_branch_screenshot/$",
