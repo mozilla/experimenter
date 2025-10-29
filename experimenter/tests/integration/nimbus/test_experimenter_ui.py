@@ -123,7 +123,7 @@ def test_first_run_release_date_visible_for_mobile(
 
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
@@ -150,7 +150,7 @@ def test_first_run_release_date_not_visible_for_non_mobile(
     audience.wait_until_first_run_not_found()
     summary = audience.navigate_to_summary()
     summary.launch_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
     summary.wait_for_timeline_visible()

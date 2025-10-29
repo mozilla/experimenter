@@ -277,6 +277,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                     "schema": feature_config.schemas.get(version=None).schema,
                     "slug": feature_config.slug,
                     "enabled": feature_config.enabled,
+                    "subscribers": [user.id for user in feature_config.subscribers.all()],
                 },
                 feature_configs_data,
             )

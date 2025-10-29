@@ -154,6 +154,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         experiences, etc. associated with your selected feature.""",
     }
 
+    FEATURE_PAGE_TOOLTIPS = {
+        "feature_changes_tooltip": """This shows any changes made to the Nimbus feature
+        manifest such as code changes for the feature you have chosen."""
+    }
+
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"
         END_ENROLLMENT = "end enrollment for this experiment"

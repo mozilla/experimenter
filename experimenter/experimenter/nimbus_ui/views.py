@@ -770,6 +770,7 @@ class NimbusFeaturesView(TemplateView):
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
+            "tooltips": NimbusUIConstants.FEATURE_PAGE_TOOLTIPS,
             "application": self.request.GET.get("application"),
             "feature_configs": self.request.GET.get("feature_configs"),
             "paginator": deliveries_paginator,
