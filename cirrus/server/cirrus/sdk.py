@@ -44,7 +44,11 @@ class SDK:
     ):
         self.client = CirrusClient(context, metrics_handler, coenrolling_feature_ids)
 
-    def compute_enrollments(self, targeting_context: Dict[str, str]) -> Dict[str, Any]:
+    def compute_enrollments(self, targeting_context: Dict[str, Any]) -> Dict[str, Any]:
+        targeting_context["participation"] = {
+            "in_experiments": True,
+            "in_rollouts": True,
+        }
         try:
             res = self.client.handle_enrollment(json.dumps(targeting_context))
             return json.loads(res)
