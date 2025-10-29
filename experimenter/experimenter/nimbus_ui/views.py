@@ -648,25 +648,16 @@ class ApproveUpdateRolloutView(StatusUpdateView):
     form_class = ApproveUpdateRolloutForm
 
 
-class ResultsView(NimbusExperimentViewMixin, DetailView):
-    template_name = "nimbus_experiments/results.html"
+class NewResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results-new.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         experiment = self.get_object()
 
         analysis_data = experiment.results_data.get("v3", {})
-        other_metrics = analysis_data.get("other_metrics", {})
-        metrics_metadata = analysis_data.get("metadata", {}).get("metrics", {})
-        default_metrics = {}
 
-        for value in other_metrics.values():
-            for metricKey, metricValue in value.items():
-                default_metrics[metricKey] = metrics_metadata.get(metricKey, {}).get(
-                    "friendlyName", metricValue
-                )
-
-        context["default_metrics"] = default_metrics
+        context["default_metrics"] = experiment.default_metrics
 
         selected_reference_branch = self.request.GET.get(
             "reference_branch", experiment.reference_branch.name
@@ -675,12 +666,27 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
 
         selected_segment = self.request.GET.get("segment", "all")
         context["selected_segment"] = selected_segment
+
         analysis_basis = self.request.GET.get(
             "analysis_basis", "exposures" if experiment.has_exposures else "enrollments"
         )
         context["selected_analysis_basis"] = analysis_basis
 
         context["results_data"] = analysis_data
+        context["overview_sections"] = NimbusUIConstants.OVERVIEW_SECTIONS
+
+        context["branch_data"] = experiment.get_branch_data(
+            analysis_basis, selected_segment
+        )
+
+        return context
+
+
+class ResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context
 
 
@@ -764,6 +770,7 @@ class NimbusFeaturesView(TemplateView):
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
+            "tooltips": NimbusUIConstants.FEATURE_PAGE_TOOLTIPS,
             "application": self.request.GET.get("application"),
             "feature_configs": self.request.GET.get("feature_configs"),
             "paginator": deliveries_paginator,
