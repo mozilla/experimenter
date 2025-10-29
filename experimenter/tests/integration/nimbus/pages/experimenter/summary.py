@@ -154,8 +154,8 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_clone_parent_link_visible(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._clone_parent_locator),
+        self.wait_with_refresh(
+            self._clone_parent_locator,
             message="Summary Page: could not find clone parent",
         )
 
@@ -268,7 +268,8 @@ class SummaryPage(ExperimenterBase):
             return self.wait_for_and_find_element(*self._request_launch_locator)
 
     def archive(self):
-        self.wait_for_and_find_element(*self._archive_button_locator).click()
+        el = self.wait_for_and_find_element(*self._archive_button_locator)
+        self.js_click(el)
 
     @property
     def archive_label(self):
@@ -310,20 +311,20 @@ class SummaryPage(ExperimenterBase):
         return self.wait_for_and_find_element(*self._clone_save_locator)
 
     def clone(self):
-        self.clone_action.click()
-        self.clone_save.click()
+        self.js_click(self.clone_action)
+        self.js_click(self.clone_save)
 
     @property
     def promote_to_rollout_buttons(self):
         return self.wait_for_and_find_elements(*self._promote_rollout_locator)
 
     def promote_first_branch_to_rollout(self):
-        self.promote_to_rollout_buttons[0].click()
+        self.js_click(self.promote_to_rollout_buttons[0])
         random_chars = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=6)
         )
         self.promote_to_rollout_name = f"Rollout {random_chars}"
-        self.promote_to_rollout_save.click()
+        self.js_click(self.promote_to_rollout_save)
 
     @property
     def takeaways_edit_button(self):

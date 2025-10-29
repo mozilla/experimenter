@@ -4,13 +4,14 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, TemplateView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
@@ -54,6 +55,7 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
     UnsubscribeForm,
@@ -832,3 +834,43 @@ class NimbusExperimentsHomeView(FilterView):
         context["sortable_headers"] = HomeSortChoices.sortable_headers()
         context["create_form"] = NimbusExperimentCreateForm()
         return context
+
+
+class TagFormSetMixin:
+    def get_tag_formset(self, data=None):
+        queryset = Tag.objects.all().order_by("id")
+        return TagFormSet(data, queryset=queryset)
+
+
+class TagsManageView(TagFormSetMixin, TemplateView):
+    template_name = "nimbus_experiments/tags_manage.html"
+
+    def get_context_data(self, **kwargs):
+        return {"formset": self.get_tag_formset()}
+
+
+class TagCreateView(TagFormSetMixin, TemplateView):
+    template_name = "nimbus_experiments/tags_list_partial.html"
+
+    def post(self, request, *args, **kwargs):
+        formset = self.get_tag_formset()
+        formset.create_tag()
+        return render(
+            request,
+            self.template_name,
+            {"formset": self.get_tag_formset()},
+        )
+
+
+class TagSaveView(TagFormSetMixin, TemplateView):
+    template_name = "nimbus_experiments/tags_list_partial.html"
+
+    def post(self, request, *args, **kwargs):
+        formset = self.get_tag_formset(request.POST)
+        if formset.is_valid():
+            formset.save()
+            response = HttpResponse()
+            response["HX-Trigger"] = "closeModal"
+            response["HX-Refresh"] = "true"
+            return response
+        return render(request, self.template_name, {"formset": formset})
