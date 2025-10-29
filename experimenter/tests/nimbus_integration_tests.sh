@@ -51,9 +51,20 @@ sudo chown -R seluser /opt/venv/
 
 firefox --version
 
+# Ensure proper permissions for X11 socket directory
+sudo mkdir -p /tmp/.X11-unix
+sudo chmod 1777 /tmp/.X11-unix
+
+# Start Xvfb in the background
+Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset &
+XVFB_PID=$!
+export DISPLAY=:99
+
+# Wait for Xvfb to start
+sleep 2
+
 poetry -C experimenter/tests/integration install --no-root
 poetry -C experimenter/tests/integration \
-    -vvv \
     run \
     pytest \
     --html=experimenter/tests/integration/test-reports/report.htm \
@@ -64,3 +75,6 @@ poetry -C experimenter/tests/integration \
     experimenter/tests/integration/nimbus \
     -vvv \
     $PYTEST_ARGS
+
+# Clean up Xvfb process
+kill $XVFB_PID 2>/dev/null || true
