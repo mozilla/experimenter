@@ -205,7 +205,7 @@ class NimbusBranchFeatureValueListSerializer(serializers.ListSerializer):
 
         return [
             self.child.to_representation(item)
-            for item in iterable.order_by("feature_config__id")
+            for item in iterable.order_by("feature_config__slug")
         ]
 
 
