@@ -38,9 +38,21 @@ WIN22H2 = "os.windowsBuildNumber >= 19045"
 CORE_ACTIVE_USERS_TARGETING = "'{event}'|eventCountNonZero('Days', 28, 0) >= 21"
 RECENTLY_LOGGED_IN_USERS_TARGETING = "'{event}'|eventCountNonZero('Weeks', 12, 0) >= 1"
 
+HAS_TOU_ACCEPTED_DATE = "('termsofuse.acceptedDate'|preferenceValue != '0')"
+# Change stringified accepted timestamp to a number
+TOU_ACCEPTED_DATE = "('termsofuse.acceptedDate'|preferenceValue * 1)"
+
 ACCEPTED_TOU_V4 = "'termsofuse.acceptedVersion'|preferenceValue == 4"
 
 ACCEPTED_TOU_V4_OR_HIGHER = "'termsofuse.acceptedVersion'|preferenceValue >= 4"
+
+# From this point forward, TOU accepted version will remain at 4 and acceptance
+# date will be used to determine what variations of the TOU/privacy notice was
+# accepted.
+
+# 23:59 UTC on Dec 9, 2025 when an updated version of the privacy
+# notice was published.
+DEC_9_2025 = 1765324740000
 
 TOU_NOTIFICATION_BYPASS_ENABLED = "'termsofuse.bypassNotification'|preferenceValue"
 
@@ -3377,6 +3389,42 @@ TOU_EXPERIENCE_2 = NimbusTargetingConfig(
         !({TOU_NOTIFICATION_BYPASS_ENABLED})
         &&
         {TOU_EXPERIENCE_TOTAL} >= 2
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+ACCEPTED_TOU_BEFORE_DEC_9_2025 = NimbusTargetingConfig(
+    name="Accepted TOU before Dec 9, 2025",
+    slug="accepted_tou_before_dec_9_2025",
+    description=("User accepted TOU before Dec 9, 2025 (excludes Linux)"),
+    targeting=f"""
+    (
+        !os.isLinux
+        &&
+        {HAS_TOU_ACCEPTED_DATE}
+        &&
+        ({TOU_ACCEPTED_DATE} < {DEC_9_2025})
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025 = NimbusTargetingConfig(
+    name="Accepted TOU on or after Dec 9, 2025",
+    slug="accepted_tou_on_or_after_dec_9_2025",
+    description=("User accepted TOU on or after Dec 9, 2025"),
+    targeting=f"""
+    (
+        {HAS_TOU_ACCEPTED_DATE}
+        &&
+        ({TOU_ACCEPTED_DATE} >= {DEC_9_2025})
     )
     """,
     desktop_telemetry="",
