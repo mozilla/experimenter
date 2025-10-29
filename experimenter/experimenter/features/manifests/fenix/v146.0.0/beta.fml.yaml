@@ -4,14 +4,6 @@ about:
 channels:
 - beta
 features:
-  address-sync:
-    description: Turns on address sync.
-    variables:
-      enabled:
-        description: |
-          Whether or not to turn on address sync.
-        type: Boolean
-        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -503,6 +495,7 @@ features:
           OPEN_SETTINGS_SEARCH_ENGINE: ://settings_search_engine
           OPEN_SETTINGS_TRACKING_PROTECTION: ://settings_tracking_protection
           OPEN_SETTINGS_WALLPAPERS: ://settings_wallpapers
+          OPEN_SETTINGS_APP_ICON: ://settings_app_icon
           OPEN_SETTINGS: ://settings
           OPEN_SHARE_SHEET: ://share_sheet
           TURN_ON_SYNC: ://turn_on_sync
