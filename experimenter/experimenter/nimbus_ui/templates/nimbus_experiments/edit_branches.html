@@ -4,6 +4,7 @@
 {% load nimbus_extras %}
 {% load django_bootstrap5 %}
 {% load widget_tweaks %}
+{% load error_helpers %}
 
 {% block title %}{{ experiment.name }} - Branches{% endblock %}
 
@@ -105,20 +106,8 @@
                     <label class="d-block">Description</label>
                     {{ branch_form.description|add_error_class:"is-invalid" }}
                     {% for error in branch_form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                    {% if forloop.first and validation_errors.reference_branch %}
-                      {% for error in validation_errors.reference_branch.description %}
-                        <div class="invalid-feedback d-block">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                    {% if not forloop.first and validation_errors.treatment_branches %}
-                      {% with treatment_index=forloop.counter0|add:"-1" %}
-                        {% for t_branch in validation_errors.treatment_branches %}
-                          {% if forloop.counter0 == treatment_index %}
-                            {% for error in t_branch.description %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                          {% endif %}
-                        {% endfor %}
-                      {% endwith %}
-                    {% endif %}
+                    {% get_branch_errors validation_errors forloop.first forloop.counter0|add:"-1" as branch_errors %}
+                    {% for error in branch_errors.description %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                   </div>
                   <div class="col-2">
                     <label class="d-block">Ratio</label>
@@ -158,32 +147,10 @@
                       {% for error in branch_feature_values_form.value.errors %}
                         <div class="invalid-feedback d-block">{{ error }}</div>
                       {% endfor %}
-                      {# Reference branch feature value errors #}
-                      {% if forloop.parentloop.first and validation_errors.reference_branch.feature_values %}
-                        {% with fv_index=forloop.counter0 %}
-                          {% for fv_error in validation_errors.reference_branch.feature_values %}
-                            {% if forloop.counter0 == fv_index %}
-                              {% for error in fv_error.value %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                            {% endif %}
-                          {% endfor %}
-                        {% endwith %}
-                      {% endif %}
-                      {# Treatment branches feature value errors #}
-                      {% if not forloop.parentloop.first and validation_errors.treatment_branches %}
-                        {% with branch_index=forloop.parentloop.counter0|add:"-1" %}
-                          {% for t_branch in validation_errors.treatment_branches %}
-                            {% if forloop.counter0 == branch_index %}
-                              {% with fv_index=forloop.parentloop.counter0 %}
-                                {% for fv_error in t_branch.feature_values %}
-                                  {% if forloop.counter0 == fv_index %}
-                                    {% for error in fv_error.value %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                                  {% endif %}
-                                {% endfor %}
-                              {% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                        {% endwith %}
-                      {% endif %}
+                      {% get_branch_errors validation_errors forloop.parentloop.first forloop.parentloop.counter0|add:"-1" as branch_errors %}
+                      {% with fv_error=branch_errors.feature_values|get_item:forloop.counter0 %}
+                        {% for error in fv_error.value %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                      {% endwith %}
                     </div>
                   </div>
                 {% endfor %}
@@ -197,25 +164,10 @@
                         <div class="col-4">
                           {{ screenshot_form.image|add_error_class:"is-invalid" }}
                           {% for error in screenshot_form.image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                          {% if forloop.parentloop.first and validation_errors.reference_branch.screenshots %}
-                            {% for ss in validation_errors.reference_branch.screenshots %}
-                              {% if forloop.counter0 == screenshot_index %}
-                                {% for error in ss.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
-                              {% endif %}
-                            {% endfor %}
-                          {% elif not forloop.parentloop.first and validation_errors.treatment_branches %}
-                            {% with branch_index=forloop.parentloop.counter0|add:"-1" %}
-                              {% for t in validation_errors.treatment_branches %}
-                                {% if forloop.counter0 == branch_index and t.screenshots %}
-                                  {% for ss in t.screenshots %}
-                                    {% if forloop.counter0 == screenshot_index %}
-                                      {% for error in ss.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
-                                    {% endif %}
-                                  {% endfor %}
-                                {% endif %}
-                              {% endfor %}
-                            {% endwith %}
-                          {% endif %}
+                          {% get_branch_errors validation_errors forloop.parentloop.first forloop.parentloop.counter0|add:"-1" as branch_errors %}
+                          {% with ss_error=branch_errors.screenshots|get_item:forloop.counter0 %}
+                            {% for error in ss_error.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
+                          {% endwith %}
                         </div>
                         <div class="col-8">
                           <div class=" d-flex align-items-end">
@@ -238,25 +190,12 @@
                           {% for error in screenshot_form.description.errors %}
                             <div class="invalid-feedback d-block">{{ error }}</div>
                           {% endfor %}
-                          {% if forloop.parentloop.first and validation_errors.reference_branch.screenshots %}
-                            {% for ss in validation_errors.reference_branch.screenshots %}
-                              {% if forloop.counter0 == screenshot_index %}
-                                {% for error in ss.description %}<div class="invalid-feedback d-block">Description: {{ error }}</div>{% endfor %}
-                              {% endif %}
+                          {% get_branch_errors validation_errors forloop.parentloop.first forloop.parentloop.counter0|add:"-1" as branch_errors %}
+                          {% with ss_error=branch_errors.screenshots|get_item:forloop.counter0 %}
+                            {% for error in ss_error.description %}
+                              <div class="invalid-feedback d-block">Description: {{ error }}</div>
                             {% endfor %}
-                          {% elif not forloop.parentloop.first and validation_errors.treatment_branches %}
-                            {% with branch_index=forloop.parentloop.counter0|add:"-1" %}
-                              {% for t in validation_errors.treatment_branches %}
-                                {% if forloop.counter0 == branch_index and t.screenshots %}
-                                  {% for ss in t.screenshots %}
-                                    {% if forloop.counter0 == screenshot_index %}
-                                      {% for error in ss.description %}<div class="invalid-feedback d-block">Description: {{ error }}</div>{% endfor %}
-                                    {% endif %}
-                                  {% endfor %}
-                                {% endif %}
-                              {% endfor %}
-                            {% endwith %}
-                          {% endif %}
+                          {% endwith %}
                         </div>
                       </div>
                       {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
