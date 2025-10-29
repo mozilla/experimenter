@@ -4,13 +4,14 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, TemplateView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
@@ -54,6 +55,7 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
     UnsubscribeForm,
@@ -648,25 +650,16 @@ class ApproveUpdateRolloutView(StatusUpdateView):
     form_class = ApproveUpdateRolloutForm
 
 
-class ResultsView(NimbusExperimentViewMixin, DetailView):
-    template_name = "nimbus_experiments/results.html"
+class NewResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results-new.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         experiment = self.get_object()
 
         analysis_data = experiment.results_data.get("v3", {})
-        other_metrics = analysis_data.get("other_metrics", {})
-        metrics_metadata = analysis_data.get("metadata", {}).get("metrics", {})
-        default_metrics = {}
 
-        for value in other_metrics.values():
-            for metricKey, metricValue in value.items():
-                default_metrics[metricKey] = metrics_metadata.get(metricKey, {}).get(
-                    "friendlyName", metricValue
-                )
-
-        context["default_metrics"] = default_metrics
+        context["default_metrics"] = experiment.default_metrics
 
         selected_reference_branch = self.request.GET.get(
             "reference_branch", experiment.reference_branch.name
@@ -675,12 +668,27 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
 
         selected_segment = self.request.GET.get("segment", "all")
         context["selected_segment"] = selected_segment
+
         analysis_basis = self.request.GET.get(
             "analysis_basis", "exposures" if experiment.has_exposures else "enrollments"
         )
         context["selected_analysis_basis"] = analysis_basis
 
         context["results_data"] = analysis_data
+        context["overview_sections"] = NimbusUIConstants.OVERVIEW_SECTIONS
+
+        context["branch_data"] = experiment.get_branch_data(
+            analysis_basis, selected_segment
+        )
+
+        return context
+
+
+class ResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context
 
 
@@ -826,3 +834,43 @@ class NimbusExperimentsHomeView(FilterView):
         context["sortable_headers"] = HomeSortChoices.sortable_headers()
         context["create_form"] = NimbusExperimentCreateForm()
         return context
+
+
+class TagFormSetMixin:
+    def get_tag_formset(self, data=None):
+        queryset = Tag.objects.all().order_by("id")
+        return TagFormSet(data, queryset=queryset)
+
+
+class TagsManageView(TagFormSetMixin, TemplateView):
+    template_name = "nimbus_experiments/tags_manage.html"
+
+    def get_context_data(self, **kwargs):
+        return {"formset": self.get_tag_formset()}
+
+
+class TagCreateView(TagFormSetMixin, TemplateView):
+    template_name = "nimbus_experiments/tags_list_partial.html"
+
+    def post(self, request, *args, **kwargs):
+        formset = self.get_tag_formset()
+        formset.create_tag()
+        return render(
+            request,
+            self.template_name,
+            {"formset": self.get_tag_formset()},
+        )
+
+
+class TagSaveView(TagFormSetMixin, TemplateView):
+    template_name = "nimbus_experiments/tags_list_partial.html"
+
+    def post(self, request, *args, **kwargs):
+        formset = self.get_tag_formset(request.POST)
+        if formset.is_valid():
+            formset.save()
+            response = HttpResponse()
+            response["HX-Trigger"] = "closeModal"
+            response["HX-Refresh"] = "true"
+            return response
+        return render(request, self.template_name, {"formset": formset})

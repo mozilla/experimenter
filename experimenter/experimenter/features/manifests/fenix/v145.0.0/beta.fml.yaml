@@ -71,7 +71,7 @@ features:
         description: |
           When the feature is enabled the user will see a new composable toolbar instead the previous View based one.
         type: Boolean
-        default: true
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -479,6 +479,7 @@ features:
           OPEN_SETTINGS_SEARCH_ENGINE: ://settings_search_engine
           OPEN_SETTINGS_TRACKING_PROTECTION: ://settings_tracking_protection
           OPEN_SETTINGS_WALLPAPERS: ://settings_wallpapers
+          OPEN_SETTINGS_APP_ICON: ://settings_app_icon
           OPEN_SETTINGS: ://settings
           OPEN_SHARE_SHEET: ://share_sheet
           TURN_ON_SYNC: ://turn_on_sync

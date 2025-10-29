@@ -23,6 +23,7 @@ from experimenter.nimbus_ui.views import (
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
     MetricsUpdateView,
+    NewResultsView,
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
@@ -39,6 +40,9 @@ from experimenter.nimbus_ui.views import (
     ReviewToDraftView,
     SignoffUpdateView,
     SubscribeView,
+    TagCreateView,
+    TagSaveView,
+    TagsManageView,
     TakeawaysUpdateView,
     ToggleArchiveView,
     UnsubscribeView,
@@ -59,6 +63,21 @@ urlpatterns = [
         r"^features/",
         NimbusFeaturesView.as_view(),
         name="nimbus-ui-features",
+    ),
+    re_path(
+        r"^tags/manage/$",
+        TagsManageView.as_view(),
+        name="nimbus-ui-tags-manage",
+    ),
+    re_path(
+        r"^tags/create/$",
+        TagCreateView.as_view(),
+        name="nimbus-ui-tags-create",
+    ),
+    re_path(
+        r"^tags/save/$",
+        TagSaveView.as_view(),
+        name="nimbus-ui-tags-save",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)[/]?$",
@@ -239,6 +258,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/results/.*",
         ResultsView.as_view(),
         name="nimbus-ui-results",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/results-new/$",
+        NewResultsView.as_view(),
+        name="nimbus-ui-new-results",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/create_branch_screenshot/$",

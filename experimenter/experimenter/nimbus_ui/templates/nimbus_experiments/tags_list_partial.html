@@ -1,0 +1,21 @@
+<div id="tags-list">
+  {{ formset.management_form }}
+  {% if formset.forms %}
+    {% for form in formset %}
+      <div class="d-flex align-items-start mb-3">
+        {{ form.id }}
+        <div class="me-3">{{ form.color }}</div>
+        <div class="flex-grow-1">
+          {{ form.name }}
+          {% if form.name.errors %}<div class="invalid-feedback d-block mt-1">{{ form.name.errors|first }}</div>{% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="text-center py-4 text-muted">
+      <i class="fa-solid fa-tags fa-2x mb-3"></i>
+      <p class="mb-1">No tags available</p>
+      <small>Add a tag using the Create button below</small>
+    </div>
+  {% endif %}
+</div>

@@ -17,6 +17,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_NAME_MAPS_TO_EXISTING_SLUG = (
         "Name maps to a pre-existing slug, please choose another name."
     )
+    ERROR_TAG_DUPLICATE_NAME = "Tag with this Name already exists."
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/access"
@@ -141,6 +142,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     LIVE_MONITOR_TOOLTIP = """Live Monitoring shows enrollment/unenrollment for this
     delivery"""
 
+    OVERVIEW_SECTIONS = [
+        "Hypothesis",
+        "Branch overview",
+        "Key takeaways",
+        "Next steps",
+        "Project impact",
+    ]
     FEATURE_PAGE_LINKS = {
         "feature_learn_more_url": "https://experimenter.info/for-product#track-your-feature-health",
         "deliveries_table_tooltip": """This shows all Nimbus experiments, rollouts, Labs
