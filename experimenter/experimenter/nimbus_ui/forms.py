@@ -1583,12 +1583,17 @@ class TagBaseFormSet(BaseModelFormSet):
     def create_tag(self):
         # Create a new tag with a unique name and random color
         base_name = "Tag"
-        existing_names = set(Tag.objects.values_list("name", flat=True))
-        idx = 1
-        while f"{base_name} {idx}" in existing_names:
-            idx += 1
+        existing_count = Tag.objects.count()
+        # Generate a range
+        tag_names_all = [f"{base_name} {i}" for i in range(1, existing_count + 1)]
+        tag_names_used = set(Tag.objects.values_list("name", flat=True))
+        tag_names_free = sorted(set(tag_names_all) - tag_names_used)
+        name = (
+            tag_names_free[0] if tag_names_free else f"{base_name} {existing_count + 1}"
+        )
+
         random_color = f"#{random.randint(0, 0xFFFFFF):06x}"
-        tag = Tag.objects.create(name=f"{base_name} {idx}", color=random_color)
+        tag = Tag.objects.create(name=name, color=random_color)
         return tag
 
 
