@@ -1259,6 +1259,63 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return timeline_entries
 
     @property
+    def default_metrics(self):
+        analysis_data = self.results_data.get("v3", {}) if self.results_data else {}
+        other_metrics = analysis_data.get("other_metrics", {})
+        metrics_metadata = analysis_data.get("metadata", {}).get("metrics", {})
+        default_metrics = {}
+
+        for value in other_metrics.values():
+            for metricKey, metricValue in value.items():
+                default_metrics[metricKey] = metrics_metadata.get(metricKey, {}).get(
+                    "friendlyName", metricValue
+                )
+
+        return default_metrics
+
+    def get_branch_data(self, analysis_basis, selected_segment):
+        overall_results = (
+            (
+                self.results_data.get("v3", {})
+                .get("overall", {})
+                .get(analysis_basis, {})
+                .get(selected_segment, {})
+            )
+            if self.results_data
+            else {}
+        )
+
+        branch_data = []
+
+        for branch in self.branches.all().prefetch_related("screenshots"):
+            slug = branch.slug
+            participant_metrics = (
+                overall_results.get(slug, {})
+                .get("branch_data", {})
+                .get("other_metrics", {})
+                .get("identity", {})
+            )
+            num_participants = (
+                participant_metrics.get("absolute", {}).get("first", {}).get("point", 0)
+            )
+
+            branch_data.insert(
+                0
+                if self.reference_branch and slug == self.reference_branch.slug
+                else len(branch_data),
+                {
+                    "slug": slug,
+                    "name": branch.name,
+                    "screenshots": branch.screenshots.all,
+                    "description": branch.description,
+                    "percentage": participant_metrics.get("percent"),
+                    "num_participants": num_participants,
+                },
+            )
+
+        return branch_data
+
+    @property
     def experiment_active_status(self):
         timeline = self.timeline()
         for item in timeline:
