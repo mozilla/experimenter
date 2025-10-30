@@ -2807,6 +2807,143 @@ class TestNimbusBranchesForm(RequestFormTestCase):
             json.dumps({}),
         )
 
+    def test_empty_branch_name_invalid(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        feature_config2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1],
+            equal_branch_ratio=False,
+            is_localized=False,
+            is_rollout=False,
+            localizations=None,
+            prevent_pref_conflicts=False,
+            warn_feature_schema=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "prevent_pref_conflicts": True,
+                "warn_feature_schema": True,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 2,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch_feature_config1_value.id
+                ),
+                "branches-0-feature-value-0-value": "",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                "is_localized": True,
+                "localizations": json.dumps({"localization-key": "localization-value"}),
+            },
+            request=self.request,
+        )
+
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(
+            form.errors, {"branches": [{"name": [NimbusUIConstants.ERROR_NAME_INVALID]}]}
+        )
+
+    def test_duplicate_branch_name_invalid(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1],
+            equal_branch_ratio=False,
+        )
+        experiment.branches.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(
+            experiment=experiment, name="Control", slug="control"
+        )
+        treatment_branch = NimbusBranchFactory.create(experiment=experiment)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        treatment_branch_feature_config1_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id],
+                "equal_branch_ratio": True,
+                "branches-TOTAL_FORMS": "2",
+                "branches-INITIAL_FORMS": "2",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch_feature_config1_value.id
+                ),
+                "branches-0-feature-value-0-value": json.dumps(
+                    {"control-feature1-key": "control-feature-1-value"}
+                ),
+                "branches-1-id": treatment_branch.id,
+                "branches-1-name": "Control",
+                "branches-1-description": "Treatment Description",
+                "branches-1-feature-value-TOTAL_FORMS": "1",
+                "branches-1-feature-value-INITIAL_FORMS": "1",
+                "branches-1-feature-value-MIN_NUM_FORMS": "0",
+                "branches-1-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-1-feature-value-0-id": (
+                    treatment_branch_feature_config1_value.id
+                ),
+                "branches-1-feature-value-0-value": json.dumps(
+                    {"treatment-feature-1-key": "treatment-feature-1-value"}
+                ),
+                "is_localized": True,
+                "localizations": json.dumps({"localization-key": "localization-value"}),
+            },
+            request=self.request,
+        )
+
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(
+            form.errors,
+            {"branches": [{}, {"name": [NimbusUIConstants.ERROR_SLUG_DUPLICATE_BRANCH]}]},
+        )
+
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
     def test_form_saves_branches(self):

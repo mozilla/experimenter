@@ -446,6 +446,22 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
             self.fields["value"].initial = ""
 
         if (
+            self.instance is not None
+            and self.instance.branch_id is not None
+            and self.instance.branch.experiment
+            and self.instance.branch.experiment.application
+            != NimbusExperiment.Application.DESKTOP
+        ):
+            self.fields["value"].widget.attrs["data-experiment-slug"] = (
+                self.instance.branch.experiment.slug
+            )
+
+            if self.instance.feature_config:
+                self.fields["value"].widget.attrs["data-feature-slug"] = (
+                    self.instance.feature_config.slug
+                )
+
+        if (
             self.instance.id is not None
             and self.instance.feature_config
             and (
@@ -554,6 +570,19 @@ class NimbusBranchForm(forms.ModelForm):
             and self.branch_feature_values.is_valid()
             and self.screenshot_formset.is_valid()
         )
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+        if not slug:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if (
+            NimbusBranch.objects.exclude(id=self.instance.id)
+            .filter(experiment=self.instance.experiment, slug=slug)
+            .exists()
+        ):
+            raise forms.ValidationError(NimbusUIConstants.ERROR_SLUG_DUPLICATE_BRANCH)
+        return name
 
     def clean(self):
         cleaned_data = super().clean()
