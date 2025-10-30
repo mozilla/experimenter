@@ -14,3 +14,16 @@ page-view:
     - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
   data_reviews:
     - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
+
+data-collection-opt-out:
+  description: >
+    A ping to record data collection opt outs. The purpose of this data
+    gathering is to act as a custom deletion request for nimbus_user_id.
+  include_client_id: false
+  notification_emails:
+    - jlockhart@mozilla.com
+    - project-nimbus@mozilla.com
+  bugs:
+    - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
+  data_reviews:
+    - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
