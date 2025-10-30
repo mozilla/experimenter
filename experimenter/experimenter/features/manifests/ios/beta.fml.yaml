@@ -769,7 +769,7 @@ features:
         description: |
           Enables minimal address bar mode on scroll to ensure the url is always visible.
         type: Boolean
-        default: false
+        default: true
       navigation_hint:
         description: |
           If true, enables the navigation contextual hint.
