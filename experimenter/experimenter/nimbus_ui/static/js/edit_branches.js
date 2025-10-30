@@ -24,7 +24,7 @@ import {
 } from "@codemirror/search";
 import { defaultKeymap, historyKeymap, history } from "@codemirror/commands";
 import { tags } from "@lezer/highlight";
-import { schemaAutocomplete, schemaLinter } from "./validator.js";
+import { schemaAutocomplete, schemaLinter, fmlLinter } from "./validator.js";
 import $ from "jquery";
 
 const setupCodemirror = (selector, textarea, extraExtensions) => {
@@ -85,7 +85,27 @@ const setupCodemirrorFeatures = () => {
   textareas.forEach((textarea) => {
     const extensions = [];
 
-    if (textarea.dataset.schema) {
+    const hasFmlValidation =
+      textarea.dataset.experimentSlug && textarea.dataset.featureSlug;
+    const hasJsonSchema = textarea.dataset.schema;
+
+    if (hasFmlValidation) {
+      extensions.push(
+        linter(
+          fmlLinter(
+            textarea.dataset.experimentSlug,
+            textarea.dataset.featureSlug,
+          ),
+        ),
+      );
+
+      if (hasJsonSchema) {
+        const jsonSchema = JSON.parse(textarea.dataset.schema);
+        extensions.push(
+          autocompletion({ override: [schemaAutocomplete(jsonSchema)] }),
+        );
+      }
+    } else if (hasJsonSchema) {
       const jsonSchema = JSON.parse(textarea.dataset.schema);
 
       extensions.push(
