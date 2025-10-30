@@ -446,6 +446,22 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
             self.fields["value"].initial = ""
 
         if (
+            self.instance is not None
+            and self.instance.branch_id is not None
+            and self.instance.branch.experiment
+            and self.instance.branch.experiment.application
+            != NimbusExperiment.Application.DESKTOP
+        ):
+            self.fields["value"].widget.attrs["data-experiment-slug"] = (
+                self.instance.branch.experiment.slug
+            )
+
+            if self.instance.feature_config:
+                self.fields["value"].widget.attrs["data-feature-slug"] = (
+                    self.instance.feature_config.slug
+                )
+
+        if (
             self.instance.id is not None
             and self.instance.feature_config
             and (
