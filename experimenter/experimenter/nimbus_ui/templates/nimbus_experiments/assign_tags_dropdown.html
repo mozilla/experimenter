@@ -1,0 +1,50 @@
+<div class="dropdown dropup position-static">
+  <button class="btn btn-link text-start p-2 mb-2 text-decoration-none position-relative"
+          type="button"
+          id="assignTagsDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          title="Assign Tags">
+    <i class="fa-solid fa-tag pe-2"></i>
+    Assign Tags
+    {% if experiment.tags.exists %}
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary"
+            style="font-size: 0.6rem;
+                   padding: 0.2rem 0.35rem">{{ experiment.tags.count }}</span>
+    {% endif %}
+  </button>
+  <div class="dropdown-menu p-2 shadow-sm border rounded-2"
+       style="min-width:180px;
+              max-height:50vh;
+              overflow:auto">
+    <strong class="dropdown-header">Assign Tags</strong>
+    <form method="post"
+          hx-post="{% url 'nimbus-ui-assign-tags' slug=experiment.slug %}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          hx-trigger="change"
+          class="m-0">
+      {% csrf_token %}
+      {% for tag in all_tags %}
+        <div class="form-check">
+          <input class="form-check-input"
+                 type="checkbox"
+                 name="tags"
+                 id="tag-{{ tag.id }}"
+                 value="{{ tag.id }}"
+                 {% if tag in experiment.tags.all %}checked{% endif %}>
+          <label class="form-check-label d-flex align-items-center"
+                 for="tag-{{ tag.id }}">
+            <span class="me-1" style="color: {{ tag.color }}">
+              <i class="fa-solid fa-circle"></i>
+            </span>
+            {{ tag.name }}
+          </label>
+        </div>
+      {% empty %}
+        <div class="text-center py-2 text-muted">
+          <small>No tags available. Create tags first.</small>
+        </div>
+      {% endfor %}
+    </form>
+  </div>
+</div>

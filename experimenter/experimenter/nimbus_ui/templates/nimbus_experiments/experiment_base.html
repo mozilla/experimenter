@@ -17,6 +17,11 @@
       <span class="{{ experiment.qa_status_badge_class }}">
         QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
       </span>
+      {% for tag in experiment.tags.all %}
+        <span class="badge me-1"
+              style="background-color: {{ tag.color }};
+                     color: white">{{ tag.name }}</span>
+      {% endfor %}
       {% if experiment.is_rollout_dirty %}
         <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
       {% endif %}

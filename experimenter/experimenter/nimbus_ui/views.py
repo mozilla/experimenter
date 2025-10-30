@@ -145,6 +145,7 @@ class NimbusExperimentViewMixin:
 
         context["live_monitor_tooltip"] = NimbusUIConstants.LIVE_MONITOR_TOOLTIP
         context["common_sidebar_links"] = NimbusUIConstants.SIDEBAR_COMMON_LINKS
+        context["all_tags"] = Tag.objects.all().order_by("name")
 
         slug_underscore = (
             experiment.slug.replace("-", "_") if experiment and experiment.slug else ""
@@ -874,3 +875,16 @@ class TagSaveView(TagFormSetMixin, TemplateView):
             response["HX-Refresh"] = "true"
             return response
         return render(request, self.template_name, {"formset": formset})
+
+
+class TagAssignView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/assign_tags_dropdown.html"
+
+    def post(self, request, *args, **kwargs):
+        experiment = self.get_object()
+        selected_tag_ids = request.POST.getlist("tags")
+        experiment.tags.set(selected_tag_ids)
+
+        response = HttpResponse()
+        response["HX-Refresh"] = "true"
+        return response
