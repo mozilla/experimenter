@@ -1,19 +1,15 @@
-import {
-  drawSelection,
-  EditorView,
-  highlightSpecialChars,
-  lineNumbers,
-} from "@codemirror/view";
+import { basicSetup } from "codemirror";
+import { EditorView } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
 import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { linter } from "@codemirror/lint";
 import {
-  HighlightStyle,
-  syntaxHighlighting,
-  defaultHighlightStyle,
-  foldGutter,
-} from "@codemirror/language";
-import { tags } from "@lezer/highlight";
+  themeCompartment,
+  getThemeExtensions,
+  registerView,
+  updateAllViewThemes,
+  observeThemeChanges,
+} from "./theme_utils.js";
 
 import $ from "jquery";
 
@@ -23,24 +19,16 @@ const setupCodemirroReadOnlyJSON = () => {
   const selector = ".readonly-json";
   const textareas = document.querySelectorAll(selector);
 
-  const highlightStyle = HighlightStyle.define([
-    { tag: tags.bool, color: "#ffaa00ff", themeType: "dark" },
-  ]);
-
   textareas.forEach((textarea) => {
     if (textarea.dataset.is_rendered) return;
     textarea.dataset.is_rendered = true;
     const extensions = [
-      lineNumbers(),
-      drawSelection(),
-      highlightSpecialChars(),
-      foldGutter(),
-      syntaxHighlighting(highlightStyle),
-      syntaxHighlighting(defaultHighlightStyle),
+      basicSetup,
       json(),
       linter(jsonParseLinter()),
       EditorState.readOnly.of(true),
       EditorView.editable.of(false),
+      themeCompartment.of(getThemeExtensions()),
     ];
 
     const view = new EditorView({
@@ -53,6 +41,8 @@ const setupCodemirroReadOnlyJSON = () => {
     view.dom.style.maxHeight = "inherit";
     textarea.parentNode.insertBefore(view.dom, textarea);
     textarea.style.display = "none";
+
+    registerView(view);
 
     setupCodemirrorCollapsibleDisplay(textarea);
 
@@ -82,6 +72,7 @@ const setupCodemirrorCollapsibleDisplay = (textarea) => {
 
 $(() => {
   setupCodemirroReadOnlyJSON();
+  observeThemeChanges(updateAllViewThemes);
 
   document.body.addEventListener("htmx:afterSwap", function () {
     setupCodemirroReadOnlyJSON();
