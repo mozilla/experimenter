@@ -381,6 +381,30 @@
 
       {% endfor %}
     </div>
+    <!-- Localizations Card -->
+    {% if experiment.is_localized %}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4>Localizations</h4>
+        </div>
+        <div class="card-body">
+          <table class="table table-striped">
+            <tbody>
+              <tr>
+                <th>Is Localized</th>
+                <td colspan="3">{{ experiment.is_localized }}</td>
+              </tr>
+              <tr>
+                <th>Localizations JSON</th>
+                <td colspan="3">
+                  <textarea class="readonly-json">{{ experiment.localizations|default:"null" }}</textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
     <!-- QA Card -->
     {% include "nimbus_experiments/qa_card.html" %}
 
