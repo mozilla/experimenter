@@ -11,6 +11,7 @@ class OptOutView(UpdateView):
     template_name = "glean/opt_out_button.html"
 
     metrics = glean.load_metrics(settings.BASE_DIR / "telemetry" / "metrics.yaml")
+    pings = glean.load_pings(settings.BASE_DIR / "telemetry" / "pings.yaml")
 
     def get_object(self, queryset=None):
         if not hasattr(self.request.user, "glean_prefs"):
@@ -19,11 +20,8 @@ class OptOutView(UpdateView):
 
     def form_valid(self, form):
         if ("opt_out" in form.changed_data) and (form.cleaned_data["opt_out"] is True):
-            self.metrics.data_collection.opt_out.record(
-                self.metrics.data_collection.OptOutExtra(
-                    nimbus_user_id=str(self.request.user.id),
-                )
-            )
+            self.metrics.nimbus.nimbus_user_id.set(str(self.request.user.id))
+            self.pings.data_collection_opt_out.submit()
 
         self.object = form.save()
 
