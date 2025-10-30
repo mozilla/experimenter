@@ -13,6 +13,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     ERROR_NAME_INVALID = "This is not a valid name."
     ERROR_SLUG_DUPLICATE = "An experiment with this slug already exists."
+    ERROR_SLUG_DUPLICATE_BRANCH = "A branch with this slug already exists."
+
     ERROR_HYPOTHESIS_PLACEHOLDER = "Please enter a hypothesis."
     ERROR_NAME_MAPS_TO_EXISTING_SLUG = (
         "Name maps to a pre-existing slug, please choose another name."

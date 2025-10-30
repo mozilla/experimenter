@@ -555,6 +555,19 @@ class NimbusBranchForm(forms.ModelForm):
             and self.screenshot_formset.is_valid()
         )
 
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+        if not slug:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if (
+            NimbusBranch.objects.exclude(id=self.instance.id)
+            .filter(experiment=self.instance.experiment, slug=slug)
+            .exists()
+        ):
+            raise forms.ValidationError(NimbusUIConstants.ERROR_SLUG_DUPLICATE_BRANCH)
+        return name
+
     def clean(self):
         cleaned_data = super().clean()
         if "name" in cleaned_data:
