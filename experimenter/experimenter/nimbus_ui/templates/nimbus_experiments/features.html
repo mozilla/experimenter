@@ -367,17 +367,7 @@
                       {{ item.schema.version|default:"current" }}
                     </td>
                     <td scope="col" class="col-4">
-                      {% if item.size_label == schema_diff_labels.small %}
-                        <span class="badge bg-primary">{{ item.size_label }}</span>
-                      {% elif item.size_label == schema_diff_labels.medium %}
-                        <span class="badge bg-warning text-dark">{{ item.size_label }}</span>
-                      {% elif item.size_label == schema_diff_labels.large %}
-                        <span class="badge bg-danger">{{ item.size_label }}</span>
-                      {% elif item.size_label is None %}
-                        <span class="text-muted">First version</span>
-                      {% else %}
-                        <span class="badge bg-success">{{ item.size_label }}</span>
-                      {% endif %}
+                      <span class="badge {{ item.size_badge }}">{{ item.size_label }}</span>
                     </td>
                     <td scope="col" class="col-4">
                       {% if item.previous_json %}

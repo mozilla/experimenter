@@ -344,10 +344,26 @@ def _get_schema_diff_size_config():
             "medium": 10,
         },
         "labels": {
-            "no_changes": "No Changes",
-            "small": "Small",
-            "medium": "Medium",
-            "large": "Large",
+            "no_changes": {
+                "text": "No Changes",
+                "badge_class": "badge bg-success",
+            },
+            "small": {
+                "text": "Small",
+                "badge_class": "badge bg-primary",
+            },
+            "medium": {
+                "text": "Medium",
+                "badge_class": "badge bg-warning",
+            },
+            "large": {
+                "text": "Large",
+                "badge_class": "badge bg-danger",
+            },
+            "first_version": {
+                "text": "First Version",
+                "badge_class": "badge bg-secondary",
+            },
         },
     }
 

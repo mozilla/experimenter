@@ -789,6 +789,9 @@ class NimbusFeaturesView(TemplateView):
                 .order_by("-version__major", "-version__minor", "-version__patch")
             )
 
+            thresholds = SCHEMA_DIFF_SIZE_CONFIG["thresholds"]
+            labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
+
             schema_cache = []
             for schema in schemas:
                 schema_cache.append(json.loads(schema.schema))
@@ -814,9 +817,6 @@ class NimbusFeaturesView(TemplateView):
                         ]
                     )
 
-                    thresholds = SCHEMA_DIFF_SIZE_CONFIG["thresholds"]
-                    labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
-
                     if total_changes == 0:
                         size_label = labels["no_changes"]
                     elif total_changes <= thresholds["small"]:
@@ -829,14 +829,15 @@ class NimbusFeaturesView(TemplateView):
                     if total_changes > 0:
                         schemas_with_changes += 1
                 else:
-                    size_label = None
+                    size_label = labels["first_version"]
 
                 feature_schemas.append(
                     {
                         "schema": schema,
                         "current_json": current_json,
                         "previous_json": previous_json,
-                        "size_label": size_label,
+                        "size_label": size_label.get("text"),
+                        "size_badge": size_label.get("badge_class"),
                     }
                 )
 
