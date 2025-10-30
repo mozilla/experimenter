@@ -782,15 +782,15 @@ class NimbusFeaturesView(TemplateView):
         # Get feature schema versions with their diffs
         feature_schemas = []
         feature_id = self.request.GET.get("feature_configs")
+        thresholds = SCHEMA_DIFF_SIZE_CONFIG["thresholds"]
+        labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
+
         if feature_id:
             schemas = list(
                 NimbusVersionedSchema.objects.filter(feature_config_id=feature_id)
                 .select_related("version")
                 .order_by("-version__major", "-version__minor", "-version__patch")
             )
-
-            thresholds = SCHEMA_DIFF_SIZE_CONFIG["thresholds"]
-            labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
 
             schema_cache = []
             for schema in schemas:
@@ -858,7 +858,6 @@ class NimbusFeaturesView(TemplateView):
             "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
             "feature_schemas": feature_schemas,
             "schemas_with_changes": schemas_with_changes,
-            "schema_diff_labels": SCHEMA_DIFF_SIZE_CONFIG["labels"],
         }
         return context
 
