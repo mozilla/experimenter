@@ -1262,7 +1262,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def default_metrics(self):
         analysis_data = self.results_data.get("v3", {}) if self.results_data else {}
         other_metrics = analysis_data.get("other_metrics", {})
-        metrics_metadata = analysis_data.get("metadata", {}).get("metrics", {})
+        metadata = analysis_data.get("metadata", {})
+        metrics_metadata = metadata.get("metrics", {}) if metadata else {}
         default_metrics = {}
 
         for value in other_metrics.values():
@@ -2352,6 +2353,12 @@ class NimbusFeatureConfig(models.Model):
     )
     owner_email = models.EmailField(blank=True, null=True)
     enabled = models.BooleanField(default=True)
+    subscribers = models.ManyToManyField(
+        User,
+        related_name="subscribed_nimbus_features",
+        blank=True,
+        verbose_name="Subscribers",
+    )
 
     class Meta:
         verbose_name = "Nimbus Feature Config"

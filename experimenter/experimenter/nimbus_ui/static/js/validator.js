@@ -277,3 +277,81 @@ export function schemaAutocomplete(schema) {
     };
   };
 }
+
+/**
+ * FML remote feature validation
+ * Linter that calls out to the server to validate feature values against
+ * FML rules.
+ */
+export const fmlLinter = (experimentSlug, featureSlug) => {
+  let timeout = null;
+
+  return async (view) => {
+    const doc = view.state.doc.toString();
+
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    if (!doc.trim()) {
+      return [];
+    }
+
+    try {
+      JSON.parse(doc);
+    } catch (e) {
+      return [];
+    }
+
+    return new Promise((resolve) => {
+      timeout = setTimeout(async () => {
+        try {
+          const response = await fetch(
+            `/api/v5/fml-errors/${experimentSlug}/`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector(
+                  "[name=csrfmiddlewaretoken]",
+                ).value,
+              },
+              body: JSON.stringify({
+                featureSlug: featureSlug,
+                featureValue: doc,
+              }),
+            },
+          );
+
+          if (!response.ok) {
+            resolve([]);
+            return;
+          }
+
+          const errors = await response.json();
+
+          const diagnostics = errors.map((error) => {
+            const line = Math.max(0, error.line - 1);
+            const col = Math.max(0, error.col - 1);
+
+            const lineObj = view.state.doc.line(line + 1);
+            const from = lineObj.from + col;
+            const to = from + (error.highlight?.length || 1);
+
+            return {
+              from,
+              to,
+              severity: "error",
+              message: error.message,
+            };
+          });
+
+          resolve(diagnostics);
+        } catch (error) {
+          console.error("FML validation error:", error);
+          resolve([]);
+        }
+      }, 500);
+    });
+  };
+};

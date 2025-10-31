@@ -482,7 +482,9 @@ urlbar:
         Whether Suggest will use the ML backend in addition to Rust.
     quickSuggestNonSponsoredEnabled:
       type: boolean
-      description: Whether non-sponsored suggestions should be enabled by default. If this variable is specified, it will override the value implied by the scenario. It will never override the user's local preference to disable (or enable) non-sponsored suggestions, if the user has already toggled that preference.
+      description: >-
+        Deprecated: In 146 and later this variable no longer does anything. It
+        should be removed once all current experiments that use it finish.
     quickSuggestNonSponsoredIndex:
       type: int
       fallbackPref: browser.urlbar.quicksuggest.nonSponsoredIndex
@@ -3111,6 +3113,12 @@ localNetworkAccess:
   owner: vgosu@mozilla.com
   hasExposure: false
   variables:
+    enableLNAWithETPStrict:
+      description: Whether to enable LNA restrictions in ETP Strict Mode
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.lna.etp.enabled"
     blockTrackers:
       description: Whether network requests triggered by third party scripts classified as trackers should be blocked when making a localhost request.
       type: boolean
@@ -4609,23 +4617,47 @@ phc:
         branch: user
         pref: memory.phc.min_ram_mb
     phcAvgDelayFirst:
-      description: The delay before the first PHC allocation
+      description: The delay before the first PHC allocation in the parent process
       type: int
       setPref:
         branch: user
         pref: memory.phc.avg_delay.first
     phcAvgDelayNormal:
-      description: The delay between PHC allocations
+      description: The delay between PHC allocations in the parent process
       type: int
       setPref:
         branch: user
         pref: memory.phc.avg_delay.normal
     phcAvgDelayPageReuse:
-      description: The delay before reusing a PHC page
+      description: The delay before reusing a PHC page in the parent process
       type: int
       setPref:
         branch: user
         pref: memory.phc.avg_delay.page_reuse
+    phcAvgDelayContentFirst:
+      description: The delay before the first PHC allocation in the content process
+      type: int
+      setPref:
+        branch: user
+        pref: memory.phc.avg_delay.content.first
+    phcAvgDelayContentNormal:
+      description: The delay between PHC allocations in the content process
+      type: int
+      setPref:
+        branch: user
+        pref: memory.phc.avg_delay.content.normal
+    phcAvgDelayContentPageReuse:
+      description: The delay before reusing a PHC page in the content process
+      type: int
+      setPref:
+        branch: user
+        pref: memory.phc.avg_delay.content.page_reuse
+    phcMaxSize:
+      description: The maximum amount of memory used for the PHC
+      type: int
+      setPref:
+        branch: user
+        pref: memory.phc.size_kb
 
 mailto:
   description: Prefs to control aspects of the mailto handler

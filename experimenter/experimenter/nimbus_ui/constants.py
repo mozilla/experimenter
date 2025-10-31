@@ -13,10 +13,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     ERROR_NAME_INVALID = "This is not a valid name."
     ERROR_SLUG_DUPLICATE = "An experiment with this slug already exists."
+    ERROR_SLUG_DUPLICATE_BRANCH = "A branch with this slug already exists."
+
     ERROR_HYPOTHESIS_PLACEHOLDER = "Please enter a hypothesis."
     ERROR_NAME_MAPS_TO_EXISTING_SLUG = (
         "Name maps to a pre-existing slug, please choose another name."
     )
+    ERROR_TAG_DUPLICATE_NAME = "Tag with this Name already exists."
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/access"
@@ -152,6 +155,20 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "feature_learn_more_url": "https://experimenter.info/for-product#track-your-feature-health",
         "deliveries_table_tooltip": """This shows all Nimbus experiments, rollouts, Labs
         experiences, etc. associated with your selected feature.""",
+    }
+
+    FEATURE_PAGE_TOOLTIPS = {
+        "feature_changes_tooltip": """This shows any changes made to the Nimbus feature
+        manifest such as code changes for the feature you have chosen."""
+    }
+
+    OVERVIEW_REFLECTION_PROMPTS = {
+        "key_takeaways": """Highlight the most important learnings or patterns from this
+        experiment.""",
+        "next_steps": """Outline what should happen next based on these results — fixes,
+        follow-ups, or future tests.""",
+        "project_impact": """Set an impact rating so others can understand the scale of
+        this experiment's effect.""",
     }
 
     class ReviewRequestMessages(Enum):
@@ -331,10 +348,42 @@ def _get_status_icon_map():
     }
 
 
+def _get_schema_diff_size_config():
+    return {
+        "thresholds": {
+            "small": 3,
+            "medium": 10,
+        },
+        "labels": {
+            "no_changes": {
+                "text": "No Changes",
+                "badge_class": "badge bg-success",
+            },
+            "small": {
+                "text": "Small",
+                "badge_class": "badge bg-primary",
+            },
+            "medium": {
+                "text": "Medium",
+                "badge_class": "badge bg-warning",
+            },
+            "large": {
+                "text": "Large",
+                "badge_class": "badge bg-danger",
+            },
+            "first_version": {
+                "text": "First Version",
+                "badge_class": "badge bg-secondary",
+            },
+        },
+    }
+
+
 QA_STATUS_ICON_MAP = _get_qa_status_icon_map()
 CHANNEL_ICON_MAP = _get_channel_icon_map()
 APPLICATION_ICON_MAP = _get_application_icon_map()
 STATUS_ICON_MAP = _get_status_icon_map()
+SCHEMA_DIFF_SIZE_CONFIG = _get_schema_diff_size_config()
 
 # Icon filter type constants for template tags
 QA_ICON_FILTER_TYPE = "qa_icon_info"

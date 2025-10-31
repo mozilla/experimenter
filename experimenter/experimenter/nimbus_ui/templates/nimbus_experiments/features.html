@@ -331,7 +331,91 @@
             </div>
           </div>
         </div>
+        <hr>
+        <h5 class="fw-semibold">
+          <img src="{% static 'assets/feature-changes.svg' %}"
+               alt="Fox opening a box"
+               style="width: 60px;
+                      height: auto" />
+          Feature Changes
+          <i class="fa-regular fa-circle-question"
+             data-bs-toggle="tooltip"
+             data-bs-placement="top"
+             data-bs-title="{{ tooltips.feature_changes_tooltip }}"></i>
+          <span class="badge bg-secondary">Number of changes: {{ schemas_with_changes }}</span>
+        </h5>
+        <div>
+          <div id="feature-changes-table">
+            <table class="table table-hover table-borderless align-middle mb-3">
+              <thead>
+                <tr colspan="12">
+                  <th scope="col" class="fw-semibold text-body">
+                    <span>Feature Version</span>
+                  </th>
+                  <th scope="col" class="fw-semibold text-body">
+                    <span>Size of changes</span>
+                  </th>
+                  <th scope="col" class="fw-semibold text-body">
+                    <span>Change Diff from Prev. (Previous | Current)</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in feature_schemas %}
+                  <tr scope="row">
+                    <td id="feature-version-{{ item.schema.id }}" scope="col" class="col-4">
+                      {{ item.schema.version|default:"current" }}
+                    </td>
+                    <td scope="col" class="col-4">
+                      <span class="badge {{ item.size_badge }}">{{ item.size_label }}</span>
+                    </td>
+                    <td scope="col" class="col-4">
+                      {% if item.previous_json %}
+                        <button class="btn btn-sm btn-primary diff-toggle-btn"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#diff-row-{{ item.schema.id }}"
+                                aria-expanded="false"
+                                aria-controls="diff-row-{{ item.schema.id }}">
+                          <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                          <span class="btn-text-collapsed">Show Diff</span>
+                          <span class="btn-text-expanded">Hide Diff</span>
+                        </button>
+                      {% else %}
+                        <span class="text-muted">First version</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% if item.previous_json %}
+                    <tr class="collapse" id="diff-row-{{ item.schema.id }}">
+                      <td colspan="12" style="padding: 20px;">
+                        <div style="max-width: 100%; overflow-x: auto;">
+                          <div class="schema-merge-container"
+                               data-current="{{ item.current_json }}"
+                               data-previous="{{ item.previous_json }}"
+                               style="max-height: 600px;
+                                      max-width: 1200px"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endif %}
+                {% empty %}
+                  <tr>
+                    <td colspan="11" class="text-center text-muted py-5">No Tracked Feature Changes</td>
+                  </tr>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
+</div>
+</div>
 {% endblock %}
+
+{% block extrascripts %}
+  {{ block.super }}
+  <script src="{% static 'nimbus_ui/features_page.bundle.js' %}"></script>
+{% endblock extrascripts %}

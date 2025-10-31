@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+const nodeModulesPath = path.resolve(__dirname, "../../../node_modules");
 
 module.exports = {
   entry: {
@@ -10,10 +11,23 @@ module.exports = {
     edit_branches: "./js/edit_branches.js",
     experiment_detail: "./js/experiment_detail.js",
     branch_detail: "./js/branch_detail.js",
+    features_page: "./js/features_page.js",
   },
   output: {
     filename: "[name].bundle.js",
     path: path.resolve(__dirname, "dist"),
+  },
+  resolve: {
+    alias: {
+      "@codemirror/state": path.resolve(nodeModulesPath, "@codemirror/state"),
+      "@codemirror/view": path.resolve(nodeModulesPath, "@codemirror/view"),
+      "@codemirror/merge": path.resolve(nodeModulesPath, "@codemirror/merge"),
+      "@codemirror/lang-json": path.resolve(
+        nodeModulesPath,
+        "@codemirror/lang-json",
+      ),
+      codemirror: path.resolve(nodeModulesPath, "codemirror"),
+    },
   },
   module: {
     rules: [

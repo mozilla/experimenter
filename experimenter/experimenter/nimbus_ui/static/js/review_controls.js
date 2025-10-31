@@ -54,3 +54,19 @@ document.addEventListener("DOMContentLoaded", initializeRejectApproveListeners);
 document.body.addEventListener("htmx:afterSwap", () => {
   initializeRejectApproveListeners();
 });
+
+document.body.addEventListener("htmx:beforeRequest", (event) => {
+  const launchControls = document.getElementById("launch-controls");
+  const overlay = launchControls?.querySelector("#htmx-loading-overlay");
+  if (overlay && event.target.closest("#launch-controls")) {
+    overlay.style.display = "flex";
+  }
+});
+
+document.body.addEventListener("htmx:afterRequest", (event) => {
+  const launchControls = document.getElementById("launch-controls");
+  const overlay = launchControls?.querySelector("#htmx-loading-overlay");
+  if (overlay && event.target.closest("#launch-controls")) {
+    overlay.style.display = "none";
+  }
+});

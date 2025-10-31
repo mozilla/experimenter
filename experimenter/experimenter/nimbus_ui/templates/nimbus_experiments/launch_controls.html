@@ -1,6 +1,14 @@
 {% load nimbus_extras %}
 
-<div id="launch-controls">
+<div id="launch-controls" class="position-relative">
+  <!-- Loading overlay -->
+  <div id="htmx-loading-overlay"
+       class="position-absolute bg-secondary top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center rounded">
+    <div class="text-center text-white">
+      <i class="fa-solid fa-spinner fa-spin-pulse fa-3x mb-3"></i>
+      <div class="fs-5">Processing...</div>
+    </div>
+  </div>
   {% if non_page_errors %}
     <div class="alert alert-danger" role="alert">
       <p class="mb-1">This experiment cannot be launched due to the following validation errors:</p>
@@ -161,6 +169,7 @@
         {% endif %}
         {% if experiment.can_preview_to_draft %}
           <button type="button"
+                  id="back-to-draft-button"
                   class="btn btn-secondary"
                   hx-post="{% url 'nimbus-ui-preview-to-draft' slug=experiment.slug %}"
                   hx-select="#content"

@@ -39,6 +39,7 @@ nimbus:
     expires: never
     send_in_pings:
       - page-view
+      - data-collection-opt-out
   enrollments:
     type: object
     description: The list of enrollments associated with this page view as returned by Cirrus.
@@ -71,24 +72,3 @@ nimbus:
     expires: never
     send_in_pings:
       - page-view
-data_collection:
-  opt_out:
-    type: event
-    description: >
-      Recorded when a user has opted out of data collection.
-    extra_keys:
-      nimbus_user_id:
-        type: string
-        description: A unique identifier for User/Client sending a request to get feature configuration
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1977472
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - jlockhart@mozilla.com
-      - project-nimbus@mozilla.com
-    expires: never
-    send_in_pings:
-      - events
