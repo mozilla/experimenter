@@ -61,6 +61,51 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
 
+class TestNimbusBranchFeatureValue(TestCase):
+    @mock_valid_features
+    def setUp(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+    def test_feature_with_coenrollment(self):
+        feature = NimbusFeatureConfig.objects.get(slug="someFeature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+        )
+        self.assertTrue(
+            experiment.reference_branch.feature_values.get(
+                feature_config=feature
+            ).allow_coenrollment
+        )
+
+    def test_feature_without_coenrollment(self):
+        feature = NimbusFeatureConfig.objects.get(slug="missingVariables")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+        )
+        self.assertFalse(
+            experiment.reference_branch.feature_values.get(
+                feature_config=feature
+            ).allow_coenrollment
+        )
+
+    def test_feature_with_max_version(self):
+        feature = NimbusFeatureConfig.objects.get(slug="missingVariables")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_139,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_140,
+        )
+        self.assertFalse(
+            experiment.reference_branch.feature_values.get(
+                feature_config=feature
+            ).allow_coenrollment
+        )
+
+
 class TestNimbusExperimentManager(TestCase):
     def test_sorted_by_latest_change(self):
         older_experiment = NimbusExperimentFactory.create()
@@ -1202,7 +1247,7 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[
                 NimbusFeatureConfig.objects.get(
                     application=NimbusExperiment.Application.DESKTOP,
-                    slug="oldSetPrefFeature",
+                    slug="setPrefFeature",
                 )
             ],
         )
