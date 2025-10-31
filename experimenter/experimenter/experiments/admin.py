@@ -26,7 +26,7 @@ from experimenter.experiments.models import (
     NimbusFeatureVersion,
     NimbusIsolationGroup,
     NimbusVersionedSchema,
-    Tag
+    Tag,
 )
 from experimenter.jetstream import tasks
 from experimenter.settings import DEV_USER_EMAIL
