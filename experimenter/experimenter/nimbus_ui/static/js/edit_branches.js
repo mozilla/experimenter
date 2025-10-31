@@ -1,30 +1,16 @@
-import {
-  drawSelection,
-  EditorView,
-  highlightActiveLine,
-  highlightSpecialChars,
-  keymap,
-  lineNumbers,
-} from "@codemirror/view";
+import { basicSetup } from "codemirror";
+import { EditorView } from "@codemirror/view";
 import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { linter } from "@codemirror/lint";
-import { autocompletion, closeBrackets } from "@codemirror/autocomplete";
-import {
-  HighlightStyle,
-  syntaxHighlighting,
-  defaultHighlightStyle,
-  foldGutter,
-  bracketMatching,
-  indentOnInput,
-} from "@codemirror/language";
-import {
-  highlightSelectionMatches,
-  searchKeymap,
-  search,
-} from "@codemirror/search";
-import { defaultKeymap, historyKeymap, history } from "@codemirror/commands";
-import { tags } from "@lezer/highlight";
+import { autocompletion } from "@codemirror/autocomplete";
 import { schemaAutocomplete, schemaLinter, fmlLinter } from "./validator.js";
+import {
+  themeCompartment,
+  getThemeExtensions,
+  registerView,
+  updateAllViewThemes,
+  observeThemeChanges,
+} from "./theme_utils.js";
 import $ from "jquery";
 
 const setupCodemirror = (selector, textarea, extraExtensions) => {
@@ -33,26 +19,8 @@ const setupCodemirror = (selector, textarea, extraExtensions) => {
     return;
   }
 
-  const highlightStyle = HighlightStyle.define([
-    { tag: tags.bool, color: "#ffaa00ff", themeType: "dark" },
-  ]);
-
   const extensions = [
-    lineNumbers(),
-    drawSelection(),
-    highlightSpecialChars(),
-    foldGutter(),
-    autocompletion(),
-    bracketMatching(),
-    closeBrackets(),
-    highlightSelectionMatches(),
-    indentOnInput(),
-    highlightActiveLine(),
-    syntaxHighlighting(highlightStyle),
-    syntaxHighlighting(defaultHighlightStyle),
-    history(),
-    search(),
-    keymap.of([...defaultKeymap, ...searchKeymap, ...historyKeymap]),
+    basicSetup,
     EditorView.updateListener.of((v) => {
       if (v.docChanged) {
         const value = v.state.doc.toString();
@@ -62,6 +30,7 @@ const setupCodemirror = (selector, textarea, extraExtensions) => {
     }),
     json(),
     linter(jsonParseLinter()),
+    themeCompartment.of(getThemeExtensions()),
     ...extraExtensions,
   ];
 
@@ -74,6 +43,9 @@ const setupCodemirror = (selector, textarea, extraExtensions) => {
   view.dom.style.border = "1px solid #ccc";
 
   textarea.parentNode.insertBefore(view.dom, textarea);
+  textarea.style.display = "none";
+
+  registerView(view);
 
   return view;
 };
@@ -132,16 +104,19 @@ const setupCodeMirrorLocalizations = () => {
   setupCodemirror(selector, textarea, []);
 };
 
-$(() => {
+const initializeAllEditors = () => {
   setupCodemirrorFeatures();
   setupCodemirrorLabs();
   setupCodeMirrorLocalizations();
+};
+
+$(() => {
+  initializeAllEditors();
+  observeThemeChanges(updateAllViewThemes);
 
   document.body.addEventListener("htmx:afterSwap", function (event) {
     if (event.detail.target.id === "branches-form") {
-      setupCodemirrorFeatures();
-      setupCodemirrorLabs();
-      setupCodeMirrorLocalizations();
+      initializeAllEditors();
     }
   });
 });

@@ -1,5 +1,7 @@
+import json
 from urllib.parse import urljoin
 
+from deepdiff import DeepDiff
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -11,8 +13,15 @@ from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment, Tag
-from experimenter.nimbus_ui.constants import NimbusUIConstants
+from experimenter.experiments.models import (
+    NimbusExperiment,
+    NimbusVersionedSchema,
+    Tag,
+)
+from experimenter.nimbus_ui.constants import (
+    SCHEMA_DIFF_SIZE_CONFIG,
+    NimbusUIConstants,
+)
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
     FeaturesPageSortChoices,
@@ -729,6 +738,7 @@ class NimbusFeaturesView(TemplateView):
         context = super().get_context_data(**kwargs)
         form = self.get_form()
         qs = self.get_queryset()
+        schemas_with_changes = 0
 
         deliveries_paginator = Paginator(qs, 5)
         deliveries_page_number = self.request.GET.get("deliveries_page") or 1
@@ -771,6 +781,74 @@ class NimbusFeaturesView(TemplateView):
         )
         qa_runs_non_sortable_fields = {field for field, _ in qa_runs_non_sortable_headers}
 
+        # Get feature schema versions with their diffs
+        feature_schemas = []
+        feature_id = self.request.GET.get("feature_configs")
+        thresholds = SCHEMA_DIFF_SIZE_CONFIG["thresholds"]
+        labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
+
+        if feature_id:
+            schemas = list(
+                NimbusVersionedSchema.objects.filter(feature_config_id=feature_id)
+                .select_related("version")
+                .order_by("-version__major", "-version__minor", "-version__patch")
+            )
+
+            schema_cache = []
+            for schema in schemas:
+                schema_cache.append(json.loads(schema.schema))
+
+            # Pair each schema with its previous version
+            for i, schema in enumerate(schemas):
+                current_json = schema.schema
+                previous_json = schemas[i + 1].schema if i + 1 < len(schemas) else '"{}"'
+
+                if i + 1 < len(schemas):
+                    diff = DeepDiff(
+                        schema_cache[i + 1],
+                        schema_cache[i],
+                        ignore_order=True,
+                    )
+
+                    total_changes = sum(
+                        [
+                            len(diff.get("dictionary_item_added", [])),
+                            len(diff.get("dictionary_item_removed", [])),
+                            len(diff.get("values_changed", {})),
+                            len(diff.get("type_changes", {})),
+                        ]
+                    )
+
+                    if total_changes == 0:
+                        size_label = labels["no_changes"]
+                    elif total_changes <= thresholds["small"]:
+                        size_label = labels["small"]
+                    elif total_changes <= thresholds["medium"]:
+                        size_label = labels["medium"]
+                    else:
+                        size_label = labels["large"]
+
+                    if total_changes > 0:
+                        schemas_with_changes += 1
+                else:
+                    size_label = labels["first_version"]
+
+                feature_schemas.append(
+                    {
+                        "schema": schema,
+                        "current_json": current_json,
+                        "previous_json": previous_json,
+                        "size_label": size_label.get("text"),
+                        "size_badge": size_label.get("badge_class"),
+                    }
+                )
+
+        feature_changes_pagination = Paginator(feature_schemas, 5)
+        feature_changes_page_number = self.request.GET.get("feature_changes") or 1
+        feature_changes_page_obj = feature_changes_pagination.get_page(
+            feature_changes_page_number
+        )
+
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
@@ -786,6 +864,9 @@ class NimbusFeaturesView(TemplateView):
             "deliveries_non_sortable_header": deliveries_non_sortable_fields,
             "qa_runs_sortable_header": qa_runs_sortable_header,
             "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
+            "feature_schemas": feature_changes_page_obj.object_list,
+            "feature_changes_page_obj": feature_changes_page_obj,
+            "schemas_with_changes": schemas_with_changes,
         }
         return context
 

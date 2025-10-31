@@ -890,6 +890,13 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
+  relay-email-masks:
+    description: Feature to enable Relay for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Relay email masks feature is enabled.
+        type: Boolean
+        default: true
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:

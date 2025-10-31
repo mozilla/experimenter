@@ -3113,6 +3113,12 @@ localNetworkAccess:
   owner: vgosu@mozilla.com
   hasExposure: false
   variables:
+    enableLNAWithETPStrict:
+      description: Whether to enable LNA restrictions in ETP Strict Mode
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.lna.etp.enabled"
     blockTrackers:
       description: Whether network requests triggered by third party scripts classified as trackers should be blocked when making a localhost request.
       type: boolean
