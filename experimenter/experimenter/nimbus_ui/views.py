@@ -55,6 +55,7 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagAssignForm,
     TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
@@ -877,14 +878,6 @@ class TagSaveView(TagFormSetMixin, TemplateView):
         return render(request, self.template_name, {"formset": formset})
 
 
-class TagAssignView(NimbusExperimentViewMixin, DetailView):
-    template_name = "nimbus_experiments/assign_tags_dropdown.html"
-
-    def post(self, request, *args, **kwargs):
-        experiment = self.get_object()
-        selected_tag_ids = request.POST.getlist("tags")
-        experiment.tags.set(selected_tag_ids)
-
-        response = HttpResponse()
-        response["HX-Refresh"] = "true"
-        return response
+class TagAssignView(NimbusExperimentViewMixin, RenderResponseMixin, UpdateView):
+    form_class = TagAssignForm
+    template_name = "nimbus_experiments/assign_tags_response.html"

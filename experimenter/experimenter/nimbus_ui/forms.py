@@ -1629,3 +1629,14 @@ class TagBaseFormSet(BaseModelFormSet):
 TagFormSet = forms.modelformset_factory(
     Tag, form=TagForm, formset=TagBaseFormSet, extra=0, can_delete=False
 )
+
+
+class TagAssignForm(forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = ["tags"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["tags"].queryset = Tag.objects.all().order_by("name")
+        self.fields["tags"].widget = forms.CheckboxSelectMultiple()
