@@ -841,6 +841,12 @@ class NimbusFeaturesView(TemplateView):
                     }
                 )
 
+        feature_changes_pagination = Paginator(feature_schemas, 5)
+        feature_changes_page_number = self.request.GET.get("feature_changes") or 1
+        feature_changes_page_obj = feature_changes_pagination.get_page(
+            feature_changes_page_number
+        )
+
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
@@ -856,7 +862,8 @@ class NimbusFeaturesView(TemplateView):
             "deliveries_non_sortable_header": deliveries_non_sortable_fields,
             "qa_runs_sortable_header": qa_runs_sortable_header,
             "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
-            "feature_schemas": feature_schemas,
+            "feature_schemas": feature_changes_page_obj.object_list,
+            "feature_changes_page_obj": feature_changes_page_obj,
             "schemas_with_changes": schemas_with_changes,
         }
         return context
