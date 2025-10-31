@@ -10,7 +10,7 @@
                      font-size: 0.75rem">{{ tag.name }}</span>
       {% endfor %}
     </div>
-  {% else %}
+  {% elif not hide_no_tags %}
     <span class="text-muted small">No tags assigned</span>
   {% endif %}
 </div>
