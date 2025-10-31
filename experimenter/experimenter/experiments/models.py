@@ -1290,10 +1290,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for branch in self.branches.all().prefetch_related("screenshots"):
             slug = branch.slug
             participant_metrics = (
-                overall_results.get(slug, {})
-                .get("branch_data", {})
-                .get("other_metrics", {})
-                .get("identity", {})
+                (
+                    overall_results.get(slug, {})
+                    .get("branch_data", {})
+                    .get("other_metrics", {})
+                    .get("identity", {})
+                )
+                if isinstance(overall_results, dict)
+                else {}
             )
             num_participants = (
                 participant_metrics.get("absolute", {}).get("first", {}).get("point", 0)
