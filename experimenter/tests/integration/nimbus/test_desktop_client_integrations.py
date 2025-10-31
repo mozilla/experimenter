@@ -80,7 +80,7 @@ def test_check_telemetry_enrollment_unenrollment(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
@@ -97,7 +97,7 @@ def test_check_telemetry_enrollment_unenrollment(
     # unenroll
     summary = SummaryPage(selenium, experiment_url).open()
     summary.end_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
@@ -146,7 +146,7 @@ def test_check_telemetry_pref_flip(
     )
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
 
@@ -165,7 +165,7 @@ def test_check_telemetry_pref_flip(
     # unenroll
     summary = SummaryPage(selenium, experiment_url).open()
     summary.end_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
@@ -218,7 +218,7 @@ def test_check_telemetry_sticky_targeting(
     )
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
 
@@ -248,7 +248,7 @@ def test_check_telemetry_sticky_targeting(
     # unenroll
     summary = SummaryPage(selenium, experiment_url).open()
     summary.end_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 

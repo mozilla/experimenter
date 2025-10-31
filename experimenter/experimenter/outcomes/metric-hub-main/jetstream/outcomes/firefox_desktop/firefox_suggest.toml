@@ -47,6 +47,15 @@ exposure_basis = ["exposures", "enrollments"]
 statistics = { deciles = {}, bootstrap_mean = {} }
 bigger_is_better = false
 
+[metrics.urlbar_annoyances_rate]
+select_expression = "COALESCE(SUM(urlbar_annoyances) > 0, FALSE)"
+data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
+description = "Percentage of clients that had a Urlbar annoyance"
+friendly_name = "Urlbar annoyance clients"
+exposure_basis = ["exposures", "enrollments"]
+statistics = { binomial = {} }
+bigger_is_better = false
+
 [metrics.search_engine_clicks]
 select_expression = """SUM(
   IF(

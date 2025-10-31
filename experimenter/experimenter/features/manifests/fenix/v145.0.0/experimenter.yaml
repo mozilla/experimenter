@@ -83,6 +83,23 @@ custom-review-prompt:
     enabled:
       type: boolean
       description: Whether or not to enable the custom review prompt.
+default-browser-prompt:
+  description: Feature that controls when the default browser prompt is shown.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    coldStartsBetweenPrompts:
+      type: int
+      description: The minimum number of cold starts between showing the prompt.
+    daysBetweenPrompts:
+      type: int
+      description: The minimum number of days between showing the prompt.
+    enabled:
+      type: boolean
+      description: Whether or not to enable the default browser prompt.
+    maxPromptsShown:
+      type: int
+      description: The maximum number of times the prompt can shown to the user.
 doh:
   description: Feature controlling DNS over HTTPS (DoH).
   hasExposure: true

@@ -4,14 +4,6 @@ about:
 channels:
 - nightly
 features:
-  address-sync:
-    description: Turns on address sync.
-    variables:
-      enabled:
-        description: |
-          Whether or not to turn on address sync.
-        type: Boolean
-        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -503,6 +495,7 @@ features:
           OPEN_SETTINGS_SEARCH_ENGINE: ://settings_search_engine
           OPEN_SETTINGS_TRACKING_PROTECTION: ://settings_tracking_protection
           OPEN_SETTINGS_WALLPAPERS: ://settings_wallpapers
+          OPEN_SETTINGS_APP_ICON: ://settings_app_icon
           OPEN_SETTINGS: ://settings
           OPEN_SHARE_SHEET: ://share_sheet
           TURN_ON_SYNC: ://turn_on_sync
@@ -818,18 +811,13 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
-  recent-searches:
-    description: Enables recent searches.
+  relay-email-masks:
+    description: Feature to enable Relay for users on Firefox on Android.
     variables:
       enabled:
-        description: |
-          Whether or not to enable recent searches.
+        description: If true, Relay email masks feature is enabled.
         type: Boolean
-        default: true
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 5
+        default: false
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -988,7 +976,7 @@ features:
         description: |
           Whether or not to enable the tab management enhancements.
         type: Boolean
-        default: false
+        default: true
   tab-strip:
     description: Enables tab strip.
     variables:
@@ -1086,18 +1074,6 @@ features:
           Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
-  trending-searches:
-    description: Enables trending searches.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable trending searches.
-        type: Boolean
-        default: true
-      max-suggestions:
-        description: The number of maximum suggestions.
-        type: Int
-        default: 5
   unified-trust-panel:
     description: Enables the unified trust panel.
     variables:

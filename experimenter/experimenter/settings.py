@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
+import os
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -74,7 +75,7 @@ CIRRUS_URL = config("CIRRUS_URL", default=None)
 
 GLEAN_UPLOAD_ENABLED = config("GLEAN_UPLOAD_ENABLED", default=False, cast=bool)
 
-GLEAN_DATA_DIR = config("GLEAN_DATA_DIR", default="/var/glean")
+GLEAN_DATA_DIR = Path(config("GLEAN_DATA_DIR", default="/var/glean")) / str(os.getpid())
 
 # Application definition
 

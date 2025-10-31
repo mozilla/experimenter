@@ -204,6 +204,29 @@
   transition: opacity 200ms ease-in;
 }
 
+// Diff toggle button states (features page)
+.diff-toggle-btn {
+  .btn-text-expanded {
+    display: none;
+  }
+
+  &[aria-expanded="true"] {
+    .btn-text-collapsed {
+      display: none;
+    }
+    .btn-text-expanded {
+      display: inline;
+    }
+    .chevron-icon {
+      transform: rotate(180deg);
+    }
+  }
+
+  .chevron-icon {
+    transition: transform 0.2s ease;
+  }
+}
+
 .branch-fade {
   position: absolute;
   top: 0;

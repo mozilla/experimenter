@@ -1,10 +1,11 @@
+import random
 from collections import defaultdict
 from datetime import UTC, datetime
 
 import markus
 from django import forms
 from django.contrib.auth.models import User
-from django.forms import inlineformset_factory
+from django.forms import BaseModelFormSet, inlineformset_factory
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.text import slugify
@@ -20,6 +21,7 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
+    Tag,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -444,6 +446,22 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
             self.fields["value"].initial = ""
 
         if (
+            self.instance is not None
+            and self.instance.branch_id is not None
+            and self.instance.branch.experiment
+            and self.instance.branch.experiment.application
+            != NimbusExperiment.Application.DESKTOP
+        ):
+            self.fields["value"].widget.attrs["data-experiment-slug"] = (
+                self.instance.branch.experiment.slug
+            )
+
+            if self.instance.feature_config:
+                self.fields["value"].widget.attrs["data-feature-slug"] = (
+                    self.instance.feature_config.slug
+                )
+
+        if (
             self.instance.id is not None
             and self.instance.feature_config
             and (
@@ -552,6 +570,19 @@ class NimbusBranchForm(forms.ModelForm):
             and self.branch_feature_values.is_valid()
             and self.screenshot_formset.is_valid()
         )
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+        if not slug:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if (
+            NimbusBranch.objects.exclude(id=self.instance.id)
+            .filter(experiment=self.instance.experiment, slug=slug)
+            .exists()
+        ):
+            raise forms.ValidationError(NimbusUIConstants.ERROR_SLUG_DUPLICATE_BRANCH)
+        return name
 
     def clean(self):
         cleaned_data = super().clean()
@@ -1541,3 +1572,60 @@ class FeaturesForm(forms.ModelForm):
         }
         self.fields["application"].widget.attrs.update(htmx_attrs)
         self.fields["feature_configs"].widget.attrs.update(htmx_attrs)
+
+
+class TagForm(forms.ModelForm):
+    name = forms.CharField(
+        required=True,
+        max_length=100,
+        label="Tag Name",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    color = forms.CharField(
+        required=True,
+        max_length=7,
+        label="Color",
+        widget=forms.TextInput(
+            attrs={"type": "color", "class": "form-control form-control-color"}
+        ),
+    )
+
+    class Meta:
+        model = Tag
+        fields = ["name", "color"]
+
+
+class TagBaseFormSet(BaseModelFormSet):
+    def clean(self):
+        if any(self.errors):
+            return
+
+        names = []
+        for form in self.forms:
+            name = form.cleaned_data.get("name")
+            if name:
+                names.append(name.lower())
+
+        if len(names) != len(set(names)):
+            raise forms.ValidationError(NimbusUIConstants.ERROR_TAG_DUPLICATE_NAME)
+
+    def create_tag(self):
+        # Create a new tag with a unique name and random color
+        base_name = "Tag"
+        existing_count = Tag.objects.count()
+        # Generate a range
+        tag_names_all = [f"{base_name} {i}" for i in range(1, existing_count + 1)]
+        tag_names_used = set(Tag.objects.values_list("name", flat=True))
+        tag_names_free = sorted(set(tag_names_all) - tag_names_used)
+        name = (
+            tag_names_free[0] if tag_names_free else f"{base_name} {existing_count + 1}"
+        )
+
+        random_color = f"#{random.randint(0, 0xFFFFFF):06x}"
+        tag = Tag.objects.create(name=name, color=random_color)
+        return tag
+
+
+TagFormSet = forms.modelformset_factory(
+    Tag, form=TagForm, formset=TagBaseFormSet, extra=0, can_delete=False
+)

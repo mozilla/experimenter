@@ -1,12 +1,3 @@
-address-sync:
-  description: Turns on address sync.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to turn on address sync.
 alternative-app-launcher-icon:
   description: A feature that changes the app launcher icon background color.
   hasExposure: true
@@ -508,18 +499,14 @@ re-engagement-notification:
     type:
       type: int
       description: The type of re-engagement notification that is shown to the inactive user.
-recent-searches:
-  description: Enables recent searches.
+relay-email-masks:
+  description: Feature to enable Relay for users on Firefox on Android.
   hasExposure: true
   exposureDescription: ''
   variables:
     enabled:
       type: boolean
-      description: |
-        Whether or not to enable recent searches.
-    max-suggestions:
-      type: int
-      description: The number of maximum suggestions.
+      description: If true, Relay email masks feature is enabled.
 remote-search-configuration:
   description: Feature to use search configurations from remote servers.
   hasExposure: true
@@ -776,18 +763,6 @@ translations:
       type: boolean
       description: |
         Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
-trending-searches:
-  description: Enables trending searches.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable trending searches.
-    max-suggestions:
-      type: int
-      description: The number of maximum suggestions.
 unified-trust-panel:
   description: Enables the unified trust panel.
   hasExposure: true

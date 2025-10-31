@@ -764,12 +764,12 @@ features:
         description: |
           Enables the middle button customization for navigation toolbar.
         type: Boolean
-        default: false
+        default: true
       minimal_address_bar:
         description: |
           Enables minimal address bar mode on scroll to ensure the url is always visible.
         type: Boolean
-        default: false
+        default: true
       navigation_hint:
         description: |
           If true, enables the navigation contextual hint.
