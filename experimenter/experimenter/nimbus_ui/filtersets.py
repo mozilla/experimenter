@@ -622,6 +622,12 @@ class FeaturesPageSortChoices(models.TextChoices):
         TYPE_UP = "qa_run_type", "Testing Type"
         TYPE_DOWN = "-qa_run_type", "Testing Type"
 
+    class FeatureChanges(models.TextChoices):
+        VERSION_UP = "change_version", "Version"
+        VERSION_DOWN = "-change_version", "Version"
+        CHANGES_UP = "change_size", "Size of Changes"
+        CHANGES_DOWN = "-change_size", "Size of Changes"
+
     @staticmethod
     def sortable_headers(table_name):
         seen = set()
