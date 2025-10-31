@@ -142,7 +142,14 @@
                   {{ branch_feature_values_form.id }}
                   <div class="row mt-3">
                     <div class="col">
-                      <label class="form-label">{{ branch_feature_values_form.instance.feature_config.name }}</label>
+                      <label class="form-label">
+                        {{ branch_feature_values_form.instance.feature_config.name }}
+                        {% if branch_feature_values_form.instance.allow_coenrollment %}
+                          <div class="form-text">
+                            Note: This feature supports co-enrollment with other experiments/rollouts for the selected versions.
+                          </div>
+                        {% endif %}
+                      </label>
                       {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
                       {% for error in branch_feature_values_form.value.errors %}
                         <div class="invalid-feedback d-block">{{ error }}</div>

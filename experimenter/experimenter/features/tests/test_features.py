@@ -32,7 +32,7 @@ class TestFeatures(TestCase):
 
     def test_load_all_features(self):
         features = Features.all()
-        self.assertEqual(len(features), 5)
+        self.assertEqual(len(features), 4)
         self.assertIn(
             Feature(
                 slug="someFeature",
@@ -96,7 +96,7 @@ class TestFeatures(TestCase):
 
     def test_load_features_by_application(self):
         desktop_features = Features.by_application(NimbusExperiment.Application.DESKTOP)
-        self.assertEqual(len(desktop_features), 4)
+        self.assertEqual(len(desktop_features), 3)
         self.assertIn(
             Feature(
                 slug="someFeature",

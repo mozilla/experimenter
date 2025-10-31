@@ -33,24 +33,6 @@ missingVariables:
   exposureDescription: An exposure event
   isEarlyStartup: true
   variables: {}
-oldSetPrefFeature:
-  owner: owner@example.com
-  description: A feature that sets prefs via the old setPref schema
-  hasExposure: true
-  exposureDescription: An exposure event
-  variables:
-    string:
-      type: string
-      setPref: nimbus.test.string
-      description: String property
-    int:
-      type: int
-      setPref: nimbus.test.int
-      description: Integer property
-    boolean:
-      type: boolean
-      setPref: nimbus.test.boolean
-      description: Boolean property
 setPrefFeature:
   owner: owner@example.com
   description: A feature that sets prefs
