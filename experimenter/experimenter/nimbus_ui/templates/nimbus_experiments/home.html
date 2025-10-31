@@ -109,6 +109,8 @@
                       <td>
                         <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
                            class="text-decoration-none fw-medium text-break">{{ experiment.name }}</a>
+                        {% include "nimbus_experiments/experiment_tags.html" with hide_no_tags=True %}
+
                       </td>
                       <td>
                         {% with status_info=experiment|home_status_display_with_icon %}
