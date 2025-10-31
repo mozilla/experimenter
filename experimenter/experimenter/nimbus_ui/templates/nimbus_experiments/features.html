@@ -407,6 +407,81 @@
               {% endfor %}
             </tbody>
           </table>
+          <div>
+            {% if feature_changes_page_obj.has_other_pages %}
+              <div id="pagination" class="row">
+                <div class="col text-center">
+                  <ul class="pagination justify-content-center">
+                    {% if feature_changes_page_obj.has_previous %}
+                      <li class="page-item">
+                        <a class="page-link"
+                           hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes=1{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                           hx-target="#feature-changes-table"
+                           hx-select="#feature-changes-table"
+                           hx-swap="outerHTML"
+                           hx-push-url="true"><i class="fa-solid fa-angles-left"></i></a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link"
+                           hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes={{ feature_changes_page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                           hx-target="#feature-changes-table"
+                           hx-select="#feature-changes-table"
+                           hx-swap="outerHTML"
+                           hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">
+                          <i class="fa-solid fa-angles-left"></i>
+                        </a>
+                      </li>
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">
+                          <i class="fa-solid fa-angle-left"></i>
+                        </a>
+                      </li>
+                    {% endif %}
+                    <li class="page-item">
+                      <div class="page-link">
+                        <a>{{ feature_changes_page_obj.number }} of {{ feature_changes_page_obj.paginator.num_pages }}</a>
+                      </li>
+                      {% if feature_changes_page_obj.has_next %}
+                        <li class="page-item">
+                          <a class="page-link"
+                             hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes={{ feature_changes_page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                             hx-target="#feature-changes-table"
+                             hx-select="#feature-changes-table"
+                             hx-swap="outerHTML"
+                             hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
+                        </a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link"
+                           hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes={{ feature_changes_page_obj.paginator.num_pages }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                           hx-target="#feature-changes-table"
+                           hx-select="#feature-changes-table"
+                           hx-swap="outerHTML"
+                           hx-push-url="true">
+                          <i class="fa-solid fa-angles-right"></i>
+                        </a>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">
+                          <i class="fa-solid fa-angle-right"></i>
+                        </a>
+                      </li>
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">
+                          <i class="fa-solid fa-angles-right"></i>
+                        </a>
+                      </li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </div>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
