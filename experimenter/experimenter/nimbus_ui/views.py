@@ -805,30 +805,17 @@ class NimbusFeaturesView(TemplateView):
         if feature_id:
             sort = self.request.GET.get("sort", "")
 
-            schema_order_by = [
-                "-version__major",
-                "-version__minor",
-                "-version__patch",
-            ]
-
-            # Map version sort
             if sort == "change_version":
-                schema_order_by = [
-                    "version__major",
-                    "version__minor",
-                    "version__patch",
-                ]
-            elif sort == "-change_version":
-                schema_order_by = [
-                    "-version__major",
-                    "-version__minor",
-                    "-version__patch",
-                ]
+                queryset = NimbusVersionedSchema.objects.with_version_ordering(
+                    descending=False
+                )
+            else:
+                queryset = NimbusVersionedSchema.objects.with_version_ordering(
+                    descending=True
+                )
 
             schemas = list(
-                NimbusVersionedSchema.objects.filter(feature_config_id=feature_id)
-                .select_related("version")
-                .order_by(*schema_order_by)
+                queryset.filter(feature_config_id=feature_id).select_related("version")
             )
 
             schema_cache = []
