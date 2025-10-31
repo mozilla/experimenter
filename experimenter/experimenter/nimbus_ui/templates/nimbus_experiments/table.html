@@ -37,6 +37,8 @@
         <tr>
           <th scope="row">
             <a href="{% url "nimbus-ui-detail" slug=experiment.slug %}">{{ experiment.name }}</a>
+            {% include "nimbus_experiments/experiment_tags.html" with hide_no_tags=True %}
+
             {% if active_status == "MyExperiments" %}
               {% if experiment.is_archived %}
                 <p class="pt-1">
@@ -142,55 +144,48 @@
       <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
           <li class="page-item">
-            <a class="page-link" href="{% pagination_url 1 %}"><i class="fa-solid fa-angles-left"></i></a>
-          </li>
+          {% else %}
+            <li class="page-item disabled">
+              <a class="page-link" href="#">
+                <i class="fa-solid fa-angles-left"></i>
+              </a>
+            </li>
+            <li class="page-item disabled">
+              <a class="page-link" href="#">
+                <i class="fa-solid fa-angle-left"></i>
+              </a>
+            </li>
+          {% endif %}
           <li class="page-item">
-            <a class="page-link"
-               href="{% pagination_url page_obj.previous_page_number %}"
-               tabindex="-1"><i class="fa-solid fa-angle-left"></i></a>
+            <div class="page-link">
+            {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
           </li>
-        {% else %}
-          <li class="page-item disabled">
-            <a class="page-link" href="#">
-              <i class="fa-solid fa-angles-left"></i>
-            </a>
-          </li>
-          <li class="page-item disabled">
-            <a class="page-link" href="#">
-              <i class="fa-solid fa-angle-left"></i>
-            </a>
-          </li>
-        {% endif %}
-        <li class="page-item">
-          <div class="page-link">
-          {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
-        </li>
-        {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link"
-               href="{% pagination_url page_obj.next_page_number %}">
-              <i class="fa-solid fa-angle-right"></i>
-            </a>
-          </li>
-          <li class="page-item">
-            <a class="page-link"
-               href="{% pagination_url page_obj.paginator.num_pages %}">
-              <i class="fa-solid fa-angles-right"></i>
-            </a>
-          </li>
-        {% else %}
-          <li class="page-item disabled">
-            <a class="page-link" href="#">
-              <i class="fa-solid fa-angle-right"></i>
-            </a>
-          </li>
-          <li class="page-item disabled">
-            <a class="page-link" href="#">
-              <i class="fa-solid fa-angles-right"></i>
-            </a>
-          </li>
-        {% endif %}
-      </ul>
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link"
+                 href="{% pagination_url page_obj.next_page_number %}">
+                <i class="fa-solid fa-angle-right"></i>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link"
+                 href="{% pagination_url page_obj.paginator.num_pages %}">
+                <i class="fa-solid fa-angles-right"></i>
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <a class="page-link" href="#">
+                <i class="fa-solid fa-angle-right"></i>
+              </a>
+            </li>
+            <li class="page-item disabled">
+              <a class="page-link" href="#">
+                <i class="fa-solid fa-angles-right"></i>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
-  </div>
-{% endif %}
+  {% endif %}
