@@ -924,6 +924,9 @@ enums:
       sync-with-icons:
         description: |
           Corresponding to the sync-devices image
+      sync-with-icons-japan:
+        description: |
+          Corresponding to the sync-with-icons image for Japan
       themeing:
         description: |
           Corresponding to the fox world image
@@ -933,6 +936,9 @@ enums:
       trackers:
         description: |
           Corresponding to the trackers image
+      trackers-japan:
+        description: |
+          Corresponding to the trackers image for Japan
       welcome-ctd:
         description: |
           Corresponding to the welcome image for CTD
@@ -946,18 +952,33 @@ enums:
       theme-dark:
         description: |
           Corresponding to the dark theme
+      theme-dark-japan:
+        description: |
+          Corresponding to the dark theme for Japan
       theme-light:
         description: |
           Corresponding to the light theme
+      theme-light-japan:
+        description: |
+          Corresponding to the light theme for Japan
       theme-system:
         description: |
           Corresponding to the system theme
+      theme-system-japan:
+        description: |
+          Corresponding to the system theme for Japan
       toolbar-bottom:
         description: |
           Corresponding to the toolbar on the bottom
+      toolbar-bottom-japan:
+        description: |
+          Corresponding to the toolbar on the bottom for Japan
       toolbar-top:
         description: |
           Corresponding to the toolbar on top
+      toolbar-top-japan:
+        description: |
+          Corresponding to the toolbar on top for Japan
   OnboardingActions:
     description: |
       The identifiers for the different actions available for cards in onboarding
