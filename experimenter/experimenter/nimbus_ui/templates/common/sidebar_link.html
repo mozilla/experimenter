@@ -1,9 +1,36 @@
-<a {% if external %}target="_blank"{% endif %}
-   class="nav-link mb-2 {% if request.path == link %}active{% endif %} nav-link-hover {% if disabled %}disabled{% endif %}"
-   data-testid="nav-edit-{{ title|lower }}"
-   href="{{ link }}"
-   {% if data_bs_toggle %}data-bs-toggle="{{ data_bs_toggle }}"{% endif %}
-   {% if data_bs_target %}data-bs-target="{{ data_bs_target }}"{% endif %}>
-  <i class="{{ icon }} pe-2"></i>
-  <span>{{ title }}</span>
-</a>
+<div>
+  <a {% if external %}target="_blank"{% endif %}
+     class="nav-link mb-2 {% if request.path == link %}active{% endif %} nav-link-hover {% if disabled %}disabled{% endif %}"
+     data-testid="nav-edit-{{ title|lower }}"
+     href="{{ link }}"
+     {% if data_bs_toggle %}data-bs-toggle="{{ data_bs_toggle }}"{% endif %}
+     {% if data_bs_target %}data-bs-target="{{ data_bs_target }}"{% endif %}>
+    <i class="{{ icon }} pe-2"></i>
+    <span>{{ title }}</span>
+  </a>
+  {% if request.path == new_results_url %}
+    <div class="accordion ms-2" id="{{ title|lower|cut:" " }}-accordion">
+      {% for item in subsection %}
+        <div class="accordion-item ms-4 text-secondary bg-transparent border-0 {% if forloop.last %}mb-3{% endif %}">
+          <button class="accordion-button collapsed bg-transparent p-2 text-reset fw-bold shadow-none"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapse{{ item.title|lower|cut:" " }}"
+                  aria-expanded="false"
+                  aria-controls="collapse{{ item.title|lower|cut:" " }}">{{ item.title }}</button>
+          <div class="accordion-collapse collapse"
+               id="collapse{{ item.title|lower|cut:" " }}"
+               data-bs-parent="#{{ title|lower|cut:" " }}-accordion">
+            <ul class="nav flex-column ms-4">
+              {% for subitem in item.subitems %}
+                <li class="nav-item w-100">
+                  <a class="nav-link text-reset" href="#">{{ subitem.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
