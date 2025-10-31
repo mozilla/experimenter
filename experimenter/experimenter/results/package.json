@@ -120,6 +120,7 @@
   },
   "eslintConfig": {
     "extends": [
+      "react-app",
       "plugin:@typescript-eslint/recommended",
       "plugin:prettier/recommended",
       "plugin:react/recommended",
