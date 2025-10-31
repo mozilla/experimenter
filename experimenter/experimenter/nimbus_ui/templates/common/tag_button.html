@@ -1,0 +1,15 @@
+<button class="btn btn-link text-start p-2 mb-2 text-decoration-none position-relative"
+        type="button"
+        id="{{ button_id|default:'assignTagsDropdown' }}"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        title="{{ title|default:'Assign Tags' }}">
+  <i class="fa-solid fa-tag pe-2"></i>
+  {{ label|default:'Assign Tags' }}
+  {% if tag_count > 0 %}
+    <span class="position-absolute top-50 start-100 translate-middle-y badge rounded-pill bg-primary"
+          style="font-size: 0.6rem;
+                 padding: 0.2rem 0.35rem;
+                 transform: translateX(-50%) translateY(-50%)">{{ tag_count }}</span>
+  {% endif %}
+</button>
