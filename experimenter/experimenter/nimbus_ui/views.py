@@ -64,6 +64,7 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagAssignForm,
     TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
@@ -154,6 +155,7 @@ class NimbusExperimentViewMixin:
 
         context["live_monitor_tooltip"] = NimbusUIConstants.LIVE_MONITOR_TOOLTIP
         context["common_sidebar_links"] = NimbusUIConstants.SIDEBAR_COMMON_LINKS
+        context["all_tags"] = Tag.objects.all().order_by("name")
 
         slug_underscore = (
             experiment.slug.replace("-", "_") if experiment and experiment.slug else ""
@@ -955,3 +957,8 @@ class TagSaveView(TagFormSetMixin, TemplateView):
             response["HX-Refresh"] = "true"
             return response
         return render(request, self.template_name, {"formset": formset})
+
+
+class TagAssignView(NimbusExperimentViewMixin, RenderResponseMixin, UpdateView):
+    form_class = TagAssignForm
+    template_name = "nimbus_experiments/assign_tags_response.html"
