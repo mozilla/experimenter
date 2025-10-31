@@ -31,7 +31,14 @@
       {% if branch.feature_values.all %}
         {% for feature_value in branch.feature_values.all %}
           <tr>
-            <th>{{ feature_value.feature_config.name|format_not_set }} Value</th>
+            <th>
+              {{ feature_value.feature_config.name|format_not_set }} Value
+              {% if feature_value.allow_coenrollment %}
+                <div class="form-text">
+                  Note: This feature supports co-enrollment with other experiments/rollouts for the selected versions.
+                </div>
+              {% endif %}
+            </th>
             <td colspan="3" id="preview-recipe-json" class="collapsed-json">
               <div style="max-height: 120px; overflow: hidden;">
                 <textarea class="readonly-json">{{ feature_value.value }}</textarea>
