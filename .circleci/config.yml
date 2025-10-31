@@ -254,6 +254,28 @@ jobs:
               exit 1
             fi
 
+  check_glean_generated_files:
+    machine:
+      image: ubuntu-2204:2024.11.1
+      docker_layer_caching: true
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "experimenter/experimenter/glean/server_events.py"
+      - run:
+          name: Check glean generated files
+          command: |
+            cp .env.sample .env
+            make glean_generated_files
+            if ! git diff --quiet experimenter/experimenter/glean/server_events.py; then
+              echo 'Please commit updates to glean generated files:'
+              echo
+              echo '    make glean_generated_files'
+              echo
+              exit 1
+            fi
+
   check_schemas:
     machine:
       image: ubuntu-2204:2024.11.1
@@ -920,6 +942,12 @@ workflows:
           name: Check Cirrus aarch64
       - check_local_feature_manifests:
           name: Check Local Feature Manifests
+          filters:
+            branches:
+              ignore:
+                - main
+      - check_glean_generated_files:
+          name: Check Glean Generated Files
           filters:
             branches:
               ignore:
