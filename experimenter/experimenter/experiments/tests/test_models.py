@@ -1202,7 +1202,7 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[
                 NimbusFeatureConfig.objects.get(
                     application=NimbusExperiment.Application.DESKTOP,
-                    slug="oldSetPrefFeature",
+                    slug="setPrefFeature",
                 )
             ],
         )
