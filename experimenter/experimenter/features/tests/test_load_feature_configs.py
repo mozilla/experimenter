@@ -68,19 +68,7 @@ class TestLoadFeatureConfigs(TestCase):
         )
         self.assertFalse(schema.has_remote_schema)
         self.assertTrue(schema.is_early_startup)
-
-        feature_config = NimbusFeatureConfig.objects.get(slug="oldSetPrefFeature")
-        schema = feature_config.schemas.get(version=None)
-
-        self.assertEqual(
-            schema.set_pref_vars,
-            {
-                "string": "nimbus.test.string",
-                "int": "nimbus.test.int",
-                "boolean": "nimbus.test.boolean",
-            },
-        )
-        self.assertFalse(schema.has_remote_schema)
+        self.assertTrue(schema.allow_coenrollment)
 
         feature_config = NimbusFeatureConfig.objects.get(slug="setPrefFeature")
         schema = feature_config.schemas.get(version=None)
@@ -150,17 +138,6 @@ class TestLoadFeatureConfigs(TestCase):
             },
         )
         self.assertTrue(schema.is_early_startup)
-
-        feature_config = NimbusFeatureConfig.objects.get(slug="oldSetPrefFeature")
-        schema = feature_config.schemas.get(version=None)
-        self.assertEqual(
-            schema.set_pref_vars,
-            {
-                "string": "nimbus.test.string",
-                "int": "nimbus.test.int",
-                "boolean": "nimbus.test.boolean",
-            },
-        )
 
     def test_handles_existing_features_with_same_slug_different_name(self):
         NimbusFeatureConfigFactory.create(

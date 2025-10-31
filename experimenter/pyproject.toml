@@ -46,7 +46,6 @@ markdown2 = "2.5.0"
 markus = "3.0.0"
 mock = "4.0.3"
 mozilla-metric-config-parser = "^2024.11.1"
-mozilla-nimbus-schemas = "2025.1.1"
 packaging = "21.3"
 parameterized = "0.9.0"
 pillow = "^11.3.0"
@@ -80,6 +79,7 @@ pytest = "^8.4.0"
 pyjwt = { extras = ["crypto"], version = "^2.10.1" }
 humanize = "^4.14.0"
 deepdiff = "^8.6.1"
+mozilla-nimbus-schemas = "^3001.0.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
