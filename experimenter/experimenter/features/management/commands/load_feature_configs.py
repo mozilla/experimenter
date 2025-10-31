@@ -1,10 +1,13 @@
 import itertools
 import logging
-from typing import Optional, Union
+from typing import Optional
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from mozilla_nimbus_schemas.experiments.feature_manifests import DesktopFeature, SetPref
+from mozilla_nimbus_schemas.experimenter_apis.experiments.feature_manifests import (
+    DesktopFeature,
+    SetPref,
+)
 
 from experimenter.experiments.constants import NO_FEATURE_SLUG, Application
 from experimenter.experiments.models import (
@@ -182,9 +185,9 @@ class Command(BaseCommand):
 
             if feature_config.application == Application.DESKTOP:
                 set_pref_vars = {
-                    var_name: _set_pref_name(var.set_pref)
+                    var_name: var.set_pref.pref
                     for var_name, var in feature.model.variables.items()
-                    if var.set_pref is not None
+                    if isinstance(var.set_pref, SetPref)
                 }
 
                 if schema.set_pref_vars != set_pref_vars:
@@ -208,10 +211,3 @@ class Command(BaseCommand):
         NimbusVersionedSchema.objects.bulk_create(schemas_to_create)
 
         logger.info("Features Updated")
-
-
-def _set_pref_name(v: Union[SetPref, str]) -> str:
-    if isinstance(v, SetPref):
-        return v.pref
-    else:
-        return v
