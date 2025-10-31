@@ -4243,3 +4243,47 @@ class TestTagSaveView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, NimbusUIConstants.ERROR_TAG_DUPLICATE_NAME)
+
+
+class TestTagAssignView(AuthTestCase):
+    def test_post_assigns_tags_to_experiment(self):
+        experiment = NimbusExperimentFactory.create()
+        tag1 = TagFactory.create(name="Tag 1")
+        tag2 = TagFactory.create(name="Tag 2")
+
+        response = self.client.post(
+            reverse("nimbus-ui-assign-tags", kwargs={"slug": experiment.slug}),
+            {"tags": [tag1.id, tag2.id]},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertEqual(set(experiment.tags.all()), {tag1, tag2})
+
+    def test_post_removes_tags_from_experiment(self):
+        experiment = NimbusExperimentFactory.create()
+        tag1 = TagFactory.create(name="Tag 1")
+        tag2 = TagFactory.create(name="Tag 2")
+        experiment.tags.add(tag1, tag2)
+
+        response = self.client.post(
+            reverse("nimbus-ui-assign-tags", kwargs={"slug": experiment.slug}),
+            {"tags": [tag1.id]},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment.refresh_from_db()
+        self.assertEqual(list(experiment.tags.all()), [tag1])
+
+    def test_post_clears_all_tags_when_none_selected(self):
+        experiment = NimbusExperimentFactory.create()
+        tag1 = TagFactory.create(name="Tag 1")
+        experiment.tags.add(tag1)
+
+        response = self.client.post(
+            reverse("nimbus-ui-assign-tags", kwargs={"slug": experiment.slug}),
+            {},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.tags.count(), 0)

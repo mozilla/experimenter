@@ -40,6 +40,7 @@ from experimenter.nimbus_ui.views import (
     ReviewToDraftView,
     SignoffUpdateView,
     SubscribeView,
+    TagAssignView,
     TagCreateView,
     TagSaveView,
     TagsManageView,
@@ -78,6 +79,11 @@ urlpatterns = [
         r"^tags/save/$",
         TagSaveView.as_view(),
         name="nimbus-ui-tags-save",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/assign_tags/$",
+        TagAssignView.as_view(),
+        name="nimbus-ui-assign-tags",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)[/]?$",

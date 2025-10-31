@@ -26,6 +26,7 @@ from experimenter.experiments.models import (
     NimbusFeatureVersion,
     NimbusIsolationGroup,
     NimbusVersionedSchema,
+    Tag,
 )
 from experimenter.jetstream import tasks
 from experimenter.settings import DEV_USER_EMAIL
@@ -432,6 +433,11 @@ class NimbusBranchAdmin(NoDeleteAdminMixin, admin.ModelAdmin[NimbusBranch]):
     prepopulated_fields = {"slug": ("name",)}
 
 
+class TagAdmin(admin.ModelAdmin[Tag]):
+    list_display = ("name", "color")
+    search_fields = ("name",)
+
+
 admin.site.register(NimbusIsolationGroup, NimbusIsolationGroupAdmin)
 admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
 admin.site.register(NimbusFeatureConfig, NimbusFeatureConfigAdmin)
@@ -439,3 +445,4 @@ admin.site.register(NimbusVersionedSchema, NimbusVersionedSchemaAdmin)
 admin.site.register(NimbusBranch, NimbusBranchAdmin)
 admin.site.register(NimbusFeatureVersion, NimbusFeatureVersionAdmin)
 admin.site.register(NimbusDocumentationLink)
+admin.site.register(Tag, TagAdmin)

@@ -69,6 +69,7 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagAssignForm,
     TagForm,
     TagFormSet,
     TakeawaysForm,
@@ -4098,3 +4099,53 @@ class TestTagFormSet(TestCase):
         self.assertEqual(tag.name, "Tag 3")
         self.assertTrue(tag.color.startswith("#"))
         self.assertEqual(len(tag.color), 7)
+
+
+class TestTagAssignForm(RequestFormTestCase):
+    def test_valid_form_assigns_tags(self):
+        experiment = NimbusExperimentFactory.create()
+        tag1 = TagFactory.create(name="Tag 1")
+        tag2 = TagFactory.create(name="Tag 2")
+
+        form = TagAssignForm(instance=experiment, data={"tags": [tag1.id, tag2.id]})
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(set(experiment.tags.all()), {tag1, tag2})
+
+    def test_form_removes_tags(self):
+        tag1 = TagFactory.create(name="Tag 1")
+        tag2 = TagFactory.create(name="Tag 2")
+        experiment = NimbusExperimentFactory.create()
+        experiment.tags.set([tag1, tag2])
+
+        form = TagAssignForm(instance=experiment, data={"tags": [tag1.id]})
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(list(experiment.tags.all()), [tag1])
+
+    def test_form_with_no_tags(self):
+        tag1 = TagFactory.create(name="Tag 1")
+        experiment = NimbusExperimentFactory.create()
+        experiment.tags.set([tag1])
+
+        form = TagAssignForm(instance=experiment, data={"tags": []})
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(experiment.tags.count(), 0)
+
+    def test_form_queryset_ordered_by_name(self):
+        TagFactory.create(name="Z Tag")
+        TagFactory.create(name="A Tag")
+        TagFactory.create(name="M Tag")
+
+        experiment = NimbusExperimentFactory.create()
+        form = TagAssignForm(instance=experiment)
+
+        tag_names = [tag.name for tag in form.fields["tags"].queryset]
+        self.assertEqual(tag_names, ["A Tag", "M Tag", "Z Tag"])
