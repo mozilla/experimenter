@@ -3547,21 +3547,51 @@ class TestNimbusFeaturesView(AuthTestCase):
 
     def test_features_view_pagination(self):
         application = NimbusExperiment.Application.DESKTOP
+        feature_config = self.feature_configs["feature-desktop"]
+        feature_config.schemas.all().delete()
+
+        for num in range(6):
+            version = NimbusFeatureVersion.objects.create(
+                major=120 + num, minor=0, patch=0
+            )
+            NimbusVersionedSchemaFactory.create(
+                feature_config=feature_config,
+                version=version,
+                schema=f'{{"field": "value{num}"}}',
+            )
+
         for num in range(6):
             NimbusExperimentFactory.create(
                 name=f"Experiment {num}",
                 application=application,
-                feature_configs=[self.feature_configs["feature-desktop"]],
+                feature_configs=[feature_config],
                 qa_status=NimbusExperiment.QAStatus.GREEN,
             )
 
-        base_url = reverse("nimbus-ui-features")
-        response = self.client.get(
-            f"{base_url}?application={application.value}&feature_configs={self.feature_configs['feature-desktop'].id}"
+        response_page_1 = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_config.id,
+            },
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["experiments_delivered"]), 5)
-        self.assertEqual(len(response.context["experiments_with_qa_status"]), 5)
+        self.assertEqual(response_page_1.status_code, 200)
+        self.assertEqual(len(response_page_1.context["experiments_delivered"]), 5)
+        self.assertEqual(len(response_page_1.context["experiments_with_qa_status"]), 5)
+
+        self.assertEqual(len(response_page_1.context["feature_schemas"]), 5)
+        self.assertTrue(response_page_1.context["feature_changes_page_obj"].has_next())
+
+        response_page_2 = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_config.id,
+                "feature_changes": 2,
+            },
+        )
+        self.assertEqual(response_page_2.status_code, 200)
+        self.assertEqual(len(response_page_2.context["feature_schemas"]), 1)
 
     @parameterized.expand(
         [
