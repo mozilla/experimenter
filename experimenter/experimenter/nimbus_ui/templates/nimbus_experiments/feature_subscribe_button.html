@@ -1,0 +1,10 @@
+<form method="post"
+      action="{% url 'nimbus-ui-feature-subscribe' slug=feature_config_slug.slug %}"
+      hx-post="{% url 'nimbus-ui-feature-subscribe' slug=feature_config_slug.slug %}"
+      hx-target="#feature-subscription-button"
+      hx-swap="outerHTML">
+  {% csrf_token %}
+  <button type="submit"
+          id="feature-subscription-button"
+          class="btn btn-primary mb-2">Subscribe To Feature</button>
+</form>
