@@ -154,6 +154,7 @@ class Command(BaseCommand):
                 isinstance(feature.model, DesktopFeature)
                 and feature.model.is_early_startup
             )
+            allow_coenrollment = feature.model.allow_coenrollment
 
             feature_version: Optional[NimbusFeatureVersion] = None
             feature_version_id: Optional[int] = None
@@ -170,6 +171,7 @@ class Command(BaseCommand):
                 schema = NimbusVersionedSchema(
                     feature_config=feature_config,
                     version=feature_version,
+                    allow_coenrollment=allow_coenrollment,
                     is_early_startup=is_early_startup,
                     set_pref_vars={},
                 )

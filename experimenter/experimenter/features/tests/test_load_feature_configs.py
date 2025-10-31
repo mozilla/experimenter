@@ -68,6 +68,7 @@ class TestLoadFeatureConfigs(TestCase):
         )
         self.assertFalse(schema.has_remote_schema)
         self.assertTrue(schema.is_early_startup)
+        self.assertTrue(schema.allow_coenrollment)
 
         feature_config = NimbusFeatureConfig.objects.get(slug="setPrefFeature")
         schema = feature_config.schemas.get(version=None)
