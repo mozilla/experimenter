@@ -349,15 +349,18 @@
             <table class="table table-hover table-borderless align-middle mb-3">
               <thead>
                 <tr colspan="12">
-                  <th scope="col" class="fw-semibold text-body">
-                    <span>Feature Version</span>
-                  </th>
-                  <th scope="col" class="fw-semibold text-body">
-                    <span>Size of changes</span>
-                  </th>
-                  <th scope="col" class="fw-semibold text-body">
-                    <span>Change Diff from Prev. (Previous | Current)</span>
-                  </th>
+                  {% for field, label in feature_changes_headers %}
+                    {% if field not in feature_changes_non_sortable_headers %}
+                      {% include "common/home_sortable_header.html" with field=field label=label url=request.path hx_target="#feature-changes-table" hx_select="#feature-changes-table" current_sort=request.GET.sort %}
+
+                    {% else %}
+                      <th scope="col" class="fw-semibold text-decoration-none">
+                        <div class="d-flex align-items-center">
+                          <span class="d-flex align-items-center text-body p-0">{{ label }}</span>
+                        </div>
+                      </th>
+                    {% endif %}
+                  {% endfor %}
                 </tr>
               </thead>
               <tbody>

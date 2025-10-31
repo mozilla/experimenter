@@ -4170,6 +4170,272 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(feature_schemas[3]["size_label"], "No Changes")
         self.assertEqual(feature_schemas[4]["size_label"], "First Version")
 
+    def test_features_view_can_sort_feature_changes_by_version(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = self.feature_configs["feature-desktop"]
+        feature_config.schemas.all().delete()
+
+        version_125 = NimbusFeatureVersion.objects.create(major=125, minor=0, patch=0)
+        version_123 = NimbusFeatureVersion.objects.create(major=123, minor=0, patch=0)
+        version_121 = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
+
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_121,
+            schema='{"field": "v121"}',
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_123,
+            schema='{"field": "v123"}',
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_125,
+            schema='{"field": "v125"}',
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_config.id,
+                "sort": "change_version",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        feature_schemas = response.context["feature_schemas"]
+
+        self.assertEqual(
+            feature_schemas[0]["schema"].version.major,
+            121,
+        )
+        self.assertEqual(
+            feature_schemas[1]["schema"].version.major,
+            123,
+        )
+        self.assertEqual(
+            feature_schemas[2]["schema"].version.major,
+            125,
+        )
+
+    def test_features_view_can_sort_feature_changes_by_version_descending(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = self.feature_configs["feature-desktop"]
+        feature_config.schemas.all().delete()
+
+        version_125 = NimbusFeatureVersion.objects.create(major=125, minor=0, patch=0)
+        version_123 = NimbusFeatureVersion.objects.create(major=123, minor=0, patch=0)
+        version_121 = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
+
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_121,
+            schema='{"field": "v121"}',
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_123,
+            schema='{"field": "v123"}',
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_125,
+            schema='{"field": "v125"}',
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_config.id,
+                "sort": "-change_version",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        feature_schemas = response.context["feature_schemas"]
+
+        self.assertEqual(
+            feature_schemas[0]["schema"].version.major,
+            125,
+        )
+        self.assertEqual(
+            feature_schemas[1]["schema"].version.major,
+            123,
+        )
+        self.assertEqual(
+            feature_schemas[2]["schema"].version.major,
+            121,
+        )
+
+    def test_features_view_can_sort_feature_changes_by_size(self):
+        application = NimbusExperiment.Application.DESKTOP
+
+        version_124 = NimbusFeatureVersion.objects.create(major=124, minor=0, patch=0)
+        version_123 = NimbusFeatureVersion.objects.create(major=123, minor=0, patch=0)
+        version_122 = NimbusFeatureVersion.objects.create(major=122, minor=0, patch=0)
+        version_121 = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
+        version_120 = NimbusFeatureVersion.objects.create(major=120, minor=0, patch=0)
+
+        base = '{"field1": "value1", "field2": "value2", "field3": "value3"}'
+        schema_120 = base
+        schema_121 = base
+        schema_122 = '{"field1": "changed1", "field2": "changed2", "field3": "value3"}'
+        schema_123 = (
+            '{"field1": "changed1", "field2": "changed2", "field3": "value3", '
+            '"new1": 1, "new2": 2, "new3": 3, "new4": 4, "new5": 5}'
+        )
+        schema_124 = (
+            '{"field1": "changed1", "field2": "changed2", "field3": "value3", '
+            '"new1": 1, "new2": 2, "new3": 3, "new4": 4, "new5": 5, '
+            '"large1": 1, "large2": 2, "large3": 3, "large4": 4, "large5": 5, '
+            '"large6": 6, "large7": 7, "large8": 8, "large9": 9, "large10": 10, '
+            '"large11": 11, "large12": 12}'
+        )
+
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=application,
+            slug="test-feature-change-labels",
+        )
+
+        feature_config.schemas.all().delete()
+
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_120,
+            schema=schema_120,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_121,
+            schema=schema_121,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_122,
+            schema=schema_122,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_123,
+            schema=schema_123,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_124,
+            schema=schema_124,
+        )
+
+        NimbusExperimentFactory.create(
+            name="Experiment with Feature",
+            application=application,
+            feature_configs=[feature_config],
+            qa_status=NimbusExperiment.QAStatus.GREEN,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_config.id,
+                "sort": "change_size",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        feature_schemas = response.context["feature_schemas"]
+
+        self.assertEqual(feature_schemas[4]["size_label"], "Large")
+        self.assertEqual(feature_schemas[3]["size_label"], "Medium")
+        self.assertEqual(feature_schemas[2]["size_label"], "Small")
+        self.assertEqual(feature_schemas[1]["size_label"], "First Version")
+        self.assertEqual(feature_schemas[0]["size_label"], "No Changes")
+
+    def test_features_view_can_sort_feature_changes_by_size_descending(self):
+        application = NimbusExperiment.Application.DESKTOP
+
+        version_124 = NimbusFeatureVersion.objects.create(major=124, minor=0, patch=0)
+        version_123 = NimbusFeatureVersion.objects.create(major=123, minor=0, patch=0)
+        version_122 = NimbusFeatureVersion.objects.create(major=122, minor=0, patch=0)
+        version_121 = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
+        version_120 = NimbusFeatureVersion.objects.create(major=120, minor=0, patch=0)
+
+        base = '{"field1": "value1", "field2": "value2", "field3": "value3"}'
+        schema_120 = base
+        schema_121 = base
+        schema_122 = '{"field1": "changed1", "field2": "changed2", "field3": "value3"}'
+        schema_123 = (
+            '{"field1": "changed1", "field2": "changed2", "field3": "value3", '
+            '"new1": 1, "new2": 2, "new3": 3, "new4": 4, "new5": 5}'
+        )
+        schema_124 = (
+            '{"field1": "changed1", "field2": "changed2", "field3": "value3", '
+            '"new1": 1, "new2": 2, "new3": 3, "new4": 4, "new5": 5, '
+            '"large1": 1, "large2": 2, "large3": 3, "large4": 4, "large5": 5, '
+            '"large6": 6, "large7": 7, "large8": 8, "large9": 9, "large10": 10, '
+            '"large11": 11, "large12": 12}'
+        )
+
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=application,
+            slug="test-feature-change-labels",
+        )
+
+        feature_config.schemas.all().delete()
+
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_120,
+            schema=schema_120,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_121,
+            schema=schema_121,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_122,
+            schema=schema_122,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_123,
+            schema=schema_123,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_124,
+            schema=schema_124,
+        )
+
+        NimbusExperimentFactory.create(
+            name="Experiment with Feature",
+            application=application,
+            feature_configs=[feature_config],
+            qa_status=NimbusExperiment.QAStatus.GREEN,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_config.id,
+                "sort": "-change_size",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        feature_schemas = response.context["feature_schemas"]
+
+        self.assertEqual(feature_schemas[0]["size_label"], "Large")
+        self.assertEqual(feature_schemas[1]["size_label"], "Medium")
+        self.assertEqual(feature_schemas[2]["size_label"], "Small")
+        self.assertEqual(feature_schemas[3]["size_label"], "No Changes")
+        self.assertEqual(feature_schemas[4]["size_label"], "First Version")
+
 
 class TestTagsManageView(AuthTestCase):
     def test_tags_manage_view_renders(self):

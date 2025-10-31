@@ -725,11 +725,16 @@ class NimbusFeaturesView(TemplateView):
 
         feature_id = self.request.GET.get("feature_configs")
         if feature_id:
-            qs = (
-                qs.filter(feature_configs=feature_id)
-                .distinct()
-                .order_by(self.request.GET.get("sort", "name"))
-            )
+            sort_param = self.request.GET.get("sort", "name")
+            if sort_param in [
+                "change_version",
+                "-change_version",
+                "change_size",
+                "-change_size",
+            ]:
+                sort_param = "name"
+
+            qs = qs.filter(feature_configs=feature_id).distinct().order_by(sort_param)
         else:
             return qs.none()
         return qs
@@ -781,17 +786,38 @@ class NimbusFeaturesView(TemplateView):
         )
         qa_runs_non_sortable_fields = {field for field, _ in qa_runs_non_sortable_headers}
 
+        feature_changes_sortable_headers = FeaturesPageSortChoices.sortable_headers(
+            FeaturesPageSortChoices.FeatureChanges
+        )
+        feature_changes_non_sortable_headers = [
+            ("show_diff", "Change Diff from Prev. (Previous | Current)")
+        ]
+
+        feature_change_headers = (
+            feature_changes_sortable_headers + feature_changes_non_sortable_headers
+        )
+
         # Get feature schema versions with their diffs
         feature_schemas = []
         feature_id = self.request.GET.get("feature_configs")
         thresholds = SCHEMA_DIFF_SIZE_CONFIG["thresholds"]
         labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
+        total_changes = 0
 
         if feature_id:
+            sort = self.request.GET.get("sort", "")
+
+            if sort == "change_version":
+                queryset = NimbusVersionedSchema.objects.with_version_ordering(
+                    descending=False
+                )
+            else:
+                queryset = NimbusVersionedSchema.objects.with_version_ordering(
+                    descending=True
+                )
+
             schemas = list(
-                NimbusVersionedSchema.objects.filter(feature_config_id=feature_id)
-                .select_related("version")
-                .order_by("-version__major", "-version__minor", "-version__patch")
+                queryset.filter(feature_config_id=feature_id).select_related("version")
             )
 
             schema_cache = []
@@ -831,6 +857,7 @@ class NimbusFeaturesView(TemplateView):
                     if total_changes > 0:
                         schemas_with_changes += 1
                 else:
+                    total_changes = 0
                     size_label = labels["first_version"]
 
                 feature_schemas.append(
@@ -840,8 +867,14 @@ class NimbusFeaturesView(TemplateView):
                         "previous_json": previous_json,
                         "size_label": size_label.get("text"),
                         "size_badge": size_label.get("badge_class"),
+                        "total_changes": total_changes,
                     }
                 )
+
+            if sort == "change_size":
+                feature_schemas.sort(key=lambda x: x["total_changes"])
+            elif sort == "-change_size":
+                feature_schemas.sort(key=lambda x: x["total_changes"], reverse=True)
 
         feature_changes_pagination = Paginator(feature_schemas, 5)
         feature_changes_page_number = self.request.GET.get("feature_changes") or 1
@@ -867,6 +900,8 @@ class NimbusFeaturesView(TemplateView):
             "feature_schemas": feature_changes_page_obj.object_list,
             "feature_changes_page_obj": feature_changes_page_obj,
             "schemas_with_changes": schemas_with_changes,
+            "feature_changes_headers": feature_change_headers,
+            "feature_changes_non_sortable_headers": feature_changes_non_sortable_headers,
         }
         return context
 
