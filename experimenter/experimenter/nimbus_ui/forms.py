@@ -1244,6 +1244,21 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} removed subscriber"
 
 
+class FeatureSubscribeForm(forms.ModelForm):
+    class Meta:
+        model = NimbusFeatureConfig
+        fields = []
+
+    def __init__(self, *args, request: HttpRequest = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+
+    def save(self, commit=True):
+        feature_config = super().save(commit=commit)
+        feature_config.subscribers.add(self.request.user)
+        return feature_config
+
+
 class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     status = None
     status_next = None

@@ -19,6 +19,7 @@ from experimenter.nimbus_ui.views import (
     DocumentationLinkDeleteView,
     DraftToPreviewView,
     DraftToReviewView,
+    FeatureSubscribeView,
     LiveToCompleteView,
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
@@ -179,6 +180,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/subscribe/",
         SubscribeView.as_view(),
         name="nimbus-ui-subscribe",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/feature_subscribe/",
+        FeatureSubscribeView.as_view(),
+        name="nimbus-ui-feature-subscribe",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/unsubscribe/",
