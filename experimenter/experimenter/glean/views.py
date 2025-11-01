@@ -1,4 +1,3 @@
-import glean
 from django.conf import settings
 from django.views.generic.edit import UpdateView
 
