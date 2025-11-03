@@ -6,7 +6,7 @@ from django.urls import reverse
 from parameterized import parameterized
 
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -26,6 +26,7 @@ from experimenter.nimbus_ui.filtersets import (
     DateRangeChoices,
     HomeSortChoices,
     MyDeliveriesChoices,
+    NimbusExperimentFilter,
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     application_icon_info,
@@ -1706,3 +1707,53 @@ class TestHomeFilters(AuthTestCase):
         exp_a_index = experiments.index(exp_a)
         exp_z_index = experiments.index(exp_z)
         self.assertLess(exp_a_index, exp_z_index)
+
+    class TestTagFilter(TestCase):
+        def test_filter_by_single_tag(self):
+            tag1 = Tag.objects.create(name="Tag1", color="#FF0000")
+            tag2 = Tag.objects.create(name="Tag2", color="#00FF00")
+            experiment_with_tag1 = NimbusExperimentFactory.create(
+                name="Experiment with Tag1"
+            )
+            experiment_with_tag1.tags.add(tag1)
+            experiment_with_tag2 = NimbusExperimentFactory.create(
+                name="Experiment with Tag2"
+            )
+            experiment_with_tag2.tags.add(tag2)
+            experiment_with_no_tags = NimbusExperimentFactory.create(
+                name="Experiment with No Tags"
+            )
+
+            filterset = NimbusExperimentFilter(data={"tags": [tag1.id]})
+            filtered_experiments = filterset.qs
+
+            self.assertIn(experiment_with_tag1, filtered_experiments)
+            self.assertNotIn(experiment_with_tag2, filtered_experiments)
+            self.assertNotIn(experiment_with_no_tags, filtered_experiments)
+
+        def test_filter_by_multiple_tags(self):
+            tag1 = Tag.objects.create(name="Tag1", color="#FF0000")
+            tag2 = Tag.objects.create(name="Tag2", color="#00FF00")
+            experiment_with_tag1 = NimbusExperimentFactory.create(
+                name="Experiment with Tag1"
+            )
+            experiment_with_tag1.tags.add(tag1)
+            experiment_with_tag2 = NimbusExperimentFactory.create(
+                name="Experiment with Tag2"
+            )
+            experiment_with_tag2.tags.add(tag2)
+            experiment_with_both_tags = NimbusExperimentFactory.create(
+                name="Experiment with Both Tags"
+            )
+            experiment_with_both_tags.tags.add(tag1, tag2)
+            experiment_with_no_tags = NimbusExperimentFactory.create(
+                name="Experiment with No Tags"
+            )
+
+            filterset = NimbusExperimentFilter(data={"tags": [tag1.id, tag2.id]})
+            filtered_experiments = filterset.qs
+
+            self.assertIn(experiment_with_both_tags, filtered_experiments)
+            self.assertNotIn(experiment_with_tag1, filtered_experiments)
+            self.assertNotIn(experiment_with_tag2, filtered_experiments)
+            self.assertNotIn(experiment_with_no_tags, filtered_experiments)
