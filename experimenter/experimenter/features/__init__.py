@@ -7,7 +7,7 @@ from typing import Optional
 
 import yaml
 from django.conf import settings
-from mozilla_nimbus_schemas.experiments.feature_manifests import (
+from mozilla_nimbus_schemas.experimenter_apis.experiments.feature_manifests import (
     DesktopFeature,
     DesktopFeatureManifest,
     FeatureVariableType,
