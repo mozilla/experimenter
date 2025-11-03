@@ -2573,6 +2573,14 @@ class NimbusFeatureVersion(models.Model):
         return packaging.version.parse(str(self))
 
 
+class NimbusVersionedSchemaManager(models.Manager["NimbusVersionedSchema"]):
+    def with_version_ordering(self, descending=False):
+        """Order schemas by semantic version (major.minor.patch)."""
+        if descending:
+            return self.order_by("-version__major", "-version__minor", "-version__patch")
+        return self.order_by("version__major", "version__minor", "version__patch")
+
+
 class NimbusVersionedSchema(models.Model):
     feature_config = models.ForeignKey(
         NimbusFeatureConfig,
@@ -2591,6 +2599,8 @@ class NimbusVersionedSchema(models.Model):
     set_pref_vars = models.JSONField[dict[str, str]](null=False, default=dict)
     is_early_startup = models.BooleanField(null=False, default=False)
     has_remote_schema = models.BooleanField(null=False, default=False)
+
+    objects = NimbusVersionedSchemaManager()
 
     class Meta:
         verbose_name = "Nimbus Versioned Schema"
