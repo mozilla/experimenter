@@ -1,0 +1,21 @@
+{% with sig=significance|default:"negative" %}
+  {% if slug == reference_branch %}
+    <div class="card p-4 bg-body-tertiary text-muted border-0 text-center d-flex flex-row align-items-center justify-content-center"
+         style="height: 100px">(0.01 to 0.01)</div>
+  {% else %}
+    <div class="card p-2 border-0 text-center {% if sig == "positive" %}bg-success-subtle text-success{% elif sig == "negative" %}bg-danger-subtle text-danger{% else %}bg-body-tertiary text-muted{% endif %} d-flex flex-row align-items-center gap-4 justify-content-center"
+         style="height: 100px">
+      <i class="fa-solid {% if sig == "positive" %}fa-arrow-up{% elif sig == "negative" %}fa-arrow-down{% else %}fa-arrow-left{% endif %}"></i>
+      <div class="d-flex flex-column align-items-center">
+        {% if sig == "positive" %}
+          <span class="fw-semibold">{{ percentage }}% increase</span>
+        {% elif sig == "negative" %}
+          <span class="fw-semibold">{{ percentage }}% decrease</span>
+        {% else %}
+          <span class="fw-semibold">No notable change</span>
+        {% endif %}
+        <span class="mb-0">(0.01 to 0.01)</span>
+      </div>
+    </div>
+  {% endif %}
+{% endwith %}
