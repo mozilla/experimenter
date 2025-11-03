@@ -267,10 +267,14 @@ onboarding-framework-feature:
       type: boolean
       description: |
         Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.
-    enableModernUi:
+    enable-modern-ui:
       type: boolean
       description: |
         Toggle between legacy (false) and modern (true) UI variants.
+    should-use-japan-configuration:
+      type: boolean
+      description: |
+        Toggle between standard (false) and Japan-specific (true) assets and content.
 recent-searches-feature:
   description: |
     Enables recent searches.
