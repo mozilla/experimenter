@@ -1,7 +1,7 @@
 import json
 
 from django.test import TestCase
-from mozilla_nimbus_schemas.experiments.feature_manifests import (
+from mozilla_nimbus_schemas.experimenter_apis.experiments.feature_manifests import (
     DesktopFeature,
     DesktopFeatureVariable,
     FeatureVariableType,
@@ -44,6 +44,7 @@ class TestFeatures(TestCase):
                         "hasExposure": True,
                         "exposureDescription": "An exposure event",
                         "isEarlyStartup": True,
+                        "allowCoenrollment": True,
                         "variables": {
                             "stringEnumProperty": DesktopFeatureVariable(
                                 description="String Property",
@@ -107,6 +108,7 @@ class TestFeatures(TestCase):
                         "exposureDescription": "An exposure event",
                         "hasExposure": True,
                         "isEarlyStartup": True,
+                        "allowCoenrollment": True,
                         "variables": {
                             "stringEnumProperty": DesktopFeatureVariable(
                                 description="String Property",

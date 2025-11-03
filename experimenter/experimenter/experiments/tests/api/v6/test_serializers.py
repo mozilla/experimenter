@@ -4,7 +4,7 @@ from typing import Any
 
 from django.conf import settings
 from django.test import TestCase
-from mozilla_nimbus_schemas.experiments import (
+from mozilla_nimbus_schemas.experimenter_apis.experiments import (
     DesktopAllVersionsNimbusExperiment,
     SdkNimbusExperiment,
 )

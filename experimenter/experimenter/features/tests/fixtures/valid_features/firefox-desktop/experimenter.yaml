@@ -4,6 +4,7 @@ someFeature:
   hasExposure: true
   exposureDescription: An exposure event
   isEarlyStartup: true
+  allowCoenrollment: true
   variables:
     stringEnumProperty:
       type: string
