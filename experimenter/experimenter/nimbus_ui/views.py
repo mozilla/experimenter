@@ -48,6 +48,7 @@ from experimenter.nimbus_ui.forms import (
     DraftToReviewForm,
     FeaturesForm,
     FeatureSubscribeForm,
+    FeatureUnsubscribeForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -607,6 +608,16 @@ class FeatureSubscribeView(RequestFormMixin, RenderResponseMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("nimbus-ui-feature-subscribe", kwargs={"slug": self.object.slug})
+
+
+class FeatureUnsubscribeView(RequestFormMixin, RenderResponseMixin, UpdateView):
+    model = NimbusFeatureConfig
+    form_class = FeatureUnsubscribeForm
+    template_name = "nimbus_experiments/feature_subscribe_button.html"
+    context_object_name = "feature_config_slug"
+
+    def get_success_url(self):
+        return reverse("nimbus-ui-feature-unsubscribe", kwargs={"slug": self.object.slug})
 
 
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
