@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 
 from django.conf import settings
 from django.db import models
-from mozilla_nimbus_schemas.experiments import RandomizationUnit
+from mozilla_nimbus_schemas.experimenter_apis.experiments import RandomizationUnit
 from packaging import version
 
 if TYPE_CHECKING:  # pragma: no cover
