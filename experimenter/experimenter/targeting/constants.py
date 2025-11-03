@@ -2650,6 +2650,108 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TOU_AND_NO_SPONSORED_OPT_OUTS = NimbusTarget
     application_choice_names=(Application.FENIX.name,),
 )
 
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingConfig(
+    name=(
+        "Existing users who have not accepted the Terms of Use "
+        "and have zero ToU points."
+    ),
+    slug="android_existing_users_not_accepted_terms_of_use_zero_tou_points",
+    description=(
+        "Existing users for 28+ days who "
+        "have not accepted the Terms of Use, "
+        "have zero ToU points and "
+        "don't have any of the specified ad-blockers installed."
+    ),
+    targeting=(
+        "user_accepted_tou == false && "
+        "days_since_install >= 28 && "
+        "(tou_points == 0 && "
+        "(addon_ids['uBlock0@raymondhill.net'] == null && "
+        "addon_ids['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] == null && "
+        "addon_ids['adguardadblocker@adguard.com'] == null && "
+        "addon_ids['adblockultimate@adblockultimate.net'] == null && "
+        "addon_ids['firefox@ghostery.com'] == null && "
+        "addon_ids['lock@adblock'] == null && "
+        "addon_ids['ultrablock-pro@ultrablock.com'] == null && "
+        "addon_ids['{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}'] == null && "
+        "addon_ids['kolesin.work@gmail.com'] == null && "
+        "addon_ids['adblocker@pcmatic.com'] == null && "
+        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] == null))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConfig(
+    name=(
+        "Existing users who have not accepted the Terms of Use "
+        "and have one ToU point."
+    ),
+    slug="android_existing_users_not_accepted_terms_of_use_one_tou_point",
+    description=(
+        "Existing users for 28+ days who "
+        "have not accepted the Terms of Use, "
+        "have one ToU point or "
+        "have at least one of the specified ad-blockers installed."
+    ),
+    targeting=(
+        "user_accepted_tou == false && "
+        "days_since_install >= 28 && "
+        "(tou_points == 1 || "
+        "(addon_ids['uBlock0@raymondhill.net'] != null || "
+        "addon_ids['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] != null || "
+        "addon_ids['adguardadblocker@adguard.com'] != null || "
+        "addon_ids['adblockultimate@adblockultimate.net'] != null || "
+        "addon_ids['firefox@ghostery.com'] != null || "
+        "addon_ids['lock@adblock'] != null || "
+        "addon_ids['ultrablock-pro@ultrablock.com'] != null || "
+        "addon_ids['{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}'] != null || "
+        "addon_ids['kolesin.work@gmail.com'] != null || "
+        "addon_ids['adblocker@pcmatic.com'] != null || "
+        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] != null))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetingConfig(
+    name=(
+        "Existing users who have not accepted the Terms of Use "
+        "and have more than one ToU point."
+    ),
+    slug="android_existing_users_not_accepted_terms_of_use_more_than_one_tou_point",
+    description=(
+        "Existing users for 28+ days who "
+        "have not accepted the Terms of Use, "
+        "have one ToU point and "
+        "have at least one of the specified ad-blockers installed."
+    ),
+    targeting=(
+        "user_accepted_tou == false && "
+        "days_since_install >= 28 && "
+        "(tou_points == 1 && "
+        "(addon_ids['uBlock0@raymondhill.net'] != null || "
+        "addon_ids['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] != null || "
+        "addon_ids['adguardadblocker@adguard.com'] != null || "
+        "addon_ids['adblockultimate@adblockultimate.net'] != null || "
+        "addon_ids['firefox@ghostery.com'] != null || "
+        "addon_ids['lock@adblock'] != null || "
+        "addon_ids['ultrablock-pro@ultrablock.com'] != null || "
+        "addon_ids['{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}'] != null || "
+        "addon_ids['kolesin.work@gmail.com'] != null || "
+        "addon_ids['adblocker@pcmatic.com'] != null || "
+        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] != null))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 # Obselete: To be deleted in https://bugzilla.mozilla.org/show_bug.cgi?id=1995564
 TOU_TARGETING_ANDROID_NOT_ACCEPTED = NimbusTargetingConfig(
     name="Users that have not accepted the Terms of Use",
