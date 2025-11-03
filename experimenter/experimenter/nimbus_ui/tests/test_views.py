@@ -4452,6 +4452,23 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertIn(self.user, feature.subscribers.all())
         self.assertEqual(response.status_code, 200)
 
+    def test_unsubscribe_from_feature(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="feature-unsubscribe", name="Feature Unsubscribe"
+        )
+        feature.subscribers.add(self.user)
+
+        self.assertIn(self.user, feature.subscribers.all())
+
+        response = self.client.post(
+            reverse("nimbus-ui-feature-unsubscribe", kwargs={"slug": feature.slug})
+        )
+
+        feature.refresh_from_db()
+
+        self.assertNotIn(self.user, feature.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
 
 class TestTagsManageView(AuthTestCase):
     def test_tags_manage_view_renders(self):

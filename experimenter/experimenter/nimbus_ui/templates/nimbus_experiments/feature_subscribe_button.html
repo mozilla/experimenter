@@ -1,10 +1,29 @@
-<form method="post"
-      action="{% url 'nimbus-ui-feature-subscribe' slug=feature_config_slug.slug %}"
-      hx-post="{% url 'nimbus-ui-feature-subscribe' slug=feature_config_slug.slug %}"
-      hx-target="#feature-subscription-button"
-      hx-swap="outerHTML">
-  {% csrf_token %}
-  <button type="submit"
-          id="feature-subscription-button"
-          class="btn btn-primary mb-2">Subscribe To Feature</button>
-</form>
+{% if user in feature_config_slug.subscribers.all %}
+  <form method="post"
+        action="{% url 'nimbus-ui-feature-unsubscribe' slug=feature_config_slug.slug %}"
+        hx-post="{% url 'nimbus-ui-feature-unsubscribe' slug=feature_config_slug.slug %}"
+        hx-target="#feature-subscription-button"
+        hx-swap="outerHTML">
+    {% csrf_token %}
+    <button type="button"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Unsubscribe from {{ feature_config_slug.name }}"
+            id="feature-subscription-button"
+            class="btn btn-secondary mb-2">Unsubscribe From Feature</button>
+  </form>
+{% else %}
+  <form method="post"
+        action="{% url 'nimbus-ui-feature-subscribe' slug=feature_config_slug.slug %}"
+        hx-post="{% url 'nimbus-ui-feature-subscribe' slug=feature_config_slug.slug %}"
+        hx-target="#feature-subscription-button"
+        hx-swap="outerHTML">
+    {% csrf_token %}
+    <button type="button"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Subscribe to {{ feature_config_slug.name }}"
+            id="feature-subscription-button"
+            class="btn btn-primary mb-2">Subscribe To Feature</button>
+  </form>
+{% endif %}
