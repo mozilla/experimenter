@@ -4175,6 +4175,11 @@ class TestNimbusFeaturesView(AuthTestCase):
         feature_config = self.feature_configs["feature-desktop"]
         feature_config.schemas.all().delete()
 
+        NimbusExperimentFactory.create(
+            application=application,
+            feature_configs=[feature_config],
+        )
+
         version_125 = NimbusFeatureVersion.objects.create(major=125, minor=0, patch=0)
         version_123 = NimbusFeatureVersion.objects.create(major=123, minor=0, patch=0)
         version_121 = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
@@ -4224,6 +4229,11 @@ class TestNimbusFeaturesView(AuthTestCase):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = self.feature_configs["feature-desktop"]
         feature_config.schemas.all().delete()
+
+        NimbusExperimentFactory.create(
+            application=application,
+            feature_configs=[feature_config],
+        )
 
         version_125 = NimbusFeatureVersion.objects.create(major=125, minor=0, patch=0)
         version_123 = NimbusFeatureVersion.objects.create(major=123, minor=0, patch=0)
