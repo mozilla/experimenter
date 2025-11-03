@@ -9,7 +9,7 @@ from django.db.models.functions import Concat
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
+from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig, Tag
 from experimenter.nimbus_ui.forms import MultiSelectWidget
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
@@ -258,6 +258,15 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             },
         ),
     )
+    tags = django_filters.ModelMultipleChoiceFilter(
+        queryset=Tag.objects.order_by("name"),
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-tags",
+            attrs={
+                "title": "All Tags",
+            },
+        ),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -279,6 +288,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             "takeaways",
             "owner",
             "subscribers",
+            "tags",
         ]
 
     def filter_sort(self, queryset, name, value):

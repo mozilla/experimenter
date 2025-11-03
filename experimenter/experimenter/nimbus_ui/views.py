@@ -64,6 +64,7 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagAssignForm,
     TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
@@ -154,6 +155,7 @@ class NimbusExperimentViewMixin:
 
         context["live_monitor_tooltip"] = NimbusUIConstants.LIVE_MONITOR_TOOLTIP
         context["common_sidebar_links"] = NimbusUIConstants.SIDEBAR_COMMON_LINKS
+        context["all_tags"] = Tag.objects.all().order_by("name")
 
         slug_underscore = (
             experiment.slug.replace("-", "_") if experiment and experiment.slug else ""
@@ -844,6 +846,12 @@ class NimbusFeaturesView(TemplateView):
                     }
                 )
 
+        feature_changes_pagination = Paginator(feature_schemas, 5)
+        feature_changes_page_number = self.request.GET.get("feature_changes") or 1
+        feature_changes_page_obj = feature_changes_pagination.get_page(
+            feature_changes_page_number
+        )
+
         context = {
             "form": form,
             "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
@@ -859,7 +867,8 @@ class NimbusFeaturesView(TemplateView):
             "deliveries_non_sortable_header": deliveries_non_sortable_fields,
             "qa_runs_sortable_header": qa_runs_sortable_header,
             "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
-            "feature_schemas": feature_schemas,
+            "feature_schemas": feature_changes_page_obj.object_list,
+            "feature_changes_page_obj": feature_changes_page_obj,
             "schemas_with_changes": schemas_with_changes,
         }
         return context
@@ -951,3 +960,8 @@ class TagSaveView(TagFormSetMixin, TemplateView):
             response["HX-Refresh"] = "true"
             return response
         return render(request, self.template_name, {"formset": formset})
+
+
+class TagAssignView(NimbusExperimentViewMixin, RenderResponseMixin, UpdateView):
+    form_class = TagAssignForm
+    template_name = "nimbus_experiments/assign_tags_response.html"
