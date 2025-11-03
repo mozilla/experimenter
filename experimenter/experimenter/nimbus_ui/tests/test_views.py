@@ -3051,7 +3051,7 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.context["default_metrics"], default_metrics)
         self.assertEqual(
             response.context["selected_reference_branch"],
-            experiment.reference_branch.name,
+            experiment.reference_branch.slug,
         )
         self.assertEqual(response.context["selected_segment"], "all")
         self.assertEqual(

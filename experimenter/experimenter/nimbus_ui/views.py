@@ -673,7 +673,7 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         context["default_metrics"] = experiment.default_metrics
 
         selected_reference_branch = self.request.GET.get(
-            "reference_branch", experiment.reference_branch.name
+            "reference_branch", experiment.reference_branch.slug
         )
         context["selected_reference_branch"] = selected_reference_branch
 
@@ -687,6 +687,9 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
 
         context["results_data"] = analysis_data
         context["overview_sections"] = NimbusUIConstants.OVERVIEW_SECTIONS
+        context["overview_section_tooltips"] = (
+            NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS
+        )
 
         context["branch_data"] = experiment.get_branch_data(
             analysis_basis, selected_segment
