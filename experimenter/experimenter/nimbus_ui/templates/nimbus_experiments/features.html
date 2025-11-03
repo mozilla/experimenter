@@ -36,21 +36,33 @@
       </form>
       <div id="features-tables"
            class="card shadow-sm p-3 border-0 h-100 rounded-3 bg-primary-subtle">
-        <h5 class="fw-semibold">
-          <img src="{% static 'assets/feature-deliveries.svg' %}"
-               alt="Hugging Foxes"
-               style="width: 60px;
-                      height: auto" />
-          Deliveries
-          <i class="fa-regular fa-circle-question"
-             data-bs-toggle="tooltip"
-             data-bs-placement="top"
-             data-bs-title="{{ links.deliveries_table_tooltip }}"></i>
-        </h5>
+        <div scope="row" class="row">
+          <div scope="col" class="col-2">
+            <h5 class="fw-semibold">
+              <img src="{% static 'assets/feature-deliveries.svg' %}"
+                   alt="Hugging Foxes"
+                   style="width: 60px;
+                          height: auto" />
+              Deliveries
+              <i class="fa-regular fa-circle-question"
+                 data-bs-toggle="tooltip"
+                 data-bs-placement="top"
+                 data-bs-title="{{ links.deliveries_table_tooltip }}"></i>
+            </h5>
+          </div>
+          <div scope="col" class="col-4 p-0">
+            {% if feature_config_slug %}
+              <div id="feature-subscription-button"">
+                {% include "nimbus_experiments/feature_subscribe_button.html" %}
+
+              </div>
+            {% endif %}
+          </div>
+        </div>
         <div>
           <div id="deliveries-table">
             <div id="no-deliveries"></div>
-            <table class="table table-hover table-borderless align-middle mb-3">
+            <table class="table table-hover table-borderless align-middle mb-3 mt-1">
               <thead>
                 <tr>
                   {% for field, label in deliveries_sortable_header %}
@@ -489,7 +501,6 @@
       </div>
     </div>
   </div>
-</div>
 </div>
 {% endblock %}
 

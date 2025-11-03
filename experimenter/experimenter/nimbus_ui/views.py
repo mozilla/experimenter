@@ -15,6 +15,7 @@ from django_filters.views import FilterView
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
 from experimenter.experiments.models import (
     NimbusExperiment,
+    NimbusFeatureConfig,
     NimbusVersionedSchema,
     Tag,
 )
@@ -46,6 +47,7 @@ from experimenter.nimbus_ui.forms import (
     DraftToPreviewForm,
     DraftToReviewForm,
     FeaturesForm,
+    FeatureSubscribeForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -597,6 +599,16 @@ class UnsubscribeView(
     template_name = "nimbus_experiments/subscribers_list.html"
 
 
+class FeatureSubscribeView(RequestFormMixin, RenderResponseMixin, UpdateView):
+    model = NimbusFeatureConfig
+    form_class = FeatureSubscribeForm
+    template_name = "nimbus_experiments/feature_subscribe_button.html"
+    context_object_name = "feature_config_slug"
+
+    def get_success_url(self):
+        return reverse("nimbus-ui-feature-subscribe", kwargs={"slug": self.object.slug})
+
+
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
     fields = None
 
@@ -747,6 +759,7 @@ class NimbusFeaturesView(TemplateView):
         form = self.get_form()
         qs = self.get_queryset()
         schemas_with_changes = 0
+        feature_config_slug = None
 
         deliveries_paginator = Paginator(qs, 5)
         deliveries_page_number = self.request.GET.get("deliveries_page") or 1
@@ -884,6 +897,8 @@ class NimbusFeaturesView(TemplateView):
         feature_changes_page_obj = feature_changes_pagination.get_page(
             feature_changes_page_number
         )
+        if feature_id:
+            feature_config_slug = NimbusFeatureConfig.objects.get(pk=feature_id)
 
         context = {
             "form": form,
@@ -891,6 +906,7 @@ class NimbusFeaturesView(TemplateView):
             "tooltips": NimbusUIConstants.FEATURE_PAGE_TOOLTIPS,
             "application": self.request.GET.get("application"),
             "feature_configs": self.request.GET.get("feature_configs"),
+            "feature_config_slug": feature_config_slug,
             "paginator": deliveries_paginator,
             "deliveries_page_obj": deliveries_page_obj,
             "experiments_delivered": deliveries_page_obj.object_list,
