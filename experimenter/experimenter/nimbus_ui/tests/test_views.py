@@ -4436,6 +4436,22 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(feature_schemas[3]["size_label"], "No Changes")
         self.assertEqual(feature_schemas[4]["size_label"], "First Version")
 
+    def test_subscribe_to_feature(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="feature-subscribe", name="Feature Subscribe"
+        )
+
+        self.assertNotIn(self.user, feature.subscribers.all())
+
+        response = self.client.post(
+            reverse("nimbus-ui-feature-subscribe", kwargs={"slug": feature.slug})
+        )
+
+        feature.refresh_from_db()
+
+        self.assertIn(self.user, feature.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
 
 class TestTagsManageView(AuthTestCase):
     def test_tags_manage_view_renders(self):
