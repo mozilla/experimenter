@@ -226,3 +226,31 @@
     transition: transform 0.2s ease;
   }
 }
+
+.branch-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3rem;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.18s linear;
+}
+.branch-fade-left {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    var(--bs-body-bg, #fff) 0%,
+    var(--bs-body-bg, #fff) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+.branch-fade-right {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    var(--bs-body-bg, #fff) 0%,
+    var(--bs-body-bg, #fff) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}

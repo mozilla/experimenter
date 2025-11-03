@@ -162,6 +162,15 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         manifest such as code changes for the feature you have chosen."""
     }
 
+    OVERVIEW_REFLECTION_PROMPTS = {
+        "key_takeaways": """Highlight the most important learnings or patterns from this
+        experiment.""",
+        "next_steps": """Outline what should happen next based on these results — fixes,
+        follow-ups, or future tests.""",
+        "project_impact": """Set an impact rating so others can understand the scale of
+        this experiment's effect.""",
+    }
+
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"
         END_ENROLLMENT = "end enrollment for this experiment"
