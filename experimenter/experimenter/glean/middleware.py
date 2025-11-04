@@ -3,7 +3,7 @@ from django.conf import settings
 from experimenter.glean.generated.server_events import (
     create_page_view_server_event_logger,
 )
-from experimenter.glean.utils import get_request_ip
+from experimenter.glean.utils import emit_record, get_request_ip
 
 
 class GleanMiddleware:
@@ -18,6 +18,8 @@ class GleanMiddleware:
             app_display_version=settings.APP_VERSION,
             channel=settings.GLEAN_APP_CHANNEL,
         )
+        # override glean's emit_record method to make writes to stdout atomic
+        self.page_view_ping.emit_record = emit_record
 
     def __call__(self, request):
         if (
