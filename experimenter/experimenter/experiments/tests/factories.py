@@ -898,9 +898,7 @@ class NimbusFmlErrorDataClass:
 
 
 class TagFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(
-        lambda o: f"{faker.word().title()}-{faker.random_int(min=1, max=99999)}"
-    )
+    name = factory.LazyAttribute(lambda o: slugify(faker.unique.catch_phrase()))
     color = factory.LazyAttribute(lambda o: faker.hex_color())
 
     class Meta:
