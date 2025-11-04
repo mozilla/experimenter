@@ -202,6 +202,18 @@ class CloneExperimentFormMixin:
         return context
 
 
+class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateView):
+    """Base view for feature subscription actions."""
+
+    model = NimbusFeatureConfig
+    template_name = "nimbus_experiments/feature_subscribe_button.html"
+    context_object_name = "feature_config_slug"
+    url_name = None
+
+    def get_success_url(self):
+        return reverse(self.url_name, kwargs={"slug": self.object.slug})
+
+
 class NimbusChangeLogsView(
     NimbusExperimentViewMixin, CloneExperimentFormMixin, DetailView
 ):
@@ -600,24 +612,14 @@ class UnsubscribeView(
     template_name = "nimbus_experiments/subscribers_list.html"
 
 
-class FeatureSubscribeView(RequestFormMixin, RenderResponseMixin, UpdateView):
-    model = NimbusFeatureConfig
+class FeatureSubscribeView(FeatureSubscriberViewMixin):
     form_class = FeatureSubscribeForm
-    template_name = "nimbus_experiments/feature_subscribe_button.html"
-    context_object_name = "feature_config_slug"
-
-    def get_success_url(self):
-        return reverse("nimbus-ui-feature-subscribe", kwargs={"slug": self.object.slug})
+    url_name = "nimbus-ui-feature-subscribe"
 
 
-class FeatureUnsubscribeView(RequestFormMixin, RenderResponseMixin, UpdateView):
-    model = NimbusFeatureConfig
+class FeatureUnsubscribeView(FeatureSubscriberViewMixin):
     form_class = FeatureUnsubscribeForm
-    template_name = "nimbus_experiments/feature_subscribe_button.html"
-    context_object_name = "feature_config_slug"
-
-    def get_success_url(self):
-        return reverse("nimbus-ui-feature-unsubscribe", kwargs={"slug": self.object.slug})
+    url_name = "nimbus-ui-feature-unsubscribe"
 
 
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
@@ -943,13 +945,17 @@ class NimbusExperimentsHomeView(FilterView):
 
     def get_queryset(self):
         subscribed_features = NimbusFeatureConfig.objects.filter(
-                subscribers=self.request.user
-            )
+            subscribers=self.request.user
+        )
 
         return (
             NimbusExperiment.objects.with_merged_channel()
             .filter(is_archived=False)
-            .filter(Q(owner=self.request.user) | Q(subscribers=self.request.user) | Q(feature_configs__in=subscribed_features))
+            .filter(
+                Q(owner=self.request.user)
+                | Q(subscribers=self.request.user)
+                | Q(feature_configs__in=subscribed_features)
+            )
             .distinct()
             .order_by("-_updated_date_time")
             .prefetch_related("subscribers")
