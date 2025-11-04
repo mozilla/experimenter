@@ -3575,7 +3575,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_tag_experiment_relationship(self):
         tag = Tag.objects.create(name="TestTag", color="#123456")
-        experiment = NimbusExperimentFactory.create()
+        experiment = NimbusExperimentFactory.create(tags=[])
         experiment.tags.add(tag)
         self.assertIn(tag, experiment.tags.all())
         self.assertIn(experiment, tag.experiments.all())
