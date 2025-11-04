@@ -1244,7 +1244,9 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} removed subscriber"
 
 
-class FeatureSubscribeForm(forms.ModelForm):
+class FeatureSubscriberFormMixin(forms.ModelForm):
+    """Mixin for feature subscription forms."""
+
     class Meta:
         model = NimbusFeatureConfig
         fields = []
@@ -1253,21 +1255,15 @@ class FeatureSubscribeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.request = request
 
+
+class FeatureSubscribeForm(FeatureSubscriberFormMixin):
     def save(self, commit=True):
         feature_config = super().save(commit=commit)
         feature_config.subscribers.add(self.request.user)
         return feature_config
 
 
-class FeatureUnsubscribeForm(forms.ModelForm):
-    class Meta:
-        model = NimbusFeatureConfig
-        fields = []
-
-    def __init__(self, *args, request: HttpRequest = None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.request = request
-
+class FeatureUnsubscribeForm(FeatureSubscriberFormMixin):
     def save(self, commit=True):
         feature_config = super().save(commit=commit)
         feature_config.subscribers.remove(self.request.user)
