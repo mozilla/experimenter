@@ -942,10 +942,14 @@ class NimbusExperimentsHomeView(FilterView):
     context_object_name = "experiments"
 
     def get_queryset(self):
+        subscribed_features = NimbusFeatureConfig.objects.filter(
+                subscribers=self.request.user
+            )
+
         return (
             NimbusExperiment.objects.with_merged_channel()
             .filter(is_archived=False)
-            .filter(Q(owner=self.request.user) | Q(subscribers=self.request.user))
+            .filter(Q(owner=self.request.user) | Q(subscribers=self.request.user) | Q(feature_configs__in=subscribed_features))
             .distinct()
             .order_by("-_updated_date_time")
             .prefetch_related("subscribers")

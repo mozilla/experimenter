@@ -5,12 +5,12 @@
         hx-target="#feature-subscription-button"
         hx-swap="outerHTML">
     {% csrf_token %}
-    <button type="button"
+    <button type="submit"
             data-toggle="tooltip"
             data-placement="top"
             title="Unsubscribe from {{ feature_config_slug.name }}"
             id="feature-subscription-button"
-            class="btn btn-secondary mb-2">Unsubscribe From Feature</button>
+            class="btn btn-outline-primary mb-2">Unsubscribe From Feature</button>
   </form>
 {% else %}
   <form method="post"
@@ -19,7 +19,7 @@
         hx-target="#feature-subscription-button"
         hx-swap="outerHTML">
     {% csrf_token %}
-    <button type="button"
+    <button type="submit"
             data-toggle="tooltip"
             data-placement="top"
             title="Subscribe to {{ feature_config_slug.name }}"
