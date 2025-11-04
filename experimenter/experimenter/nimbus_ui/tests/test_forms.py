@@ -79,7 +79,6 @@ from experimenter.nimbus_ui.forms import (
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.segments import Segments
 from experimenter.segments.tests.mock_segments import mock_get_segments
 from experimenter.targeting.constants import NimbusTargetingConfig
@@ -1177,7 +1176,6 @@ class TestLaunchForms(RequestFormTestCase):
 
 class TestOverviewForm(RequestFormTestCase):
     def test_valid_form_saves(self):
-        project = ProjectFactory.create()
         documentation_link = NimbusDocumentationLinkFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1191,7 +1189,6 @@ class TestOverviewForm(RequestFormTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [project.id],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -1215,7 +1212,6 @@ class TestOverviewForm(RequestFormTestCase):
         self.assertEqual(experiment.hypothesis, "new hypothesis")
         self.assertTrue(experiment.risk_brand)
         self.assertTrue(experiment.risk_message)
-        self.assertEqual(list(experiment.projects.all()), [project])
         self.assertEqual(experiment.public_description, "new description")
         self.assertTrue(experiment.risk_revenue)
         self.assertTrue(experiment.risk_partner_related)
@@ -1227,7 +1223,6 @@ class TestOverviewForm(RequestFormTestCase):
         self.assertEqual(documentation_link.link, "https://www.example.com")
 
     def test_name_field_is_required(self):
-        project = ProjectFactory.create()
         documentation_link = NimbusDocumentationLinkFactory.create()
 
         form_data = {
@@ -1235,7 +1230,6 @@ class TestOverviewForm(RequestFormTestCase):
             "hypothesis": "new hypothesis",
             "risk_brand": True,
             "risk_message": True,
-            "projects": [project.id],
             "public_description": "new description",
             "risk_revenue": True,
             "risk_partner_related": True,
@@ -1268,7 +1262,6 @@ class TestDocumentationLinkCreateForm(RequestFormTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -1301,7 +1294,6 @@ class TestDocumentationLinkDeleteForm(RequestFormTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -4144,7 +4136,7 @@ class TestTagAssignForm(RequestFormTestCase):
         TagFactory.create(name="A Tag")
         TagFactory.create(name="M Tag")
 
-        experiment = NimbusExperimentFactory.create()
+        experiment = NimbusExperimentFactory.create(tags=[])
         form = TagAssignForm(instance=experiment)
 
         tag_names = [tag.name for tag in form.fields["tags"].queryset]

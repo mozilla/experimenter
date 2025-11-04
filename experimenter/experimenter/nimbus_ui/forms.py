@@ -30,7 +30,6 @@ from experimenter.kinto.tasks import (
 from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
-from experimenter.projects.models import Project
 from experimenter.segments import Segments
 from experimenter.targeting.constants import NimbusTargetingConfig
 
@@ -344,9 +343,7 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         widget=InlineRadioSelect,
         coerce=lambda x: x == "True",
     )
-    projects = forms.ModelMultipleChoiceField(
-        required=False, queryset=Project.objects.all(), widget=MultiSelectWidget()
-    )
+
     public_description = forms.CharField(
         required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3})
     )
@@ -368,7 +365,6 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         fields = [
             "name",
             "hypothesis",
-            "projects",
             "public_description",
             "risk_partner_related",
             "risk_revenue",

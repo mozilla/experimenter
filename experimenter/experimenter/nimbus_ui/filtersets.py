@@ -11,7 +11,6 @@ from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig, Tag
 from experimenter.nimbus_ui.forms import MultiSelectWidget
-from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
 
@@ -209,15 +208,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             },
         ),
     )
-    projects = django_filters.ModelMultipleChoiceFilter(
-        queryset=Project.objects.all().order_by("slug"),
-        widget=IconMultiSelectWidget(
-            icon="fa-solid fa-person-chalkboard",
-            attrs={
-                "title": "All Projects",
-            },
-        ),
-    )
     qa_status = django_filters.MultipleChoiceFilter(
         choices=NimbusExperiment.QAStatus.choices,
         widget=IconMultiSelectWidget(
@@ -283,7 +273,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             "languages",
             "locales",
             "targeting_config_slug",
-            "projects",
             "qa_status",
             "takeaways",
             "owner",

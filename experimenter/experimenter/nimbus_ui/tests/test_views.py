@@ -46,7 +46,6 @@ from experimenter.nimbus_ui.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.segments import Segments
 from experimenter.segments.tests.mock_segments import mock_get_segments
 from experimenter.targeting.constants import TargetingConstants
@@ -575,30 +574,6 @@ class NimbusExperimentsListViewTest(AuthTestCase):
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "targeting_config_slug": targeting_config,
-            },
-        )
-
-        self.assertEqual(
-            {e.slug for e in response.context["experiments"]}, {experiment.slug}
-        )
-
-    def test_filter_projects(self):
-        project = ProjectFactory.create()
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.LIVE, projects=[project]
-        )
-        [
-            NimbusExperimentFactory.create(
-                status=NimbusExperiment.Status.LIVE, projects=[]
-            )
-            for _i in range(3)
-        ]
-
-        response = self.client.get(
-            reverse("nimbus-list"),
-            {
-                "status": NimbusExperiment.Status.LIVE,
-                "projects": project.id,
             },
         )
 
@@ -1600,7 +1575,6 @@ class TestOverviewUpdateView(AuthTestCase):
         )
 
     def test_post_updates_overview(self):
-        project = ProjectFactory.create()
         documentation_link = NimbusDocumentationLinkFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1614,7 +1588,6 @@ class TestOverviewUpdateView(AuthTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [project.id],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -1636,7 +1609,6 @@ class TestOverviewUpdateView(AuthTestCase):
         self.assertEqual(experiment.hypothesis, "new hypothesis")
         self.assertTrue(experiment.risk_brand)
         self.assertTrue(experiment.risk_message)
-        self.assertEqual(list(experiment.projects.all()), [project])
         self.assertEqual(experiment.public_description, "new description")
         self.assertTrue(experiment.risk_revenue)
         self.assertTrue(experiment.risk_partner_related)
@@ -1664,7 +1636,6 @@ class TestOverviewUpdateView(AuthTestCase):
                 "risk_revenue": "",
                 "risk_brand": "",
                 "risk_message": "",
-                "projects": [],
                 "documentation_links-TOTAL_FORMS": "1",
                 "documentation_links-INITIAL_FORMS": "1",
                 "documentation_links-0-id": documentation_link.id,
@@ -1709,7 +1680,6 @@ class TestOverviewUpdateView(AuthTestCase):
                 "risk_revenue": "",
                 "risk_brand": "",
                 "risk_message": "",
-                "projects": [],
                 "documentation_links-TOTAL_FORMS": "1",
                 "documentation_links-INITIAL_FORMS": "1",
                 "documentation_links-0-id": documentation_link.id,
@@ -1742,7 +1712,6 @@ class TestDocumentationLinkCreateView(AuthTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -1773,7 +1742,6 @@ class TestDocumentationLinkDeleteView(AuthTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,

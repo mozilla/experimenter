@@ -59,7 +59,7 @@ LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countrie
 LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
 LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
-LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_projects
+LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_tags
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
 
