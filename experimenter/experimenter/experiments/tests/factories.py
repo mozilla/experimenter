@@ -561,6 +561,20 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 self.projects.add(ProjectFactory.create())
 
     @factory.post_generation
+    def tags(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if isinstance(extracted, Iterable):
+            # A list of tags were passed in, use them
+            for tag in extracted:
+                self.tags.add(tag)
+        else:
+            for _ in range(3):
+                self.tags.add(TagFactory.create())
+
+    @factory.post_generation
     def documentation_links(self, create, extracted, **kwargs):
         if not create:
             # Simple build, do nothing.
@@ -884,7 +898,9 @@ class NimbusFmlErrorDataClass:
 
 
 class TagFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: faker.unique.word().title())
+    name = factory.LazyAttribute(
+        lambda o: f"{faker.word().title()}-{faker.random_int(min=1, max=99999)}"
+    )
     color = factory.LazyAttribute(lambda o: faker.hex_color())
 
     class Meta:

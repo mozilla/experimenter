@@ -15,6 +15,7 @@ from experimenter.experiments.tests.factories import (
     NimbusChangeLogFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    TagFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -144,6 +145,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         segment = Segments.by_application(application, mock_get_segments())[0].slug
         parent_experiment = NimbusExperimentFactory.create()
         subscriber = UserFactory.create()
+        tags = TagFactory.create()
 
         updated_time = timezone.datetime(
             year=2022, month=1, day=2, hour=0, minute=0, second=0
@@ -164,6 +166,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 segments=[segment],
                 subscribers=[subscriber],
                 parent=parent_experiment,
+                tags=[tags],
             )
         data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
         branches_data = [dict(b) for b in data.pop("branches")]
@@ -244,7 +247,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "status": experiment.status,
                 "status_next": experiment.status_next,
                 "subscribers": [subscriber.email],
-                "tags": [],
+                "tags": [tags.name],
                 "takeaways_gain_amount": None,
                 "takeaways_metric_gain": False,
                 "takeaways_qbr_learning": False,
