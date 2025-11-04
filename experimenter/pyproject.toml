@@ -34,7 +34,7 @@ djlint = "^1.36.1"
 dockerflow = "^2024.4.1"
 factory_boy = "3.3.0"
 fontawesomefree = "6.6.0"
-glean-sdk = "64.5.2"
+glean-parser = "18.1.0"
 google-cloud-storage = "^3.4.0"
 graphene-django = "^3.2.0"
 graphene-file-upload = "^1.3.0"
@@ -134,8 +134,15 @@ reportUntypedFunctionDecorator = false
 reportUnusedCallResult = false
 
 [tool.ruff]
-# Exclude a variety of commonly ignored directories.
-exclude = ["migrations", ".tox", "node_modules", "legacy", ".pyenv"]
+# Exclude generated files and a variety of commonly ignored directories.
+exclude = [
+    "migrations",
+    ".tox",
+    "node_modules",
+    "legacy",
+    ".pyenv",
+    "experimenter/glean/generated",
+]
 
 # Same as Black.
 line-length = 90
