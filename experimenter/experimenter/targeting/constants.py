@@ -572,12 +572,51 @@ FX95_DESKTOP_USERS = NimbusTargetingConfig(
 )
 
 MOBILE_NEW_USER = NimbusTargetingConfig(
-    name="New Users on Mobile",
+    name="New Users on Mobile (sticky)",
     slug="mobile_new_users",
     description=("New users on mobile who installed the app less than a week ago"),
     targeting="days_since_install < 7",
     desktop_telemetry="",
     sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(
+        Application.FENIX.name,
+        Application.IOS.name,
+        Application.FOCUS_ANDROID.name,
+        Application.FOCUS_IOS.name,
+        Application.KLAR_ANDROID.name,
+        Application.KLAR_IOS.name,
+    ),
+)
+
+MOBILE_NEW_USER_UNSTICKY = NimbusTargetingConfig(
+    name="New Users on Mobile (not sticky)",
+    slug="mobile_new_users_not_sticky",
+    description=(
+        "New users on mobile who installed the app less than a week ago "
+        "and will be unenrolled after 7"
+    ),
+    targeting=MOBILE_NEW_USER.targeting,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(
+        Application.FENIX.name,
+        Application.IOS.name,
+        Application.FOCUS_ANDROID.name,
+        Application.FOCUS_IOS.name,
+        Application.KLAR_ANDROID.name,
+        Application.KLAR_IOS.name,
+    ),
+)
+
+MOBILE_EXISTING_USERS_OVER_7_DAYS = NimbusTargetingConfig(
+    name="Existing mobile users with 7 or more days since install (not sticky)",
+    slug="mobile_existing_users_over_7_days_not_sticky",
+    description=("Existing mobile users who installed the app 7 or more days ago"),
+    targeting="days_since_install >= 7",
+    desktop_telemetry="",
+    sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(
         Application.FENIX.name,
