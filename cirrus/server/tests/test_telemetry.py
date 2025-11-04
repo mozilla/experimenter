@@ -1,51 +1,22 @@
 import json
 
 import pytest
-from glean.testing import ErrorType
 
 from cirrus.experiment_recipes import RecipeType
 from cirrus.main import (
     EnrollmentMetricData,
     app,
     collate_enrollment_metric_data,
-    initialize_glean,
     record_metrics,
     send_instance_name_metric,
 )
 from cirrus.sdk import SDK, CirrusMetricsHandler
 
 
-def before_enrollment_ping(data):
-    assert (
-        app.state.metrics.cirrus_events.enrollment.test_get_num_recorded_errors(
-            ErrorType.INVALID_OVERFLOW
-        )
-        == 0
-    )
-    snapshot = app.state.metrics.cirrus_events.enrollment.test_get_value()
-    assert len(snapshot) == 2
-
-    extra_1 = snapshot[0].extra
-    assert extra_1["app_id"] == "test_app_id"
-    assert extra_1["nimbus_user_id"] == "test_client_id"
-    assert extra_1["experiment"] == "cirrus-test-1"
-    assert extra_1["branch"] == "control"
-    assert extra_1["experiment_type"] == RecipeType.ROLLOUT.value
-    assert extra_1["is_preview"] == "false"
-
-    extra_2 = snapshot[1].extra
-    assert extra_2["app_id"] == "test_app_id"
-    assert extra_2["nimbus_user_id"] == "test_client_id"
-    assert extra_2["experiment"] == "cirrus-test-2"
-    assert extra_2["branch"] == "control"
-    assert extra_2["experiment_type"] == RecipeType.EXPERIMENT.value
-    assert extra_2["is_preview"] == "false"
-
-
 @pytest.mark.asyncio
 async def test_enrollment_metrics_recorded_with_record_metrics(mocker, recipes):
     app.state.remote_setting_live.update_recipes(recipes)
-    ping_spy = mocker.spy(app.state.pings.enrollment, "submit")
+    record_mock = mocker.patch.object(app.state.enrollment_ping, "record")
 
     # Create the enrollment data
     enrollment_data = [
@@ -66,12 +37,39 @@ async def test_enrollment_metrics_recorded_with_record_metrics(mocker, recipes):
             is_preview=False,
         ),
     ]
-    app.state.pings.enrollment.test_before_next_submit(before_enrollment_ping)
 
     await record_metrics(enrollment_data)
 
-    assert ping_spy.call_count == 1
-    assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
+    record_mock.assert_called_once_with(
+        user_agent=None,
+        ip_address=None,
+        events=[
+            {
+                "category": "cirrus_events",
+                "name": "enrollment_status",
+                "extra": {
+                    "nimbus_user_id": "test_client_id",
+                    "app_id": "test_app_id",
+                    "experiment": "cirrus-test-1",
+                    "branch": "control",
+                    "experiment_type": RecipeType.ROLLOUT.value,
+                    "is_preview": "false",
+                },
+            },
+            {
+                "category": "cirrus_events",
+                "name": "enrollment_status",
+                "extra": {
+                    "nimbus_user_id": "test_client_id",
+                    "app_id": "test_app_id",
+                    "experiment": "cirrus-test-2",
+                    "branch": "control",
+                    "experiment_type": RecipeType.EXPERIMENT.value,
+                    "is_preview": "false",
+                },
+            },
+        ],
+    )
 
 
 def test_collate_enrollment_metric_data(mocker):
@@ -126,7 +124,7 @@ def test_collate_enrollment_metric_data(mocker):
 async def test_enrollment_metrics_recorded_with_compute_features_v1(
     client, mocker, recipes
 ):
-    _, app.state.metrics = initialize_glean()
+    record_spy = mocker.spy(app.state.enrollment_ping, "record")
     context = json.dumps(
         {
             "app_id": "org.mozilla.test",
@@ -137,7 +135,7 @@ async def test_enrollment_metrics_recorded_with_compute_features_v1(
     sdk = SDK(
         context=context,
         coenrolling_feature_ids=[],
-        metrics_handler=CirrusMetricsHandler(app.state.metrics, app.state.pings),
+        metrics_handler=CirrusMetricsHandler(app.state.enrollment_status_ping),
     )
 
     request_data = {
@@ -148,48 +146,32 @@ async def test_enrollment_metrics_recorded_with_compute_features_v1(
     app.state.remote_setting_live.update_recipes(recipes)
     sdk.set_experiments(json.dumps(recipes))
 
-    def validate_before_submit(data):
-        snapshot = app.state.metrics.cirrus_events.enrollment.test_get_value()
-        assert snapshot is not None
-        assert len(snapshot) == 2
-        assert snapshot[0].extra["is_preview"] == "false"
-        assert snapshot[1].extra["is_preview"] == "false"
-
-    app.state.pings.enrollment.test_before_next_submit(validate_before_submit)
-
     mocker.patch.object(app.state, "sdk_live", sdk)
-    ping_spy = mocker.spy(app.state.pings.enrollment, "submit")
 
     response = client.post("/v1/features/", json=request_data)
     assert response.status_code == 200
-    assert ping_spy.call_count == 1
-    assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
+    record_spy.assert_called_once()
+    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 2
+    assert events[0]["extra"]["is_preview"] == "false"
+    assert events[1]["extra"]["is_preview"] == "false"
 
-    ping_spy.reset_mock()
-
+    record_spy.reset_mock()
     app.state.remote_setting_preview.update_recipes(recipes)
     mocker.patch.object(app.state, "sdk_preview", sdk)
 
-    def validate_before_submit_preview(data):
-        snapshot = app.state.metrics.cirrus_events.enrollment.test_get_value()
-        assert snapshot is not None
-        assert len(snapshot) == 2
-        assert snapshot[0].extra["is_preview"] == "true"
-        assert snapshot[1].extra["is_preview"] == "true"
-
-    app.state.pings.enrollment.test_before_next_submit(validate_before_submit_preview)
-
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
-    assert ping_spy.call_count == 1
-    assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
+    record_spy.assert_called_once()
+    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 2
+    assert events[0]["extra"]["is_preview"] == "true"
+    assert events[1]["extra"]["is_preview"] == "true"
 
 
 @pytest.mark.asyncio
 async def test_enrollment_metrics_recorded_with_compute_features_v2(
     client, mocker, recipes
 ):
-    _, app.state.metrics = initialize_glean()
+    record_spy = mocker.spy(app.state.enrollment_ping, "record")
     context = json.dumps(
         {
             "app_id": "org.mozilla.test",
@@ -200,7 +182,7 @@ async def test_enrollment_metrics_recorded_with_compute_features_v2(
     sdk = SDK(
         context=context,
         coenrolling_feature_ids=[],
-        metrics_handler=CirrusMetricsHandler(app.state.metrics, app.state.pings),
+        metrics_handler=CirrusMetricsHandler(app.state.enrollment_status_ping),
     )
 
     request_data = {
@@ -211,48 +193,32 @@ async def test_enrollment_metrics_recorded_with_compute_features_v2(
     app.state.remote_setting_live.update_recipes(recipes)
     sdk.set_experiments(json.dumps(recipes))
 
-    def validate_before_submit(data):
-        snapshot = app.state.metrics.cirrus_events.enrollment.test_get_value()
-        assert snapshot is not None
-        assert len(snapshot) == 2
-        assert snapshot[0].extra["is_preview"] == "false"
-        assert snapshot[1].extra["is_preview"] == "false"
-
-    app.state.pings.enrollment.test_before_next_submit(validate_before_submit)
-
     mocker.patch.object(app.state, "sdk_live", sdk)
-    ping_spy = mocker.spy(app.state.pings.enrollment, "submit")
 
     response = client.post("/v2/features/", json=request_data)
     assert response.status_code == 200
-    assert ping_spy.call_count == 1
-    assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
+    record_spy.assert_called_once()
+    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 2
+    assert events[0]["extra"]["is_preview"] == "false"
+    assert events[1]["extra"]["is_preview"] == "false"
 
-    ping_spy.reset_mock()
-
+    record_spy.reset_mock()
     app.state.remote_setting_preview.update_recipes(recipes)
     mocker.patch.object(app.state, "sdk_preview", sdk)
 
-    def validate_before_submit_preview(data):
-        snapshot = app.state.metrics.cirrus_events.enrollment.test_get_value()
-        assert snapshot is not None
-        assert len(snapshot) == 2
-        assert snapshot[0].extra["is_preview"] == "true"
-        assert snapshot[1].extra["is_preview"] == "true"
-
-    app.state.pings.enrollment.test_before_next_submit(validate_before_submit_preview)
-
     response = client.post("/v2/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
-    assert ping_spy.call_count == 1
-    assert app.state.metrics.cirrus_events.enrollment.test_get_value() is None
+    record_spy.assert_called_once()
+    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 2
+    assert events[0]["extra"]["is_preview"] == "true"
+    assert events[1]["extra"]["is_preview"] == "true"
 
 
 @pytest.mark.asyncio
 async def test_enrollment_status_metrics_recorded_with_metrics_handler_v1(
     client, mocker, recipes
 ):
-    _, app.state.metrics = initialize_glean()
+    record_spy = mocker.spy(app.state.enrollment_status_ping, "record")
     context = json.dumps(
         {
             "app_id": "org.mozilla.test",
@@ -263,7 +229,7 @@ async def test_enrollment_status_metrics_recorded_with_metrics_handler_v1(
     sdk = SDK(
         context=context,
         coenrolling_feature_ids=[],
-        metrics_handler=CirrusMetricsHandler(app.state.metrics, app.state.pings),
+        metrics_handler=CirrusMetricsHandler(app.state.enrollment_status_ping),
     )
 
     request_data = {
@@ -274,48 +240,42 @@ async def test_enrollment_status_metrics_recorded_with_metrics_handler_v1(
     app.state.remote_setting_live.update_recipes(recipes)
     sdk.set_experiments(json.dumps(recipes))
 
-    def test_ping(data):
-        assert (
-            app.state.metrics.cirrus_events.enrollment_status.test_get_num_recorded_errors(
-                ErrorType.INVALID_OVERFLOW
-            )
-            == 0
-        )
-        snapshot = app.state.metrics.cirrus_events.enrollment_status.test_get_value()
-        assert len(snapshot) == 5
-        assert snapshot[0].extra["status"] == "Enrolled"
-        assert snapshot[1].extra["status"] == "Enrolled"
-        assert snapshot[2].extra["status"] == "NotEnrolled"
-        assert snapshot[2].extra["reason"] == "NotSelected"
-        assert snapshot[3].extra["status"] == "NotEnrolled"
-        assert snapshot[3].extra["reason"] == "NotTargeted"
-        assert snapshot[4].extra["status"] == "Error"
-
-    app.state.pings.enrollment_status.test_before_next_submit(test_ping)
-
     mocker.patch.object(app.state, "sdk_live", sdk)
-    ping_spy = mocker.spy(app.state.pings.enrollment_status, "submit")
 
     response = client.post("/v1/features/", json=request_data)
     assert response.status_code == 200
-    assert ping_spy.call_count == 1
-    assert app.state.metrics.cirrus_events.enrollment_status.test_get_value() is None
+    record_spy.assert_called_once()
+    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 5
+    assert events[0]["extra"]["status"] == "Enrolled"
+    assert events[1]["extra"]["status"] == "Enrolled"
+    assert events[2]["extra"]["status"] == "NotEnrolled"
+    assert events[2]["extra"]["reason"] == "NotSelected"
+    assert events[3]["extra"]["status"] == "NotEnrolled"
+    assert events[3]["extra"]["reason"] == "NotTargeted"
+    assert events[4]["extra"]["status"] == "Error"
 
-    ping_spy.reset_mock()
+    record_spy.reset_mock()
     app.state.remote_setting_preview.update_recipes(recipes)
     mocker.patch.object(app.state, "sdk_preview", sdk)
 
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
-    assert ping_spy.call_count == 1
-    assert app.state.metrics.cirrus_events.enrollment_status.test_get_value() is None
+    record_spy.assert_called_once()
+    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 5
+    assert events[0]["extra"]["status"] == "Enrolled"
+    assert events[1]["extra"]["status"] == "Enrolled"
+    assert events[2]["extra"]["status"] == "NotEnrolled"
+    assert events[2]["extra"]["reason"] == "NotSelected"
+    assert events[3]["extra"]["status"] == "NotEnrolled"
+    assert events[3]["extra"]["reason"] == "NotTargeted"
+    assert events[4]["extra"]["status"] == "Error"
 
 
 @pytest.mark.asyncio
 async def test_enrollment_status_metrics_recorded_with_metrics_handler_v2(
     client, mocker, recipes
 ):
-    _, app.state.metrics = initialize_glean()
+    record_spy = mocker.spy(app.state.enrollment_status_ping, "record")
     context = json.dumps(
         {
             "app_id": "org.mozilla.test",
@@ -326,7 +286,7 @@ async def test_enrollment_status_metrics_recorded_with_metrics_handler_v2(
     sdk = SDK(
         context=context,
         coenrolling_feature_ids=[],
-        metrics_handler=CirrusMetricsHandler(app.state.metrics, app.state.pings),
+        metrics_handler=CirrusMetricsHandler(app.state.enrollment_status_ping),
     )
 
     request_data = {
@@ -337,45 +297,38 @@ async def test_enrollment_status_metrics_recorded_with_metrics_handler_v2(
     app.state.remote_setting_live.update_recipes(recipes)
     sdk.set_experiments(json.dumps(recipes))
 
-    def test_ping(data):
-        assert (
-            app.state.metrics.cirrus_events.enrollment_status.test_get_num_recorded_errors(
-                ErrorType.INVALID_OVERFLOW
-            )
-            == 0
-        )
-        snapshot = app.state.metrics.cirrus_events.enrollment_status.test_get_value()
-        assert len(snapshot) == 5
-        assert snapshot[0].extra["status"] == "Enrolled"
-        assert snapshot[1].extra["status"] == "Enrolled"
-        assert snapshot[2].extra["status"] == "NotEnrolled"
-        assert snapshot[2].extra["reason"] == "NotSelected"
-        assert snapshot[3].extra["status"] == "NotEnrolled"
-        assert snapshot[3].extra["reason"] == "NotTargeted"
-        assert snapshot[4].extra["status"] == "Error"
-
-    app.state.pings.enrollment_status.test_before_next_submit(test_ping)
-
     mocker.patch.object(app.state, "sdk_live", sdk)
-    ping_spy = mocker.spy(app.state.pings.enrollment_status, "submit")
 
     response = client.post("/v2/features/", json=request_data)
     assert response.status_code == 200
-    assert ping_spy.call_count == 1
-    assert app.state.metrics.cirrus_events.enrollment_status.test_get_value() is None
+    record_spy.assert_called_once()
+    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 5
+    assert events[0]["extra"]["status"] == "Enrolled"
+    assert events[1]["extra"]["status"] == "Enrolled"
+    assert events[2]["extra"]["status"] == "NotEnrolled"
+    assert events[2]["extra"]["reason"] == "NotSelected"
+    assert events[3]["extra"]["status"] == "NotEnrolled"
+    assert events[3]["extra"]["reason"] == "NotTargeted"
+    assert events[4]["extra"]["status"] == "Error"
 
-    ping_spy.reset_mock()
+    record_spy.reset_mock()
     app.state.remote_setting_preview.update_recipes(recipes)
     mocker.patch.object(app.state, "sdk_preview", sdk)
 
     response = client.post("/v2/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
-    assert ping_spy.call_count == 1
-    assert app.state.metrics.cirrus_events.enrollment_status.test_get_value() is None
+    record_spy.assert_called_once()
+    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 5
+    assert events[0]["extra"]["status"] == "Enrolled"
+    assert events[1]["extra"]["status"] == "Enrolled"
+    assert events[2]["extra"]["status"] == "NotEnrolled"
+    assert events[2]["extra"]["reason"] == "NotSelected"
+    assert events[3]["extra"]["status"] == "NotEnrolled"
+    assert events[3]["extra"]["reason"] == "NotTargeted"
+    assert events[4]["extra"]["status"] == "Error"
 
 
 def test_instance_name_metric(mocker):
-    app.state.pings, _ = initialize_glean()
-    ping_spy = mocker.spy(app.state.pings.startup, "submit")
+    startup_ping = mocker.patch("cirrus.main.app.state.startup_ping")
     send_instance_name_metric()
-    assert ping_spy.call_count == 1
+    startup_ping.record.assert_called_once()
