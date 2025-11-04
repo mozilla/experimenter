@@ -503,8 +503,8 @@ data_source = "fenix_engagement_view"
 select_expression = "SUM(dau) / SUM(mau)"
 type = "scalar"
 description = """
-    The Engagement Rate is calculated as the ratio between DAU and MAU. For each day, we use the single-day DAU number and divide 
-    it by the MAU corresponding to the 28-day period ending on that day. For OKR reporting, we then calculate a 
+    The Engagement Rate is calculated as the ratio between DAU and MAU. For each day, we use the single-day DAU number and divide
+    it by the MAU corresponding to the 28-day period ending on that day. For OKR reporting, we then calculate a
     28-day moving average of this number. More information is provided on the
     [New Profiles, Retention and Engagement Rate Confluence Page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/814481685/Firefox+New+Profiles+Retention+and+Engagement#Engagement-Rate).
 """
@@ -528,7 +528,7 @@ data_source = "fenix_retention_view"
 select_expression = "SUM(retained_week_4_new_profiles) / SUM(new_profiles_metric_date)"
 type = "scalar"
 description = """
-    The New Profile Retention Rate is calculated as the proportion of new profiles that are active on the 4th week after the metric date. 
+    The New Profile Retention Rate is calculated as the proportion of new profiles that are active on the 4th week after the metric date.
     More information is provided on the
     [New Profiles, Retention and Engagement Rate Confluence Page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/814481685/Firefox+New+Profiles+Retention+and+Engagement#New-Profile-Retention).
 """
@@ -593,6 +593,27 @@ experiments_column_type = "glean"
 default_dataset = "org_mozilla_firefox"
 friendly_name = "Events"
 description = "Events Ping"
+build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
+
+
+[data_sources.sponsored_tiles_events_stream]
+from_expression = """(
+    SELECT
+        p.client_id,
+        p.event_category,
+        p.event_name,
+        p.experiments,
+        p.event_extra,
+        DATE(p.submission_timestamp) AS submission_date
+    FROM
+        `moz-fx-data-shared-prod.{dataset}.events_stream` p
+    WHERE p.event_category in ('customize_home', 'top_sites')
+)"""
+client_id_column = "client_id"
+experiments_column_type = "events_stream"
+default_dataset = "fenix"
+friendly_name = "Sponsored Tiles Events Stream"
+description = "Sponsored tiles Events pings from events stream"
 build_id_column = "REPLACE(CAST(DATE(mozfun.norm.fenix_build_to_datetime(client_info.app_build)) AS STRING), '-', '')"
 
 
@@ -730,7 +751,7 @@ LEFT JOIN (
   FROM
     `mozdata.org_mozilla_firefox.events_stream` tm
 
-  WHERE event_category = "onboarding" 
+  WHERE event_category = "onboarding"
     AND JSON_QUERY(event_extra, "$.action") IS NOT NULL
     AND event_name in  ("set_to_default", "turn_on_notifications", "sign_in")
   AND DATE(submission_timestamp) >= "2023-01-01"
