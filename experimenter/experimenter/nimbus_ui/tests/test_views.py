@@ -4462,6 +4462,66 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertIn(self.user, feature.subscribers.all())
         self.assertEqual(response.status_code, 200)
 
+    def test_features_view_tables_reset_on_new_request_after_loading(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=application,
+            slug="test-feature",
+        )
+
+        version_121 = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
+        version_120 = NimbusFeatureVersion.objects.create(major=120, minor=0, patch=0)
+
+        base = '{"field1": "value1", "field2": "value2", "field3": "value3"}'
+        schema_120 = base
+        schema_121 = base
+
+        feature_config.schemas.all().delete()
+
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_120,
+            schema=schema_120,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_121,
+            schema=schema_121,
+        )
+
+        NimbusExperimentFactory.create(
+            name="Experiment with Feature",
+            application=application,
+            feature_configs=[feature_config],
+            qa_status=NimbusExperiment.QAStatus.GREEN,
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_config.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+        self.assertIsNotNone(context["experiments_delivered"])
+        self.assertIsNotNone(context["experiments_with_qa_status"])
+        self.assertIsNotNone(context["feature_schemas"])
+
+        new_application = NimbusExperiment.Application.IOS
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": new_application.value,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+        self.assertEqual(len(context["experiments_delivered"]), 0)
+        self.assertEqual(len(context["experiments_with_qa_status"]), 0)
+        self.assertEqual(len(context["feature_schemas"]), 0)
+
 
 class TestTagsManageView(AuthTestCase):
     def test_tags_manage_view_renders(self):
