@@ -31,17 +31,25 @@
       {% if branch.feature_values.all %}
         {% for feature_value in branch.feature_values.all %}
           <tr>
-            <th>{{ feature_value.feature_config.name|format_not_set }} Value</th>
-            <td colspan="3" id="preview-recipe-json" class="collapsed-json">
-              <div style="max-height: 120px; overflow: hidden;">
-                <textarea class="readonly-json">{{ feature_value.value }}</textarea>
+            <th class="text-nowrap">{{ feature_value.feature_config.name|format_not_set }} Value</th>
+            <td colspan="3"
+                id="preview-recipe-json"
+                class="collapsed-json"
+                style="max-width: 0">
+              <div class="overflow-hidden text-break" style="max-height: 120px;">
+                <textarea class="readonly-json w-100" style="word-break: break-all;">{{ feature_value.value }}</textarea>
               </div>
               <button class="btn btn-outline-primary btn-sm mt-2 d-block show-btn d-none">
                 <i class="fa-solid fa-plus"></i> Show more
               </button>
             </td>
-            <td colspan="3" id="preview-recipe-json" class="expanded-json d-none">
-              <textarea class="readonly-json">{{ feature_value.value }}</textarea>
+            <td colspan="3"
+                id="preview-recipe-json"
+                class="expanded-json d-none"
+                style="max-width: 0">
+              <div class="text-break">
+                <textarea class="readonly-json w-100" style="word-break: break-all;">{{ feature_value.value }}</textarea>
+              </div>
               <button class="btn btn-outline-primary btn-sm mt-2 d-block hide-btn d-none">
                 <i class="fa-solid fa-minus"></i> Show less
               </button>
