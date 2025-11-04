@@ -7,11 +7,11 @@ friendly_name = "Sponsored Tiles Impressions"
 description = "Number of times Contile Sponsored Tiles are shown."
 select_expression = """
       COALESCE(COUNTIF(
-          event.category = 'top_sites'
-          AND event.name = 'contile_impression'
+          event_category = 'top_sites'
+          AND event_name = 'contile_impression'
       ),0)
 """
-data_source = "events"   
+data_source = "sponsored_tiles_events_stream"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 
@@ -20,37 +20,38 @@ friendly_name = "Sponsored Tiles Clicks"
 description = "Number of times user clicked a Contile Sponsored Tile."
 select_expression = """
       COALESCE(COUNTIF(
-          event.category = 'top_sites'
-          AND event.name = 'contile_click'
+          event_category = 'top_sites'
+          AND event_name = 'contile_click'
       ),0)
 """
-data_source = "events" 
+data_source = "sponsored_tiles_events_stream"
 statistics = { bootstrap_mean = {}, deciles = {} }
 
 [metrics.spoc_tiles_disable_rate]
-select_expression = """   
+select_expression = """
   COALESCE(MAX(
     CAST(
        metrics.boolean.customize_home_contile AS int )
   ),0)
 """
-data_source = "metrics" 
+data_source = "metrics"
 bigger_is_better = false
 friendly_name = "Sponsored Tiles Disable Rate"
 description = "Fraction of users who disable Contile Sponsored Tiles"
 [metrics.spoc_tiles_disable_rate.statistics.binomial]
 
 [metrics.spoc_tiles_preference_toggled]
-select_expression = """   
+select_expression = """
   COALESCE(SUM(CASE WHEN
-          event.category = 'customize_home'
-          AND event.name = 'preference_toggled'
-          AND `mozfun.map.get_key`(event.extra, 'preference_key') = 'contile'
+          event_category = 'customize_home'
+          AND event_name = 'preference_toggled'
+		  AND JSON_VALUE(event_extra, '$.preference_key') = 'contile'
+          --AND `mozfun.map.get_key`(event_extra, 'preference_key') = 'contile'
 	THEN 1 ELSE 0 END
   ),0)
 """
-data_source = "events" 
+data_source = "sponsored_tiles_events_stream"
 bigger_is_better = false
 friendly_name = "Sponsored Tiles Preference Toggled"
 description = "Number of times Contile Sponsored Tiles setting is flipped."
-statistics = { bootstrap_mean = {}, deciles = {} } 
+statistics = { bootstrap_mean = {}, deciles = {} }
