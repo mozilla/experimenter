@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
-import os
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -73,9 +72,9 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CIRRUS_URL = config("CIRRUS_URL", default=None)
 
-GLEAN_UPLOAD_ENABLED = config("GLEAN_UPLOAD_ENABLED", default=False, cast=bool)
+GLEAN_APP_ID = config("GLEAN_APP_ID", default="experimenter.backend")
 
-GLEAN_DATA_DIR = Path(config("GLEAN_DATA_DIR", default="/var/glean")) / str(os.getpid())
+GLEAN_APP_CHANNEL = config("GLEAN_APP_CHANNEL", default="developer")
 
 # Application definition
 
