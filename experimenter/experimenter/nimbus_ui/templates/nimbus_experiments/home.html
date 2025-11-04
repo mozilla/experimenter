@@ -20,7 +20,7 @@
                 Learn what is possible for experiments, roll-outs, labs experiences, surveys, and more!
               </p>
               <a id="welcome-learn-more-link"
-                 href="{{ links.welcome_learn_more_url }}"
+                 href="{{ NimbusUIConstants.HOME_PAGE_LINKS.welcome_learn_more_url }}"
                  class="btn btn-primary btn-sm"
                  target="_blank"
                  rel="noopener noreferrer">Learn More</a>
@@ -33,12 +33,12 @@
            id="draft-preview-ready-for-attention">
         <!-- Draft or Preview -->
         <div id="draft-preview" class="col-md-6">
-          {% include "nimbus_experiments/home_experiments_layout.html" with title="Draft or Preview" experiments=draft_or_preview_page.object_list page_obj=draft_or_preview_page pagination_param="draft_page" empty_message="No draft or preview experiments." empty_image_path="assets/empty-draft.svg" tooltip=tooltips.draft_or_preview %}
+          {% include "nimbus_experiments/home_experiments_layout.html" with title="Draft or Preview" experiments=draft_or_preview_page.object_list page_obj=draft_or_preview_page pagination_param="draft_page" empty_message="No draft or preview experiments." empty_image_path="assets/empty-draft.svg" tooltip=NimbusUIConstants.HOME_PAGE_TOOLTIPS.draft_or_preview %}
 
         </div>
         <!-- Ready for Attention -->
         <div id="ready-for-attention" class="col-md-6">
-          {% include "nimbus_experiments/home_experiments_layout.html" with title="Deliveries Ready for Attention" experiments=ready_for_attention_page.object_list page_obj=ready_for_attention_page pagination_param="attention_page" empty_message="No ready for attention experiments." empty_image_path="assets/empty-attention.svg" tooltip=tooltips.ready_for_attention %}
+          {% include "nimbus_experiments/home_experiments_layout.html" with title="Deliveries Ready for Attention" experiments=ready_for_attention_page.object_list page_obj=ready_for_attention_page pagination_param="attention_page" empty_message="No ready for attention experiments." empty_image_path="assets/empty-attention.svg" tooltip=NimbusUIConstants.HOME_PAGE_TOOLTIPS.ready_for_attention %}
 
         </div>
       </div>
@@ -56,7 +56,7 @@
               data-bs-toggle="tooltip"
               data-bs-placement="top"
               data-bs-html="true"
-              data-bs-title="{{ tooltips.my_deliveries }}"
+              data-bs-title="{{ NimbusUIConstants.HOME_PAGE_TOOLTIPS.my_deliveries }}"
               data-bs-delay={"hide":2000}>
             </i>
           </h5>

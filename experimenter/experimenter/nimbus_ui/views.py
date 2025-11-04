@@ -155,8 +155,6 @@ class NimbusExperimentViewMixin:
             else []
         )
 
-        context["live_monitor_tooltip"] = NimbusUIConstants.LIVE_MONITOR_TOOLTIP
-        context["common_sidebar_links"] = NimbusUIConstants.SIDEBAR_COMMON_LINKS
         context["all_tags"] = Tag.objects.all().order_by("name")
 
         slug_underscore = (
@@ -300,8 +298,6 @@ def build_experiment_context(experiment):
         "primary_outcome_links": primary_outcome_links,
         "secondary_outcome_links": secondary_outcome_links,
         "segment_links": segment_links,
-        "risk_message_url": NimbusUIConstants.RISK_MESSAGE_URL,
-        "review_url": NimbusUIConstants.REVIEW_URL,
     }
     return context
 
@@ -332,8 +328,6 @@ class NimbusExperimentDetailView(
 
         if "save_failed" in self.request.GET:
             context["save_failed"] = True
-
-        context["coenrollment_note"] = NimbusUIConstants.COENROLLMENT_NOTE
 
         return context
 
@@ -482,11 +476,6 @@ class OverviewUpdateView(
     def can_edit(self):
         return self.object.can_edit_overview()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["links"] = NimbusUIConstants.OVERVIEW_PAGE_LINKS
-        return context
-
 
 class DocumentationLinkCreateView(RenderParentDBResponseMixin, OverviewUpdateView):
     form_class = DocumentationLinkCreateForm
@@ -508,11 +497,6 @@ class BranchesBaseView(
 
     def can_edit(self):
         return self.object.can_edit_branches()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["coenrollment_note"] = NimbusUIConstants.COENROLLMENT_NOTE
-        return context
 
 
 class BranchesPartialUpdateView(RenderDBResponseMixin, BranchesBaseView):
@@ -556,11 +540,6 @@ class MetricsUpdateView(
     def can_edit(self):
         return self.object.can_edit_metrics()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["links"] = NimbusUIConstants.METRICS_PAGE_LINKS
-        return context
-
 
 class AudienceUpdateView(
     SaveAndContinueMixin,
@@ -578,18 +557,6 @@ class AudienceUpdateView(
 
     def can_edit(self):
         return self.object.can_edit_audience()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
-            {
-                "targeting_criteria_request_info": (
-                    NimbusUIConstants.TARGETING_CRITERIA_REQUEST_INFO
-                ),
-                "links": NimbusUIConstants.AUDIENCE_PAGE_LINKS,
-            }
-        )
-        return context
 
 
 class SubscribeView(
@@ -705,10 +672,6 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         context["selected_analysis_basis"] = analysis_basis
 
         context["results_data"] = analysis_data
-        context["overview_sections"] = NimbusUIConstants.OVERVIEW_SECTIONS
-        context["overview_section_tooltips"] = (
-            NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS
-        )
 
         context["branch_data"] = experiment.get_branch_data(
             analysis_basis, selected_segment
@@ -909,8 +872,6 @@ class NimbusFeaturesView(TemplateView):
 
         context = {
             "form": form,
-            "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
-            "tooltips": NimbusUIConstants.FEATURE_PAGE_TOOLTIPS,
             "application": self.request.GET.get("application"),
             "feature_configs": self.request.GET.get("feature_configs"),
             "feature_config_slug": feature_config_slug,
@@ -971,9 +932,6 @@ class NimbusExperimentsHomeView(FilterView):
         context["ready_for_attention_page"] = Paginator(
             [e for e in all_experiments if e.is_ready_for_attention], 5
         ).get_page(self.request.GET.get("attention_page", 1))
-
-        context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
-        context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
 
         context["sortable_headers"] = HomeSortChoices.sortable_headers()
         context["create_form"] = NimbusExperimentCreateForm()

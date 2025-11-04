@@ -7,7 +7,7 @@
 {% block content %}
   <div id="feature-page" class="bg-body-tertiary py-4">
     <div class="container">
-      {% include "nimbus_experiments/heading_card.html" with page_name="feature" heading_text="Welcome to your Feature Health Dashboard," subheading_text="Track a feature's Nimbus history and QA status in this summary view!" link_url=links.feature_learn_more_url btn_text="Learn More" %}
+      {% include "nimbus_experiments/heading_card.html" with page_name="feature" heading_text="Welcome to your Feature Health Dashboard," subheading_text="Track a feature's Nimbus history and QA status in this summary view!" link_url=NimbusUIConstants.FEATURE_PAGE_LINKS.feature_learn_more_url btn_text="Learn More" %}
 
       <form id="features-form"
             method="get"
@@ -47,7 +47,7 @@
               <i class="fa-regular fa-circle-question"
                  data-bs-toggle="tooltip"
                  data-bs-placement="top"
-                 data-bs-title="{{ links.deliveries_table_tooltip }}"></i>
+                 data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_LINKS.deliveries_table_tooltip }}"></i>
             </h5>
           </div>
           <div scope="col" class="col-4 p-0">
@@ -353,7 +353,7 @@
           <i class="fa-regular fa-circle-question"
              data-bs-toggle="tooltip"
              data-bs-placement="top"
-             data-bs-title="{{ tooltips.feature_changes_tooltip }}"></i>
+             data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.feature_changes_tooltip }}"></i>
           <span class="badge bg-secondary">Number of changes: {{ schemas_with_changes }}</span>
         </h5>
         <div>

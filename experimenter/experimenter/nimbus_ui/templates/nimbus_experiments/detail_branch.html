@@ -33,7 +33,9 @@
           <tr>
             <th>
               {{ feature_value.feature_config.name|format_not_set }} Value
-              {% if feature_value.allow_coenrollment %}<div class="form-text">{{ coenrollment_note }}</div>{% endif %}
+              {% if feature_value.allow_coenrollment %}
+                <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
+              {% endif %}
             </th>
             <td colspan="3" id="preview-recipe-json" class="collapsed-json">
               <div style="max-height: 120px; overflow: hidden;">
