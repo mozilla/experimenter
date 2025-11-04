@@ -58,6 +58,7 @@ class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
     subscribers = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field="email"
     )
+    tags = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
 
     class Meta:
         model = NimbusExperiment

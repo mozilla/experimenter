@@ -88,14 +88,6 @@
         </div>
         <div class="row mb-3">
           <div class="col">
-            <label for="id_projects" class="form-label">Team Projects</label>
-            {{ form.projects|add_class:"form-control"|add_error_class:"is-invalid" }}
-            {% for error in form.projects.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-            {% for error in validation_errors.projects %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col">
             <label for="id_public_description" class="form-label">Public Description</label>
             {{ form.public_description|add_class:"form-control"|add_error_class:"is-invalid" }}
             {% for error in form.public_description.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
