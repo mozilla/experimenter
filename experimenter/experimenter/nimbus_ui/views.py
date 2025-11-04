@@ -820,7 +820,7 @@ class NimbusFeaturesView(TemplateView):
         labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
         total_changes = 0
 
-        if feature_id:
+        if feature_id and qs:
             sort = self.request.GET.get("sort", "")
 
             if sort == "change_version":
