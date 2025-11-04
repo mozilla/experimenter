@@ -1269,14 +1269,14 @@ test = ["coverage[toml]", "ddt (>=1.1.1,!=1.4.3)", "mock ; python_version < \"3.
 
 [[package]]
 name = "glean-parser"
-version = "17.3.0"
+version = "18.1.0"
 description = "Parser tools for Mozilla's Glean telemetry"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "glean_parser-17.3.0-py3-none-any.whl", hash = "sha256:84d975d40333e97d9f6e0ce0f22db4e1e3d8e088b2da678e34cc7ab3361f071d"},
-    {file = "glean_parser-17.3.0.tar.gz", hash = "sha256:f70fb4496436068f81ef786029a1b369f61ae2f9327eeb2fa50335dba59ee214"},
+    {file = "glean_parser-18.1.0-py3-none-any.whl", hash = "sha256:a3959b8e3b55e43eed6912bdc9895e3d11cb26217776111b4f48ebf425a4915a"},
+    {file = "glean_parser-18.1.0.tar.gz", hash = "sha256:65a82a00846801927ad06521420cd147b909fd531ece9b513ec7f81d9a916312"},
 ]
 
 [package.dependencies]
@@ -1286,28 +1286,6 @@ jinja2 = ">=2.10.1"
 jsonschema = ">=3.0.2"
 platformdirs = ">=2.4.0"
 pyyaml = ">=5.3.1"
-
-[[package]]
-name = "glean-sdk"
-version = "64.5.2"
-description = "Mozilla's Glean Telemetry SDK: The Machine that Goes 'Ping!'"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "glean_sdk-64.5.2-py3-none-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:a6cf2d7718c985ca51fc40c835ca2c0489f4b461587764a27d8917b3bb632168"},
-    {file = "glean_sdk-64.5.2-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:e100e8e99bd2e08c036dd1beeed3da8289f53a94940e15b99628b033797a3f4e"},
-    {file = "glean_sdk-64.5.2-py3-none-macosx_11_0_arm64.whl", hash = "sha256:2eede905a254ca7db9bf3c44c096528af3bc85ffc3d72d7f8ad75c220f9710ad"},
-    {file = "glean_sdk-64.5.2-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:cbfc1569a1adb8923325ff4f025abcaa1e9552a4b48320c694a32bcedbc7df6e"},
-    {file = "glean_sdk-64.5.2-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:95dbf5dfad2cf8a8111d90b9bdbc6d8e62e0122ba03c721a165058f1cfd4da1b"},
-    {file = "glean_sdk-64.5.2-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:b8d2c55b0659643a0c6ced5e04f0726485c13a27d0f57d07b48ee622a9eebf7c"},
-    {file = "glean_sdk-64.5.2-py3-none-win_amd64.whl", hash = "sha256:6f5efa04fbbb16bc7357959c153d9ee4a7a2a2fbc4acbfde50cdbccc5bc981d1"},
-    {file = "glean_sdk-64.5.2.tar.gz", hash = "sha256:dd54b34e0eb361880def6fa3bdd4af04dd9487f6fdb396bbc57c5b406adeb495"},
-]
-
-[package.dependencies]
-glean-parser = ">=17.2,<18.0"
-semver = ">=2.13.0"
 
 [[package]]
 name = "google-api-core"
@@ -3383,18 +3361,6 @@ files = [
 ]
 
 [[package]]
-name = "semver"
-version = "3.0.4"
-description = "Python helper for Semantic Versioning (https://semver.org)"
-optional = false
-python-versions = ">=3.7"
-groups = ["main"]
-files = [
-    {file = "semver-3.0.4-py3-none-any.whl", hash = "sha256:9c824d87ba7f7ab4a1890799cec8596f15c1241cb473404ea1cb0c55e4b04746"},
-    {file = "semver-3.0.4.tar.gz", hash = "sha256:afc7d8c584a5ed0a11033af086e8af226a9c0b206f313e0301f8dd7b6b589602"},
-]
-
-[[package]]
 name = "sentry-sdk"
 version = "2.43.0"
 description = "Python client for Sentry (https://sentry.io)"
@@ -3863,4 +3829,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "fa29e415eda4557988c6def6eb4d7dda266d1d7cfd0ca0077a5d4036e2f1d9be"
+content-hash = "b4f2b947bf8158cfc6eb86ce978db6de69cc16135c0ae5058bd77513d90aca6c"

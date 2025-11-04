@@ -5,6 +5,7 @@ source =
     manifesttool
 #branch = True
 omit =
+    experimenter/glean/generated/*
     */tests/*
     */migrations/*
 
@@ -14,6 +15,7 @@ omit =
     bin/manifest-tool.py
     manage.py
     experimenter/wsgi.py
+    experimenter/glean/generated/*
     */migrations/*
 
 # Regexes for lines to exclude from consideration
