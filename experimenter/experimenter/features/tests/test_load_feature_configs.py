@@ -68,6 +68,7 @@ class TestLoadFeatureConfigs(TestCase):
         )
         self.assertFalse(schema.has_remote_schema)
         self.assertTrue(schema.is_early_startup)
+        self.assertTrue(schema.allow_coenrollment)
 
         feature_config = NimbusFeatureConfig.objects.get(slug="oldSetPrefFeature")
         schema = feature_config.schemas.get(version=None)
@@ -111,8 +112,7 @@ class TestLoadFeatureConfigs(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             schemas=[
                 NimbusVersionedSchemaFactory.build(
-                    version=None,
-                    schema="{}",
+                    version=None, schema="{}", allow_coenrollment=False
                 )
             ],
         )
@@ -150,6 +150,7 @@ class TestLoadFeatureConfigs(TestCase):
             },
         )
         self.assertTrue(schema.is_early_startup)
+        self.assertTrue(schema.allow_coenrollment)
 
         feature_config = NimbusFeatureConfig.objects.get(slug="oldSetPrefFeature")
         schema = feature_config.schemas.get(version=None)

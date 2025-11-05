@@ -333,6 +333,8 @@ class NimbusExperimentDetailView(
         if "save_failed" in self.request.GET:
             context["save_failed"] = True
 
+        context["coenrollment_note"] = NimbusUIConstants.COENROLLMENT_NOTE
+
         return context
 
 
@@ -506,6 +508,11 @@ class BranchesBaseView(
 
     def can_edit(self):
         return self.object.can_edit_branches()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["coenrollment_note"] = NimbusUIConstants.COENROLLMENT_NOTE
+        return context
 
 
 class BranchesPartialUpdateView(RenderDBResponseMixin, BranchesBaseView):
