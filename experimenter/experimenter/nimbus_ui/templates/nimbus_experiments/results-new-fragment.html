@@ -1,0 +1,46 @@
+<div class="d-flex flex-column gap-4" id="experiment-results-page">
+  <form hx-get="{{ request.path }}"
+        hx-push-url="true"
+        hx-trigger="change"
+        hx-target="#experiment-results-page"
+        hx-swap="innerHTML"
+        class="d-flex gap-4 mb-3">
+    <div class="col-3">
+      <span>Show results by</span>
+      <select name="analysis_basis"
+              class="form-select bg-secondary-subtle"
+              aria-label="Analysis Basis">
+        {% if experiment.has_exposures %}
+          <option value="exposures"
+                  {% if selected_analysis_basis == "exposures" %}selected{% endif %}>Exposures</option>
+        {% endif %}
+        <option value="enrollments"
+                {% if selected_analysis_basis == "enrollments" %}selected{% endif %}>Enrollments</option>
+      </select>
+    </div>
+    <div class="col-3">
+      <span>Reference branch</span>
+      <select name="reference_branch"
+              class="form-select bg-secondary-subtle"
+              aria-label="Reference Branch">
+        {% for branch in branch_data %}
+          <option value="{{ branch.slug }}"
+                  {% if branch.slug == selected_reference_branch %}selected{% endif %}>{{ branch.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-3">
+      <span>Segment</span>
+      <select name="segment"
+              class="form-select bg-secondary-subtle"
+              aria-label="Segment">
+        {% for segment in segments %}
+          <option value="{{ segment }}"
+                  {% if segment == selected_segment %}selected{% endif %}>{{ segment }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+  {% include "nimbus_experiments/results-new-inner.html" %}
+
+</div>
