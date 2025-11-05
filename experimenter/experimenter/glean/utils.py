@@ -16,7 +16,7 @@ def get_request_ip(request) -> None | str:
 
 def emit_record(now: datetime, ping: dict[str, Any]):
     ping_envelope = {
-        "Timestamp": now.isoformat(),
+        "Timestamp": int(now.timestamp() * 1e9),
         "Logger": "glean",
         "Type": GLEAN_EVENT_MOZLOG_TYPE,
         "Fields": ping,
