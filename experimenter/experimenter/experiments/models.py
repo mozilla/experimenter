@@ -2197,6 +2197,22 @@ class NimbusBranchFeatureValue(models.Model):
     def __str__(self):  # pragma: no cover
         return f"{self.branch}: {self.feature_config}"
 
+    @property
+    def allow_coenrollment(self):
+        min_version = NimbusExperiment.Version.parse(
+            self.branch.experiment.firefox_min_version
+        )
+        max_version = None
+        if self.branch.experiment.firefox_max_version:
+            max_version = NimbusExperiment.Version.parse(
+                self.branch.experiment.firefox_max_version
+            )
+        schemas = self.feature_config.get_versioned_schema_range(
+            min_version,
+            max_version,
+        ).schemas
+        return all(schema.allow_coenrollment for schema in schemas)
+
 
 class NimbusBranchScreenshot(models.Model):
     branch = models.ForeignKey(
@@ -2626,6 +2642,7 @@ class NimbusVersionedSchema(models.Model):
         null=True,
     )
     schema = models.TextField(blank=True, null=True)
+    allow_coenrollment = models.BooleanField(null=False, default=False)
 
     # Desktop-only
     set_pref_vars = models.JSONField[dict[str, str]](null=False, default=dict)
