@@ -170,6 +170,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "project_impact": """Set an impact rating so others can understand the scale of
         this experiment's effect.""",
     }
+    COENROLLMENT_NOTE = (
+        "Note: This feature supports co-enrollment with other experiments/rollouts "
+        "for the selected versions."
+    )
 
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"
