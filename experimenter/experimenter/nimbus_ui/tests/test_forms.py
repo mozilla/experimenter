@@ -2937,6 +2937,31 @@ class TestNimbusBranchesForm(RequestFormTestCase):
             {"branches": [{}, {"name": [NimbusUIConstants.ERROR_SLUG_DUPLICATE_BRANCH]}]},
         )
 
+    def test_branches_ordered_by_id_with_reference_branch_first(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        experiment.branches.all().delete()
+
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="A Branch", slug="a-branch"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="B Branch", slug="b-branch"
+        )
+        branch_c = NimbusBranchFactory.create(
+            experiment=experiment, name="C Branch", slug="c-branch"
+        )
+        experiment.reference_branch = branch_b
+        experiment.save()
+
+        form = NimbusBranchesForm(instance=experiment, request=self.request)
+
+        expected_branch_ids = [branch.slug for branch in form.branches.get_queryset()]
+        self.assertEqual(
+            expected_branch_ids, [branch_b.slug, branch_a.slug, branch_c.slug]
+        )
+
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
     def test_form_saves_branches(self):

@@ -561,6 +561,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_results_url(self):
         return reverse("nimbus-ui-results", kwargs={"slug": self.slug})
 
+    def get_new_results_url(self):
+        return reverse("nimbus-ui-new-results", kwargs={"slug": self.slug})
+
     @property
     def experiment_url(self):
         return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
@@ -1168,6 +1171,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "icon": "fa-solid fa-chart-column",
                 "active": current_path == self.get_results_url(),
                 "disabled": self.disable_results_link,
+                "new_results_url": self.get_new_results_url(),
+                "subsections": self.results_sidebar_sections(),
             },
             {"title": "Edit", "is_header": True},
             {
@@ -1197,6 +1202,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "icon": "fa-solid fa-user-group",
                 "active": current_path == self.get_update_audience_url(),
                 "disabled": not self.can_edit_audience(),
+            },
+        ]
+
+    def results_sidebar_sections(self):
+        # TODO: show metrics by grouped categories based on metric area
+
+        return [
+            {
+                "title": "Overview",
+                "subitems": [
+                    {"title": "Hypothesis"},
+                    {"title": "Branch overview"},
+                    {"title": "Key takeaways"},
+                    {"title": "Next steps"},
+                    {"title": "Project Impact"},
+                ],
+            },
+            {
+                "title": "All metrics",
+                "subitems": [
+                    {"title": metric} for metric in self.default_metrics.values()
+                ],
             },
         ]
 

@@ -5,7 +5,8 @@ from datetime import UTC, datetime
 import markus
 from django import forms
 from django.contrib.auth.models import User
-from django.forms import BaseModelFormSet, inlineformset_factory
+from django.db.models import Case, When
+from django.forms import BaseInlineFormSet, BaseModelFormSet, inlineformset_factory
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.text import slugify
@@ -609,6 +610,23 @@ class FeatureConfigModelChoiceField(forms.ModelMultipleChoiceField):
         return obj.name
 
 
+class OrderedBranchFormSet(BaseInlineFormSet):
+    """
+    Branch FormSet with reference branch first and remaining
+    branches ordered by db id for stable ordering
+    """
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .order_by(
+                Case(When(id=self.instance.reference_branch_id, then=0), default=1),
+                "id",
+            )
+        )
+
+
 class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     feature_configs = FeatureConfigModelChoiceField(
         required=False,
@@ -680,13 +698,6 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.NimbusBranchFormSet = inlineformset_factory(
-            NimbusExperiment,
-            NimbusBranch,
-            form=NimbusBranchForm,
-            extra=0,
-        )
-
         branches_formset_kwargs = {
             "data": self.data or None,
             "instance": self.instance,
@@ -694,7 +705,15 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         if self.files:
             branches_formset_kwargs["files"] = self.files
 
-        self.branches = self.NimbusBranchFormSet(**branches_formset_kwargs)
+        NimbusBranchFormSet = inlineformset_factory(
+            NimbusExperiment,
+            NimbusBranch,
+            form=NimbusBranchForm,
+            formset=OrderedBranchFormSet,
+            extra=0,
+        )
+
+        self.branches = NimbusBranchFormSet(**branches_formset_kwargs)
 
         self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
             application=self.instance.application
