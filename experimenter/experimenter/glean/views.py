@@ -5,7 +5,13 @@ from experimenter.glean.generated.server_events import (
     create_data_collection_opt_out_server_event_logger,
 )
 from experimenter.glean.models import Prefs
-from experimenter.glean.utils import get_request_ip
+from experimenter.glean.utils import emit_record, get_request_ip
+
+
+def patch_emit_record(glean_logger):
+    """Override glean's emit_record method to make writes to stdout atomic."""
+    glean_logger.emit_record = emit_record
+    return glean_logger
 
 
 class OptOutView(UpdateView):
@@ -13,10 +19,12 @@ class OptOutView(UpdateView):
     fields = ["opt_out"]
     template_name = "glean/opt_out_button.html"
 
-    data_collection_opt_out_ping = create_data_collection_opt_out_server_event_logger(
-        application_id=settings.GLEAN_APP_ID,
-        app_display_version=settings.APP_VERSION,
-        channel=settings.GLEAN_APP_CHANNEL,
+    data_collection_opt_out_ping = patch_emit_record(
+        create_data_collection_opt_out_server_event_logger(
+            application_id=settings.GLEAN_APP_ID,
+            app_display_version=settings.APP_VERSION,
+            channel=settings.GLEAN_APP_CHANNEL,
+        )
     )
 
     def get_object(self, queryset=None):
