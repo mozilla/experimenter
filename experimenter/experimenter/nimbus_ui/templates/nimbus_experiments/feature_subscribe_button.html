@@ -1,10 +1,37 @@
-<form method="post"
-      action="{% url 'nimbus-ui-feature-subscribe' slug=feature_config_slug.slug %}"
-      hx-post="{% url 'nimbus-ui-feature-subscribe' slug=feature_config_slug.slug %}"
-      hx-target="#feature-subscription-button"
-      hx-swap="outerHTML">
-  {% csrf_token %}
-  <button type="submit"
-          id="feature-subscription-button"
-          class="btn btn-primary mb-2">Subscribe To Feature</button>
-</form>
+{% load nimbus_extras %}
+
+<div id="feature-subscription-container">
+  {% if user in selected_feature_config.subscribers.all %}
+    <form method="post"
+          action="{% url 'nimbus-ui-feature-unsubscribe' application=selected_feature_config.application slug=selected_feature_config.slug %}"
+          hx-post="{% url 'nimbus-ui-feature-unsubscribe' application=selected_feature_config.application slug=selected_feature_config.slug %}"
+          hx-target="#feature-subscription-container"
+          hx-swap="innerHTML">
+      {% csrf_token %}
+      <button type="submit"
+              id="feature-unsubscribe-button"
+              class="btn btn-primary mb-2"
+              style="min-width: 212px">Unsubscribe From Feature</button>
+      <i class="fa-regular fa-circle-question p-0"
+         data-bs-toggle="tooltip"
+         data-bs-placement="right"
+         data-bs-title="{{ tooltips.unsubscribe_tooltip|format_string:selected_feature_config.name }}"></i>
+    </form>
+  {% else %}
+    <form method="post"
+          action="{% url 'nimbus-ui-feature-subscribe' application=selected_feature_config.application slug=selected_feature_config.slug %}"
+          hx-post="{% url 'nimbus-ui-feature-subscribe' application=selected_feature_config.application slug=selected_feature_config.slug %}"
+          hx-target="#feature-subscription-container"
+          hx-swap="innerHTML">
+      {% csrf_token %}
+      <button type="submit"
+              id="feature-subscription-button"
+              class="btn btn-primary mb-2"
+              style="min-width: 212px">Subscribe To Feature</button>
+      <i class="fa-regular fa-circle-question p-0"
+         data-bs-toggle="tooltip"
+         data-bs-placement="right"
+         data-bs-title="{{ tooltips.subscribe_tooltip|format_string:selected_feature_config.name }}"></i>
+    </form>
+  {% endif %}
+</div>

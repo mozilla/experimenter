@@ -321,3 +321,14 @@ def short_number(value, precision=1):
         formatted_number = f"{number}{magnitude[0].capitalize()}"
 
     return formatted_number
+
+
+@register.filter
+def format_string(value, arg):
+    """
+    Format a string with a single placeholder {text}.
+
+    Usage:
+        {{ "Subscribe to {text}"|format_string:feature.name }}
+    """
+    return value.format(text=arg)

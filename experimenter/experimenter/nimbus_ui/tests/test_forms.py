@@ -51,6 +51,8 @@ from experimenter.nimbus_ui.forms import (
     DraftToPreviewForm,
     DraftToReviewForm,
     FeaturesForm,
+    FeatureSubscribeForm,
+    FeatureUnsubscribeForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -4210,3 +4212,28 @@ class TestTagAssignForm(RequestFormTestCase):
 
         tag_names = [tag.name for tag in form.fields["tags"].queryset]
         self.assertEqual(tag_names, ["A Tag", "M Tag", "Z Tag"])
+
+
+class FeatureSubscriptionFormTests(RequestFormTestCase):
+    def test_feature_subscribe_form_adds_subscriber(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+        )
+        form = FeatureSubscribeForm(
+            instance=feature_config, data={}, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertIn(self.request.user, feature_config.subscribers.all())
+
+    def test_feature_unsubscribe_form_removes_subscriber(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+        )
+        feature_config.subscribers.add(self.request.user)
+        form = FeatureUnsubscribeForm(
+            instance=feature_config, data={}, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertNotIn(self.request.user, feature_config.subscribers.all())

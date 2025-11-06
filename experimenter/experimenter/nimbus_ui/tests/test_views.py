@@ -4476,12 +4476,46 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertNotIn(self.user, feature.subscribers.all())
 
         response = self.client.post(
-            reverse("nimbus-ui-feature-subscribe", kwargs={"slug": feature.slug})
+            reverse(
+                "nimbus-ui-feature-subscribe",
+                kwargs={"application": feature.application, "slug": feature.slug},
+            )
         )
 
         feature.refresh_from_db()
 
         self.assertIn(self.user, feature.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
+    def test_subscribe_to_feature_with_duplicate_slug(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="feature-subscribe",
+            name="Feature Subscribe",
+            application=NimbusExperiment.Application.IOS,
+        )
+        duplicate_feature = NimbusFeatureConfigFactory.create(
+            slug="feature-subscribe",
+            name="Feature Subscribe",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.assertNotIn(self.user, feature.subscribers.all())
+        self.assertNotIn(self.user, duplicate_feature.subscribers.all())
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-feature-subscribe",
+                kwargs={
+                    "application": duplicate_feature.application,
+                    "slug": duplicate_feature.slug,
+                },
+            )
+        )
+
+        duplicate_feature.refresh_from_db()
+
+        self.assertIn(self.user, duplicate_feature.subscribers.all())
+        self.assertNotIn(self.user, feature.subscribers.all())
         self.assertEqual(response.status_code, 200)
 
     def test_features_view_tables_reset_on_new_request_after_loading(self):
@@ -4543,6 +4577,88 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(len(context["experiments_delivered"]), 0)
         self.assertEqual(len(context["experiments_with_qa_status"]), 0)
         self.assertEqual(len(context["feature_schemas"]), 0)
+
+    def test_unsubscribe_from_feature(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="feature-unsubscribe", name="Feature Unsubscribe"
+        )
+        feature.subscribers.add(self.user)
+
+        self.assertIn(self.user, feature.subscribers.all())
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-feature-unsubscribe",
+                kwargs={"application": feature.application, "slug": feature.slug},
+            )
+        )
+        feature.refresh_from_db()
+
+        self.assertNotIn(self.user, feature.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
+    def test_features_view_with_only_application_selected(self):
+        application = NimbusExperiment.Application.DESKTOP
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+
+        self.assertIsNone(context.get("selected_feature_config"))
+        self.assertEqual(len(context["experiments_delivered"]), 0)
+        self.assertEqual(len(context["experiments_with_qa_status"]), 0)
+        self.assertEqual(len(context["feature_schemas"]), 0)
+
+    def test_features_view_with_invalid_feature_id_does_not_crash_view(self):
+        application = NimbusExperiment.Application.DESKTOP
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": "99999",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+        self.assertEqual(len(context["experiments_delivered"]), 0)
+        self.assertEqual(len(context["experiments_with_qa_status"]), 0)
+        self.assertEqual(len(context["feature_schemas"]), 0)
+
+    def test_features_view_with_mismatched_app_and_feature(self):
+        desktop_feature = self.feature_configs["feature-desktop"]
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": NimbusExperiment.Application.IOS.value,
+                "feature_configs": desktop_feature.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+        self.assertIsNone(response.context.get("selected_feature_config"))
+        self.assertEqual(len(context["experiments_delivered"]), 0)
+        self.assertEqual(len(context["experiments_with_qa_status"]), 0)
+        self.assertEqual(len(context["feature_schemas"]), 0)
+
+    def test_features_view_resets_when_nothing_selected(self):
+        url = reverse("nimbus-ui-features")
+        response = self.client.get(url, {"application": "", "feature_configs": ""})
+
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+
+        self.assertEqual(len(context["experiments_delivered"]), 0)
+        self.assertEqual(len(context["experiments_with_qa_status"]), 0)
+        self.assertEqual(len(context["feature_schemas"]), 0)
+        self.assertIsNone(context.get("selected_feature_config"))
 
 
 class TestTagsManageView(AuthTestCase):

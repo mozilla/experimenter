@@ -49,6 +49,7 @@ from experimenter.nimbus_ui.forms import (
     DraftToReviewForm,
     FeaturesForm,
     FeatureSubscribeForm,
+    FeatureUnsubscribeForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -197,6 +198,29 @@ class CloneExperimentFormMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["clone_form"] = NimbusExperimentSidebarCloneForm(instance=self.object)
+        return context
+
+
+class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateView):
+    model = NimbusFeatureConfig
+    template_name = "nimbus_experiments/feature_subscribe_button.html"
+    context_object_name = "selected_feature_config"
+    url_name = None
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        application = self.kwargs.get("application")
+        return queryset.filter(application=application)
+
+    def get_success_url(self):
+        return reverse(
+            self.url_name,
+            kwargs={"application": self.object.application, "slug": self.object.slug},
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["tooltips"] = NimbusUIConstants.FEATURE_PAGE_TOOLTIPS
         return context
 
 
@@ -600,14 +624,14 @@ class UnsubscribeView(
     form_class = UnsubscribeForm
 
 
-class FeatureSubscribeView(RequestFormMixin, RenderResponseMixin, UpdateView):
-    model = NimbusFeatureConfig
+class FeatureSubscribeView(FeatureSubscriberViewMixin):
     form_class = FeatureSubscribeForm
-    template_name = "nimbus_experiments/feature_subscribe_button.html"
-    context_object_name = "feature_config_slug"
+    url_name = "nimbus-ui-feature-subscribe"
 
-    def get_success_url(self):
-        return reverse("nimbus-ui-feature-subscribe", kwargs={"slug": self.object.slug})
+
+class FeatureUnsubscribeView(FeatureSubscriberViewMixin):
+    form_class = FeatureUnsubscribeForm
+    url_name = "nimbus-ui-feature-unsubscribe"
 
 
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
@@ -732,38 +756,50 @@ class NimbusFeaturesView(TemplateView):
         return FeaturesForm(self.request.GET or None)
 
     def get_queryset(self):
+        self.app = self.request.GET.get("application")
+        self.feature_id = self.request.GET.get("feature_configs")
+
+        if not self.app or not self.feature_id:
+            return NimbusExperiment.objects.none()
+
         qs = (
             NimbusExperiment.objects.with_merged_channel()
             .filter(is_archived=False)
             .order_by("-_updated_date_time")
         )
 
-        app = self.request.GET.get("application")
-        if app:
-            qs = qs.filter(application=app)
+        qs = qs.filter(application=self.app)
 
-        feature_id = self.request.GET.get("feature_configs")
-        if feature_id:
-            sort_param = self.request.GET.get("sort", "name")
-            if sort_param in [
-                "change_version",
-                "-change_version",
-                "change_size",
-                "-change_size",
-            ]:
-                sort_param = "name"
+        sort_param = self.request.GET.get("sort", "name")
+        if sort_param in [
+            "change_version",
+            "-change_version",
+            "change_size",
+            "-change_size",
+        ]:
+            sort_param = "name"
 
-            qs = qs.filter(feature_configs=feature_id).distinct().order_by(sort_param)
-        else:
-            return qs.none()
+        qs = qs.filter(feature_configs=self.feature_id).distinct().order_by(sort_param)
+
         return qs
+
+    def get_feature_config(self):
+        if not self.feature_id or not self.app:
+            return None
+
+        try:
+            return NimbusFeatureConfig.objects.filter(
+                pk=self.feature_id, application=self.app
+            ).get()
+        except NimbusFeatureConfig.DoesNotExist:
+            return None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = self.get_form()
         qs = self.get_queryset()
         schemas_with_changes = 0
-        feature_config_slug = None
+        selected_feature_config = self.get_feature_config()
 
         deliveries_paginator = Paginator(qs, 5)
         deliveries_page_number = self.request.GET.get("deliveries_page") or 1
@@ -819,12 +855,11 @@ class NimbusFeaturesView(TemplateView):
 
         # Get feature schema versions with their diffs
         feature_schemas = []
-        feature_id = self.request.GET.get("feature_configs")
         thresholds = SCHEMA_DIFF_SIZE_CONFIG["thresholds"]
         labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
         total_changes = 0
 
-        if feature_id and qs:
+        if selected_feature_config:
             sort = self.request.GET.get("sort", "")
 
             if sort == "change_version":
@@ -837,7 +872,9 @@ class NimbusFeaturesView(TemplateView):
                 )
 
             schemas = list(
-                queryset.filter(feature_config_id=feature_id).select_related("version")
+                queryset.filter(feature_config_id=self.feature_id).select_related(
+                    "version"
+                )
             )
 
             schema_cache = []
@@ -901,14 +938,12 @@ class NimbusFeaturesView(TemplateView):
         feature_changes_page_obj = feature_changes_pagination.get_page(
             feature_changes_page_number
         )
-        if feature_id:
-            feature_config_slug = NimbusFeatureConfig.objects.get(pk=feature_id)
 
         context = {
             "form": form,
             "application": self.request.GET.get("application"),
             "feature_configs": self.request.GET.get("feature_configs"),
-            "feature_config_slug": feature_config_slug,
+            "selected_feature_config": selected_feature_config,
             "paginator": deliveries_paginator,
             "deliveries_page_obj": deliveries_page_obj,
             "experiments_delivered": deliveries_page_obj.object_list,
