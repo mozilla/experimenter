@@ -148,6 +148,7 @@ COPY --from=ui /experimenter/experimenter/results/build/ /experimenter/experimen
 COPY --from=ui /experimenter/experimenter/nimbus_ui/static/dist/ /experimenter/experimenter/nimbus_ui/static/dist/
 
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
+ENV PYTHONUNBUFFERED=1
 
 # Ensure the non-root user owns the required directories
 RUN chown -R app:app /experimenter /application-services
