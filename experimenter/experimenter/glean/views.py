@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.views.generic.edit import UpdateView
 
+from experimenter.base import app_version
 from experimenter.glean.generated.server_events import (
     create_data_collection_opt_out_server_event_logger,
 )
@@ -22,7 +23,7 @@ class OptOutView(UpdateView):
     data_collection_opt_out_ping = patch_emit_record(
         create_data_collection_opt_out_server_event_logger(
             application_id=settings.GLEAN_APP_ID,
-            app_display_version=settings.APP_VERSION,
+            app_display_version=app_version(),
             channel=settings.GLEAN_APP_CHANNEL,
         )
     )

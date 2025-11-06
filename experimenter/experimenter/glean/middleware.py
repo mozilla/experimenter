@@ -1,5 +1,6 @@
 from django.conf import settings
 
+from experimenter.base import app_version
 from experimenter.glean.generated.server_events import (
     create_page_view_server_event_logger,
 )
@@ -15,7 +16,7 @@ class GleanMiddleware:
         self.get_response = get_response
         self.page_view_ping = create_page_view_server_event_logger(
             application_id=settings.GLEAN_APP_ID,
-            app_display_version=settings.APP_VERSION,
+            app_display_version=app_version(),
             channel=settings.GLEAN_APP_CHANNEL,
         )
         # override glean's emit_record method to make writes to stdout atomic
@@ -41,7 +42,7 @@ class GleanMiddleware:
             self.page_view_ping.record(
                 user_agent=request.META.get("HTTP_USER_AGENT"),
                 ip_address=get_request_ip(request),
-                nimbus_enrollments=enrollments,
+                nimbus_enrollments=enrollments or [],
                 nimbus_nimbus_user_id=str(request.user.id),
                 url_path=request.path,
                 events=[],
