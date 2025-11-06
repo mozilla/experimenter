@@ -84,6 +84,15 @@ features:
         description: If true, enable simplified UI part of Felt Privacy
         type: Boolean
         default: true
+  firefox-jp-guide-default-site:
+    description: |
+      This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
+    variables:
+      enabled:
+        description: |
+          Enables the feature.
+        type: Boolean
+        default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
