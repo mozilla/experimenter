@@ -161,7 +161,7 @@ features:
         description: |
           Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
         type: Boolean
-        default: false
+        default: true
   fx-suggest:
     description: A feature that provides Firefox Suggest search suggestions.
     variables:
