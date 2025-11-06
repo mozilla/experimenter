@@ -3099,6 +3099,18 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.context["selected_segment"], "foo")
         self.assertEqual(response.context["selected_analysis_basis"], "enrollments")
 
+    def test_results_template_fragment_used_with_htmx(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-new-results", kwargs={"slug": experiment.slug}),
+            headers={"Hx-Request": "true"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/results-new-fragment.html")
+
 
 class TestBranchScreenshotCreateView(AuthTestCase):
     def test_post_creates_screenshot(self):

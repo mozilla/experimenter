@@ -322,6 +322,21 @@ APPLICATION_CONFIG_EXPERIMENTER = ApplicationConfig(
     preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
 )
 
+APPLICATION_CONFIG_SUBPLAT = ApplicationConfig(
+    name="Subplat Web",
+    slug="subplat-web",
+    app_name="subplat_cirrus",
+    channel_app_id={
+        Channel.DEVELOPER: "subplat.cirrus",
+        Channel.STAGING: "subplat.cirrus",
+        Channel.PRODUCTION: "subplat.cirrus",
+    },
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+    is_web=True,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
+)
+
 NO_FEATURE_SLUG = [
     "no-feature-focus-android",
     "no-feature-klar-ios",
@@ -371,6 +386,10 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_EXPERIMENTER.slug,
         APPLICATION_CONFIG_EXPERIMENTER.name,
     )
+    SUBPLAT = (
+        APPLICATION_CONFIG_SUBPLAT.slug,
+        APPLICATION_CONFIG_SUBPLAT.name,
+    )
 
     @staticmethod
     def is_sdk(application):
@@ -395,6 +414,7 @@ class Application(models.TextChoices):
             Application.VPN,
             Application.FXA,
             Application.EXPERIMENTER,
+            Application.SUBPLAT,
         )
 
 
@@ -472,6 +492,7 @@ class NimbusConstants:
         Application.FXA: APPLICATION_CONFIG_FXA_WEB,
         Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
         Application.EXPERIMENTER: APPLICATION_CONFIG_EXPERIMENTER,
+        Application.SUBPLAT: APPLICATION_CONFIG_SUBPLAT,
     }
 
     ApplicationNameMap = models.TextChoices(
@@ -903,6 +924,7 @@ class NimbusConstants:
         Application.VPN: Version.NO_VERSION,
         Application.FXA: Version.NO_VERSION,
         Application.EXPERIMENTER: Version.NO_VERSION,
+        Application.SUBPLAT: Version.NO_VERSION,
     }
 
     COUNTRIES_APPLICATION_SUPPORTED_VERSION = {
@@ -915,6 +937,7 @@ class NimbusConstants:
         Application.VPN: Version.NO_VERSION,
         Application.FXA: Version.NO_VERSION,
         Application.EXPERIMENTER: Version.NO_VERSION,
+        Application.SUBPLAT: Version.NO_VERSION,
     }
 
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
