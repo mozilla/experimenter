@@ -1336,7 +1336,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             reverse(
                 "nimbus-ui-update-collaborators", kwargs={"slug": self.experiment.slug}
             ),
-            {"subscribers": [user1.id, user2.id]},
+            {"collaborators": [user1.id, user2.id]},
         )
 
         self.experiment.refresh_from_db()
@@ -1356,7 +1356,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             reverse(
                 "nimbus-ui-update-collaborators", kwargs={"slug": self.experiment.slug}
             ),
-            {"subscribers": [user1.id]},
+            {"collaborators": [user1.id]},
         )
 
         self.experiment.refresh_from_db()
