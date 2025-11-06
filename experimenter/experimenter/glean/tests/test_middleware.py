@@ -29,7 +29,7 @@ class GleanMiddlewareTests(TestCase):
                 mock.call(
                     user_agent=None,
                     ip_address=None,
-                    nimbus_enrollments=None,
+                    nimbus_enrollments=[],
                     nimbus_nimbus_user_id="123",
                     url_path="/some/path",
                     events=[],
