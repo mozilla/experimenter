@@ -72,7 +72,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CIRRUS_URL = config("CIRRUS_URL", default=None)
 
-GLEAN_APP_ID = config("GLEAN_APP_ID", default="experimenter.backend")
+GLEAN_APP_ID = config("GLEAN_APP_ID", default="experimenter-backend")
 
 GLEAN_APP_CHANNEL = config("GLEAN_APP_CHANNEL", default="developer")
 
