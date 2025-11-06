@@ -1651,3 +1651,32 @@ class TagAssignForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["tags"].queryset = Tag.objects.all().order_by("name")
         self.fields["tags"].widget = forms.CheckboxSelectMultiple()
+
+
+class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    collaborators = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all().order_by("email"),
+        widget=MultiSelectWidget(),
+        required=False,
+        label="Collaborators",
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Initialize the collaborators field with current subscribers
+        if self.instance and self.instance.pk:
+            self.fields["collaborators"].initial = self.instance.subscribers.all()
+
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        if commit:
+            # Update subscribers with selected collaborators
+            experiment.subscribers.set(self.cleaned_data["collaborators"])
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated collaborators"

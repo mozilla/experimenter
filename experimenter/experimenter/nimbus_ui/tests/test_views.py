@@ -1323,6 +1323,48 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertNotIn(self.user, self.experiment.subscribers.all())
         self.assertEqual(response.status_code, 200)
 
+    def test_update_collaborators(self):
+        from experimenter.openidc.tests.factories import UserFactory
+
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        self.assertNotIn(user1, self.experiment.subscribers.all())
+        self.assertNotIn(user2, self.experiment.subscribers.all())
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-update-collaborators", kwargs={"slug": self.experiment.slug}
+            ),
+            {"subscribers": [user1.id, user2.id]},
+        )
+
+        self.experiment.refresh_from_db()
+
+        self.assertIn(user1, self.experiment.subscribers.all())
+        self.assertIn(user2, self.experiment.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_collaborators_removes_users(self):
+        from experimenter.openidc.tests.factories import UserFactory
+
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        self.experiment.subscribers.set([user1, user2])
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-update-collaborators", kwargs={"slug": self.experiment.slug}
+            ),
+            {"subscribers": [user1.id]},
+        )
+
+        self.experiment.refresh_from_db()
+
+        self.assertIn(user1, self.experiment.subscribers.all())
+        self.assertNotIn(user2, self.experiment.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
     def test_ready_is_false_if_review_serializer_invalid(self):
         experiment = NimbusExperimentFactory.create(
             public_description="",

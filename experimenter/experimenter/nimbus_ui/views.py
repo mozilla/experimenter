@@ -42,6 +42,7 @@ from experimenter.nimbus_ui.forms import (
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
     CancelUpdateRolloutForm,
+    CollaboratorsForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
@@ -323,6 +324,7 @@ class NimbusExperimentDetailView(
         context["promote_to_rollout_forms"] = NimbusExperimentPromoteToRolloutForm(
             instance=self.object
         )
+        context["collaborators_form"] = CollaboratorsForm(instance=self.object)
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
         context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
         if context["qa_edit_mode"]:
@@ -585,18 +587,43 @@ class AudienceUpdateView(
         return context
 
 
+class CollaboratorsContextMixin:
+    template_name = "nimbus_experiments/subscribers_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["collaborators_form"] = CollaboratorsForm(instance=self.object)
+        return context
+
+
+class CollaboratorsUpdateView(
+    CollaboratorsContextMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
+):
+    form_class = CollaboratorsForm
+
+
 class SubscribeView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    CollaboratorsContextMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
 ):
     form_class = SubscribeForm
-    template_name = "nimbus_experiments/subscribers_list.html"
 
 
 class UnsubscribeView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    CollaboratorsContextMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
 ):
     form_class = UnsubscribeForm
-    template_name = "nimbus_experiments/subscribers_list.html"
 
 
 class FeatureSubscribeView(RequestFormMixin, RenderResponseMixin, UpdateView):
