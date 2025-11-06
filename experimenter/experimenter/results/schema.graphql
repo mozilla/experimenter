@@ -525,6 +525,7 @@ enum NimbusExperimentApplicationEnum {
   FXA
   DEMO_APP
   EXPERIMENTER
+  SUBPLAT
 }
 
 enum NimbusExperimentChannelEnum {
