@@ -1,35 +1,39 @@
-<tr class="subscribers-section">
-  <th>Subscribers</th>
-  <td id="subscribers-list"
-      colspan="2"
-      style="max-height: 150px;
-             overflow-y: auto;
-             overflow-x: hidden">
-    {% for subscriber in experiment.subscribers.all %}
-      <p>{{ subscriber.email }}</p>
-    {% empty %}
-      <span class="text-danger">Not Set</span>
-    {% endfor %}
-  </td>
-  <td style="text-align: right;">
-    {% if request.user in experiment.subscribers.all %}
-      <form method="post"
-            action="{% url 'nimbus-ui-unsubscribe' slug=experiment.slug %}"
-            hx-post="{% url 'nimbus-ui-unsubscribe' slug=experiment.slug %}"
-            hx-target=".subscribers-section"
-            hx-swap="outerHTML">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Unsubscribe</button>
-      </form>
-    {% else %}
-      <form method="post"
-            action="{% url 'nimbus-ui-subscribe' slug=experiment.slug %}"
-            hx-post="{% url 'nimbus-ui-subscribe' slug=experiment.slug %}"
-            hx-target=".subscribers-section"
-            hx-swap="outerHTML">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-success">Subscribe</button>
-      </form>
-    {% endif %}
-  </td>
-</tr>
+<tbody id="collaborators-subscribers-section"
+       hx-on="htmx:afterOnLoad: window.$ && $('#collaborators-subscribers-section .selectpicker').selectpicker('refresh')">
+  <tr id="subscribers-row" class="subscribers-section">
+    <th>Subscribers</th>
+    <td id="subscribers-list"
+        colspan="2"
+        style="max-height: 150px;
+               overflow-y: auto;
+               overflow-x: hidden">
+      {% for subscriber in experiment.subscribers.all %}
+        <p>{{ subscriber.email }}</p>
+        {% empty %} <span class="text-danger">Not Set</span>
+      {% endfor %}
+    </td>
+    <td style="text-align: right">
+      {% if request.user in experiment.subscribers.all %}
+        <form method="post"
+              action="{% url 'nimbus-ui-unsubscribe' slug=experiment.slug %}"
+              hx-post="{% url 'nimbus-ui-unsubscribe' slug=experiment.slug %}"
+              hx-target="#collaborators-subscribers-section"
+              hx-swap="outerHTML">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Unsubscribe</button>
+        </form>
+      {% else %}
+        <form method="post"
+              action="{% url 'nimbus-ui-subscribe' slug=experiment.slug %}"
+              hx-post="{% url 'nimbus-ui-subscribe' slug=experiment.slug %}"
+              hx-target="#collaborators-subscribers-section"
+              hx-swap="outerHTML">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success">Subscribe</button>
+        </form>
+      {% endif %}
+    </td>
+  </tr>
+  {% include "nimbus_experiments/collaborators_section.html" %}
+
+</tbody>

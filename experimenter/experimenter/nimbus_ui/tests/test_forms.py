@@ -45,6 +45,7 @@ from experimenter.nimbus_ui.forms import (
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
     CancelUpdateRolloutForm,
+    CollaboratorsForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
@@ -4116,6 +4117,49 @@ class TestTagFormSet(TestCase):
         self.assertEqual(tag.name, "Tag 3")
         self.assertTrue(tag.color.startswith("#"))
         self.assertEqual(len(tag.color), 7)
+
+
+class TestCollaboratorsForm(RequestFormTestCase):
+    def test_collaborators_form_updates_subscribers(self):
+        experiment = NimbusExperimentFactory.create()
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        form = CollaboratorsForm(
+            instance=experiment,
+            data={"collaborators": [user1.id, user2.id]},
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(set(experiment.subscribers.all()), {user1, user2})
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated collaborators", changelog.message)
+
+    def test_collaborators_form_removes_subscribers(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        experiment.subscribers.set([user1, user2])
+
+        form = CollaboratorsForm(
+            instance=experiment, data={"collaborators": [user1.id]}, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(list(experiment.subscribers.all()), [user1])
+
+    def test_collaborators_form_initial_value(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        experiment.subscribers.set([user1, user2])
+
+        form = CollaboratorsForm(instance=experiment, request=self.request)
+        self.assertEqual(set(form.fields["collaborators"].initial), {user1, user2})
 
 
 class TestTagAssignForm(RequestFormTestCase):

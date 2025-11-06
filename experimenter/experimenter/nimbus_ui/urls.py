@@ -15,6 +15,7 @@ from experimenter.nimbus_ui.views import (
     CancelEndEnrollmentView,
     CancelEndExperimentView,
     CancelUpdateRolloutView,
+    CollaboratorsUpdateView,
     DocumentationLinkCreateView,
     DocumentationLinkDeleteView,
     DraftToPreviewView,
@@ -190,6 +191,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/unsubscribe/",
         UnsubscribeView.as_view(),
         name="nimbus-ui-unsubscribe",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/update_collaborators/",
+        CollaboratorsUpdateView.as_view(),
+        name="nimbus-ui-update-collaborators",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/draft-to-preview/$",
