@@ -45,6 +45,7 @@ from experimenter.nimbus_ui.forms import (
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
     CancelUpdateRolloutForm,
+    CollaboratorsForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
@@ -79,7 +80,6 @@ from experimenter.nimbus_ui.forms import (
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.segments import Segments
 from experimenter.segments.tests.mock_segments import mock_get_segments
 from experimenter.targeting.constants import NimbusTargetingConfig
@@ -1177,7 +1177,6 @@ class TestLaunchForms(RequestFormTestCase):
 
 class TestOverviewForm(RequestFormTestCase):
     def test_valid_form_saves(self):
-        project = ProjectFactory.create()
         documentation_link = NimbusDocumentationLinkFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1191,7 +1190,6 @@ class TestOverviewForm(RequestFormTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [project.id],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -1215,7 +1213,6 @@ class TestOverviewForm(RequestFormTestCase):
         self.assertEqual(experiment.hypothesis, "new hypothesis")
         self.assertTrue(experiment.risk_brand)
         self.assertTrue(experiment.risk_message)
-        self.assertEqual(list(experiment.projects.all()), [project])
         self.assertEqual(experiment.public_description, "new description")
         self.assertTrue(experiment.risk_revenue)
         self.assertTrue(experiment.risk_partner_related)
@@ -1227,7 +1224,6 @@ class TestOverviewForm(RequestFormTestCase):
         self.assertEqual(documentation_link.link, "https://www.example.com")
 
     def test_name_field_is_required(self):
-        project = ProjectFactory.create()
         documentation_link = NimbusDocumentationLinkFactory.create()
 
         form_data = {
@@ -1235,7 +1231,6 @@ class TestOverviewForm(RequestFormTestCase):
             "hypothesis": "new hypothesis",
             "risk_brand": True,
             "risk_message": True,
-            "projects": [project.id],
             "public_description": "new description",
             "risk_revenue": True,
             "risk_partner_related": True,
@@ -1268,7 +1263,6 @@ class TestDocumentationLinkCreateForm(RequestFormTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -1301,7 +1295,6 @@ class TestDocumentationLinkDeleteForm(RequestFormTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -2945,6 +2938,31 @@ class TestNimbusBranchesForm(RequestFormTestCase):
             {"branches": [{}, {"name": [NimbusUIConstants.ERROR_SLUG_DUPLICATE_BRANCH]}]},
         )
 
+    def test_branches_ordered_by_id_with_reference_branch_first(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        experiment.branches.all().delete()
+
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="A Branch", slug="a-branch"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="B Branch", slug="b-branch"
+        )
+        branch_c = NimbusBranchFactory.create(
+            experiment=experiment, name="C Branch", slug="c-branch"
+        )
+        experiment.reference_branch = branch_b
+        experiment.save()
+
+        form = NimbusBranchesForm(instance=experiment, request=self.request)
+
+        expected_branch_ids = [branch.slug for branch in form.branches.get_queryset()]
+        self.assertEqual(
+            expected_branch_ids, [branch_b.slug, branch_a.slug, branch_c.slug]
+        )
+
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
     def test_form_saves_branches(self):
@@ -4101,6 +4119,49 @@ class TestTagFormSet(TestCase):
         self.assertEqual(len(tag.color), 7)
 
 
+class TestCollaboratorsForm(RequestFormTestCase):
+    def test_collaborators_form_updates_subscribers(self):
+        experiment = NimbusExperimentFactory.create()
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        form = CollaboratorsForm(
+            instance=experiment,
+            data={"collaborators": [user1.id, user2.id]},
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(set(experiment.subscribers.all()), {user1, user2})
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated collaborators", changelog.message)
+
+    def test_collaborators_form_removes_subscribers(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        experiment.subscribers.set([user1, user2])
+
+        form = CollaboratorsForm(
+            instance=experiment, data={"collaborators": [user1.id]}, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(list(experiment.subscribers.all()), [user1])
+
+    def test_collaborators_form_initial_value(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        experiment.subscribers.set([user1, user2])
+
+        form = CollaboratorsForm(instance=experiment, request=self.request)
+        self.assertEqual(set(form.fields["collaborators"].initial), {user1, user2})
+
+
 class TestTagAssignForm(RequestFormTestCase):
     def test_valid_form_assigns_tags(self):
         experiment = NimbusExperimentFactory.create()
@@ -4144,7 +4205,7 @@ class TestTagAssignForm(RequestFormTestCase):
         TagFactory.create(name="A Tag")
         TagFactory.create(name="M Tag")
 
-        experiment = NimbusExperimentFactory.create()
+        experiment = NimbusExperimentFactory.create(tags=[])
         form = TagAssignForm(instance=experiment)
 
         tag_names = [tag.name for tag in form.fields["tags"].queryset]

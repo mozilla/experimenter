@@ -1,0 +1,8 @@
+welcome-feature:
+  description: Display a welcome banner on the new Sub Manage page
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If the feature is enabled.

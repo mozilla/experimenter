@@ -42,6 +42,7 @@ from experimenter.nimbus_ui.forms import (
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
     CancelUpdateRolloutForm,
+    CollaboratorsForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
@@ -319,6 +320,7 @@ class NimbusExperimentDetailView(
         context["promote_to_rollout_forms"] = NimbusExperimentPromoteToRolloutForm(
             instance=self.object
         )
+        context["collaborators_form"] = CollaboratorsForm(instance=self.object)
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
         context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
         if context["qa_edit_mode"]:
@@ -328,6 +330,8 @@ class NimbusExperimentDetailView(
 
         if "save_failed" in self.request.GET:
             context["save_failed"] = True
+
+        context["coenrollment_note"] = NimbusUIConstants.COENROLLMENT_NOTE
 
         return context
 
@@ -498,6 +502,11 @@ class BranchesBaseView(
     def can_edit(self):
         return self.object.can_edit_branches()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["coenrollment_note"] = NimbusUIConstants.COENROLLMENT_NOTE
+        return context
+
 
 class BranchesPartialUpdateView(RenderDBResponseMixin, BranchesBaseView):
     pass
@@ -559,18 +568,43 @@ class AudienceUpdateView(
         return self.object.can_edit_audience()
 
 
+class CollaboratorsContextMixin:
+    template_name = "nimbus_experiments/subscribers_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["collaborators_form"] = CollaboratorsForm(instance=self.object)
+        return context
+
+
+class CollaboratorsUpdateView(
+    CollaboratorsContextMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
+):
+    form_class = CollaboratorsForm
+
+
 class SubscribeView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    CollaboratorsContextMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
 ):
     form_class = SubscribeForm
-    template_name = "nimbus_experiments/subscribers_list.html"
 
 
 class UnsubscribeView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    CollaboratorsContextMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
 ):
     form_class = UnsubscribeForm
-    template_name = "nimbus_experiments/subscribers_list.html"
 
 
 class FeatureSubscribeView(RequestFormMixin, RenderResponseMixin, UpdateView):
@@ -650,6 +684,11 @@ class ApproveUpdateRolloutView(StatusUpdateView):
 class NewResultsView(NimbusExperimentViewMixin, DetailView):
     template_name = "nimbus_experiments/results-new.html"
 
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request"):
+            return ["nimbus_experiments/results-new-fragment.html"]
+        return [self.template_name]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         experiment = self.get_object()
@@ -663,8 +702,10 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         )
         context["selected_reference_branch"] = selected_reference_branch
 
+        segments = list(analysis_data.get("overall", {}).get("enrollments", {}).keys())
         selected_segment = self.request.GET.get("segment", "all")
         context["selected_segment"] = selected_segment
+        context["segments"] = segments
 
         analysis_basis = self.request.GET.get(
             "analysis_basis", "exposures" if experiment.has_exposures else "enrollments"
@@ -790,7 +831,7 @@ class NimbusFeaturesView(TemplateView):
         labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
         total_changes = 0
 
-        if feature_id:
+        if feature_id and qs:
             sort = self.request.GET.get("sort", "")
 
             if sort == "change_version":

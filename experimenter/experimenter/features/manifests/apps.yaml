@@ -138,3 +138,10 @@ experimenter_cirrus:
   repo:
     type: "local"
   fml_path: "experimenter/features/manifests/experimenter/nimbus.fml.yaml"
+
+subplat_cirrus:
+  slug: "subplat-web"
+  repo:
+    type: "github"
+    name: "mozilla/fxa"
+  fml_path: "configs/subplat-nimbus.fml.yaml"

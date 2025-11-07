@@ -30,26 +30,10 @@ class OverviewPage(ExperimenterBase):
     _risk_message_locator = (By.CSS_SELECTOR, "#id_risk_message_1")
     _risk_revenue_locator = (By.CSS_SELECTOR, "#id_risk_revenue_1")
     _risk_partner_locator = (By.CSS_SELECTOR, "#id_risk_partner_related_1")
-    _projects_input_locator = (By.CSS_SELECTOR, "#id_projects")
-    _projects_value_locator = (
-        By.CSS_SELECTOR,
-        "div[class*='multiValue'] > div:nth-child(1)",
-    )
-    _project_dropdown_locator = (By.CSS_SELECTOR, "#overview-form .dropdown")
+    _tags_dropdown_locator = (By.CSS_SELECTOR, "#assignTagsDropdown")
+    _tags_checkbox_locator = (By.CSS_SELECTOR, "input[name='tags']")
+    _tag_label_locator = (By.CSS_SELECTOR, ".form-check-label")
     NEXT_PAGE = BranchesPage
-
-    @property
-    def projects(self):
-        return [
-            element.text for element in self.find_elements(*self._projects_value_locator)
-        ]
-
-    @projects.setter
-    def projects(self, text=None):
-        self.wait_for_and_find_element(*self._project_dropdown_locator).click()
-        el = self.wait_for_and_find_element(*self._projects_input_locator)
-        select = Select(el)
-        select.select_by_value(text)
 
     @property
     def public_description(self):
@@ -75,6 +59,28 @@ class OverviewPage(ExperimenterBase):
     def select_risk_partner_false(self):
         el = self.wait_for_and_find_element(*self._risk_partner_locator)
         el.click()
+
+    @property
+    def tags(self):
+        checkboxes = self.find_elements(*self._tags_checkbox_locator)
+        return [cb.get_attribute("value") for cb in checkboxes if cb.is_selected()]
+
+    def select_tag(self, tag_id):
+        self.wait_for_and_find_element(*self._tags_dropdown_locator).click()
+        checkbox = self.wait_for_and_find_element(By.CSS_SELECTOR, f"#tag-{tag_id}")
+        if not checkbox.is_selected():
+            checkbox.click()
+
+    def select_first_available_tag(self):
+        """Select the first available tag for testing."""
+        self.wait_for_and_find_element(*self._tags_dropdown_locator).click()
+        checkboxes = self.find_elements(*self._tags_checkbox_locator)
+        if checkboxes:
+            first_checkbox = checkboxes[0]
+            if not first_checkbox.is_selected():
+                first_checkbox.click()
+            return first_checkbox.get_attribute("value")
+        return None
 
     @property
     def additional_links(self):

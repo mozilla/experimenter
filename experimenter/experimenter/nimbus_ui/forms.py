@@ -5,7 +5,8 @@ from datetime import UTC, datetime
 import markus
 from django import forms
 from django.contrib.auth.models import User
-from django.forms import BaseModelFormSet, inlineformset_factory
+from django.db.models import Case, When
+from django.forms import BaseInlineFormSet, BaseModelFormSet, inlineformset_factory
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.text import slugify
@@ -30,7 +31,6 @@ from experimenter.kinto.tasks import (
 from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
-from experimenter.projects.models import Project
 from experimenter.segments import Segments
 from experimenter.targeting.constants import NimbusTargetingConfig
 
@@ -344,9 +344,7 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         widget=InlineRadioSelect,
         coerce=lambda x: x == "True",
     )
-    projects = forms.ModelMultipleChoiceField(
-        required=False, queryset=Project.objects.all(), widget=MultiSelectWidget()
-    )
+
     public_description = forms.CharField(
         required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3})
     )
@@ -368,7 +366,6 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         fields = [
             "name",
             "hypothesis",
-            "projects",
             "public_description",
             "risk_partner_related",
             "risk_revenue",
@@ -613,6 +610,23 @@ class FeatureConfigModelChoiceField(forms.ModelMultipleChoiceField):
         return obj.name
 
 
+class OrderedBranchFormSet(BaseInlineFormSet):
+    """
+    Branch FormSet with reference branch first and remaining
+    branches ordered by db id for stable ordering
+    """
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .order_by(
+                Case(When(id=self.instance.reference_branch_id, then=0), default=1),
+                "id",
+            )
+        )
+
+
 class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     feature_configs = FeatureConfigModelChoiceField(
         required=False,
@@ -684,13 +698,6 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.NimbusBranchFormSet = inlineformset_factory(
-            NimbusExperiment,
-            NimbusBranch,
-            form=NimbusBranchForm,
-            extra=0,
-        )
-
         branches_formset_kwargs = {
             "data": self.data or None,
             "instance": self.instance,
@@ -698,7 +705,15 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         if self.files:
             branches_formset_kwargs["files"] = self.files
 
-        self.branches = self.NimbusBranchFormSet(**branches_formset_kwargs)
+        NimbusBranchFormSet = inlineformset_factory(
+            NimbusExperiment,
+            NimbusBranch,
+            form=NimbusBranchForm,
+            formset=OrderedBranchFormSet,
+            extra=0,
+        )
+
+        self.branches = NimbusBranchFormSet(**branches_formset_kwargs)
 
         self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
             application=self.instance.application
@@ -1655,3 +1670,32 @@ class TagAssignForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["tags"].queryset = Tag.objects.all().order_by("name")
         self.fields["tags"].widget = forms.CheckboxSelectMultiple()
+
+
+class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    collaborators = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all().order_by("email"),
+        widget=MultiSelectWidget(),
+        required=False,
+        label="Collaborators",
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Initialize the collaborators field with current subscribers
+        if self.instance and self.instance.pk:
+            self.fields["collaborators"].initial = self.instance.subscribers.all()
+
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        if commit:
+            # Update subscribers with selected collaborators
+            experiment.subscribers.set(self.cleaned_data["collaborators"])
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated collaborators"

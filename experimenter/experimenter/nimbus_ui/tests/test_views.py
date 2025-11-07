@@ -46,7 +46,6 @@ from experimenter.nimbus_ui.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.segments import Segments
 from experimenter.segments.tests.mock_segments import mock_get_segments
 from experimenter.targeting.constants import TargetingConstants
@@ -575,30 +574,6 @@ class NimbusExperimentsListViewTest(AuthTestCase):
             {
                 "status": NimbusExperiment.Status.LIVE,
                 "targeting_config_slug": targeting_config,
-            },
-        )
-
-        self.assertEqual(
-            {e.slug for e in response.context["experiments"]}, {experiment.slug}
-        )
-
-    def test_filter_projects(self):
-        project = ProjectFactory.create()
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.LIVE, projects=[project]
-        )
-        [
-            NimbusExperimentFactory.create(
-                status=NimbusExperiment.Status.LIVE, projects=[]
-            )
-            for _i in range(3)
-        ]
-
-        response = self.client.get(
-            reverse("nimbus-list"),
-            {
-                "status": NimbusExperiment.Status.LIVE,
-                "projects": project.id,
             },
         )
 
@@ -1348,6 +1323,48 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertNotIn(self.user, self.experiment.subscribers.all())
         self.assertEqual(response.status_code, 200)
 
+    def test_update_collaborators(self):
+        from experimenter.openidc.tests.factories import UserFactory
+
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        self.assertNotIn(user1, self.experiment.subscribers.all())
+        self.assertNotIn(user2, self.experiment.subscribers.all())
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-update-collaborators", kwargs={"slug": self.experiment.slug}
+            ),
+            {"collaborators": [user1.id, user2.id]},
+        )
+
+        self.experiment.refresh_from_db()
+
+        self.assertIn(user1, self.experiment.subscribers.all())
+        self.assertIn(user2, self.experiment.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_collaborators_removes_users(self):
+        from experimenter.openidc.tests.factories import UserFactory
+
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        self.experiment.subscribers.set([user1, user2])
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-update-collaborators", kwargs={"slug": self.experiment.slug}
+            ),
+            {"collaborators": [user1.id]},
+        )
+
+        self.experiment.refresh_from_db()
+
+        self.assertIn(user1, self.experiment.subscribers.all())
+        self.assertNotIn(user2, self.experiment.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
     def test_ready_is_false_if_review_serializer_invalid(self):
         experiment = NimbusExperimentFactory.create(
             public_description="",
@@ -1600,7 +1617,6 @@ class TestOverviewUpdateView(AuthTestCase):
         )
 
     def test_post_updates_overview(self):
-        project = ProjectFactory.create()
         documentation_link = NimbusDocumentationLinkFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1614,7 +1630,6 @@ class TestOverviewUpdateView(AuthTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [project.id],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -1636,7 +1651,6 @@ class TestOverviewUpdateView(AuthTestCase):
         self.assertEqual(experiment.hypothesis, "new hypothesis")
         self.assertTrue(experiment.risk_brand)
         self.assertTrue(experiment.risk_message)
-        self.assertEqual(list(experiment.projects.all()), [project])
         self.assertEqual(experiment.public_description, "new description")
         self.assertTrue(experiment.risk_revenue)
         self.assertTrue(experiment.risk_partner_related)
@@ -1664,7 +1678,6 @@ class TestOverviewUpdateView(AuthTestCase):
                 "risk_revenue": "",
                 "risk_brand": "",
                 "risk_message": "",
-                "projects": [],
                 "documentation_links-TOTAL_FORMS": "1",
                 "documentation_links-INITIAL_FORMS": "1",
                 "documentation_links-0-id": documentation_link.id,
@@ -1709,7 +1722,6 @@ class TestOverviewUpdateView(AuthTestCase):
                 "risk_revenue": "",
                 "risk_brand": "",
                 "risk_message": "",
-                "projects": [],
                 "documentation_links-TOTAL_FORMS": "1",
                 "documentation_links-INITIAL_FORMS": "1",
                 "documentation_links-0-id": documentation_link.id,
@@ -1742,7 +1754,6 @@ class TestDocumentationLinkCreateView(AuthTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -1773,7 +1784,6 @@ class TestDocumentationLinkDeleteView(AuthTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -3089,6 +3099,18 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.context["selected_segment"], "foo")
         self.assertEqual(response.context["selected_analysis_basis"], "enrollments")
 
+    def test_results_template_fragment_used_with_htmx(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-new-results", kwargs={"slug": experiment.slug}),
+            headers={"Hx-Request": "true"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/results-new-fragment.html")
+
 
 class TestBranchScreenshotCreateView(AuthTestCase):
     def test_post_creates_screenshot(self):
@@ -4175,6 +4197,11 @@ class TestNimbusFeaturesView(AuthTestCase):
         feature_config = self.feature_configs["feature-desktop"]
         feature_config.schemas.all().delete()
 
+        NimbusExperimentFactory.create(
+            application=application,
+            feature_configs=[feature_config],
+        )
+
         version_125 = NimbusFeatureVersion.objects.create(major=125, minor=0, patch=0)
         version_123 = NimbusFeatureVersion.objects.create(major=123, minor=0, patch=0)
         version_121 = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
@@ -4224,6 +4251,11 @@ class TestNimbusFeaturesView(AuthTestCase):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = self.feature_configs["feature-desktop"]
         feature_config.schemas.all().delete()
+
+        NimbusExperimentFactory.create(
+            application=application,
+            feature_configs=[feature_config],
+        )
 
         version_125 = NimbusFeatureVersion.objects.create(major=125, minor=0, patch=0)
         version_123 = NimbusFeatureVersion.objects.create(major=123, minor=0, patch=0)
@@ -4451,6 +4483,66 @@ class TestNimbusFeaturesView(AuthTestCase):
 
         self.assertIn(self.user, feature.subscribers.all())
         self.assertEqual(response.status_code, 200)
+
+    def test_features_view_tables_reset_on_new_request_after_loading(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=application,
+            slug="test-feature",
+        )
+
+        version_121 = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
+        version_120 = NimbusFeatureVersion.objects.create(major=120, minor=0, patch=0)
+
+        base = '{"field1": "value1", "field2": "value2", "field3": "value3"}'
+        schema_120 = base
+        schema_121 = base
+
+        feature_config.schemas.all().delete()
+
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_120,
+            schema=schema_120,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_121,
+            schema=schema_121,
+        )
+
+        NimbusExperimentFactory.create(
+            name="Experiment with Feature",
+            application=application,
+            feature_configs=[feature_config],
+            qa_status=NimbusExperiment.QAStatus.GREEN,
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_config.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+        self.assertIsNotNone(context["experiments_delivered"])
+        self.assertIsNotNone(context["experiments_with_qa_status"])
+        self.assertIsNotNone(context["feature_schemas"])
+
+        new_application = NimbusExperiment.Application.IOS
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": new_application.value,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+        self.assertEqual(len(context["experiments_delivered"]), 0)
+        self.assertEqual(len(context["experiments_with_qa_status"]), 0)
+        self.assertEqual(len(context["feature_schemas"]), 0)
 
 
 class TestTagsManageView(AuthTestCase):
