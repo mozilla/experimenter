@@ -744,13 +744,15 @@ class NimbusFeaturesView(TemplateView):
     filterset_class = NimbusExperimentFilter
     context_object_name = "features"
 
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.app = self.request.GET.get("application")
+        self.feature_id = self.request.GET.get("feature_configs")
+
     def get_form(self):
         return FeaturesForm(self.request.GET or None)
 
     def get_queryset(self):
-        self.app = self.request.GET.get("application")
-        self.feature_id = self.request.GET.get("feature_configs")
-
         if not self.app or not self.feature_id:
             return NimbusExperiment.objects.none()
 
@@ -777,9 +779,11 @@ class NimbusFeaturesView(TemplateView):
         if not self.feature_id or not self.app:
             return None
 
-        return NimbusFeatureConfig.objects.filter(
-            pk=self.feature_id, application=self.app
-        ).first()
+        return (
+            NimbusFeatureConfig.objects.filter(pk=self.feature_id, application=self.app)
+            .only("pk", "application")
+            .first()
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
