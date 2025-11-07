@@ -1143,21 +1143,6 @@ newtabCustomWallpaper:
       description: >-
         Maximum file size (in MB) a user can upload
 
-newtabGroupedSponsoredControls:
-  description: >-
-    Adjust sponsored content controls on newtab.
-  owner: mcrawford@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.system.showSponsoredCheckboxes
-      description: >-
-        When true, checkboxes for sponsored results in top sites and recommended stories are grouped separately
-        on about:preferences#home
-
 newtabInlineTopicSelection:
   description: >-
       Adds Inline topic selection to sections layout
