@@ -207,16 +207,8 @@ class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateVi
     context_object_name = "selected_feature_config"
     url_name = None
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        application = self.kwargs.get("application")
-        return queryset.filter(application=application)
-
     def get_success_url(self):
-        return reverse(
-            self.url_name,
-            kwargs={"application": self.object.application, "slug": self.object.slug},
-        )
+        return reverse(self.url_name, kwargs={"pk": self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -764,11 +756,9 @@ class NimbusFeaturesView(TemplateView):
 
         qs = (
             NimbusExperiment.objects.with_merged_channel()
-            .filter(is_archived=False)
+            .filter(is_archived=False, application=self.app)
             .order_by("-_updated_date_time")
         )
-
-        qs = qs.filter(application=self.app)
 
         sort_param = self.request.GET.get("sort", "name")
         if sort_param in [
@@ -787,12 +777,9 @@ class NimbusFeaturesView(TemplateView):
         if not self.feature_id or not self.app:
             return None
 
-        try:
-            return NimbusFeatureConfig.objects.filter(
-                pk=self.feature_id, application=self.app
-            ).get()
-        except NimbusFeatureConfig.DoesNotExist:
-            return None
+        return NimbusFeatureConfig.objects.filter(
+            pk=self.feature_id, application=self.app
+        ).first()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

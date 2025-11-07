@@ -184,7 +184,7 @@ urlpatterns = [
         name="nimbus-ui-subscribe",
     ),
     re_path(
-        r"^(?P<application>[\w-]+)/(?P<slug>[\w-]+)/feature_subscribe/",
+        r"^feature/(?P<pk>\d+)/subscribe/",
         FeatureSubscribeView.as_view(),
         name="nimbus-ui-feature-subscribe",
     ),
@@ -194,7 +194,7 @@ urlpatterns = [
         name="nimbus-ui-unsubscribe",
     ),
     re_path(
-        r"^(?P<application>[\w-]+)/(?P<slug>[\w-]+)/feature_unsubscribe/",
+        r"^feature/(?P<pk>\d+)/unsubscribe/",
         FeatureUnsubscribeView.as_view(),
         name="nimbus-ui-feature-unsubscribe",
     ),

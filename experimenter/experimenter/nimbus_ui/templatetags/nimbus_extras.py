@@ -325,8 +325,7 @@ def short_number(value, precision=1):
 
 @register.filter
 def format_string(value, arg):
-    """
-    Format a string with a single placeholder {text}.
+    """Format a string with a single placeholder {text}.
 
     Usage:
         {{ "Subscribe to {text}"|format_string:feature.name }}

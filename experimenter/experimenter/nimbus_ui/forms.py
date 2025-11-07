@@ -1271,16 +1271,14 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 class FeatureSubscribeForm(FeatureSubscriberFormMixin):
     def save(self, commit=True):
-        feature_config = super().save(commit=commit)
-        feature_config.subscribers.add(self.request.user)
-        return feature_config
+        self.instance.subscribers.add(self.request.user)
+        return self.instance
 
 
 class FeatureUnsubscribeForm(FeatureSubscriberFormMixin):
     def save(self, commit=True):
-        feature_config = super().save(commit=commit)
-        feature_config.subscribers.remove(self.request.user)
-        return feature_config
+        self.instance.subscribers.remove(self.request.user)
+        return self.instance
 
 
 class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):

@@ -4476,10 +4476,7 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertNotIn(self.user, feature.subscribers.all())
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-feature-subscribe",
-                kwargs={"application": feature.application, "slug": feature.slug},
-            )
+            reverse("nimbus-ui-feature-subscribe", kwargs={"pk": feature.pk})
         )
 
         feature.refresh_from_db()
@@ -4503,15 +4500,8 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertNotIn(self.user, duplicate_feature.subscribers.all())
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-feature-subscribe",
-                kwargs={
-                    "application": duplicate_feature.application,
-                    "slug": duplicate_feature.slug,
-                },
-            )
+            reverse("nimbus-ui-feature-subscribe", kwargs={"pk": duplicate_feature.pk})
         )
-
         duplicate_feature.refresh_from_db()
 
         self.assertIn(self.user, duplicate_feature.subscribers.all())
@@ -4587,10 +4577,7 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertIn(self.user, feature.subscribers.all())
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-feature-unsubscribe",
-                kwargs={"application": feature.application, "slug": feature.slug},
-            )
+            reverse("nimbus-ui-feature-unsubscribe", kwargs={"pk": feature.pk})
         )
         feature.refresh_from_db()
 
