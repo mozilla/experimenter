@@ -145,7 +145,7 @@
                       <label class="form-label">
                         {{ branch_feature_values_form.instance.feature_config.name }}
                         {% if branch_feature_values_form.instance.allow_coenrollment %}
-                          <div class="form-text">{{ coenrollment_note }}</div>
+                          <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
                         {% endif %}
                       </label>
                       {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}

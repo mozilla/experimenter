@@ -150,6 +150,7 @@ TEMPLATES = [
                 "experimenter.base.context_processors.features",
                 "experimenter.base.context_processors.debug",
                 "experimenter.cirrus.context_processors.cirrus_features",
+                "experimenter.nimbus_ui.context_processors.nimbus_ui_constants",
             ],
             "debug": DEBUG,
             "loaders": [

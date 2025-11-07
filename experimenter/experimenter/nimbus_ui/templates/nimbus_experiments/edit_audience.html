@@ -90,15 +90,15 @@
                    class="form-label d-flex align-items-center">
               Advanced Targeting
               <a target="_blank"
-                 href="{{ links.targeting_criteria_request_url }}"
+                 href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.targeting_criteria_request_url }}"
                  class="ms-2"
                  style="font-size: 0.9em">file targeting criteria request</a>
               <i class="fa-regular fa-circle-question fa-sm ps-2 text-muted"
                  data-bs-toggle="tooltip"
                  data-bs-placement="right"
-                 title="{{ targeting_criteria_request_info }}">
+                 title="{{ NimbusUIConstants.TARGETING_CRITERIA_REQUEST_INFO }}">
               </i>
-              <a href="{{ links.custom_audiences_url }}"
+              <a href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.custom_audiences_url }}"
                  target="_blank"
                  class="ms-1 text-decoration-none"
                  style="font-size: 0.9em">(guidance)</a>
@@ -142,7 +142,8 @@
           <div class="col">
             {{ form.is_sticky|add_error_class:"is-invalid" }}
             <label for="id_is_sticky">Sticky Targeting (Clients remain enrolled even if they no longer meet the targeting)</label>
-            <a target="_blank" href="{{ links.sticky_targeting_url }}">Learn more</a>
+            <a target="_blank"
+               href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.sticky_targeting_url }}">Learn more</a>
             {% for error in form.is_sticky.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
             {% for error in validation_errors.is_sticky %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
           </div>
@@ -184,7 +185,8 @@
         <div class="card bg-body-tertiary border-0 p-4">
           <p class="text-secondary mb-4">
             Please ask a data scientist to help you determine these values.
-            <a target="_blank" href="{{ links.experimentation_office_hours_url }}">Learn more</a>
+            <a target="_blank"
+               href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.experimentation_office_hours_url }}">Learn more</a>
           </p>
           <div class="row">
             <div class="col-6 d-flex flex-column">

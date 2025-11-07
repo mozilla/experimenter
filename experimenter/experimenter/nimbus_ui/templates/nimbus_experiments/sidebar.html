@@ -71,7 +71,7 @@
       <i class="fa-regular fa-circle-question fa-sm ps-1"
          data-bs-toggle="tooltip"
          data-bs-placement="bottom"
-         title="{{ live_monitor_tooltip }}"></i>
+         title="{{ NimbusUIConstants.LIVE_MONITOR_TOOLTIP }}"></i>
     </a>
     {% if experiment.rollout_monitoring_dashboard_url %}
       <a class="nav-link d-flex align-items-center nav-link-hover"
@@ -86,7 +86,7 @@
     <i class="fa-solid fa-file-code pe-2"></i>
     Preview Recipe JSON
   </a>
-  {% for title, link in common_sidebar_links.items %}
+  {% for title, link in NimbusUIConstants.SIDEBAR_COMMON_LINKS.items %}
     <a class="nav-link d-flex align-items-center nav-link-hover d-flex justify-content-between"
        href="{% if title == 'Detailed Analysis' %}{{ analysis_link }}{% else %}{{ link.url }}{% endif %}">
       <div>
