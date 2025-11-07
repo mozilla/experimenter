@@ -84,11 +84,15 @@
       <div class="row">
         <div class="col">
           <h5>Key takeaways</h5>
-          <p class="text-muted">{{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.key_takeaways }}</p>
+          <p class="text-muted">
+            {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.key_takeaways }}
+          </p>
         </div>
         <div class="col">
           <h5>Next steps</h5>
-          <p class="text-muted">{{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.next_steps }}</p>
+          <p class="text-muted">
+            {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.next_steps }}
+          </p>
         </div>
         <div class="col">
           <div class="d-flex align-items-start gap-2">
@@ -96,7 +100,9 @@
             <h5>Project Impact</h5>
             <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
           </div>
-          <p class="text-muted">{{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.project_impact }}</p>
+          <p class="text-muted">
+            {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.project_impact }}
+          </p>
         </div>
       </div>
     </div>
