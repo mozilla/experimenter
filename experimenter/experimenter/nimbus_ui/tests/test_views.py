@@ -942,13 +942,20 @@ class NimbusExperimentsListViewTest(AuthTestCase):
         )
 
     def test_sort_by_versions(self):
-        experiment1 = NimbusExperimentFactory.create(
+        experiment_95 = NimbusExperimentFactory.create(
+            slug="firefox-95",
+            status=NimbusExperiment.Status.LIVE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+        )
+        experiment_100 = NimbusExperimentFactory.create(
+            slug="firefox-100",
             status=NimbusExperiment.Status.LIVE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
         )
-        experiment2 = NimbusExperimentFactory.create(
+        experiment_no_version = NimbusExperimentFactory.create(
+            slug="no-version",
             status=NimbusExperiment.Status.LIVE,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_101,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
         )
 
         response = self.client.get(
@@ -960,7 +967,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
 
         self.assertEqual(
             [e.slug for e in response.context["experiments"]],
-            [experiment1.slug, experiment2.slug],
+            [experiment_no_version.slug, experiment_95.slug, experiment_100.slug],
         )
 
         response = self.client.get(
@@ -972,7 +979,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
 
         self.assertEqual(
             [e.slug for e in response.context["experiments"]],
-            [experiment2.slug, experiment1.slug],
+            [experiment_100.slug, experiment_95.slug, experiment_no_version.slug],
         )
 
     def test_sort_by_start_date(self):
