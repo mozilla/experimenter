@@ -2665,8 +2665,10 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingCo
     targeting=(
         "user_accepted_tou == false && "
         "days_since_install >= 28 && "
-        "(tou_points == 0 && "
-        "(addon_ids['uBlock0@raymondhill.net'] == null && "
+        "("
+        "tou_points == 0 && "
+        "("
+        "addon_ids['uBlock0@raymondhill.net'] == null && "
         "addon_ids['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] == null && "
         "addon_ids['adguardadblocker@adguard.com'] == null && "
         "addon_ids['adblockultimate@adblockultimate.net'] == null && "
@@ -2676,7 +2678,8 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingCo
         "addon_ids['{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}'] == null && "
         "addon_ids['kolesin.work@gmail.com'] == null && "
         "addon_ids['adblocker@pcmatic.com'] == null && "
-        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] == null))"
+        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] == null"
+        "))"
     ),
     desktop_telemetry="",
     sticky_required=False,
@@ -2699,8 +2702,10 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConf
     targeting=(
         "user_accepted_tou == false && "
         "days_since_install >= 28 && "
-        "(tou_points == 1 || "
-        "(addon_ids['uBlock0@raymondhill.net'] != null || "
+        "("
+        "tou_points == 1 || "
+        "("
+        "addon_ids['uBlock0@raymondhill.net'] != null || "
         "addon_ids['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] != null || "
         "addon_ids['adguardadblocker@adguard.com'] != null || "
         "addon_ids['adblockultimate@adblockultimate.net'] != null || "
@@ -2710,7 +2715,8 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConf
         "addon_ids['{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}'] != null || "
         "addon_ids['kolesin.work@gmail.com'] != null || "
         "addon_ids['adblocker@pcmatic.com'] != null || "
-        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] != null))"
+        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] != null"
+        "))"
     ),
     desktop_telemetry="",
     sticky_required=False,
@@ -2733,8 +2739,10 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetin
     targeting=(
         "user_accepted_tou == false && "
         "days_since_install >= 28 && "
-        "(tou_points == 1 && "
-        "(addon_ids['uBlock0@raymondhill.net'] != null || "
+        "("
+        "tou_points == 1 && "
+        "("
+        "addon_ids['uBlock0@raymondhill.net'] != null || "
         "addon_ids['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] != null || "
         "addon_ids['adguardadblocker@adguard.com'] != null || "
         "addon_ids['adblockultimate@adblockultimate.net'] != null || "
@@ -2744,7 +2752,8 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetin
         "addon_ids['{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}'] != null || "
         "addon_ids['kolesin.work@gmail.com'] != null || "
         "addon_ids['adblocker@pcmatic.com'] != null || "
-        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] != null))"
+        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] != null"
+        "))"
     ),
     desktop_telemetry="",
     sticky_required=False,
