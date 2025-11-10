@@ -14,6 +14,22 @@ from experimenter.nimbus_ui.forms import MultiSelectWidget
 from experimenter.targeting.constants import TargetingConstants
 
 
+class VersionSortMixin:
+    def _get_version_sort_key(self, experiment):
+        if experiment.firefox_min_version:
+            return NimbusConstants.Version.parse(experiment.firefox_min_version)
+        return NimbusConstants.Version.parse(NimbusConstants.Version.NO_VERSION)
+
+    def sort_by_version(self, queryset, reverse=False):
+        experiments = list(queryset)
+        experiments.sort(key=self._get_version_sort_key, reverse=reverse)
+        sorted_ids = [e.id for e in experiments]
+        preserved_order = models.Case(
+            *[models.When(pk=pk, then=pos) for pos, pk in enumerate(sorted_ids)]
+        )
+        return queryset.filter(id__in=sorted_ids).order_by(preserved_order)
+
+
 class StatusChoices(models.TextChoices):
     DRAFT = NimbusExperiment.Status.DRAFT
     PREVIEW = NimbusExperiment.Status.PREVIEW
@@ -105,7 +121,7 @@ class DateRangeChoices(models.TextChoices):
     CUSTOM = "custom", "Custom Date Range"
 
 
-class NimbusExperimentFilter(django_filters.FilterSet):
+class NimbusExperimentFilter(VersionSortMixin, django_filters.FilterSet):
     sort = django_filters.ChoiceFilter(
         method="filter_sort",
         choices=SortChoices.choices,
@@ -281,6 +297,11 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ]
 
     def filter_sort(self, queryset, name, value):
+        if value in (SortChoices.VERSIONS_UP, SortChoices.VERSIONS_DOWN):
+            return self.sort_by_version(
+                queryset, reverse=(value == SortChoices.VERSIONS_DOWN)
+            )
+
         return queryset.order_by(value, "slug")
 
     def filter_status(self, queryset, name, value):
@@ -371,7 +392,7 @@ class HomeSortChoices(models.TextChoices):
         return headers
 
 
-class NimbusExperimentsHomeFilter(django_filters.FilterSet):
+class NimbusExperimentsHomeFilter(VersionSortMixin, django_filters.FilterSet):
     my_deliveries_status = django_filters.ChoiceFilter(
         label="",
         method="filter_my_deliveries",
@@ -488,6 +509,11 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
                 return queryset  # Default = All Deliveries
 
     def filter_sort(self, queryset, name, value):
+        if value in (HomeSortChoices.VERSIONS_UP, HomeSortChoices.VERSIONS_DOWN):
+            return self.sort_by_version(
+                queryset, reverse=(value == HomeSortChoices.VERSIONS_DOWN)
+            )
+
         return queryset.order_by(value, "slug")
 
     def filter_status(self, queryset, name, values):
