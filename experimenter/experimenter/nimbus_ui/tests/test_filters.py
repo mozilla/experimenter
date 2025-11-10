@@ -35,6 +35,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     experiment_date_progress,
     format_json,
     format_not_set,
+    format_string,
     home_status_display,
     qa_icon_info,
     remove_underscores,
@@ -134,6 +135,18 @@ class FilterTests(TestCase):
     def test_invalid_short_number(self):
         self.assertEqual(short_number("invalid"), "invalid")
         self.assertEqual(short_number(None), "None")
+
+    def test_format_string_with_text_placeholder(self):
+        result = format_string("Subscribe to {text} for updates", "test-feature")
+        self.assertEqual(result, "Subscribe to test-feature for updates")
+
+    def test_format_string_with_multiple_placeholders(self):
+        result = format_string("Feature {text} uses {text} technology", "nimbusQA")
+        self.assertEqual(result, "Feature nimbusQA uses nimbusQA technology")
+
+    def test_format_string_with_no_placeholder(self):
+        result = format_string("Subscribe for updates", "Picture-in-Picture")
+        self.assertEqual(result, "Subscribe for updates")
 
 
 class TestHomeFilters(AuthTestCase):
