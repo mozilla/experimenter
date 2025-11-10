@@ -2652,8 +2652,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TOU_AND_NO_SPONSORED_OPT_OUTS = NimbusTarget
 
 ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingConfig(
     name=(
-        "Existing users who have not accepted the Terms of Use "
-        "and have zero ToU points."
+        "Existing users who have not accepted the Terms of Use and have zero ToU points."
     ),
     slug="android_existing_users_not_accepted_terms_of_use_zero_tou_points",
     description=(
@@ -2689,8 +2688,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingCo
 
 ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConfig(
     name=(
-        "Existing users who have not accepted the Terms of Use "
-        "and have one ToU point."
+        "Existing users who have not accepted the Terms of Use and have one ToU point."
     ),
     slug="android_existing_users_not_accepted_terms_of_use_one_tou_point",
     description=(
