@@ -2351,6 +2351,270 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(second["num_participants"], 75)
         self.assertEqual(second["description"], branch_b.description)
 
+    def test_get_metric_data_returns_correct_data(self):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch B", slug="branch-b"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.49,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.12,
+                                                            "upper": 0.15,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "significance": {
+                                                "branch-b": {"overall": {"1": "neutral"}}
+                                            },
+                                            "difference": {
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.01,
+                                                            "upper": 0.03,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.24,
+                                                        "upper": 1.63,
+                                                        "point": 1.43,
+                                                    }
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.3,
+                                                            "upper": 0.55,
+                                                            "point": 0.13,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "significance": {
+                                                "branch-a": {"overall": {"1": "positive"}}
+                                            },
+                                            "difference": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.01,
+                                                            "upper": 0.03,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment.save()
+
+        results_a = experiment.get_metric_data("enrollments", "all", "branch-a")
+        results_b = experiment.get_metric_data("enrollments", "all", "branch-b")
+
+        data_a = results_b.get("KPI Metrics", {}).get("data", {})
+        data_b = results_a.get("KPI Metrics", {}).get("data", {})
+
+        first_data = data_a.get(branch_a.slug, {})
+        second_data = data_b.get(branch_b.slug, {})
+
+        self.assertEqual(
+            first_data.get("retained").get("absolute"),
+            [{"lower": "149.0%", "upper": "174.0%", "significance": "neutral"}],
+        )
+        self.assertEqual(
+            first_data.get("retained").get("relative"),
+            [
+                {
+                    "lower": -0.12,
+                    "upper": 0.15,
+                    "significance": "neutral",
+                    "avg_rel_change": 2,
+                }
+            ],
+        )
+
+        self.assertEqual(
+            second_data.get("retained").get("absolute"),
+            [{"lower": "124.0%", "upper": "163.0%", "significance": "positive"}],
+        )
+        self.assertEqual(
+            second_data.get("retained").get("relative"),
+            [
+                {
+                    "lower": -0.3,
+                    "upper": 0.55,
+                    "significance": "positive",
+                    "avg_rel_change": 13,
+                }
+            ],
+        )
+
+    @parameterized.expand(
+        [
+            (
+                "client_level_daily_active_users_v2",
+                [
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Retention",
+                        "slug": "retained",
+                        "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
+                        "display_type": "percentage",
+                    },
+                    {
+                        "group": "search_metrics",
+                        "friendly_name": "Search Count",
+                        "slug": "search_count",
+                        "description": "Daily mean number of searches per user.",
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Daily Active Users",
+                        "slug": "client_level_daily_active_users_v2",
+                        "description": "Average number of client that sent a main ping per day.",  # noqa E501
+                    },
+                ],
+            ),
+            (
+                "days_of_use",
+                [
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Retention",
+                        "slug": "retained",
+                        "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
+                        "display_type": "percentage",
+                    },
+                    {
+                        "group": "search_metrics",
+                        "friendly_name": "Search Count",
+                        "slug": "search_count",
+                        "description": "Daily mean number of searches per user.",
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Days of Use",
+                        "slug": "days_of_use",
+                        "description": "Average number of days each client sent a main ping.",  # noqa E501
+                    },
+                ],
+            ),
+        ]
+    )
+    def test_get_kpi_metrics_returns_correct_metrics(
+        self, kpi_slug, expected_kpi_metrics
+    ):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        kpi_slug: {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.1,
+                                                            "upper": 0.42,
+                                                            "point": 0.2,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "significance": {
+                                                "branch-b": {"overall": {"1": "neutral"}}
+                                            },
+                                            "difference": {
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.01,
+                                                            "upper": 0.03,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+
+        experiment.save()
+        kpi_metrics = experiment.get_kpi_metrics("enrollments", "all", branch_a.slug)
+
+        self.assertListEqual(kpi_metrics, expected_kpi_metrics)
+
     def test_conclusion_recommendation_labels(self):
         recommendations = list(NimbusConstants.ConclusionRecommendation)
         experiment = NimbusExperimentFactory.create_with_lifecycle(

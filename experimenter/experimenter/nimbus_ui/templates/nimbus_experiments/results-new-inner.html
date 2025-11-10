@@ -1,7 +1,7 @@
 {% comment %} Overview {% endcomment %}
 <div class="card px-5 py-4 shadow-sm">
   <h3>Overview</h3>
-  <div class="d-inline-flex gap-4">
+  <div class="d-inline-flex gap-3">
     {% for section in NimbusUIConstants.OVERVIEW_SECTIONS %}
       <p class="text-muted">{{ section }}</p>
       {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
@@ -96,7 +96,6 @@
         </div>
         <div class="col">
           <div class="d-flex align-items-start gap-2">
-            {% comment %} TODO:  {% endcomment %}
             <h5>Project Impact</h5>
             <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
           </div>
@@ -109,55 +108,60 @@
   </div>
 </div>
 {% comment %} Metrics {% endcomment %}
-<div class="card px-5 py-4 shadow-sm">
-  <h3>Default Metrics</h3>
-  <p class="text-muted">Default metrics displayed here</p>
-  <div class="row">
-    <div class="col-2">
-      <p class="text-muted mb-0 invisible" aria-hidden="true">Metrics</p>
-      <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
-      {% for metric in default_metrics.values %}
-        <button class="card p-3 {% if forloop.last %}mb-4{% endif %} mb-3 d-flex justify-content-center rounded-4 border-3 w-100 text-start nav-link-hover position-relative"
-                type="button"
-                style="height: 100px">
-          <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
-          <p class=" metric-text mb-0">{{ metric }}</p>
-        </button>
-      {% endfor %}
-    </div>
-    <div class="col position-relative">
-      <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3">
-        {% if branch_data|length > 4 %}
-          <div class="branch-fade branch-fade-left"></div>
-          <div class="branch-fade branch-fade-right"></div>
-        {% endif %}
-        {% for branch in branch_data %}
-          <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-            <p class="text-muted mb-0">{{ branch.name }}</p>
-            {% if branch.slug == selected_reference_branch %}
-              <p class="fs-5 mb-3">Baseline</p>
-            {% else %}
-              <p class="fs-5">{{ branch.name }}</p>
-            {% endif %}
-            <div class="d-flex flex-column gap-3 w-100">
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch %}
-
-            </div>
-          </div>
+{% for area, metric_data_metadata in metric_area_data.items %}
+  {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data %}
+    <div class="card px-5 py-4 shadow-sm">
+      <h3>{{ area }}</h3>
+      <div class="d-inline-flex gap-3 mb-4">
+        {% for metric in metric_metadata %}
+          <p class="text-muted">{{ metric.friendly_name }}</p>
+          {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
         {% endfor %}
       </div>
+      <div class="d-flex">
+        <div class="col-2">
+          <p class="text-muted mb-0 invisible" aria-hidden="true">Metrics</p>
+          <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
+          {% for metric in metric_metadata %}
+            <button class="card p-3 {% if forloop.last %}mb-4{% endif %} mb-3 d-flex justify-content-center rounded-4 border-3 w-100 text-start nav-link-hover position-relative border-light-subtle"
+                    type="button"
+                    style="height: 100px">
+              <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
+              <p class=" metric-text mb-0">{{ metric.friendly_name }}</p>
+            </button>
+          {% endfor %}
+        </div>
+        <div class="col position-relative w-25">
+          <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 4 %}mx-4{% endif %}">
+            {% if branch_data|length > 4 %}
+              <div class="branch-fade branch-fade-left"></div>
+              <div class="branch-fade branch-fade-right"></div>
+            {% endif %}
+            {% for branch in branch_data %}
+              <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                <p class="text-muted mb-0">{{ branch.name }}</p>
+                {% if branch.slug == selected_reference_branch %}
+                  <p class="fs-5 mb-3">Baseline</p>
+                {% else %}
+                  <p class="fs-5">{{ branch.name }}</p>
+                {% endif %}
+                <div class="d-flex flex-column gap-3 w-100">
+                  {% for k, v in metric_data.items %}
+                    {% if k == branch.slug %}
+                      {% with branch_metric_data=v %}
+                        {% for metric, values in branch_metric_data.items %}
+                          {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=values.absolute.0.lower absolute_upper=values.absolute.0.upper significance=values.relative.0.significance percentage=values.relative.0.avg_rel_change %}
+
+                        {% endfor %}
+                      {% endwith %}
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  {% endwith %}
+{% endfor %}

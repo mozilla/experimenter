@@ -722,6 +722,10 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
             analysis_basis, selected_segment
         )
 
+        context["metric_area_data"] = experiment.get_metric_data(
+            analysis_basis, selected_segment, selected_reference_branch
+        )
+
         return context
 
 
