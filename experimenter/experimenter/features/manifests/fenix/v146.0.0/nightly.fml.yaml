@@ -161,7 +161,12 @@ features:
         description: |
           Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
         type: Boolean
-        default: true
+        default: false
+      shouldUseNimbus:
+        description: |
+          If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
+        type: Boolean
+        default: false
   fx-suggest:
     description: A feature that provides Firefox Suggest search suggestions.
     variables:
@@ -938,7 +943,7 @@ features:
         description: |
           Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
