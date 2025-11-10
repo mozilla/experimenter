@@ -3376,6 +3376,11 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertNotIn(unrelated, experiments)
 
     def test_my_deliveries_filter_options_all_deliveries(self):
+        subscribed_feature = NimbusFeatureConfigFactory.create(
+            slug="feature-subscribe", name="Feature Subscribe"
+        )
+        subscribed_feature.subscribers.add(self.user)
+        subscribed_feature.refresh_from_db()
         owned = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
         )
@@ -3390,12 +3395,18 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             slug="unrelated-exp",
         )
+        subscribed_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, slug="feature-subscribe-exp"
+        )
+        subscribed_feature_experiment.feature_configs.add(subscribed_feature)
+
         response = self.client.get(
             f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.ALL}"
         )
         experiments = list(response.context["all_my_experiments_page"].object_list)
         self.assertIn(owned, experiments)
         self.assertIn(subscribed, experiments)
+        self.assertIn(subscribed_feature_experiment, experiments)
         self.assertNotIn(unrelated, experiments)
 
     def test_my_deliveries_filter_options_subscribed(self):
@@ -3433,6 +3444,29 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         )
         experiments = list(response.context["all_my_experiments_page"].object_list)
         self.assertIn(owned, experiments)
+        self.assertNotIn(unrelated, experiments)
+
+    def test_my_deliveries_filter_options_feature_subscribed_option(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="feature-subscribe", name="Feature Subscribe"
+        )
+        feature.subscribers.add(self.user)
+        feature.refresh_from_db()
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, slug="test-exp"
+        )
+        experiment.feature_configs.add(feature)
+
+        unrelated = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="unrelated-exp",
+        )
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.FEATURE_SUBSCRIBED.value}"
+        )
+        experiments = list(response.context["all_my_experiments_page"].object_list)
+        self.assertIn(experiment, experiments)
         self.assertNotIn(unrelated, experiments)
 
     def test_sorting_and_pagination_preserved(self):
