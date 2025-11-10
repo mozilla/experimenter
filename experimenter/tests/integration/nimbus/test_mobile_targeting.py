@@ -103,6 +103,7 @@ def test_check_mobile_targeting(
             "is_bottom_toolbar_user": True,
             "has_enabled_tips_notifications": True,
             "has_accepted_terms_of_use": True,
+            "tou_experience_points": 0,
             "is_apple_intelligence_available": True,
             "cannot_use_apple_intelligence": True,
             "install_referrer_response_utm_source": "test",
