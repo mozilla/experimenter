@@ -37,8 +37,8 @@
       <div id="features-tables"
            class="card shadow-sm p-3 border-0 h-100 rounded-3 bg-primary-subtle">
         <div scope="row" class="row">
-          <div scope="col" class="col-2">
-            <h5 class="fw-semibold">
+          <div scope="col" class="col-2 pe-0 align-items-center">
+            <h5 class="fw-semibold mt-3">
               <img src="{% static 'assets/feature-deliveries.svg' %}"
                    alt="Hugging Foxes"
                    style="width: 60px;
@@ -50,13 +50,14 @@
                  data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_LINKS.deliveries_table_tooltip }}"></i>
             </h5>
           </div>
-          <div scope="col" class="col-4 p-0">
-            {% if feature_config_slug %}
-              <div id="feature-subscription-button"">
+          <div scope="col"
+               class="col-4 ps-0 d-inline-flex align-items-center flex-nowrap ">
+            <div id="feature-subscription-button">
+              {% if selected_feature_config %}
                 {% include "nimbus_experiments/feature_subscribe_button.html" %}
 
-              </div>
-            {% endif %}
+              {% endif %}
+            </div>
           </div>
         </div>
         <div>
