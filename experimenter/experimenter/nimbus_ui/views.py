@@ -210,11 +210,6 @@ class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateVi
     def get_success_url(self):
         return reverse(self.url_name, kwargs={"pk": self.object.pk})
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["tooltips"] = NimbusUIConstants.FEATURE_PAGE_TOOLTIPS
-        return context
-
 
 class NimbusChangeLogsView(
     NimbusExperimentViewMixin, CloneExperimentFormMixin, DetailView

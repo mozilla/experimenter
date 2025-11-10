@@ -17,7 +17,7 @@
       <i class="fa-regular fa-circle-question fs-5 p-0"
          data-bs-toggle="tooltip"
          data-bs-placement="right"
-         data-bs-title="{{ tooltips.unsubscribe_tooltip|format_string:selected_feature_config.name }}"></i>
+         data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.unsubscribe_tooltip|format_string:selected_feature_config.name }}"></i>
     </form>
   {% else %}
     <form method="post"
@@ -34,7 +34,7 @@
       <i class="fa-regular fa-circle-question fs-5 p-0"
          data-bs-toggle="tooltip"
          data-bs-placement="right"
-         data-bs-title="{{ tooltips.subscribe_tooltip|format_string:selected_feature_config.name }}"></i>
+         data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.subscribe_tooltip|format_string:selected_feature_config.name }}"></i>
     </form>
   {% endif %}
 </div>
