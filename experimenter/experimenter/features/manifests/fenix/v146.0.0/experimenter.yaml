@@ -148,6 +148,10 @@ fission:
       type: boolean
       description: |
         Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
+    shouldUseNimbus:
+      type: boolean
+      description: |
+        If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
 fx-suggest:
   description: A feature that provides Firefox Suggest search suggestions.
   hasExposure: true

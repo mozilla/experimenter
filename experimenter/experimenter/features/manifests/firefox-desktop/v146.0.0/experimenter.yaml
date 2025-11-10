@@ -613,6 +613,12 @@ urlbar:
         pref: browser.urlbar.showDebuggingIcons
       description: >-
         Whether or not to show debugging badges on urlbar results favicons.
+    sportsFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.sports.featureGate
+      description: >-
+        Feature gate that controls whether all aspects of the sports suggestions
+        feature are exposed to the user.
     suggestSemanticHistoryMinLength:
       type: int
       setPref:
