@@ -2445,8 +2445,7 @@ IOS_TOU_EXPERIENCE_0_POINTS = NimbusTargetingConfig(
     name="iOS ToU Experience 0 Points",
     slug="ios_tou_experience_0_points",
     description=(
-        "Existing users who have not accepted Terms of Use "
-        "and have 0 experience points"
+        "Existing users who have not accepted Terms of Use and have 0 experience points"
     ),
     targeting=(
         "has_accepted_terms_of_use == false && "
@@ -2463,8 +2462,7 @@ IOS_TOU_EXPERIENCE_1_POINT = NimbusTargetingConfig(
     name="iOS ToU Experience 1 Point",
     slug="ios_tou_experience_1_point",
     description=(
-        "Existing users who have not accepted Terms of Use "
-        "and have 1 experience point"
+        "Existing users who have not accepted Terms of Use and have 1 experience point"
     ),
     targeting=(
         "has_accepted_terms_of_use == false && "
@@ -2481,8 +2479,7 @@ IOS_TOU_EXPERIENCE_2_POINTS = NimbusTargetingConfig(
     name="iOS ToU Experience 2 Points",
     slug="ios_tou_experience_2_points",
     description=(
-        "Existing iOS users who have not accepted ToU "
-        "and have 2 experience points"
+        "Existing iOS users who have not accepted Terms of Use and have 2 experience points"
     ),
     targeting=(
         "has_accepted_terms_of_use == false && "
