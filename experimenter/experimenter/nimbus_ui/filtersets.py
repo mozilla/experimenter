@@ -155,7 +155,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ),
     )
     firefox_min_version = django_filters.MultipleChoiceFilter(
-        choices=reversed(NimbusExperiment.Version.choices),
+        choices=list(reversed(NimbusExperiment.Version.choices)),
         widget=IconMultiSelectWidget(
             icon="fa-solid fa-code-branch",
             attrs={
