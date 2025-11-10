@@ -872,6 +872,22 @@ NO_ENTERPRISE_MAC_WINDOWS_11_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NO_ENTERPRISE_MAC_LINUX_WINDOWS_11_ONLY = NimbusTargetingConfig(
+    name="No enterprise users (Mac, Linux or Windows 11+ only)",
+    slug="no_enterprise_users_mac_linux_windows_11_only",
+    description=(
+        "Exclude users with active enterpries policies on Mac, Linux, or Windows 11+"
+    ),
+    targeting=(
+        f"({NO_ENTERPRISE.targeting}) && "
+        "((os.isWindows && os.windowsBuildNumber >= 22000) || os.isMac || os.isLinux)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_AUTOFILL_ADDRESSES = NimbusTargetingConfig(
     name="No autofill addresses saved",
     slug="no_autofill_addresses",
