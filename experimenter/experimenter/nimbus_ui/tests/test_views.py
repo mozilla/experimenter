@@ -3451,7 +3451,6 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
             slug="feature-subscribe", name="Feature Subscribe"
         )
         feature.subscribers.add(self.user)
-        feature.refresh_from_db()
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED, slug="test-exp"
