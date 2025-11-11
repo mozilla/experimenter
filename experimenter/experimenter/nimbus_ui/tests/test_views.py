@@ -436,24 +436,35 @@ class NimbusExperimentsListViewTest(AuthTestCase):
         )
 
     def test_filter_version(self):
-        version = NimbusExperiment.Version.FIREFOX_120
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.LIVE, firefox_min_version=version
+        experiment_120 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="firefox-120-experiment",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
         )
-        [
-            NimbusExperimentFactory.create(
-                status=NimbusExperiment.Status.LIVE, firefox_min_version=v
-            )
-            for v in {*list(NimbusExperiment.Version)} - {version}
-        ]
+        experiment_130 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="firefox-130-experiment",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_130,
+        )
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="firefox-140-experiment",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_140,
+        )
 
         response = self.client.get(
             reverse("nimbus-list"),
-            {"status": NimbusExperiment.Status.LIVE, "firefox_min_version": version},
+            {
+                "firefox_min_version": [
+                    NimbusExperiment.Version.FIREFOX_120.value,
+                    NimbusExperiment.Version.FIREFOX_130.value,
+                ],
+            },
         )
 
         self.assertEqual(
-            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+            {e.slug for e in response.context["experiments"]},
+            {experiment_120.slug, experiment_130.slug},
         )
 
     def test_filter_feature_config(self):
