@@ -1668,7 +1668,7 @@ TagFormSet = forms.modelformset_factory(
 )
 
 
-class TagAssignForm(forms.ModelForm):
+class TagAssignForm(NimbusChangeLogFormMixin, forms.ModelForm):
     class Meta:
         model = NimbusExperiment
         fields = ["tags"]
@@ -1677,6 +1677,9 @@ class TagAssignForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["tags"].queryset = Tag.objects.all().order_by("name")
         self.fields["tags"].widget = forms.CheckboxSelectMultiple()
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated tags"
 
 
 class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
