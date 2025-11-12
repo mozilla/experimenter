@@ -4205,9 +4205,7 @@ class TestTagAssignForm(RequestFormTestCase):
         experiment = NimbusExperimentFactory.create()
         experiment.tags.set([tag1])
 
-        form = TagAssignForm(
-            instance=experiment, data={"tags": []}, request =self.request
-        )
+        form = TagAssignForm(instance=experiment, data={"tags": []}, request=self.request)
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
