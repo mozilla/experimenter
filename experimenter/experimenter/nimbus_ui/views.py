@@ -1033,6 +1033,8 @@ class TagSaveView(TagFormSetMixin, TemplateView):
         return render(request, self.template_name, {"formset": formset})
 
 
-class TagAssignView(NimbusExperimentViewMixin, RenderResponseMixin, UpdateView):
+class TagAssignView(
+    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+):
     form_class = TagAssignForm
     template_name = "nimbus_experiments/assign_tags_response.html"
