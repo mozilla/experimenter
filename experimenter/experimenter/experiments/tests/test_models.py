@@ -890,7 +890,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            ("(os.isMac) && (!(locale in ['en-CA', 'en-US']))"),
+            ("(os.isMac) && ((locale in ['en-CA', 'en-US']) != true)"),
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -933,7 +933,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            ("(os.isMac) && (!(region in ['CA', 'US']))"),
+            ("(os.isMac) && ((region in ['CA', 'US']) != true)"),
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -997,7 +997,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            "(days_since_install < 7) && (!(language in ['en', 'es', 'fr']))",
+            "(days_since_install < 7) && ((language in ['en', 'es', 'fr']) != true)",
         )
         JEXLParser().parse(experiment.targeting)
 
