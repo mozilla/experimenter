@@ -67,13 +67,13 @@ cookie-banners:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
 custom-review-prompt:
-  description: Feature that controls the Play store in-app custom review prompt.
+  description: Feature that controls the Play store review prompt.
   hasExposure: true
   exposureDescription: ''
   variables:
     enabled:
       type: boolean
-      description: Whether or not to enable the custom review prompt.
+      description: Whether or not to enable the new trigger criteria.
 default-browser-prompt:
   description: Feature that controls when the default browser prompt is shown.
   hasExposure: true

@@ -4,6 +4,14 @@ about:
 channels:
 - developer
 features:
+  address-sync:
+    description: Turns on address sync.
+    variables:
+      enabled:
+        description: |
+          Whether or not to turn on address sync.
+        type: Boolean
+        default: true
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -78,10 +86,10 @@ features:
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
   custom-review-prompt:
-    description: Feature that controls the Play store review prompt.
+    description: Feature that controls the Play store in-app custom review prompt.
     variables:
       enabled:
-        description: Whether or not to enable the new trigger criteria.
+        description: Whether or not to enable the custom review prompt.
         type: Boolean
         default: false
   default-browser-prompt:
@@ -160,11 +168,6 @@ features:
       enabled:
         description: |
           Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
-        type: Boolean
-        default: false
-      shouldUseNimbus:
-        description: |
-          If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
         type: Boolean
         default: false
   fx-suggest:
@@ -257,11 +260,6 @@ features:
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
-      app-zygote-preloading:
-        description: |
-          Whether or not to enable app Zygote preloaded isolated content processes.
-        type: Boolean
-        default: false
       enabled:
         description: |
           Whether or not to enable isolated content processes.
@@ -702,11 +700,11 @@ features:
           I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
           FUNNEL_PAID: adjust_campaign != ''
           FUNNEL_ORGANIC: adjust_campaign == ''
-          INACTIVE_1_DAY: '''app_opened''|eventLastSeen(''Hours'') >= 24'
-          INACTIVE_2_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 2'
-          INACTIVE_3_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 3'
-          INACTIVE_4_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 4'
-          INACTIVE_5_DAYS: '''app_opened''|eventLastSeen(''Days'', 0) >= 5'
+          INACTIVE_1_DAY: '''app_launched''|eventLastSeen(''Hours'') >= 24'
+          INACTIVE_2_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 2'
+          INACTIVE_3_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 3'
+          INACTIVE_4_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 4'
+          INACTIVE_5_DAYS: '''app_launched''|eventLastSeen(''Days'', 0) >= 5'
           RECENTLY_PRINTED: '''print_tapped''|eventLastSeen(''Hours'') <= 24'
           SECOND_HOMEPAGE_VIEW: '''home_screen_displayed''|eventSum(''Years'', 4, 0) >= 2'
           PERFORMED_A_SEARCH_AGAIN_RECENTLY: '''performed_search''|eventSum(''Years'', 4, 0) >= 2 && ''performed_search''|eventLastSeen(''Minutes'') < 1'
@@ -714,11 +712,11 @@ features:
           FXA_MORE_THAN_1_DEVICE: fxa_connected_devices > 1
           FXA_SIGNED_IN: '''sync_auth.sign_in''|eventLastSeen(''Years'', 0) <= 4'
           FXA_NOT_SIGNED_IN: '''sync_auth.sign_in''|eventLastSeen(''Years'', 0) > 4'
-          USER_INFREQUENT: '''app_opened''|eventCountNonZero(''Days'', 28) >= 1 && ''app_opened''|eventCountNonZero(''Days'', 28) < 7'
-          USER_CASUAL: '''app_opened''|eventCountNonZero(''Days'', 28) >= 7 && ''app_opened''|eventCountNonZero(''Days'', 28) < 14'
-          USER_REGULAR: '''app_opened''|eventCountNonZero(''Days'', 28) >= 14 && ''app_opened''|eventCountNonZero(''Days'', 28) < 21'
-          USER_CORE_ACTIVE: '''app_opened''|eventCountNonZero(''Days'', 28) >= 21'
-          LAUNCHED_ONCE_THIS_WEEK: '''app_opened''|eventSum(''Days'', 7) == 1'
+          USER_INFREQUENT: '''app_launched''|eventCountNonZero(''Days'', 28) >= 1 && ''app_launched''|eventCountNonZero(''Days'', 28) < 7'
+          USER_CASUAL: '''app_launched''|eventCountNonZero(''Days'', 28) >= 7 && ''app_launched''|eventCountNonZero(''Days'', 28) < 14'
+          USER_REGULAR: '''app_launched''|eventCountNonZero(''Days'', 28) >= 14 && ''app_launched''|eventCountNonZero(''Days'', 28) < 21'
+          USER_CORE_ACTIVE: '''app_launched''|eventCountNonZero(''Days'', 28) >= 21'
+          LAUNCHED_ONCE_THIS_WEEK: '''app_launched''|eventSum(''Days'', 7) == 1'
         string-alias: TriggerName
     allow-coenrollment: true
   microsurveys:
@@ -895,13 +893,18 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
-  relay-email-masks:
-    description: Feature to enable Relay for users on Firefox on Android.
+  recent-searches:
+    description: Enables recent searches.
     variables:
       enabled:
-        description: If true, Relay email masks feature is enabled.
+        description: |
+          Whether or not to enable recent searches.
         type: Boolean
         default: true
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 5
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -919,17 +922,6 @@ features:
           Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
         type: Boolean
         default: true
-  safe-browsing-v5:
-    description: Control Safe Browsing V5.
-    variables:
-      enable-v5:
-        description: Enables / disables the SafeBrowsing V5 protocol.
-        type: Boolean
-        default: false
-      feature-enabled:
-        description: If true, this feature is enabled. Otherwise, we follow the SafeBrowsing V5 enabled pref.
-        type: Boolean
-        default: false
   same-document-navigation-overrides-load-type:
     description: Control whether the same document navigation overrides the load type.
     variables:
@@ -1022,7 +1014,7 @@ features:
         description: |
           Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
@@ -1059,10 +1051,6 @@ features:
       enabled:
         description: |
           Whether or not to enable the tab management enhancements.
-        type: Boolean
-        default: false
-      opening_animation_enabled:
-        description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
         default: false
   tab-strip:
@@ -1124,6 +1112,18 @@ features:
           Whether or not the simple toolbar customization option is visible to the user.
         type: Boolean
         default: false
+  top-sites-suggestions:
+    description: Enables top sites suggestions.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable top sites suggestions.
+        type: Boolean
+        default: true
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 2
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -1162,6 +1162,18 @@ features:
           Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
+  trending-searches:
+    description: Enables trending searches.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable trending searches.
+        type: Boolean
+        default: true
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 5
   unified-trust-panel:
     description: Enables the unified trust panel.
     variables:
