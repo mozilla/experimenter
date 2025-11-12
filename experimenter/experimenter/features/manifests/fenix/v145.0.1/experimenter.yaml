@@ -1,3 +1,12 @@
+address-sync:
+  description: Turns on address sync.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to turn on address sync.
 alternative-app-launcher-icon:
   description: A feature that changes the app launcher icon background color.
   hasExposure: true
@@ -67,13 +76,13 @@ cookie-banners:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
 custom-review-prompt:
-  description: Feature that controls the Play store review prompt.
+  description: Feature that controls the Play store in-app custom review prompt.
   hasExposure: true
   exposureDescription: ''
   variables:
     enabled:
       type: boolean
-      description: Whether or not to enable the new trigger criteria.
+      description: Whether or not to enable the custom review prompt.
 default-browser-prompt:
   description: Feature that controls when the default browser prompt is shown.
   hasExposure: true
@@ -148,10 +157,6 @@ fission:
       type: boolean
       description: |
         Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
-    shouldUseNimbus:
-      type: boolean
-      description: |
-        If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
 fx-suggest:
   description: A feature that provides Firefox Suggest search suggestions.
   hasExposure: true
@@ -233,10 +238,6 @@ isolated-content-processes:
   hasExposure: true
   exposureDescription: ''
   variables:
-    app-zygote-preloading:
-      type: boolean
-      description: |
-        Whether or not to enable app Zygote preloaded isolated content processes.
     enabled:
       type: boolean
       description: |
@@ -503,14 +504,18 @@ re-engagement-notification:
     type:
       type: int
       description: The type of re-engagement notification that is shown to the inactive user.
-relay-email-masks:
-  description: Feature to enable Relay for users on Firefox on Android.
+recent-searches:
+  description: Enables recent searches.
   hasExposure: true
   exposureDescription: ''
   variables:
     enabled:
       type: boolean
-      description: If true, Relay email masks feature is enabled.
+      description: |
+        Whether or not to enable recent searches.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
 remote-search-configuration:
   description: Feature to use search configurations from remote servers.
   hasExposure: true
@@ -530,17 +535,6 @@ remote-tab-management:
       type: boolean
       description: |
         Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
-safe-browsing-v5:
-  description: Control Safe Browsing V5.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enable-v5:
-      type: boolean
-      description: Enables / disables the SafeBrowsing V5 protocol.
-    feature-enabled:
-      type: boolean
-      description: If true, this feature is enabled. Otherwise, we follow the SafeBrowsing V5 enabled pref.
 same-document-navigation-overrides-load-type:
   description: Control whether the same document navigation overrides the load type.
   hasExposure: true
@@ -677,9 +671,6 @@ tab-management-enhancements:
       type: boolean
       description: |
         Whether or not to enable the tab management enhancements.
-    opening_animation_enabled:
-      type: boolean
-      description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
 tab-strip:
   description: Enables tab strip.
   hasExposure: true
@@ -737,6 +728,18 @@ toolbar-redesign-option:
       type: boolean
       description: |
         Whether or not the simple toolbar customization option is visible to the user.
+top-sites-suggestions:
+  description: Enables top sites suggestions.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable top sites suggestions.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
@@ -770,6 +773,18 @@ translations:
       type: boolean
       description: |
         Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
+trending-searches:
+  description: Enables trending searches.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable trending searches.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
 unified-trust-panel:
   description: Enables the unified trust panel.
   hasExposure: true
