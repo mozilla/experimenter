@@ -122,14 +122,6 @@ hnt-sponsored-shortcuts-feature:
     enabled:
       type: boolean
       description: Setting 'enabled' to false will hide sponsored shortcuts on the homepage and disable the respective toggle in the homepage settings
-hnt-top-sites-visual-refresh-feature:
-  description: This feature manages the top sites visual refresh.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: Determines whether the top sites visual refresh is shown.
 homepage-rebuild-feature:
   description: |
     This feature is for managing the roll out of the Homepage rebuild feature
@@ -154,6 +146,10 @@ homepage-redesign-feature:
       type: boolean
       description: |
         Enables the feature.
+    scrim:
+      type: boolean
+      description: |
+        If true, enables the scrim on the homepage when searching.
     search-bar:
       type: boolean
       description: |
