@@ -630,6 +630,7 @@ enum NimbusExperimentDocumentationLinkEnum {
   DESIGN_DOC
   ENG_TICKET
   QA_TICKET
+  OTHER
 }
 
 type NimbusChangeLogType {
