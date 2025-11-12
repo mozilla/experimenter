@@ -113,6 +113,7 @@ def test_check_mobile_targeting(
             "no_shortcuts_or_stories_opt_outs": True,
             "user_clicked_tou_prompt_link": True,
             "user_clicked_tou_prompt_remind_me_later": True,
+            "tou_points": 3,
         }
     )
     client = sdk_client(load_app_context(context))
