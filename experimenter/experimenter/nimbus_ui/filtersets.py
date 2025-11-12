@@ -353,7 +353,7 @@ class NimbusExperimentFilter(VersionSortMixin, django_filters.FilterSet):
 class MyDeliveriesChoices(models.TextChoices):
     ALL = "AllDeliveries", "All My Deliveries"
     OWNED = "AllOwned", "All Owned"
-    SUBSCRIBED = "AllSubscribed", "All Subscribed"
+    SUBSCRIBED = "AllSubscribed", "All Subscribed Deliveries"
     FEATURE_SUBSCRIBED = "FeatureSubscribed", "All Subscribed Features"
 
 

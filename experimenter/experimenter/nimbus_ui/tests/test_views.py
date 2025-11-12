@@ -3380,7 +3380,6 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
             slug="feature-subscribe", name="Feature Subscribe"
         )
         subscribed_feature.subscribers.add(self.user)
-        subscribed_feature.refresh_from_db()
         owned = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
         )
