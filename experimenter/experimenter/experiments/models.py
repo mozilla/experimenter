@@ -2798,6 +2798,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         REJECTED_FROM_KINTO = "Rejected from Remote Settings"
         LIVE = "Experiment is live"
         COMPLETED = "Experiment is complete"
+        RESULTS_FETCHED = "Experiment results fetched"
 
     def __str__(self):
         return self.message or (

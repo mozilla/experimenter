@@ -6,9 +6,11 @@ from django.conf import settings
 from django.core.cache import cache
 
 from experimenter.celery import app
+from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.jetstream.client import get_experiment_data, get_population_sizing_data
+from experimenter.kinto.tasks import get_kinto_user
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("jetstream.tasks")
@@ -23,6 +25,11 @@ def fetch_experiment_data(experiment_id):
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         experiment.results_data = get_experiment_data(experiment)
         experiment.save()
+        generate_nimbus_changelog(
+            experiment,
+            get_kinto_user(),
+            message=NimbusChangeLog.Messages.RESULTS_FETCHED,
+        )
         metrics.incr("fetch_experiment_data.completed")
     except Exception as e:
         metrics.incr("fetch_experiment_data.failed")
