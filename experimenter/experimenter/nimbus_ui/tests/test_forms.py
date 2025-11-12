@@ -4170,12 +4170,14 @@ class TestTagAssignForm(RequestFormTestCase):
         tag1 = TagFactory.create(name="Tag 1")
         tag2 = TagFactory.create(name="Tag 2")
 
-        form = TagAssignForm(instance=experiment, data={"tags": [tag1.id, tag2.id]})
+        form = TagAssignForm(
+            instance=experiment, data={"tags": [tag1.id, tag2.id]}, request=self.request
+        )
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
-        self.assertEqual(set(experiment.tags.all()), {tag1, tag2})
+        self.assertEqual(set(experiment.tags.all()), {tag1, tag2}, request=self.request)
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("updates tags", changelog.message)
@@ -4186,7 +4188,9 @@ class TestTagAssignForm(RequestFormTestCase):
         experiment = NimbusExperimentFactory.create()
         experiment.tags.set([tag1, tag2])
 
-        form = TagAssignForm(instance=experiment, data={"tags": [tag1.id]})
+        form = TagAssignForm(
+            instance=experiment, data={"tags": [tag1.id]}, request=self.request
+        )
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
