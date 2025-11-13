@@ -111,7 +111,7 @@ def test_check_mobile_targeting(
             "is_large_device": True,
             "user_accepted_tou": True,
             "no_shortcuts_or_stories_opt_outs": True,
-            "addon_ids": [
+            "addon_ids": {
                 "uBlock0@raymondhill.net",
                 "{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}",
                 "adguardadblocker@adguard.com",
@@ -123,7 +123,7 @@ def test_check_mobile_targeting(
                 "kolesin.work@gmail.com",
                 "adblocker@pcmatic.com",
                 "{73a6fe31-595d-460b-a920-fcc0f8843232}"
-            ]
+            },
             "tou_points": 3,
         }
     )
