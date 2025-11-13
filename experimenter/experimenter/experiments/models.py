@@ -2799,6 +2799,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         LIVE = "Experiment is live"
         COMPLETED = "Experiment is complete"
         RESULTS_FETCHED = "Experiment results fetched"
+        EXPIRED_FROM_PREVIEW = "Expired from preview collection after 30 days"
 
     def __str__(self):
         return self.message or (
