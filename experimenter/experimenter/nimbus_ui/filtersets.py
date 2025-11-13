@@ -353,7 +353,8 @@ class NimbusExperimentFilter(VersionSortMixin, django_filters.FilterSet):
 class MyDeliveriesChoices(models.TextChoices):
     ALL = "AllDeliveries", "All My Deliveries"
     OWNED = "AllOwned", "All Owned"
-    SUBSCRIBED = "AllSubscribed", "All Subscribed"
+    SUBSCRIBED = "AllSubscribed", "All Subscribed Deliveries"
+    FEATURE_SUBSCRIBED = "FeatureSubscribed", "All Subscribed Features"
 
 
 class HomeSortChoices(models.TextChoices):
@@ -481,10 +482,13 @@ class NimbusExperimentsHomeFilter(VersionSortMixin, django_filters.FilterSet):
             self.filters["my_deliveries_status"].field.initial = MyDeliveriesChoices.ALL
 
         # Limit feature_configs to only features used in user's deliveries
+        # or features the user is directly subscribed to
         if hasattr(self, "request") and self.request.user.is_authenticated:
             user_feature_ids = (
                 NimbusExperiment.objects.filter(
-                    Q(owner=self.request.user) | Q(subscribers=self.request.user)
+                    Q(owner=self.request.user)
+                    | Q(subscribers=self.request.user)
+                    | Q(feature_configs__subscribers=self.request.user)
                 )
                 .values_list("feature_configs", flat=True)
                 .distinct()
@@ -505,6 +509,8 @@ class NimbusExperimentsHomeFilter(VersionSortMixin, django_filters.FilterSet):
                 return queryset.filter(owner=user)
             case MyDeliveriesChoices.SUBSCRIBED:
                 return queryset.filter(subscribers=user)
+            case MyDeliveriesChoices.FEATURE_SUBSCRIBED:
+                return queryset.filter(feature_configs__subscribers=user)
             case _:
                 return queryset  # Default = All Deliveries
 
