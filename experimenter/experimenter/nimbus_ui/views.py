@@ -957,7 +957,11 @@ class NimbusExperimentsHomeView(FilterView):
         return (
             NimbusExperiment.objects.with_merged_channel()
             .filter(is_archived=False)
-            .filter(Q(owner=self.request.user) | Q(subscribers=self.request.user))
+            .filter(
+                Q(owner=self.request.user)
+                | Q(subscribers=self.request.user)
+                | Q(feature_configs__subscribers=self.request.user)
+            )
             .distinct()
             .order_by("-_updated_date_time")
             .prefetch_related("subscribers")
