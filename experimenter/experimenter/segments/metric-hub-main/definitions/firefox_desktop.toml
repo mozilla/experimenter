@@ -1427,12 +1427,20 @@ description = """
 Rate of Clicks per Impression Sponsored Tiles (aka Sponsored Topsites on New Tab) across all positions.
 """
 
+[metrics.newtab_organic_topsite_ctr_v2]
+depends_on=['newtab_organic_topsite_clicks_v2', 'newtab_organic_topsite_impressions_v2']
+friendly_name = "Organic Tile Click Through Rate"
+description = """
+Rate of Clicks per Impression Organic Tiles (aka Sponsored Topsites on New Tab) across all positions.
+"""
+
 [metrics.newtab_organic_topsite_ctr]
 depends_on=['newtab_organic_topsite_clicks', 'newtab_organic_topsite_impressions']
 friendly_name = "Organic Tile Click Through Rate"
 description = """
 Rate of Clicks per Impression Organic Tiles (aka Sponsored Topsites on New Tab) across all positions.
 """
+deprecated = true
 
 [metrics.newtab_newtab_enabled]
 data_source = "newtab_clients_daily"
@@ -1529,6 +1537,14 @@ friendly_name = "Newtab Non-Search Engaged Visit Count"
 description = """
 Count of New Tab visits with non-search engagement
 """
+[metrics.newtab_organic_topsite_clicks_v2]
+data_source = "newtab_clients_daily"
+select_expression = "COALESCE(SUM(organic_topsite_tile_clicks), 0)"
+friendly_name = "Newtab Organic Tile Clicks"
+type = "scalar"
+description = """
+Count of New Tab organic tile clicks across all positions.
+"""
 
 [metrics.newtab_organic_topsite_clicks]
 data_source = "newtab_visits_topsite_tile_interactions"
@@ -1537,6 +1553,16 @@ friendly_name = "Newtab Organic Tile Clicks"
 type = "scalar"
 description = """
 Count of New Tab organic tile clicks across all positions.
+"""
+deprecated = true
+
+[metrics.newtab_organic_topsite_impressions_v2]
+data_source = "newtab_clients_daily"
+select_expression = "COALESCE(SUM(organic_topsite_tile_impressions), 0)"
+friendly_name = "Newtab Organic Tile Impressions"
+type = "scalar"
+description = """
+Count of New Tab organic tile impressions across all positions.
 """
 
 [metrics.newtab_organic_topsite_impressions]
@@ -1547,6 +1573,7 @@ type = "scalar"
 description = """
 Count of New Tab organic tile impressions across all positions.
 """
+deprecated = true
 
 [metrics.wallpaper_clicks]
 data_source = "newtab_clients_daily"

@@ -24,10 +24,10 @@ Guardrail metrics for the New Tab. Includes user experience and revenue-related 
 [metrics.sponsored_tile_impressions.statistics.linear_model_mean]
 
 
-[metrics.newtab_organic_topsite_clicks.statistics.sum]
-[metrics.newtab_organic_topsite_clicks.statistics.linear_model_mean]
-[metrics.newtab_organic_topsite_impressions.statistics.sum]
-[metrics.newtab_organic_topsite_impressions.statistics.linear_model_mean]
+[metrics.newtab_organic_topsite_clicks_v2.statistics.sum]
+[metrics.newtab_organic_topsite_clicks_v2.statistics.linear_model_mean]
+[metrics.newtab_organic_topsite_impressions_v2.statistics.sum]
+[metrics.newtab_organic_topsite_impressions_v2.statistics.linear_model_mean]
 
 [metrics.sponsored_pocket_clicks.statistics.sum]
 [metrics.sponsored_pocket_clicks.statistics.linear_model_mean]
