@@ -4170,12 +4170,17 @@ class TestTagAssignForm(RequestFormTestCase):
         tag1 = TagFactory.create(name="Tag 1")
         tag2 = TagFactory.create(name="Tag 2")
 
-        form = TagAssignForm(instance=experiment, data={"tags": [tag1.id, tag2.id]})
+        form = TagAssignForm(
+            instance=experiment, data={"tags": [tag1.id, tag2.id]}, request=self.request
+        )
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
         self.assertEqual(set(experiment.tags.all()), {tag1, tag2})
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
 
     def test_form_removes_tags(self):
         tag1 = TagFactory.create(name="Tag 1")
@@ -4183,24 +4188,32 @@ class TestTagAssignForm(RequestFormTestCase):
         experiment = NimbusExperimentFactory.create()
         experiment.tags.set([tag1, tag2])
 
-        form = TagAssignForm(instance=experiment, data={"tags": [tag1.id]})
+        form = TagAssignForm(
+            instance=experiment, data={"tags": [tag1.id]}, request=self.request
+        )
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
         self.assertEqual(list(experiment.tags.all()), [tag1])
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
 
     def test_form_with_no_tags(self):
         tag1 = TagFactory.create(name="Tag 1")
         experiment = NimbusExperimentFactory.create()
         experiment.tags.set([tag1])
 
-        form = TagAssignForm(instance=experiment, data={"tags": []})
+        form = TagAssignForm(instance=experiment, data={"tags": []}, request=self.request)
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
         self.assertEqual(experiment.tags.count(), 0)
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
 
     def test_form_queryset_ordered_by_name(self):
         TagFactory.create(name="Z Tag")

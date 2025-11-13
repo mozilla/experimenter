@@ -9,7 +9,7 @@ from django.utils import timezone
 from mozilla_nimbus_schemas.jetstream import SampleSizes, SampleSizesFactory
 from parameterized import parameterized
 
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.jetstream import tasks
 from experimenter.jetstream.client import get_data
@@ -607,6 +607,11 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             tasks.fetch_experiment_data(experiment.id)
             experiment = NimbusExperiment.objects.get(id=experiment.id)
             self.assertEqual(experiment.results_data, FULL_DATA)
+            self.assertTrue(
+                experiment.changes.filter(
+                    message=NimbusChangeLog.Messages.RESULTS_FETCHED
+                ).exists()
+            )
 
     @parameterized.expand(
         [
