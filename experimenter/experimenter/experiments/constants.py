@@ -509,6 +509,7 @@ class NimbusConstants:
         DESIGN_DOC = "DESIGN_DOC", "Experiment Design Document"
         ENG_TICKET = "ENG_TICKET", "Engineering Ticket (Bugzilla/Jira/GitHub)"
         QA_TICKET = "QA_TICKET", "QA Testing Ticket (Bugzilla/Jira/Github)"
+        OTHER = "OTHER", "Other"
 
     class HomeTypeChoices(models.TextChoices):
         ROLLOUT = "Rollout", "📈 Rollout"
