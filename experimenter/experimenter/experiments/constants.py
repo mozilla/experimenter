@@ -327,9 +327,9 @@ APPLICATION_CONFIG_SUBPLAT = ApplicationConfig(
     slug="subplat-web",
     app_name="subplat_cirrus",
     channel_app_id={
-        Channel.DEVELOPER: "subplat.cirrus",
-        Channel.STAGING: "subplat.cirrus",
-        Channel.PRODUCTION: "subplat.cirrus",
+        Channel.DEVELOPER: "subscription.platform.backend.cirrus",
+        Channel.STAGING: "subscription.platform.backend.cirrus",
+        Channel.PRODUCTION: "subscription.platform.backend.cirrus",
     },
     default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
     randomization_unit=BucketRandomizationUnit.USER_ID,

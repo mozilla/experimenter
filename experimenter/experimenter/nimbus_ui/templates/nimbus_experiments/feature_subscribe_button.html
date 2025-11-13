@@ -1,10 +1,40 @@
-<form method="post"
-      action="{% url 'nimbus-ui-feature-subscribe' slug=feature_config_slug.slug %}"
-      hx-post="{% url 'nimbus-ui-feature-subscribe' slug=feature_config_slug.slug %}"
-      hx-target="#feature-subscription-button"
-      hx-swap="outerHTML">
-  {% csrf_token %}
-  <button type="submit"
-          id="feature-subscription-button"
-          class="btn btn-primary mb-2">Subscribe To Feature</button>
-</form>
+{% load nimbus_extras %}
+
+<div id="feature-subscription-container"
+     class="d-flex row align-items-center no-wrap">
+  {% if user in selected_feature_config.subscribers.all %}
+    <form method="post"
+          action="{% url 'nimbus-ui-feature-unsubscribe' pk=selected_feature_config.pk %}"
+          hx-post="{% url 'nimbus-ui-feature-unsubscribe' pk=selected_feature_config.pk %}"
+          hx-target="#feature-subscription-container"
+          hx-swap="innerHTML"
+          class="d-flex align-items-center gap-2">
+      {% csrf_token %}
+      <button type="submit"
+              id="feature-unsubscribe-button"
+              class="btn btn-primary"
+              style="min-width: 212px">Unsubscribe From Feature</button>
+      <i class="fa-regular fa-circle-question fs-5 p-0"
+         data-bs-toggle="tooltip"
+         data-bs-placement="right"
+         data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.unsubscribe_tooltip|format_string:selected_feature_config.name }}"></i>
+    </form>
+  {% else %}
+    <form method="post"
+          action="{% url 'nimbus-ui-feature-subscribe' pk=selected_feature_config.pk %}"
+          hx-post="{% url 'nimbus-ui-feature-subscribe' pk=selected_feature_config.pk %}"
+          hx-target="#feature-subscription-container"
+          hx-swap="innerHTML"
+          class="d-flex align-items-center gap-2">
+      {% csrf_token %}
+      <button type="submit"
+              id="feature-subscription-button"
+              class="btn btn-primary"
+              style="min-width: 212px">Subscribe To Feature</button>
+      <i class="fa-regular fa-circle-question fs-5 p-0"
+         data-bs-toggle="tooltip"
+         data-bs-placement="right"
+         data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.subscribe_tooltip|format_string:selected_feature_config.name }}"></i>
+    </form>
+  {% endif %}
+</div>

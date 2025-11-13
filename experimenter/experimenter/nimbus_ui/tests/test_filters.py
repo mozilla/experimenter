@@ -35,6 +35,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     experiment_date_progress,
     format_json,
     format_not_set,
+    format_string,
     home_status_display,
     qa_icon_info,
     remove_underscores,
@@ -134,6 +135,18 @@ class FilterTests(TestCase):
     def test_invalid_short_number(self):
         self.assertEqual(short_number("invalid"), "invalid")
         self.assertEqual(short_number(None), "None")
+
+    def test_format_string_with_text_placeholder(self):
+        result = format_string("Subscribe to {text} for updates", "test-feature")
+        self.assertEqual(result, "Subscribe to test-feature for updates")
+
+    def test_format_string_with_multiple_placeholders(self):
+        result = format_string("Feature {text} uses {text} technology", "nimbusQA")
+        self.assertEqual(result, "Feature nimbusQA uses nimbusQA technology")
+
+    def test_format_string_with_no_placeholder(self):
+        result = format_string("Subscribe for updates", "Picture-in-Picture")
+        self.assertEqual(result, "Subscribe for updates")
 
 
 class TestHomeFilters(AuthTestCase):
@@ -417,7 +430,6 @@ class TestHomeFilters(AuthTestCase):
             (HomeSortChoices.TYPE_UP, HomeSortChoices.TYPE_DOWN),
             (HomeSortChoices.CHANNEL_UP, HomeSortChoices.CHANNEL_DOWN),
             (HomeSortChoices.SIZE_UP, HomeSortChoices.SIZE_DOWN),
-            (HomeSortChoices.VERSIONS_UP, HomeSortChoices.VERSIONS_DOWN),
         ]
     )
     def test_sorting_changes_first_row_for_choice(self, sort_up, sort_down):
@@ -452,6 +464,43 @@ class TestHomeFilters(AuthTestCase):
         page = resp.context["all_my_experiments_page"].object_list
         self.assertGreaterEqual(len(page), 2)
         self.assertEqual(page[0].id, high.id, f"{sort_down} should surface 'high'")
+
+    def test_sorting_by_versions(self):
+        experiment_95 = NimbusExperimentFactory.create(
+            owner=self.user,
+            slug="firefox-95",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+        )
+        experiment_100 = NimbusExperimentFactory.create(
+            owner=self.user,
+            slug="firefox-100",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+        )
+        experiment_no_version = NimbusExperimentFactory.create(
+            owner=self.user,
+            slug="no-version",
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+        )
+
+        resp = self.client.get(
+            f"{reverse('nimbus-ui-home')}?sort={HomeSortChoices.VERSIONS_UP.value}"
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertEqual(
+            [e.slug for e in resp.context["all_my_experiments_page"].object_list],
+            [experiment_no_version.slug, experiment_95.slug, experiment_100.slug],
+        )
+
+        resp = self.client.get(
+            f"{reverse('nimbus-ui-home')}?sort={HomeSortChoices.VERSIONS_DOWN.value}"
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertEqual(
+            [e.slug for e in resp.context["all_my_experiments_page"].object_list],
+            [experiment_100.slug, experiment_95.slug, experiment_no_version.slug],
+        )
 
     def test_sorting_by_dates_uses_start_date(self):
         older = NimbusExperimentFactory.create_with_lifecycle(

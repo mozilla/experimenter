@@ -54,6 +54,16 @@ class NimbusChangeLogFormMixin:
         return experiment
 
 
+class FeatureSubscriberFormMixin(forms.ModelForm):
+    class Meta:
+        model = NimbusFeatureConfig
+        fields = []
+
+    def __init__(self, *args, request: HttpRequest = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+
+
 class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
     owner = forms.ModelChoiceField(
         User.objects.all(),
@@ -1259,19 +1269,16 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} removed subscriber"
 
 
-class FeatureSubscribeForm(forms.ModelForm):
-    class Meta:
-        model = NimbusFeatureConfig
-        fields = []
-
-    def __init__(self, *args, request: HttpRequest = None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.request = request
-
+class FeatureSubscribeForm(FeatureSubscriberFormMixin):
     def save(self, commit=True):
-        feature_config = super().save(commit=commit)
-        feature_config.subscribers.add(self.request.user)
-        return feature_config
+        self.instance.subscribers.add(self.request.user)
+        return self.instance
+
+
+class FeatureUnsubscribeForm(FeatureSubscriberFormMixin):
+    def save(self, commit=True):
+        self.instance.subscribers.remove(self.request.user)
+        return self.instance
 
 
 class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -1661,7 +1668,7 @@ TagFormSet = forms.modelformset_factory(
 )
 
 
-class TagAssignForm(forms.ModelForm):
+class TagAssignForm(NimbusChangeLogFormMixin, forms.ModelForm):
     class Meta:
         model = NimbusExperiment
         fields = ["tags"]
@@ -1670,6 +1677,9 @@ class TagAssignForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["tags"].queryset = Tag.objects.all().order_by("name")
         self.fields["tags"].widget = forms.CheckboxSelectMultiple()
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated tags"
 
 
 class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):

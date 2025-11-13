@@ -50,6 +50,24 @@
     min-height: 1.5em;
     line-height: 1.3;
   }
+
+  &.disabled {
+    background-color: var(--bs-secondary-bg) !important;
+    opacity: 1 !important;
+    pointer-events: none;
+
+    .dropdown-toggle {
+      background-color: var(--bs-secondary-bg) !important;
+      border-color: var(--bs-border-color) !important;
+      color: var(--bs-body-color) !important;
+      opacity: 1 !important;
+      cursor: not-allowed;
+    }
+
+    .filter-option-inner-inner {
+      color: var(--bs-body-color) !important;
+    }
+  }
 }
 
 .was-validated .bootstrap-select {
@@ -214,9 +232,11 @@
     .btn-text-collapsed {
       display: none;
     }
+
     .btn-text-expanded {
       display: inline;
     }
+
     .chevron-icon {
       transform: rotate(180deg);
     }
@@ -236,6 +256,7 @@
   z-index: 5;
   transition: opacity 0.18s linear;
 }
+
 .branch-fade-left {
   left: 0;
   background: linear-gradient(
@@ -245,6 +266,7 @@
     rgba(255, 255, 255, 0) 100%
   );
 }
+
 .branch-fade-right {
   right: 0;
   background: linear-gradient(

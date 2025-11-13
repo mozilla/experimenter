@@ -664,7 +664,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             locales = [locale.code for locale in sorted(locales, key=lambda l: l.code)]
             locales_expression = f"locale in {locales}"
             if self.exclude_locales:
-                locales_expression = f"!({locales_expression})"
+                locales_expression = f"({locales_expression}) != true"
             sticky_expressions.append(locales_expression)
 
         if languages := self.languages.all():
@@ -673,7 +673,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             ]
             languages_expression = f"language in {languages}"
             if self.exclude_languages:
-                languages_expression = f"!({languages_expression})"
+                languages_expression = f"({languages_expression}) != true"
             sticky_expressions.append(languages_expression)
 
         if countries := self.countries.all():
@@ -682,7 +682,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             ]
             countries_expression = f"region in {countries}"
             if self.exclude_countries:
-                countries_expression = f"!({countries_expression})"
+                countries_expression = f"({countries_expression}) != true"
             sticky_expressions.append(countries_expression)
 
         enrollments_map_key = "enrollments_map"
@@ -2798,6 +2798,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         REJECTED_FROM_KINTO = "Rejected from Remote Settings"
         LIVE = "Experiment is live"
         COMPLETED = "Experiment is complete"
+        RESULTS_FETCHED = "Experiment results fetched"
 
     def __str__(self):
         return self.message or (

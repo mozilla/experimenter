@@ -436,24 +436,35 @@ class NimbusExperimentsListViewTest(AuthTestCase):
         )
 
     def test_filter_version(self):
-        version = NimbusExperiment.Version.FIREFOX_120
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.LIVE, firefox_min_version=version
+        experiment_120 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="firefox-120-experiment",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
         )
-        [
-            NimbusExperimentFactory.create(
-                status=NimbusExperiment.Status.LIVE, firefox_min_version=v
-            )
-            for v in {*list(NimbusExperiment.Version)} - {version}
-        ]
+        experiment_130 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="firefox-130-experiment",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_130,
+        )
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="firefox-140-experiment",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_140,
+        )
 
         response = self.client.get(
             reverse("nimbus-list"),
-            {"status": NimbusExperiment.Status.LIVE, "firefox_min_version": version},
+            {
+                "firefox_min_version": [
+                    NimbusExperiment.Version.FIREFOX_120.value,
+                    NimbusExperiment.Version.FIREFOX_130.value,
+                ],
+            },
         )
 
         self.assertEqual(
-            {e.slug for e in response.context["experiments"]}, {experiment.slug}
+            {e.slug for e in response.context["experiments"]},
+            {experiment_120.slug, experiment_130.slug},
         )
 
     def test_filter_feature_config(self):
@@ -942,13 +953,20 @@ class NimbusExperimentsListViewTest(AuthTestCase):
         )
 
     def test_sort_by_versions(self):
-        experiment1 = NimbusExperimentFactory.create(
+        experiment_95 = NimbusExperimentFactory.create(
+            slug="firefox-95",
+            status=NimbusExperiment.Status.LIVE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+        )
+        experiment_100 = NimbusExperimentFactory.create(
+            slug="firefox-100",
             status=NimbusExperiment.Status.LIVE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
         )
-        experiment2 = NimbusExperimentFactory.create(
+        experiment_no_version = NimbusExperimentFactory.create(
+            slug="no-version",
             status=NimbusExperiment.Status.LIVE,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_101,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
         )
 
         response = self.client.get(
@@ -960,7 +978,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
 
         self.assertEqual(
             [e.slug for e in response.context["experiments"]],
-            [experiment1.slug, experiment2.slug],
+            [experiment_no_version.slug, experiment_95.slug, experiment_100.slug],
         )
 
         response = self.client.get(
@@ -972,7 +990,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
 
         self.assertEqual(
             [e.slug for e in response.context["experiments"]],
-            [experiment2.slug, experiment1.slug],
+            [experiment_100.slug, experiment_95.slug, experiment_no_version.slug],
         )
 
     def test_sort_by_start_date(self):
@@ -3358,6 +3376,10 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertNotIn(unrelated, experiments)
 
     def test_my_deliveries_filter_options_all_deliveries(self):
+        subscribed_feature = NimbusFeatureConfigFactory.create(
+            slug="feature-subscribe", name="Feature Subscribe"
+        )
+        subscribed_feature.subscribers.add(self.user)
         owned = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
         )
@@ -3372,12 +3394,18 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             slug="unrelated-exp",
         )
+        subscribed_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, slug="feature-subscribe-exp"
+        )
+        subscribed_feature_experiment.feature_configs.add(subscribed_feature)
+
         response = self.client.get(
             f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.ALL}"
         )
         experiments = list(response.context["all_my_experiments_page"].object_list)
         self.assertIn(owned, experiments)
         self.assertIn(subscribed, experiments)
+        self.assertIn(subscribed_feature_experiment, experiments)
         self.assertNotIn(unrelated, experiments)
 
     def test_my_deliveries_filter_options_subscribed(self):
@@ -3415,6 +3443,28 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         )
         experiments = list(response.context["all_my_experiments_page"].object_list)
         self.assertIn(owned, experiments)
+        self.assertNotIn(unrelated, experiments)
+
+    def test_my_deliveries_filter_options_feature_subscribed_option(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="feature-subscribe", name="Feature Subscribe"
+        )
+        feature.subscribers.add(self.user)
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, slug="test-exp"
+        )
+        experiment.feature_configs.add(feature)
+
+        unrelated = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="unrelated-exp",
+        )
+        response = self.client.get(
+            f"{reverse('nimbus-ui-home')}?my_deliveries_status={MyDeliveriesChoices.FEATURE_SUBSCRIBED.value}"
+        )
+        experiments = list(response.context["all_my_experiments_page"].object_list)
+        self.assertIn(experiment, experiments)
         self.assertNotIn(unrelated, experiments)
 
     def test_sorting_and_pagination_preserved(self):
@@ -4476,12 +4526,36 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertNotIn(self.user, feature.subscribers.all())
 
         response = self.client.post(
-            reverse("nimbus-ui-feature-subscribe", kwargs={"slug": feature.slug})
+            reverse("nimbus-ui-feature-subscribe", kwargs={"pk": feature.pk})
         )
 
         feature.refresh_from_db()
 
         self.assertIn(self.user, feature.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
+    def test_subscribe_to_feature_with_duplicate_slug(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="feature-subscribe",
+            name="Feature Subscribe",
+            application=NimbusExperiment.Application.IOS,
+        )
+        duplicate_feature = NimbusFeatureConfigFactory.create(
+            slug="feature-subscribe",
+            name="Feature Subscribe",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.assertNotIn(self.user, feature.subscribers.all())
+        self.assertNotIn(self.user, duplicate_feature.subscribers.all())
+
+        response = self.client.post(
+            reverse("nimbus-ui-feature-subscribe", kwargs={"pk": duplicate_feature.pk})
+        )
+        duplicate_feature.refresh_from_db()
+
+        self.assertIn(self.user, duplicate_feature.subscribers.all())
+        self.assertNotIn(self.user, feature.subscribers.all())
         self.assertEqual(response.status_code, 200)
 
     def test_features_view_tables_reset_on_new_request_after_loading(self):
@@ -4543,6 +4617,85 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(len(context["experiments_delivered"]), 0)
         self.assertEqual(len(context["experiments_with_qa_status"]), 0)
         self.assertEqual(len(context["feature_schemas"]), 0)
+
+    def test_unsubscribe_from_feature(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="feature-unsubscribe", name="Feature Unsubscribe"
+        )
+        feature.subscribers.add(self.user)
+
+        self.assertIn(self.user, feature.subscribers.all())
+
+        response = self.client.post(
+            reverse("nimbus-ui-feature-unsubscribe", kwargs={"pk": feature.pk})
+        )
+        feature.refresh_from_db()
+
+        self.assertNotIn(self.user, feature.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
+    def test_features_view_with_only_application_selected(self):
+        application = NimbusExperiment.Application.DESKTOP
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+
+        self.assertIsNone(context.get("selected_feature_config"))
+        self.assertEqual(len(context["experiments_delivered"]), 0)
+        self.assertEqual(len(context["experiments_with_qa_status"]), 0)
+        self.assertEqual(len(context["feature_schemas"]), 0)
+
+    def test_features_view_with_invalid_feature_id_does_not_crash_view(self):
+        application = NimbusExperiment.Application.DESKTOP
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": "99999",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+        self.assertEqual(len(context["experiments_delivered"]), 0)
+        self.assertEqual(len(context["experiments_with_qa_status"]), 0)
+        self.assertEqual(len(context["feature_schemas"]), 0)
+
+    def test_features_view_with_mismatched_app_and_feature(self):
+        desktop_feature = self.feature_configs["feature-desktop"]
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": NimbusExperiment.Application.IOS.value,
+                "feature_configs": desktop_feature.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+        self.assertIsNone(response.context.get("selected_feature_config"))
+        self.assertEqual(len(context["experiments_delivered"]), 0)
+        self.assertEqual(len(context["experiments_with_qa_status"]), 0)
+        self.assertEqual(len(context["feature_schemas"]), 0)
+
+    def test_features_view_resets_when_nothing_selected(self):
+        url = reverse("nimbus-ui-features")
+        response = self.client.get(url, {"application": "", "feature_configs": ""})
+
+        self.assertEqual(response.status_code, 200)
+        context = response.context
+
+        self.assertEqual(len(context["experiments_delivered"]), 0)
+        self.assertEqual(len(context["experiments_with_qa_status"]), 0)
+        self.assertEqual(len(context["feature_schemas"]), 0)
+        self.assertIsNone(context.get("selected_feature_config"))
 
 
 class TestTagsManageView(AuthTestCase):

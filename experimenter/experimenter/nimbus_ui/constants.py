@@ -159,7 +159,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     FEATURE_PAGE_TOOLTIPS = {
         "feature_changes_tooltip": """This shows any changes made to the Nimbus feature
-        manifest such as code changes for the feature you have chosen."""
+        manifest such as code changes for the feature you have chosen.""",
+        "subscribe_tooltip": """Subscribe to {text} to get email notifications
+        when deliveries use this feature as well as show deliveries that use
+        this feature on your Home view.""",
+        "unsubscribe_tooltip": """Unsubscribe from {text} to stop email
+        notifications for changes to this feature's configuration or deliveries
+        and remove them from your Home view.""",
     }
 
     OVERVIEW_REFLECTION_PROMPTS = {

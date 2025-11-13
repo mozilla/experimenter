@@ -51,6 +51,8 @@ from experimenter.nimbus_ui.forms import (
     DraftToPreviewForm,
     DraftToReviewForm,
     FeaturesForm,
+    FeatureSubscribeForm,
+    FeatureUnsubscribeForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -4168,12 +4170,17 @@ class TestTagAssignForm(RequestFormTestCase):
         tag1 = TagFactory.create(name="Tag 1")
         tag2 = TagFactory.create(name="Tag 2")
 
-        form = TagAssignForm(instance=experiment, data={"tags": [tag1.id, tag2.id]})
+        form = TagAssignForm(
+            instance=experiment, data={"tags": [tag1.id, tag2.id]}, request=self.request
+        )
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
         self.assertEqual(set(experiment.tags.all()), {tag1, tag2})
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
 
     def test_form_removes_tags(self):
         tag1 = TagFactory.create(name="Tag 1")
@@ -4181,24 +4188,32 @@ class TestTagAssignForm(RequestFormTestCase):
         experiment = NimbusExperimentFactory.create()
         experiment.tags.set([tag1, tag2])
 
-        form = TagAssignForm(instance=experiment, data={"tags": [tag1.id]})
+        form = TagAssignForm(
+            instance=experiment, data={"tags": [tag1.id]}, request=self.request
+        )
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
         self.assertEqual(list(experiment.tags.all()), [tag1])
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
 
     def test_form_with_no_tags(self):
         tag1 = TagFactory.create(name="Tag 1")
         experiment = NimbusExperimentFactory.create()
         experiment.tags.set([tag1])
 
-        form = TagAssignForm(instance=experiment, data={"tags": []})
+        form = TagAssignForm(instance=experiment, data={"tags": []}, request=self.request)
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
         self.assertEqual(experiment.tags.count(), 0)
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
 
     def test_form_queryset_ordered_by_name(self):
         TagFactory.create(name="Z Tag")
@@ -4210,3 +4225,28 @@ class TestTagAssignForm(RequestFormTestCase):
 
         tag_names = [tag.name for tag in form.fields["tags"].queryset]
         self.assertEqual(tag_names, ["A Tag", "M Tag", "Z Tag"])
+
+
+class FeatureSubscriptionFormTests(RequestFormTestCase):
+    def test_feature_subscribe_form_adds_subscriber(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+        )
+        form = FeatureSubscribeForm(
+            instance=feature_config, data={}, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertIn(self.request.user, feature_config.subscribers.all())
+
+    def test_feature_unsubscribe_form_removes_subscriber(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+        )
+        feature_config.subscribers.add(self.request.user)
+        form = FeatureUnsubscribeForm(
+            instance=feature_config, data={}, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertNotIn(self.request.user, feature_config.subscribers.all())
