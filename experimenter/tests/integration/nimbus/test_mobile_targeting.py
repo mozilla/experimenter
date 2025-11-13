@@ -64,13 +64,7 @@ def load_app_context():
 def fixture_sdk_client():
     def _client_helper(app_context):
         return nimbus_rust.NimbusClient(
-            app_context,
-            None,
-            [],
-            str(Path.cwd()),
-            None,
-            MockMetricsHandler(),
-            None,
+            app_context, None, [], str(Path.cwd()), MockMetricsHandler(), None, None, ""
         )
 
     return _client_helper
