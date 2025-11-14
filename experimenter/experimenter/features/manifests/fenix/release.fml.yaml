@@ -867,13 +867,6 @@ features:
           Whether or not to enable search suggestions on homepage.
         type: Boolean
         default: false
-  search-term-groups:
-    description: A feature allowing the grouping of URLs around the search term that it came from.
-    variables:
-      enabled:
-        description: If true, the feature shows up on the homescreen and on the new tab screen.
-        type: Boolean
-        default: false
   sent-from-firefox:
     description: A feature that allows the user to add a download firefox footer to a shared link.
     variables:
