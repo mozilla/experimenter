@@ -582,14 +582,6 @@ search-suggestions-on-homepage:
       type: boolean
       description: |
         Whether or not to enable search suggestions on homepage.
-search-term-groups:
-  description: A feature allowing the grouping of URLs around the search term that it came from.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, the feature shows up on the homescreen and on the new tab screen.
 sent-from-firefox:
   description: A feature that allows the user to add a download firefox footer to a shared link.
   hasExposure: true
