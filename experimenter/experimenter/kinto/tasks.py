@@ -412,9 +412,9 @@ def nimbus_synchronize_preview_experiments_in_kinto():
     }
 
     try:
-        published_preview_slugs = []
+        published_preview_slugs = set()
         for client in kinto_clients.values():
-            published_preview_slugs.extend(client.get_main_records().keys())
+            published_preview_slugs.update(client.get_main_records().keys())
 
         should_publish_experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.PREVIEW
@@ -428,6 +428,24 @@ def nimbus_synchronize_preview_experiments_in_kinto():
             experiment.published_date = timezone.now()
             experiment.save()
             logger.info(f"{experiment.slug} is being pushed to preview")
+
+        thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+        expired_experiments = NimbusExperiment.objects.filter(
+            slug__in=published_preview_slugs,
+            _updated_date_time__lt=thirty_days_ago,
+        )
+
+        for experiment in expired_experiments:
+            experiment.status = NimbusExperiment.Status.DRAFT
+            experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+            experiment.published_date = None
+            experiment.save()
+
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.EXPIRED_FROM_PREVIEW,
+            )
 
         should_unpublish_experiments = NimbusExperiment.objects.filter(
             slug__in=published_preview_slugs
