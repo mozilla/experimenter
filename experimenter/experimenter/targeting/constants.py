@@ -134,9 +134,11 @@ HAS_AD_BLOCKER = """
     (
         !!addonsInfo.addons["uBlock0@raymondhill.net"]
         ||
+        !!addonsInfo.addons["firefox@ghostery.com"]
+        ||
         !!addonsInfo.addons["adblockultimate@adblockultimate.net"]
         ||
-        !!addonsInfo.addons["d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d"]
+        !!addonsInfo.addons["{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}"]
         ||
         !!addonsInfo.addons["jid1-NIfFY2CA8fy1tg@jetpack"]
     )
