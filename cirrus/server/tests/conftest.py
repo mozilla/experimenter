@@ -3,13 +3,12 @@ from unittest import mock
 
 from cirrus_sdk import EnrollmentStatusExtraDef, MetricsHandler
 from fastapi.testclient import TestClient
-from glean import testing
 from mozilla_nimbus_shared import check_schema
 from pytest import fixture
 
 from cirrus.experiment_recipes import RemoteSettings
 from cirrus.feature_manifest import FeatureManifestLanguage
-from cirrus.main import app, initialize_glean
+from cirrus.main import app
 from cirrus.sdk import SDK
 from cirrus.settings import (
     channel,
@@ -112,16 +111,6 @@ def fml_with_coenrolling_features_path():
 @fixture
 def fml_with_coenrolling_features(fml_with_coenrolling_features_path):
     return FeatureManifestLanguage(fml_with_coenrolling_features_path, channel)
-
-
-@fixture(name="reset_glean", scope="function", autouse=True)
-def fixture_reset_glean():
-    testing.reset_glean(application_id="cirrus-test", application_version="0.1.0")
-
-
-@fixture
-def get_telemetry():
-    return initialize_glean()
 
 
 @fixture

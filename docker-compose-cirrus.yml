@@ -12,6 +12,7 @@ services:
       - kinto
     volumes:
       - ./cirrus/server/:/cirrus
+      - /cirrus/cirrus/glean/
     working_dir: /cirrus
     ports:
       - "8001:8001"
