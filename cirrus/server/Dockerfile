@@ -29,6 +29,10 @@ COPY poetry.lock /cirrus/
 RUN poetry config virtualenvs.create false && \
     poetry install --only=main --no-interaction --no-ansi
 
+# Build glean assets
+COPY ./telemetry /cirrus/telemetry
+RUN glean_parser translate telemetry/pings.yaml telemetry/metrics.yaml -f python_server -o cirrus/glean
+
 # dev image
 # ---------
 # The dev image contains the regular cirrus image, plus additional developer
@@ -80,6 +84,7 @@ COPY --from=experimenter:megazords /application-services/megazords/cirrus/fml.py
 # Copy Python site packages and scripts
 COPY --from=python-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=python-builder /usr/local/bin /usr/local/bin
+COPY --from=python-builder /cirrus/cirrus/glean /cirrus/cirrus/glean
 
 ENV PYTHONPATH=$PYTHONPATH:/application-services
 
@@ -91,9 +96,6 @@ COPY . .
 
 # Change ownership of the working directory to the non-root user
 RUN chown -R $USERNAME:$USERNAME /cirrus
-
-# Change ownership of the data directory
-RUN mkdir -p /var/glean && chown -R $USERNAME:$USERNAME /var/glean
 
 # Switch to non-root user
 USER $USERNAME

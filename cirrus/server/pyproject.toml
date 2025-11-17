@@ -20,7 +20,7 @@ apscheduler = "^3.11.0"
 requests = "^2.32.4"
 pytest-asyncio = "^0.23.8"
 python-decouple = "^3.8"
-glean-sdk = "^53.2.0"
+glean-parser = "^18.1.1"
 pytest-mock = "^3.15.0"
 mozilla-nimbus-shared = "^2.5.2"
 sentry-sdk = "^2.43.0"
@@ -28,6 +28,9 @@ sentry-sdk = "^2.43.0"
 [build-system]
 requires = ["poetry>=2.1.1"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+exclude = "cirrus/glean"
 
 [tool.pyright]
 typeCheckingMode = "strict"
@@ -40,6 +43,7 @@ reportUnnecessaryTypeIgnoreComment = "warning"
 pythonVersion = "3.10"
 
 [tool.ruff]
+exclude = ["cirrus/glean"]
 # # Enable Pyflakes `E` and `F` codes by default.
 select = ["F", "E", "W", "I", "N", "YTT", "A", "C4", "RET", "SIM"]
 ignore = [

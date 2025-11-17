@@ -1,3 +1,8 @@
 [run]
 omit =
     cirrus/generate_docs.py
+    cirrus/glean/*
+
+[report]
+omit =
+    cirrus/glean/*
