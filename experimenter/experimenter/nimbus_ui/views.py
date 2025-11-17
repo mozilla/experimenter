@@ -332,12 +332,6 @@ class NimbusExperimentDetailView(
             instance=self.object
         )
         context["collaborators_form"] = CollaboratorsForm(instance=self.object)
-        context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
-        context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
-        if context["qa_edit_mode"]:
-            context["form"] = QAStatusForm(instance=self.object)
-        if context["takeaways_edit_mode"]:
-            context["takeaways_form"] = TakeawaysForm(instance=self.object)
 
         if "save_failed" in self.request.GET:
             context["save_failed"] = True
@@ -347,33 +341,42 @@ class NimbusExperimentDetailView(
 
 class QAStatusUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     form_class = QAStatusForm
-    template_name = "nimbus_experiments/detail.html"
+    template_name = "nimbus_experiments/qa_edit_form.html"
 
-    def form_invalid(self, form):
-        context = self.get_context_data(form=form)
-        experiment_context = build_experiment_context(self.object)
-        context.update(experiment_context)
-        context["qa_edit_mode"] = True
-        return self.render_to_response(context)
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        return render(
+            request, self.template_name, {"form": form, "experiment": self.object}
+        )
 
-    def get_success_url(self):
-        return reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+    def form_valid(self, form):
+        super().form_valid(form)
+        return render(
+            self.request,
+            "nimbus_experiments/qa_card.html",
+            {"experiment": self.object, "container_only": True, "update_header": True},
+        )
 
 
 class TakeawaysUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     form_class = TakeawaysForm
-    template_name = "nimbus_experiments/detail.html"
+    template_name = "nimbus_experiments/takeaways_edit_form.html"
 
-    def form_invalid(self, form):
-        context = self.get_context_data(form=form)
-        experiment_context = build_experiment_context(self.object)
-        context.update(experiment_context)
-        context["takeaways_edit_mode"] = True
-        context["takeaways_form"] = form
-        return self.render_to_response(context)
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        return render(
+            request, self.template_name, {"form": form, "experiment": self.object}
+        )
 
-    def get_success_url(self):
-        return reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+    def form_valid(self, form):
+        super().form_valid(form)
+        return render(
+            self.request,
+            "nimbus_experiments/takeaways_card.html",
+            {"experiment": self.object},
+        )
 
 
 class SignoffUpdateView(RequestFormMixin, UpdateView):
