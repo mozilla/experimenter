@@ -1,0 +1,1518 @@
+version: 1.0.0
+about:
+  description: The root level Feature Manifest for Firefox for iOS
+channels:
+- release
+features:
+  address-autofill-edit:
+    description: This property defines if the address editing is enabled in Settings
+    variables:
+      status:
+        description: If true, we will allow user to edit the address
+        type: Boolean
+        default: false
+  address-bar-menu-feature:
+    description: |
+      This property determines if we show the new address bar menu entry or the toolbar menu in settings
+    variables:
+      status:
+        description: If true, we will show the new address bar menu entry
+        type: Boolean
+        default: true
+  appearance-menu-feature:
+    description: |
+      This property determines if we show the new appearance menu entry or the old theme settings
+    variables:
+      status:
+        description: If true, we will show the new appearance menu entry
+        type: Boolean
+        default: true
+  apple-summarizer-feature:
+    description: |
+      This feature enables the apple summarizer feature.
+    variables:
+      enabled:
+        description: |
+          Enables the apple summarizer feature.
+        type: Boolean
+        default: true
+      shakeGesture:
+        description: |
+          Enables the shake gesture for the summarizer feature.
+        type: Boolean
+        default: true
+      toolbarEntrypoint:
+        description: |
+          Enables the toolbar entrypoint for the summarizer feature.
+        type: Boolean
+        default: true
+  deeplink-optimization-refactor-feature:
+    description: |
+      The feature flag to manage the rollout of deeplink optimization feature.
+    variables:
+      enabled:
+        description: |
+          Variable description
+        type: Boolean
+        default: false
+  default-zoom-feature:
+    description: |
+      The feature flag to manage the rollout of default zoom feature.
+    variables:
+      enabled:
+        description: |
+          If true, page zoom settings and default zoom feature are shown
+        type: Boolean
+        default: true
+  download-live-activities-feature:
+    description: |
+      Download Live Activities Feature
+    variables:
+      enabled:
+        description: |
+          If true, the download live activities feature is enabled
+        type: Boolean
+        default: false
+  felt-privacy-feature:
+    description: The feature that enhances private browsing mode
+    variables:
+      felt-deletion-enabled:
+        description: If true, enable Felt Deletion part of Felt Privacy
+        type: Boolean
+        default: false
+      simplified-ui-enabled:
+        description: If true, enable simplified UI part of Felt Privacy
+        type: Boolean
+        default: true
+  firefox-jp-guide-default-site:
+    description: |
+      This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
+    variables:
+      enabled:
+        description: |
+          Enables the feature.
+        type: Boolean
+        default: false
+  firefox-suggest-feature:
+    description: Configuration for the Firefox Suggest feature.
+    variables:
+      available-suggestions-types:
+        description: |
+          A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.
+        type: Map<SuggestionType, Boolean>
+        default:
+          amp: true
+          ampMobile: false
+          wikipedia: true
+      status:
+        description: |
+          Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
+        type: Boolean
+        default: false
+  general-app-features:
+    description: The feature that contains feature flags for the entire application
+    variables:
+      report-site-issue:
+        description: This property defines whether or not the feature is enabled
+        type: GeneralFeature
+        default:
+          status: false
+  hnt-sponsored-shortcuts-feature:
+    description: This feature manages the visibility of sponsored shortcuts on the homepage
+    variables:
+      enabled:
+        description: Setting 'enabled' to false will hide sponsored shortcuts on the homepage and disable the respective toggle in the homepage settings
+        type: Boolean
+        default: true
+  homepage-rebuild-feature:
+    description: |
+      This feature is for managing the roll out of the Homepage rebuild feature
+    variables:
+      enabled:
+        description: |
+          If true, enables the feature
+        type: Boolean
+        default: true
+  homepage-redesign-feature:
+    description: |
+      This feature is for managing the roll out of the Homepage New Tab Redesign feature.
+    variables:
+      discover-more-feature-configuration:
+        description: |
+          A configuration for the Discover More feature
+        type: DiscoverMoreConfiguration
+        default:
+          discover-more-v1-experience: false
+          show-discover-more-button: false
+      enabled:
+        description: |
+          Enables the feature.
+        type: Boolean
+        default: false
+      scrim:
+        description: |
+          If true, enables the scrim on the homepage when searching.
+        type: Boolean
+        default: false
+      search-bar:
+        description: |
+          If true, enables the search bar feature on homepage for users.
+        type: Boolean
+        default: false
+      shortcuts-library:
+        description: |
+          If true, enables the shortcuts library feature, accessible from the homepage
+        type: Boolean
+        default: false
+      stories-redesign:
+        description: |
+          If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)
+        type: Boolean
+        default: false
+  hosted-summarizer-feature:
+    description: |
+      This feature enables the hosted summarizer feature.
+    variables:
+      enabled:
+        description: |
+          Enables the hosted summarizer feature.
+        type: Boolean
+        default: false
+      shakeGesture:
+        description: |
+          Enables the shake gesture for the summarizer feature.
+        type: Boolean
+        default: false
+      toolbarEntrypoint:
+        description: |
+          Enables the toolbar entrypoint for the summarizer feature.
+        type: Boolean
+        default: false
+  menu-refactor-feature:
+    description: |
+      Controls the menu refactor feature
+    variables:
+      enabled:
+        description: |
+          Controls which menu users will see
+        type: Boolean
+        default: true
+      menu-default-browser-banner:
+        description: |
+          If true, enables the menu Make Firefox your default banner, on top of the menu.
+        type: Boolean
+        default: true
+      menu-redesign-hint:
+        description: |
+          If true, enables the menu contextual hint for menu redesign.
+        type: Boolean
+        default: true
+  messaging:
+    description: |
+      The in-app messaging system
+    documentation:
+    - name: User documentation
+      url: https://experimenter.info/messaging/mobile-messaging
+    contacts:
+    - jhugman@mozilla.com
+    - brennie@mozilla.com
+    - gbuciu@mozilla.com
+    - wteichmann@mozilla.com
+    events:
+    - https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_shown
+    - https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_clicked
+    - https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_expired
+    - https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_dismissed
+    - https://dictionary.telemetry.mozilla.org/apps/firefox_ios/metrics/messaging_malformed
+    variables:
+      actions:
+        description: A growable map of action URLs.
+        type: Map<ActionName, String>
+        default:
+          OPEN_SETTINGS: ://deep-link?url=settings/general
+          OPEN_SETTINGS_NEW_TAB: ://deep-link?url=settings/newtab
+          OPEN_SETTINGS_HOMESCREEN: ://deep-link?url=settings/homepage
+          OPEN_SETTINGS_WALLPAPERS: ://deep-link?url=settings/wallpaper
+          OPEN_SETTINGS_EMAIL: ://deep-link?url=settings/mailto
+          OPEN_SETTINGS_SEARCH_ENGINE: ://deep-link?url=settings/search
+          OPEN_SETTINGS_PRIVACY: ://deep-link?url=settings/clear-private-data
+          OPEN_SETTINGS_FXA: ://deep-link?url=settings/fxa
+          OPEN_SETTINGS_THEME: ://deep-link?url=settings/theme
+          OPEN_SETTINGS_APP_ICON: ://deep-link?url=settings/app-icon
+          OPEN_URL: ://open-url
+          VIEW_BOOKMARKS: ://deep-link?url=homepanel/bookmarks
+          VIEW_TOP_SITES: ://deep-link?url=homepanel/top-sites
+          VIEW_READING_LIST: ://deep-link?url=homepanel/reading-list
+          VIEW_HISTORY: ://deep-link?url=homepanel/history
+          VIEW_DOWNLOADS: ://deep-link?url=homepanel/downloads
+          ENABLE_PRIVATE_BROWSING: ://deep-link?url=homepanel/new-private-tab
+          OPEN_NEW_TAB: ://deep-link?url=homepanel/new-tab
+          MAKE_DEFAULT_BROWSER: ://deep-link?url=default-browser/system-settings
+          MAKE_DEFAULT_BROWSER_WITH_TUTORIAL: ://deep-link?url=default-browser/tutorial
+          OPEN_SHARE_SHEET: ://share-sheet
+        string-alias: ActionName
+      message-under-experiment:
+        description: 'Deprecated. Please use "experiment": "{experiment}" instead.'
+        type: Option<MessageKey>
+        default: null
+      messages:
+        description: |
+          A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
+        type: Map<MessageKey, MessageData>
+        default: {}
+        string-alias: MessageKey
+      on-control:
+        description: What should be displayed when a control message is selected.
+        type: ControlMessageBehavior
+        default: show-next-message
+      styles:
+        description: |
+          A map of styles to configure message appearance.
+        type: Map<StyleName, StyleData>
+        default:
+          FALLBACK:
+            priority: 40
+            max-display-count: 20
+          DEFAULT:
+            priority: 50
+            max-display-count: 5
+          MICROSURVEY:
+            priority: 50
+            max-display-count: 1
+          NOTIFICATION:
+            priority: 50
+            max-display-count: 1
+          PERSISTENT:
+            priority: 50
+            max-display-count: 20
+          SURVEY:
+            priority: 55
+            max-display-count: 10
+          WARNING:
+            priority: 60
+            max-display-count: 10
+          URGENT:
+            priority: 100
+            max-display-count: 10
+        string-alias: StyleName
+      triggers:
+        description: |
+          A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.
+        type: Map<TriggerName, String>
+        default:
+          ALWAYS: 'true'
+          NEVER: 'false'
+          USER_RECENTLY_INSTALLED: days_since_install < 7
+          USER_RECENTLY_UPDATED: days_since_update < 7 && days_since_install != days_since_update
+          USER_TIER_ONE_COUNTRY: ('US' in locale || 'GB' in locale || 'CA' in locale || 'DE' in locale || 'FR' in locale)
+          USER_EN_SPEAKER: '''en'' in locale'
+          USER_ES_SPEAKER: '''es'' in locale'
+          USER_DE_SPEAKER: '''de'' in locale'
+          USER_FR_SPEAKER: '''fr'' in locale'
+          DEVICE_ANDROID: os == 'Android'
+          DEVICE_IOS: os == 'iOS'
+          DAY_1_AFTER_INSTALL: days_since_install == 1
+          DAY_2_AFTER_INSTALL: days_since_install == 2
+          DAY_3_AFTER_INSTALL: days_since_install == 3
+          DAY_4_AFTER_INSTALL: days_since_install == 4
+          DAY_5_AFTER_INSTALL: days_since_install == 5
+          MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
+          NOT_LAUNCHED_YESTERDAY: '''app_cycle.foreground''|eventLastSeen(''Days'', 1) > 1'
+          AFTER_THREE_LAUNCHES_THIS_WEEK: '''app_cycle.foreground''|eventSum(''Weeks'', 1, 0) >= 3'
+          I_AM_DEFAULT_BROWSER: is_default_browser
+          I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
+          SUPPORTS_DEFAULT_BROWSER: os_version|versionCompare('14.!') >= 0
+          INACTIVE_NEW_USER: is_inactive_new_user
+          ALLOWED_TIPS_NOTIFICATIONS: allowed_tips_notifications
+          FXA_CURRENTLY_SIGNED_IN: is_fxa_signed_in == true
+          SECOND_HOMEPAGE_VIEW: '''homepage_viewed''|eventSum(''Years'', 4, 0) >= 2'
+          ON_FOURTH_LAUNCH_THIS_YEAR: '''app_cycle.foreground''|eventSum(''Years'', 1, 0) > 3'
+        string-alias: TriggerName
+      ~~experiment:
+        description: Not to be set by experiment.
+        type: ExperimentSlug
+        default: '{experiment}'
+        string-alias: ExperimentSlug
+    allow-coenrollment: true
+  microsurvey-feature:
+    description: |
+      A feature that shows the microsurvey for users to interact with and submit responses.
+    variables:
+      enabled:
+        description: |
+          If true, the feature is active.
+        type: Boolean
+        default: false
+  native-error-page-feature:
+    description: |
+      This feature is for managing the roll out of the native error page feature
+    variables:
+      enabled:
+        description: |
+          If true, the feature is active.
+        type: Boolean
+        default: false
+      no_internet_connection_error:
+        description: |
+          This feature is for managing the roll out of the no interet connection native error page feature
+        type: Boolean
+        default: false
+  onboarding-framework-feature:
+    description: |
+      The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
+    variables:
+      cards:
+        description: |
+          The list of available cards for onboarding.
+        type: Map<NimbusOnboardingCardKey, NimbusOnboardingCardData>
+        default:
+          welcome:
+            card-type: basic
+            order: 10
+            title: Onboarding/Onboarding.Welcome.Title.TreatementA.v120
+            body: Onboarding/Onboarding.Welcome.Description.TreatementA.v120
+            image: welcome-globe
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Welcome.ActionTreatementA.v114
+                action: open-instructions-popup
+              secondary:
+                title: Onboarding/Onboarding.Welcome.Skip.v114
+                action: forward-one-card
+            instructions-popup:
+              title: Onboarding/DefaultBrowserPopup.Title.v114
+              button-title: Onboarding/DefaultBrowserPopup.ButtonTitle.v114
+              button-action: open-ios-fx-settings
+              instructions:
+              - Onboarding/DefaultBrowserPopup.FirstLabel.v114
+              - Onboarding/DefaultBrowserPopup.SecondLabel.v114
+              - Onboarding/DefaultBrowserPopup.ThirdLabel.v114
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+          notification-permissions:
+            card-type: basic
+            order: 30
+            title: Onboarding/Onboarding.Notification.Title.v120
+            body: Onboarding/Onboarding.Notification.Description.v120
+            image: notifications
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Notification.TurnOnNotifications.Action.v114
+                action: request-notifications
+              secondary:
+                title: Onboarding/Onboarding.Notification.Skip.Action.v115
+                action: forward-one-card
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+          sign-to-sync:
+            card-type: basic
+            order: 20
+            title: Onboarding/Onboarding.Sync.Title.v120
+            body: Onboarding/Onboarding.Sync.Description.v123
+            image: sync-devices
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Sync.SignIn.Action.v114
+                action: sync-sign-in
+              secondary:
+                title: Onboarding/Onboarding.Sync.Skip.Action.v114
+                action: forward-one-card
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+          customization-theme:
+            card-type: multiple-choice
+            order: 40
+            title: Onboarding/Onboarding.Customization.Theme.Title.v123
+            body: Onboarding/Onboarding.Customization.Theme.Description.v123
+            image: themeing
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Customization.Theme.Continue.Action.v123
+                action: forward-one-card
+            multiple-choice-buttons:
+            - title: Onboarding/Onboarding.Customization.Theme.System.Action.v123
+              image: theme-system
+              action: theme-system-default
+            - title: Onboarding/Onboarding.Customization.Theme.Light.Action.v123
+              image: theme-light
+              action: theme-light
+            - title: Onboarding/Onboarding.Customization.Theme.Dark.Action.v123
+              image: theme-dark
+              action: theme-dark
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+          customization-toolbar:
+            card-type: multiple-choice
+            order: 41
+            title: Onboarding/Onboarding.Customization.Toolbar.Title.v123
+            body: Onboarding/Onboarding.Customization.Toolbar.Description.v123
+            image: toolbar
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Customization.Toolbar.Continue.Action.v123
+                action: forward-one-card
+            multiple-choice-buttons:
+            - title: Onboarding/Onboarding.Customization.Toolbar.Top.Action.v123
+              image: toolbar-top
+              action: toolbar-top
+            - title: Onboarding/Onboarding.Customization.Toolbar.Bottom.Action.v123
+              image: toolbar-bottom
+              action: toolbar-bottom
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+          update-welcome:
+            card-type: basic
+            order: 10
+            title: Upgrade/Upgrade.Welcome.Title.v114
+            body: Upgrade/Upgrade.Welcome.Description.v114
+            image: welcome-globe
+            buttons:
+              primary:
+                title: Upgrade/Upgrade.Welcome.Action.v114
+                action: forward-one-card
+            onboarding-type: upgrade
+            prerequisites:
+            - NEVER
+          update-sign-to-sync:
+            card-type: basic
+            order: 20
+            title: Upgrade/Upgrade.SyncSign.Title.v114
+            body: Upgrade/Upgrade.SyncSign.Description.v114
+            image: sync-devices
+            buttons:
+              primary:
+                title: Upgrade/Upgrade.SyncSign.Action.v114
+                action: sync-sign-in
+              secondary:
+                title: Onboarding/Onboarding.LaterAction.v114
+                action: forward-one-card
+            onboarding-type: upgrade
+            prerequisites:
+            - NEVER
+          welcome-modern:
+            card-type: basic
+            order: 10
+            title: Onboarding/Onboarding.Modern.Welcome.Title.v140
+            body: Onboarding/Onboarding.Modern.Welcome.Description.v140
+            image: trackers
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Welcome.ActionTreatementA.v140
+                action: open-instructions-popup
+              secondary:
+                title: Onboarding/Onboarding.Modern.Welcome.Skip.v140
+                action: forward-one-card
+            instructions-popup:
+              title: Onboarding/DefaultBrowserPopup.Title.v114
+              button-title: Onboarding/DefaultBrowserPopup.ButtonTitle.v114
+              button-action: open-ios-fx-settings
+              instructions:
+              - Onboarding/DefaultBrowserPopup.FirstLabel.v114
+              - Onboarding/DefaultBrowserPopup.SecondLabel.v114
+              - Onboarding/DefaultBrowserPopup.ThirdLabel.v114
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+            uiVariant: modern
+          sign-to-sync-modern:
+            card-type: basic
+            order: 30
+            title: Onboarding/Onboarding.Modern.Sync.Title.v140
+            body: Onboarding/Onboarding.Modern.Sync.Description.v140
+            image: sync-with-icons
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Sync.SignIn.Action.v140
+                action: sync-sign-in
+              secondary:
+                title: Onboarding/Onboarding.Modern.Sync.Skip.Action.v140
+                action: forward-one-card
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+            uiVariant: modern
+          customization-toolbar-modern:
+            card-type: multiple-choice
+            order: 20
+            title: Onboarding/Onboarding.Modern.Customization.Toolbar.Title.v140
+            image: toolbar
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Customization.Theme.Continue.Action.v140
+                action: forward-one-card
+            multiple-choice-buttons:
+            - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Bottom.Action.v140
+              image: toolbar-bottom
+              action: toolbar-bottom
+            - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Top.Action.v140
+              image: toolbar-top
+              action: toolbar-top
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+            uiVariant: modern
+          customization-theme-modern:
+            card-type: multiple-choice
+            order: 25
+            title: Onboarding/Onboarding.Customization.Theme.Title.v143
+            image: themeing
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Customization.Theme.Continue.Action.v140
+                action: forward-one-card
+            multiple-choice-buttons:
+            - title: Onboarding/Onboarding.Customization.Theme.System.Action.v123
+              image: theme-system
+              action: theme-system-default
+            - title: Onboarding/Onboarding.Customization.Theme.Light.Action.v123
+              image: theme-light
+              action: theme-light
+            - title: Onboarding/Onboarding.Customization.Theme.Dark.Action.v123
+              image: theme-dark
+              action: theme-dark
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+            uiVariant: modern
+          welcome-modern-japan:
+            card-type: basic
+            order: 10
+            title: Onboarding/Onboarding.Modern.Welcome.Title.v145
+            body: Onboarding/Onboarding.Modern.Welcome.Description.v145
+            image: trackers-japan
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Welcome.ActionTreatmentA.v145
+                action: open-instructions-popup
+              secondary:
+                title: Onboarding/Onboarding.Modern.Welcome.Skip.v145
+                action: forward-one-card
+            instructions-popup:
+              title: Onboarding/DefaultBrowserPopup.Title.v114
+              button-title: Onboarding/DefaultBrowserPopup.ButtonTitle.v114
+              button-action: open-ios-fx-settings
+              instructions:
+              - Onboarding/DefaultBrowserPopup.FirstLabel.v114
+              - Onboarding/DefaultBrowserPopup.SecondLabel.v114
+              - Onboarding/DefaultBrowserPopup.ThirdLabel.v114
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+            uiVariant: japan
+          sign-to-sync-modern-japan:
+            card-type: basic
+            order: 30
+            title: Onboarding/Onboarding.Modern.Sync.Title.v145
+            body: Onboarding/Onboarding.Modern.Sync.Description.v145
+            image: sync-with-icons-japan
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Sync.SignIn.Action.v145
+                action: sync-sign-in
+              secondary:
+                title: Onboarding/Onboarding.Modern.Sync.Skip.Action.v145
+                action: forward-one-card
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+            uiVariant: japan
+          customization-toolbar-modern-japan:
+            card-type: multiple-choice
+            order: 20
+            title: Onboarding/Onboarding.Modern.Customization.Toolbar.Title.v145
+            body: Onboarding/Onboarding.Modern.Customization.Toolbar.Description.v145
+            image: toolbar
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Customization.Toolbar.Continue.Action.v145
+                action: forward-one-card
+            multiple-choice-buttons:
+            - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Bottom.Action.v145
+              image: toolbar-bottom-japan
+              action: toolbar-bottom
+            - title: Onboarding/Onboarding.Modern.Customization.Toolbar.Top.Action.v145
+              image: toolbar-top-japan
+              action: toolbar-top
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+            uiVariant: japan
+          customization-theme-modern-japan:
+            card-type: multiple-choice
+            order: 25
+            title: Onboarding/Onboarding.Modern.Customization.Theme.Title.v145
+            body: Onboarding/Onboarding.Modern.Customization.Theme.Description.v145
+            image: themeing
+            buttons:
+              primary:
+                title: Onboarding/Onboarding.Modern.Customization.Toolbar.Continue.Action.v145
+                action: forward-one-card
+            multiple-choice-buttons:
+            - title: Onboarding/Onboarding.Modern.Customization.Theme.Automatic.v145
+              image: theme-system-japan
+              action: theme-system-default
+            - title: Onboarding/Onboarding.Modern.Customization.Theme.Light.v145
+              image: theme-light-japan
+              action: theme-light
+            - title: Onboarding/Onboarding.Modern.Customization.Theme.Dark.v145
+              image: theme-dark-japan
+              action: theme-dark
+            onboarding-type: fresh-install
+            prerequisites:
+            - ALWAYS
+            uiVariant: japan
+        string-alias: NimbusOnboardingCardKey
+      conditions:
+        description: |
+          A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
+        type: Map<ConditionName, String>
+        default:
+          ALWAYS: 'true'
+          NEVER: 'false'
+        string-alias: ConditionName
+      dismissable:
+        description: |
+          Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.
+        type: Boolean
+        default: true
+      enable-modern-ui:
+        description: |
+          Toggle between legacy (false) and modern (true) UI variants.
+        type: Boolean
+        default: false
+      should-use-japan-configuration:
+        description: |
+          Toggle between standard (false) and Japan-specific (true) assets and content.
+        type: Boolean
+        default: false
+  recent-searches-feature:
+    description: |
+      Enables recent searches.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable recent searches.
+        type: Boolean
+        default: false
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 5
+  relay-integration-feature:
+    description: |
+      This feature is for managing the roll out of Relay email masking integration in iOS
+    variables:
+      enabled:
+        description: |
+          Enables the feature
+        type: Boolean
+        default: false
+  revert-unsafe-continuations-refactor:
+    description: |
+      A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).
+    variables:
+      enabled:
+        description: |
+          If true, revert unsafe continuations usage back to normal checked continuations usage.
+        type: Boolean
+        default: false
+  rust-fxa-keychain:
+    description: |
+      Feature that enables the rust FxA keychain logic.
+    variables:
+      rust-fxa-keychain-enabled:
+        description: |
+          Whether the rust FxA keychain logic is enabled. When enabled, the rust keychain is used to store and retrieve encryption key data for the FxA rust comoponent. Otherwise, the pre-existing MZKeychainWrapper logic is used.
+        type: Boolean
+        default: false
+  search:
+    description: |
+      Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
+    variables:
+      awesome-bar:
+        description: Configuring the awesome bar.
+        type: AwesomeBar
+        default:
+          min-search-term: 3
+          position:
+            is-bottom: false
+            is-position-feature-enabled: true
+          search-highlights: false
+          use-page-content: false
+  search-engine-consolidation-feature:
+    description: |
+      This feature is for managing the roll out of Search Engine Consolidation support in iOS
+    variables:
+      enabled:
+        description: |
+          Enables the feature
+        type: Boolean
+        default: true
+  splash-screen:
+    description: |
+      A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
+    variables:
+      enabled:
+        description: |
+          If true, the feature is active.
+        type: Boolean
+        default: false
+      maximum_duration_ms:
+        description: |
+          The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
+        type: Int
+        default: 0
+  spotlight-search:
+    description: Add pages as items findable with Spotlight.
+    variables:
+      enabled:
+        description: If this is true, then on each page load adds a new item to Spotlight.
+        type: Boolean
+        default: false
+      icon-type:
+        description: |
+          The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
+        type: Option<IconType>
+        default: letter
+      keep-for-days:
+        description: |
+          Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
+        type: Option<Int>
+        default: null
+      searchable-content:
+        description: |
+          The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.
+        type: Option<PageContent>
+        default: text-excerpt
+  start-at-home-feature:
+    description: This feature is for experimenting with opening screen
+    variables:
+      setting:
+        description: This property provides a default setting for the start at home feature
+        type: StartAtHome
+        default: afterFourHours
+  tab-scroll-refactor-feature:
+    description: |
+      The feature flag to manage the rollout of tab scroll refactor feature.
+    variables:
+      enabled:
+        description: |
+          If true, tab scroll new implementation is used to show and hide toolbar views reacting to user scroll
+        type: Boolean
+        default: false
+  tab-tray-ui-experiments:
+    description: |
+      The tab tray will undergo some UI experimentation to test potential improvements.
+    variables:
+      enabled:
+        description: |
+          If true, enables the tab tray UI experiments.
+        type: Boolean
+        default: true
+      translucency:
+        description: |
+          If true, enables translucency for tab tray actions at the bottom.
+        type: Boolean
+        default: false
+  tabTrayFeature:
+    description: The tab tray screen that the user goes to when they open the tab tray.
+    variables:
+      sections-enabled:
+        description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
+        type: Map<TabTraySection, Boolean>
+        default:
+          inactive-tabs: true
+  toolbar-refactor-feature:
+    description: |
+      This feature is for managing the roll out of the Toolbar refactor feature
+    variables:
+      enabled:
+        description: |
+          Enables the feature
+        type: Boolean
+        default: true
+      layout:
+        description: |
+          The type of layout of the toolbars.
+        type: Option<ToolbarLayoutType>
+        default: version1
+      middle_button_customization:
+        description: |
+          Enables the middle button customization for navigation toolbar.
+        type: Boolean
+        default: true
+      minimal_address_bar:
+        description: |
+          Enables minimal address bar mode on scroll to ensure the url is always visible.
+        type: Boolean
+        default: true
+      navigation_hint:
+        description: |
+          If true, enables the navigation contextual hint.
+        type: Boolean
+        default: true
+      one_tap_new_tab:
+        description: |
+          If true, enables the one tap new tab feature for users.
+        type: Boolean
+        default: true
+      swiping_tabs:
+        description: |
+          Enables swipe gestures to switch between browser tabs.
+        type: Boolean
+        default: true
+      toolbar_update_hint:
+        description: |
+          If true, enables the toolbar update contextual hint.
+        type: Boolean
+        default: false
+      translucency:
+        description: |
+          Enables translucency for toolbars.
+        type: Boolean
+        default: true
+      unified_search:
+        description: |
+          Enables the unified search feature.
+        type: Boolean
+        default: false
+  tos-feature:
+    description: |
+      This feature is for managing the roll out of the ToS (Term of Service) implementation
+    variables:
+      status:
+        description: |
+          Enables the feature
+        type: Boolean
+        default: true
+  tou-feature:
+    description: |
+      This feature is for managing the rollout of the Terms of Use (ToU) implementation.
+    variables:
+      max-reminders-count:
+        description: |
+          Maximum number of ToU bottom sheet reminders that can be displayed
+        type: Int
+        default: 2
+      status:
+        description: |
+          Enables the feature
+        type: Boolean
+        default: false
+  tracking-protection-refactor:
+    description: |
+      The Enhanced Tracking Protection refactor
+    variables:
+      enabled:
+        description: |
+          Whether the Enhanced Tracking Protection refactor is enabled or not
+        type: Boolean
+        default: true
+  translations-feature:
+    description: |
+      Enables translations feature.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable translations feature.
+        type: Boolean
+        default: false
+  trending-searches-feature:
+    description: |
+      Enables trending searches.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable trending searches.
+        type: Boolean
+        default: false
+      max-suggestions:
+        description: The number of maximum suggestions.
+        type: Int
+        default: 5
+  unified-ads:
+    description: |
+      This property is for managing the roll out of the unified ads API
+    variables:
+      enabled:
+        description: |
+          If true, we will enable user to use the unified ads API
+        type: Boolean
+        default: true
+  updated-password-manager-feature:
+    description: |
+      This property determines if we use the updated password manager or the legacy one.
+    variables:
+      status:
+        description: If true, firefox will use the  the updated password manager.
+        type: Boolean
+        default: false
+  web-engine-integration-refactor:
+    description: |
+      The feature flag to manage the roll out of the integration of WebEngine into Firefox.
+    variables:
+      enabled:
+        description: |
+          Enables the feature.
+        type: Boolean
+        default: false
+enums:
+  ControlMessageBehavior:
+    description: An enum to influence what should be displayed when a control message is selected.
+    variants:
+      show-next-message:
+        description: The next eligible message should be shown.
+      show-none:
+        description: The surface should show no message.
+  IconType:
+    description: The icon that will be added to the item in the device's search engine.
+    variants:
+      favicon:
+        description: The favicon of the page
+      letter:
+        description: An icon generated from the first letter of the base domain.
+      screenshot:
+        description: A screenshot of the page at load time.
+  MessageSurfaceId:
+    description: |
+      For messaging, we would like to have a message tell us which surface its associated with. This is a label that matches across both Android and iOS.
+    variants:
+      Unknown:
+        description: A message has NOT declared its target surface.
+      microsurvey:
+        description: This is a microsurvey that appears on top of the bottom toolbar to the user.
+      new-tab-card:
+        description: This is the card that appears at the top on the Firefox Home Page.
+      notification:
+        description: This is a local notification send to the user periodically with tips and updates.
+      survey:
+        description: This is a full-page that appears providing a survey to the user.
+  NimbusOnboardingHeaderImage:
+    description: |
+      The identifiers for the different images available for cards in onboarding
+    variants:
+      customize-firefox:
+        description: |
+          Corresponding to the fox window image
+      notifications:
+        description: |
+          Corresponding to the notifications image
+      notifications-ctd:
+        description: |
+          Corresponding to the notifications image for CTD
+      search-widget:
+        description: |
+          Corresponding to the fox search widget image
+      set-default-steps:
+        description: |
+          Corresponding to the set to default steps image
+      set-to-dock:
+        description: |
+          Corresponding to the set to dock image
+      sync-devices:
+        description: |
+          Corresponding to the sync-devices image
+      sync-devices-ctd:
+        description: |
+          Corresponding to the sync image for CTD
+      sync-with-icons:
+        description: |
+          Corresponding to the sync-devices image
+      sync-with-icons-japan:
+        description: |
+          Corresponding to the sync-with-icons image for Japan
+      themeing:
+        description: |
+          Corresponding to the fox world image
+      toolbar:
+        description: |
+          Corresponding to the fox world image
+      trackers:
+        description: |
+          Corresponding to the trackers image
+      trackers-japan:
+        description: |
+          Corresponding to the trackers image for Japan
+      welcome-ctd:
+        description: |
+          Corresponding to the welcome image for CTD
+      welcome-globe:
+        description: |
+          Corresponding to the fox world image
+  NimbusOnboardingMultipleChoiceButtonImage:
+    description: |
+      The identifiers for the different images available for multiple choice buttons in onboarding
+    variants:
+      theme-dark:
+        description: |
+          Corresponding to the dark theme
+      theme-dark-japan:
+        description: |
+          Corresponding to the dark theme for Japan
+      theme-light:
+        description: |
+          Corresponding to the light theme
+      theme-light-japan:
+        description: |
+          Corresponding to the light theme for Japan
+      theme-system:
+        description: |
+          Corresponding to the system theme
+      theme-system-japan:
+        description: |
+          Corresponding to the system theme for Japan
+      toolbar-bottom:
+        description: |
+          Corresponding to the toolbar on the bottom
+      toolbar-bottom-japan:
+        description: |
+          Corresponding to the toolbar on the bottom for Japan
+      toolbar-top:
+        description: |
+          Corresponding to the toolbar on top
+      toolbar-top-japan:
+        description: |
+          Corresponding to the toolbar on top for Japan
+  OnboardingActions:
+    description: |
+      The identifiers for the different actions available for cards in onboarding
+    variants:
+      end-onboarding:
+        description: |
+          Will end the onboarding on a set card
+      forward-one-card:
+        description: |
+          Will take the user to the next card
+      forward-three-card:
+        description: |
+          Will take the user to the next card
+      forward-two-card:
+        description: |
+          Will take the user to the next card
+      open-instructions-popup:
+        description: |
+          Will open up a popup with instructions for something
+      open-ios-fx-settings:
+        description: |
+          Will take the user to the default browser settings in the iOS system settings
+      read-privacy-policy:
+        description: |
+          Will open a webview where the user can read the privacy policy
+      request-notifications:
+        description: |
+          Will request to allow notifications from the user
+      set-default-browser:
+        description: |
+          Will send the user to settings to set Firefox as their default browser and advance to next card
+      sync-sign-in:
+        description: |
+          Will take the user to the sync sign in flow
+  OnboardingCardType:
+    description: |
+      The identifiers for the different types of onboarding cards.
+    variants:
+      basic:
+        description: |
+          Corresponding to basic info onboarding cards
+      multiple-choice:
+        description: |
+          Corresponding to onboarding cards with multiple choice buttons
+  OnboardingInstructionsPopupActions:
+    description: |
+      The identifiers for the different actions available for the insturction card in onboarding
+    variants:
+      dismiss:
+        description: |
+          Will dismiss the popup
+      dismiss-and-next-card:
+        description: |
+          Will dismiss the popup and move to the next card
+      open-ios-fx-settings:
+        description: |
+          Will take the user to the default browser settings in the iOS system settings
+  OnboardingMultipleChoiceAction:
+    description: |
+      The identifiers for the different actions available for cards in onboarding
+    variants:
+      theme-dark:
+        description: |
+          Will will set the theme to dark mode
+      theme-light:
+        description: |
+          Will set the theme to light mode
+      theme-system-default:
+        description: |
+          Will set the theme to use the system theme
+      toolbar-bottom:
+        description: |
+          Will set the toolbar on the bottom
+      toolbar-top:
+        description: |
+          Will set the toolbar on the top
+  OnboardingType:
+    description: |
+      The identifiers for the different types of onboarding cards.
+    variants:
+      fresh-install:
+        description: |
+          Corresponding to onboarding cards that are for new users
+      upgrade:
+        description: |
+          Corresponding to onboarding cards that are for users who have updated
+  OnboardingVariant:
+    description: |
+      Which UI style this onboarding card is designed for.
+    variants:
+      japan:
+        description: Use the Japan-specific onboarding UI with localized assets.
+      legacy:
+        description: Use the existing (legacy) onboarding UI.
+      modern:
+        description: Use the new (modern) onboarding UI.
+  PageContent:
+    description: The page content that will be added as an item in the device's search engine.
+    variants:
+      html-content:
+        description: Use all the page as HTML
+      text-content:
+        description: Use all the page as text
+      text-excerpt:
+        description: Only use the first paragraph
+  StartAtHome:
+    description: The option for what screen to open the app to
+    variants:
+      afterFourHours:
+        description: Starts the app at the homepage after four hours of inactivity, otherwise starts the app at the most recently viewed tab.
+      always:
+        description: Starts the app at the homepage.
+      disabled:
+        description: Starts the app at the most recently viewed tab.
+  SuggestionType:
+    description: The type of a Firefox Suggest search suggestion.
+    variants:
+      amp:
+        description: A Firefox Suggestion for desktop from adMarketplace.
+      ampMobile:
+        description: A Firefox Suggestion specifically for mobile from adMarketplace.
+      wikipedia:
+        description: A Firefox Suggestion for a Wikipedia page.
+  TabTraySection:
+    description: The identifiers for the sections of the tab tray.
+    variants:
+      inactive-tabs:
+        description: Tabs that have been automatically closed for the user.
+  ToolbarLayoutType:
+    description: The type of toolbar layout.
+    variants:
+      version1:
+        description: Shows the add new tab, menu and tabs button in the navigation toolbar. The share button is displayed in the address toolbar.
+      version2:
+        description: Like version1 but the menu and tabs buttons are inverted.
+objects:
+  AwesomeBar:
+    description: A configuration option for the awesome bar. Part of the `search` feature.
+    fields:
+      min-search-term:
+        description: The minimum number of characters that the user types before searching in the page.
+        type: Int
+        default: 3
+      position:
+        description: |
+          This property defines whether or not the feature is enabled, and the position of the search bar
+        type: SearchBarPositionFeature
+        default:
+          is-position-feature-enabled: true
+          is-bottom: true
+      search-highlights:
+        description: Whether or not search highlights are enabled
+        type: Boolean
+        default: false
+      use-page-content:
+        description: Search in the open tab's text content when typing.
+        type: Boolean
+        default: false
+  DiscoverMoreConfiguration:
+    description: |
+      A configuration that dictates the behaviour/subfeatures of the Discover More feature
+    fields:
+      discover-more-v1-experience:
+        description: |
+          Whether to show the Discover More experience is enabled
+        type: Boolean
+        default: false
+      show-discover-more-button:
+        description: |
+          Whether to show the Discover More button on the homepage
+        type: Boolean
+        default: false
+  GeneralFeature:
+    description: The configuration for the a feature that can be enabled or disabled
+    fields:
+      status:
+        description: Whether or not the feature is enabled
+        type: Boolean
+        default: false
+  MessageData:
+    description: |
+      An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.
+    fields:
+      action:
+        description: |
+          The name of a deeplink URL to be opened if the button is clicked.
+        type: Option<ActionName>
+        default: null
+      action-params:
+        description: Query parameters appended to the deeplink action URL
+        type: Map<String, String>
+        default: {}
+      button-label:
+        description: |
+          The text on the button. If no text is present, the whole message is clickable.
+        type: Option<Text>
+        default: null
+      except-if-any:
+        description: |
+          A list of strings corresponding to targeting expressions. If any of these expressions evaluate to `true`, the message will not be eligible.
+        type: List<TriggerName>
+        default: []
+      experiment:
+        description: The experiment slug that this message is involved in.
+        type: Option<ExperimentSlug>
+        default: null
+      is-control:
+        description: Indicates if this message is the control message, if true shouldn't be displayed
+        type: Boolean
+        default: false
+      microsurveyConfig:
+        description: Optional configuration data for a microsurvey.
+        type: Option<MicrosurveyConfig>
+        default: null
+      style:
+        description: |
+          The style as described in a `StyleData` from the styles table.
+        type: StyleName
+        default: DEFAULT
+      surface:
+        description: Each message will tell us the surface it is targeting with this.
+        type: MessageSurfaceId
+        default: Unknown
+      text:
+        description: The message text displayed to the user
+        type: Text
+        default: ''
+      title:
+        description: The title text displayed to the user
+        type: Option<Text>
+        default: null
+      trigger-if-all:
+        description: |
+          A list of strings corresponding to targeting expressions. All named expressions must evaluate to true if the message is to be eligible to be shown.
+        type: List<TriggerName>
+        default:
+        - ALWAYS
+  MicrosurveyConfig:
+    description: |
+      Attributes relating to microsurvey messaging.
+    fields:
+      icon:
+        description: The asset name in our bundle used as the icon shown in the survey.
+        type: Image
+        default: lightbulbLarge
+      options:
+        description: The list of survey options to present to the user.
+        type: List<Text>
+        default: []
+      utm-content:
+        description: The name used to provide as the utm_content parameter for the privacy notice.
+        type: Option<String>
+        default: null
+  NimbusOnboardingButton:
+    description: |
+      A group of properties describing the attributes of a card.
+    fields:
+      action:
+        description: |
+          The action the button should take. The default for this will be "forward-one-card"
+        type: OnboardingActions
+        default: forward-one-card
+      title:
+        description: |
+          The text of the button title. This should never be defaulted.
+        type: Text
+        default: ''
+  NimbusOnboardingButtons:
+    description: |
+      A set of buttons for the card. There can be up to two, but there must be at least one.
+    fields:
+      primary:
+        description: |
+          The primary button for the card. This must exist.
+        type: NimbusOnboardingButton
+        default:
+          title: Primary Button
+          action: forward-one-card
+      secondary:
+        description: |
+          A secondary, optional, button for the card.
+        type: Option<NimbusOnboardingButton>
+        default: null
+  NimbusOnboardingCardData:
+    description: |
+      A group of properties describing the attributes of a card.
+    fields:
+      body:
+        description: |
+          The body text dispalyed on the card, in less prominent text. This should never be defaulted.
+        type: Text
+        default: ''
+      buttons:
+        description: |
+          The set of buttons associated with the card.
+        type: NimbusOnboardingButtons
+        default:
+          primary:
+            title: Onboarding/Onboarding.Sync.Skip.Action.v114
+            action: forward-one-card
+          secondary: null
+      card-type:
+        description: |
+          The type of onboarding this card should be shown in, whether it a fresh install or an update. The default is fresh-install.
+        type: OnboardingCardType
+        default: basic
+      disqualifiers:
+        description: |
+          A list of ConditionName strings corresponding to targeting expressions. The card will not be shown if any expression is `true`.
+        type: List<ConditionName>
+        default: []
+      image:
+        description: |
+          The image that should be dispalyed on the card.
+        type: NimbusOnboardingHeaderImage
+        default: welcome-globe
+      instructions-popup:
+        description: |
+          The object describing the specific instruction popup button for a card. If left empty, the card will have no instruction popup information
+        type: Option<NimbusOnboardingInstructionPopup>
+        default: null
+      link:
+        description: |
+          The object describing the link button for a card. If left empty, the card will have no link.
+        type: Option<NimbusOnboardingLink>
+        default: null
+      multiple-choice-buttons:
+        description: |
+          A list of multiple choice buttons that the card will display
+        type: List<NimbusOnboardingMultipleChoiceButton>
+        default: []
+      onboarding-type:
+        description: |
+          The type of onboarding this card should be shown in, whether it a fresh install or an update. The default is fresh-install.
+        type: OnboardingType
+        default: fresh-install
+      order:
+        description: |
+          The place in the order where the card will be found. The feature layer will then sort the cards based on this field.
+        type: Int
+        default: 10
+      prerequisites:
+        description: |
+          A list of ConditionName strings corresponding to targeting expressions. The card will be shown if all expressions `true` and if no expressions in the `disqualifiers` table are true, or if the `disqualifiers` table is empty.
+        type: List<ConditionName>
+        default: []
+      title:
+        description: |
+          The title displayed on the card, in prominent, bolded text. This should never be defaulted.
+        type: Text
+        default: ''
+      uiVariant:
+        description: |
+          If set, this card will only be shown in the specified UI variant. If null, it will appear in both legacy and modern UIs.
+        type: Option<OnboardingVariant>
+        default: null
+  NimbusOnboardingInstructionPopup:
+    description: |
+      The object outlining the content of the instruction card.
+    fields:
+      button-action:
+        description: |
+          The action the button should have. Default is `dismiss-and-next-card`
+        type: OnboardingInstructionsPopupActions
+        default: dismiss-and-next-card
+      button-title:
+        description: |
+          The title the button should have. This should never be defaulted.
+        type: Text
+        default: ''
+      instructions:
+        description: |
+          A list of instructions, either as free text, or as Text identifiers.
+        type: List<Text>
+        default: []
+      title:
+        description: |
+          The text of the popup. This should never be defaulted.
+        type: Text
+        default: ''
+  NimbusOnboardingLink:
+    description: |
+      A group of properties describing the attributes for the active link on a card
+    fields:
+      title:
+        description: |
+          The text of the link title.
+        type: Text
+        default: Onboarding/Onboarding.Welcome.Link.Action.v114
+      url:
+        description: |
+          The url that the link will lead to.
+        type: String
+        default: https://www.mozilla.org/privacy/firefox/
+  NimbusOnboardingMultipleChoiceButton:
+    description: |
+      A group of properties describing the attributes of a multiple choice button on a card
+    fields:
+      action:
+        description: |
+          The action the button should take. The default for this will be "theme-system-default"
+        type: OnboardingMultipleChoiceAction
+        default: theme-system-default
+      image:
+        description: |
+          The text of the button title. This should never be defaulted.
+        type: NimbusOnboardingMultipleChoiceButtonImage
+        default: theme-system
+      title:
+        description: |
+          The text of the button title. This should never be defaulted.
+        type: Text
+        default: ''
+  SearchBarPositionFeature:
+    description: The configuration for the bottom search bar on the homescreen
+    fields:
+      is-bottom:
+        description: Whether or not the default position is at the bottom
+        type: Boolean
+        default: true
+      is-position-feature-enabled:
+        description: Whether or not the feature is enabled
+        type: Boolean
+        default: true
+  StyleData:
+    description: |
+      A group of properities (predominantly visual) to the describe style of the message.
+    fields:
+      max-display-count:
+        description: |
+          How many sessions will this message be shown to the user before it is expired.
+        type: Int
+        default: 5
+      priority:
+        description: |
+          The importance of this message. 0 is not very important, 100 is very important.
+        type: Int
+        default: 50
