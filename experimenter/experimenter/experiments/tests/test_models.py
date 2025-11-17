@@ -2410,6 +2410,7 @@ class TestNimbusExperiment(TestCase):
                                                 ]
                                             },
                                             "relative_uplift": {
+                                                "branch-a": {"all": []},
                                                 "branch-b": {
                                                     "all": [
                                                         {
@@ -2418,12 +2419,14 @@ class TestNimbusExperiment(TestCase):
                                                             "point": 0.02,
                                                         }
                                                     ]
-                                                }
+                                                },
                                             },
                                             "significance": {
-                                                "branch-b": {"overall": {"1": "neutral"}}
+                                                "branch-a": {"overall": {}},
+                                                "branch-b": {"overall": {"1": "neutral"}},
                                             },
                                             "difference": {
+                                                "branch-a": {"all": []},
                                                 "branch-b": {
                                                     "all": [
                                                         {
@@ -2432,7 +2435,7 @@ class TestNimbusExperiment(TestCase):
                                                             "point": 0.02,
                                                         }
                                                     ]
-                                                }
+                                                },
                                             },
                                         }
                                     }
@@ -2456,14 +2459,18 @@ class TestNimbusExperiment(TestCase):
                                                     "all": [
                                                         {
                                                             "lower": -0.3,
-                                                            "upper": 0.55,
+                                                            "upper": 0.5,
                                                             "point": 0.13,
                                                         }
                                                     ]
-                                                }
+                                                },
+                                                "branch-b": {"all": []},
                                             },
                                             "significance": {
-                                                "branch-a": {"overall": {"1": "positive"}}
+                                                "branch-a": {
+                                                    "overall": {"1": "positive"}
+                                                },
+                                                "branch-b": {"overall": {}},
                                             },
                                             "difference": {
                                                 "branch-a": {
@@ -2474,7 +2481,8 @@ class TestNimbusExperiment(TestCase):
                                                             "point": 0.02,
                                                         }
                                                     ]
-                                                }
+                                                },
+                                                "branch-b": {"all": []},
                                             },
                                         }
                                     }
@@ -2493,37 +2501,34 @@ class TestNimbusExperiment(TestCase):
         data_a = results_b.get("KPI Metrics", {}).get("data", {})
         data_b = results_a.get("KPI Metrics", {}).get("data", {})
 
-        first_data = data_a.get(branch_a.slug, {})
-        second_data = data_b.get(branch_b.slug, {})
-
         self.assertEqual(
-            first_data.get("retained").get("absolute"),
-            [{"lower": "149.0%", "upper": "174.0%", "significance": "neutral"}],
+            data_a.get("retained").get(branch_a.slug).get("absolute"),
+            [{"lower": 1.49, "upper": 1.74, "significance": "neutral"}],
         )
         self.assertEqual(
-            first_data.get("retained").get("relative"),
+            data_a.get("retained").get(branch_a.slug).get("relative"),
             [
                 {
                     "lower": -0.12,
                     "upper": 0.15,
                     "significance": "neutral",
-                    "avg_rel_change": 2,
+                    "avg_rel_change": 0.02,
                 }
             ],
         )
 
         self.assertEqual(
-            second_data.get("retained").get("absolute"),
-            [{"lower": "124.0%", "upper": "163.0%", "significance": "positive"}],
+            data_b.get("retained").get(branch_b.slug).get("absolute"),
+            [{"lower": 1.24, "upper": 1.63, "significance": "positive"}],
         )
         self.assertEqual(
-            second_data.get("retained").get("relative"),
+            data_b.get("retained").get(branch_b.slug).get("relative"),
             [
                 {
                     "lower": -0.3,
-                    "upper": 0.55,
+                    "upper": 0.5,
                     "significance": "positive",
-                    "avg_rel_change": 13,
+                    "avg_rel_change": 0.13,
                 }
             ],
         )
@@ -2607,6 +2612,7 @@ class TestNimbusExperiment(TestCase):
                                                 ]
                                             },
                                             "relative_uplift": {
+                                                "branch-a": {"all": []},
                                                 "branch-b": {
                                                     "all": [
                                                         {
@@ -2615,12 +2621,14 @@ class TestNimbusExperiment(TestCase):
                                                             "point": 0.2,
                                                         }
                                                     ]
-                                                }
+                                                },
                                             },
                                             "significance": {
-                                                "branch-b": {"overall": {"1": "neutral"}}
+                                                "branch-a": {"overall": {}},
+                                                "branch-b": {"overall": {"1": "neutral"}},
                                             },
                                             "difference": {
+                                                "branch-a": {"all": []},
                                                 "branch-b": {
                                                     "all": [
                                                         {
@@ -2629,7 +2637,7 @@ class TestNimbusExperiment(TestCase):
                                                             "point": 0.02,
                                                         }
                                                     ]
-                                                }
+                                                },
                                             },
                                         }
                                     }
@@ -2645,6 +2653,126 @@ class TestNimbusExperiment(TestCase):
         kpi_metrics = experiment.get_kpi_metrics("enrollments", "all", branch_a.slug)
 
         self.assertListEqual(kpi_metrics, expected_kpi_metrics)
+
+    def test_get_max_metric_value(self):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch B", slug="branch-b"
+        )
+        branch_c = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch C", slug="branch-c"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "relative_uplift": {
+                                                "branch-a": {"all": []},
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.12,
+                                                            "upper": 0.15,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                },
+                                                "branch-c": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.1,
+                                                            "upper": 0.2,
+                                                            "point": 0.03,
+                                                        }
+                                                    ]
+                                                },
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "relative_uplift": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -2.3,
+                                                            "upper": 2.1,
+                                                            "point": 1.13,
+                                                        }
+                                                    ]
+                                                },
+                                                "branch-b": {"all": []},
+                                                "branch-c": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.25,
+                                                            "upper": 0.45,
+                                                            "point": 0.1,
+                                                        }
+                                                    ]
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-c": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "relative_uplift": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.3,
+                                                            "upper": 1.68,
+                                                            "point": 1.458,
+                                                        }
+                                                    ]
+                                                },
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.25,
+                                                            "upper": 0.45,
+                                                            "point": 0.1,
+                                                        }
+                                                    ]
+                                                },
+                                                "branch-c": {"all": []},
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+
+        branch_a.save()
+        branch_b.save()
+        branch_c.save()
+        experiment.save()
+
+        extreme_retained = experiment.get_max_metric_value(
+            "enrollments", "all", "branch-a", "other_metrics", "retained"
+        )
+        self.assertEqual(extreme_retained, 2.3)
 
     def test_conclusion_recommendation_labels(self):
         recommendations = list(NimbusConstants.ConclusionRecommendation)
