@@ -8,11 +8,15 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
 from cirrus_sdk import NimbusError  # type: ignore
 from fastapi import FastAPI, HTTPException, Query, status
 from fml_sdk import FmlError  # type: ignore
-from glean import Configuration, Glean, load_metrics, load_pings  # type: ignore
 from pydantic import BaseModel
 
 from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
+from .glean.server_events import (
+    create_enrollment_server_event_logger,
+    create_enrollment_status_server_event_logger,
+    create_startup_server_event_logger,
+)
 from .sdk import SDK, CirrusMetricsHandler
 from .settings import (
     app_id,
@@ -24,9 +28,6 @@ from .settings import (
     env_name,
     fml_path,
     instance_name,
-    metrics_config,
-    metrics_path,
-    pings_path,
     remote_setting_preview_url,
     remote_setting_refresh_jitter_in_seconds,
     remote_setting_refresh_max_attempts,
@@ -49,15 +50,30 @@ class FeatureRequest(BaseModel):
 async def lifespan(app: FastAPI):
     initialize_sentry()
     verify_settings()
-    app.state.pings, app.state.metrics = initialize_glean()
+
+    app.state.enrollment_ping = create_enrollment_server_event_logger(
+        application_id=app_id,
+        app_display_version="1.0",
+        channel=channel,
+    )
+    app.state.enrollment_status_ping = create_enrollment_status_server_event_logger(
+        application_id=app_id,
+        app_display_version="1.0",
+        channel=channel,
+    )
+    app.state.startup_ping = create_startup_server_event_logger(
+        application_id=app_id,
+        app_display_version="1.0",
+        channel=channel,
+    )
     app.state.fml = create_fml()
     app.state.sdk_live = create_sdk(
         app.state.fml.get_coenrolling_feature_ids(),
-        CirrusMetricsHandler(app.state.metrics, app.state.pings),
+        CirrusMetricsHandler(app.state.enrollment_status_ping),
     )
     app.state.sdk_preview = create_sdk(
         app.state.fml.get_coenrolling_feature_ids(),
-        CirrusMetricsHandler(app.state.metrics, app.state.pings),
+        CirrusMetricsHandler(app.state.enrollment_status_ping),
     )
 
     app.state.remote_setting_live = RemoteSettings(remote_setting_url, app.state.sdk_live)
@@ -72,12 +88,15 @@ async def lifespan(app: FastAPI):
     yield
     if app.state.scheduler:
         app.state.scheduler.shutdown()
-    Glean.shutdown()
 
 
 def send_instance_name_metric():
-    app.state.metrics.cirrus_events.instance_name.set(instance_name)
-    app.state.pings.startup.submit()
+    app.state.startup_ping.record(
+        user_agent=None,
+        ip_address=None,
+        cirrus_events_instance_name=instance_name,
+        events=[],
+    )
 
 
 def initialize_sentry():
@@ -137,28 +156,6 @@ def start_and_set_initial_job():
     schedule_next_attempt(attempt=1, failed=False)
 
 
-def initialize_glean():
-    pings = load_pings(pings_path)
-    metrics = load_metrics(metrics_path)
-
-    config = Configuration(
-        channel=metrics_config.channel,
-        max_events=metrics_config.max_events_buffer,
-        server_endpoint=metrics_config.server_endpoint,
-    )
-
-    Glean.initialize(
-        application_build_id=metrics_config.build,
-        application_id=metrics_config.app_id,
-        application_version=metrics_config.version,
-        configuration=config,
-        data_dir=metrics_config.data_dir,
-        log_level=int(metrics_config.log_level),
-        upload_enabled=metrics_config.upload_enabled,
-    )
-    return pings, metrics
-
-
 class EnrollmentMetricData(NamedTuple):
     nimbus_user_id: str
     app_id: str
@@ -204,18 +201,25 @@ def collate_enrollment_metric_data(
 
 
 async def record_metrics(enrollment_data: list[EnrollmentMetricData]):
-    for enrollment in enrollment_data:
-        app.state.metrics.cirrus_events.enrollment.record(
-            app.state.metrics.cirrus_events.EnrollmentExtra(
-                nimbus_user_id=enrollment.nimbus_user_id,
-                app_id=enrollment.app_id,
-                experiment=enrollment.experiment_slug,
-                branch=enrollment.branch_slug,
-                experiment_type=enrollment.experiment_type,
-                is_preview=enrollment.is_preview,
-            )
-        )
-    app.state.pings.enrollment.submit()
+    app.state.enrollment_ping.record(
+        user_agent=None,
+        ip_address=None,
+        events=[
+            {
+                "category": "cirrus_events",
+                "name": "enrollment_status",
+                "extra": {
+                    "nimbus_user_id": str(enrollment.nimbus_user_id),
+                    "app_id": str(enrollment.app_id),
+                    "experiment": str(enrollment.experiment_slug),
+                    "branch": str(enrollment.branch_slug),
+                    "experiment_type": str(enrollment.experiment_type),
+                    "is_preview": str(enrollment.is_preview).lower(),
+                },
+            }
+            for enrollment in enrollment_data
+        ],
+    )
 
 
 app = FastAPI(lifespan=lifespan)
