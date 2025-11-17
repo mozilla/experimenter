@@ -43,7 +43,6 @@ from experimenter.experiments.models import (
     NimbusVersionedSchema,
     Tag,
 )
-from experimenter.experiments.tests import JEXLParser
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
@@ -54,6 +53,7 @@ from experimenter.experiments.tests.factories import (
     NimbusIsolationGroupFactory,
     NimbusVersionedSchemaFactory,
 )
+from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
 from experimenter.nimbus_ui.constants import NimbusUIConstants
@@ -545,7 +545,7 @@ class TestNimbusExperiment(TestCase):
                 "&& (version|versionCompare('83.!') >= 0)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_empty_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -561,7 +561,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertEqual(experiment.targeting, "true")
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
@@ -624,7 +624,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, f"(app_version|versionCompare('{version}') >= 0)"
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_min_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -642,7 +642,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, "(app_version|versionCompare('100.!') >= 0)"
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_max_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -660,7 +660,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, "(app_version|versionCompare('100.*') <= 0)"
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
@@ -695,7 +695,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             f"(app_version|versionCompare('{version.replace('!', '*')}') <= 0)",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
@@ -733,7 +733,7 @@ class TestNimbusExperiment(TestCase):
                 f"&& (app_version|versionCompare('{version}') >= 0)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_desktop_single_channel(
         self,
@@ -755,7 +755,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ('(browserSettings.update.channel in ["nightly"])'),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_desktop_multiple_channels(
         self,
@@ -780,7 +780,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ('(browserSettings.update.channel in ["beta", "nightly"])'),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_without_firefox_min_version(
         self,
@@ -805,7 +805,7 @@ class TestNimbusExperiment(TestCase):
                 "&& (os.isMac)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_without_firefox_max_version(
         self,
@@ -830,7 +830,7 @@ class TestNimbusExperiment(TestCase):
                 "&& (version|versionCompare('83.!') >= 0)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_without_channel_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -849,7 +849,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             "(os.isMac)",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_locales(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -870,7 +870,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(os.isMac) && (locale in ['en-CA', 'en-US'])"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_exclude_locales(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -892,7 +892,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(os.isMac) && ((locale in ['en-CA', 'en-US']) != true)"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_countries(self):
         country_ca = CountryFactory.create(code="CA")
@@ -913,7 +913,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(os.isMac) && (region in ['CA', 'US'])"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_exclude_countries(self):
         country_ca = CountryFactory.create(code="CA")
@@ -935,7 +935,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(os.isMac) && ((region in ['CA', 'US']) != true)"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_locales_and_countries_desktop(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -958,7 +958,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(os.isMac) && (locale in ['en-CA', 'en-US']) && (region in ['CA', 'US'])"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_languages_mobile(self):
         language_en = LanguageFactory.create(code="en")
@@ -978,7 +978,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             "(days_since_install < 7) && (language in ['en', 'es', 'fr'])",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_exclude_languages_mobile(self):
         language_en = LanguageFactory.create(code="en")
@@ -999,7 +999,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             "(days_since_install < 7) && ((language in ['en', 'es', 'fr']) != true)",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_projects(self):
         project_mdn = ProjectFactory.create(slug="mdn")
@@ -1059,7 +1059,7 @@ class TestNimbusExperiment(TestCase):
                 f"&& {sticky_expression}"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_sticky_desktop_rollout(self):
         locale_en = LocaleFactory.create(code="en")
@@ -1099,7 +1099,7 @@ class TestNimbusExperiment(TestCase):
                 f"&& {sticky_expression}"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_sticky_mobile(self):
         language_en = LanguageFactory.create(code="en")
@@ -1134,7 +1134,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             f"(app_version|versionCompare('101.*') <= 0) && {sticky_expression}",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_sticky_and_no_advanced_targeting_omits_sticky_expression(
         self,
@@ -1155,7 +1155,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             '(browserSettings.update.channel in ["release"])',
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @mock_valid_features
     def test_targeting_with_prevent_pref_conflicts_set_prefs_from_feature_values(self):
@@ -1193,7 +1193,7 @@ class TestNimbusExperiment(TestCase):
                 "(!('nimbus.user'|preferenceIsUserSet))))"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @mock_valid_features
     def test_targeting_with_prevent_pref_conflicts_invalid_json(self):
@@ -1227,7 +1227,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             '(browserSettings.update.channel in ["release"])',
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @mock_valid_features
     def test_targeting_without_prevent_pref_conflicts_sets_prefs(self):
@@ -1256,7 +1256,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ('(browserSettings.update.channel in ["release"])'),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
@@ -1353,7 +1353,7 @@ class TestNimbusExperiment(TestCase):
             )
 
         self.assertEqual(experiment.targeting, expected_targeting)
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_uses_published_targeting_string(self):
         published_targeting = "published targeting jexl"
