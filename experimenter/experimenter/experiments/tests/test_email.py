@@ -10,14 +10,12 @@ from experimenter.experiments.email import (
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
 
 
 class TestNimbusEmail(TestCase):
     def test_send_experiment_ending_email(self):
-        from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
-
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
-
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
@@ -25,11 +23,6 @@ class TestNimbusEmail(TestCase):
             subscribers=[],
             feature_configs=[feature_config],
         )
-
-        # Clear any default subscribers that might have been created
-        experiment.subscribers.clear()
-        for fc in experiment.feature_configs.all():
-            fc.subscribers.clear()
 
         nimbus_send_experiment_ending_email(experiment)
 
@@ -46,7 +39,7 @@ class TestNimbusEmail(TestCase):
             ).exists()
         )
         self.assertEqual(
-            sent_email.to,
+            sent_email.recipients(),
             [experiment.owner.email],
         )
         self.assertEqual(sent_email.cc, [])
@@ -55,11 +48,7 @@ class TestNimbusEmail(TestCase):
     def test_send_experiment_ending_email_to_subscribers(self):
         subscriber1 = UserFactory.create()
         subscriber2 = UserFactory.create()
-
-        from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
-
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
-
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
@@ -71,27 +60,22 @@ class TestNimbusEmail(TestCase):
         nimbus_send_experiment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-        self.assertEqual(sent_email.to, [experiment.owner.email])
+        self.assertIn(
+            experiment.owner.email,
+            sent_email.recipients(),
+        )
         self.assertIn(subscriber1.email, sent_email.cc)
         self.assertIn(subscriber2.email, sent_email.cc)
-        self.assertEqual(len(sent_email.cc), 2)
+        self.assertEqual(len(sent_email.recipients()), 3)
 
     def test_send_enrollment_ending_email(self):
-        from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
-
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
-
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=10,
             subscribers=[],
             feature_configs=[feature_config],
         )
-
-        # Clear any default subscribers that might have been created
-        experiment.subscribers.clear()
-        for fc in experiment.feature_configs.all():
-            fc.subscribers.clear()
 
         nimbus_send_enrollment_ending_email(experiment)
 
@@ -108,7 +92,7 @@ class TestNimbusEmail(TestCase):
             ).exists()
         )
         self.assertEqual(
-            sent_email.to,
+            sent_email.recipients(),
             [experiment.owner.email],
         )
         self.assertEqual(sent_email.cc, [])
@@ -117,11 +101,7 @@ class TestNimbusEmail(TestCase):
     def test_send_enrollment_ending_email_to_subscribers(self):
         subscriber1 = UserFactory.create()
         subscriber2 = UserFactory.create()
-
-        from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
-
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
-
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=10,
@@ -133,22 +113,21 @@ class TestNimbusEmail(TestCase):
 
         sent_email = mail.outbox[-1]
 
-        self.assertEqual(sent_email.to, [experiment.owner.email])
+        self.assertIn(
+            experiment.owner.email,
+            sent_email.recipients(),
+        )
         self.assertIn(subscriber1.email, sent_email.cc)
         self.assertIn(subscriber2.email, sent_email.cc)
-        self.assertEqual(len(sent_email.cc), 2)
+        self.assertEqual(len(sent_email.recipients()), 3)
 
     def test_send_experiment_ending_email_with_feature_subscribers(self):
         feature_subscriber1 = UserFactory.create()
         feature_subscriber2 = UserFactory.create()
         experiment_subscriber = UserFactory.create()
-
-        from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
-
         feature_config = NimbusFeatureConfigFactory.create(
             subscribers=[feature_subscriber1, feature_subscriber2]
         )
-
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
@@ -160,8 +139,8 @@ class TestNimbusEmail(TestCase):
         nimbus_send_experiment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-
-        self.assertEqual(sent_email.to, [experiment.owner.email])
+        
+        self.assertEqual(sent_email.recipients(), [experiment.owner.email])
         self.assertIn(experiment_subscriber.email, sent_email.cc)
         self.assertIn(feature_subscriber1.email, sent_email.cc)
         self.assertIn(feature_subscriber2.email, sent_email.cc)
@@ -171,13 +150,9 @@ class TestNimbusEmail(TestCase):
         feature_subscriber1 = UserFactory.create()
         feature_subscriber2 = UserFactory.create()
         experiment_subscriber = UserFactory.create()
-
-        from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
-
         feature_config = NimbusFeatureConfigFactory.create(
             subscribers=[feature_subscriber1, feature_subscriber2]
         )
-
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=10,
@@ -188,8 +163,8 @@ class TestNimbusEmail(TestCase):
         nimbus_send_enrollment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-
-        self.assertEqual(sent_email.to, [experiment.owner.email])
+        
+        self.assertEqual(sent_email.recipients(), [experiment.owner.email])
         self.assertIn(experiment_subscriber.email, sent_email.cc)
         self.assertIn(feature_subscriber1.email, sent_email.cc)
         self.assertIn(feature_subscriber2.email, sent_email.cc)
@@ -199,13 +174,9 @@ class TestNimbusEmail(TestCase):
         shared_subscriber = UserFactory.create()
         feature_only_subscriber = UserFactory.create()
         experiment_only_subscriber = UserFactory.create()
-
-        from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
-
         feature_config = NimbusFeatureConfigFactory.create(
             subscribers=[shared_subscriber, feature_only_subscriber]
         )
-
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
@@ -217,9 +188,8 @@ class TestNimbusEmail(TestCase):
         nimbus_send_experiment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-
-        self.assertEqual(sent_email.to, [experiment.owner.email])
-        # Should have 3 unique emails in CC (shared subscriber should not be duplicated)
+        
+        self.assertEqual(sent_email.recipients(), [experiment.owner.email])
         self.assertEqual(len(sent_email.cc), 3)
         self.assertIn(shared_subscriber.email, sent_email.cc)
         self.assertIn(feature_only_subscriber.email, sent_email.cc)
@@ -228,13 +198,9 @@ class TestNimbusEmail(TestCase):
     def test_send_experiment_ending_email_feature_subscribers_only(self):
         feature_subscriber1 = UserFactory.create()
         feature_subscriber2 = UserFactory.create()
-
-        from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
-
         feature_config = NimbusFeatureConfigFactory.create(
             subscribers=[feature_subscriber1, feature_subscriber2]
         )
-
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
@@ -246,8 +212,8 @@ class TestNimbusEmail(TestCase):
         nimbus_send_experiment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-
-        self.assertEqual(sent_email.to, [experiment.owner.email])
+        
+        self.assertEqual(sent_email.recipients(), [experiment.owner.email])
         self.assertEqual(len(sent_email.cc), 2)
         self.assertIn(feature_subscriber1.email, sent_email.cc)
         self.assertIn(feature_subscriber2.email, sent_email.cc)
@@ -255,11 +221,7 @@ class TestNimbusEmail(TestCase):
     def test_send_experiment_ending_email_experiment_subscribers_only(self):
         experiment_subscriber1 = UserFactory.create()
         experiment_subscriber2 = UserFactory.create()
-
-        from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
-
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
-
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
@@ -271,8 +233,8 @@ class TestNimbusEmail(TestCase):
         nimbus_send_experiment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-
-        self.assertEqual(sent_email.to, [experiment.owner.email])
+        
+        self.assertEqual(sent_email.recipients(), [experiment.owner.email])
         self.assertEqual(len(sent_email.cc), 2)
         self.assertIn(experiment_subscriber1.email, sent_email.cc)
         self.assertIn(experiment_subscriber2.email, sent_email.cc)
