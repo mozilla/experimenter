@@ -88,7 +88,7 @@
   </a>
   {% for title, link in NimbusUIConstants.SIDEBAR_COMMON_LINKS.items %}
     <a class="nav-link d-flex align-items-center nav-link-hover d-flex justify-content-between"
-       href="{% if title == 'Detailed Analysis' %}{{ analysis_link }}{% else %}{{ link.url }}{% endif %}">
+       href="{{ link.url }}">
       <div>
         <i class="{{ link.icon }} pe-2"></i>
         {{ title }}
