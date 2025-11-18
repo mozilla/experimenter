@@ -63,7 +63,7 @@ class SummaryPage(ExperimenterBase):
         By.CSS_SELECTOR,
         'figure[data-testid="branch-screenshot"] img',
     )
-    _takeaways_edit_button = (By.CSS_SELECTOR, 'a[data-testid="edit-takeaways"]')
+    _takeaways_edit_button = (By.CSS_SELECTOR, 'button[data-testid="edit-takeaways"]')
     _takeaways_save_button = (
         By.CSS_SELECTOR,
         'button[data-testid="takeaways-edit-save"]',
