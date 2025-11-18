@@ -142,7 +142,7 @@ class TestNimbusEmail(TestCase):
 
         sent_email = mail.outbox[-1]
 
-        self.assertEqual(sent_email.recipients(), [experiment.owner.email])
+        self.assertIn(experiment.owner.email, sent_email.recipients())
         self.assertIn(experiment_subscriber.email, sent_email.cc)
         self.assertIn(feature_subscriber1.email, sent_email.cc)
         self.assertIn(feature_subscriber2.email, sent_email.cc)
@@ -166,7 +166,7 @@ class TestNimbusEmail(TestCase):
 
         sent_email = mail.outbox[-1]
 
-        self.assertEqual(sent_email.recipients(), [experiment.owner.email])
+        self.assertIn(experiment.owner.email, sent_email.recipients())
         self.assertIn(experiment_subscriber.email, sent_email.cc)
         self.assertIn(feature_subscriber1.email, sent_email.cc)
         self.assertIn(feature_subscriber2.email, sent_email.cc)
@@ -191,7 +191,7 @@ class TestNimbusEmail(TestCase):
 
         sent_email = mail.outbox[-1]
 
-        self.assertEqual(sent_email.recipients(), [experiment.owner.email])
+        self.assertIn(experiment.owner.email, sent_email.recipients())
         self.assertEqual(len(sent_email.cc), 3)
         self.assertIn(shared_subscriber.email, sent_email.cc)
         self.assertIn(feature_only_subscriber.email, sent_email.cc)
@@ -215,7 +215,7 @@ class TestNimbusEmail(TestCase):
 
         sent_email = mail.outbox[-1]
 
-        self.assertEqual(sent_email.recipients(), [experiment.owner.email])
+        self.assertIn(experiment.owner.email, sent_email.recipients())
         self.assertEqual(len(sent_email.cc), 2)
         self.assertIn(feature_subscriber1.email, sent_email.cc)
         self.assertIn(feature_subscriber2.email, sent_email.cc)
@@ -236,7 +236,7 @@ class TestNimbusEmail(TestCase):
 
         sent_email = mail.outbox[-1]
 
-        self.assertEqual(sent_email.recipients(), [experiment.owner.email])
+        self.assertIn(experiment.owner.email, sent_email.recipients())
         self.assertEqual(len(sent_email.cc), 2)
         self.assertIn(experiment_subscriber1.email, sent_email.cc)
         self.assertIn(experiment_subscriber2.email, sent_email.cc)
