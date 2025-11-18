@@ -134,12 +134,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             tool to show message interaction details.""",
             "icon": "fa-solid fa-envelope-open-text",
         },
-        "Detailed Analysis": {
-            "url": "https://protosaur.dev/partybal/",
-            "tooltip": """Detailed Analysis is an advanced view into experiment
-            results.""",
-            "icon": "fa-solid fa-magnifying-glass-chart",
-        },
     }
     LIVE_MONITOR_TOOLTIP = """Live Monitoring shows enrollment/unenrollment for this
     delivery"""
