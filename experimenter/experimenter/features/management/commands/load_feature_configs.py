@@ -4,7 +4,10 @@ from typing import Optional, Union
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from mozilla_nimbus_schemas.experiments.feature_manifests import DesktopFeature, SetPref
+from mozilla_nimbus_schemas.experimenter_apis.experiments.feature_manifests import (
+    DesktopFeature,
+    SetPref,
+)
 
 from experimenter.experiments.constants import NO_FEATURE_SLUG, Application
 from experimenter.experiments.models import (
@@ -151,6 +154,7 @@ class Command(BaseCommand):
                 isinstance(feature.model, DesktopFeature)
                 and feature.model.is_early_startup
             )
+            allow_coenrollment = feature.model.allow_coenrollment
 
             feature_version: Optional[NimbusFeatureVersion] = None
             feature_version_id: Optional[int] = None
@@ -167,6 +171,7 @@ class Command(BaseCommand):
                 schema = NimbusVersionedSchema(
                     feature_config=feature_config,
                     version=feature_version,
+                    allow_coenrollment=allow_coenrollment,
                     is_early_startup=is_early_startup,
                     set_pref_vars={},
                 )
@@ -179,6 +184,10 @@ class Command(BaseCommand):
                 if schema.schema != jsonschema:
                     schema.schema = jsonschema
                     dirty_fields.append("schema")
+
+            if schema.allow_coenrollment != allow_coenrollment:
+                schema.allow_coenrollment = allow_coenrollment
+                dirty_fields.append("allow_coenrollment")
 
             if feature_config.application == Application.DESKTOP:
                 set_pref_vars = {

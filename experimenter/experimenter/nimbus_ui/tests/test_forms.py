@@ -27,6 +27,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
     NimbusVersionedSchemaFactory,
+    TagFactory,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -44,11 +45,14 @@ from experimenter.nimbus_ui.forms import (
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
     CancelUpdateRolloutForm,
+    CollaboratorsForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
     FeaturesForm,
+    FeatureSubscribeForm,
+    FeatureUnsubscribeForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -68,6 +72,9 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagAssignForm,
+    TagForm,
+    TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
     UnsubscribeForm,
@@ -75,7 +82,6 @@ from experimenter.nimbus_ui.forms import (
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.segments import Segments
 from experimenter.segments.tests.mock_segments import mock_get_segments
 from experimenter.targeting.constants import NimbusTargetingConfig
@@ -1173,7 +1179,6 @@ class TestLaunchForms(RequestFormTestCase):
 
 class TestOverviewForm(RequestFormTestCase):
     def test_valid_form_saves(self):
-        project = ProjectFactory.create()
         documentation_link = NimbusDocumentationLinkFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1187,7 +1192,6 @@ class TestOverviewForm(RequestFormTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [project.id],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -1211,7 +1215,6 @@ class TestOverviewForm(RequestFormTestCase):
         self.assertEqual(experiment.hypothesis, "new hypothesis")
         self.assertTrue(experiment.risk_brand)
         self.assertTrue(experiment.risk_message)
-        self.assertEqual(list(experiment.projects.all()), [project])
         self.assertEqual(experiment.public_description, "new description")
         self.assertTrue(experiment.risk_revenue)
         self.assertTrue(experiment.risk_partner_related)
@@ -1223,7 +1226,6 @@ class TestOverviewForm(RequestFormTestCase):
         self.assertEqual(documentation_link.link, "https://www.example.com")
 
     def test_name_field_is_required(self):
-        project = ProjectFactory.create()
         documentation_link = NimbusDocumentationLinkFactory.create()
 
         form_data = {
@@ -1231,7 +1233,6 @@ class TestOverviewForm(RequestFormTestCase):
             "hypothesis": "new hypothesis",
             "risk_brand": True,
             "risk_message": True,
-            "projects": [project.id],
             "public_description": "new description",
             "risk_revenue": True,
             "risk_partner_related": True,
@@ -1264,7 +1265,6 @@ class TestDocumentationLinkCreateForm(RequestFormTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -1297,7 +1297,6 @@ class TestDocumentationLinkDeleteForm(RequestFormTestCase):
                 "hypothesis": "new hypothesis",
                 "risk_brand": True,
                 "risk_message": True,
-                "projects": [],
                 "public_description": "new description",
                 "risk_revenue": True,
                 "risk_partner_related": True,
@@ -2804,6 +2803,168 @@ class TestNimbusBranchesForm(RequestFormTestCase):
             json.dumps({}),
         )
 
+    def test_empty_branch_name_invalid(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        feature_config2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1],
+            equal_branch_ratio=False,
+            is_localized=False,
+            is_rollout=False,
+            localizations=None,
+            prevent_pref_conflicts=False,
+            warn_feature_schema=False,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id, feature_config2.id],
+                "equal_branch_ratio": False,
+                "is_rollout": False,
+                "prevent_pref_conflicts": True,
+                "warn_feature_schema": True,
+                "branches-TOTAL_FORMS": "1",
+                "branches-INITIAL_FORMS": "1",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "",
+                "branches-0-description": "Control Description",
+                "branches-0-ratio": 2,
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch_feature_config1_value.id
+                ),
+                "branches-0-feature-value-0-value": "",
+                "branches-0-screenshots-TOTAL_FORMS": "0",
+                "branches-0-screenshots-INITIAL_FORMS": "0",
+                "branches-0-screenshots-MIN_NUM_FORMS": "0",
+                "branches-0-screenshots-MAX_NUM_FORMS": "1000",
+                "is_localized": True,
+                "localizations": json.dumps({"localization-key": "localization-value"}),
+            },
+            request=self.request,
+        )
+
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(
+            form.errors, {"branches": [{"name": [NimbusUIConstants.ERROR_NAME_INVALID]}]}
+        )
+
+    def test_duplicate_branch_name_invalid(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            feature_configs=[feature_config1],
+            equal_branch_ratio=False,
+        )
+        experiment.branches.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(
+            experiment=experiment, name="Control", slug="control"
+        )
+        treatment_branch = NimbusBranchFactory.create(experiment=experiment)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_branch_feature_config1_value = reference_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+        treatment_branch_feature_config1_value = treatment_branch.feature_values.filter(
+            feature_config=feature_config1
+        ).get()
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            data={
+                "feature_configs": [feature_config1.id],
+                "equal_branch_ratio": True,
+                "branches-TOTAL_FORMS": "2",
+                "branches-INITIAL_FORMS": "2",
+                "branches-MIN_NUM_FORMS": "0",
+                "branches-MAX_NUM_FORMS": "1000",
+                "branches-0-id": reference_branch.id,
+                "branches-0-name": "Control",
+                "branches-0-description": "Control Description",
+                "branches-0-feature-value-TOTAL_FORMS": "1",
+                "branches-0-feature-value-INITIAL_FORMS": "1",
+                "branches-0-feature-value-MIN_NUM_FORMS": "0",
+                "branches-0-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-0-feature-value-0-id": (
+                    reference_branch_feature_config1_value.id
+                ),
+                "branches-0-feature-value-0-value": json.dumps(
+                    {"control-feature1-key": "control-feature-1-value"}
+                ),
+                "branches-1-id": treatment_branch.id,
+                "branches-1-name": "Control",
+                "branches-1-description": "Treatment Description",
+                "branches-1-feature-value-TOTAL_FORMS": "1",
+                "branches-1-feature-value-INITIAL_FORMS": "1",
+                "branches-1-feature-value-MIN_NUM_FORMS": "0",
+                "branches-1-feature-value-MAX_NUM_FORMS": "1000",
+                "branches-1-feature-value-0-id": (
+                    treatment_branch_feature_config1_value.id
+                ),
+                "branches-1-feature-value-0-value": json.dumps(
+                    {"treatment-feature-1-key": "treatment-feature-1-value"}
+                ),
+                "is_localized": True,
+                "localizations": json.dumps({"localization-key": "localization-value"}),
+            },
+            request=self.request,
+        )
+
+        self.assertFalse(form.is_valid(), form.errors)
+        self.assertEqual(
+            form.errors,
+            {"branches": [{}, {"name": [NimbusUIConstants.ERROR_SLUG_DUPLICATE_BRANCH]}]},
+        )
+
+    def test_branches_ordered_by_id_with_reference_branch_first(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        experiment.branches.all().delete()
+
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="A Branch", slug="a-branch"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="B Branch", slug="b-branch"
+        )
+        branch_c = NimbusBranchFactory.create(
+            experiment=experiment, name="C Branch", slug="c-branch"
+        )
+        experiment.reference_branch = branch_b
+        experiment.save()
+
+        form = NimbusBranchesForm(instance=experiment, request=self.request)
+
+        expected_branch_ids = [branch.slug for branch in form.branches.get_queryset()]
+        self.assertEqual(
+            expected_branch_ids, [branch_b.slug, branch_a.slug, branch_c.slug]
+        )
+
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
     def test_form_saves_branches(self):
@@ -3894,3 +4055,198 @@ class TestFeaturesViewForm(RequestFormTestCase):
             ),
             feature_configs.choices,
         )
+
+
+class TestTagForm(TestCase):
+    def test_valid_form(self):
+        data = {"name": "Test Tag", "color": "#ff0000"}
+        form = TagForm(data)
+        self.assertTrue(form.is_valid())
+        tag = form.save()
+        self.assertEqual(tag.name, "Test Tag")
+        self.assertEqual(tag.color, "#ff0000")
+
+    def test_invalid_form_missing_name(self):
+        data = {"color": "#ff0000"}
+        form = TagForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+
+    def test_invalid_form_missing_color(self):
+        data = {"name": "Test Tag"}
+        form = TagForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("color", form.errors)
+
+
+class TestTagFormSet(TestCase):
+    def test_formset_prevents_duplicate_names(self):
+        data = {
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-name": "Duplicate",
+            "form-0-color": "#ff0000",
+            "form-1-name": "duplicate",
+            "form-1-color": "#00ff00",
+        }
+        formset = TagFormSet(data)
+        self.assertFalse(formset.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_TAG_DUPLICATE_NAME, str(formset.non_form_errors())
+        )
+
+    def test_formset_allows_unique_names(self):
+        data = {
+            "form-TOTAL_FORMS": "2",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-name": "Tag One",
+            "form-0-color": "#ff0000",
+            "form-1-name": "Tag Two",
+            "form-1-color": "#00ff00",
+        }
+        formset = TagFormSet(data)
+        self.assertTrue(formset.is_valid())
+
+    def test_create_tag_generates_unique_name(self):
+        TagFactory.create(name="Tag 1")
+        TagFactory.create(name="Tag 2")
+        formset = TagFormSet()
+        tag = formset.create_tag()
+        self.assertEqual(tag.name, "Tag 3")
+        self.assertTrue(tag.color.startswith("#"))
+        self.assertEqual(len(tag.color), 7)
+
+
+class TestCollaboratorsForm(RequestFormTestCase):
+    def test_collaborators_form_updates_subscribers(self):
+        experiment = NimbusExperimentFactory.create()
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        form = CollaboratorsForm(
+            instance=experiment,
+            data={"collaborators": [user1.id, user2.id]},
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(set(experiment.subscribers.all()), {user1, user2})
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated collaborators", changelog.message)
+
+    def test_collaborators_form_removes_subscribers(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        experiment.subscribers.set([user1, user2])
+
+        form = CollaboratorsForm(
+            instance=experiment, data={"collaborators": [user1.id]}, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(list(experiment.subscribers.all()), [user1])
+
+    def test_collaborators_form_initial_value(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        experiment.subscribers.set([user1, user2])
+
+        form = CollaboratorsForm(instance=experiment, request=self.request)
+        self.assertEqual(set(form.fields["collaborators"].initial), {user1, user2})
+
+
+class TestTagAssignForm(RequestFormTestCase):
+    def test_valid_form_assigns_tags(self):
+        experiment = NimbusExperimentFactory.create()
+        tag1 = TagFactory.create(name="Tag 1")
+        tag2 = TagFactory.create(name="Tag 2")
+
+        form = TagAssignForm(
+            instance=experiment, data={"tags": [tag1.id, tag2.id]}, request=self.request
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(set(experiment.tags.all()), {tag1, tag2})
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
+
+    def test_form_removes_tags(self):
+        tag1 = TagFactory.create(name="Tag 1")
+        tag2 = TagFactory.create(name="Tag 2")
+        experiment = NimbusExperimentFactory.create()
+        experiment.tags.set([tag1, tag2])
+
+        form = TagAssignForm(
+            instance=experiment, data={"tags": [tag1.id]}, request=self.request
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(list(experiment.tags.all()), [tag1])
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
+
+    def test_form_with_no_tags(self):
+        tag1 = TagFactory.create(name="Tag 1")
+        experiment = NimbusExperimentFactory.create()
+        experiment.tags.set([tag1])
+
+        form = TagAssignForm(instance=experiment, data={"tags": []}, request=self.request)
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(experiment.tags.count(), 0)
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
+
+    def test_form_queryset_ordered_by_name(self):
+        TagFactory.create(name="Z Tag")
+        TagFactory.create(name="A Tag")
+        TagFactory.create(name="M Tag")
+
+        experiment = NimbusExperimentFactory.create(tags=[])
+        form = TagAssignForm(instance=experiment)
+
+        tag_names = [tag.name for tag in form.fields["tags"].queryset]
+        self.assertEqual(tag_names, ["A Tag", "M Tag", "Z Tag"])
+
+
+class FeatureSubscriptionFormTests(RequestFormTestCase):
+    def test_feature_subscribe_form_adds_subscriber(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+        )
+        form = FeatureSubscribeForm(
+            instance=feature_config, data={}, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertIn(self.request.user, feature_config.subscribers.all())
+
+    def test_feature_unsubscribe_form_removes_subscriber(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+        )
+        feature_config.subscribers.add(self.request.user)
+        form = FeatureUnsubscribeForm(
+            instance=feature_config, data={}, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertNotIn(self.request.user, feature_config.subscribers.all())

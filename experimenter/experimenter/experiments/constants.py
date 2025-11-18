@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 
 from django.conf import settings
 from django.db import models
-from mozilla_nimbus_schemas.experiments import RandomizationUnit
+from mozilla_nimbus_schemas.experimenter_apis.experiments import RandomizationUnit
 from packaging import version
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -322,6 +322,21 @@ APPLICATION_CONFIG_EXPERIMENTER = ApplicationConfig(
     preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
 )
 
+APPLICATION_CONFIG_SUBPLAT = ApplicationConfig(
+    name="Subplat Web",
+    slug="subplat-web",
+    app_name="subplat_cirrus",
+    channel_app_id={
+        Channel.DEVELOPER: "subscription.platform.backend.cirrus",
+        Channel.STAGING: "subscription.platform.backend.cirrus",
+        Channel.PRODUCTION: "subscription.platform.backend.cirrus",
+    },
+    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+    is_web=True,
+    preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
+)
+
 NO_FEATURE_SLUG = [
     "no-feature-focus-android",
     "no-feature-klar-ios",
@@ -371,6 +386,10 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_EXPERIMENTER.slug,
         APPLICATION_CONFIG_EXPERIMENTER.name,
     )
+    SUBPLAT = (
+        APPLICATION_CONFIG_SUBPLAT.slug,
+        APPLICATION_CONFIG_SUBPLAT.name,
+    )
 
     @staticmethod
     def is_sdk(application):
@@ -395,6 +414,7 @@ class Application(models.TextChoices):
             Application.VPN,
             Application.FXA,
             Application.EXPERIMENTER,
+            Application.SUBPLAT,
         )
 
 
@@ -472,6 +492,7 @@ class NimbusConstants:
         Application.FXA: APPLICATION_CONFIG_FXA_WEB,
         Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
         Application.EXPERIMENTER: APPLICATION_CONFIG_EXPERIMENTER,
+        Application.SUBPLAT: APPLICATION_CONFIG_SUBPLAT,
     }
 
     ApplicationNameMap = models.TextChoices(
@@ -488,6 +509,7 @@ class NimbusConstants:
         DESIGN_DOC = "DESIGN_DOC", "Experiment Design Document"
         ENG_TICKET = "ENG_TICKET", "Engineering Ticket (Bugzilla/Jira/GitHub)"
         QA_TICKET = "QA_TICKET", "QA Testing Ticket (Bugzilla/Jira/Github)"
+        OTHER = "OTHER", "Other"
 
     class HomeTypeChoices(models.TextChoices):
         ROLLOUT = "Rollout", "📈 Rollout"
@@ -903,6 +925,7 @@ class NimbusConstants:
         Application.VPN: Version.NO_VERSION,
         Application.FXA: Version.NO_VERSION,
         Application.EXPERIMENTER: Version.NO_VERSION,
+        Application.SUBPLAT: Version.NO_VERSION,
     }
 
     COUNTRIES_APPLICATION_SUPPORTED_VERSION = {
@@ -915,6 +938,7 @@ class NimbusConstants:
         Application.VPN: Version.NO_VERSION,
         Application.FXA: Version.NO_VERSION,
         Application.EXPERIMENTER: Version.NO_VERSION,
+        Application.SUBPLAT: Version.NO_VERSION,
     }
 
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
@@ -970,6 +994,45 @@ We believe this because we have observed <this> via <data source, UR, survey>.
 
 Optional - We believe this outcome will <describe impact> on <core metric>
     """  # noqa
+
+    KPI_AREA = "KPI Metrics"
+    NOTABLE_CHANGES_AREA = "Notable Changes"
+    DEFAULT_METRIC_AREAS = [NOTABLE_CHANGES_AREA, KPI_AREA]
+
+    DAILY_ACTIVE_USERS = "client_level_daily_active_users_v2"
+    DAYS_OF_USE = "days_of_use"
+    RETENTION = "retained"
+    SEARCH_COUNT = "search_count"
+
+    DAU_METRIC = {
+        "group": "other_metrics",
+        "friendly_name": "Daily Active Users",
+        "slug": DAILY_ACTIVE_USERS,
+        "description": "Average number of client that sent a main ping per day.",
+    }
+
+    DOU_METRIC = {
+        "group": "other_metrics",
+        "friendly_name": "Days of Use",
+        "slug": DAYS_OF_USE,
+        "description": "Average number of days each client sent a main ping.",
+    }
+
+    KPI_METRICS = [
+        {
+            "group": "other_metrics",
+            "friendly_name": "Retention",
+            "slug": RETENTION,
+            "description": "Percentage of users who returned to Firefox two weeks later.",
+            "display_type": "percentage",
+        },
+        {
+            "group": "search_metrics",
+            "friendly_name": "Search Count",
+            "slug": SEARCH_COUNT,
+            "description": "Daily mean number of searches per user.",
+        },
+    ]
 
     MAX_PRIMARY_OUTCOMES = 2
     DEFAULT_PROPOSED_DURATION = 28

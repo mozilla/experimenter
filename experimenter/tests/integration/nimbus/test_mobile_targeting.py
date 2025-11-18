@@ -64,13 +64,7 @@ def load_app_context():
 def fixture_sdk_client():
     def _client_helper(app_context):
         return nimbus_rust.NimbusClient(
-            app_context,
-            None,
-            [],
-            str(Path.cwd()),
-            None,
-            MockMetricsHandler(),
-            None,
+            app_context, None, [], str(Path.cwd()), MockMetricsHandler(), None, None, ""
         )
 
     return _client_helper
@@ -103,6 +97,7 @@ def test_check_mobile_targeting(
             "is_bottom_toolbar_user": True,
             "has_enabled_tips_notifications": True,
             "has_accepted_terms_of_use": True,
+            "tou_experience_points": 0,
             "is_apple_intelligence_available": True,
             "cannot_use_apple_intelligence": True,
             "install_referrer_response_utm_source": "test",
@@ -110,8 +105,20 @@ def test_check_mobile_targeting(
             "is_large_device": True,
             "user_accepted_tou": True,
             "no_shortcuts_or_stories_opt_outs": True,
-            "user_clicked_tou_prompt_link": True,
-            "user_clicked_tou_prompt_remind_me_later": True,
+            "addon_ids": [
+                "uBlock0@raymondhill.net",
+                "{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}",
+                "adguardadblocker@adguard.com",
+                "adblockultimate@adblockultimate.net",
+                "firefox@ghostery.com",
+                "lock@adblock",
+                "ultrablock-pro@ultrablock.com",
+                "{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}",
+                "kolesin.work@gmail.com",
+                "adblocker@pcmatic.com",
+                "{73a6fe31-595d-460b-a920-fcc0f8843232}",
+            ],
+            "tou_points": 3,
         }
     )
     client = sdk_client(load_app_context(context))

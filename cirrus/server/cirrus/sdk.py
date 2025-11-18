@@ -13,26 +13,32 @@ logger = logging.getLogger(__name__)
 
 
 class CirrusMetricsHandler(MetricsHandler):
-    def __init__(self, metrics: Any, pings: Any):
-        self.metrics = metrics
-        self.pings = pings
+    def __init__(self, enrollment_status_ping: Any):
+        self.enrollment_status_ping = enrollment_status_ping
 
     def record_enrollment_statuses(
         self, enrollment_status_extras: list[EnrollmentStatusExtraDef]
     ):
-        for enrollment_status_extra in enrollment_status_extras:
-            self.metrics.cirrus_events.enrollment_status.record(
-                self.metrics.cirrus_events.EnrollmentStatusExtra(
-                    branch=enrollment_status_extra.branch or "",
-                    conflict_slug=enrollment_status_extra.conflict_slug or "",
-                    error_string=enrollment_status_extra.error_string or "",
-                    reason=enrollment_status_extra.reason or "",
-                    slug=enrollment_status_extra.slug or "",
-                    status=enrollment_status_extra.status or "",
-                    nimbus_user_id=enrollment_status_extra.user_id or "",
-                )
-            )
-        self.pings.enrollment_status.submit()
+        self.enrollment_status_ping.record(
+            user_agent=None,
+            ip_address=None,
+            events=[
+                {
+                    "category": "cirrus_events",
+                    "name": "enrollment_status",
+                    "extra": {
+                        "branch": str(enrollment_status_extra.branch or ""),
+                        "conflict_slug": str(enrollment_status_extra.conflict_slug or ""),
+                        "error_string": str(enrollment_status_extra.error_string or ""),
+                        "reason": str(enrollment_status_extra.reason or ""),
+                        "slug": str(enrollment_status_extra.slug or ""),
+                        "status": str(enrollment_status_extra.status or ""),
+                        "nimbus_user_id": str(enrollment_status_extra.user_id or ""),
+                    },
+                }
+                for enrollment_status_extra in enrollment_status_extras
+            ],
+        )
 
 
 class SDK:

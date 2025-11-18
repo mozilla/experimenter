@@ -561,6 +561,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_results_url(self):
         return reverse("nimbus-ui-results", kwargs={"slug": self.slug})
 
+    def get_new_results_url(self):
+        return reverse("nimbus-ui-new-results", kwargs={"slug": self.slug})
+
     @property
     def experiment_url(self):
         return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
@@ -661,7 +664,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             locales = [locale.code for locale in sorted(locales, key=lambda l: l.code)]
             locales_expression = f"locale in {locales}"
             if self.exclude_locales:
-                locales_expression = f"!({locales_expression})"
+                locales_expression = f"({locales_expression}) != true"
             sticky_expressions.append(locales_expression)
 
         if languages := self.languages.all():
@@ -670,7 +673,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             ]
             languages_expression = f"language in {languages}"
             if self.exclude_languages:
-                languages_expression = f"!({languages_expression})"
+                languages_expression = f"({languages_expression}) != true"
             sticky_expressions.append(languages_expression)
 
         if countries := self.countries.all():
@@ -679,7 +682,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             ]
             countries_expression = f"region in {countries}"
             if self.exclude_countries:
-                countries_expression = f"!({countries_expression})"
+                countries_expression = f"({countries_expression}) != true"
             sticky_expressions.append(countries_expression)
 
         enrollments_map_key = "enrollments_map"
@@ -1168,6 +1171,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "icon": "fa-solid fa-chart-column",
                 "active": current_path == self.get_results_url(),
                 "disabled": self.disable_results_link,
+                "new_results_url": self.get_new_results_url(),
+                "subsections": self.results_sidebar_sections(),
             },
             {"title": "Edit", "is_header": True},
             {
@@ -1197,6 +1202,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "icon": "fa-solid fa-user-group",
                 "active": current_path == self.get_update_audience_url(),
                 "disabled": not self.can_edit_audience(),
+            },
+        ]
+
+    def results_sidebar_sections(self):
+        # TODO: show metrics by grouped categories based on metric area
+
+        return [
+            {
+                "title": "Overview",
+                "subitems": [
+                    {"title": "Hypothesis"},
+                    {"title": "Branch overview"},
+                    {"title": "Key takeaways"},
+                    {"title": "Next steps"},
+                    {"title": "Project Impact"},
+                ],
+            },
+            {
+                "title": "All metrics",
+                "subitems": [
+                    {"title": metric} for metric in self.default_metrics.values()
+                ],
             },
         ]
 
@@ -1257,6 +1284,229 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
 
         return timeline_entries
+
+    @property
+    def metric_areas(self):
+        metric_areas = NimbusConstants.DEFAULT_METRIC_AREAS.copy()
+
+        # TODO(13721): check all metrics with data and add their areas to metric_areas
+        # if not already present
+
+        return metric_areas
+
+    @property
+    def default_metrics(self):
+        analysis_data = self.results_data.get("v3", {}) if self.results_data else {}
+        other_metrics = analysis_data.get("other_metrics", {})
+        metadata = analysis_data.get("metadata", {})
+        metrics_metadata = metadata.get("metrics", {}) if metadata else {}
+        default_metrics = {}
+
+        for value in other_metrics.values():
+            for metricKey, metricValue in value.items():
+                default_metrics[metricKey] = metrics_metadata.get(metricKey, {}).get(
+                    "friendlyName", metricValue
+                )
+
+        return default_metrics
+
+    def get_branch_data(self, analysis_basis, selected_segment, window="overall"):
+        window_results = self.get_window_results(analysis_basis, selected_segment, window)
+
+        branch_data = []
+
+        for branch in self.get_sorted_branches():
+            slug = branch.slug
+            participant_metrics = (
+                (
+                    window_results.get(slug, {})
+                    .get("branch_data", {})
+                    .get("other_metrics", {})
+                    .get("identity", {})
+                )
+                if isinstance(window_results, dict)
+                else {}
+            )
+            num_participants = (
+                participant_metrics.get("absolute", {}).get("first", {}).get("point", 0)
+            )
+
+            branch_data.append(
+                {
+                    "slug": slug,
+                    "name": branch.name,
+                    "screenshots": branch.screenshots.all,
+                    "description": branch.description,
+                    "percentage": participant_metrics.get("percent"),
+                    "num_participants": num_participants,
+                },
+            )
+
+        return branch_data
+
+    def get_metric_area_data(
+        self, metrics, analysis_basis, segment, reference_branch, window="overall"
+    ):
+        metric_data = {}
+        metric_area_data = {"metrics": metrics, "data": metric_data}
+
+        window_results = self.get_window_results(analysis_basis, segment, window)
+
+        for branch in self.get_sorted_branches():
+            branch_results = (
+                window_results.get(branch.slug, {}).get("branch_data", {})
+                if isinstance(window_results, dict)
+                else {}
+            )
+            branch_metrics = {}
+
+            for metric in metrics:
+                slug = metric.get("slug")
+                group = metric.get("group")
+
+                metric_src = branch_results.get(group, {}).get(slug, {})
+
+                absolute_data_list = metric_src.get("absolute", {}).get("all", [])
+                relative_data_list = (
+                    metric_src.get("relative_uplift", {})
+                    .get(reference_branch, {})
+                    .get("all", [])
+                )
+
+                def formatted_analysis_point_comparator(point):
+                    wi = point.get("window_index")
+                    return int(wi) if wi is not None else 0
+
+                absolute_data_list.sort(key=formatted_analysis_point_comparator)
+                relative_data_list.sort(key=formatted_analysis_point_comparator)
+
+                significance_map = (
+                    metric_src.get("significance", {})
+                    .get(reference_branch, {})
+                    .get(window, {})
+                )
+
+                abs_entries = []
+                for i, data_point in enumerate(absolute_data_list):
+                    lower = round(data_point.get("lower"), 2)
+                    upper = round(data_point.get("upper"), 2)
+
+                    if metric.get("display_type") == "percentage":
+                        lower = f"{lower * 100}%"
+                        upper = f"{upper * 100}%"
+
+                    significance = significance_map.get(str(i + 1), "neutral")
+                    abs_entries.append(
+                        {"lower": lower, "upper": upper, "significance": significance}
+                    )
+
+                rel_entries = []
+                for i, data_point in enumerate(relative_data_list):
+                    lower = data_point.get("lower")
+                    upper = data_point.get("upper")
+                    avg_rel_change = abs(data_point.get("point") * 100)
+                    significance = significance_map.get(str(i + 1), "neutral")
+                    rel_entries.append(
+                        {
+                            "lower": lower,
+                            "upper": upper,
+                            "significance": significance,
+                            "avg_rel_change": avg_rel_change,
+                        }
+                    )
+
+                branch_metrics[slug] = {"absolute": abs_entries, "relative": rel_entries}
+
+            metric_data[branch.slug] = branch_metrics
+
+        return metric_area_data
+
+    def get_kpi_metrics(
+        self, analysis_basis, segment, reference_branch, window="overall"
+    ):
+        kpi_metrics = NimbusConstants.KPI_METRICS.copy()
+        window_results = self.get_window_results(analysis_basis, segment, window)
+        other_metrics = (
+            (
+                window_results.get(reference_branch, {})
+                .get("branch_data", {})
+                .get("other_metrics", {})
+            )
+            if isinstance(window_results, dict)
+            else {}
+        )
+
+        if NimbusConstants.DAILY_ACTIVE_USERS in other_metrics:
+            diff_metrics = other_metrics.get(NimbusConstants.DAILY_ACTIVE_USERS, {}).get(
+                "difference", {}
+            )
+            for branch in diff_metrics:
+                if len(diff_metrics.get(branch, {}).get("all", [])) > 0:
+                    kpi_metrics.append(NimbusConstants.DAU_METRIC)
+                    break
+        elif NimbusConstants.DAYS_OF_USE in other_metrics:
+            if (
+                len(
+                    other_metrics.get(NimbusConstants.DAYS_OF_USE, {})
+                    .get("absolute", {})
+                    .get("all", [])
+                )
+                > 0
+            ):
+                kpi_metrics.append(NimbusConstants.DOU_METRIC)
+
+        return kpi_metrics
+
+    def get_metric_data(
+        self, analysis_basis, segment, reference_branch, window="overall"
+    ):
+        metric_areas = self.metric_areas
+        metric_data = {}
+
+        for area in metric_areas:
+            match area:
+                case NimbusConstants.KPI_AREA:
+                    kpi_metric_list = self.get_metric_area_data(
+                        self.get_kpi_metrics(
+                            analysis_basis,
+                            segment,
+                            reference_branch,
+                            window,
+                        ),
+                        analysis_basis,
+                        segment,
+                        reference_branch,
+                        window,
+                    )
+                    metric_data[area] = kpi_metric_list
+                case _:
+                    continue
+
+        return metric_data
+
+    def get_window_results(self, analysis_basis, segment, window="overall"):
+        return (
+            (
+                self.results_data.get("v3", {})
+                .get(window, {})
+                .get(analysis_basis, {})
+                .get(segment, {})
+            )
+            if self.results_data
+            else {}
+        )
+
+    def get_sorted_branches(self):
+        return (
+            [
+                self.reference_branch,
+                *self.branches.exclude(id=self.reference_branch.id),
+            ]
+            if self.reference_branch
+            else []
+            # reference branch is always defined for created experiments, the empty
+            # list is just a fallback for a specific test
+        )
 
     @property
     def experiment_active_status(self):
@@ -2108,6 +2358,22 @@ class NimbusBranchFeatureValue(models.Model):
     def __str__(self):  # pragma: no cover
         return f"{self.branch}: {self.feature_config}"
 
+    @property
+    def allow_coenrollment(self):
+        min_version = NimbusExperiment.Version.parse(
+            self.branch.experiment.firefox_min_version
+        )
+        max_version = None
+        if self.branch.experiment.firefox_max_version:
+            max_version = NimbusExperiment.Version.parse(
+                self.branch.experiment.firefox_max_version
+            )
+        schemas = self.feature_config.get_versioned_schema_range(
+            min_version,
+            max_version,
+        ).schemas
+        return all(schema.allow_coenrollment for schema in schemas)
+
 
 class NimbusBranchScreenshot(models.Model):
     branch = models.ForeignKey(
@@ -2516,6 +2782,14 @@ class NimbusFeatureVersion(models.Model):
         return packaging.version.parse(str(self))
 
 
+class NimbusVersionedSchemaManager(models.Manager["NimbusVersionedSchema"]):
+    def with_version_ordering(self, descending=False):
+        """Order schemas by semantic version (major.minor.patch)."""
+        if descending:
+            return self.order_by("-version__major", "-version__minor", "-version__patch")
+        return self.order_by("version__major", "version__minor", "version__patch")
+
+
 class NimbusVersionedSchema(models.Model):
     feature_config = models.ForeignKey(
         NimbusFeatureConfig,
@@ -2529,11 +2803,14 @@ class NimbusVersionedSchema(models.Model):
         null=True,
     )
     schema = models.TextField(blank=True, null=True)
+    allow_coenrollment = models.BooleanField(null=False, default=False)
 
     # Desktop-only
     set_pref_vars = models.JSONField[dict[str, str]](null=False, default=dict)
     is_early_startup = models.BooleanField(null=False, default=False)
     has_remote_schema = models.BooleanField(null=False, default=False)
+
+    objects = NimbusVersionedSchemaManager()
 
     class Meta:
         verbose_name = "Nimbus Versioned Schema"
@@ -2682,6 +2959,8 @@ class NimbusChangeLog(FilterMixin, models.Model):
         REJECTED_FROM_KINTO = "Rejected from Remote Settings"
         LIVE = "Experiment is live"
         COMPLETED = "Experiment is complete"
+        RESULTS_FETCHED = "Experiment results fetched"
+        EXPIRED_FROM_PREVIEW = "Expired from preview collection after 30 days"
 
     def __str__(self):
         return self.message or (

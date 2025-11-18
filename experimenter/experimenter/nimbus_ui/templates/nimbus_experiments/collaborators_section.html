@@ -1,0 +1,17 @@
+<tr id="collaborators-row"
+    class="collaborators-section align-middle"
+    {% if oob %}hx-swap-oob="true"{% endif %}>
+  <th scope="row" class="text-nowrap">Collaborators</th>
+  <td colspan="4">
+    <form method="post"
+          action="{% url 'nimbus-ui-update-collaborators' slug=experiment.slug %}"
+          hx-post="{% url 'nimbus-ui-update-collaborators' slug=experiment.slug %}"
+          hx-trigger="change"
+          hx-target="#collaborators-subscribers-section"
+          hx-swap="outerHTML"
+          class="d-flex flex-column gap-2">
+      {% csrf_token %}
+      <div class="input-group">{{ collaborators_form.collaborators }}</div>
+    </form>
+  </td>
+</tr>

@@ -18,6 +18,7 @@ services:
       - ./docs/experimenter:/experimenter/experimenter/docs
       - media_volume:/experimenter/experimenter/media
       - nimbus_ui_volume:/experimenter/experimenter/nimbus_ui/static/dist/
+      - /experimenter/experimenter/glean/generated/
       - /experimenter/experimenter/legacy/legacy-ui/core/.cache/
       - /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
       - /experimenter/experimenter/nimbus_ui/static/node_modules/
@@ -36,6 +37,7 @@ services:
       - ./docs/experimenter:/experimenter/experimenter/docs
       - media_volume:/experimenter/experimenter/media
       - nimbus_ui_volume:/experimenter/experimenter/nimbus_ui/static/dist/
+      - /experimenter/experimenter/glean/generated/
       - /experimenter/experimenter/legacy/legacy-ui/core/.cache/
       - /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
       - /experimenter/experimenter/nimbus_ui/static/node_modules/
@@ -53,6 +55,7 @@ services:
     volumes:
       - ./experimenter:/experimenter
       - media_volume:/experimenter/experimenter/media
+      - /experimenter/experimenter/glean/generated/
       - /experimenter/experimenter/legacy/legacy-ui/core/.cache/
       - /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
       - /experimenter/experimenter/results/node_modules/
@@ -70,6 +73,7 @@ services:
       - redis
     volumes:
       - ./experimenter:/experimenter
+      - /experimenter/experimenter/glean/generated/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l DEBUG"
 
@@ -81,6 +85,7 @@ services:
       - redis
     volumes:
       - ./experimenter:/experimenter
+      - /experimenter/experimenter/glean/generated/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat -s /tmp/celerybeat-schedule -l DEBUG"
 
@@ -139,6 +144,7 @@ services:
       - kinto
     volumes:
       - ./cirrus/server/:/cirrus
+      - /cirrus/cirrus/glean/
     working_dir: /cirrus
 
 volumes:

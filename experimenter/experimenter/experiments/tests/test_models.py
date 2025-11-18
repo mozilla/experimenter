@@ -43,7 +43,6 @@ from experimenter.experiments.models import (
     NimbusVersionedSchema,
     Tag,
 )
-from experimenter.experiments.tests import JEXLParser
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
@@ -54,11 +53,57 @@ from experimenter.experiments.tests.factories import (
     NimbusIsolationGroupFactory,
     NimbusVersionedSchemaFactory,
 )
+from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
+
+
+class TestNimbusBranchFeatureValue(TestCase):
+    @mock_valid_features
+    def setUp(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+    def test_feature_with_coenrollment(self):
+        feature = NimbusFeatureConfig.objects.get(slug="someFeature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+        )
+        self.assertTrue(
+            experiment.reference_branch.feature_values.get(
+                feature_config=feature
+            ).allow_coenrollment
+        )
+
+    def test_feature_without_coenrollment(self):
+        feature = NimbusFeatureConfig.objects.get(slug="missingVariables")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+        )
+        self.assertFalse(
+            experiment.reference_branch.feature_values.get(
+                feature_config=feature
+            ).allow_coenrollment
+        )
+
+    def test_feature_with_max_version(self):
+        feature = NimbusFeatureConfig.objects.get(slug="missingVariables")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_139,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_140,
+        )
+        self.assertFalse(
+            experiment.reference_branch.feature_values.get(
+                feature_config=feature
+            ).allow_coenrollment
+        )
 
 
 class TestNimbusExperimentManager(TestCase):
@@ -500,7 +545,7 @@ class TestNimbusExperiment(TestCase):
                 "&& (version|versionCompare('83.!') >= 0)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_empty_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -516,7 +561,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertEqual(experiment.targeting, "true")
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
@@ -579,7 +624,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, f"(app_version|versionCompare('{version}') >= 0)"
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_min_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -597,7 +642,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, "(app_version|versionCompare('100.!') >= 0)"
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_max_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -615,7 +660,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, "(app_version|versionCompare('100.*') <= 0)"
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
@@ -650,7 +695,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             f"(app_version|versionCompare('{version.replace('!', '*')}') <= 0)",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
@@ -688,7 +733,7 @@ class TestNimbusExperiment(TestCase):
                 f"&& (app_version|versionCompare('{version}') >= 0)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_desktop_single_channel(
         self,
@@ -710,7 +755,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ('(browserSettings.update.channel in ["nightly"])'),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_desktop_multiple_channels(
         self,
@@ -735,7 +780,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ('(browserSettings.update.channel in ["beta", "nightly"])'),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_without_firefox_min_version(
         self,
@@ -760,7 +805,7 @@ class TestNimbusExperiment(TestCase):
                 "&& (os.isMac)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_without_firefox_max_version(
         self,
@@ -785,7 +830,7 @@ class TestNimbusExperiment(TestCase):
                 "&& (version|versionCompare('83.!') >= 0)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_without_channel_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -804,7 +849,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             "(os.isMac)",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_locales(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -825,7 +870,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(os.isMac) && (locale in ['en-CA', 'en-US'])"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_exclude_locales(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -845,9 +890,9 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            ("(os.isMac) && (!(locale in ['en-CA', 'en-US']))"),
+            ("(os.isMac) && ((locale in ['en-CA', 'en-US']) != true)"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_countries(self):
         country_ca = CountryFactory.create(code="CA")
@@ -868,7 +913,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(os.isMac) && (region in ['CA', 'US'])"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_exclude_countries(self):
         country_ca = CountryFactory.create(code="CA")
@@ -888,9 +933,9 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            ("(os.isMac) && (!(region in ['CA', 'US']))"),
+            ("(os.isMac) && ((region in ['CA', 'US']) != true)"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_locales_and_countries_desktop(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -913,7 +958,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(os.isMac) && (locale in ['en-CA', 'en-US']) && (region in ['CA', 'US'])"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_languages_mobile(self):
         language_en = LanguageFactory.create(code="en")
@@ -933,7 +978,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             "(days_since_install < 7) && (language in ['en', 'es', 'fr'])",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_exclude_languages_mobile(self):
         language_en = LanguageFactory.create(code="en")
@@ -952,9 +997,9 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            "(days_since_install < 7) && (!(language in ['en', 'es', 'fr']))",
+            "(days_since_install < 7) && ((language in ['en', 'es', 'fr']) != true)",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_projects(self):
         project_mdn = ProjectFactory.create(slug="mdn")
@@ -1014,7 +1059,7 @@ class TestNimbusExperiment(TestCase):
                 f"&& {sticky_expression}"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_sticky_desktop_rollout(self):
         locale_en = LocaleFactory.create(code="en")
@@ -1054,7 +1099,7 @@ class TestNimbusExperiment(TestCase):
                 f"&& {sticky_expression}"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_sticky_mobile(self):
         language_en = LanguageFactory.create(code="en")
@@ -1089,7 +1134,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             f"(app_version|versionCompare('101.*') <= 0) && {sticky_expression}",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_sticky_and_no_advanced_targeting_omits_sticky_expression(
         self,
@@ -1110,7 +1155,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             '(browserSettings.update.channel in ["release"])',
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @mock_valid_features
     def test_targeting_with_prevent_pref_conflicts_set_prefs_from_feature_values(self):
@@ -1148,7 +1193,7 @@ class TestNimbusExperiment(TestCase):
                 "(!('nimbus.user'|preferenceIsUserSet))))"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @mock_valid_features
     def test_targeting_with_prevent_pref_conflicts_invalid_json(self):
@@ -1182,7 +1227,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             '(browserSettings.update.channel in ["release"])',
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @mock_valid_features
     def test_targeting_without_prevent_pref_conflicts_sets_prefs(self):
@@ -1211,7 +1256,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ('(browserSettings.update.channel in ["release"])'),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
@@ -1308,7 +1353,7 @@ class TestNimbusExperiment(TestCase):
             )
 
         self.assertEqual(experiment.targeting, expected_targeting)
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_uses_published_targeting_string(self):
         published_targeting = "published targeting jexl"
@@ -2223,6 +2268,352 @@ class TestNimbusExperiment(TestCase):
                         link["active"],
                         f"{link['title']} should not be active for path {path}",
                     )
+
+    def test_default_metrics_set_on_creation(self):
+        experiment = NimbusExperimentFactory.create()
+
+        experiment.results_data = {
+            "v3": {
+                "other_metrics": {"group": {"metricA": "Metric A"}},
+                "metadata": {
+                    "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
+                },
+            }
+        }
+
+        experiment.save()
+
+        self.assertEqual(
+            experiment.default_metrics,
+            {"metricA": "Friendly Metric A"},
+        )
+
+    def test_get_branch_data_returns_correct_data(self):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch B", slug="branch-b"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 150}},
+                                            "percent": 12,
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 75}},
+                                            "percent": 88,
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment.save()
+
+        result = experiment.get_branch_data("enrollments", "all")
+
+        self.assertEqual(len(result), 4)
+
+        index_map = {item.get("slug"): i for i, item in enumerate(result)}
+        first = result[index_map.get("branch-a")]
+        second = result[index_map.get("branch-b")]
+
+        # Validate first branch
+        self.assertEqual(first["slug"], "branch-a")
+        self.assertEqual(first["name"], "Branch A")
+        self.assertEqual(first["percentage"], 12)
+        self.assertEqual(first["num_participants"], 150)
+        self.assertEqual(first["description"], branch_a.description)
+
+        # Validate second branch
+        self.assertEqual(second["slug"], "branch-b")
+        self.assertEqual(second["name"], "Branch B")
+        self.assertEqual(second["percentage"], 88)
+        self.assertEqual(second["num_participants"], 75)
+        self.assertEqual(second["description"], branch_b.description)
+
+    def test_get_metric_data_returns_correct_data(self):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch B", slug="branch-b"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.49,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.12,
+                                                            "upper": 0.15,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "significance": {
+                                                "branch-b": {"overall": {"1": "neutral"}}
+                                            },
+                                            "difference": {
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.01,
+                                                            "upper": 0.03,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.24,
+                                                        "upper": 1.63,
+                                                        "point": 1.43,
+                                                    }
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.3,
+                                                            "upper": 0.55,
+                                                            "point": 0.13,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "significance": {
+                                                "branch-a": {"overall": {"1": "positive"}}
+                                            },
+                                            "difference": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.01,
+                                                            "upper": 0.03,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment.save()
+
+        results_a = experiment.get_metric_data("enrollments", "all", "branch-a")
+        results_b = experiment.get_metric_data("enrollments", "all", "branch-b")
+
+        data_a = results_b.get("KPI Metrics", {}).get("data", {})
+        data_b = results_a.get("KPI Metrics", {}).get("data", {})
+
+        first_data = data_a.get(branch_a.slug, {})
+        second_data = data_b.get(branch_b.slug, {})
+
+        self.assertEqual(
+            first_data.get("retained").get("absolute"),
+            [{"lower": "149.0%", "upper": "174.0%", "significance": "neutral"}],
+        )
+        self.assertEqual(
+            first_data.get("retained").get("relative"),
+            [
+                {
+                    "lower": -0.12,
+                    "upper": 0.15,
+                    "significance": "neutral",
+                    "avg_rel_change": 2,
+                }
+            ],
+        )
+
+        self.assertEqual(
+            second_data.get("retained").get("absolute"),
+            [{"lower": "124.0%", "upper": "163.0%", "significance": "positive"}],
+        )
+        self.assertEqual(
+            second_data.get("retained").get("relative"),
+            [
+                {
+                    "lower": -0.3,
+                    "upper": 0.55,
+                    "significance": "positive",
+                    "avg_rel_change": 13,
+                }
+            ],
+        )
+
+    @parameterized.expand(
+        [
+            (
+                "client_level_daily_active_users_v2",
+                [
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Retention",
+                        "slug": "retained",
+                        "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
+                        "display_type": "percentage",
+                    },
+                    {
+                        "group": "search_metrics",
+                        "friendly_name": "Search Count",
+                        "slug": "search_count",
+                        "description": "Daily mean number of searches per user.",
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Daily Active Users",
+                        "slug": "client_level_daily_active_users_v2",
+                        "description": "Average number of client that sent a main ping per day.",  # noqa E501
+                    },
+                ],
+            ),
+            (
+                "days_of_use",
+                [
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Retention",
+                        "slug": "retained",
+                        "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
+                        "display_type": "percentage",
+                    },
+                    {
+                        "group": "search_metrics",
+                        "friendly_name": "Search Count",
+                        "slug": "search_count",
+                        "description": "Daily mean number of searches per user.",
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Days of Use",
+                        "slug": "days_of_use",
+                        "description": "Average number of days each client sent a main ping.",  # noqa E501
+                    },
+                ],
+            ),
+        ]
+    )
+    def test_get_kpi_metrics_returns_correct_metrics(
+        self, kpi_slug, expected_kpi_metrics
+    ):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        kpi_slug: {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.1,
+                                                            "upper": 0.42,
+                                                            "point": 0.2,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "significance": {
+                                                "branch-b": {"overall": {"1": "neutral"}}
+                                            },
+                                            "difference": {
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.01,
+                                                            "upper": 0.03,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+
+        experiment.save()
+        kpi_metrics = experiment.get_kpi_metrics("enrollments", "all", branch_a.slug)
+
+        self.assertListEqual(kpi_metrics, expected_kpi_metrics)
 
     def test_conclusion_recommendation_labels(self):
         recommendations = list(NimbusConstants.ConclusionRecommendation)
@@ -3493,7 +3884,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_tag_experiment_relationship(self):
         tag = Tag.objects.create(name="TestTag", color="#123456")
-        experiment = NimbusExperimentFactory.create()
+        experiment = NimbusExperimentFactory.create(tags=[])
         experiment.tags.add(tag)
         self.assertIn(tag, experiment.tags.all())
         self.assertIn(experiment, tag.experiments.all())

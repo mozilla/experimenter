@@ -9,10 +9,25 @@ from django.db.models.functions import Concat
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
+from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig, Tag
 from experimenter.nimbus_ui.forms import MultiSelectWidget
-from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
+
+
+class VersionSortMixin:
+    def _get_version_sort_key(self, experiment):
+        if experiment.firefox_min_version:
+            return NimbusConstants.Version.parse(experiment.firefox_min_version)
+        return NimbusConstants.Version.parse(NimbusConstants.Version.NO_VERSION)
+
+    def sort_by_version(self, queryset, reverse=False):
+        experiments = list(queryset)
+        experiments.sort(key=self._get_version_sort_key, reverse=reverse)
+        sorted_ids = [e.id for e in experiments]
+        preserved_order = models.Case(
+            *[models.When(pk=pk, then=pos) for pos, pk in enumerate(sorted_ids)]
+        )
+        return queryset.filter(id__in=sorted_ids).order_by(preserved_order)
 
 
 class StatusChoices(models.TextChoices):
@@ -106,7 +121,7 @@ class DateRangeChoices(models.TextChoices):
     CUSTOM = "custom", "Custom Date Range"
 
 
-class NimbusExperimentFilter(django_filters.FilterSet):
+class NimbusExperimentFilter(VersionSortMixin, django_filters.FilterSet):
     sort = django_filters.ChoiceFilter(
         method="filter_sort",
         choices=SortChoices.choices,
@@ -156,7 +171,7 @@ class NimbusExperimentFilter(django_filters.FilterSet):
         ),
     )
     firefox_min_version = django_filters.MultipleChoiceFilter(
-        choices=reversed(NimbusExperiment.Version.choices),
+        choices=list(reversed(NimbusExperiment.Version.choices)),
         widget=IconMultiSelectWidget(
             icon="fa-solid fa-code-branch",
             attrs={
@@ -209,15 +224,6 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             },
         ),
     )
-    projects = django_filters.ModelMultipleChoiceFilter(
-        queryset=Project.objects.all().order_by("slug"),
-        widget=IconMultiSelectWidget(
-            icon="fa-solid fa-person-chalkboard",
-            attrs={
-                "title": "All Projects",
-            },
-        ),
-    )
     qa_status = django_filters.MultipleChoiceFilter(
         choices=NimbusExperiment.QAStatus.choices,
         widget=IconMultiSelectWidget(
@@ -258,6 +264,15 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             },
         ),
     )
+    tags = django_filters.ModelMultipleChoiceFilter(
+        queryset=Tag.objects.order_by("name"),
+        widget=IconMultiSelectWidget(
+            icon="fa-solid fa-tags",
+            attrs={
+                "title": "All Tags",
+            },
+        ),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -274,14 +289,19 @@ class NimbusExperimentFilter(django_filters.FilterSet):
             "languages",
             "locales",
             "targeting_config_slug",
-            "projects",
             "qa_status",
             "takeaways",
             "owner",
             "subscribers",
+            "tags",
         ]
 
     def filter_sort(self, queryset, name, value):
+        if value in (SortChoices.VERSIONS_UP, SortChoices.VERSIONS_DOWN):
+            return self.sort_by_version(
+                queryset, reverse=(value == SortChoices.VERSIONS_DOWN)
+            )
+
         return queryset.order_by(value, "slug")
 
     def filter_status(self, queryset, name, value):
@@ -333,7 +353,8 @@ class NimbusExperimentFilter(django_filters.FilterSet):
 class MyDeliveriesChoices(models.TextChoices):
     ALL = "AllDeliveries", "All My Deliveries"
     OWNED = "AllOwned", "All Owned"
-    SUBSCRIBED = "AllSubscribed", "All Subscribed"
+    SUBSCRIBED = "AllSubscribed", "All Subscribed Deliveries"
+    FEATURE_SUBSCRIBED = "FeatureSubscribed", "All Subscribed Features"
 
 
 class HomeSortChoices(models.TextChoices):
@@ -372,7 +393,7 @@ class HomeSortChoices(models.TextChoices):
         return headers
 
 
-class NimbusExperimentsHomeFilter(django_filters.FilterSet):
+class NimbusExperimentsHomeFilter(VersionSortMixin, django_filters.FilterSet):
     my_deliveries_status = django_filters.ChoiceFilter(
         label="",
         method="filter_my_deliveries",
@@ -461,10 +482,13 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
             self.filters["my_deliveries_status"].field.initial = MyDeliveriesChoices.ALL
 
         # Limit feature_configs to only features used in user's deliveries
+        # or features the user is directly subscribed to
         if hasattr(self, "request") and self.request.user.is_authenticated:
             user_feature_ids = (
                 NimbusExperiment.objects.filter(
-                    Q(owner=self.request.user) | Q(subscribers=self.request.user)
+                    Q(owner=self.request.user)
+                    | Q(subscribers=self.request.user)
+                    | Q(feature_configs__subscribers=self.request.user)
                 )
                 .values_list("feature_configs", flat=True)
                 .distinct()
@@ -485,10 +509,17 @@ class NimbusExperimentsHomeFilter(django_filters.FilterSet):
                 return queryset.filter(owner=user)
             case MyDeliveriesChoices.SUBSCRIBED:
                 return queryset.filter(subscribers=user)
+            case MyDeliveriesChoices.FEATURE_SUBSCRIBED:
+                return queryset.filter(feature_configs__subscribers=user)
             case _:
                 return queryset  # Default = All Deliveries
 
     def filter_sort(self, queryset, name, value):
+        if value in (HomeSortChoices.VERSIONS_UP, HomeSortChoices.VERSIONS_DOWN):
+            return self.sort_by_version(
+                queryset, reverse=(value == HomeSortChoices.VERSIONS_DOWN)
+            )
+
         return queryset.order_by(value, "slug")
 
     def filter_status(self, queryset, name, values):
@@ -621,6 +652,12 @@ class FeaturesPageSortChoices(models.TextChoices):
         DATE_DOWN = "-qa_run_date", "Date"
         TYPE_UP = "qa_run_type", "Testing Type"
         TYPE_DOWN = "-qa_run_type", "Testing Type"
+
+    class FeatureChanges(models.TextChoices):
+        VERSION_UP = "change_version", "Version"
+        VERSION_DOWN = "-change_version", "Version"
+        CHANGES_UP = "change_size", "Size of Changes"
+        CHANGES_DOWN = "-change_size", "Size of Changes"
 
     @staticmethod
     def sortable_headers(table_name):

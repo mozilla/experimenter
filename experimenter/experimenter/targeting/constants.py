@@ -146,9 +146,11 @@ HAS_AD_BLOCKER = """
     (
         !!addonsInfo.addons["uBlock0@raymondhill.net"]
         ||
+        !!addonsInfo.addons["firefox@ghostery.com"]
+        ||
         !!addonsInfo.addons["adblockultimate@adblockultimate.net"]
         ||
-        !!addonsInfo.addons["d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d"]
+        !!addonsInfo.addons["{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}"]
         ||
         !!addonsInfo.addons["jid1-NIfFY2CA8fy1tg@jetpack"]
     )
@@ -584,12 +586,51 @@ FX95_DESKTOP_USERS = NimbusTargetingConfig(
 )
 
 MOBILE_NEW_USER = NimbusTargetingConfig(
-    name="New Users on Mobile",
+    name="New Users on Mobile (sticky)",
     slug="mobile_new_users",
     description=("New users on mobile who installed the app less than a week ago"),
     targeting="days_since_install < 7",
     desktop_telemetry="",
     sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(
+        Application.FENIX.name,
+        Application.IOS.name,
+        Application.FOCUS_ANDROID.name,
+        Application.FOCUS_IOS.name,
+        Application.KLAR_ANDROID.name,
+        Application.KLAR_IOS.name,
+    ),
+)
+
+MOBILE_NEW_USER_UNSTICKY = NimbusTargetingConfig(
+    name="New Users on Mobile (not sticky)",
+    slug="mobile_new_users_not_sticky",
+    description=(
+        "New users on mobile who installed the app less than a week ago "
+        "and will be unenrolled after 7"
+    ),
+    targeting=MOBILE_NEW_USER.targeting,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(
+        Application.FENIX.name,
+        Application.IOS.name,
+        Application.FOCUS_ANDROID.name,
+        Application.FOCUS_IOS.name,
+        Application.KLAR_ANDROID.name,
+        Application.KLAR_IOS.name,
+    ),
+)
+
+MOBILE_EXISTING_USERS_OVER_7_DAYS = NimbusTargetingConfig(
+    name="Existing mobile users with 7 or more days since install (not sticky)",
+    slug="mobile_existing_users_over_7_days_not_sticky",
+    description=("Existing mobile users who installed the app 7 or more days ago"),
+    targeting="days_since_install >= 7",
+    desktop_telemetry="",
+    sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(
         Application.FENIX.name,
@@ -839,6 +880,22 @@ NO_ENTERPRISE_MAC_WINDOWS_11_ONLY = NimbusTargetingConfig(
         "Exclude users with active enterpries policies on Mac and Windows 11+ only"
     ),
     targeting=f"({NO_ENTERPRISE.targeting}) && ({MAC_WINDOWS_11_ONLY.targeting})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NO_ENTERPRISE_MAC_LINUX_WINDOWS_11_ONLY = NimbusTargetingConfig(
+    name="No enterprise users (Mac, Linux or Windows 11+ only)",
+    slug="no_enterprise_users_mac_linux_windows_11_only",
+    description=(
+        "Exclude users with active enterpries policies on Mac, Linux, or Windows 11+"
+    ),
+    targeting=(
+        f"({NO_ENTERPRISE.targeting}) && "
+        "((os.isWindows && os.windowsBuildNumber >= 22000) || os.isMac || os.isLinux)"
+    ),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -2414,6 +2471,51 @@ IOS_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
+IOS_TOU_EXPERIENCE_0_POINTS = NimbusTargetingConfig(
+    name="iOS ToU Experience 0 Points",
+    slug="ios_tou_experience_0_points",
+    description="Existing iOS users who have not accepted ToU and have 0 points",
+    targeting=(
+        "has_accepted_terms_of_use == false && "
+        "days_since_install >= 28 && "
+        "tou_experience_points == 0"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+IOS_TOU_EXPERIENCE_1_POINT = NimbusTargetingConfig(
+    name="iOS ToU Experience 1 Point",
+    slug="ios_tou_experience_1_point",
+    description="Existing iOS users who have not accepted ToU and have 1 point",
+    targeting=(
+        "has_accepted_terms_of_use == false && "
+        "days_since_install >= 28 && "
+        "tou_experience_points == 1"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
+IOS_TOU_EXPERIENCE_2_POINTS = NimbusTargetingConfig(
+    name="iOS ToU Experience 2 Points",
+    slug="ios_tou_experience_2_points",
+    description="Existing iOS users who have not accepted ToU and have 2 points",
+    targeting=(
+        "has_accepted_terms_of_use == false && "
+        "days_since_install >= 28 && "
+        "tou_experience_points == 2"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name,),
+)
+
 IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
     name="Apple Intelligence Available Users",
     slug="ios_apple_intelligence_available_user",
@@ -2571,6 +2673,115 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TOU_AND_NO_SPONSORED_OPT_OUTS = NimbusTarget
     targeting=(
         "user_accepted_tou == false && no_shortcuts_or_stories_opt_outs == true "
         "&& days_since_install >= 28"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingConfig(
+    name=(
+        "Existing users who have not accepted the Terms of Use and have zero ToU points."
+    ),
+    slug="android_existing_users_not_accepted_terms_of_use_zero_tou_points",
+    description=(
+        "Existing users for 28+ days who "
+        "have not accepted the Terms of Use, "
+        "have zero ToU points and "
+        "don't have any of the specified ad-blockers installed."
+    ),
+    targeting=(
+        "user_accepted_tou == false && "
+        "days_since_install >= 28 && "
+        "("
+        "tou_points == 0 && "
+        "("
+        "addon_ids['uBlock0@raymondhill.net'] == null && "
+        "addon_ids['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] == null && "
+        "addon_ids['adguardadblocker@adguard.com'] == null && "
+        "addon_ids['adblockultimate@adblockultimate.net'] == null && "
+        "addon_ids['firefox@ghostery.com'] == null && "
+        "addon_ids['lock@adblock'] == null && "
+        "addon_ids['ultrablock-pro@ultrablock.com'] == null && "
+        "addon_ids['{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}'] == null && "
+        "addon_ids['kolesin.work@gmail.com'] == null && "
+        "addon_ids['adblocker@pcmatic.com'] == null && "
+        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] == null"
+        "))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConfig(
+    name=(
+        "Existing users who have not accepted the Terms of Use and have one ToU point."
+    ),
+    slug="android_existing_users_not_accepted_terms_of_use_one_tou_point",
+    description=(
+        "Existing users for 28+ days who "
+        "have not accepted the Terms of Use, "
+        "have one ToU point or "
+        "have at least one of the specified ad-blockers installed."
+    ),
+    targeting=(
+        "user_accepted_tou == false && "
+        "days_since_install >= 28 && "
+        "("
+        "tou_points == 1 || "
+        "("
+        "addon_ids['uBlock0@raymondhill.net'] != null || "
+        "addon_ids['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] != null || "
+        "addon_ids['adguardadblocker@adguard.com'] != null || "
+        "addon_ids['adblockultimate@adblockultimate.net'] != null || "
+        "addon_ids['firefox@ghostery.com'] != null || "
+        "addon_ids['lock@adblock'] != null || "
+        "addon_ids['ultrablock-pro@ultrablock.com'] != null || "
+        "addon_ids['{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}'] != null || "
+        "addon_ids['kolesin.work@gmail.com'] != null || "
+        "addon_ids['adblocker@pcmatic.com'] != null || "
+        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] != null"
+        "))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name,),
+)
+
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetingConfig(
+    name=(
+        "Existing users who have not accepted the Terms of Use "
+        "and have more than one ToU point."
+    ),
+    slug="android_existing_users_not_accepted_terms_of_use_more_than_one_tou_point",
+    description=(
+        "Existing users for 28+ days who "
+        "have not accepted the Terms of Use, "
+        "have one ToU point and "
+        "have at least one of the specified ad-blockers installed."
+    ),
+    targeting=(
+        "user_accepted_tou == false && "
+        "days_since_install >= 28 && "
+        "("
+        "tou_points == 1 && "
+        "("
+        "addon_ids['uBlock0@raymondhill.net'] != null || "
+        "addon_ids['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] != null || "
+        "addon_ids['adguardadblocker@adguard.com'] != null || "
+        "addon_ids['adblockultimate@adblockultimate.net'] != null || "
+        "addon_ids['firefox@ghostery.com'] != null || "
+        "addon_ids['lock@adblock'] != null || "
+        "addon_ids['ultrablock-pro@ultrablock.com'] != null || "
+        "addon_ids['{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}'] != null || "
+        "addon_ids['kolesin.work@gmail.com'] != null || "
+        "addon_ids['adblocker@pcmatic.com'] != null || "
+        "addon_ids['{73a6fe31-595d-460b-a920-fcc0f8843232}'] != null"
+        "))"
     ),
     desktop_telemetry="",
     sticky_required=False,

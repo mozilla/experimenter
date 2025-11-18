@@ -525,6 +525,7 @@ enum NimbusExperimentApplicationEnum {
   FXA
   DEMO_APP
   EXPERIMENTER
+  SUBPLAT
 }
 
 enum NimbusExperimentChannelEnum {
@@ -629,6 +630,7 @@ enum NimbusExperimentDocumentationLinkEnum {
   DESIGN_DOC
   ENG_TICKET
   QA_TICKET
+  OTHER
 }
 
 type NimbusChangeLogType {

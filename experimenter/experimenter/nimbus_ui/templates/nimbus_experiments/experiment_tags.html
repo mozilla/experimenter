@@ -1,0 +1,16 @@
+<div id="experiment-tags"
+     class="mt-2"
+     {% if hx_swap_oob %}hx-swap-oob="true"{% endif %}>
+  {% if experiment.tags.exists %}
+    <div class="d-flex flex-wrap gap-1">
+      {% for tag in experiment.tags.all %}
+        <span class="badge"
+              style="background-color: {{ tag.color }};
+                     color: white;
+                     font-size: 0.75rem">{{ tag.name }}</span>
+      {% endfor %}
+    </div>
+  {% elif not hide_no_tags %}
+    <span class="text-muted small">No tags assigned</span>
+  {% endif %}
+</div>

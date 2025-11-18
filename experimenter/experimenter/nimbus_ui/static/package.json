@@ -10,8 +10,8 @@
     "watch": "webpack --watch"
   },
   "dependencies": {
+    "@codemirror/merge": "^6.8.1",
     "@fortawesome/fontawesome-free": "^6.5.2",
-    "@lezer/highlight": "^1.2.2",
     "bootstrap": "^5.3.3",
     "bootstrap-select": "1.14.0-beta3",
     "codemirror": "^6.0.1",
@@ -29,7 +29,7 @@
     "postcss": "^8.5.0",
     "postcss-loader": "^5",
     "prettier": "^3.3.2",
-    "sass": "^1.93.0",
+    "sass": "^1.94.0",
     "sass-loader": "12.6.0",
     "style-loader": "3.3.1",
     "webpack": "^5.102.0",

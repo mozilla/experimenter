@@ -144,16 +144,6 @@
                 {% endfor %}
               </td>
             </tr>
-            <tr>
-              <th>Team projects</th>
-              <td colspan="2">
-                {% for project in experiment.projects.all %}
-                  <p>{{ project }}</p>
-                {% empty %}
-                  <span class="text-danger">Not set</span>
-                {% endfor %}
-              </td>
-            </tr>
             {% include 'nimbus_experiments/subscribers_list.html' %}
 
           </tbody>
@@ -181,7 +171,7 @@
             <tr>
               <th colspan="3">
                 {{ RISK_QUESTIONS.MESSAGE }}
-                <a href="{{ risk_message_url }}"
+                <a href="{{ NimbusUIConstants.RISK_MESSAGE_URL }}"
                    target="_blank"
                    rel="noopener noreferrer">Message Consult</a>
               </th>
@@ -381,6 +371,30 @@
 
       {% endfor %}
     </div>
+    <!-- Localizations Card -->
+    {% if experiment.is_localized %}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4>Localizations</h4>
+        </div>
+        <div class="card-body">
+          <table class="table table-striped">
+            <tbody>
+              <tr>
+                <th>Is Localized</th>
+                <td colspan="3">{{ experiment.is_localized }}</td>
+              </tr>
+              <tr>
+                <th>Localizations JSON</th>
+                <td colspan="3">
+                  <textarea class="readonly-json">{{ experiment.localizations|default:"null" }}</textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
     <!-- QA Card -->
     {% include "nimbus_experiments/qa_card.html" %}
 

@@ -47,18 +47,6 @@ test = ["anyio[trio]", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "mock (>=
 trio = ["trio (<0.22)"]
 
 [[package]]
-name = "appdirs"
-version = "1.4.4"
-description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
-    {file = "appdirs-1.4.4.tar.gz", hash = "sha256:7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41"},
-]
-
-[[package]]
 name = "apscheduler"
 version = "3.11.0"
 description = "In-process task scheduler with Cron-like capabilities"
@@ -415,14 +403,14 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "fastapi"
-version = "0.120.1"
+version = "0.121.0"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "fastapi-0.120.1-py3-none-any.whl", hash = "sha256:0e8a2c328e96c117272d8c794d3a97d205f753cc2e69dd7ee387b7488a75601f"},
-    {file = "fastapi-0.120.1.tar.gz", hash = "sha256:b5c6217e9ddca6dfcf54c97986180d4a1955e10c693d74943fc5327700178bff"},
+    {file = "fastapi-0.121.0-py3-none-any.whl", hash = "sha256:8bdf1b15a55f4e4b0d6201033da9109ea15632cb76cf156e7b8b4019f2172106"},
+    {file = "fastapi-0.121.0.tar.gz", hash = "sha256:06663356a0b1ee93e875bbf05a31fb22314f5bed455afaaad2b2dad7f26e98fa"},
 ]
 
 [package.dependencies]
@@ -438,45 +426,23 @@ standard-no-fastapi-cloud-cli = ["email-validator (>=2.0.0)", "fastapi-cli[stand
 
 [[package]]
 name = "glean-parser"
-version = "8.1.1"
+version = "18.1.1"
 description = "Parser tools for Mozilla's Glean telemetry"
 optional = false
-python-versions = "*"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "glean_parser-8.1.1-py3-none-any.whl", hash = "sha256:5fdd123d9711032a4e2acfa7983cbbfa6a53a29f7270dbe52be9e5ee1790a0f8"},
-    {file = "glean_parser-8.1.1.tar.gz", hash = "sha256:6d49e0c0aac34a1e9eda7fc63b12f1513efed1c827e0ac94078493114049021e"},
+    {file = "glean_parser-18.1.1-py3-none-any.whl", hash = "sha256:44052346083dddfbe4c68a05391b9b769902529fefb5c04e690418f2e5e2bea8"},
+    {file = "glean_parser-18.1.1.tar.gz", hash = "sha256:90b3465a5ef0958a62916051c2196db15388be2f4eb2aafb01c1b1ef6248be30"},
 ]
 
 [package.dependencies]
-appdirs = ">=1.4"
-Click = ">=7"
+click = ">=7"
 diskcache = ">=4"
-Jinja2 = ">=2.10.1"
+jinja2 = ">=2.10.1"
 jsonschema = ">=3.0.2"
-MarkupSafe = ">=1.1.1,<=2.0.1"
-PyYAML = ">=5.3.1"
-
-[[package]]
-name = "glean-sdk"
-version = "53.2.0"
-description = "Mozilla's Glean Telemetry SDK: The Machine that Goes 'Ping!'"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "glean-sdk-53.2.0.tar.gz", hash = "sha256:9def7a8e004a9c276344bd7cb3b21a6c2fb1fe17bcaeed1d6c7c13659c30efdf"},
-    {file = "glean_sdk-53.2.0-cp36-abi3-macosx_10_7_universal2.whl", hash = "sha256:142db996dfc90e58ab0f2288458e29cd61bc882b06608466547f66866ed6f131"},
-    {file = "glean_sdk-53.2.0-cp36-abi3-macosx_10_7_x86_64.whl", hash = "sha256:22f439e9fc04227d896be87c1af8e0a757dbf9be4e6f0db3e87424f8882e58a1"},
-    {file = "glean_sdk-53.2.0-cp36-abi3-macosx_11_0_arm64.whl", hash = "sha256:0fb69ff2620131c75a1b04ea21265340302f82db9674f93aaa866c14c95054c5"},
-    {file = "glean_sdk-53.2.0-cp36-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d923e541f5b610756f6958490c9c1f54c149bd2c32f0a406331f95c14a05dccf"},
-    {file = "glean_sdk-53.2.0-py3-none-win32.whl", hash = "sha256:f7a48dcd4b218e156852ad896e162587b98e8a0a1ba2e721bbb560e00f0bca02"},
-    {file = "glean_sdk-53.2.0-py3-none-win_amd64.whl", hash = "sha256:663db56a080525c8ce5ba32c289f2fdb2bb70b0b926420582426da6be97ca4ad"},
-]
-
-[package.dependencies]
-glean-parser = ">=8.1,<9.0"
-semver = ">=2.13.0"
+platformdirs = ">=2.4.0"
+pyyaml = ">=5.3.1"
 
 [[package]]
 name = "h11"
@@ -1278,27 +1244,15 @@ files = [
 ]
 
 [[package]]
-name = "semver"
-version = "3.0.1"
-description = "Python helper for Semantic Versioning (https://semver.org)"
-optional = false
-python-versions = ">=3.7"
-groups = ["main"]
-files = [
-    {file = "semver-3.0.1-py3-none-any.whl", hash = "sha256:2a23844ba1647362c7490fe3995a86e097bb590d16f0f32dfc383008f19e4cdf"},
-    {file = "semver-3.0.1.tar.gz", hash = "sha256:9ec78c5447883c67b97f98c3b6212796708191d22e4ad30f4570f840171cbce1"},
-]
-
-[[package]]
 name = "sentry-sdk"
-version = "2.42.1"
+version = "2.44.0"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "sentry_sdk-2.42.1-py2.py3-none-any.whl", hash = "sha256:f8716b50c927d3beb41bc88439dc6bcd872237b596df5b14613e2ade104aee02"},
-    {file = "sentry_sdk-2.42.1.tar.gz", hash = "sha256:8598cc6edcfe74cb8074ba6a7c15338cdee93d63d3eb9b9943b4b568354ad5b6"},
+    {file = "sentry_sdk-2.44.0-py2.py3-none-any.whl", hash = "sha256:9e36a0372b881e8f92fdbff4564764ce6cec4b7f25424d0a3a8d609c9e4651a7"},
+    {file = "sentry_sdk-2.44.0.tar.gz", hash = "sha256:5b1fe54dfafa332e900b07dd8f4dfe35753b64e78e7d9b1655a28fd3065e2493"},
 ]
 
 [package.dependencies]
@@ -1332,11 +1286,13 @@ launchdarkly = ["launchdarkly-server-sdk (>=9.8.0)"]
 litellm = ["litellm (>=1.77.5)"]
 litestar = ["litestar (>=2.0.0)"]
 loguru = ["loguru (>=0.5)"]
+mcp = ["mcp (>=1.15.0)"]
 openai = ["openai (>=1.0.0)", "tiktoken (>=0.3.0)"]
 openfeature = ["openfeature-sdk (>=0.7.1)"]
 opentelemetry = ["opentelemetry-distro (>=0.35b0)"]
 opentelemetry-experimental = ["opentelemetry-distro"]
 pure-eval = ["asttokens", "executing", "pure_eval"]
+pydantic-ai = ["pydantic-ai (>=1.0.0)"]
 pymongo = ["pymongo (>=3.1)"]
 pyspark = ["pyspark (>=2.4.4)"]
 quart = ["blinker (>=1.1)", "quart (>=0.16.1)"]
@@ -1384,14 +1340,14 @@ files = [
 
 [[package]]
 name = "starlette"
-version = "0.47.2"
+version = "0.49.1"
 description = "The little ASGI library that shines."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "starlette-0.47.2-py3-none-any.whl", hash = "sha256:c5847e96134e5c5371ee9fac6fdf1a67336d5815e09eb2a01fdb57a351ef915b"},
-    {file = "starlette-0.47.2.tar.gz", hash = "sha256:6ae9aa5db235e4846decc1e7b79c4f346adf41e9777aebeb49dfd09bbd7023d8"},
+    {file = "starlette-0.49.1-py3-none-any.whl", hash = "sha256:d92ce9f07e4a3caa3ac13a79523bd18e3bc0042bb8ff2d759a8e7dd0e1859875"},
+    {file = "starlette-0.49.1.tar.gz", hash = "sha256:481a43b71e24ed8c43b11ea02f5353d77840e01480881b8cb5a26b8cae64a8cb"},
 ]
 
 [package.dependencies]
@@ -1498,4 +1454,4 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10.10"
-content-hash = "506b66b49783c78b1e164b0d5954c4c89239efc07e42e3d12bc48d913fb5357b"
+content-hash = "2daec0c37f4fa27291c5c87b77ee99624ace74df10348a99f9554627c1d5571a"

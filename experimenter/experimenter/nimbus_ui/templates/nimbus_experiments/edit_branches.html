@@ -4,19 +4,12 @@
 {% load nimbus_extras %}
 {% load django_bootstrap5 %}
 {% load widget_tweaks %}
+{% load error_helpers %}
 
 {% block title %}{{ experiment.name }} - Branches{% endblock %}
 
 {% block main_content %}
-  <form id="branches-form"
-        {% if form.is_bound %}class="was-validated"{% endif %}
-        hx-encoding="multipart/form-data"
-        hx-post="{% url 'nimbus-ui-update-branches' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-        hx-select="#branches-form"
-        hx-target="#branches-form"
-        hx-swap="outerHTML"
-        class="position-relative">
-    {% csrf_token %}
+  <div class="position-relative">
     <!-- Full form overlay -->
     <div id="htmx-loading-overlay"
          class="position-absolute bg-secondary top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center rounded">
@@ -25,434 +18,386 @@
         <div class="fs-5">Saving changes...</div>
       </div>
     </div>
-    <div class="card mb-3">
-      <div class="card-header">
-        <h4>Branches</h4>
-      </div>
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col">
-            <label for="id_feature_configs" class="form-label">
-              You must select at least one feature configuration for your experiment.
-              <a target="_blank" href="https://experimenter.info/feature-definition/">Learn more</a>
-            </label>
-            {{ form.feature_configs }}
-            {% for error in validation_errors.feature_configs %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-          </div>
+    <form id="branches-form"
+          {% if form.is_bound %}class="was-validated"{% endif %}
+          hx-encoding="multipart/form-data"
+          hx-post="{% url 'nimbus-ui-update-branches' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
+          hx-select="#branches-form"
+          hx-target="#branches-form"
+          hx-swap="outerHTML">
+      {% csrf_token %}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4>Branches</h4>
         </div>
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-check">
-              {{ form.is_rollout }}
-              <label class="form-check-label" for="id_is_rollout">This is a rollout (single branch)</label>
-              <a target="_blank"
-                 href="https://experimenter.info/deep-dives/experimenter/rollouts">Learn more</a>
-            </div>
-            {% for error in validation_errors.is_rollout %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-check">
-              {{ form.warn_feature_schema }}
-              <label class="form-check-label" for="id_warn_feature_schema">Warn only on feature schema validation failure</label>
-            </div>
-            {% for error in validation_errors.warn_feature_schema %}
-              <div class="form-text text-danger">{{ error }}</div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-check">
-              {{ form.equal_branch_ratio }}
-              <label class="form-check-label" for="id_equal_branch_ratio">Users should be split evenly between all branches</label>
-            </div>
-            {% for error in validation_errors.equal_branch_ratio %}
-              <div class="form-text text-danger">{{ error }}</div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-check">
-              {{ form.prevent_pref_conflicts }}
-              <label class="form-check-label" for="id_prevent_pref_conflicts">
-                Prevent enrollment if users have changed any prefs set by this experiment
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col">
+              <label for="id_feature_configs" class="form-label">
+                You must select at least one feature configuration for your experiment.
+                <a target="_blank" href="https://experimenter.info/feature-definition/">Learn more</a>
               </label>
-              {% if form.prevent_pref_conflicts.field.disabled %}
-                <div class="form-text">This option is required for rollouts to prevent re-enrollment after pref changes.</div>
-              {% endif %}
+              {{ form.feature_configs }}
+              {% for error in validation_errors.feature_configs %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             </div>
-            {% for error in validation_errors.prevent_pref_conflicts %}
-              <div class="form-text text-danger">{{ error }}</div>
-            {% endfor %}
           </div>
-        </div>
-        <div id="branches">
-          {{ form.branches.management_form }}
-          {% for branch_form in form.branches %}
-            <div class="card bg-body-tertiary mb-3 {% if branch_form.errors %}border border-danger{% endif %}">
-              <div class="card-body position-relative">
-                {{ branch_form.id }}
-                <div class="row">
-                  <div class="col-3">
-                    <label class="d-block">Branch Name</label>
-                    {{ branch_form.name|add_error_class:"is-invalid" }}
-                    {% for error in branch_form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                  </div>
-                  <div class="col-7">
-                    <label class="d-block">Description</label>
-                    {{ branch_form.description|add_error_class:"is-invalid" }}
-                    {% for error in branch_form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                    {% if forloop.first and validation_errors.reference_branch %}
-                      {% for error in validation_errors.reference_branch.description %}
-                        <div class="invalid-feedback d-block">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                    {% if not forloop.first and validation_errors.treatment_branches %}
-                      {% with treatment_index=forloop.counter0|add:"-1" %}
-                        {% for t_branch in validation_errors.treatment_branches %}
-                          {% if forloop.counter0 == treatment_index %}
-                            {% for error in t_branch.description %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                          {% endif %}
-                        {% endfor %}
-                      {% endwith %}
-                    {% endif %}
-                  </div>
-                  <div class="col-2">
-                    <label class="d-block">Ratio</label>
-                    <div class="d-flex align-items-end">
-                      {% if form.instance.equal_branch_ratio %}
-                        <input type="text" class="form-control text-center" value="Equal" disabled>
-                      {% else %}
-                        {{ branch_form.ratio|add_class:"form-control text-center"|add_error_class:"is-invalid" }}
-                        {% for error in branch_form.ratio.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                      {% endif %}
-                      {% if not forloop.first %}
-                        <button type="button"
-                                id="delete-branch-{{ branch_form.instance.id }}"
-                                class="btn btn-link ms-3 px-0"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                data-bs-title="Delete Branch"
-                                hx-post="{% url 'nimbus-ui-delete-branch' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                                hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
-                                hx-select="#branches-form"
-                                hx-target="#branches-form"
-                                hx-disabled-elt="this">
-                          <i class="fa-solid fa-trash"></i>
-                        </button>
-                      {% endif %}
-                    </div>
-                  </div>
-                </div>
-                {{ branch_form.branch_feature_values.management_form }}
-                {% for branch_feature_values_form in branch_form.branch_feature_values %}
-                  {{ branch_feature_values_form.id }}
-                  <div class="row mt-3">
-                    <div class="col">
-                      <label class="form-label">{{ branch_feature_values_form.instance.feature_config.name }}</label>
-                      {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
-                      {% for error in branch_feature_values_form.value.errors %}
-                        <div class="invalid-feedback d-block">{{ error }}</div>
-                      {% endfor %}
-                      {# Reference branch feature value errors #}
-                      {% if forloop.parentloop.first and validation_errors.reference_branch.feature_values %}
-                        {% with fv_index=forloop.counter0 %}
-                          {% for fv_error in validation_errors.reference_branch.feature_values %}
-                            {% if forloop.counter0 == fv_index %}
-                              {% for error in fv_error.value %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                            {% endif %}
-                          {% endfor %}
-                        {% endwith %}
-                      {% endif %}
-                      {# Treatment branches feature value errors #}
-                      {% if not forloop.parentloop.first and validation_errors.treatment_branches %}
-                        {% with branch_index=forloop.parentloop.counter0|add:"-1" %}
-                          {% for t_branch in validation_errors.treatment_branches %}
-                            {% if forloop.counter0 == branch_index %}
-                              {% with fv_index=forloop.parentloop.counter0 %}
-                                {% for fv_error in t_branch.feature_values %}
-                                  {% if forloop.counter0 == fv_index %}
-                                    {% for error in fv_error.value %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                                  {% endif %}
-                                {% endfor %}
-                              {% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                        {% endwith %}
-                      {% endif %}
-                    </div>
-                  </div>
-                {% endfor %}
-                <div class="mt-3">
-                  <label class="d-block">Screenshots</label>
-                  {{ branch_form.screenshot_formset.management_form }}
-                  {% for screenshot_form in branch_form.screenshot_formset %}
-                    {% with forloop.counter0 as screenshot_index %}
-                      {{ screenshot_form.id }}
-                      <div class="row mb-2 align-items-start">
-                        <div class="col-4">
-                          {{ screenshot_form.image|add_error_class:"is-invalid" }}
-                          {% for error in screenshot_form.image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                          {% if forloop.parentloop.first and validation_errors.reference_branch.screenshots %}
-                            {% for ss in validation_errors.reference_branch.screenshots %}
-                              {% if forloop.counter0 == screenshot_index %}
-                                {% for error in ss.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
-                              {% endif %}
-                            {% endfor %}
-                          {% elif not forloop.parentloop.first and validation_errors.treatment_branches %}
-                            {% with branch_index=forloop.parentloop.counter0|add:"-1" %}
-                              {% for t in validation_errors.treatment_branches %}
-                                {% if forloop.counter0 == branch_index and t.screenshots %}
-                                  {% for ss in t.screenshots %}
-                                    {% if forloop.counter0 == screenshot_index %}
-                                      {% for error in ss.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
-                                    {% endif %}
-                                  {% endfor %}
-                                {% endif %}
-                              {% endfor %}
-                            {% endwith %}
-                          {% endif %}
-                        </div>
-                        <div class="col-8">
-                          <div class=" d-flex align-items-end">
-                            {{ screenshot_form.description|add_error_class:"is-invalid" }}
-                            <button type="button"
-                                    id="delete-screenshot-{{ screenshot_form.instance.id }}"
-                                    class="btn btn-link ms-3 px-0"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    data-bs-title="Delete Screenshot"
-                                    hx-post="{% url 'nimbus-ui-delete-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-                                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                                    hx-vals='{"screenshot_id": {{ screenshot_form.instance.id }} }'
-                                    hx-select="#branches-form"
-                                    hx-target="#branches-form"
-                                    hx-disabled-elt="this">
-                              <i class="fa-solid fa-trash"></i>
-                            </button>
-                          </div>
-                          {% for error in screenshot_form.description.errors %}
-                            <div class="invalid-feedback d-block">{{ error }}</div>
-                          {% endfor %}
-                          {% if forloop.parentloop.first and validation_errors.reference_branch.screenshots %}
-                            {% for ss in validation_errors.reference_branch.screenshots %}
-                              {% if forloop.counter0 == screenshot_index %}
-                                {% for error in ss.description %}<div class="invalid-feedback d-block">Description: {{ error }}</div>{% endfor %}
-                              {% endif %}
-                            {% endfor %}
-                          {% elif not forloop.parentloop.first and validation_errors.treatment_branches %}
-                            {% with branch_index=forloop.parentloop.counter0|add:"-1" %}
-                              {% for t in validation_errors.treatment_branches %}
-                                {% if forloop.counter0 == branch_index and t.screenshots %}
-                                  {% for ss in t.screenshots %}
-                                    {% if forloop.counter0 == screenshot_index %}
-                                      {% for error in ss.description %}<div class="invalid-feedback d-block">Description: {{ error }}</div>{% endfor %}
-                                    {% endif %}
-                                  {% endfor %}
-                                {% endif %}
-                              {% endfor %}
-                            {% endwith %}
-                          {% endif %}
-                        </div>
-                      </div>
-                      {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
-                        <div class="row mb-3">
-                          <div class="col-12">
-                            <img src="{{ screenshot_form.instance.image.url }}"
-                                 alt="Screenshot"
-                                 style="max-width: 200px;
-                                        max-height: 120px">
-                          </div>
-                        </div>
-                      {% endif %}
-                    {% endwith %}
-                  {% endfor %}
-                  <button type="button"
-                          id="add-screenshot-button"
-                          class="btn btn-outline-primary btn-sm"
-                          hx-post="{% url 'nimbus-ui-create-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-                          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                          hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
-                          hx-select="#branches-form"
-                          hx-target="#branches-form"
-                          hx-disabled-elt="this">
-                    +
-                    Add Screenshot
-                  </button>
-                </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="form-check">
+                {{ form.is_rollout }}
+                <label class="form-check-label" for="id_is_rollout">This is a rollout (single branch)</label>
+                <a target="_blank"
+                   href="https://experimenter.info/deep-dives/experimenter/rollouts">Learn more</a>
               </div>
+              {% for error in validation_errors.is_rollout %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             </div>
-          {% endfor %}
-          {% if not experiment.is_rollout or not experiment.reference_branch %}
-            <div class="row mb-3">
-              <div class="col-12">
-                {% if experiment.branches.count < 20 %}
-                  <button class="btn btn-outline-primary btn-sm"
-                          type="button"
-                          id="add-branch-button"
-                          hx-post="{% url 'nimbus-ui-create-branch' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-                          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                          hx-select="#branches-form"
-                          hx-target="#branches-form"
-                          hx-disabled-elt="this">
-                    + Add
-                    Branch
-                  </button>
-                {% else %}
-                  <p class="form-text">An experiment may have no more than 20 branches.</p>
-                  <button class="btn btn-outline-primary btn-sm disabled" type="button">+ Add Branch</button>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="form-check">
+                {{ form.warn_feature_schema }}
+                <label class="form-check-label" for="id_warn_feature_schema">Warn only on feature schema validation failure</label>
+              </div>
+              {% for error in validation_errors.warn_feature_schema %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="form-check">
+                {{ form.equal_branch_ratio }}
+                <label class="form-check-label" for="id_equal_branch_ratio">Users should be split evenly between all branches</label>
+              </div>
+              {% for error in validation_errors.equal_branch_ratio %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="form-check">
+                {{ form.prevent_pref_conflicts }}
+                <label class="form-check-label" for="id_prevent_pref_conflicts">
+                  Prevent enrollment if users have changed any prefs set by this experiment
+                </label>
+                {% if form.prevent_pref_conflicts.field.disabled %}
+                  <div class="form-text">This option is required for rollouts to prevent re-enrollment after pref changes.</div>
                 {% endif %}
               </div>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    <div id="localization" class="card mb-3">
-      <div class="card-header">
-        <h4>Localization</h4>
-      </div>
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col">
-            <div class="form-check">
-              {{ form.is_localized }}
-              <label class="form-check-label" for="id_is_localized">Is this a localized experiment?</label>
-            </div>
-            {% for error in validation_errors.is_localized %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-          </div>
-        </div>
-        {% if experiment.is_localized %}
-          <div class="row">
-            <div class="col">
-              <label class="d-block">
-                Localization Substitutions
-                {{ form.localizations|add_error_class:"is-invalid" }}
-              </label>
-              {% for error in form.localizations.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-              {% for error in validation_errors.localizations %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              {% for error in validation_errors.prevent_pref_conflicts %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
             </div>
           </div>
-        {% endif %}
+          <div id="branches">
+            {{ form.branches.management_form }}
+            {% for branch_form in form.branches %}
+              <div class="card bg-body-tertiary mb-3 {% if branch_form.errors %}border border-danger{% endif %}">
+                <div class="card-body position-relative">
+                  {{ branch_form.id }}
+                  <div class="row">
+                    <div class="col-3">
+                      <label class="d-block">Branch Name</label>
+                      {{ branch_form.name|add_error_class:"is-invalid" }}
+                      {% for error in branch_form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-7">
+                      <label class="d-block">Description</label>
+                      {{ branch_form.description|add_error_class:"is-invalid" }}
+                      {% for error in branch_form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                      {% get_branch_errors validation_errors forloop.first forloop.counter0|add:"-1" as branch_errors %}
+                      {% for error in branch_errors.description %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-2">
+                      <label class="d-block">Ratio</label>
+                      <div class="d-flex align-items-end">
+                        {% if form.instance.equal_branch_ratio %}
+                          <input type="text" class="form-control text-center" value="Equal" disabled>
+                        {% else %}
+                          {{ branch_form.ratio|add_class:"form-control text-center"|add_error_class:"is-invalid" }}
+                          {% for error in branch_form.ratio.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        {% endif %}
+                        {% if not forloop.first %}
+                          <button type="button"
+                                  id="delete-branch-{{ branch_form.instance.id }}"
+                                  class="btn btn-link ms-3 px-0"
+                                  data-bs-toggle="tooltip"
+                                  data-bs-placement="top"
+                                  data-bs-title="Delete Branch"
+                                  hx-post="{% url 'nimbus-ui-delete-branch' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
+                                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                  hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
+                                  hx-select="#branches-form"
+                                  hx-target="#branches-form"
+                                  hx-disabled-elt="this">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                  {{ branch_form.branch_feature_values.management_form }}
+                  {% for branch_feature_values_form in branch_form.branch_feature_values %}
+                    {{ branch_feature_values_form.id }}
+                    <div class="row mt-3">
+                      <div class="col">
+                        <label class="form-label">
+                          {{ branch_feature_values_form.instance.feature_config.name }}
+                          {% if branch_feature_values_form.instance.allow_coenrollment %}
+                            <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
+                          {% endif %}
+                        </label>
+                        {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
+                        {% for error in branch_feature_values_form.value.errors %}
+                          <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                        {% get_branch_errors validation_errors forloop.parentloop.first forloop.parentloop.counter0|add:"-1" as branch_errors %}
+                        {% with fv_error=branch_errors.feature_values|get_item:forloop.counter0 %}
+                          {% for error in fv_error.value %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        {% endwith %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                  <div class="mt-3">
+                    <label class="d-block">Screenshots</label>
+                    {{ branch_form.screenshot_formset.management_form }}
+                    {% for screenshot_form in branch_form.screenshot_formset %}
+                      {% with forloop.counter0 as screenshot_index %}
+                        {{ screenshot_form.id }}
+                        <div class="row mb-2 align-items-start">
+                          <div class="col-4">
+                            {{ screenshot_form.image|add_error_class:"is-invalid" }}
+                            {% for error in screenshot_form.image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            {% get_branch_errors validation_errors forloop.parentloop.first forloop.parentloop.counter0|add:"-1" as branch_errors %}
+                            {% with ss_error=branch_errors.screenshots|get_item:forloop.counter0 %}
+                              {% for error in ss_error.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
+                            {% endwith %}
+                          </div>
+                          <div class="col-8">
+                            <div class=" d-flex align-items-end">
+                              {{ screenshot_form.description|add_error_class:"is-invalid" }}
+                              <button type="button"
+                                      id="delete-screenshot-{{ screenshot_form.instance.id }}"
+                                      class="btn btn-link ms-3 px-0"
+                                      data-bs-toggle="tooltip"
+                                      data-bs-placement="top"
+                                      data-bs-title="Delete Screenshot"
+                                      hx-post="{% url 'nimbus-ui-delete-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
+                                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                      hx-vals='{"screenshot_id": {{ screenshot_form.instance.id }} }'
+                                      hx-select="#branches-form"
+                                      hx-target="#branches-form"
+                                      hx-disabled-elt="this">
+                                <i class="fa-solid fa-trash"></i>
+                              </button>
+                            </div>
+                            {% for error in screenshot_form.description.errors %}
+                              <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                            {% get_branch_errors validation_errors forloop.parentloop.first forloop.parentloop.counter0|add:"-1" as branch_errors %}
+                            {% with ss_error=branch_errors.screenshots|get_item:forloop.counter0 %}
+                              {% for error in ss_error.description %}
+                                <div class="invalid-feedback d-block">Description: {{ error }}</div>
+                              {% endfor %}
+                            {% endwith %}
+                          </div>
+                        </div>
+                        {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
+                          <div class="row mb-3">
+                            <div class="col-12">
+                              <img src="{{ screenshot_form.instance.image.url }}"
+                                   alt="Screenshot"
+                                   style="max-width: 200px;
+                                          max-height: 120px">
+                            </div>
+                          </div>
+                        {% endif %}
+                      {% endwith %}
+                    {% endfor %}
+                    <button type="button"
+                            id="add-screenshot-button"
+                            class="btn btn-outline-primary btn-sm"
+                            hx-post="{% url 'nimbus-ui-create-branch-screenshot' slug=experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
+                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                            hx-vals='{"branch_id": {{ branch_form.instance.id }} }'
+                            hx-select="#branches-form"
+                            hx-target="#branches-form"
+                            hx-disabled-elt="this">
+                      +
+                      Add Screenshot
+                    </button>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+            {% if not experiment.is_rollout or not experiment.reference_branch %}
+              <div class="row mb-3">
+                <div class="col-12">
+                  {% if experiment.branches.count < 20 %}
+                    <button class="btn btn-outline-primary btn-sm"
+                            type="button"
+                            id="add-branch-button"
+                            hx-post="{% url 'nimbus-ui-create-branch' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
+                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                            hx-select="#branches-form"
+                            hx-target="#branches-form"
+                            hx-disabled-elt="this">
+                      + Add
+                      Branch
+                    </button>
+                  {% else %}
+                    <p class="form-text">An experiment may have no more than 20 branches.</p>
+                    <button class="btn btn-outline-primary btn-sm disabled" type="button">+ Add Branch</button>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
       </div>
-    </div>
-    {% if experiment.is_desktop %}
-      <div id="labs" class="card mb-3">
+      <div id="localization" class="card mb-3">
         <div class="card-header">
-          <h4>Firefox Labs</h4>
+          <h4>Localization</h4>
         </div>
         <div class="card-body">
           <div class="row mb-3">
             <div class="col">
               <div class="form-check">
-                {{ form.is_firefox_labs_opt_in }}
-                <label class="form-check-label" for="id_is_firefox_labs_opt_in">Is this a Firefox Labs rollout?</label>
+                {{ form.is_localized }}
+                <label class="form-check-label" for="id_is_localized">Is this a localized experiment?</label>
               </div>
-              {% for error in validation_errors.is_firefox_labs_opt_in %}
-                <div class="form-text text-danger">{{ error }}</div>
-              {% endfor %}
+              {% for error in validation_errors.is_localized %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             </div>
           </div>
-          {% if experiment.is_firefox_labs_opt_in %}
-            <div class="row mb-3">
+          {% if experiment.is_localized %}
+            <div class="row">
               <div class="col">
                 <label class="d-block">
-                  The title to display in Firefox Labs (Fluent ID)
-                  {{ form.firefox_labs_title }}
+                  Localization Substitutions
+                  {{ form.localizations|add_error_class:"is-invalid" }}
                 </label>
-                {{ form.firefox_labs_title.errors }}
-                {% for error in validation_errors.firefox_labs_title %}
-                  <div class="form-text text-danger">{{ error }}</div>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col">
-                <label class="d-block">
-                  The description to display in Firefox Labs (Fluent ID)
-                  {{ form.firefox_labs_description }}
-                </label>
-                {{ form.firefox_labs_description.errors }}
-                {% for error in validation_errors.firefox_labs_description %}
-                  <div class="form-text text-danger">{{ error }}</div>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col">
-                <label class="d-block">
-                  Description Links (JSON)
-                  {{ form.firefox_labs_description_links }}
-                </label>
-                {{ form.firefox_labs_description_links.errors }}
-                {% for error in validation_errors.firefox_labs_description_links %}
-                  <div class="form-text text-danger">{{ error }}</div>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col">
-                <label class="d-block">
-                  Firefox Labs Group
-                  {{ form.firefox_labs_group }}
-                </label>
-                {{ form.firefox_labs_group.errors }}
-                {% for error in validation_errors.firefox_labs_group %}
-                  <div class="form-text text-danger">{{ error }}</div>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col">
-                <div class="form-check">
-                  {{ form.requires_restart }}
-                  <label class="form-check-label" for="id_requires_restart">Requires restart to take effect?</label>
-                </div>
-                {{ form.requires_restart.errors }}
-                {% for error in validation_errors.requires_restart %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                {% for error in form.localizations.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                {% for error in validation_errors.localizations %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
               </div>
             </div>
           {% endif %}
         </div>
       </div>
-    {% endif %}
-    <div class="d-flex justify-content-end">
-      <button type="submit" id="save-button" class="btn btn-primary">Save</button>
-      <button type="submit"
-              name="save_action"
-              value="continue"
-              id="save-and-continue-button"
-              class="btn btn-secondary ms-2">Save and Continue</button>
-    </div>
-    {% if form.is_bound %}
-      {% if form.is_valid %}
-        <div class="toast text-bg-success position-fixed top-0 end-0 m-3 w-auto"
-             role="alert"
-             aria-live="assertive"
-             aria-atomic="true">
-          <div class="toast-body">
-            <i class="fa-regular fa-circle-check"></i>
-            Branches saved!
+      {% if experiment.is_desktop %}
+        <div id="labs" class="card mb-3">
+          <div class="card-header">
+            <h4>Firefox Labs</h4>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col">
+                <div class="form-check">
+                  {{ form.is_firefox_labs_opt_in }}
+                  <label class="form-check-label" for="id_is_firefox_labs_opt_in">Is this a Firefox Labs rollout?</label>
+                </div>
+                {% for error in validation_errors.is_firefox_labs_opt_in %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            {% if experiment.is_firefox_labs_opt_in %}
+              <div class="row mb-3">
+                <div class="col">
+                  <label class="d-block">
+                    The title to display in Firefox Labs (Fluent ID)
+                    {{ form.firefox_labs_title }}
+                  </label>
+                  {{ form.firefox_labs_title.errors }}
+                  {% for error in validation_errors.firefox_labs_title %}
+                    <div class="form-text text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col">
+                  <label class="d-block">
+                    The description to display in Firefox Labs (Fluent ID)
+                    {{ form.firefox_labs_description }}
+                  </label>
+                  {{ form.firefox_labs_description.errors }}
+                  {% for error in validation_errors.firefox_labs_description %}
+                    <div class="form-text text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col">
+                  <label class="d-block">
+                    Description Links (JSON)
+                    {{ form.firefox_labs_description_links }}
+                  </label>
+                  {{ form.firefox_labs_description_links.errors }}
+                  {% for error in validation_errors.firefox_labs_description_links %}
+                    <div class="form-text text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col">
+                  <label class="d-block">
+                    Firefox Labs Group
+                    {{ form.firefox_labs_group }}
+                  </label>
+                  {{ form.firefox_labs_group.errors }}
+                  {% for error in validation_errors.firefox_labs_group %}
+                    <div class="form-text text-danger">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col">
+                  <div class="form-check">
+                    {{ form.requires_restart }}
+                    <label class="form-check-label" for="id_requires_restart">Requires restart to take effect?</label>
+                  </div>
+                  {{ form.requires_restart.errors }}
+                  {% for error in validation_errors.requires_restart %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                </div>
+              </div>
+            {% endif %}
           </div>
         </div>
       {% endif %}
-      {% if not form.is_valid or validation_errors %}
-        <div class="toast text-bg-danger position-fixed top-1 end-0 m-3 w-auto"
-             role="alert"
-             aria-live="assertive"
-             aria-atomic="true">
-          <div class="toast-body">
-            <i class="fa-regular fa-circle-xmark"></i>
-            Please fix the errors
+      <div class="d-flex justify-content-end">
+        <button type="submit" id="save-button" class="btn btn-primary">Save</button>
+        <button type="submit"
+                name="save_action"
+                value="continue"
+                id="save-and-continue-button"
+                class="btn btn-secondary ms-2">Save and Continue</button>
+      </div>
+      {% if form.is_bound %}
+        {% if form.is_valid %}
+          <div class="toast text-bg-success position-fixed top-0 end-0 m-3 w-auto"
+               role="alert"
+               aria-live="assertive"
+               aria-atomic="true">
+            <div class="toast-body">
+              <i class="fa-regular fa-circle-check"></i>
+              Branches saved!
+            </div>
           </div>
-        </div>
+        {% endif %}
+        {% if not form.is_valid or validation_errors %}
+          <div class="toast text-bg-danger position-fixed top-1 end-0 m-3 w-auto"
+               role="alert"
+               aria-live="assertive"
+               aria-atomic="true">
+            <div class="toast-body">
+              <i class="fa-regular fa-circle-xmark"></i>
+              Please fix the errors
+            </div>
+          </div>
+        {% endif %}
       {% endif %}
-    {% endif %}
-  </form>
+    </form>
+  </div>
 {% endblock main_content %}
 
 {% block extrascripts %}

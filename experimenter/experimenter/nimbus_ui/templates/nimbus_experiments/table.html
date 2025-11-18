@@ -1,6 +1,6 @@
 {% load nimbus_extras %}
 
-<div class="col-12 p-0 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-center">
+<div class="col-12 p-0 border-bottom d-flex flex-column flex-md-row align-items-center">
   <div class="order-2 order-md-1">
     <ul class="nav nav-tabs border-0 flex-nowrap">
       {% include "common/list_tab.html" with status="Live" count=status_counts.Live icon="fa-regular fa-circle-play" %}
@@ -12,6 +12,12 @@
       {% include "common/list_tab.html" with status="MyExperiments" count=status_counts.MyExperiments icon="fa-solid fa-heart" %}
 
     </ul>
+  </div>
+  <div id="htmx-table-spinner"
+       class="order-1 order-md-2 p-2"
+       style="opacity: 0;
+              pointer-events: none">
+    <i class="fa-solid fa-spinner fa-spin fa-lg text-primary"></i>
   </div>
 </div>
 <div id="experiment-list"></div>
@@ -37,6 +43,8 @@
         <tr>
           <th scope="row">
             <a href="{% url "nimbus-ui-detail" slug=experiment.slug %}">{{ experiment.name }}</a>
+            {% include "nimbus_experiments/experiment_tags.html" with hide_no_tags=True %}
+
             {% if active_status == "MyExperiments" %}
               {% if experiment.is_archived %}
                 <p class="pt-1">

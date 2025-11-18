@@ -1,0 +1,11 @@
+{% extends "nimbus_experiments/experiment_base.html" %}
+
+{% load static %}
+{% load nimbus_extras %}
+
+{% block title %}{{ experiment.name }}{% endblock %}
+
+{% block main_content %}
+  {% include "nimbus_experiments/results-new-fragment.html" %}
+
+{% endblock main_content %}

@@ -1,8 +1,8 @@
 from django.test import TestCase
 from parameterized import parameterized
-from parsimonious.exceptions import ParseError
 
-from experimenter.experiments.tests import JEXLParser
+from experimenter.experiments.constants import Application
+from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.targeting.constants import TargetingConstants
 
 
@@ -19,8 +19,14 @@ class TestTargetingConfigs(TestCase):
     def test_targeting_config_has_valid_jexl(self, targeting_config):
         if targeting_config.targeting:
             try:
-                JEXLParser().parse(targeting_config.targeting)
-            except ParseError as e:
+                application = (
+                    Application.DESKTOP
+                    if Application.DESKTOP.name
+                    in targeting_config.application_choice_names
+                    else Application.FENIX
+                )
+                validate_jexl_expr(targeting_config.targeting, application)
+            except Exception as e:
                 raise Exception(
-                    f"JEXL Parse error in {targeting_config.name}: {e}"
+                    f"JEXL validation error in {targeting_config.name}: {e}"
                 ) from e

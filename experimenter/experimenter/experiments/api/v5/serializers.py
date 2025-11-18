@@ -15,7 +15,9 @@ import packaging
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.utils.text import slugify
-from mozilla_nimbus_schemas.experiments.experiments import ExperimentLocalizations
+from mozilla_nimbus_schemas.experimenter_apis.experiments.experiments import (
+    ExperimentLocalizations,
+)
 from rest_framework import serializers
 
 from experimenter.base.models import (
@@ -205,7 +207,7 @@ class NimbusBranchFeatureValueListSerializer(serializers.ListSerializer):
 
         return [
             self.child.to_representation(item)
-            for item in iterable.order_by("feature_config__id")
+            for item in iterable.order_by("feature_config__slug")
         ]
 
 
@@ -1099,9 +1101,9 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
             "experiment_name",
             "owner",
             "feature_configs",
-            "start_date",
+            "_start_date",
             "enrollment_duration",
-            "end_date",
+            "_end_date",
             "results_url",
             "experiment_summary",
             "rollout",

@@ -4,14 +4,6 @@ about:
 channels:
 - beta
 features:
-  address-sync:
-    description: Turns on address sync.
-    variables:
-      enabled:
-        description: |
-          Whether or not to turn on address sync.
-        type: Boolean
-        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -71,7 +63,7 @@ features:
         description: |
           When the feature is enabled the user will see a new composable toolbar instead the previous View based one.
         type: Boolean
-        default: true
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -86,10 +78,10 @@ features:
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
   custom-review-prompt:
-    description: Feature that controls the Play store in-app custom review prompt.
+    description: Feature that controls the Play store review prompt.
     variables:
       enabled:
-        description: Whether or not to enable the custom review prompt.
+        description: Whether or not to enable the new trigger criteria.
         type: Boolean
         default: false
   default-browser-prompt:
@@ -168,6 +160,11 @@ features:
       enabled:
         description: |
           Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
+        type: Boolean
+        default: false
+      shouldUseNimbus:
+        description: |
+          If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
         type: Boolean
         default: false
   fx-suggest:
@@ -503,6 +500,7 @@ features:
           OPEN_SETTINGS_SEARCH_ENGINE: ://settings_search_engine
           OPEN_SETTINGS_TRACKING_PROTECTION: ://settings_tracking_protection
           OPEN_SETTINGS_WALLPAPERS: ://settings_wallpapers
+          OPEN_SETTINGS_APP_ICON: ://settings_app_icon
           OPEN_SETTINGS: ://settings
           OPEN_SHARE_SHEET: ://share_sheet
           TURN_ON_SYNC: ://turn_on_sync
@@ -795,6 +793,13 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
+  relay-email-masks:
+    description: Feature to enable Relay for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Relay email masks feature is enabled.
+        type: Boolean
+        default: false
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -952,6 +957,10 @@ features:
       enabled:
         description: |
           Whether or not to enable the tab management enhancements.
+        type: Boolean
+        default: false
+      opening_animation_enabled:
+        description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
         default: false
   tab-strip:

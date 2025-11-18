@@ -4,7 +4,7 @@
       <strong class="ms-3">{{ item.title }}</strong>
       <hr class="my-0 mb-2">
     {% else %}
-      {% include "common/sidebar_link.html" with title=item.title link=item.link icon=item.icon active=item.active disabled=item.disabled %}
+      {% include "common/sidebar_link.html" with title=item.title link=item.link icon=item.icon active=item.active disabled=item.disabled new_results_url=item.new_results_url subsection=item.subsections %}
 
     {% endif %}
   {% endfor %}
@@ -35,6 +35,19 @@
       </p>
     </div>
   {% endif %}
+  <strong class="ms-3">Tags</strong>
+  <hr class="my-0 mb-2">
+  {% include "nimbus_experiments/assign_tags_dropdown.html" %}
+
+  <button type="button"
+          class="btn btn-link text-start p-2 mb-2 text-decoration-none"
+          data-bs-toggle="modal"
+          data-bs-target="#tagsModal"
+          hx-get="{% url 'nimbus-ui-tags-manage' %}"
+          hx-target="#tagsModalContent">
+    <i class="fa-solid fa-tags pe-2"></i>
+    Manage Tags
+  </button>
   <strong class="ms-3">Actions</strong>
   <hr class="my-0 mb-2">
   {% include "common/sidebar_link.html" with title="Clone" link="" icon="fa-regular fa-copy fa-lg" data_bs_toggle="modal" data_bs_target="#cloneModal" %}
@@ -58,7 +71,7 @@
       <i class="fa-regular fa-circle-question fa-sm ps-1"
          data-bs-toggle="tooltip"
          data-bs-placement="bottom"
-         title="{{ live_monitor_tooltip }}"></i>
+         title="{{ NimbusUIConstants.LIVE_MONITOR_TOOLTIP }}"></i>
     </a>
     {% if experiment.rollout_monitoring_dashboard_url %}
       <a class="nav-link d-flex align-items-center nav-link-hover"
@@ -73,9 +86,9 @@
     <i class="fa-solid fa-file-code pe-2"></i>
     Preview Recipe JSON
   </a>
-  {% for title, link in common_sidebar_links.items %}
+  {% for title, link in NimbusUIConstants.SIDEBAR_COMMON_LINKS.items %}
     <a class="nav-link d-flex align-items-center nav-link-hover d-flex justify-content-between"
-       href="{% if title == 'Detailed Analysis' %}{{ analysis_link }}{% else %}{{ link.url }}{% endif %}">
+       href="{{ link.url }}">
       <div>
         <i class="{{ link.icon }} pe-2"></i>
         {{ title }}

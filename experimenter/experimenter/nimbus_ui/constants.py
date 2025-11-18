@@ -13,10 +13,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     ERROR_NAME_INVALID = "This is not a valid name."
     ERROR_SLUG_DUPLICATE = "An experiment with this slug already exists."
+    ERROR_SLUG_DUPLICATE_BRANCH = "A branch with this slug already exists."
+
     ERROR_HYPOTHESIS_PLACEHOLDER = "Please enter a hypothesis."
     ERROR_NAME_MAPS_TO_EXISTING_SLUG = (
         "Name maps to a pre-existing slug, please choose another name."
     )
+    ERROR_TAG_DUPLICATE_NAME = "Tag with this Name already exists."
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/access"
@@ -131,16 +134,17 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             tool to show message interaction details.""",
             "icon": "fa-solid fa-envelope-open-text",
         },
-        "Detailed Analysis": {
-            "url": "https://protosaur.dev/partybal/",
-            "tooltip": """Detailed Analysis is an advanced view into experiment
-            results.""",
-            "icon": "fa-solid fa-magnifying-glass-chart",
-        },
     }
     LIVE_MONITOR_TOOLTIP = """Live Monitoring shows enrollment/unenrollment for this
     delivery"""
 
+    OVERVIEW_SECTIONS = [
+        "Hypothesis",
+        "Branch overview",
+        "Key takeaways",
+        "Next steps",
+        "Project impact",
+    ]
     FEATURE_PAGE_LINKS = {
         "feature_learn_more_url": "https://experimenter.info/for-product#track-your-feature-health",
         "deliveries_table_tooltip": """This shows all Nimbus experiments, rollouts, Labs
@@ -149,8 +153,27 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     FEATURE_PAGE_TOOLTIPS = {
         "feature_changes_tooltip": """This shows any changes made to the Nimbus feature
-        manifest such as code changes for the feature you have chosen."""
+        manifest such as code changes for the feature you have chosen.""",
+        "subscribe_tooltip": """Subscribe to {text} to get email notifications
+        when deliveries use this feature as well as show deliveries that use
+        this feature on your Home view.""",
+        "unsubscribe_tooltip": """Unsubscribe from {text} to stop email
+        notifications for changes to this feature's configuration or deliveries
+        and remove them from your Home view.""",
     }
+
+    OVERVIEW_REFLECTION_PROMPTS = {
+        "key_takeaways": """Highlight the most important learnings or patterns from this
+        experiment.""",
+        "next_steps": """Outline what should happen next based on these results — fixes,
+        follow-ups, or future tests.""",
+        "project_impact": """Set an impact rating so others can understand the scale of
+        this experiment's effect.""",
+    }
+    COENROLLMENT_NOTE = (
+        "Note: This feature supports co-enrollment with other experiments/rollouts "
+        "for the selected versions."
+    )
 
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"
@@ -329,10 +352,42 @@ def _get_status_icon_map():
     }
 
 
+def _get_schema_diff_size_config():
+    return {
+        "thresholds": {
+            "small": 3,
+            "medium": 10,
+        },
+        "labels": {
+            "no_changes": {
+                "text": "No Changes",
+                "badge_class": "badge bg-success",
+            },
+            "small": {
+                "text": "Small",
+                "badge_class": "badge bg-primary",
+            },
+            "medium": {
+                "text": "Medium",
+                "badge_class": "badge bg-warning",
+            },
+            "large": {
+                "text": "Large",
+                "badge_class": "badge bg-danger",
+            },
+            "first_version": {
+                "text": "First Version",
+                "badge_class": "badge bg-secondary",
+            },
+        },
+    }
+
+
 QA_STATUS_ICON_MAP = _get_qa_status_icon_map()
 CHANNEL_ICON_MAP = _get_channel_icon_map()
 APPLICATION_ICON_MAP = _get_application_icon_map()
 STATUS_ICON_MAP = _get_status_icon_map()
+SCHEMA_DIFF_SIZE_CONFIG = _get_schema_diff_size_config()
 
 # Icon filter type constants for template tags
 QA_ICON_FILTER_TYPE = "qa_icon_info"

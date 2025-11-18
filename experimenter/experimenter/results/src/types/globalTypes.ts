@@ -19,6 +19,7 @@ export enum NimbusExperimentApplicationEnum {
   KLAR_ANDROID = "KLAR_ANDROID",
   KLAR_IOS = "KLAR_IOS",
   MONITOR = "MONITOR",
+  SUBPLAT = "SUBPLAT",
   VPN = "VPN",
 }
 
@@ -49,6 +50,7 @@ export enum NimbusExperimentDocumentationLinkEnum {
   DESIGN_DOC = "DESIGN_DOC",
   DS_JIRA = "DS_JIRA",
   ENG_TICKET = "ENG_TICKET",
+  OTHER = "OTHER",
   QA_TICKET = "QA_TICKET",
 }
 

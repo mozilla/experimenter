@@ -1420,7 +1420,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -1520,7 +1521,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -1584,7 +1586,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -1660,7 +1663,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -1733,7 +1737,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -1818,7 +1823,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -1888,7 +1894,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -1970,7 +1977,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -2067,7 +2075,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -2176,7 +2185,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -2249,7 +2259,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -2334,7 +2345,8 @@
                 "vpn-web",
                 "fxa-web",
                 "demo-app",
-                "experimenter"
+                "experimenter",
+                "subplat-web"
               ]
             }
           },
@@ -4073,17 +4085,19 @@
             "type": "string",
             "readOnly": true
           },
-          "start_date": {
+          "_start_date": {
             "type": "string",
-            "readOnly": true
+            "format": "date",
+            "nullable": true
           },
           "enrollment_duration": {
             "type": "string",
             "readOnly": true
           },
-          "end_date": {
+          "_end_date": {
             "type": "string",
-            "readOnly": true
+            "format": "date",
+            "nullable": true
           },
           "results_url": {
             "type": "string",

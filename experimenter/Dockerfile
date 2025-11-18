@@ -41,6 +41,9 @@ RUN poetry install
 # will exit non-zero and print what is usually just a warning in `poetry install`
 RUN poetry check
 
+# Build glean assets
+COPY ./experimenter/telemetry /experimenter/experimenter/telemetry
+RUN glean_parser translate experimenter/telemetry/pings.yaml experimenter/telemetry/metrics.yaml -f python_server -o experimenter/glean/generated
 
 # Node image
 #-------------------------
@@ -72,6 +75,7 @@ RUN chmod +x /experimenter/bin/wait-for-it.sh
 # Python packages
 COPY --from=python-builder /usr/local/bin/ /usr/local/bin/
 COPY --from=python-builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
+COPY --from=python-builder /experimenter/experimenter/glean/generated/ /experimenter/experimenter/glean/generated/
 
 # Node packages
 COPY --from=node-builder /experimenter/experimenter/legacy/legacy-ui/core/node_modules/ /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
@@ -133,6 +137,7 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates git pos
 # Copy source from previously built containers
 COPY --from=dev /usr/local/bin/ /usr/local/bin/
 COPY --from=dev /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
+COPY --from=dev /experimenter/experimenter/glean/generated/ /experimenter/experimenter/glean/generated/
 COPY --from=dev /experimenter/bin/ /experimenter/bin/
 COPY --from=dev /application-services/nimbus_megazord/ /application-services/nimbus_megazord/
 COPY ./manage.py /experimenter/manage.py
@@ -143,10 +148,10 @@ COPY --from=ui /experimenter/experimenter/results/build/ /experimenter/experimen
 COPY --from=ui /experimenter/experimenter/nimbus_ui/static/dist/ /experimenter/experimenter/nimbus_ui/static/dist/
 
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
+ENV PYTHONUNBUFFERED=1
 
 # Ensure the non-root user owns the required directories
 RUN chown -R app:app /experimenter /application-services
-RUN mkdir -p /var/glean && chown -R app:app /var/glean
 
 # Switch to the non-root user
 USER app

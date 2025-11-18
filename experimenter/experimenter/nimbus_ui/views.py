@@ -1,17 +1,26 @@
-from urllib.parse import urljoin
+import json
 
+from deepdiff import DeepDiff
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, TemplateView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
-from experimenter.experiments.models import NimbusExperiment
-from experimenter.nimbus_ui.constants import NimbusUIConstants
+from experimenter.experiments.models import (
+    NimbusExperiment,
+    NimbusFeatureConfig,
+    NimbusVersionedSchema,
+    Tag,
+)
+from experimenter.nimbus_ui.constants import (
+    SCHEMA_DIFF_SIZE_CONFIG,
+)
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
     FeaturesPageSortChoices,
@@ -31,11 +40,14 @@ from experimenter.nimbus_ui.forms import (
     CancelEndEnrollmentForm,
     CancelEndExperimentForm,
     CancelUpdateRolloutForm,
+    CollaboratorsForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
     FeaturesForm,
+    FeatureSubscribeForm,
+    FeatureUnsubscribeForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -54,6 +66,8 @@ from experimenter.nimbus_ui.forms import (
     ReviewToDraftForm,
     SignoffForm,
     SubscribeForm,
+    TagAssignForm,
+    TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
     UnsubscribeForm,
@@ -140,18 +154,7 @@ class NimbusExperimentViewMixin:
             if experiment and experiment.slug
             else []
         )
-
-        context["live_monitor_tooltip"] = NimbusUIConstants.LIVE_MONITOR_TOOLTIP
-        context["common_sidebar_links"] = NimbusUIConstants.SIDEBAR_COMMON_LINKS
-
-        slug_underscore = (
-            experiment.slug.replace("-", "_") if experiment and experiment.slug else ""
-        )
-
-        context["analysis_link"] = urljoin(
-            NimbusUIConstants.SIDEBAR_COMMON_LINKS["Detailed Analysis"]["url"],
-            slug_underscore + ".html",
-        )
+        context["all_tags"] = Tag.objects.all().order_by("name")
         context["create_form"] = NimbusExperimentCreateForm()
 
         return context
@@ -184,6 +187,16 @@ class CloneExperimentFormMixin:
         context = super().get_context_data(**kwargs)
         context["clone_form"] = NimbusExperimentSidebarCloneForm(instance=self.object)
         return context
+
+
+class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateView):
+    model = NimbusFeatureConfig
+    template_name = "nimbus_experiments/feature_subscribe_button.html"
+    context_object_name = "selected_feature_config"
+    url_name = None
+
+    def get_success_url(self):
+        return reverse(self.url_name, kwargs={"pk": self.object.pk})
 
 
 class NimbusChangeLogsView(
@@ -285,8 +298,6 @@ def build_experiment_context(experiment):
         "primary_outcome_links": primary_outcome_links,
         "secondary_outcome_links": secondary_outcome_links,
         "segment_links": segment_links,
-        "risk_message_url": NimbusUIConstants.RISK_MESSAGE_URL,
-        "review_url": NimbusUIConstants.REVIEW_URL,
     }
     return context
 
@@ -308,6 +319,7 @@ class NimbusExperimentDetailView(
         context["promote_to_rollout_forms"] = NimbusExperimentPromoteToRolloutForm(
             instance=self.object
         )
+        context["collaborators_form"] = CollaboratorsForm(instance=self.object)
         context["qa_edit_mode"] = self.request.GET.get("edit_qa_status") == "true"
         context["takeaways_edit_mode"] = self.request.GET.get("edit_takeaways") == "true"
         if context["qa_edit_mode"]:
@@ -465,11 +477,6 @@ class OverviewUpdateView(
     def can_edit(self):
         return self.object.can_edit_overview()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["links"] = NimbusUIConstants.OVERVIEW_PAGE_LINKS
-        return context
-
 
 class DocumentationLinkCreateView(RenderParentDBResponseMixin, OverviewUpdateView):
     form_class = DocumentationLinkCreateForm
@@ -534,11 +541,6 @@ class MetricsUpdateView(
     def can_edit(self):
         return self.object.can_edit_metrics()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["links"] = NimbusUIConstants.METRICS_PAGE_LINKS
-        return context
-
 
 class AudienceUpdateView(
     SaveAndContinueMixin,
@@ -557,31 +559,54 @@ class AudienceUpdateView(
     def can_edit(self):
         return self.object.can_edit_audience()
 
+
+class CollaboratorsContextMixin:
+    template_name = "nimbus_experiments/subscribers_list.html"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(
-            {
-                "targeting_criteria_request_info": (
-                    NimbusUIConstants.TARGETING_CRITERIA_REQUEST_INFO
-                ),
-                "links": NimbusUIConstants.AUDIENCE_PAGE_LINKS,
-            }
-        )
+        context["collaborators_form"] = CollaboratorsForm(instance=self.object)
         return context
 
 
+class CollaboratorsUpdateView(
+    CollaboratorsContextMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
+):
+    form_class = CollaboratorsForm
+
+
 class SubscribeView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    CollaboratorsContextMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
 ):
     form_class = SubscribeForm
-    template_name = "nimbus_experiments/subscribers_list.html"
 
 
 class UnsubscribeView(
-    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+    CollaboratorsContextMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
 ):
     form_class = UnsubscribeForm
-    template_name = "nimbus_experiments/subscribers_list.html"
+
+
+class FeatureSubscribeView(FeatureSubscriberViewMixin):
+    form_class = FeatureSubscribeForm
+    url_name = "nimbus-ui-feature-subscribe"
+
+
+class FeatureUnsubscribeView(FeatureSubscriberViewMixin):
+    form_class = FeatureUnsubscribeForm
+    url_name = "nimbus-ui-feature-unsubscribe"
 
 
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
@@ -648,39 +673,55 @@ class ApproveUpdateRolloutView(StatusUpdateView):
     form_class = ApproveUpdateRolloutForm
 
 
-class ResultsView(NimbusExperimentViewMixin, DetailView):
-    template_name = "nimbus_experiments/results.html"
+class NewResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results-new.html"
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request"):
+            return ["nimbus_experiments/results-new-fragment.html"]
+        return [self.template_name]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         experiment = self.get_object()
 
         analysis_data = experiment.results_data.get("v3", {})
-        other_metrics = analysis_data.get("other_metrics", {})
-        metrics_metadata = analysis_data.get("metadata", {}).get("metrics", {})
-        default_metrics = {}
 
-        for value in other_metrics.values():
-            for metricKey, metricValue in value.items():
-                default_metrics[metricKey] = metrics_metadata.get(metricKey, {}).get(
-                    "friendlyName", metricValue
-                )
-
-        context["default_metrics"] = default_metrics
+        context["default_metrics"] = experiment.default_metrics
 
         selected_reference_branch = self.request.GET.get(
-            "reference_branch", experiment.reference_branch.name
+            "reference_branch", experiment.reference_branch.slug
         )
         context["selected_reference_branch"] = selected_reference_branch
 
+        segments = list(analysis_data.get("overall", {}).get("enrollments", {}).keys())
         selected_segment = self.request.GET.get("segment", "all")
         context["selected_segment"] = selected_segment
+        context["segments"] = segments
+
         analysis_basis = self.request.GET.get(
             "analysis_basis", "exposures" if experiment.has_exposures else "enrollments"
         )
         context["selected_analysis_basis"] = analysis_basis
 
         context["results_data"] = analysis_data
+
+        context["branch_data"] = experiment.get_branch_data(
+            analysis_basis, selected_segment
+        )
+
+        context["metric_area_data"] = experiment.get_metric_data(
+            analysis_basis, selected_segment, selected_reference_branch
+        )
+
+        return context
+
+
+class ResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context
 
 
@@ -690,35 +731,53 @@ class NimbusFeaturesView(TemplateView):
     filterset_class = NimbusExperimentFilter
     context_object_name = "features"
 
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.app = self.request.GET.get("application")
+        self.feature_id = self.request.GET.get("feature_configs")
+
     def get_form(self):
         return FeaturesForm(self.request.GET or None)
 
     def get_queryset(self):
+        if not self.app or not self.feature_id:
+            return NimbusExperiment.objects.none()
+
         qs = (
             NimbusExperiment.objects.with_merged_channel()
-            .filter(is_archived=False)
+            .filter(is_archived=False, application=self.app)
             .order_by("-_updated_date_time")
         )
 
-        app = self.request.GET.get("application")
-        if app:
-            qs = qs.filter(application=app)
+        sort_param = self.request.GET.get("sort", "name")
+        if sort_param in [
+            "change_version",
+            "-change_version",
+            "change_size",
+            "-change_size",
+        ]:
+            sort_param = "name"
 
-        feature_id = self.request.GET.get("feature_configs")
-        if feature_id:
-            qs = (
-                qs.filter(feature_configs=feature_id)
-                .distinct()
-                .order_by(self.request.GET.get("sort", "name"))
-            )
-        else:
-            return qs.none()
+        qs = qs.filter(feature_configs=self.feature_id).distinct().order_by(sort_param)
+
         return qs
+
+    def get_feature_config(self):
+        if not self.feature_id or not self.app:
+            return None
+
+        return (
+            NimbusFeatureConfig.objects.filter(pk=self.feature_id, application=self.app)
+            .only("pk", "application")
+            .first()
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = self.get_form()
         qs = self.get_queryset()
+        schemas_with_changes = 0
+        selected_feature_config = self.get_feature_config()
 
         deliveries_paginator = Paginator(qs, 5)
         deliveries_page_number = self.request.GET.get("deliveries_page") or 1
@@ -761,12 +820,108 @@ class NimbusFeaturesView(TemplateView):
         )
         qa_runs_non_sortable_fields = {field for field, _ in qa_runs_non_sortable_headers}
 
+        feature_changes_sortable_headers = FeaturesPageSortChoices.sortable_headers(
+            FeaturesPageSortChoices.FeatureChanges
+        )
+        feature_changes_non_sortable_headers = [
+            ("show_diff", "Change Diff from Prev. (Previous | Current)")
+        ]
+
+        feature_change_headers = (
+            feature_changes_sortable_headers + feature_changes_non_sortable_headers
+        )
+
+        # Get feature schema versions with their diffs
+        feature_schemas = []
+        thresholds = SCHEMA_DIFF_SIZE_CONFIG["thresholds"]
+        labels = SCHEMA_DIFF_SIZE_CONFIG["labels"]
+        total_changes = 0
+
+        if selected_feature_config:
+            sort = self.request.GET.get("sort", "")
+
+            if sort == "change_version":
+                queryset = NimbusVersionedSchema.objects.with_version_ordering(
+                    descending=False
+                )
+            else:
+                queryset = NimbusVersionedSchema.objects.with_version_ordering(
+                    descending=True
+                )
+
+            schemas = list(
+                queryset.filter(feature_config_id=self.feature_id).select_related(
+                    "version"
+                )
+            )
+
+            schema_cache = []
+            for schema in schemas:
+                schema_cache.append(json.loads(schema.schema))
+
+            # Pair each schema with its previous version
+            for i, schema in enumerate(schemas):
+                current_json = schema.schema
+                previous_json = schemas[i + 1].schema if i + 1 < len(schemas) else '"{}"'
+
+                if i + 1 < len(schemas):
+                    diff = DeepDiff(
+                        schema_cache[i + 1],
+                        schema_cache[i],
+                        ignore_order=True,
+                    )
+
+                    total_changes = sum(
+                        [
+                            len(diff.get("dictionary_item_added", [])),
+                            len(diff.get("dictionary_item_removed", [])),
+                            len(diff.get("values_changed", {})),
+                            len(diff.get("type_changes", {})),
+                        ]
+                    )
+
+                    if total_changes == 0:
+                        size_label = labels["no_changes"]
+                    elif total_changes <= thresholds["small"]:
+                        size_label = labels["small"]
+                    elif total_changes <= thresholds["medium"]:
+                        size_label = labels["medium"]
+                    else:
+                        size_label = labels["large"]
+
+                    if total_changes > 0:
+                        schemas_with_changes += 1
+                else:
+                    total_changes = 0
+                    size_label = labels["first_version"]
+
+                feature_schemas.append(
+                    {
+                        "schema": schema,
+                        "current_json": current_json,
+                        "previous_json": previous_json,
+                        "size_label": size_label.get("text"),
+                        "size_badge": size_label.get("badge_class"),
+                        "total_changes": total_changes,
+                    }
+                )
+
+            if sort == "change_size":
+                feature_schemas.sort(key=lambda x: x["total_changes"])
+            elif sort == "-change_size":
+                feature_schemas.sort(key=lambda x: x["total_changes"], reverse=True)
+
+        feature_changes_pagination = Paginator(feature_schemas, 5)
+        feature_changes_page_number = self.request.GET.get("feature_changes") or 1
+        feature_changes_page_obj = feature_changes_pagination.get_page(
+            feature_changes_page_number
+        )
+
         context = {
             "form": form,
-            "links": NimbusUIConstants.FEATURE_PAGE_LINKS,
-            "tooltips": NimbusUIConstants.FEATURE_PAGE_TOOLTIPS,
             "application": self.request.GET.get("application"),
             "feature_configs": self.request.GET.get("feature_configs"),
+            "selected_feature_config": selected_feature_config,
             "paginator": deliveries_paginator,
             "deliveries_page_obj": deliveries_page_obj,
             "experiments_delivered": deliveries_page_obj.object_list,
@@ -776,6 +931,11 @@ class NimbusFeaturesView(TemplateView):
             "deliveries_non_sortable_header": deliveries_non_sortable_fields,
             "qa_runs_sortable_header": qa_runs_sortable_header,
             "qa_runs_non_sortable_header": qa_runs_non_sortable_fields,
+            "feature_schemas": feature_changes_page_obj.object_list,
+            "feature_changes_page_obj": feature_changes_page_obj,
+            "schemas_with_changes": schemas_with_changes,
+            "feature_changes_headers": feature_change_headers,
+            "feature_changes_non_sortable_headers": feature_changes_non_sortable_headers,
         }
         return context
 
@@ -789,7 +949,11 @@ class NimbusExperimentsHomeView(FilterView):
         return (
             NimbusExperiment.objects.with_merged_channel()
             .filter(is_archived=False)
-            .filter(Q(owner=self.request.user) | Q(subscribers=self.request.user))
+            .filter(
+                Q(owner=self.request.user)
+                | Q(subscribers=self.request.user)
+                | Q(feature_configs__subscribers=self.request.user)
+            )
             .distinct()
             .order_by("-_updated_date_time")
             .prefetch_related("subscribers")
@@ -820,9 +984,53 @@ class NimbusExperimentsHomeView(FilterView):
             [e for e in all_experiments if e.is_ready_for_attention], 5
         ).get_page(self.request.GET.get("attention_page", 1))
 
-        context["links"] = NimbusUIConstants.HOME_PAGE_LINKS
-        context["tooltips"] = NimbusUIConstants.HOME_PAGE_TOOLTIPS
-
         context["sortable_headers"] = HomeSortChoices.sortable_headers()
         context["create_form"] = NimbusExperimentCreateForm()
         return context
+
+
+class TagFormSetMixin:
+    def get_tag_formset(self, data=None):
+        queryset = Tag.objects.all().order_by("id")
+        return TagFormSet(data, queryset=queryset)
+
+
+class TagsManageView(TagFormSetMixin, TemplateView):
+    template_name = "nimbus_experiments/tags_manage.html"
+
+    def get_context_data(self, **kwargs):
+        return {"formset": self.get_tag_formset()}
+
+
+class TagCreateView(TagFormSetMixin, TemplateView):
+    template_name = "nimbus_experiments/tags_list_partial.html"
+
+    def post(self, request, *args, **kwargs):
+        formset = self.get_tag_formset()
+        formset.create_tag()
+        return render(
+            request,
+            self.template_name,
+            {"formset": self.get_tag_formset()},
+        )
+
+
+class TagSaveView(TagFormSetMixin, TemplateView):
+    template_name = "nimbus_experiments/tags_list_partial.html"
+
+    def post(self, request, *args, **kwargs):
+        formset = self.get_tag_formset(request.POST)
+        if formset.is_valid():
+            formset.save()
+            response = HttpResponse()
+            response["HX-Trigger"] = "closeModal"
+            response["HX-Refresh"] = "true"
+            return response
+        return render(request, self.template_name, {"formset": formset})
+
+
+class TagAssignView(
+    NimbusExperimentViewMixin, RequestFormMixin, RenderResponseMixin, UpdateView
+):
+    form_class = TagAssignForm
+    template_name = "nimbus_experiments/assign_tags_response.html"

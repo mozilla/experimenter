@@ -1,10 +1,12 @@
+import random
 from collections import defaultdict
 from datetime import UTC, datetime
 
 import markus
 from django import forms
 from django.contrib.auth.models import User
-from django.forms import inlineformset_factory
+from django.db.models import Case, When
+from django.forms import BaseInlineFormSet, BaseModelFormSet, inlineformset_factory
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.text import slugify
@@ -20,6 +22,7 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
+    Tag,
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -28,7 +31,6 @@ from experimenter.kinto.tasks import (
 from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
-from experimenter.projects.models import Project
 from experimenter.segments import Segments
 from experimenter.targeting.constants import NimbusTargetingConfig
 
@@ -50,6 +52,16 @@ class NimbusChangeLogFormMixin:
         )
         metrics.incr("changelog_form.save", tags=[f"form:{type(self).__name__}"])
         return experiment
+
+
+class FeatureSubscriberFormMixin(forms.ModelForm):
+    class Meta:
+        model = NimbusFeatureConfig
+        fields = []
+
+    def __init__(self, *args, request: HttpRequest = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
 
 
 class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -342,9 +354,7 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         widget=InlineRadioSelect,
         coerce=lambda x: x == "True",
     )
-    projects = forms.ModelMultipleChoiceField(
-        required=False, queryset=Project.objects.all(), widget=MultiSelectWidget()
-    )
+
     public_description = forms.CharField(
         required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3})
     )
@@ -366,7 +376,6 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         fields = [
             "name",
             "hypothesis",
-            "projects",
             "public_description",
             "risk_partner_related",
             "risk_revenue",
@@ -442,6 +451,22 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
             self.instance.value is None or self.instance.value == {}
         ):
             self.fields["value"].initial = ""
+
+        if (
+            self.instance is not None
+            and self.instance.branch_id is not None
+            and self.instance.branch.experiment
+            and self.instance.branch.experiment.application
+            != NimbusExperiment.Application.DESKTOP
+        ):
+            self.fields["value"].widget.attrs["data-experiment-slug"] = (
+                self.instance.branch.experiment.slug
+            )
+
+            if self.instance.feature_config:
+                self.fields["value"].widget.attrs["data-feature-slug"] = (
+                    self.instance.feature_config.slug
+                )
 
         if (
             self.instance.id is not None
@@ -553,6 +578,19 @@ class NimbusBranchForm(forms.ModelForm):
             and self.screenshot_formset.is_valid()
         )
 
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+        if not slug:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if (
+            NimbusBranch.objects.exclude(id=self.instance.id)
+            .filter(experiment=self.instance.experiment, slug=slug)
+            .exists()
+        ):
+            raise forms.ValidationError(NimbusUIConstants.ERROR_SLUG_DUPLICATE_BRANCH)
+        return name
+
     def clean(self):
         cleaned_data = super().clean()
         if "name" in cleaned_data:
@@ -580,6 +618,23 @@ class FeatureConfigMultiSelectWidget(MultiSelectWidget):
 class FeatureConfigModelChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         return obj.name
+
+
+class OrderedBranchFormSet(BaseInlineFormSet):
+    """
+    Branch FormSet with reference branch first and remaining
+    branches ordered by db id for stable ordering
+    """
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .order_by(
+                Case(When(id=self.instance.reference_branch_id, then=0), default=1),
+                "id",
+            )
+        )
 
 
 class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -653,13 +708,6 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.NimbusBranchFormSet = inlineformset_factory(
-            NimbusExperiment,
-            NimbusBranch,
-            form=NimbusBranchForm,
-            extra=0,
-        )
-
         branches_formset_kwargs = {
             "data": self.data or None,
             "instance": self.instance,
@@ -667,7 +715,15 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         if self.files:
             branches_formset_kwargs["files"] = self.files
 
-        self.branches = self.NimbusBranchFormSet(**branches_formset_kwargs)
+        NimbusBranchFormSet = inlineformset_factory(
+            NimbusExperiment,
+            NimbusBranch,
+            form=NimbusBranchForm,
+            formset=OrderedBranchFormSet,
+            extra=0,
+        )
+
+        self.branches = NimbusBranchFormSet(**branches_formset_kwargs)
 
         self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
             application=self.instance.application
@@ -1213,6 +1269,18 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} removed subscriber"
 
 
+class FeatureSubscribeForm(FeatureSubscriberFormMixin):
+    def save(self, commit=True):
+        self.instance.subscribers.add(self.request.user)
+        return self.instance
+
+
+class FeatureUnsubscribeForm(FeatureSubscriberFormMixin):
+    def save(self, commit=True):
+        self.instance.subscribers.remove(self.request.user)
+        return self.instance
+
+
 class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     status = None
     status_next = None
@@ -1541,3 +1609,103 @@ class FeaturesForm(forms.ModelForm):
         }
         self.fields["application"].widget.attrs.update(htmx_attrs)
         self.fields["feature_configs"].widget.attrs.update(htmx_attrs)
+
+
+class TagForm(forms.ModelForm):
+    name = forms.CharField(
+        required=True,
+        max_length=100,
+        label="Tag Name",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    color = forms.CharField(
+        required=True,
+        max_length=7,
+        label="Color",
+        widget=forms.TextInput(
+            attrs={"type": "color", "class": "form-control form-control-color"}
+        ),
+    )
+
+    class Meta:
+        model = Tag
+        fields = ["name", "color"]
+
+
+class TagBaseFormSet(BaseModelFormSet):
+    def clean(self):
+        if any(self.errors):
+            return
+
+        names = []
+        for form in self.forms:
+            name = form.cleaned_data.get("name")
+            if name:
+                names.append(name.lower())
+
+        if len(names) != len(set(names)):
+            raise forms.ValidationError(NimbusUIConstants.ERROR_TAG_DUPLICATE_NAME)
+
+    def create_tag(self):
+        # Create a new tag with a unique name and random color
+        base_name = "Tag"
+        existing_count = Tag.objects.count()
+        # Generate a range
+        tag_names_all = [f"{base_name} {i}" for i in range(1, existing_count + 1)]
+        tag_names_used = set(Tag.objects.values_list("name", flat=True))
+        tag_names_free = sorted(set(tag_names_all) - tag_names_used)
+        name = (
+            tag_names_free[0] if tag_names_free else f"{base_name} {existing_count + 1}"
+        )
+
+        random_color = f"#{random.randint(0, 0xFFFFFF):06x}"
+        tag = Tag.objects.create(name=name, color=random_color)
+        return tag
+
+
+TagFormSet = forms.modelformset_factory(
+    Tag, form=TagForm, formset=TagBaseFormSet, extra=0, can_delete=False
+)
+
+
+class TagAssignForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = ["tags"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["tags"].queryset = Tag.objects.all().order_by("name")
+        self.fields["tags"].widget = forms.CheckboxSelectMultiple()
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated tags"
+
+
+class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    collaborators = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all().order_by("email"),
+        widget=MultiSelectWidget(),
+        required=False,
+        label="Collaborators",
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Initialize the collaborators field with current subscribers
+        if self.instance and self.instance.pk:
+            self.fields["collaborators"].initial = self.instance.subscribers.all()
+
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        if commit:
+            # Update subscribers with selected collaborators
+            experiment.subscribers.set(self.cleaned_data["collaborators"])
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated collaborators"

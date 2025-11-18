@@ -1332,6 +1332,7 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(
         )
 
         self.assertIsNone(should_unpublish_experiment.published_date)
+        self.assertIsNone(should_unpublish_experiment.published_dto)
 
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
@@ -1345,6 +1346,60 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(
             id=should_unpublish_experiment.slug,
             collection=NimbusExperiment.APPLICATION_CONFIGS[
                 application
+            ].preview_collection,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+    def test_unpublishes_preview_experiments_older_than_30_days(self):
+        old_preview_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            slug="old_preview_experiment",
+            published_date=timezone.now(),
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        recent_preview_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            slug="recent_preview_experiment",
+            published_date=timezone.now(),
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        thirty_one_days_ago = timezone.now() - timezone.timedelta(days=31)
+        NimbusExperiment.objects.filter(id=old_preview_experiment.id).update(
+            _updated_date_time=thirty_one_days_ago
+        )
+
+        self.setup_kinto_get_main_records(
+            [old_preview_experiment.slug, recent_preview_experiment.slug]
+        )
+
+        tasks.nimbus_synchronize_preview_experiments_in_kinto()
+
+        old_preview_experiment.refresh_from_db()
+        self.assertIsNone(old_preview_experiment.published_date)
+        self.assertEqual(old_preview_experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(
+            old_preview_experiment.publish_status,
+            NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        expiration_changelog = old_preview_experiment.changes.filter(
+            message=NimbusChangeLog.Messages.EXPIRED_FROM_PREVIEW,
+            changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+        )
+        self.assertTrue(expiration_changelog.exists())
+
+        recent_preview_experiment.refresh_from_db()
+        self.assertIsNotNone(recent_preview_experiment.published_date)
+        self.assertEqual(
+            recent_preview_experiment.status, NimbusExperiment.Status.PREVIEW
+        )
+
+        self.mock_kinto_client.delete_record.assert_called_with(
+            id=old_preview_experiment.slug,
+            collection=NimbusExperiment.APPLICATION_CONFIGS[
+                NimbusExperiment.Application.DESKTOP
             ].preview_collection,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
         )

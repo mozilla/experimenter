@@ -1,6 +1,7 @@
 import json
 from datetime import date
 
+import humanize
 from django import template
 from django.utils.safestring import mark_safe
 
@@ -303,3 +304,30 @@ def experiment_date_progress(experiment):
         result["days_text"] = "N/A"
 
     return result
+
+
+@register.filter
+def short_number(value, precision=1):
+    formatted_number = str(value)
+    formatted_number_components = humanize.intword(value, format=f"%.{precision}f").split(
+        " "
+    )
+    number = formatted_number_components[0]
+
+    if len(formatted_number_components) > 1:
+        magnitude = formatted_number_components[1]
+        if magnitude == "thousand":
+            magnitude = "K"
+        formatted_number = f"{number}{magnitude[0].capitalize()}"
+
+    return formatted_number
+
+
+@register.filter
+def format_string(value, arg):
+    """Format a string with a single placeholder {text}.
+
+    Usage:
+        {{ "Subscribe to {text}"|format_string:feature.name }}
+    """
+    return value.format(text=arg)
