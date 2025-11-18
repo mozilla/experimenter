@@ -1,5 +1,4 @@
 import json
-from urllib.parse import urljoin
 
 from deepdiff import DeepDiff
 from django.conf import settings
@@ -21,7 +20,6 @@ from experimenter.experiments.models import (
 )
 from experimenter.nimbus_ui.constants import (
     SCHEMA_DIFF_SIZE_CONFIG,
-    NimbusUIConstants,
 )
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
@@ -156,17 +154,7 @@ class NimbusExperimentViewMixin:
             if experiment and experiment.slug
             else []
         )
-
         context["all_tags"] = Tag.objects.all().order_by("name")
-
-        slug_underscore = (
-            experiment.slug.replace("-", "_") if experiment and experiment.slug else ""
-        )
-
-        context["analysis_link"] = urljoin(
-            NimbusUIConstants.SIDEBAR_COMMON_LINKS["Detailed Analysis"]["url"],
-            slug_underscore + ".html",
-        )
         context["create_form"] = NimbusExperimentCreateForm()
 
         return context
