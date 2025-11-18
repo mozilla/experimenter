@@ -639,18 +639,21 @@ files = [
 
 [[package]]
 name = "parsimonious"
-version = "0.10.0"
+version = "0.11.0"
 description = "(Soon to be) the fastest pure-Python PEG parser I could muster"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "parsimonious-0.10.0-py3-none-any.whl", hash = "sha256:982ab435fabe86519b57f6b35610aa4e4e977e9f02a14353edf4bbc75369fc0f"},
-    {file = "parsimonious-0.10.0.tar.gz", hash = "sha256:8281600da180ec8ae35427a4ab4f7b82bfec1e3d1e52f80cb60ea82b9512501c"},
+    {file = "parsimonious-0.11.0-py3-none-any.whl", hash = "sha256:32e3818abf9f05b3b9f3b6d87d128645e30177e91f614d2277d88a0aea98fae2"},
+    {file = "parsimonious-0.11.0.tar.gz", hash = "sha256:e080377d98957beec053580d38ae54fcdf7c470fb78670ba4bf8b5f9d5cad2a9"},
 ]
 
 [package.dependencies]
 regex = ">=2022.3.15"
+
+[package.extras]
+testing = ["pytest"]
 
 [[package]]
 name = "pluggy"
@@ -1855,4 +1858,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "a3f1a33aa8142e60e48e7a3184db2fe4118c34546c4b6d3f12ac6d117c49fbc6"
+content-hash = "9399c0520db8ada802f4ac6fe3bc00635b3000ab6bca1796e9159e1c44c2edfd"
