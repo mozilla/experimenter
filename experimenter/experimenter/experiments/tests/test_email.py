@@ -8,9 +8,11 @@ from experimenter.experiments.email import (
     nimbus_send_experiment_ending_email,
 )
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.experiments.tests.factories import (
+    NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
+)
 from experimenter.openidc.tests.factories import UserFactory
-from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
 
 
 class TestNimbusEmail(TestCase):
@@ -139,7 +141,7 @@ class TestNimbusEmail(TestCase):
         nimbus_send_experiment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-        
+
         self.assertEqual(sent_email.recipients(), [experiment.owner.email])
         self.assertIn(experiment_subscriber.email, sent_email.cc)
         self.assertIn(feature_subscriber1.email, sent_email.cc)
@@ -163,7 +165,7 @@ class TestNimbusEmail(TestCase):
         nimbus_send_enrollment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-        
+
         self.assertEqual(sent_email.recipients(), [experiment.owner.email])
         self.assertIn(experiment_subscriber.email, sent_email.cc)
         self.assertIn(feature_subscriber1.email, sent_email.cc)
@@ -188,7 +190,7 @@ class TestNimbusEmail(TestCase):
         nimbus_send_experiment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-        
+
         self.assertEqual(sent_email.recipients(), [experiment.owner.email])
         self.assertEqual(len(sent_email.cc), 3)
         self.assertIn(shared_subscriber.email, sent_email.cc)
@@ -212,7 +214,7 @@ class TestNimbusEmail(TestCase):
         nimbus_send_experiment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-        
+
         self.assertEqual(sent_email.recipients(), [experiment.owner.email])
         self.assertEqual(len(sent_email.cc), 2)
         self.assertIn(feature_subscriber1.email, sent_email.cc)
@@ -233,7 +235,7 @@ class TestNimbusEmail(TestCase):
         nimbus_send_experiment_ending_email(experiment)
 
         sent_email = mail.outbox[-1]
-        
+
         self.assertEqual(sent_email.recipients(), [experiment.owner.email])
         self.assertEqual(len(sent_email.cc), 2)
         self.assertIn(experiment_subscriber1.email, sent_email.cc)
