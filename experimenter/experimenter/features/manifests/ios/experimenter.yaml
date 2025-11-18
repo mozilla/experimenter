@@ -15,6 +15,16 @@ address-bar-menu-feature:
     status:
       type: boolean
       description: If true, we will show the new address bar menu entry
+app-icon-selection-feature:
+  description: |
+    Controls which app icons users can select as their default app icon from the App Icon Selection screen in Settings.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    funIconsEnabled:
+      type: boolean
+      description: |
+        Controls whether users see the fun icons in the app icon settings.
 appearance-menu-feature:
   description: |
     This property determines if we show the new appearance menu entry or the old theme settings
@@ -304,16 +314,6 @@ relay-integration-feature:
       type: boolean
       description: |
         Enables the feature
-revert-unsafe-continuations-refactor:
-  description: |
-    A feature flag to wrap reverting the unsafe continuations usage in the app. Unsafe continuations were used in response to an early 2025 incident when iOS 18.0 (possibly beta only) crashed on checked continuations (both regular and throwing).
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        If true, revert unsafe continuations usage back to normal checked continuations usage.
 rust-fxa-keychain:
   description: |
     Feature that enables the rust FxA keychain logic.
