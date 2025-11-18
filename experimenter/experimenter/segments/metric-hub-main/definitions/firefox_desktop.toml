@@ -2183,14 +2183,6 @@ experiments_column_type = "native"
 friendly_name = "Events"
 description = "Events Ping"
 
-[data_sources.newtab_interactions]
-from_expression = "mozdata.telemetry.newtab_interactions"
-client_id_column = "legacy_telemetry_client_id"
-experiments_column_type = "native"
-submission_date_column = "submission_date"
-description = "New Tab Interactions"
-friendly_name = "New Tab Interactions"
-
 [data_sources.normandy_events]
 from_expression = """(
     SELECT
@@ -2327,20 +2319,16 @@ friendly_name = "Search Tiles Visit Activity Daily"
 client_id_column = "legacy_telemetry_client_id"
 experiments_column_type = "native"
 
-[data_sources.newtab_visits_pocket_interactions]
+[data_sources.newtab_visits]
 from_expression = """(
     SELECT
-        e.* EXCEPT (pocket_interactions),
-        pocket_interactions
+       *
     FROM
-        `moz-fx-data-shared-prod.telemetry.newtab_visits` e
-    CROSS JOIN
-        UNNEST(e.pocket_interactions) AS pocket_interactions
-)"""
+        `moz-fx-data-shared-prod.firefox_desktop.newtab_visits_daily`
+    )"""
 submission_date_column = "submission_date"
-description = "Pocket Tiles Visit Activity Daily"
-friendly_name = "Pocket Tiles Visit Activity Daily"
-client_id_column = "legacy_telemetry_client_id"
+description = "Visits-level table or Newtab Homepage Data"
+friendly_name = "Newtab Visits Daily"
 experiments_column_type = "native"
 
 [data_sources.newtab_clients_daily]
@@ -2579,30 +2567,6 @@ description = """
     in telemetry (i.e. new, unique profiles).
 """
 
-[segments.pocket_countries]
-data_source = "newtab_interactions"
-select_expression = "LOGICAL_OR(COALESCE(country_code in ('AT', 'BE', 'CA', 'CH', 'DE', 'GB', 'IE', 'IN', 'US'), FALSE))"
-friendly_name = "Pocket Countries"
-description = """
-    Clients in countries with Pocket.
-"""
-
-[segments.sponsored_tile_countries]
-data_source = "newtab_interactions"
-select_expression = "LOGICAL_OR(COALESCE(country_code in ('AU', 'BR', 'CA', 'DE', 'ES', 'FR', 'GB', 'IN', 'IT', 'JA', 'MX', 'US'), FALSE))"
-friendly_name = "Sponsored Tile Countries"
-description = """
-    Clients in countries with AdMarketplace Sponsored Tiles.
-"""
-
-[segments.marketing_tier1_countries]
-data_source = "newtab_interactions"
-select_expression = "LOGICAL_OR(COALESCE(country_code in ('CA', 'DE', 'FR', 'GB', 'US'), FALSE))"
-friendly_name = "Marketing Tier1 Countries"
-description = """
-    Clients in countries considered Tier 1 by Marketing. Other business units may have different definitions of 'Tier 1'.
-"""
-
 [segments.clients_with_blocked_sponsors]
 data_source = "newtab"
 select_expression = '{{agg_any("ARRAY_LENGTH(metrics.string_list.newtab_blocked_sponsors) > 0")}}'
@@ -2662,12 +2626,6 @@ window_end = 0
 
 [segments.data_sources.clients_daily]
 from_expression = "mozdata.telemetry.clients_daily"
-window_start = 0
-window_end = 0
-
-[segments.data_sources.newtab_interactions]
-from_expression = "mozdata.telemetry.newtab_interactions"
-client_id = "legacy_telemetry_client_id"
 window_start = 0
 window_end = 0
 
