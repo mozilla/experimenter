@@ -1,24 +1,24 @@
 {% load nimbus_extras %}
 
-<div class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h4 class="mb-0">Quality Assurance</h4>
-    <button class="btn btn-outline-primary btn-sm"
-            hx-get="{% url 'nimbus-ui-update-qa-status' experiment.slug %}"
-            hx-target="#qa-status-form-container"
-            hx-swap="outerHTML">Edit</button>
-  </div>
-  {% if container_only %}
-    <div class="card-body" id="qa-status-form-container">
-      {% include "nimbus_experiments/qa_container_content.html" %}
+{% if container_only %}
+  <div class="card-body" id="qa-status-form-container">
+    {% include "nimbus_experiments/qa_container_content.html" %}
 
+  </div>
+  {% if update_header %}
+    <span id="qa-status-header"
+          class="{{ experiment.qa_status_badge_class }}"
+          hx-swap-oob="true">QA Status: {{ experiment.qa_status|default:"Not Set"|title }}</span>
+  {% endif %}
+{% else %}
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Quality Assurance</h4>
+      <button class="btn btn-outline-primary btn-sm"
+              hx-get="{% url 'nimbus-ui-update-qa-status' experiment.slug %}"
+              hx-target="#qa-status-form-container"
+              hx-swap="outerHTML">Edit</button>
     </div>
-    {% if update_header %}
-      <span id="qa-status-header"
-            class="{{ experiment.qa_status_badge_class }}"
-            hx-swap-oob="true">QA Status: {{ experiment.qa_status|default:"Not Set"|title }}</span>
-    {% endif %}
-  {% else %}
     <div class="card-body" id="qa-status-form-container">
       {% include "nimbus_experiments/qa_container_content.html" %}
 
