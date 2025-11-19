@@ -781,6 +781,20 @@ features:
           Enables the feature
         type: Boolean
         default: true
+  sent-from-firefox-feature:
+    description: |
+      Adds additional promo text to links shared to WhatsApp.
+    variables:
+      enabled:
+        description: |
+          Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.
+        type: Boolean
+        default: true
+      isTreatmentA:
+        description: |
+          If true, shares the treatment A text. If false, shares the treatment B text.
+        type: Boolean
+        default: true
   splash-screen:
     description: |
       A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
