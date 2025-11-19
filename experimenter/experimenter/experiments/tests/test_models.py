@@ -105,6 +105,37 @@ class TestNimbusBranchFeatureValue(TestCase):
             ).allow_coenrollment
         )
 
+    def test_unversioned_schema_returns_schema_when_exists(self):
+        feature = NimbusFeatureConfig.objects.get(slug="someFeature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+        )
+        branch_feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature
+        )
+        unversioned_schema = feature.schemas.get(version=None)
+        self.assertEqual(
+            branch_feature_value.unversioned_schema, unversioned_schema.schema
+        )
+
+    def test_unversioned_schema_returns_none_when_not_exists(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="feature-without-schema",
+            name="Feature Without Schema",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+        )
+        feature.schemas.filter(version=None).delete()
+
+        branch_feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature
+        )
+        self.assertIsNone(branch_feature_value.unversioned_schema)
+
 
 class TestNimbusExperimentManager(TestCase):
     def test_sorted_by_latest_change(self):

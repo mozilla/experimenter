@@ -156,6 +156,24 @@
                         {% with fv_error=branch_errors.feature_values|get_item:forloop.counter0 %}
                           {% for error in fv_error.value %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                         {% endwith %}
+                        {% if branch_feature_values_form.instance.unversioned_schema %}
+                          <div class="mt-2">
+                            <button type="button"
+                                    class="btn btn-outline-secondary btn-sm toggle-schema-btn show-schema-btn"
+                                    data-target="schema-{{ forloop.parentloop.counter0 }}-{{ forloop.counter0 }}">
+                              <i class="fa-solid fa-chevron-down"></i> Show Schema
+                            </button>
+                            <button type="button"
+                                    class="btn btn-outline-secondary btn-sm toggle-schema-btn hide-schema-btn d-none"
+                                    data-target="schema-{{ forloop.parentloop.counter0 }}-{{ forloop.counter0 }}">
+                              <i class="fa-solid fa-chevron-up"></i> Hide feature schema
+                            </button>
+                            <div id="schema-{{ forloop.parentloop.counter0 }}-{{ forloop.counter0 }}"
+                                 class="schema-display d-none mt-2">
+                              <textarea class="readonly-json">{{ branch_feature_values_form.instance.unversioned_schema }}</textarea>
+                            </div>
+                          </div>
+                        {% endif %}
                       </div>
                     </div>
                   {% endfor %}
