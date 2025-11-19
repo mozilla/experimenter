@@ -91,6 +91,13 @@ class Outcomes:
     def by_application(cls, application):
         return [o for o in cls.all() if o.application == application]
 
+    @classmethod
+    def get_by_slug_and_application(cls, slug, application):
+        for outcome in cls.all():
+            if outcome.slug == slug and outcome.application == application:
+                return outcome
+        return None
+
 
 @register()
 def check_outcome_tomls(app_configs, **kwargs):
