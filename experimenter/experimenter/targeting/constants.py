@@ -3701,6 +3701,28 @@ BUILDID_20251006095753 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+PROFILES_NUM_ZERO = NimbusTargetingConfig(
+    name="Number of Profiles is Zero",
+    slug="number_of_profiles_is_zero",
+    description="Desktop users having zero profiles",
+    targeting="profileGroupProfileCount == 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+PROFILES_NUM_NON_ZERO = NimbusTargetingConfig(
+    name="Number of Profiles is Non-Zero",
+    slug="number_of_profiles_is_non_zero",
+    description="Desktop users having non-zero profiles",
+    targeting="profileGroupProfileCount > 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
