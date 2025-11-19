@@ -1,3 +1,5 @@
+from itertools import chain
+
 from django.conf import settings
 from django.core.mail.message import EmailMessage
 from django.template.loader import render_to_string
@@ -34,13 +36,20 @@ def nimbus_format_and_send_html_email(
 ):
     content = render_to_string(file_string, template_vars)
 
+    emails = chain(
+        experiment.feature_configs.values_list("subscribers__email", flat=True),
+        experiment.subscribers.values_list("email", flat=True),
+    )
+    cc_emails = {email for email in emails if email}
+
     email = EmailMessage(
         subject.format(name=experiment.name),
         content,
         settings.EMAIL_SENDER,
         [experiment.owner.email],
-        cc=experiment.subscribers.all().values_list("email", flat=True),
+        cc=list(cc_emails),
     )
+
     email.content_subtype = "html"
     email.send(fail_silently=False)
 
