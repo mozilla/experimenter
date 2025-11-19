@@ -360,14 +360,6 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.merino.timeoutMs
       description: Timeout for Merino fetches (ms)
-    suggestOhttp:
-      type: boolean
-      description: >-
-        Whether search suggestions should be fetched over OHTTP.
-        Currently this applies only to Google suggestions.
-      setPref:
-        pref: browser.search.suggest.ohttp.featureGate
-        branch: user
     exposureResults:
       type: string
       setPref:
