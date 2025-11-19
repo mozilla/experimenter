@@ -2,8 +2,9 @@ from decimal import Decimal
 from unittest import mock
 
 from django.conf import settings
+from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from import_export import fields
 
@@ -11,6 +12,7 @@ from experimenter.experiments.admin import (
     DecimalWidget,
     NimbusBranchForeignKeyWidget,
     NimbusExperimentAdminForm,
+    NimbusExperimentChangeLogInlineAdmin,
     NimbusExperimentResource,
 )
 from experimenter.experiments.changelog_utils import NimbusBranchChangeLogSerializer
@@ -171,6 +173,39 @@ class TestNimbusExperimentAdmin(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         mock_fetch_experiment_data.delay.assert_called_with(experiment.id)
+
+
+class TestNimbusExperimentChangeLogInlineAdmin(TestCase):
+    def setUp(self):
+        self.user = UserFactory.create()
+        self.request = RequestFactory().get("/")
+        self.request.user = self.user
+        self.site = AdminSite()
+
+    def test_query_count(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+        )
+
+        for _ in range(100):
+            NimbusChangeLogFactory.create(
+                experiment=experiment,
+                experiment_data={"some": "data"},
+                changed_by=UserFactory.create(),
+            )
+
+        admin = NimbusExperimentChangeLogInlineAdmin(
+            parent_model=NimbusExperiment,
+            admin_site=self.site,
+        )
+
+        # This does some queries that are unaffected by our model admin.
+        formset_cls = admin.get_formset(self.request)
+
+        with self.assertNumQueries(1):
+            formset = formset_cls(instance=experiment)
+            formset.render()
 
 
 class TestNimbusExperimentExport(TestCase):
