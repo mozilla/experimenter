@@ -1,4 +1,5 @@
 from typing import Any
+from weakref import WeakKeyDictionary
 
 from django import forms
 from django.contrib import admin
@@ -234,7 +235,40 @@ class NimbusExperimentChangeLogInlineAdmin(
     NoDeleteAdminMixin, admin.StackedInline[NimbusChangeLog]
 ):
     model = NimbusChangeLog
-    extra = 1
+
+    # A mapping of Django HttpRequests to the choices for the "changed_by"
+    # field.
+    #
+    # This uses a WeakKeyDictionary to ensure we don't leak requests.
+    CHANGED_BY_CHOICES = WeakKeyDictionary()
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "changed_by":
+            # Provide an empty queryset to the form field so that it will not do
+            # a query.
+            kwargs["queryset"] = User.objects.none()
+            field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+            if field is not None:
+                field.choices = self._get_changed_by_choices(request)
+
+        else:
+            field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+        return field
+
+    def _get_changed_by_choices(self, request):
+        """Return a cached list of all available Users.
+
+        If the list of users has not been computed for the changed_by field this
+        request, it will be computed and cached.
+        """
+        choices = self.CHANGED_BY_CHOICES.get(request)
+
+        if not choices:
+            choices = list(forms.ModelChoiceField(User.objects.all()).choices)
+            self.CHANGED_BY_CHOICES[request] = choices
+
+        return choices
 
 
 class NimbusExperimentBucketRangeInlineAdmin(
