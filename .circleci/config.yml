@@ -684,7 +684,7 @@ jobs:
             DOCKER_IMAGE="us-docker.pkg.dev/moz-fx-experimenter-prod-6cd5/experimenter-prod/experimenter"
             docker tag experimenter:deploy ${DOCKER_IMAGE}:latest
             docker push "${DOCKER_IMAGE}:latest"
-            GIT_SHA=$(git rev-parse --short HEAD)
+            GIT_SHA=$(git rev-parse --short=9 HEAD)
             docker tag experimenter:deploy ${DOCKER_IMAGE}:sha-${GIT_SHA}
             docker push ${DOCKER_IMAGE}:sha-${GIT_SHA}
 
