@@ -1,5 +1,6 @@
 import { basicSetup } from "codemirror";
 import { EditorView } from "@codemirror/view";
+import { EditorState } from "@codemirror/state";
 import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { linter } from "@codemirror/lint";
 import { autocompletion } from "@codemirror/autocomplete";
@@ -104,10 +105,61 @@ const setupCodeMirrorLocalizations = () => {
   setupCodemirror(selector, textarea, []);
 };
 
+const initializeSchemaCodeMirror = (textarea) => {
+  if (!textarea || textarea.dataset.is_rendered) return;
+
+  textarea.dataset.is_rendered = true;
+
+  const extensions = [
+    basicSetup,
+    json(),
+    linter(jsonParseLinter()),
+    EditorState.readOnly.of(true),
+    EditorView.editable.of(false),
+    themeCompartment.of(getThemeExtensions()),
+  ];
+
+  const view = new EditorView({
+    doc: textarea.value,
+    extensions,
+    parent: textarea.parentNode,
+  });
+
+  view.dom.style.border = "1px solid #ccc";
+  textarea.parentNode.insertBefore(view.dom, textarea);
+  textarea.style.display = "none";
+
+  registerView(view);
+};
+
+const setupSchemaToggleButtons = () => {
+  const form = document.getElementById("branches-form");
+  if (!form || form.dataset.schemaToggleSetup) return;
+  form.dataset.schemaToggleSetup = "true";
+
+  form.addEventListener("click", (event) => {
+    const button = event.target.closest(".toggle-schema-btn");
+    if (!button) return;
+
+    const schemaDisplay = document.getElementById(button.dataset.target);
+    const container = button.parentNode;
+    const isHidden = schemaDisplay.classList.contains("d-none");
+
+    schemaDisplay.classList.toggle("d-none");
+    container.querySelector(".show-schema-btn").classList.toggle("d-none");
+    container.querySelector(".hide-schema-btn").classList.toggle("d-none");
+
+    if (isHidden) {
+      initializeSchemaCodeMirror(schemaDisplay.querySelector(".readonly-json"));
+    }
+  });
+};
+
 const initializeAllEditors = () => {
   setupCodemirrorFeatures();
   setupCodemirrorLabs();
   setupCodeMirrorLocalizations();
+  setupSchemaToggleButtons();
 };
 
 $(() => {
