@@ -3315,11 +3315,13 @@ NON_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-OLD_SIDEBAR_USERS = NimbusTargetingConfig(
+OLD_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
     name="Users that use the old sidebar",
     slug="old_sidebar_users",
     description="Target users who use the old sidebar",
-    targeting="!('sidebar.revamp'|preferenceValue)",
+    targeting="!('sidebar.revamp'|preferenceValue) && "
+        "'browser.uiCustomization.state'|preferenceValue('')|regExpMatch"
+        "('sidebar-button') != null",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
