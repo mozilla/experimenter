@@ -1748,10 +1748,6 @@ pocketNewtab:
   hasExposure: false
   isEarlyStartup: true
   variables:
-    spocTopsitesPositions:
-      type: string
-      fallbackPref: browser.newtabpage.activity-stream.discoverystream.spoc-topsites-positions
-      description: CSV string of spoc position indexes on newtab topsites section
     contileTopsitesPositions:
       type: string
       fallbackPref: browser.newtabpage.activity-stream.discoverystream.contile-topsites-positions
@@ -1764,18 +1760,6 @@ pocketNewtab:
       type: string
       fallbackPref: browser.newtabpage.activity-stream.discoverystream.spocZoneIds
       description: CSV string of data to set the spoc content.
-    spocTopsitesAdTypes:
-      type: string
-      fallbackPref: browser.newtabpage.activity-stream.discoverystream.spocTopsitesAdTypes
-      description: CSV string of data to set the spoc content.
-    spocTopsitesZoneIds:
-      type: string
-      fallbackPref: browser.newtabpage.activity-stream.discoverystream.spocTopsitesZoneIds
-      description: CSV string of data to set the spoc content.
-    spocTopsitesPlacementEnabled:
-      type: boolean
-      fallbackPref: browser.newtabpage.activity-stream.discoverystream.spocTopsitesPlacement.enabled
-      description: Tuns on and off the sponsored topsites placement.
     spocSiteId:
       type: string
       fallbackPref: browser.newtabpage.activity-stream.discoverystream.spocSiteId
@@ -1996,12 +1980,6 @@ pocketNewtab:
       # Defined under `pocketNewtab` as it needs to be used along with other variables
       type: int
       description: The maximum number of sponsored Top Sites used from Contile
-    topSitesContileSovEnabled:
-      # Defined under `pocketNewtab` as it needs to be used along with other variables
-      description: Enable the Share-of-Voice feature for Sponsored Topsites.
-      type: boolean
-      fallbackPref: >-
-        browser.topsites.contile.sov.enabled
     pocketFeedParameters:
       type: string
       fallbackPref: >-
