@@ -3317,7 +3317,7 @@ NON_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
 
 OLD_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
     name="Users that use the old sidebar",
-    slug="old_sidebar_users",
+    slug="old_sidebar_users_v2",
     description="Target users who use the old sidebar",
     targeting="!('sidebar.revamp'|preferenceValue) && "
         "'browser.uiCustomization.state'|preferenceValue('')|regExpMatch"
