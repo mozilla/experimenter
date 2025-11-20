@@ -2374,6 +2374,13 @@ class NimbusBranchFeatureValue(models.Model):
         ).schemas
         return all(schema.allow_coenrollment for schema in schemas)
 
+    @property
+    def unversioned_schema(self):
+        try:
+            return self.feature_config.schemas.get(version=None).schema
+        except NimbusVersionedSchema.DoesNotExist:
+            return None
+
 
 class NimbusBranchScreenshot(models.Model):
     branch = models.ForeignKey(
