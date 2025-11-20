@@ -1,5 +1,5 @@
 {% if request.user.is_authenticated %}
-  <div id="glean-opt-out" class="ms-1">
+  <div id="glean-opt-out" class="dropdown-item">
     <form method="post"
           action="{% url 'glean-opt-out' %}"
           hx-post="{% url 'glean-opt-out' %}"
@@ -9,15 +9,19 @@
       <input type="hidden"
              name="opt_out"
              value="{% if not request.user.glean_prefs.opt_out %}true{% endif %}" />
-      <button type="submit"
-              title="Nimbus tracks user interactions with Glean. You {% if request.user.glean_prefs.opt_out %}have opted out of this data collection. You can opt back in{% else %}can opt-out of this data collection{% endif %} by clicking here."
-              class="btn btn-light">
-        {% if request.user.glean_prefs.opt_out %}
+      <div class="form-check form-switch">
+        <label class="form-check-label"
+               for="glean-toggle"
+               title="Nimbus tracks user interactions with Glean. You {% if request.user.glean_prefs.opt_out %}have opted out of this data collection. You can opt back in{% else %}can opt-out of this data collection{% endif %} by clicking here.">
           Glean Opt-In
-        {% else %}
-          Glean Opt-Out
-        {% endif %}
-      </button>
+        </label>
+        <input id="glean-toggle"
+               class="form-check-input"
+               type="checkbox"
+               role="switch"
+               {% if not request.user.glean_prefs.opt_out %}checked{% endif %}
+               onchange="this.form.requestSubmit()">
+      </div>
     </form>
   </div>
 {% endif %}
