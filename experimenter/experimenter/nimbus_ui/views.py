@@ -343,13 +343,6 @@ class QAStatusUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView
     form_class = QAStatusForm
     template_name = "nimbus_experiments/qa_edit_form.html"
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
-        return render(
-            request, self.template_name, {"form": form, "experiment": self.object}
-        )
-
     def form_valid(self, form):
         super().form_valid(form)
         return render(
@@ -362,13 +355,6 @@ class QAStatusUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView
 class TakeawaysUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     form_class = TakeawaysForm
     template_name = "nimbus_experiments/takeaways_edit_form.html"
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
-        return render(
-            request, self.template_name, {"form": form, "experiment": self.object}
-        )
 
     def form_valid(self, form):
         super().form_valid(form)
