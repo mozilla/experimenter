@@ -313,6 +313,9 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     firefox_max_version = forms.ChoiceField(
         choices=NimbusExperiment.Version.choices, required=False
     )
+    _firefox_min_version_parsed = pgforms.SimpleArrayField(
+        forms.IntegerField(), required=False
+    )
     channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices, required=False)
     channels = forms.MultipleChoiceField(
         choices=NimbusExperiment.Channel.choices, required=False
@@ -349,6 +352,7 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     class Meta:
         model = NimbusExperiment
         exclude = ("id",)
+        readonly_fields = ("_firefox_min_version_parsed",)
 
 
 class NimbusExperimentAdmin(
@@ -384,6 +388,7 @@ class NimbusExperimentAdmin(
     form = NimbusExperimentAdminForm
     actions = [force_fetch_jetstream_data]
     resource_class = NimbusExperimentResource
+    readonly_fields = ("_firefox_min_version_parsed",)
 
 
 class NimbusFeatureVersionAdmin(
