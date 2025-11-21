@@ -1,9 +1,15 @@
+{% load nimbus_extras %}
+
 {% with sig=significance|default:"neutral" %}
   {% if slug == reference_branch %}
     <div class="card p-4 bg-body-tertiary text-muted border-0 text-center d-flex flex-row align-items-center justify-content-center"
          style="height: 100px">
       {% if absolute_lower %}
-        ({{ absolute_lower }} to {{ absolute_upper }})
+        {% if display_type == "percentage" %}
+          ({{ absolute_lower|to_percentage:1 }} to {{ absolute_upper|to_percentage:1 }})
+        {% else %}
+          ({{ absolute_lower|floatformat:2 }} to {{ absolute_upper|floatformat:2 }})
+        {% endif %}
       {% else %}
         Baseline
       {% endif %}
@@ -14,14 +20,20 @@
       <i class="fa-solid {% if sig == "positive" %}fa-arrow-up{% elif sig == "negative" %}fa-arrow-down{% else %}fa-arrow-left{% endif %}"></i>
       <div class="d-flex flex-column align-items-center">
         {% if sig == "positive" %}
-          <span class="fw-semibold">{{ percentage }}% increase</span>
+          <span class="fw-semibold">{{ percentage|to_percentage:1 }} increase</span>
         {% elif sig == "negative" %}
-          <span class="fw-semibold">{{ percentage }}% decrease</span>
+          <span class="fw-semibold">{{ percentage|to_percentage:1 }} decrease</span>
         {% else %}
           <span class="fw-semibold">No notable change</span>
         {% endif %}
         <span class="mb-0">
-          {% if absolute_lower %}({{ absolute_lower }} to {{ absolute_upper }}){% endif %}
+          {% if absolute_lower %}
+            {% if display_type == "percentage" %}
+              ({{ absolute_lower|to_percentage:1 }} to {{ absolute_upper|to_percentage:1 }})
+            {% else %}
+              ({{ absolute_lower|floatformat:2 }} to {{ absolute_upper|floatformat:2 }})
+            {% endif %}
+          {% endif %}
         </span>
       </div>
     </div>

@@ -1,0 +1,82 @@
+<div class="modal fade"
+     id="{{ experiment_slug }}-{{ metric_info.slug }}"
+     tabindex="-1"
+     aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+    <div class="modal-content p-4">
+      <div class="modal-header align-items-baseline border-0">
+        <div>
+          <h1 class="modal-title fs-4" id="exampleModalLabel">{{ metric_info.friendly_name }}</h1>
+          <p class="text-muted mt-2">{{ metric_info.description }}</p>
+        </div>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body accordion"
+           id="{{ experiment_slug }}-{{ metric_info.slug }}-accordion">
+        <div class="accordion-item p-3">
+          <h2 class="accordion-header">
+            <button class="accordion-button fw-bold shadow-none bg-transparent text-body"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#{{ experiment_slug }}-{{ metric_info.slug }}-overview-collapse"
+                    aria-expanded="true"
+                    aria-controls="{{ experiment_slug }}-{{ metric_info.slug }}-overview-collapse">Overview</button>
+          </h2>
+          <div class="accordion-collapse collapse show"
+               data-bs-parent="#{{ experiment_slug }}-{{ metric_info.slug }}-accordion"
+               id="{{ experiment_slug }}-{{ metric_info.slug }}-overview-collapse">
+            <div class="accordion-body row row-cols-3 g-3">
+              <div class="col">
+                <p class="fw-bold text-center">Branches</p>
+                {% for branch in branch_data %}
+                  <div class="p-3 mb-3 d-flex justify-content-center text-start text-center"
+                       style="height: 75px">
+                    <div class="d-flex flex-column align-items-center">
+                      <small class="text-muted mb-0">{{ branch.name }}</small>
+                      <p class="mb-0">
+                        {% if branch.slug == reference_branch %}
+                          Baseline
+                        {% else %}
+                          {{ branch.name }}
+                        {% endif %}
+                      </p>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="col">
+                <p class="fw-bold text-center">Absolute count</p>
+                {% for branch_slug, branch_data in metric_data.items %}
+                  {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=branch_data.absolute.0.lower absolute_upper=branch_data.absolute.0.upper significance=branch_data.absolute.0.significance reference_branch=reference_branch branch_slug=branch_slug %}
+
+                {% endfor %}
+              </div>
+              <div class="col">
+                <p class="fw-bold text-center">Relative change</p>
+                <div class="d-flex flex-column">
+                  {% for branch_slug, branch_data in metric_data.items %}
+                    {% for branch_relative_ui, branch_relative_ui_properties in ui_properties.items %}
+                      {% if branch_slug == branch_relative_ui %}
+                        {% include "common/metric_popout_card.html" with type="relative" lower_confidence=branch_data.relative.0.lower upper_confidence=branch_data.relative.0.upper significance=branch_data.relative.0.significance reference_branch=reference_branch branch_slug=branch_slug branch_relative_ui_properties=branch_relative_ui_properties lower_relative=branch_data.relative.0.lower upper_relative=branch_data.relative.0.upper %}
+
+                      {% endif %}
+                    {% endfor %}
+                    {% comment %} the reference branch does not have relative comparision data therefore it must be separately rendered {% endcomment %}
+                    {% if branch_slug == reference_branch %}
+                      {% include "common/metric_popout_card.html" with type="relative" lower_confidence=branch_data.relative.0.lower upper_confidence=branch_data.relative.0.upper significance=branch_data.relative.0.significance reference_branch=reference_branch branch_slug=branch_slug %}
+
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
