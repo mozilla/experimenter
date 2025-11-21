@@ -7,9 +7,6 @@ description = "Interaction metrics for sponsored tiles."
 [metrics.sponsored_tiles_dismissals.statistics.bootstrap_mean]
 [metrics.sponsored_tiles_dismissals.statistics.deciles]
 
-[metrics.sponsored_tiles_dismissals_pos1_2.statistics.bootstrap_mean]
-[metrics.sponsored_tiles_dismissals_pos1_2.statistics.deciles]
-
 [metrics.sponsored_tile_clicks.statistics.bootstrap_mean]
 [metrics.sponsored_tile_clicks.statistics.deciles]
 
