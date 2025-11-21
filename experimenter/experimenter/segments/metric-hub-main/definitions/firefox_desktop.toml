@@ -1272,68 +1272,6 @@ description = """
 Rate of Clicks per impression for Organic Pocket Content
 """
 
-[metrics.all_tile_impressions_pos1_2]
-data_source = "newtab_visits_topsite_tile_interactions"
-select_expression = """COALESCE(
-        SUM(CASE
-          WHEN topsite_tile_interactions.topsite_tile_position < 2 THEN COALESCE(topsite_tile_interactions.sponsored_topsite_tile_impressions, 0) +  COALESCE(topsite_tile_interactions.organic_topsite_tile_impressions, 0)
-          ELSE 0 END
-        ),
-        0
-      )"""
-friendly_name = "All Tiles Impressions Count (Position 1 and 2)"
-type = "scalar"
-description = """
-Count of Impressions of All Tiles (sponsored and organic) in the first and second positions.
-"""
-
-[metrics.all_tile_impressions_pos3_more]
-select_expression = """COALESCE(
-        SUM(CASE
-          WHEN topsite_tile_interactions.topsite_tile_position >= 2 THEN COALESCE(topsite_tile_interactions.sponsored_topsite_tile_impressions, 0) +  COALESCE(topsite_tile_interactions.organic_topsite_tile_impressions, 0)
-          ELSE 0 END
-        ),
-        0
-      )"""
-data_source = "newtab_visits_topsite_tile_interactions"
-friendly_name = "All Tiles Impressions Count (Position 3 or greater)"
-type = "scalar"
-description = """
-Count of Impressions of All Tiles (sponsored and organic) in the third and greater positions.
-"""
-
-[metrics.all_tile_clicks_pos1_2]
-data_source = "newtab_visits_topsite_tile_interactions"
-select_expression = """COALESCE(
-        SUM(CASE
-          WHEN (topsite_tile_interactions.topsite_tile_position < 2 AND (topsite_tile_interactions.sponsored_topsite_tile_clicks > 0 OR  topsite_tile_interactions.organic_topsite_tile_clicks > 0))
-          THEN COALESCE(topsite_tile_interactions.sponsored_topsite_tile_clicks, 0) +  COALESCE(topsite_tile_interactions.organic_topsite_tile_clicks, 0)
-          ELSE 0 END
-        ),
-        0
-      )"""
-friendly_name = "All Tiles Clicks Count (Position 1 and 2)"
-type = "scalar"
-description = """
-Count of Clicks of All Tiles (sponsored and organic) in the first and second positions.
-"""
-
-[metrics.all_tile_clicks_pos3_more]
-select_expression = """COALESCE(
-        SUM(CASE
-          WHEN (topsite_tile_interactions.topsite_tile_position >= 2 AND (topsite_tile_interactions.sponsored_topsite_tile_clicks > 0 OR  topsite_tile_interactions.organic_topsite_tile_clicks > 0))
-          THEN COALESCE(topsite_tile_interactions.sponsored_topsite_tile_clicks, 0) +  COALESCE(topsite_tile_interactions.organic_topsite_tile_clicks, 0)
-          ELSE 0 END
-        ),
-        0
-      )"""
-data_source = "newtab_visits_topsite_tile_interactions"
-friendly_name = "All Tiles Clicks Count (Position 3 or greater)"
-type = "scalar"
-description = """
-Count of Clicks of All Tiles (sponsored and organic) in the third and greater positions.
-"""
-
 [metrics.sponsored_tile_impressions]
 data_source = "newtab_clients_daily"
 select_expression = "COALESCE(SUM(sponsored_topsite_tile_impressions), 0)"
@@ -1343,40 +1281,6 @@ description = """
 Count of impressions of Sponsored Tiles (aka Sponsored Topsites on New Tab) across all positions.
 """
 
-[metrics.sponsored_tile_impressions_pos1_2]
-data_source = "newtab_visits_topsite_tile_interactions"
-select_expression = """COALESCE(
-        SUM(CASE
-          WHEN
-            topsite_tile_interactions.sponsored_topsite_tile_impressions > 0 AND topsite_tile_interactions.topsite_tile_position < 2
-            THEN topsite_tile_interactions.sponsored_topsite_tile_impressions
-          ELSE 0
-          END),
-        0
-      )"""
-friendly_name = "All Tiles Impressions Count (Position 1 and 2)"
-type = "scalar"
-description = """
-Count of Impressions of All Tiles (sponsored and organic) in the first and second positions.
-"""
-
-[metrics.sponsored_tile_impressions_pos3_more]
-data_source = "newtab_visits_topsite_tile_interactions"
-select_expression = """COALESCE(
-        SUM(CASE
-          WHEN
-            topsite_tile_interactions.sponsored_topsite_tile_impressions > 0 AND topsite_tile_interactions.topsite_tile_position >= 2
-            THEN topsite_tile_interactions.sponsored_topsite_tile_impressions
-          ELSE 0
-          END),
-        0
-      )"""
-friendly_name = "All Tiles Impressions Count (Position 3 or greater)"
-type = "scalar"
-description = """
-Count of Impressions of All Tiles (sponsored and organic) in the third and greater positions.
-"""
-
 [metrics.sponsored_tile_clicks]
 data_source = "newtab_clients_daily"
 select_expression = "COALESCE(SUM(sponsored_topsite_tile_clicks), 0)"
@@ -1384,40 +1288,6 @@ friendly_name = "Sponsored Tile Clicks"
 type = "scalar"
 description = """
 Count of clicks of Sponsored Tiles (aka Sponsored Topsites on New Tab) across all positions.
-"""
-
-[metrics.sponsored_tile_clicks_pos1_2]
-data_source = "newtab_visits_topsite_tile_interactions"
-select_expression = """COALESCE(
-        SUM(CASE
-          WHEN
-            topsite_tile_interactions.sponsored_topsite_tile_clicks > 0 AND topsite_tile_interactions.topsite_tile_position < 2
-            THEN topsite_tile_interactions.sponsored_topsite_tile_clicks
-          ELSE 0
-          END),
-        0
-      )"""
-friendly_name = "Sponsored Tiles Clicks Count (Position 1 and 2)"
-type = "scalar"
-description = """
-Count of Clicks of Sponsored Tiles in the first and second positions.
-"""
-
-[metrics.sponsored_tile_clicks_pos3_more]
-data_source = "newtab_visits_topsite_tile_interactions"
-select_expression = """COALESCE(
-        SUM(CASE
-          WHEN
-            topsite_tile_interactions.sponsored_topsite_tile_clicks > 0 AND topsite_tile_interactions.topsite_tile_position >= 2
-            THEN topsite_tile_interactions.sponsored_topsite_tile_clicks
-          ELSE 0
-          END),
-        0
-      )"""
-friendly_name = "Sponsored Tiles Clicks Count (Position 3 or greater)"
-type = "scalar"
-description = """
-Count of Clicks of Sponsored Tiles in the third and greater positions.
 """
 
 [metrics.sponsored_tile_ctr]
@@ -1458,15 +1328,6 @@ friendly_name = "Newtab Homepage Enabled"
 type = "scalar"
 description = """
 Whether or not the homepage is set to display the default New Tab page.
-"""
-
-[metrics.newtab_search_enabled]
-data_source = "newtab_visits_topsite_tile_interactions"
-select_expression = "COALESCE(MAX(CAST(newtab_search_enabled AS INT)), 0)"
-friendly_name = "Newtab Search Enabled"
-type = "scalar"
-description = """
-Whether or not the SAP (i.e., search handoff) is enabled on the New Tab.
 """
 
 [metrics.newtab_tiles_enabled]
@@ -1546,15 +1407,6 @@ description = """
 Count of New Tab organic tile clicks across all positions.
 """
 
-[metrics.newtab_organic_topsite_clicks]
-data_source = "newtab_visits_topsite_tile_interactions"
-select_expression = "COALESCE(SUM(topsite_tile_interactions.organic_topsite_tile_clicks), 0)"
-friendly_name = "Newtab Organic Tile Clicks"
-type = "scalar"
-description = """
-Count of New Tab organic tile clicks across all positions.
-"""
-deprecated = true
 
 [metrics.newtab_organic_topsite_impressions_v2]
 data_source = "newtab_clients_daily"
@@ -1564,16 +1416,6 @@ type = "scalar"
 description = """
 Count of New Tab organic tile impressions across all positions.
 """
-
-[metrics.newtab_organic_topsite_impressions]
-data_source = "newtab_visits_topsite_tile_interactions"
-select_expression = "COALESCE(SUM(topsite_tile_interactions.organic_topsite_tile_impressions), 0)"
-friendly_name = "Newtab Organic Tile Impressions"
-type = "scalar"
-description = """
-Count of New Tab organic tile impressions across all positions.
-"""
-deprecated = true
 
 [metrics.wallpaper_clicks]
 data_source = "newtab_clients_daily"
@@ -1772,48 +1614,30 @@ friendly_name = "Sponsored Tiles Disabled Event"
 description = "Boolean that identifies clients that disabled sponsored tiles during experiment"
 
 [metrics.sponsored_tiles_dismissals]
-select_expression = "COALESCE(SUM(topsite_tile_interactions.sponsored_topsite_tile_dismissals), 0)"
-data_source = "newtab_visits_topsite_tile_interactions"
+select_expression = "COALESCE(SUM(sponsored_topsite_tile_dismissals), 0)"
+data_source = "newtab_clients_daily"
 friendly_name = "Sponsored Tiles Dismissals Count"
 description = "Count of sponsored tiles dismissals in all positions"
 
 [metrics.any_sponsored_tiles_dismissals]
 select_expression = """COALESCE(LOGICAL_OR(
-        topsite_tile_interactions.sponsored_topsite_tile_dismissals > 0
+        sponsored_topsite_tile_dismissals > 0
       ), FALSE)"""
-data_source = "newtab_visits_topsite_tile_interactions"
+data_source = "newtab_clients_daily"
 friendly_name = "Any Sponsored Tiles Dismissed"
 description = "Clients that dismissed any sponsored tiles"
 
-[metrics.sponsored_tiles_dismissals_pos1_2]
-select_expression = """COALESCE(
-        SUM(CASE WHEN topsite_tile_interactions.sponsored_topsite_tile_dismissals > 0 AND topsite_tile_interactions.topsite_tile_position < 2 THEN topsite_tile_interactions.sponsored_topsite_tile_dismissals ELSE 0 END),
-        0
-      )"""
-data_source = "newtab_visits_topsite_tile_interactions"
-friendly_name = "Sponsored Tiles Dismissals Count (Positions 1 and 2)"
-description = "Count of sponsored tiles dismissals in the first two positions"
-
-[metrics.sponsored_tiles_dismissals_pos3_more]
-select_expression = """COALESCE(
-        SUM(CASE WHEN topsite_tile_interactions.sponsored_topsite_tile_dismissals > 0 AND topsite_tile_interactions.topsite_tile_position >= 2 THEN topsite_tile_interactions.sponsored_topsite_tile_dismissals ELSE 0 END),
-        0
-      )"""
-data_source = "newtab_visits_topsite_tile_interactions"
-friendly_name = "Sponsored Tiles Dismissals Count (Position 3 or greater)"
-description = "Count of sponsored tiles dismissals in the third and greater positions"
-
 [metrics.organic_tiles_dismissals]
-select_expression = "COALESCE(SUM(topsite_tile_interactions.organic_topsite_tile_dismissals),0)"
-data_source = "newtab_visits_topsite_tile_interactions"
+select_expression = "COALESCE(SUM(organic_topsite_tile_dismissals),0)"
+data_source = "newtab_clients_daily"
 friendly_name = "Organic Tiles Dismissals Count"
 description = "Count of organic tiles dismissals in all positions"
 
 [metrics.any_organic_tiles_dismissals]
 select_expression = """COALESCE(LOGICAL_OR(
-        topsite_tile_interactions.organic_topsite_tile_dismissals > 0
+        organic_topsite_tile_dismissals > 0
       ), FALSE)"""
-data_source = "newtab_visits_topsite_tile_interactions"
+data_source = "newtab_clients_daily"
 friendly_name = "Any Organic Tiles Dismissed"
 description = "Clients that dismissed any organic tiles"
 
@@ -2286,22 +2110,6 @@ from_expression = """(
     )"""
 client_id_column = "metrics.uuid.legacy_telemetry_client_id"
 experiments_column_type = "glean"
-
-[data_sources.newtab_visits_topsite_tile_interactions]
-from_expression = """(
-    SELECT
-        e.* EXCEPT (topsite_tile_interactions),
-        topsite_tile_interactions
-    FROM
-        `moz-fx-data-shared-prod.telemetry.newtab_visits` e
-    CROSS JOIN
-        UNNEST(e.topsite_tile_interactions) AS topsite_tile_interactions
-)"""
-submission_date_column = "submission_date"
-description = "Topsite Tiles Visit Activity Daily"
-friendly_name = "Topsite Tiles Visit Activity Daily"
-client_id_column = "legacy_telemetry_client_id"
-experiments_column_type = "native"
 
 [data_sources.newtab_visits_search_interactions]
 from_expression = """(
