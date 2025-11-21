@@ -3,6 +3,90 @@ from django_test_migrations.contrib.unittest_case import MigratorTestCase
 from experimenter.experiments.constants import NimbusConstants
 
 
+class TestFirefoxMinVersionParsedMigration(MigratorTestCase):
+    migrate_from = (
+        "experiments",
+        "0301_alter_nimbusdocumentationlink_title",
+    )
+    migrate_to = (
+        "experiments",
+        "0302_nimbusexperiment_firefox_min_version_parsed",
+    )
+
+    def prepare(self):
+        """Prepare test data before the migration."""
+        User = self.old_state.apps.get_model("auth", "User")
+        NimbusExperiment = self.old_state.apps.get_model(
+            "experiments", "NimbusExperiment"
+        )
+        owner = User.objects.create()
+
+        self.experiment_with_bang = NimbusExperiment.objects.create(
+            owner=owner,
+            name="Experiment with ! version",
+            slug="experiment-with-bang",
+            application=NimbusConstants.Application.DESKTOP,
+            channel=NimbusConstants.Channel.NIGHTLY,
+            status=NimbusConstants.Status.DRAFT,
+            firefox_min_version="95.!",
+        )
+
+        self.experiment_with_semver = NimbusExperiment.objects.create(
+            owner=owner,
+            name="Experiment with semver",
+            slug="experiment-with-semver",
+            application=NimbusConstants.Application.DESKTOP,
+            channel=NimbusConstants.Channel.BETA,
+            status=NimbusConstants.Status.DRAFT,
+            firefox_min_version="92.0.1",
+        )
+
+        self.experiment_with_empty = NimbusExperiment.objects.create(
+            owner=owner,
+            name="Experiment with empty version",
+            slug="experiment-with-empty",
+            application=NimbusConstants.Application.DESKTOP,
+            channel=NimbusConstants.Channel.RELEASE,
+            status=NimbusConstants.Status.DRAFT,
+            firefox_min_version="",
+        )
+
+        self.experiment_with_major_minor = NimbusExperiment.objects.create(
+            owner=owner,
+            name="Experiment with major.minor",
+            slug="experiment-with-major-minor",
+            application=NimbusConstants.Application.FENIX,
+            channel=NimbusConstants.Channel.NIGHTLY,
+            status=NimbusConstants.Status.DRAFT,
+            firefox_min_version="100.1.0",
+        )
+
+    def test_migration(self):
+        NimbusExperiment = self.new_state.apps.get_model(
+            "experiments", "NimbusExperiment"
+        )
+
+        experiment_bang = NimbusExperiment.objects.get(slug="experiment-with-bang")
+        self.assertEqual(experiment_bang._firefox_min_version_parsed, [95, 0, 0])
+
+        experiment_semver = NimbusExperiment.objects.get(slug="experiment-with-semver")
+        self.assertEqual(experiment_semver._firefox_min_version_parsed, [92, 0, 1])
+
+        experiment_empty = NimbusExperiment.objects.get(slug="experiment-with-empty")
+        self.assertEqual(experiment_empty._firefox_min_version_parsed, [0, 0, 0])
+
+        experiment_full = NimbusExperiment.objects.get(slug="experiment-with-major-minor")
+        self.assertEqual(experiment_full._firefox_min_version_parsed, [100, 1, 0])
+
+        experiments = list(
+            NimbusExperiment.objects.all().order_by("_firefox_min_version_parsed")
+        )
+        self.assertEqual(experiments[0].slug, "experiment-with-empty")
+        self.assertEqual(experiments[1].slug, "experiment-with-semver")
+        self.assertEqual(experiments[2].slug, "experiment-with-bang")
+        self.assertEqual(experiments[3].slug, "experiment-with-major-minor")
+
+
 class TestMigrations(MigratorTestCase):
     migrate_from = (
         "experiments",

@@ -240,6 +240,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=NimbusConstants.Version.NO_VERSION,
         blank=True,
     )
+    _firefox_min_version_parsed = ArrayField(
+        models.IntegerField(),
+        size=3,
+        default=[0, 0, 0],
+        verbose_name="Firefox Minimum Version (Parsed)",
+        help_text="Parsed version as [major, minor, patch] for sorting",
+    )
     firefox_max_version = models.CharField(
         "Maximum Firefox Version",
         max_length=255,
@@ -529,6 +536,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if self.firefox_min_version:
+            try:
+                parsed = NimbusConstants.Version.parse(self.firefox_min_version)
+                self._firefox_min_version_parsed = [
+                    parsed.major,
+                    parsed.minor,
+                    parsed.micro,
+                ]
+            except Exception:
+                pass
+
+        super().save(*args, **kwargs)
 
     def apply_lifecycle_state(self, lifecycle_state):
         for name, value in lifecycle_state.value.items():
