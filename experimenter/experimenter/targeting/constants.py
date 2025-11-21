@@ -3320,8 +3320,8 @@ OLD_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
     slug="old_sidebar_users_v2",
     description="Target users who use the old sidebar",
     targeting="!('sidebar.revamp'|preferenceValue) && "
-        "'browser.uiCustomization.state'|preferenceValue('')|regExpMatch"
-        "('sidebar-button') != null",
+    "'browser.uiCustomization.state'|preferenceValue('')|regExpMatch"
+    "('sidebar-button') != null",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
