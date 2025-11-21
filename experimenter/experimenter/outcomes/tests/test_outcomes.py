@@ -106,6 +106,20 @@ class TestOutcomes(TestCase):
             desktop_outcomes,
         )
 
+    def test_get_outcome_by_slug_and_application(self):
+        outcome = Outcomes.get_by_slug_and_application(
+            "fenix_outcome",
+            application=NimbusExperiment.Application.FENIX,
+        )
+        self.assertIsNotNone(outcome)
+        self.assertEqual(outcome.friendly_name, "Fenix config")
+
+        missing_outcome = Outcomes.get_by_slug_and_application(
+            "non_existent_outcome",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        self.assertIsNone(missing_outcome)
+
 
 class TestCheckOutcomeTOMLs(TestCase):
     def setUp(self):

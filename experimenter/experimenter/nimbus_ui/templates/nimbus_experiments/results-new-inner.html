@@ -1,167 +1,202 @@
-{% comment %} Overview {% endcomment %}
-<div class="card px-5 py-4 shadow-sm">
-  <h3>Overview</h3>
-  <div class="d-inline-flex gap-3">
-    {% for section in NimbusUIConstants.OVERVIEW_SECTIONS %}
-      <p class="text-muted">{{ section }}</p>
-      {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
-    {% endfor %}
-  </div>
-  <div class="d-flex flex-column gap-4">
-    <div class="card p-5 mt-4">
-      <div class="row">
-        <div class="col-xxl">
-          <h5>Hypothesis</h5>
-          {% with hyp=experiment.hypothesis|default:"No hypothesis set." %}
-            {% if hyp|length > 300 %}
-              <p>
-                {{ hyp|truncatechars:300 }}
-                <a href="{{ experiment.get_detail_url }}" class="ms-1">More</a>
-              </p>
-            {% else %}
-              <p>{{ hyp }}</p>
-            {% endif %}
-          {% endwith %}
-        </div>
-        <div class="col-xxl">
-          <div class="row">
-            <div class="col">
-              <p class="text-muted mb-0">Product Owner</p>
-              <p>{{ experiment.owner|default:"No product owner set." }}</p>
+<div class="accordion d-flex flex-column gap-4"
+     id="{{ experiment.slug }}-results-accordion">
+  {% comment %} Overview {% endcomment %}
+  <div class="accordion-item p-3 px-4 shadow-sm rounded-4">
+    <button class="accordion-button bg-transparent shadow-none text-body d-flex"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#{{ experiment.slug }}-results-overview"
+            aria-expanded="true"
+            aria-controls="{{ experiment.slug }}-results-overview">
+      <div class="pe-3">
+        <h4>Overview</h4>
+        <div class="d-inline-flex gap-3">
+          {% for section in NimbusUIConstants.OVERVIEW_SECTIONS %}
+            <div>
+              <small class="text-muted me-2">{{ section }}</small>
+              {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
             </div>
-            <div class="col">
-              <p class="text-muted mb-0">Advanced Targeting</p>
-              <p>{{ experiment.targeting_config.name }}</p>
-            </div>
-            <div class="col">
-              <p class="text-muted mb-0">Application</p>
-              <p>{{ experiment.application|default:"Unknown" }}</p>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <p class="text-muted mb-0">Feature tags</p>
-              {% for tag in experiment.tags.all %}
-                <span class="badge bg-light text-dark">{{ tag.name }}</span>
-              {% empty %}
-                <p>None</p>
-              {% endfor %}
-            </div>
-            <div class="col">
-              <p class="text-muted mb-0">Localization</p>
-              {% for locale in experiment.locales.all %}
-                <p class="mb-0">{{ locale.name }}</p>
-              {% empty %}
-                <p class="mb-0">None</p>
-              {% endfor %}
-            </div>
-            <div class="col">
-              <p class="text-muted mb-0">Version</p>
-              <p>
-                {{ experiment.firefox_min_version }}
-                {% if experiment.firefox_max_version %}
-                  - {{ experiment.firefox_max_version }}
-                {% else %}
-                  +
-                {% endif %}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="card p-5">
-      <div class="row row-cols-2 row-cols-xxl-3 g-4">
-        {% for branch in branch_data %}
-          <div class="col">
-            {% include "common/branch_card.html" with branch=branch %}
-
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-    <div class="card p-5">
-      <div class="row">
-        <div class="col">
-          <h5>Key takeaways</h5>
-          <p class="text-muted">
-            {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.key_takeaways }}
-          </p>
-        </div>
-        <div class="col">
-          <h5>Next steps</h5>
-          <p class="text-muted">
-            {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.next_steps }}
-          </p>
-        </div>
-        <div class="col">
-          <div class="d-flex align-items-start gap-2">
-            <h5>Project Impact</h5>
-            <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
-          </div>
-          <p class="text-muted">
-            {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.project_impact }}
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% comment %} Metrics {% endcomment %}
-{% for area, metric_data_metadata in metric_area_data.items %}
-  {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data %}
-    <div class="card px-5 py-4 shadow-sm">
-      <h3>{{ area }}</h3>
-      <div class="d-inline-flex gap-3 mb-4">
-        {% for metric in metric_metadata %}
-          <p class="text-muted">{{ metric.friendly_name }}</p>
-          {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
-        {% endfor %}
-      </div>
-      <div class="d-flex">
-        <div class="col-2">
-          <p class="text-muted mb-0 invisible" aria-hidden="true">Metrics</p>
-          <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
-          {% for metric in metric_metadata %}
-            <button class="card p-3 {% if forloop.last %}mb-4{% endif %} mb-3 d-flex justify-content-center rounded-4 border-3 w-100 text-start nav-link-hover position-relative border-light-subtle"
-                    type="button"
-                    style="height: 100px">
-              <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
-              <p class=" metric-text mb-0">{{ metric.friendly_name }}</p>
-            </button>
           {% endfor %}
         </div>
-        <div class="col position-relative w-25">
-          <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 4 %}mx-4{% endif %}">
-            {% if branch_data|length > 4 %}
-              <div class="branch-fade branch-fade-left"></div>
-              <div class="branch-fade branch-fade-right"></div>
-            {% endif %}
-            {% for branch in branch_data %}
-              <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-                <p class="text-muted mb-0">{{ branch.name }}</p>
-                {% if branch.slug == selected_reference_branch %}
-                  <p class="fs-5 mb-3">Baseline</p>
+      </div>
+    </button>
+    <div id="{{ experiment.slug }}-results-overview"
+         class="accordion-collapse collapse show">
+      <div class="accordion-body d-flex flex-column gap-4">
+        <div class="card p-5">
+          <div class="row">
+            <div class="col-xxl">
+              <h5>Hypothesis</h5>
+              {% with hyp=experiment.hypothesis|default:"No hypothesis set." %}
+                {% if hyp|length > 300 %}
+                  <p>
+                    {{ hyp|truncatechars:300 }}
+                    <a href="{{ experiment.get_detail_url }}" class="ms-1">More</a>
+                  </p>
                 {% else %}
-                  <p class="fs-5">{{ branch.name }}</p>
+                  <p>{{ hyp }}</p>
                 {% endif %}
-                <div class="d-flex flex-column gap-3 w-100">
-                  {% for k, v in metric_data.items %}
-                    {% if k == branch.slug %}
-                      {% with branch_metric_data=v %}
-                        {% for metric, values in branch_metric_data.items %}
-                          {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=values.absolute.0.lower absolute_upper=values.absolute.0.upper significance=values.relative.0.significance percentage=values.relative.0.avg_rel_change %}
-
-                        {% endfor %}
-                      {% endwith %}
-                    {% endif %}
+              {% endwith %}
+            </div>
+            <div class="col-xxl">
+              <div class="row">
+                <div class="col">
+                  <p class="text-muted mb-0">Product Owner</p>
+                  <p>{{ experiment.owner|default:"No product owner set." }}</p>
+                </div>
+                <div class="col">
+                  <p class="text-muted mb-0">Advanced Targeting</p>
+                  <p>{{ experiment.targeting_config.name }}</p>
+                </div>
+                <div class="col">
+                  <p class="text-muted mb-0">Application</p>
+                  <p>{{ experiment.application|default:"Unknown" }}</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <p class="text-muted mb-0">Feature tags</p>
+                  {% for tag in experiment.tags.all %}
+                    <span class="badge bg-light text-dark">{{ tag.name }}</span>
+                  {% empty %}
+                    <p>None</p>
                   {% endfor %}
                 </div>
+                <div class="col">
+                  <p class="text-muted mb-0">Localization</p>
+                  {% for locale in experiment.locales.all %}
+                    <p class="mb-0">{{ locale.name }}</p>
+                  {% empty %}
+                    <p class="mb-0">None</p>
+                  {% endfor %}
+                </div>
+                <div class="col">
+                  <p class="text-muted mb-0">Version</p>
+                  <p>
+                    {{ experiment.firefox_min_version }}
+                    {% if experiment.firefox_max_version %}
+                      - {{ experiment.firefox_max_version }}
+                    {% else %}
+                      +
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card p-5">
+          <div class="row row-cols-2 row-cols-xxl-3 g-4">
+            {% for branch in branch_data %}
+              <div class="col">
+                {% include "common/branch_card.html" with branch=branch %}
+
               </div>
             {% endfor %}
           </div>
         </div>
+        <div class="card p-5">
+          <div class="row">
+            <div class="col">
+              <h5>Key takeaways</h5>
+              <p class="text-muted">
+                {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.key_takeaways }}
+              </p>
+            </div>
+            <div class="col">
+              <h5>Next steps</h5>
+              <p class="text-muted">
+                {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.next_steps }}
+              </p>
+            </div>
+            <div class="col">
+              <div class="d-flex align-items-start gap-2">
+                <h5>Project Impact</h5>
+                <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
+              </div>
+              <p class="text-muted">
+                {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.project_impact }}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  {% endwith %}
-{% endfor %}
+  </div>
+  {% comment %} Metrics {% endcomment %}
+  {% for area, metric_data_metadata in metric_area_data.items %}
+    {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data %}
+      <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
+        <button class="accordion-button bg-transparent shadow-none text-body d-flex collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#{{ experiment.slug }}-results-{{ area|slugify }}"
+                aria-expanded="true"
+                aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}">
+          <div class="pe-3">
+            <h4>{{ area }}</h4>
+            <div class="d-inline-flex gap-3 flex-wrap row-gap-1">
+              {% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
+                <small class="text-muted">{{ NimbusUIConstants.NOTABLE_METRIC_AREA_SUBHEADER }}</small>
+              {% else %}
+                {% for metric in metric_metadata %}
+                  <div>
+                    <small class="text-muted me-2">{{ metric.friendly_name }}</small>
+                    {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        </button>
+        <div id="{{ experiment.slug }}-results-{{ area|slugify }}"
+             class="accordion-collapse collapse">
+          <div class="accordion-body d-flex">
+            <div class="col-2">
+              <p class="text-muted mb-0 invisible" aria-hidden="true">Metrics</p>
+              <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
+              {% for metric in metric_metadata %}
+                <button class="card p-3 {% if forloop.last %}mb-4{% endif %} mb-3 d-flex justify-content-center rounded-4 border-3 w-100 text-start nav-link-hover position-relative border-light-subtle"
+                        type="button"
+                        style="height: 100px">
+                  <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
+                  <p class=" metric-text mb-0">{{ metric.friendly_name }}</p>
+                </button>
+              {% endfor %}
+            </div>
+            <div class="col position-relative w-25">
+              <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 4 %}mx-4{% endif %}">
+                {% if branch_data|length > 4 %}
+                  <div class="branch-fade branch-fade-left"></div>
+                  <div class="branch-fade branch-fade-right"></div>
+                {% endif %}
+                {% for branch in branch_data %}
+                  <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                    <p class="text-muted mb-0 text-truncate">{{ branch.name }}</p>
+                    {% if branch.slug == selected_reference_branch %}
+                      <p class="fs-5 mb-3">Baseline</p>
+                    {% else %}
+                      <p class="fs-5">{{ branch.name }}</p>
+                    {% endif %}
+                    <div class="d-flex flex-column gap-3 w-100">
+                      {% for k, v in metric_data.items %}
+                        {% if k == branch.slug %}
+                          {% with branch_metric_data=v %}
+                            {% for metric, values in branch_metric_data.items %}
+                              {% include "common/metric_card.html" with metric__slug=metric slug=branch.slug reference_branch=selected_reference_branch absolute_lower=values.absolute.0.lower absolute_upper=values.absolute.0.upper significance=values.relative.0.significance percentage=values.relative.0.avg_rel_change %}
+
+                            {% endfor %}
+                          {% endwith %}
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endwith %}
+  {% endfor %}
+</div>

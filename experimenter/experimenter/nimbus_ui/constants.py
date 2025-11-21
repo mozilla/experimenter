@@ -145,6 +145,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Next steps",
         "Project impact",
     ]
+    KPI_AREA = "KPI Metrics"
+    OTHER_METRICS_AREA = "Other Metrics"
+    NOTABLE_METRIC_AREA = "Notable Changes"
+    NOTABLE_METRIC_AREA_SUBHEADER = (
+        "All statistically significant changes that have occurred in the experiment"
+    )
     FEATURE_PAGE_LINKS = {
         "feature_learn_more_url": "https://experimenter.info/for-product#track-your-feature-health",
         "deliveries_table_tooltip": """This shows all Nimbus experiments, rollouts, Labs

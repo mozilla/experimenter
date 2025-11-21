@@ -2300,25 +2300,6 @@ class TestNimbusExperiment(TestCase):
                         f"{link['title']} should not be active for path {path}",
                     )
 
-    def test_default_metrics_set_on_creation(self):
-        experiment = NimbusExperimentFactory.create()
-
-        experiment.results_data = {
-            "v3": {
-                "other_metrics": {"group": {"metricA": "Metric A"}},
-                "metadata": {
-                    "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
-                },
-            }
-        }
-
-        experiment.save()
-
-        self.assertEqual(
-            experiment.default_metrics,
-            {"metricA": "Friendly Metric A"},
-        )
-
     def test_get_branch_data_returns_correct_data(self):
         experiment = NimbusExperimentFactory.create()
         branch_a = NimbusBranchFactory.create(
@@ -2645,6 +2626,37 @@ class TestNimbusExperiment(TestCase):
         kpi_metrics = experiment.get_kpi_metrics("enrollments", "all", branch_a.slug)
 
         self.assertListEqual(kpi_metrics, expected_kpi_metrics)
+
+    def test_get_defaults_metrics_with_exclusions(self):
+        experiment = NimbusExperimentFactory.create()
+
+        experiment.results_data = {
+            "v3": {
+                "metadata": {
+                    "metrics": {
+                        "metricA": {
+                            "retained": "Retained",
+                            "search_count": "Search Count",
+                        }
+                    },
+                },
+                "other_metrics": {
+                    "other_metrics": {
+                        "retained": "2 Week Retention",
+                        "search_count": "Search Count",
+                    }
+                },
+            }
+        }
+        experiment.save()
+
+        remaining_metrics = experiment.get_remaining_metrics_metadata(
+            exclude_slugs=["search_count"]
+        )
+        metric_slugs = [metric.get("slug") for metric in remaining_metrics]
+
+        self.assertIn("retained", metric_slugs)
+        self.assertNotIn("search_count", metric_slugs)
 
     def test_conclusion_recommendation_labels(self):
         recommendations = list(NimbusConstants.ConclusionRecommendation)
