@@ -14,7 +14,7 @@
         <span class="badge rounded-pill bg-danger" id="archive-badge">Archived</span>
       {% endif %}
       {% if experiment.is_rollout %}<span class="badge rounded-pill bg-primary" id="rollout-badge">Rollout</span>{% endif %}
-      <span class="{{ experiment.qa_status_badge_class }}">
+      <span id="qa-status-header" class="{{ experiment.qa_status_badge_class }}">
         QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
       </span>
       {% include "nimbus_experiments/experiment_tags.html" %}
