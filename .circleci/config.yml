@@ -832,7 +832,7 @@ jobs:
               echo "No config changes, skipping"
             fi
 
-  update_firefox_versions:
+  update_firefox_desktop_release:
     machine:
       image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
@@ -841,9 +841,48 @@ jobs:
       - checkout
       - setup-github-bot
       - run:
-          name: Check for external Update
+          name: Update Firefox Desktop Release
           command: |
-            ./scripts/external_integration_updater_script.sh
+            ./scripts/external_integration_updater_script.sh desktop release
+
+  update_firefox_desktop_beta:
+    machine:
+      image: ubuntu-2204:2024.11.1
+      docker_layer_caching: true
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - setup-github-bot
+      - run:
+          name: Update Firefox Desktop Beta
+          command: |
+            ./scripts/external_integration_updater_script.sh desktop beta
+
+  update_firefox_fenix_beta:
+    machine:
+      image: ubuntu-2204:2024.11.1
+      docker_layer_caching: true
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - setup-github-bot
+      - run:
+          name: Update Firefox Fenix Beta
+          command: |
+            ./scripts/external_integration_updater_script.sh fenix beta
+
+  update_firefox_fennec_release:
+    machine:
+      image: ubuntu-2204:2024.11.1
+      docker_layer_caching: true
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - setup-github-bot
+      - run:
+          name: Update Firefox iOS (Fennec) Release
+          command: |
+            ./scripts/external_integration_updater_script.sh fennec release
 
   build_firefox_fenix:
     working_directory: ~/experimenter
@@ -898,7 +937,10 @@ workflows:
               only:
                 - main
     jobs:
-      - update_firefox_versions
+      - update_firefox_desktop_release
+      - update_firefox_desktop_beta
+      - update_firefox_fenix_beta
+      - update_firefox_fennec_release
 
   build:
     jobs:
