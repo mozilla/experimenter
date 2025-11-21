@@ -5235,6 +5235,55 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(block["date"], experiment.changes.latest_rejection().changed_on)
         self.assertEqual(block["message"], "test message")
 
+    def test_save_populates_firefox_min_version_parsed_with_bang_notation(self):
+        experiment = NimbusExperimentFactory.create(firefox_min_version="95.!")
+        self.assertEqual(experiment._firefox_min_version_parsed, [95, 0, 0])
+
+    def test_save_populates_firefox_min_version_parsed_with_semver(self):
+        experiment = NimbusExperimentFactory.create(firefox_min_version="92.0.1")
+        self.assertEqual(experiment._firefox_min_version_parsed, [92, 0, 1])
+
+    def test_save_populates_firefox_min_version_parsed_with_empty_version(self):
+        experiment = NimbusExperimentFactory.create(firefox_min_version="")
+        self.assertEqual(experiment._firefox_min_version_parsed, [0, 0, 0])
+
+    def test_save_populates_firefox_min_version_parsed_with_no_version(self):
+        experiment = NimbusExperimentFactory.create(
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION
+        )
+        self.assertEqual(experiment._firefox_min_version_parsed, [0, 0, 0])
+
+    def test_save_updates_firefox_min_version_parsed_on_version_change(self):
+        experiment = NimbusExperimentFactory.create(firefox_min_version="95.!")
+        self.assertEqual(experiment._firefox_min_version_parsed, [95, 0, 0])
+
+        experiment.firefox_min_version = "100.1.0"
+        experiment.save()
+        self.assertEqual(experiment._firefox_min_version_parsed, [100, 1, 0])
+
+    def test_save_handles_invalid_version_gracefully(self):
+        experiment = NimbusExperimentFactory.create(firefox_min_version="invalid")
+        self.assertEqual(experiment._firefox_min_version_parsed, [0, 0, 0])
+
+    def test_all_version_constants_parse_correctly(self):
+        for version_string, version_label in NimbusExperiment.Version.choices:
+            if version_string == NimbusExperiment.Version.NO_VERSION:
+                continue
+
+            try:
+                parsed = NimbusExperiment.Version.parse(version_string.replace("!", "0"))
+                self.assertIsInstance(parsed.major, int)
+                self.assertIsInstance(parsed.minor, int)
+                self.assertIsInstance(parsed.micro, int)
+                self.assertGreaterEqual(parsed.major, 0)
+                self.assertGreaterEqual(parsed.minor, 0)
+                self.assertGreaterEqual(parsed.micro, 0)
+            except Exception as e:
+                self.fail(
+                    f"Failed to parse version constant {version_label} "
+                    f"('{version_string}'): {e}"
+                )
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):

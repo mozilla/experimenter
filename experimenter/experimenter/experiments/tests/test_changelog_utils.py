@@ -65,6 +65,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "feature_configs": [],
                 "firefox_max_version": NimbusExperiment.Version.NO_VERSION,
                 "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
+                "_firefox_min_version_parsed": [0, 0, 0],
                 "firefox_labs_title": experiment.firefox_labs_title,
                 "firefox_labs_description": experiment.firefox_labs_description,
                 "firefox_labs_description_links": (
@@ -196,6 +197,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "exclude_locales": experiment.exclude_locales,
                 "firefox_max_version": experiment.firefox_max_version,
                 "firefox_min_version": experiment.firefox_min_version,
+                "_firefox_min_version_parsed": experiment._firefox_min_version_parsed,
                 "firefox_labs_title": experiment.firefox_labs_title,
                 "firefox_labs_description": experiment.firefox_labs_description,
                 "firefox_labs_description_links": (
