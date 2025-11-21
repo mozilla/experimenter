@@ -672,6 +672,9 @@
                     "type": {
                       "const": "MULTI_ACTION"
                     },
+                    "orderedExecution": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
