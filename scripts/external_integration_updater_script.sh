@@ -5,11 +5,23 @@ WHAT_TRAIN_IS_IT_NOW_API="https://whattrainisitnow.com/api/firefox/releases/"
 FENNEC_GITHUB_API="https://api.github.com/repos/mozilla-mobile/firefox-ios"
 CURLFLAGS=("--proto" "=https" "--tlsv1.2" "-sS")
 
-git checkout main
+# Parse command line arguments
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <application> <channel>"
+    echo "  application: desktop|fenix|fennec"
+    echo "  channel: release|beta"
+    exit 1
+fi
+
+APPLICATION=$1
+CHANNEL=$2
+VARIANT="${APPLICATION}_${CHANNEL}"
+BRANCH_NAME="update_firefox_${VARIANT}"
+firefox_types=("${VARIANT}")
+
 git checkout main
 git pull origin main
-git checkout -B update_firefox_versions
-firefox_types=("fenix_beta" "fennec_release" "fennec_beta" "desktop_beta" "desktop_release")
+git checkout -B "${BRANCH_NAME}"
 
 
 fetch_task_info() {
@@ -88,9 +100,28 @@ done
 
 if (($(git status --porcelain | wc -c) > 0)); then
     git add .
-    git commit -m "chore(nimbus): Update Firefox Versions"
-    git push origin -f update_firefox_versions
-    gh pr create -t "chore(nimbus):  Update Firefox Versions" -b "" --base main --head update_firefox_versions --repo mozilla/experimenter || echo "PR already exists, skipping"
+
+    if [ $# -eq 2 ]; then
+        APP_DISPLAY_NAME=""
+        case "$APPLICATION" in
+            desktop) APP_DISPLAY_NAME="Firefox Desktop" ;;
+            fenix) APP_DISPLAY_NAME="Firefox Fenix" ;;
+            fennec) APP_DISPLAY_NAME="Firefox iOS (Fennec)" ;;
+        esac
+        CHANNEL_DISPLAY_NAME="${CHANNEL^}" # Capitalize first letter
+        COMMIT_MSG="chore(nimbus): Update ${APP_DISPLAY_NAME} ${CHANNEL_DISPLAY_NAME}"
+        PR_TITLE="${COMMIT_MSG}"
+        PR_BODY="Automated update of ${APP_DISPLAY_NAME} ${CHANNEL_DISPLAY_NAME} version"
+    else
+        # Update all mode
+        COMMIT_MSG="chore(nimbus): Update Firefox Versions"
+        PR_TITLE="chore(nimbus): Update Firefox Versions"
+        PR_BODY=""
+    fi
+
+    git commit -m "${COMMIT_MSG}"
+    git push origin -f "${BRANCH_NAME}"
+    gh pr create -t "${PR_TITLE}" -b "${PR_BODY}" --base main --head "${BRANCH_NAME}" --repo mozilla/experimenter || echo "PR already exists, skipping"
 else
     echo "No config changes, skipping"
 fi
