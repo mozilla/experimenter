@@ -1172,13 +1172,11 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         )
         self.assertEqual(response.context["segment_links"], expected_segment_links)
 
-    def test_qa_edit_mode_get(self):
+    def test_qa_edit_mode_get_form(self):
         response = self.client.get(
-            reverse("nimbus-ui-detail", kwargs={"slug": self.experiment.slug}),
-            {"edit_qa_status": "true"},
+            reverse("nimbus-ui-update-qa-status", kwargs={"slug": self.experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context["qa_edit_mode"])
         self.assertIsInstance(response.context["form"], QAStatusForm)
 
     def test_qa_edit_mode_post_valid_form(self):
@@ -1190,7 +1188,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             reverse("nimbus-ui-update-qa-status", kwargs={"slug": self.experiment.slug}),
             data,
         )
-        self.assertEqual(response.status_code, 302)  # redirect
+        self.assertEqual(response.status_code, 200)
         self.experiment.refresh_from_db()
         self.assertEqual(self.experiment.qa_status, "GREEN")
         self.assertEqual(self.experiment.qa_comment, "Everything looks good.")
@@ -1205,7 +1203,6 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             data,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context["qa_edit_mode"])
         self.assertIsInstance(response.context["form"], QAStatusForm)
         self.assertFalse(response.context["form"].is_valid())
         # Ensure changes are not saved to the database
@@ -1245,12 +1242,10 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
 
     def test_takeaways_edit_mode_get(self):
         response = self.client.get(
-            reverse("nimbus-ui-detail", kwargs={"slug": self.experiment.slug}),
-            {"edit_takeaways": "true"},
+            reverse("nimbus-ui-update-takeaways", kwargs={"slug": self.experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context["takeaways_edit_mode"])
-        self.assertIsInstance(response.context["takeaways_form"], TakeawaysForm)
+        self.assertIsInstance(response.context["form"], TakeawaysForm)
 
     def test_takeaways_edit_mode_post_valid_form(self):
         data = {
@@ -1267,7 +1262,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             reverse("nimbus-ui-update-takeaways", kwargs={"slug": self.experiment.slug}),
             data,
         )
-        self.assertEqual(response.status_code, 302)  # redirect
+        self.assertEqual(response.status_code, 200)  # renders template
         self.experiment.refresh_from_db()
         self.assertEqual(self.experiment.takeaways_summary, "Updated summary.")
         self.assertEqual(self.experiment.takeaways_gain_amount, "1% gain in retention")
@@ -1294,9 +1289,8 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             data,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context["takeaways_edit_mode"])
-        self.assertIsInstance(response.context["takeaways_form"], TakeawaysForm)
-        self.assertFalse(response.context["takeaways_form"].is_valid())
+        self.assertIsInstance(response.context["form"], TakeawaysForm)
+        self.assertFalse(response.context["form"].is_valid())
 
     def test_signoff_edit_mode_post_valid_form(self):
         data = {
