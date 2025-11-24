@@ -19,6 +19,7 @@ from experimenter.experiments.models import (
     Tag,
 )
 from experimenter.nimbus_ui.constants import (
+    METRICS_MIN_BOUNDS_WIDTH,
     SCHEMA_DIFF_SIZE_CONFIG,
 )
 from experimenter.nimbus_ui.filtersets import (
@@ -702,6 +703,60 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         context["metric_area_data"] = experiment.get_metric_data(
             analysis_basis, selected_segment, selected_reference_branch
         )
+
+        relative_metric_changes = {}
+
+        all_metrics = experiment.get_metric_data(
+            analysis_basis, selected_segment, selected_reference_branch
+        )
+
+        for metric_data in all_metrics.values():
+            metadata = metric_data.get("metrics", {})
+
+            for metric_metadata in metadata:
+                data = metric_data.get("data", {}).get(metric_metadata["slug"], {})
+                metric_ui_properties = {}
+                extreme_bound = experiment.get_max_metric_value(
+                    analysis_basis,
+                    selected_segment,
+                    selected_reference_branch,
+                    metric_metadata["group"],
+                    metric_metadata["slug"],
+                )
+
+                for branch_slug, branch_data in data.items():
+                    if not (relative := branch_data.get("relative")):
+                        continue
+
+                    lower = relative[0].get("lower") * 100
+                    upper = relative[0].get("upper") * 100
+                    confidence_range = round(extreme_bound * 1000) / 10
+                    full_width = confidence_range * 2
+                    bar_width = ((upper - lower) / full_width) * 100
+                    left_percent = (abs(lower - confidence_range * -1) / full_width) * 100
+                    left_bounds_percent = left_percent
+
+                    num_digits = len(str(round(lower, 1)).replace(".", "")) + len(
+                        str(round(upper, 1)).replace(".", "")
+                    )
+
+                    if bar_width < METRICS_MIN_BOUNDS_WIDTH:
+                        left_bounds_percent -= (METRICS_MIN_BOUNDS_WIDTH - bar_width) / 2
+
+                    metric_ui_properties[branch_slug] = {
+                        "bar_width": bar_width,
+                        "left_percent": left_percent,
+                        "left_bounds_percent": left_bounds_percent - num_digits * 1.5,
+                        "bounds_width": (
+                            max(bar_width, METRICS_MIN_BOUNDS_WIDTH) + num_digits * 3
+                        ),
+                    }
+
+                    relative_metric_changes[metric_metadata["slug"]] = (
+                        metric_ui_properties
+                    )
+
+        context["relative_metric_changes"] = relative_metric_changes
 
         return context
 
