@@ -1606,25 +1606,6 @@ newtabTrainhopAddon:
         branch: user
         pref: browser.newtabpage.trainhopAddon.version
 
-newtabTrendingSearchWidget:
-  description: >-
-      Adds trending search results widget to new tab
-  owner: nbarrett@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.system.trendingSearch.enabled
-      description: Enables the refined cards layout for newtab
-    variant:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.newtabpage.activity-stream.trendingSearch.variant
-      description: Determines the layout variant for the trending search widget
-
 newtabTopicSelection:
   description: the about:newtab topic selection experience.
   owner: nbarrett@mozilla.com
@@ -4806,12 +4787,10 @@ backupService:
         pref: browser.backup.scheduled.minimum-time-between-backups-seconds
     archiveKillswitch:
       type: boolean
-      default: false
       description: >-
         Disables backup archiving, overrides all other configs when true.
     restoreKillswitch:
       type: boolean
-      default: false
       description: >-
         Disables backup restoration, overrides all other configs when true.
 
