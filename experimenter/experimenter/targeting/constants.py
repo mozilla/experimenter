@@ -3692,6 +3692,20 @@ FX_145_1_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_146_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx146.0.1 11-24 Trainhop",
+    slug="newtab-146-1124-trainhop",
+    description=(
+        "Desktop users having the New Tab 146.0.20251107.60212 train hop, "
+        "which includes users of Fx145_0_1"
+    ),
+    targeting="newtabAddonVersion|versionCompare('146.0.20251107.60212') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
