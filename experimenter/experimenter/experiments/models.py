@@ -1339,14 +1339,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for branch in self.get_sorted_branches():
             slug = branch.slug
             participant_metrics = (
-                (
-                    window_results.get(slug, {})
-                    .get("branch_data", {})
-                    .get("other_metrics", {})
-                    .get("identity", {})
-                )
-                if isinstance(window_results, dict)
-                else {}
+                window_results.get(slug, {})
+                .get("branch_data", {})
+                .get("other_metrics", {})
+                .get("identity", {})
             )
             num_participants = (
                 participant_metrics.get("absolute", {}).get("first", {}).get("point", 0)
@@ -1373,20 +1369,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         window_results = self.get_window_results(analysis_basis, segment, window)
 
-        for branch in self.get_sorted_branches():
-            branch_results = (
-                window_results.get(branch.slug, {}).get("branch_data", {})
-                if isinstance(window_results, dict)
-                else {}
-            )
+        for metric in metrics:
+            slug = metric.get("slug")
+            group = metric.get("group")
             branch_metrics = {}
 
-            for metric in metrics:
-                slug = metric.get("slug")
-                group = metric.get("group")
+            for branch in self.get_sorted_branches():
+                branch_results = window_results.get(branch.slug, {}).get(
+                    "branch_data", {}
+                )
 
                 metric_src = branch_results.get(group, {}).get(slug, {})
-
                 absolute_data_list = metric_src.get("absolute", {}).get("all", [])
                 relative_data_list = (
                     metric_src.get("relative_uplift", {})
@@ -1409,12 +1402,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
                 abs_entries = []
                 for i, data_point in enumerate(absolute_data_list):
-                    lower = round(data_point.get("lower"), 2)
-                    upper = round(data_point.get("upper"), 2)
-
-                    if metric.get("display_type") == "percentage":
-                        lower = f"{lower * 100}%"
-                        upper = f"{upper * 100}%"
+                    lower = data_point.get("lower")
+                    upper = data_point.get("upper")
 
                     significance = significance_map.get(str(i + 1), "neutral")
                     abs_entries.append(
@@ -1425,7 +1414,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 for i, data_point in enumerate(relative_data_list):
                     lower = data_point.get("lower")
                     upper = data_point.get("upper")
-                    avg_rel_change = abs(data_point.get("point") * 100)
+                    avg_rel_change = abs(data_point.get("point"))
                     significance = significance_map.get(str(i + 1), "neutral")
                     rel_entries.append(
                         {
@@ -1436,9 +1425,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         }
                     )
 
-                branch_metrics[slug] = {"absolute": abs_entries, "relative": rel_entries}
+                branch_metrics[branch.slug] = {
+                    "absolute": abs_entries,
+                    "relative": rel_entries,
+                }
 
-            metric_data[branch.slug] = branch_metrics
+            metric_data[slug] = branch_metrics
 
         return metric_area_data
 
@@ -1516,6 +1508,35 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if self.results_data
             else {}
         )
+
+    def get_max_metric_value(
+        self,
+        analysis_basis,
+        segment,
+        reference_branch,
+        outcome_group,
+        outcome_slug,
+    ):
+        overall_results = self.get_window_results(analysis_basis, segment, "overall")
+        max_value = 0
+
+        for branch in self.get_sorted_branches():
+            if overall_results:
+                for data_point in (
+                    overall_results.get(branch.slug, {})
+                    .get("branch_data", {})
+                    .get(outcome_group, {})
+                    .get(outcome_slug, {})
+                    .get("relative_uplift", {})
+                    .get(reference_branch, {})
+                    .get("all", [])
+                ):
+                    lower = data_point.get("lower")
+                    upper = data_point.get("upper")
+
+                    max_value = max(max_value, abs(lower), abs(upper))
+
+        return max_value
 
     def get_sorted_branches(self):
         return (

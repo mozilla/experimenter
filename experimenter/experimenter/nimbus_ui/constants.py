@@ -394,3 +394,7 @@ QA_ICON_FILTER_TYPE = "qa_icon_info"
 CHANNEL_ICON_FILTER_TYPE = "channel_icon_info"
 APPLICATION_ICON_FILTER_TYPE = "application_icon_info"
 STATUS_ICON_FILTER_TYPE = "status_icon_info"
+
+# Represents the minimum width percentage for the bar in metric popout cards to
+# adjust number bounds and prevent overlapping
+METRICS_MIN_BOUNDS_WIDTH = 22
