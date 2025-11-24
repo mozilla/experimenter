@@ -6,7 +6,7 @@ authors = ["Mozilla"]
 package-mode = false
 
 [tool.poetry.dependencies]
-asgiref = "3.10.0"
+asgiref = "3.11.0"
 celery = "^5.5.1"
 chardet = "4.0.0"
 click = "8.1.6"
