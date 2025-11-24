@@ -1090,6 +1090,10 @@ features:
   terms-of-use-prompt:
     description: Enables the terms of use prompt for users who have not accepted ToU
     variables:
+      enable-drag-to-dismiss:
+        description: Whether to show a drag handle on the prompt and allows users to use it to dismiss the prompt.
+        type: Boolean
+        default: true
       enabled:
         description: When the feature is enabled then the prompt can show for users.
         type: Boolean
