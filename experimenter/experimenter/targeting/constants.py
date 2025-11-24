@@ -3695,8 +3695,10 @@ FX_145_1_TRAINHOP = NimbusTargetingConfig(
 FX_146_TRAINHOP = NimbusTargetingConfig(
     name="New Tab Fx146.0.1 11-24 Trainhop",
     slug="newtab-146-1124-trainhop",
-    description="Desktop users having the New Tab 146.0.20251107.60212 train hop,"
-    "which includes users of Fx145_0_1",
+    description=(
+        "Desktop users having the New Tab 146.0.20251107.60212 train hop, "
+        "which includes users of Fx145_0_1"
+    ),
     targeting="newtabAddonVersion|versionCompare('146.0.20251107.60212') >= 0",
     desktop_telemetry="",
     sticky_required=False,
