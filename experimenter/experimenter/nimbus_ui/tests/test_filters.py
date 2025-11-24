@@ -42,6 +42,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     render_channel_icons,
     short_number,
     status_icon_info,
+    to_percentage,
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     should_show_remote_settings_pending as filter_should_show_remote_settings_pending,
@@ -147,6 +148,16 @@ class FilterTests(TestCase):
     def test_format_string_with_no_placeholder(self):
         result = format_string("Subscribe for updates", "Picture-in-Picture")
         self.assertEqual(result, "Subscribe for updates")
+
+    def test_to_percentage_precision_specified(self):
+        self.assertEqual(to_percentage(0.123456, 4), "12.3456%")
+        self.assertEqual(to_percentage(0.123, 2), "12.30%")
+        self.assertEqual(to_percentage(0.12, 0), "12%")
+
+    def test_to_percentage_no_precision_specified(self):
+        self.assertEqual(to_percentage(0.123456), "12.3456%")
+        self.assertEqual(to_percentage(0.123), "12.3%")
+        self.assertEqual(to_percentage(0.12), "12.0%")
 
 
 class TestHomeFilters(AuthTestCase):

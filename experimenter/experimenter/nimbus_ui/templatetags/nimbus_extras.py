@@ -331,3 +331,14 @@ def format_string(value, arg):
         {{ "Subscribe to {text}"|format_string:feature.name }}
     """
     return value.format(text=arg)
+
+
+@register.filter
+def to_percentage(value, precision=None):
+    percentage_value = value * 100
+
+    if precision is None:
+        return f"{percentage_value}%"
+
+    format_string = f"{{:.{precision}f}}%"
+    return format_string.format(percentage_value)

@@ -1,0 +1,67 @@
+{% load nimbus_extras %}
+
+{% with sig=significance|default:"neutral" %}
+  {% if type == "absolute" %}
+    <div class="card p-3 bg-body-tertiary border-0 text-center d-flex flex-row align-items-center justify-content-center mb-3 fw-semibold {% if sig == "positive" %}bg-success-subtle text-success{% elif sig == "negative" %}bg-danger-subtle text-danger{% else %}bg-body-tertiary text-muted{% endif %}"
+         style="height: 75px">
+      {% if not absolute_lower or reference_branch == branch_slug %}
+        <i class="fa-solid fa-house me-2"></i>
+      {% else %}
+        <i class="fa-solid me-2 {% if sig == "positive" %}fa-arrow-up{% elif sig == "negative" %}fa-arrow-down{% else %}fa-arrow-left{% endif %}"></i>
+      {% endif %}
+      {% if absolute_lower %}
+        {% if display_type == "percentage" %}
+          <span class="mb-0 me-1"
+                data-bs-toggle="tooltip"
+                data-bs-title="{{ absolute_lower|to_percentage }}">{{ absolute_lower|to_percentage:1 }}</span>
+          to
+          <p class="mb-0 ms-1"
+             data-bs-toggle="tooltip"
+             data-bs-title="{{ absolute_upper|to_percentage }}">
+            {{ absolute_upper|to_percentage:1 }}
+          </span>
+        {% else %}
+          <span class="mb-0 me-1"
+                data-bs-toggle="tooltip"
+                data-bs-title="{{ absolute_lower }}">{{ absolute_lower|floatformat:2 }}</span>
+          to
+          <p class="mb-0 ms-1"
+             data-bs-toggle="tooltip"
+             data-bs-title="{{ absolute_upper }}">
+            {{ absolute_upper|floatformat:2 }}
+          </span>
+        {% endif %}
+      {% else %}
+        Baseline
+      {% endif %}
+    </div>
+  {% elif type == "relative" %}
+    <div class="card pt-3 mx-5 mb-3 border-0 position-relative overflow-visible"
+         style="height: 75px">
+      <div class="w-100 border-bottom my-auto "></div>
+      {% if branch_relative_ui_properties %}
+        <div class="d-flex flex-row flex-nowrap justify-content-between position-absolute {% if sig == "positive" %}text-success{% elif sig == "negative" %}text-danger{% else %}text-body-tertiary{% endif %}"
+             style="width: {{ branch_relative_ui_properties.bounds_width }}%;
+                    left: {{ branch_relative_ui_properties.left_bounds_percent }}%">
+          <small class="fw-semibold"
+                 data-bs-toggle="tooltip"
+                 data-bs-title="{{ lower_relative|to_percentage }}">{{ lower_relative|to_percentage:1 }}</small>
+          <small class="fw-semibold"
+                 data-bs-toggle="tooltip"
+                 data-bs-title="{{ upper_relative|to_percentage }}">{{ upper_relative|to_percentage:1 }}</small>
+        </div>
+        <div class="position-absolute border border-2 border-top-0 {% if sig == "positive" %}border-success{% elif sig == "negative" %}border-danger{% else %}border-light-subtle{% endif %}"
+             style="height: 10px;
+                    width: {{ branch_relative_ui_properties.bar_width }}%;
+                    left: {{ branch_relative_ui_properties.left_percent }}%;
+                    bottom: 32%"></div>
+        <div class="position-absolute bg-gradient rounded-1 rounded-top-0 {% if sig == "positive" %}bg-success{% elif sig == "negative" %}bg-danger{% else %}bg-secondary-subtle{% endif %}"
+             style="height: 10px;
+                    width: {{ branch_relative_ui_properties.bar_width }}%;
+                    left: {{ branch_relative_ui_properties.left_percent }}%;
+                    bottom: 25%;
+                    transform: translateY(-10%)"></div>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endwith %}

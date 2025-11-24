@@ -3123,6 +3123,152 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/results-new-fragment.html")
 
+    def test_results_view_relative_ui_properties(self):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch B", slug="branch-b"
+        )
+        branch_c = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch C", slug="branch-c"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "relative_uplift": {
+                                                "branch-a": {"all": []},
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.12,
+                                                            "upper": 0.15,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                },
+                                                "branch-c": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.1,
+                                                            "upper": 0.2,
+                                                            "point": 0.03,
+                                                        }
+                                                    ]
+                                                },
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "relative_uplift": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 1,
+                                                            "upper": 2,
+                                                            "point": 1.5,
+                                                        }
+                                                    ]
+                                                },
+                                                "branch-b": {"all": []},
+                                                "branch-c": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.25,
+                                                            "upper": 0.45,
+                                                            "point": 0.1,
+                                                        }
+                                                    ]
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-c": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "relative_uplift": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 10,
+                                                            "upper": 20,
+                                                            "point": 15,
+                                                        }
+                                                    ]
+                                                },
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.25,
+                                                            "upper": 0.45,
+                                                            "point": 0.1,
+                                                        }
+                                                    ]
+                                                },
+                                                "branch-c": {"all": []},
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+
+        branch_a.save()
+        branch_b.save()
+        branch_c.save()
+        experiment.save()
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-new-results",
+                kwargs={"slug": experiment.slug},
+                query={"reference_branch": "branch-a"},
+            ),
+        )
+
+        expected_relative_change_ui_properties = {
+            "retained": {
+                "branch-b": {
+                    "bar_width": 2.5,
+                    "bounds_width": 40,
+                    "left_bounds_percent": 33.75,
+                    "left_percent": 52.5,
+                },
+                "branch-c": {
+                    "bar_width": 25.0,
+                    "bounds_width": 49.0,
+                    "left_bounds_percent": 63.0,
+                    "left_percent": 75.0,
+                },
+            }
+        }
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["relative_metric_changes"],
+            expected_relative_change_ui_properties,
+        )
+
 
 class TestBranchScreenshotCreateView(AuthTestCase):
     def test_post_creates_screenshot(self):
