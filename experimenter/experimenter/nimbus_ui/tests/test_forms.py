@@ -893,6 +893,88 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("requested review to end enrollment", changelog.message)
 
+    def test_live_to_end_enrollment_form_rollout(self):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, is_rollout=True
+        )
+
+        form = LiveToEndEnrollmentForm(data={}, instance=rollout, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors, {"__all__": [NimbusExperiment.ERROR_CANNOT_PAUSE_ROLLOUT]}
+        )
+
+    def test_live_to_end_enrollment_form_firefox_labs(self):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group="group",
+        )
+
+        form = LiveToEndEnrollmentForm(data={}, instance=rollout, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        rollout = form.save()
+        self.assertEqual(rollout.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(rollout.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(rollout.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertTrue(rollout.is_paused)
+
+        changelog = rollout.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("requested review to end enrollment", changelog.message)
+
+    def test_live_to_end_enrollment_form_firefox_labs_dirty(self):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group="group",
+            is_rollout_dirty=True,
+        )
+
+        form = LiveToEndEnrollmentForm(data={}, instance=rollout, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors, {"__all__": [NimbusExperiment.ERROR_CANNOT_PAUSE_UNPUBLISHED]}
+        )
+
+    def test_live_to_end_enrollment_form_paused(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        form = LiveToEndEnrollmentForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+
+        self.assertEqual(
+            form.errors, {"__all__": [NimbusExperiment.ERROR_CANNOT_PAUSE_PAUSED]}
+        )
+
+    @parameterized.expand(
+        [
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        ]
+    )
+    def test_live_to_end_enrollment_form_not_live(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+
+        form = LiveToEndEnrollmentForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+
+        self.assertEqual(
+            form.errors, {"__all__": [NimbusExperiment.ERROR_CANNOT_PAUSE_NOT_LIVE]}
+        )
+
     def test_approve_end_enrollment_form(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
