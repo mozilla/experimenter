@@ -178,6 +178,11 @@ features:
           If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)
         type: Boolean
         default: true
+      stories-redesign-v2:
+        description: |
+          If true, enables the redesigned story cards and homepage layout, and disables the bookmarks and jump-back-in homepage sections by default.
+        type: Boolean
+        default: false
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
