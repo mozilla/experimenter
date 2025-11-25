@@ -1,6 +1,5 @@
 import { basicSetup } from "codemirror";
 import { EditorView } from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
 import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { linter } from "@codemirror/lint";
 import { autocompletion } from "@codemirror/autocomplete";
@@ -12,6 +11,7 @@ import {
   updateAllViewThemes,
   observeThemeChanges,
 } from "./theme_utils.js";
+import { setupReadonlyJsonEditors } from "./codemirror_utils.js";
 import $ from "jquery";
 
 const setupCodemirror = (selector, textarea, extraExtensions) => {
@@ -31,6 +31,7 @@ const setupCodemirror = (selector, textarea, extraExtensions) => {
     }),
     json(),
     linter(jsonParseLinter()),
+    EditorView.lineWrapping,
     themeCompartment.of(getThemeExtensions()),
     ...extraExtensions,
   ];
@@ -105,33 +106,6 @@ const setupCodeMirrorLocalizations = () => {
   setupCodemirror(selector, textarea, []);
 };
 
-const initializeSchemaCodeMirror = (textarea) => {
-  if (!textarea || textarea.dataset.is_rendered) return;
-
-  textarea.dataset.is_rendered = true;
-
-  const extensions = [
-    basicSetup,
-    json(),
-    linter(jsonParseLinter()),
-    EditorState.readOnly.of(true),
-    EditorView.editable.of(false),
-    themeCompartment.of(getThemeExtensions()),
-  ];
-
-  const view = new EditorView({
-    doc: textarea.value,
-    extensions,
-    parent: textarea.parentNode,
-  });
-
-  view.dom.style.border = "1px solid #ccc";
-  textarea.parentNode.insertBefore(view.dom, textarea);
-  textarea.style.display = "none";
-
-  registerView(view);
-};
-
 const setupSchemaToggleButtons = () => {
   const form = document.getElementById("branches-form");
   if (!form || form.dataset.schemaToggleSetup) return;
@@ -150,7 +124,7 @@ const setupSchemaToggleButtons = () => {
     container.querySelector(".hide-schema-btn").classList.toggle("d-none");
 
     if (isHidden) {
-      initializeSchemaCodeMirror(schemaDisplay.querySelector(".readonly-json"));
+      setupReadonlyJsonEditors();
     }
   });
 };

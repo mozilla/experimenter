@@ -17,7 +17,7 @@ class BranchesPage(ExperimenterBase):
     )
     _branch_value_locator = (
         By.CSS_SELECTOR,
-        "#branches-form #branches .cm-activeLine",
+        "#branches-form #branches .feature-value-editor .cm-activeLine",
     )
     _treatment_branch_name_locator = (By.CSS_SELECTOR, "#id_branches-0-name")
     _treatment_branch_description_locator = (

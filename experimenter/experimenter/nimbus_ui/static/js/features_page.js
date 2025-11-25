@@ -29,6 +29,7 @@ const setupMergeViews = () => {
           json(),
           EditorView.editable.of(false),
           EditorState.readOnly.of(true),
+          EditorView.lineWrapping,
         ],
       },
       b: {
@@ -38,6 +39,7 @@ const setupMergeViews = () => {
           json(),
           EditorView.editable.of(false),
           EditorState.readOnly.of(true),
+          EditorView.lineWrapping,
         ],
       },
       parent: container,
