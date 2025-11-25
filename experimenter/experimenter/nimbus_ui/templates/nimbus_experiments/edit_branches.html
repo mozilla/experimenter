@@ -148,7 +148,7 @@
                             <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
                           {% endif %}
                         </label>
-                        {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
+                        <div class="feature-value-editor">{{ branch_feature_values_form.value|add_error_class:"is-invalid" }}</div>
                         {% for error in branch_feature_values_form.value.errors %}
                           <div class="invalid-feedback d-block">{{ error }}</div>
                         {% endfor %}
