@@ -1,6 +1,3 @@
-import random
-import string
-
 from pypom import Region
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -104,8 +101,6 @@ class SummaryPage(ExperimenterBase):
         By.CSS_SELECTOR,
         '[data-testid="label-release-date"]',
     )
-    _promote_to_rollout_form_locator = (By.CSS_SELECTOR, "#promoteToRolloutForm-control")
-    _promote_to_rollout_name_locator = (By.CSS_SELECTOR, "#promote-control-name")
     _promote_to_rollout_save_locator = (
         By.CSS_SELECTOR,
         "#promoteToRolloutForm-control .btn-primary",
@@ -294,15 +289,6 @@ class SummaryPage(ExperimenterBase):
         self.clone_name_field.send_keys(f"{text}")
 
     @property
-    def promote_to_rollout_name(self):
-        return self.wait_for_and_find_element(*self._promote_to_rollout_name_locator).text
-
-    @promote_to_rollout_name.setter
-    def promote_to_rollout_name(self, text=None):
-        el = self.wait_for_and_find_element(*self._promote_to_rollout_name_locator)
-        el.send_keys(f"{Keys.CONTROL}a", f"{text}")
-
-    @property
     def promote_to_rollout_save(self):
         return self.wait_for_and_find_element(*self._promote_to_rollout_save_locator)
 
@@ -320,10 +306,6 @@ class SummaryPage(ExperimenterBase):
 
     def promote_first_branch_to_rollout(self):
         self.js_click(self.promote_to_rollout_buttons[0])
-        random_chars = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=6)
-        )
-        self.promote_to_rollout_name = f"Rollout {random_chars}"
         self.js_click(self.promote_to_rollout_save)
 
     @property
