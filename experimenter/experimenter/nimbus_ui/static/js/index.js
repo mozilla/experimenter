@@ -7,6 +7,7 @@ import * as $ from "jquery";
 import * as bootstrap from "bootstrap";
 import "htmx.org";
 import "bootstrap-select";
+import { setupReadonlyJsonEditors } from "./codemirror_utils.js";
 
 window.bootstrap = bootstrap;
 const setupThemeSwitcher = () => {
@@ -96,12 +97,14 @@ $(() => {
   setupToasts();
   setupSlugCopyToast();
   setupHTMXLoadingOverlay();
+  setupReadonlyJsonEditors();
 
   document.body.addEventListener("htmx:afterSwap", function () {
     $(".selectpicker").selectpicker();
     setupTooltips();
     setupToasts();
     setupSlugCopyToast();
+    setupReadonlyJsonEditors();
   });
 
   // To support HTMX onchange updates on selectpicker, we need to
