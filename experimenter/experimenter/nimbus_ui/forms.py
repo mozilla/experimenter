@@ -1412,6 +1412,32 @@ class LiveToEndEnrollmentForm(UpdateStatusForm):
     publish_status = NimbusExperiment.PublishStatus.REVIEW
     is_paused = True
 
+    def clean(self):
+        if self.instance and self.instance.is_rollout_dirty:
+            raise forms.ValidationError(NimbusExperiment.ERROR_CANNOT_PAUSE_UNPUBLISHED)
+
+        if not self.instance.should_show_end_enrollment:
+            if (
+                self.instance.is_draft
+                or self.instance.is_preview
+                or self.instance.is_complete
+            ):
+                raise forms.ValidationError(NimbusExperiment.ERROR_CANNOT_PAUSE_NOT_LIVE)
+
+            if not self.instance.is_enrolling:
+                raise forms.ValidationError(NimbusExperiment.ERROR_CANNOT_PAUSE_PAUSED)
+
+            if self.instance.is_rollout and not self.instance.is_firefox_labs_opt_in:
+                raise forms.ValidationError(NimbusExperiment.ERROR_CANNOT_PAUSE_ROLLOUT)
+
+            # The conditions for Experiment.should_show_enrollment have changed
+            # but this function has become out of sync.
+            raise forms.ValidationError(
+                NimbusExperiment.ERROR_CANNOT_PAUSE_INVALID
+            )  # pragma: no cover
+
+        return super().clean()
+
     def get_changelog_message(self):
         return f"{self.request.user} requested review to end enrollment"
 

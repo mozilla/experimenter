@@ -39,10 +39,10 @@ from experimenter.nimbus_ui.filtersets import (
     FeaturesPageSortChoices,
     MyDeliveriesChoices,
     SortChoices,
+    StatusChoices,
     TypeChoices,
 )
 from experimenter.nimbus_ui.forms import QAStatusForm, TakeawaysForm
-from experimenter.nimbus_ui.views import StatusChoices
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
@@ -58,6 +58,29 @@ class AuthTestCase(TestCase):
         super().setUp()
         self.user = UserFactory.create(email="user@example.com")
         self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
+
+
+class LiveToEndEnrollmentViewTests(AuthTestCase):
+    def test_invalid_submission(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-live-to-end-enrollment", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["update_status_form_errors"],
+            [NimbusExperiment.ERROR_CANNOT_PAUSE_NOT_LIVE],
+        )
+
+        experiment.refresh_from_db()
+        self.assertEqual(
+            experiment.status,
+            NimbusExperiment.Status.DRAFT,
+            "Status has not changed (form was not submitted)",
+        )
 
 
 class NimbusChangeLogsViewTest(AuthTestCase):
