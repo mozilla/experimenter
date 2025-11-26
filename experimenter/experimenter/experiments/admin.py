@@ -244,9 +244,6 @@ class NimbusExperimentChangeLogInlineAdmin(
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "changed_by":
-            # Provide an empty queryset to the form field so that it will not do
-            # a query.
-            kwargs["queryset"] = User.objects.none()
             field = super().formfield_for_foreignkey(db_field, request, **kwargs)
             if field is not None:
                 field.choices = self._get_changed_by_choices(request)
