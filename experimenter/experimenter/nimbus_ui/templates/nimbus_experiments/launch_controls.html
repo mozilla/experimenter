@@ -27,6 +27,15 @@
       </p>
     </div>
   {% endif %}
+  {% if update_status_form_errors %}
+    <div class="alert alert-danger" role="alert">
+      <p class="mb-1">Could not request an update for this experiment:</p>
+      {{ update_status_form_errors }}
+      <p class="mb-0">
+        Please fix the above issues or ask in <code>#ask-experimenter</code>.
+      </p>
+    </div>
+  {% endif %}
   {% with rejection=experiment.rejection_block %}
     {% if rejection %}
       <div class="alert alert-warning"
@@ -243,7 +252,8 @@
                     hx-select="#content"
                     hx-target="#content"
                     hx-swap="outerHTML"
-                    class="btn btn-primary m-2 end-enrollment_btn">End Enrollment</button>
+                    class="btn btn-primary m-1 end-enrollment_btn"
+                    {% if experiment.is_rollout_dirty %}disabled{% endif %}>End Enrollment</button>
           {% endif %}
           {% if experiment.should_show_end_experiment %}
             <button type="button"
@@ -252,7 +262,7 @@
                     hx-target="#content"
                     hx-swap="outerHTML"
                     id="end-experiment"
-                    class="btn btn-primary end_experiment_btn">
+                    class="btn btn-primary m-1 end_experiment_btn">
               End
               {% if experiment.is_rollout %}
                 Rollout
@@ -267,7 +277,7 @@
                     hx-select="#content"
                     hx-target="#content"
                     hx-swap="outerHTML"
-                    class="btn btn-primary"
+                    class="btn btn-primary m-1"
                     id="request-update-button"
                     {% if not experiment.is_rollout_dirty %}disabled{% endif %}>Request Update</button>
           {% endif %}

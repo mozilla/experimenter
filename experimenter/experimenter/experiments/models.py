@@ -911,7 +911,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def should_show_end_enrollment(self):
-        return self.is_enrolling and not self.is_rollout
+        # If these conditions change then you must update
+        # `LiveToEndEnrollmentForm.clean`.
+        return self.is_enrolling and (not self.is_rollout or self.is_firefox_labs_opt_in)
 
     @property
     def should_show_end_experiment(self):
@@ -1148,7 +1150,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_live_rollout(self):
-        return self.is_rollout and self.is_enrolling
+        return self.is_rollout and (self.is_enrolling or self.is_observation)
 
     @property
     def is_missing_takeaway_info(self):
@@ -1168,7 +1170,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.is_draft
 
     def can_edit_audience(self):
-        return self.is_draft or self.is_live_rollout
+        return self.is_draft or (self.is_live_rollout and self.is_enrolling)
 
     def sidebar_links(self, current_path):
         return [

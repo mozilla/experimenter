@@ -1232,6 +1232,16 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_LABS_REQUIRED_FIELD = "This field is requried for Firefox Labs Opt-Ins."
     ERROR_FIREFOX_LABS_ROLLOUT_REQUIRED = "Firefox Labs opt-ins must be rollouts."
 
+    ERROR_CANNOT_PAUSE_NOT_LIVE = "Cannot end enrollment: experiment is not live"
+    ERROR_CANNOT_PAUSE_UNPUBLISHED = (
+        "Cannot end enrollment: there are unpublished changes"
+    )
+    ERROR_CANNOT_PAUSE_PAUSED = "Cannot end enrollment: enrollment has already ended"
+    ERROR_CANNOT_PAUSE_ROLLOUT = (
+        "Cannot end enrollment: rollouts do not support this behaviour"
+    )
+    ERROR_CANNOT_PAUSE_INVALID = "Cannot end enrollment at this time"
+
 
 EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/qa-sign-off",
