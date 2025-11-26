@@ -1050,22 +1050,22 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self._enrollment_end_date - enrollment_start).days
 
         if self.is_paused:
-            if paused_changelogs := [
-                c
-                for c in self.changes.all().filter(
+            if last_changed_on := (
+                self.changes.filter(
                     old_status=self.Status.LIVE,
                     new_status=self.Status.LIVE,
                     new_status_next=None,
                     new_publish_status=self.PublishStatus.IDLE,
+                    experiment_data__isnull=False,
+                    experiment_data__is_paused=True,
                 )
-                if c.experiment_data is not None
-                and "is_paused" in c.experiment_data
-                and c.experiment_data["is_paused"]
-            ]:
-                paused_change = sorted(paused_changelogs, key=lambda c: c.changed_on)[-1]
-                self._enrollment_end_date = paused_change.changed_on.date()
+                .order_by("changed_on")
+                .values_list("changed_on")
+                .last()
+            ):
+                self._enrollment_end_date = last_changed_on[0].date()
                 self.save()
-                return (paused_change.changed_on.date() - enrollment_start).days
+                return (self._enrollment_end_date - enrollment_start).days
 
         if self.end_date:
             return self.computed_duration_days
