@@ -21,4 +21,3 @@ class BaseAppContextDataClass:
     android_sdk_version: Optional[str]
     debug_tag: Optional[str]
     installation_date: Optional[int]
-    home_directory: Optional[bool]
