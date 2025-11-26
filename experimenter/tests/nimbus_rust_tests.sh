@@ -14,5 +14,6 @@ poetry -C experimenter/tests/integration \
     --base-url https://nginx/nimbus/ \
     --html=test-reports/report.htm \
     --self-contained-html \
+    -n 3 \
     /code/experimenter/tests/integration/nimbus/test_mobile_targeting.py \
     -vvv
