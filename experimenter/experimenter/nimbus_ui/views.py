@@ -602,6 +602,14 @@ class FeatureUnsubscribeView(FeatureSubscriberViewMixin):
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
     fields = None
 
+    def get_context_data(self, *, form, **kwargs):
+        context = super().get_context_data(form=form, **kwargs)
+
+        if self.request.method in ("POST", "PUT") and not form.is_valid():
+            context["update_status_form_errors"] = form.errors["__all__"]
+
+        return context
+
 
 class DraftToPreviewView(StatusUpdateView):
     form_class = DraftToPreviewForm
