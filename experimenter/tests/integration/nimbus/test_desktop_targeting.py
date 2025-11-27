@@ -51,7 +51,7 @@ def test_check_advanced_targeting(
     for idx, slug in enumerate(targeting_slugs):
         test_slug = f"{experiment_slug}_{idx}_{slug}"
         default_data_api["targetingConfigSlug"] = slug
-        experiment = helpers.create_experiment(
+        helpers.create_experiment(
             test_slug,
             BaseExperimentApplications.FIREFOX_DESKTOP.value,
             default_data_api,
@@ -93,7 +93,9 @@ def test_check_advanced_targeting(
     failed_tests = []
     for result in results:
         logging.info(
-            f"Slug: {result['slug']}, Result: {result.get('result')}, Error: {result.get('error')}"
+            f"Slug: {result['slug']}, "
+            f"Result: {result.get('result')}, "
+            f"Error: {result.get('error')}"
         )
         if result.get("result") is None:
             error_msg = result.get("error", "Unknown error")
