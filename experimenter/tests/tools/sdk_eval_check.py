@@ -48,7 +48,6 @@ def load_context():
                 android_sdk_version=data["android_sdk_version"],
                 debug_tag=data["debug_tag"],
                 installation_date=data["installation_date"],
-                home_directory=data["home_directory"],
                 custom_targeting_attributes=None,
             )
     else:

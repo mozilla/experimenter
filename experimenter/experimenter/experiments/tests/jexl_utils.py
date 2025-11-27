@@ -27,7 +27,6 @@ def validate_jexl_expr(expression, application):
             android_sdk_version="33",
             debug_tag="",
             installation_date=None,
-            home_directory="",
             custom_targeting_attributes=None,
         )
 
