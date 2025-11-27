@@ -29,29 +29,31 @@ async function evaluateTargeting(targetingString, recipe) {
 }
 
 async function main() {
-    // Initialize once
-    await TelemetryEnvironment.onInitialized();
-    await ExperimentAPI.ready();
+    try {
+        // Initialize once
+        await TelemetryEnvironment.onInitialized();
+        await ExperimentAPI.ready();
 
-    const [testsJson, callback] = arguments;
-    const tests = JSON.parse(testsJson);
+        const [testsJson, callback] = arguments;
+        const tests = JSON.parse(testsJson);
 
-    // Evaluate all targeting expressions in parallel
-    const results = await Promise.all(
-        tests.map(async (test) => {
-            try {
-                const result = await evaluateTargeting(test.targeting, test.recipe);
-                return { slug: test.slug, result: result, error: null };
-            } catch (err) {
-                return { slug: test.slug, result: null, error: err.message };
-            }
-        })
-    );
+        // Evaluate all targeting expressions in parallel
+        const results = await Promise.all(
+            tests.map(async (test) => {
+                try {
+                    const result = await evaluateTargeting(test.targeting, test.recipe);
+                    return { slug: test.slug, result: result, error: null };
+                } catch (err) {
+                    return { slug: test.slug, result: null, error: err.message };
+                }
+            })
+        );
 
-    callback(results);
+        callback(results);
+    } catch (err) {
+        const [, callback] = arguments;
+        callback({ error: err.message, stack: err.stack });
+    }
 }
 
-main().catch(() => {
-    const [, callback] = arguments;
-    callback(null);
-});
+main();

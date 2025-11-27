@@ -6,7 +6,6 @@ from pathlib import Path
 import pytest
 
 from nimbus.models.base_dataclass import BaseExperimentApplications
-from nimbus.pages.browser import Browser
 from nimbus.utils import helpers
 
 
@@ -86,15 +85,22 @@ def test_check_advanced_targeting(
 
     # Evaluate all targeting expressions in parallel
     with filter_expression_path.open() as js:
-        results = Browser.execute_async_script(
-            selenium,
-            json.dumps(targeting_tests),
-            script=js.read(),
-            context="chrome",
-        )
+        with selenium.context(selenium.CONTEXT_CHROME):
+            results = selenium.execute_async_script(
+                js.read(),
+                json.dumps(targeting_tests),
+            )
 
     # Validate results
-    assert results is not None, "Failed to evaluate targeting expressions"
+    if results is None:
+        pytest.fail("Failed to evaluate targeting expressions - script returned None")
+
+    # Check if we got an error object instead of results array
+    if isinstance(results, dict) and "error" in results:
+        pytest.fail(
+            f"JavaScript error: {results.get('error')}\nStack: {results.get('stack')}"
+        )
+
     assert len(results) == len(targeting_configs), (
         f"Expected {len(targeting_configs)} results, got {len(results)}"
     )
@@ -181,15 +187,22 @@ def test_check_audience_targeting(
 
     # Evaluate all in parallel
     with filter_expression_path.open() as js:
-        results = Browser.execute_async_script(
-            selenium,
-            json.dumps(targeting_tests),
-            script=js.read(),
-            context="chrome",
-        )
+        with selenium.context(selenium.CONTEXT_CHROME):
+            results = selenium.execute_async_script(
+                js.read(),
+                json.dumps(targeting_tests),
+            )
 
     # Validate results
-    assert results is not None, "Failed to evaluate audience targeting"
+    if results is None:
+        pytest.fail("Failed to evaluate audience targeting - script returned None")
+
+    # Check if we got an error object instead of results array
+    if isinstance(results, dict) and "error" in results:
+        pytest.fail(
+            f"JavaScript error: {results.get('error')}\nStack: {results.get('stack')}"
+        )
+
     assert len(results) == len(audience_fields), (
         f"Expected {len(audience_fields)} results, got {len(results)}"
     )
