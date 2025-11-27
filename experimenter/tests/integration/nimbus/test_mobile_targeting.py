@@ -53,7 +53,6 @@ def load_app_context():
             android_sdk_version=base_app_context.android_sdk_version,
             debug_tag=base_app_context.debug_tag,
             installation_date=base_app_context.installation_date,
-            home_directory=base_app_context.home_directory,
             custom_targeting_attributes=None,
         )
 
