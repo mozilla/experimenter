@@ -60,7 +60,7 @@ def test_check_advanced_targeting(
         )
         logging.info(f"Created experiment: {test_slug}")
         # Delay to prevent race conditions when creating many experiments
-        time.sleep(0.5)
+        time.sleep(1)
 
         experiment_data = helpers.load_experiment_data(test_slug)
         targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
