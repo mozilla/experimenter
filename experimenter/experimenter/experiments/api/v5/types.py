@@ -148,6 +148,7 @@ class NimbusExperimentTargetingConfigType(graphene.ObjectType):
     description = graphene.String()
     sticky_required = graphene.Boolean()
     is_first_run_required = graphene.Boolean()
+    targeting = graphene.String()
 
 
 class NimbusFeatureConfigType(DjangoObjectType):
@@ -463,6 +464,7 @@ class NimbusConfigurationType(graphene.ObjectType):
                 is_first_run_required=NimbusExperiment.TARGETING_CONFIGS[
                     choice.value
                 ].is_first_run_required,
+                targeting=NimbusExperiment.TARGETING_CONFIGS[choice.value].targeting,
             )
             for choice in NimbusExperiment.TargetingConfig
         ]

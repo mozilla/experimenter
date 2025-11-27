@@ -94,6 +94,7 @@ def load_config_data():
                             applicationValues
                             stickyRequired
                             isFirstRunRequired
+                            targeting
                         }
                         hypothesisDefault
                         documentationLink {
@@ -156,6 +157,18 @@ def load_targeting_configs(app=BaseExperimentApplications.FIREFOX_DESKTOP.value)
             and BaseExperimentApplications.FIREFOX_DESKTOP.value
             not in item["applicationValues"]
         )
+    ]
+
+
+def load_targeting_configs_with_expressions(
+    app=BaseExperimentApplications.FIREFOX_DESKTOP.value,
+):
+    """Load targeting configs with their JEXL expressions for the given application."""
+    config_data = load_config_data()
+    return [
+        item
+        for item in config_data["targetingConfigs"]
+        if app in item["applicationValues"]
     ]
 
 
