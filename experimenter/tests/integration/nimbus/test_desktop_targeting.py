@@ -5,18 +5,16 @@ from pathlib import Path
 
 import pytest
 
-from experimenter.experiments.constants import Application
-from experimenter.targeting.constants import TargetingConstants
+from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.pages.browser import Browser
+from nimbus.utils import helpers
 
 
 def get_desktop_targeting_configs():
-    """Get all targeting configs that support desktop."""
-    return [
-        config
-        for config in TargetingConstants.TARGETING_CONFIGS.values()
-        if Application.DESKTOP.name in config.application_choice_names
-    ]
+    """Get all targeting configs with expressions for desktop."""
+    return helpers.load_targeting_configs_with_expressions(
+        BaseExperimentApplications.FIREFOX_DESKTOP.value
+    )
 
 
 @pytest.fixture
@@ -75,8 +73,8 @@ def test_check_advanced_targeting(
     # Build array of targeting tests for parallel evaluation
     targeting_tests = [
         {
-            "slug": config.slug,
-            "targeting": config.targeting,
+            "slug": config["value"],
+            "targeting": config["targeting"],
             "recipe": recipe,
         }
         for config in targeting_configs
