@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from functools import cache
 from pathlib import Path
 
@@ -58,6 +59,8 @@ def test_check_advanced_targeting(
             targeting=slug,
         )
         logging.info(f"Created experiment: {test_slug}")
+        # Small delay to prevent race conditions when creating many experiments
+        time.sleep(0.1)
 
         experiment_data = helpers.load_experiment_data(test_slug)
         targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
