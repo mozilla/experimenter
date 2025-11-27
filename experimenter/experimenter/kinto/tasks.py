@@ -477,26 +477,29 @@ def nimbus_send_emails():
     """
     metrics.incr("nimbus_send_emails.started")
 
-    experiments = NimbusExperiment.objects.filter(
-        status=NimbusExperiment.Status.LIVE,
+    experiments = list(
+        NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE
+        ).prefetch_related("emails")
     )
 
     for experiment in experiments:
         if (
             experiment.should_end_enrollment
             and not experiment.is_rollout
-            and not experiment.emails.filter(
-                type=NimbusExperiment.EmailType.ENROLLMENT_END
-            ).exists()
+            and not any(
+                True
+                for email in experiment.emails.all()
+                if email.type == NimbusExperiment.EmailType.ENROLLMENT_END
+            )
         ):
             nimbus_send_enrollment_ending_email(experiment)
             logger.info(f"{experiment} end enrollment email sent")
 
-        if (
-            experiment.should_end
-            and not experiment.emails.filter(
-                type=NimbusExperiment.EmailType.EXPERIMENT_END
-            ).exists()
+        if experiment.should_end and not any(
+            True
+            for email in experiment.emails.all()
+            if email.type == NimbusExperiment.EmailType.EXPERIMENT_END
         ):
             nimbus_send_experiment_ending_email(experiment)
             logger.info(f"{experiment} end email sent")
