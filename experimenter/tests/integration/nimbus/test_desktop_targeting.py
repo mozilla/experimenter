@@ -63,14 +63,18 @@ def test_check_advanced_targeting(
         targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
         recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
 
-        targeting_tests.append({
-            "slug": slug,
-            "targeting": targeting,
-            "recipe": json.dumps({"experiment": recipe}),
-        })
+        targeting_tests.append(
+            {
+                "slug": slug,
+                "targeting": targeting,
+                "recipe": json.dumps({"experiment": recipe}),
+            }
+        )
 
     # Evaluate all targeting expressions in parallel using Promise.all
-    logging.info(f"Evaluating {len(targeting_tests)} targeting expressions in parallel...")
+    logging.info(
+        f"Evaluating {len(targeting_tests)} targeting expressions in parallel..."
+    )
     with filter_expression_path.open() as js:
         results = Browser.execute_async_script(
             selenium,
@@ -81,18 +85,22 @@ def test_check_advanced_targeting(
 
     # Validate results
     assert results is not None, "Failed to evaluate targeting expressions"
-    assert len(results) == len(targeting_slugs), f"Expected {len(targeting_slugs)} results, got {len(results)}"
+    assert len(results) == len(targeting_slugs), (
+        f"Expected {len(targeting_slugs)} results, got {len(results)}"
+    )
 
     # Report any failures
     failed_tests = []
     for result in results:
-        logging.info(f"Slug: {result['slug']}, Result: {result.get('result')}, Error: {result.get('error')}")
+        logging.info(
+            f"Slug: {result['slug']}, Result: {result.get('result')}, Error: {result.get('error')}"
+        )
         if result.get("result") is None:
             error_msg = result.get("error", "Unknown error")
             failed_tests.append(f"{result['slug']}: {error_msg}")
 
     if failed_tests:
-        pytest.fail(f"Failed targeting evaluations:\n" + "\n".join(failed_tests))
+        pytest.fail("Failed targeting evaluations:\n" + "\n".join(failed_tests))
 
 
 @pytest.mark.parametrize(
@@ -140,11 +148,13 @@ def test_check_audience_targeting(
     logging.info(f"Experiment Recipe: {recipe}")
 
     # Use parallel mode with single item for consistency
-    targeting_tests = [{
-        "slug": audience_field,
-        "targeting": targeting,
-        "recipe": json.dumps({"experiment": recipe}),
-    }]
+    targeting_tests = [
+        {
+            "slug": audience_field,
+            "targeting": targeting,
+            "recipe": json.dumps({"experiment": recipe}),
+        }
+    ]
 
     with filter_expression_path.open() as js:
         results = Browser.execute_async_script(
@@ -155,4 +165,6 @@ def test_check_audience_targeting(
         )
 
     assert results is not None and len(results) == 1, "Failed to evaluate targeting"
-    assert results[0].get("result") is not None, f"Invalid Targeting: {results[0].get('error', 'unknown error')}"
+    assert results[0].get("result") is not None, (
+        f"Invalid Targeting: {results[0].get('error', 'unknown error')}"
+    )
