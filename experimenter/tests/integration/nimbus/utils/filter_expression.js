@@ -1,13 +1,20 @@
-async function remoteSettings(targetingString, recipe) {
+// Initialize TelemetryEnvironment and ExperimentAPI once at test setup
+async function initialize() {
     const { TelemetryEnvironment } = ChromeUtils.importESModule("resource://gre/modules/TelemetryEnvironment.sys.mjs");
     await TelemetryEnvironment.onInitialized();
 
+    const { ExperimentAPI } = ChromeUtils.importESModule("resource://nimbus/ExperimentAPI.sys.mjs");
+    await ExperimentAPI.ready();
+
+    return true;
+}
+
+async function remoteSettings(targetingString, recipe) {
     const { ASRouterTargeting } = ChromeUtils.importESModule("resource:///modules/asrouter/ASRouterTargeting.sys.mjs");
     const { ExperimentAPI } = ChromeUtils.importESModule("resource://nimbus/ExperimentAPI.sys.mjs");
     const { TargetingContext } = ChromeUtils.importESModule("resource://messaging-system/targeting/Targeting.sys.mjs");
 
     const _experiment = JSON.parse(recipe);
-    await ExperimentAPI.ready();
 
     const context = TargetingContext.combineContexts(
         _experiment,
@@ -31,17 +38,28 @@ async function remoteSettings(targetingString, recipe) {
 }
 
 /*
-Arguments contains 3 items.
-arguments[0] - the JEXL targeting string
-arguments[1] - the experiment recipe
-arguments[3] - the callback from selenium
+This script handles two modes:
+  1. Initialization mode (1 argument): arguments[0] = callback
+  2. Parallel evaluation mode (2 arguments): arguments[0] = JSON array of {slug, targeting, recipe}, arguments[1] = callback
 */
-const [targetingString, recipe, callback] = arguments;
 
-remoteSettings(targetingString, recipe)
-  .then(result => {
-    callback(result);
-  })
-  .catch(err => {
-    callback(null);
-  });
+if (arguments.length === 1) {
+    // Mode 1: Initialization - run once at test setup
+    const [callback] = arguments;
+    initialize().then(callback).catch(() => callback(false));
+} else {
+    // Mode 2: Parallel evaluation - evaluate all targeting expressions at once
+    const [targetingTestsJson, callback] = arguments;
+    const targetingTests = JSON.parse(targetingTestsJson);
+
+    Promise.all(
+        targetingTests.map(async (test) => {
+            try {
+                const result = await remoteSettings(test.targeting, test.recipe);
+                return { slug: test.slug, result: result, error: null };
+            } catch (err) {
+                return { slug: test.slug, result: null, error: err.message };
+            }
+        })
+    ).then(callback).catch(() => callback(null));
+}
