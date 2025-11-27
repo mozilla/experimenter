@@ -24,9 +24,9 @@ def filter_expression_path():
     return path.absolute()
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def setup_browser(selenium):
-    """Open about:blank once per module."""
+    """Open about:blank once per test function."""
     selenium.get("about:blank")
     yield
 
