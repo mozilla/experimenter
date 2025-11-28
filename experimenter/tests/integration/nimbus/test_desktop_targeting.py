@@ -15,22 +15,24 @@ def targeting_config_slug(request):
     return request.param
 
 
-@cache
-def _get_filter_expression_path():
-    """Cached helper to get the filter expression path."""
-    path = Path(__file__).parent / "utils" / "filter_expression.js"
-    return path.absolute()
-
-
 @pytest.fixture
+@cache
 def filter_expression_path():
-    return _get_filter_expression_path()
+    path = Path(__file__).parent / "utils" / "filter_expression.js"
+    with path.open() as f:
+        return f.read()
+
+
+@pytest.fixture(scope="module")
+def browser_initialized():
+    return {"initialized": False}
 
 
 @pytest.fixture(autouse=True, scope="function")
-def setup_browser(selenium):
-    """Open about:blank once per test function."""
-    selenium.get("about:blank")
+def setup_browser(selenium, browser_initialized):
+    if not browser_initialized["initialized"]:
+        selenium.get("about:blank")
+        browser_initialized["initialized"] = True
     yield
 
 
@@ -56,15 +58,13 @@ def test_check_advanced_targeting(
     recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
     logging.info(f"Experiment Recipe: {recipe}")
 
-    # Inject filter expression
-    with filter_expression_path.open() as js:
-        result = Browser.execute_async_script(
-            selenium,
-            targeting,
-            json.dumps({"experiment": recipe}),
-            script=js.read(),
-            context="chrome",
-        )
+    result = Browser.execute_async_script(
+        selenium,
+        targeting,
+        json.dumps({"experiment": recipe}),
+        script=filter_expression_path,
+        context="chrome",
+    )
     assert result is not None, "Invalid Targeting, or bad recipe"
 
 
@@ -111,13 +111,11 @@ def test_check_audience_targeting(
     recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
     logging.info(f"Experiment Recipe: {recipe}")
 
-    # Inject filter expression
-    with filter_expression_path.open() as js:
-        result = Browser.execute_async_script(
-            selenium,
-            targeting,
-            json.dumps({"experiment": recipe}),
-            script=js.read(),
-            context="chrome",
-        )
+    result = Browser.execute_async_script(
+        selenium,
+        targeting,
+        json.dumps({"experiment": recipe}),
+        script=filter_expression_path,
+        context="chrome",
+    )
     assert result is not None, "Invalid Targeting, or bad recipe"

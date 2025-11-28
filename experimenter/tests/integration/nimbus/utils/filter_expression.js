@@ -3,7 +3,7 @@ const { ASRouterTargeting } = ChromeUtils.importESModule("resource:///modules/as
 const { ExperimentAPI } = ChromeUtils.importESModule("resource://nimbus/ExperimentAPI.sys.mjs");
 const { TargetingContext } = ChromeUtils.importESModule("resource://messaging-system/targeting/Targeting.sys.mjs");
 
-async function remoteSettings(targetingString, recipe) {
+async function evaluateTargetingExpression(targetingString, recipe) {
     const _experiment = JSON.parse(recipe);
 
     const context = TargetingContext.combineContexts(
@@ -36,12 +36,10 @@ arguments[2] - the callback from selenium
 const [targetingString, recipe, callback] = arguments;
 
 async function main() {
-    // Initialize once
     await TelemetryEnvironment.onInitialized();
     await ExperimentAPI.ready();
 
-    // Evaluate targeting
-    const result = await remoteSettings(targetingString, recipe);
+    const result = await evaluateTargetingExpression(targetingString, recipe);
     callback(result);
 }
 
