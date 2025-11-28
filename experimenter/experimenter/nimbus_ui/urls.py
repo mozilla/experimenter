@@ -10,6 +10,7 @@ from experimenter.nimbus_ui.views import (
     BranchDeleteView,
     BranchesPartialUpdateView,
     BranchesUpdateView,
+    BranchLeadingScreenshotView,
     BranchScreenshotCreateView,
     BranchScreenshotDeleteView,
     CancelEndEnrollmentView,
@@ -297,5 +298,10 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/delete_branch_screenshot/$",
         BranchScreenshotDeleteView.as_view(),
         name="nimbus-ui-delete-branch-screenshot",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/branches/(?P<branch_slug>[\w-]+)/leading-screenshot/",
+        BranchLeadingScreenshotView.as_view(),
+        name="nimbus-ui-branch-leading-screenshot-upload",
     ),
 ]

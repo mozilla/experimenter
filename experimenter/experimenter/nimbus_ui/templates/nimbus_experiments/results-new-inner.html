@@ -89,8 +89,12 @@
           <div class="row row-cols-2 row-cols-xxl-3 g-4">
             {% for branch in branch_data %}
               <div class="col">
-                {% include "common/branch_card.html" with branch=branch %}
+                {% for branch_slug, branch_leading_screenshot_form in branch_leading_screenshot_forms.items %}
+                  {% if branch_slug == branch.slug %}
+                    {% include "common/branch_card.html" with branch=branch experiment_slug=experiment.slug screenshot_form=branch_leading_screenshot_form %}
 
+                  {% endif %}
+                {% endfor %}
               </div>
             {% endfor %}
           </div>
