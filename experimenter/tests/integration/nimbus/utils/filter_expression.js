@@ -27,26 +27,24 @@ async function remoteSettings(targetingString, recipe) {
     }
 }
 
+/*
+Arguments contains 3 items.
+arguments[0] - the JEXL targeting string
+arguments[1] - the experiment recipe
+arguments[2] - the callback from selenium
+*/
+const [targetingString, recipe, callback] = arguments;
+
 async function main() {
     // Initialize once
     await TelemetryEnvironment.onInitialized();
     await ExperimentAPI.ready();
 
-    /*
-    Arguments contains 3 items.
-    arguments[0] - the JEXL targeting string
-    arguments[1] - the experiment recipe
-    arguments[2] - the callback from selenium
-    */
-    const [targetingString, recipe, callback] = arguments;
-
-    remoteSettings(targetingString, recipe)
-      .then(result => {
-        callback(result);
-      })
-      .catch(err => {
-        callback(null);
-      });
+    // Evaluate targeting
+    const result = await remoteSettings(targetingString, recipe);
+    callback(result);
 }
 
-main();
+main().catch(err => {
+    callback(null);
+});

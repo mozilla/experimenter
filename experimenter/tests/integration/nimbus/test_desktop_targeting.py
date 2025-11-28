@@ -15,11 +15,16 @@ def targeting_config_slug(request):
     return request.param
 
 
-@pytest.fixture
 @cache
-def filter_expression_path():
+def _get_filter_expression_path():
+    """Cached helper to get the filter expression path."""
     path = Path(__file__).parent / "utils" / "filter_expression.js"
     return path.absolute()
+
+
+@pytest.fixture
+def filter_expression_path():
+    return _get_filter_expression_path()
 
 
 @pytest.fixture(autouse=True, scope="function")
