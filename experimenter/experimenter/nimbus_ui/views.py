@@ -49,6 +49,7 @@ from experimenter.nimbus_ui.forms import (
     FeaturesForm,
     FeatureSubscribeForm,
     FeatureUnsubscribeForm,
+    LeadingScreenshotForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -671,6 +672,42 @@ class ApproveUpdateRolloutView(StatusUpdateView):
     form_class = ApproveUpdateRolloutForm
 
 
+class ResultsEditBranchImagesView(
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    UpdateView,
+):
+    form_class = LeadingScreenshotForm
+
+    def get_branch(self):
+        return (
+            self.get_object().branches.filter(slug=self.kwargs.get("branch_slug")).first()
+        )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["data"] = self.request.POST or None
+        kwargs["files"] = self.request.FILES or None
+
+        branch = self.get_branch()
+        if branch is not None:
+            screenshot = branch.screenshots.first()
+            if screenshot is not None:
+                kwargs["instance"] = screenshot
+            else:
+                # create an unsaved placeholder instance of the correct model
+                screenshot_model = branch.screenshots.model
+                kwargs["instance"] = screenshot_model(branch=branch)
+
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        resp = HttpResponse()
+        resp.headers["HX-Refresh"] = "true"
+        return resp
+
+
 class NewResultsView(NimbusExperimentViewMixin, DetailView):
     template_name = "nimbus_experiments/results-new.html"
 
@@ -711,6 +748,13 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         context["metric_area_data"] = experiment.get_metric_data(
             analysis_basis, selected_segment, selected_reference_branch
         )
+
+        branch_leading_screenshot_forms = {
+            branch.slug: LeadingScreenshotForm(instance=branch.screenshots.first())
+            for branch in experiment.branches.all()
+        }
+
+        context["branch_leading_screenshot_forms"] = branch_leading_screenshot_forms
 
         relative_metric_changes = {}
 
