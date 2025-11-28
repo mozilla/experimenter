@@ -1,5 +1,6 @@
 import json
 import logging
+from functools import cache
 from pathlib import Path
 
 import pytest
@@ -15,9 +16,17 @@ def targeting_config_slug(request):
 
 
 @pytest.fixture
+@cache
 def filter_expression_path():
     path = Path(__file__).parent / "utils" / "filter_expression.js"
     return path.absolute()
+
+
+@pytest.fixture(autouse=True, scope="function")
+def setup_browser(selenium):
+    """Open about:blank once per test function."""
+    selenium.get("about:blank")
+    yield
 
 
 @pytest.mark.run_targeting
@@ -43,7 +52,6 @@ def test_check_advanced_targeting(
     logging.info(f"Experiment Recipe: {recipe}")
 
     # Inject filter expression
-    selenium.get("about:blank")
     with filter_expression_path.open() as js:
         result = Browser.execute_async_script(
             selenium,
@@ -99,7 +107,6 @@ def test_check_audience_targeting(
     logging.info(f"Experiment Recipe: {recipe}")
 
     # Inject filter expression
-    selenium.get("about:blank")
     with filter_expression_path.open() as js:
         result = Browser.execute_async_script(
             selenium,
