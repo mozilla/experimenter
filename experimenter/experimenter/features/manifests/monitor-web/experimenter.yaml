@@ -32,20 +32,6 @@ landing-page-free-scan-cta:
       - ctaOnly
       - ctaOnlyAlternativeLabel
       - ctaWithEmail
-landing-page-redesign-plus-eligible-experiment:
-  description: Landing page redesign
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If the feature is enabled
-    variant:
-      type: string
-      description: The landing page variant to show
-      enum:
-      - default
-      - redesign
 last-scan-date:
   description: Show the date of the user's last scan in the top right-hand corner
   hasExposure: true
