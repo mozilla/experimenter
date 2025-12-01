@@ -33,17 +33,6 @@ features:
         description: The CTA variant to show
         type: FreeScanCtaType
         default: ctaWithEmail
-  landing-page-redesign-plus-eligible-experiment:
-    description: Landing page redesign
-    variables:
-      enabled:
-        description: If the feature is enabled
-        type: Boolean
-        default: true
-      variant:
-        description: The landing page variant to show
-        type: LandingPageVariant
-        default: redesign
   last-scan-date:
     description: Show the date of the user's last scan in the top right-hand corner
     variables:
@@ -72,13 +61,6 @@ enums:
         description: Only show a CTA button with the label “Sign up to get free scan”
       ctaWithEmail:
         description: Show a CTA button with an optional email input
-  LandingPageVariant:
-    description: An enum of landing page variants
-    variants:
-      default:
-        description: Show the default landing page
-      redesign:
-        description: Show the redesigned landing page
   OptionalBrokerScanInfoFields:
     description: An enum of optional broker scan info fields
     variants:
