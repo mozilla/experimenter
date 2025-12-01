@@ -2111,6 +2111,19 @@ from_expression = """(
 client_id_column = "metrics.uuid.legacy_telemetry_client_id"
 experiments_column_type = "glean"
 
+[data_sources.newtab_visits_topsite_tile_interactions]
+from_expression = """(
+    SELECT
+        e.* EXCEPT (topsite_tile_interactions),
+        topsite_tile_interactions
+    FROM
+        `moz-fx-data-shared-prod.telemetry.newtab_visits` e
+    CROSS JOIN
+        UNNEST(e.topsite_tile_interactions) AS topsite_tile_interactions
+)"""
+submission_date_column = "submission_date"
+description = "Topsite Tiles Visit Activity Daily"
+friendly_name = "Topsite Tiles Visit Activity Daily"
 [data_sources.newtab_visits_search_interactions]
 from_expression = """(
     SELECT
