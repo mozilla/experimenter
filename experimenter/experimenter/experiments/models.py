@@ -1019,6 +1019,39 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 return self._end_date
 
     @property
+    def days_since_enrollment_start(self):
+        if self.enrollment_start_date is not None:
+            return (datetime.date.today() - self.enrollment_start_date).days
+
+    @property
+    def enrollment_percent_completion(self):
+        if self.days_since_enrollment_start is not None and self.computed_enrollment_days:
+            percent = (
+                self.days_since_enrollment_start / self.computed_enrollment_days
+            ) * 100
+            return min(round(percent), 100.0)
+
+    @property
+    def days_since_observation_start(self):
+        if (
+            enrollment_end_date := (
+                self.actual_enrollment_end_date or self.computed_enrollment_end_date
+            )
+        ) is not None:
+            return (datetime.date.today() - enrollment_end_date).days
+
+    @property
+    def observation_percent_completion(self):
+        if (
+            self.days_since_observation_start is not None
+            and self.computed_observations_days
+        ):
+            percent = (
+                self.days_since_observation_start / self.computed_observations_days
+            ) * 100
+            return min(round(percent), 100.0)
+
+    @property
     def proposed_enrollment_end_date(self):
         if (
             self.proposed_enrollment is not None

@@ -138,7 +138,12 @@
                 aria-expanded="true"
                 aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}">
           <div class="pe-3">
-            <h4>{{ area }}</h4>
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <h4 class="mb-0">{{ area }}</h4>
+              {% if experiment.is_observation %}
+                <span class="badge rounded-pill bg-primary-subtle border border-1 border-secondary-subtle"><span class="text-black">In progress &middot; <span class="text-muted fw-medium">results still forming</span></span></span>
+              {% endif %}
+            </div>
             <div class="d-inline-flex gap-3 flex-wrap row-gap-1">
               {% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
                 <small class="text-muted">All statistically significant changes that have occurred in the experiment</small>
@@ -180,37 +185,55 @@
                 {% endfor %}
               {% endfor %}
             </div>
-            <div class="col position-relative w-25">
-              <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 4 %}mx-4{% endif %}">
-                {% if branch_data|length > 4 %}
-                  <div class="branch-fade branch-fade-left"></div>
-                  <div class="branch-fade branch-fade-right"></div>
-                {% endif %}
-                {% for branch in branch_data %}
-                  <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-                    <p class="text-muted mb-0 text-truncate">{{ branch.name }}</p>
-                    {% if branch.slug == selected_reference_branch %}
-                      <p class="fs-5 mb-3">Baseline</p>
-                    {% else %}
-                      <p class="fs-5">{{ branch.name }}</p>
-                    {% endif %}
-                    <div class="d-flex flex-column gap-3 w-100">
-                      {% for metric in metric_metadata %}
-                        {% for curr_metric_slug, metric_branch_data in metric_data.items %}
-                          {% if curr_metric_slug == metric.slug %}
-                            {% for curr_branch_slug, branch_metric_data in metric_branch_data.items %}
-                              {% if curr_branch_slug == branch.slug %}
-                                {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=branch_metric_data.absolute.0.lower absolute_upper=branch_metric_data.absolute.0.upper significance=branch_metric_data.relative.0.significance percentage=branch_metric_data.relative.0.avg_rel_change display_type=metric.display_type %}
-
-                              {% endif %}
-                            {% endfor %}
-                          {% endif %}
-                        {% endfor %}
-                      {% endfor %}
+            <div class="col position-relative w-25 d-flex flex-column">
+              {% if experiment.is_enrolling %}
+                <div class="row flex-row flex-nowrap overflow-auto mx-2 {% if branch_data|length > 4 %}mx-4{% endif %}">
+                  {% for branch in branch_data %}
+                    <div class="{% if branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                      <p class="text-muted mb-0 text-truncate">{{ branch.name }}</p>
+                      {% if branch.slug == selected_reference_branch %}
+                        <p class="fs-5 mb-3">Baseline</p>
+                      {% else %}
+                        <p class="fs-5">{{ branch.name }}</p>
+                      {% endif %}
                     </div>
-                  </div>
-                {% endfor %}
-              </div>
+                  {% endfor %}
+                </div>
+                <div class="ms-4 bg-body-tertiary rounded-3 flex-grow-1 overflow-auto d-flex align-items-center mb-4">
+                  <span class="text-muted mx-auto">Metrics are on their way! Enrollment is in progress!</span>
+                </div>
+              {% else %}
+                <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 4 %}mx-4{% endif %}">
+                  {% if branch_data|length > 4 %}
+                    <div class="branch-fade branch-fade-left"></div>
+                    <div class="branch-fade branch-fade-right"></div>
+                  {% endif %}
+                  {% for branch in branch_data %}
+                    <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                      <p class="text-muted mb-0 text-truncate">{{ branch.name }}</p>
+                      {% if branch.slug == selected_reference_branch %}
+                        <p class="fs-5 mb-3">Baseline</p>
+                      {% else %}
+                        <p class="fs-5">{{ branch.name }}</p>
+                      {% endif %}
+                      <div class="d-flex flex-column gap-3 w-100">
+                        {% for metric in metric_metadata %}
+                          {% for curr_metric_slug, metric_branch_data in metric_data.items %}
+                            {% if curr_metric_slug == metric.slug %}
+                              {% for curr_branch_slug, branch_metric_data in metric_branch_data.items %}
+                                {% if curr_branch_slug == branch.slug %}
+                                  {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=branch_metric_data.absolute.0.lower absolute_upper=branch_metric_data.absolute.0.upper significance=branch_metric_data.relative.0.significance percentage=branch_metric_data.relative.0.avg_rel_change display_type=metric.display_type %}
+
+                                {% endif %}
+                              {% endfor %}
+                            {% endif %}
+                          {% endfor %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
             </div>
           </div>
         </div>

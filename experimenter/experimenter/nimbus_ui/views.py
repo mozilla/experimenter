@@ -603,10 +603,20 @@ class FeatureUnsubscribeView(FeatureSubscriberViewMixin):
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
     fields = None
 
-    def get_context_data(self, *, form, **kwargs):
-        context = super().get_context_data(form=form, **kwargs)
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request"):
+            fragment = self.request.GET.get("fragment") or self.request.POST.get(
+                "fragment"
+            )
 
-        if self.request.method in ("POST", "PUT") and not form.is_valid():
+            if fragment == "progress_card":
+                return ["nimbus_experiments/launch_controls_v2.html"]
+
+        return [self.template_name]
+
+    def get_context_data(self, *, form=None, **kwargs):
+        context = super().get_context_data(form=form, **kwargs)
+        if self.request.method in ("POST", "PUT") and form and not form.is_valid():
             context["update_status_form_errors"] = form.errors["__all__"]
 
         return context
