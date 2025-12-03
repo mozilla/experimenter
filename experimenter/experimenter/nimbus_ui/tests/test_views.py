@@ -3058,7 +3058,6 @@ class TestResultsView(AuthTestCase):
                     }
                 },
                 "exposures",
-                {"metricA": "Friendly Metric A"},
             ),
             (
                 {
@@ -3071,12 +3070,11 @@ class TestResultsView(AuthTestCase):
                     }
                 },
                 "enrollments",
-                {"metricA": "Friendly Metric A"},
             ),
         ]
     )
     def test_results_view_context_and_defaults(
-        self, results_data, selected_analysis_basis, default_metrics
+        self, results_data, selected_analysis_basis
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
@@ -3093,7 +3091,6 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(
             response.context["results_data"], experiment.results_data.get("v3")
         )
-        self.assertEqual(response.context["default_metrics"], default_metrics)
         self.assertEqual(
             response.context["selected_reference_branch"],
             experiment.reference_branch.slug,

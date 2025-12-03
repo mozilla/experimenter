@@ -4,6 +4,7 @@ import json
 from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
+from itertools import chain
 from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urlencode, urljoin
@@ -32,6 +33,7 @@ from experimenter.experiments.constants import (
     TargetingMultipleKintoCollectionsError,
 )
 from experimenter.nimbus_ui.constants import NimbusUIConstants
+from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
@@ -1245,7 +1247,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             {
                 "title": "All metrics",
                 "subitems": [
-                    {"title": metric} for metric in self.default_metrics.values()
+                    {"title": metric["friendly_name"]}
+                    for metric in self.get_remaining_metrics_metadata()
                 ],
             },
         ]
@@ -1308,30 +1311,109 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return timeline_entries
 
-    @property
-    def metric_areas(self):
-        metric_areas = NimbusConstants.DEFAULT_METRIC_AREAS.copy()
+    def get_metric_areas(
+        self, analysis_basis, segment, reference_branch, window="overall"
+    ):
+        metric_areas = {
+            NimbusUIConstants.NOTABLE_METRIC_AREA: [],
+            NimbusUIConstants.KPI_AREA: self.get_kpi_metrics(
+                analysis_basis, segment, reference_branch, window
+            ),
+        }
 
-        # TODO(13721): check all metrics with data and add their areas to metric_areas
-        # if not already present
+        metrics_metadata = {}
+        if self.results_data:
+            metrics_metadata = (
+                self.results_data.get("v3", {}).get("metadata", {}).get("metrics", {})
+            )
 
+        all_outcome_metric_slugs = []
+        for slug in chain(self.primary_outcomes, self.secondary_outcomes):
+            outcome = Outcomes.get_by_slug_and_application(slug, self.application)
+            metrics = outcome.metrics if outcome else []
+            outcome_metrics = []
+
+            for metric in metrics:
+                formatted_metric = {
+                    "slug": metric.slug,
+                    "description": (
+                        metric.description
+                        if metric.description
+                        else metrics_metadata.get(metric.slug, {}).get("description", "")
+                    ),
+                    "group": "other_metrics",
+                    "friendly_name": (
+                        metric.friendly_name
+                        if metric.friendly_name
+                        else metrics_metadata.get(metric.slug, {}).get(
+                            "friendly_name", metric.slug
+                        )
+                    ),
+                }
+                if formatted_metric not in outcome_metrics:
+                    outcome_metrics.append(formatted_metric)
+                    all_outcome_metric_slugs.append(metric.slug)
+
+            outcome_metrics.sort(key=lambda m: m["friendly_name"])
+            metric_areas[outcome.friendly_name if outcome else slug] = outcome_metrics
+
+        metric_areas[NimbusUIConstants.OTHER_METRICS_AREA] = (
+            self.get_remaining_metrics_metadata(exclude_slugs=all_outcome_metric_slugs)
+        )
+
+        window_results = self.get_window_results(analysis_basis, segment, window)
+
+        def is_metric_notable(slug, group):
+            for branch_data in window_results.values():
+                metric_data = (
+                    branch_data.get("branch_data", {}).get(group, {}).get(slug, {})
+                )
+                for branch_significance in metric_data.get("significance", {}).values():
+                    if (
+                        "positive" in branch_significance.get(window, {}).values()
+                        or "negative" in branch_significance.get(window, {}).values()
+                    ):
+                        return True
+            return False
+
+        for metrics in metric_areas.values():
+            for metric in metrics:
+                if (
+                    is_metric_notable(metric["slug"], metric["group"])
+                    and metric not in metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA]
+                ):
+                    metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA].append(metric)
+
+        metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA].sort(
+            key=lambda m: m["friendly_name"]
+        )
         return metric_areas
 
-    @property
-    def default_metrics(self):
+    def get_remaining_metrics_metadata(self, exclude_slugs=None):
         analysis_data = self.results_data.get("v3", {}) if self.results_data else {}
         other_metrics = analysis_data.get("other_metrics", {})
         metadata = analysis_data.get("metadata", {})
         metrics_metadata = metadata.get("metrics", {}) if metadata else {}
-        default_metrics = {}
+        defaults = []
 
-        for value in other_metrics.values():
-            for metricKey, metricValue in value.items():
-                default_metrics[metricKey] = metrics_metadata.get(metricKey, {}).get(
-                    "friendlyName", metricValue
+        for group, default_metrics in other_metrics.items():
+            for slug, metric_friendly_name in default_metrics.items():
+                if exclude_slugs and slug in exclude_slugs:
+                    continue
+                defaults.append(
+                    {
+                        "slug": slug,
+                        "description": metrics_metadata.get(slug, {}).get(
+                            "description", ""
+                        ),
+                        "group": group,
+                        "friendly_name": metric_friendly_name,
+                    }
                 )
 
-        return default_metrics
+        defaults.sort(key=lambda m: m["friendly_name"])
+
+        return defaults
 
     def get_branch_data(self, analysis_basis, selected_segment, window="overall"):
         window_results = self.get_window_results(analysis_basis, selected_segment, window)
@@ -1475,27 +1557,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_metric_data(
         self, analysis_basis, segment, reference_branch, window="overall"
     ):
-        metric_areas = self.metric_areas
+        metric_areas = self.get_metric_areas(
+            analysis_basis, segment, reference_branch, window
+        )
         metric_data = {}
 
-        for area in metric_areas:
-            match area:
-                case NimbusConstants.KPI_AREA:
-                    kpi_metric_list = self.get_metric_area_data(
-                        self.get_kpi_metrics(
-                            analysis_basis,
-                            segment,
-                            reference_branch,
-                            window,
-                        ),
-                        analysis_basis,
-                        segment,
-                        reference_branch,
-                        window,
-                    )
-                    metric_data[area] = kpi_metric_list
-                case _:
-                    continue
+        for area, metrics in metric_areas.items():
+            metric_data[area] = self.get_metric_area_data(
+                metrics,
+                analysis_basis,
+                segment,
+                reference_branch,
+                window,
+            )
 
         return metric_data
 
