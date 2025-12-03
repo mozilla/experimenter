@@ -53,6 +53,7 @@ from experimenter.nimbus_ui.forms import (
     FeaturesForm,
     FeatureSubscribeForm,
     FeatureUnsubscribeForm,
+    LeadingScreenshotForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -4332,3 +4333,49 @@ class FeatureSubscriptionFormTests(RequestFormTestCase):
         self.assertTrue(form.is_valid())
         form.save()
         self.assertNotIn(self.request.user, feature_config.subscribers.all())
+
+
+class ResultsEditBranchLeadingImageTests(RequestFormTestCase):
+    def test_edit_leading_image(self):
+        application = NimbusExperiment.Application.DESKTOP
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+        )
+        experiment.branches.all().delete()
+        experiment.changes.all().delete()
+
+        reference_branch = NimbusBranchFactory.create(experiment=experiment, ratio=1)
+        experiment.reference_branch = reference_branch
+        experiment.save()
+
+        reference_screenshot = reference_branch.screenshots.first()
+
+        image_bytes = io.BytesIO()
+        image = Image.new("RGB", (10, 10), color="red")
+        image.save(image_bytes, format="PNG")
+        image_bytes.seek(0)
+        dummy_image = SimpleUploadedFile(
+            "test.png", image_bytes.read(), content_type="image/png"
+        )
+
+        form = LeadingScreenshotForm(
+            instance=reference_screenshot,
+            data={
+                "description": "Updated control screenshot",
+            },
+            files={
+                "image": dummy_image,
+            },
+            request=self.request,
+        )
+
+        form.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(
+            experiment.reference_branch.screenshots.get(
+                id=reference_screenshot.id
+            ).description,
+            "Updated control screenshot",
+        )

@@ -1735,3 +1735,22 @@ class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated collaborators"
+
+
+class LeadingScreenshotForm(forms.ModelForm):
+    image = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={"class": "form-control"}),
+    )
+    description = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+
+    class Meta:
+        model = NimbusBranchScreenshot
+        fields = ["image", "description"]
+
+    def __init__(self, *args, request: HttpRequest = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
