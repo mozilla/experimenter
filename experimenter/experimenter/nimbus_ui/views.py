@@ -685,8 +685,6 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
 
         analysis_data = experiment.results_data.get("v3", {})
 
-        context["default_metrics"] = experiment.default_metrics
-
         selected_reference_branch = self.request.GET.get(
             "reference_branch", experiment.reference_branch.slug
         )

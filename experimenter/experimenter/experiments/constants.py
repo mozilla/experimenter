@@ -995,10 +995,6 @@ We believe this because we have observed <this> via <data source, UR, survey>.
 Optional - We believe this outcome will <describe impact> on <core metric>
     """  # noqa
 
-    KPI_AREA = "KPI Metrics"
-    NOTABLE_CHANGES_AREA = "Notable Changes"
-    DEFAULT_METRIC_AREAS = [NOTABLE_CHANGES_AREA, KPI_AREA]
-
     DAILY_ACTIVE_USERS = "client_level_daily_active_users_v2"
     DAYS_OF_USE = "days_of_use"
     RETENTION = "retained"
