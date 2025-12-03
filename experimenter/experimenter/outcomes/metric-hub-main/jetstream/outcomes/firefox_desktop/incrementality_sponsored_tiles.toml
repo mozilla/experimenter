@@ -1,7 +1,7 @@
 friendly_name = "Incrementality Sponsored Tiles"
 description = "Interaction metrics for sponsored tiles specifically for incrementality tests."
 
-[metrics.sponsored_tiles_disabled.statistics.binomial]
+[metrics.newtab_sponsored_tiles_enabled.statistics.binomial]
 [metrics.any_sponsored_tiles_dismissals.statistics.binomial]
 
 [metrics.sponsored_tiles_dismissals.statistics.bootstrap_mean]
