@@ -1607,12 +1607,6 @@ data_source = "main"
 friendly_name = "SSL Loads Probe Ratio"
 description = "Ratio of clients that have the http_pageload_is_ssl_ratio_v1 probe"
 
-[metrics.sponsored_tiles_disabled]
-select_expression = '{{agg_any("sponsored_tiles_disable_count > 0")}}'
-data_source = "sponsored_tiles_clients_daily"
-friendly_name = "Sponsored Tiles Disabled Event"
-description = "Boolean that identifies clients that disabled sponsored tiles during experiment"
-
 [metrics.sponsored_tiles_dismissals]
 select_expression = "COALESCE(SUM(sponsored_topsite_tile_dismissals), 0)"
 data_source = "newtab_clients_daily"
@@ -2040,12 +2034,6 @@ experiments_column_type = "native"
 friendly_name = "Activity Stream Events"
 description = "Activity Stream Event pings"
 
-[data_sources.sponsored_tiles_clients_daily]
-from_expression = "mozdata.telemetry.sponsored_tiles_clients_daily"
-submission_date_column = "submission_date"
-description = "Sponsored Tiles Clients Daily"
-friendly_name = "Sponsored Tiles Clients Daily"
-
 [data_sources.clients_first_seen_v2]
 from_expression = "moz-fx-data-shared-prod.telemetry_derived.clients_first_seen_v2" # TODO: Replace with view
 submission_date_column = "first_seen_date"
@@ -2110,35 +2098,6 @@ from_expression = """(
     )"""
 client_id_column = "metrics.uuid.legacy_telemetry_client_id"
 experiments_column_type = "glean"
-
-[data_sources.newtab_visits_topsite_tile_interactions]
-from_expression = """(
-    SELECT
-        e.* EXCEPT (topsite_tile_interactions),
-        topsite_tile_interactions
-    FROM
-        `moz-fx-data-shared-prod.telemetry.newtab_visits` e
-    CROSS JOIN
-        UNNEST(e.topsite_tile_interactions) AS topsite_tile_interactions
-)"""
-submission_date_column = "submission_date"
-description = "Topsite Tiles Visit Activity Daily"
-friendly_name = "Topsite Tiles Visit Activity Daily"
-[data_sources.newtab_visits_search_interactions]
-from_expression = """(
-    SELECT
-        e.* EXCEPT (search_interactions),
-        search_interactions
-    FROM
-        `moz-fx-data-shared-prod.telemetry.newtab_visits` e
-    CROSS JOIN
-        UNNEST(e.search_interactions) AS search_interactions
-)"""
-submission_date_column = "submission_date"
-description = "Search Tiles Visit Activity Daily"
-friendly_name = "Search Tiles Visit Activity Daily"
-client_id_column = "legacy_telemetry_client_id"
-experiments_column_type = "native"
 
 [data_sources.newtab_visits]
 from_expression = """(
