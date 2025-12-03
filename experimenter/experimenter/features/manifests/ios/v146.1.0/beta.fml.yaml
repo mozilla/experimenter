@@ -913,6 +913,11 @@ features:
           Enables translucency for toolbars.
         type: Boolean
         default: true
+      translucency-refactor:
+        description: |
+          Enables translucency refactor for toolbars.
+        type: Boolean
+        default: false
       unified_search:
         description: |
           Enables the unified search feature.
