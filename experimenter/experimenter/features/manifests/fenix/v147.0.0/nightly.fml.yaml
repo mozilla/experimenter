@@ -673,14 +673,6 @@ features:
           When the feature is enabled then the user will see the new navigation toolbar.
         type: Boolean
         default: true
-  networking:
-    description: Enables networking features
-    variables:
-      fetchPriorityEnabled:
-        description: |
-          Enables or disables network.fetchpriority.enabled preference.
-        type: Boolean
-        default: true
   networkingBannedPorts:
     description: Networking (Necko) Banned Ports
     variables:
@@ -799,17 +791,6 @@ features:
           Whether or not to enable private browsing mode lock.
         type: Boolean
         default: true
-  query-parameter-stripping:
-    description: Features for query parameter stripping.
-    variables:
-      sections-enabled:
-        description: This property provides a lookup table of whether or not the given section should be enabled.
-        type: Map<QueryParameterStrippingSection, String>
-        default:
-          query-parameter-stripping: '0'
-          query-parameter-stripping-pmb: '0'
-          query-parameter-stripping-allow-list: ''
-          query-parameter-stripping-strip-list: ''
   re-engagement-notification:
     description: A feature that shows the re-engagement notification if the user is inactive.
     variables:
