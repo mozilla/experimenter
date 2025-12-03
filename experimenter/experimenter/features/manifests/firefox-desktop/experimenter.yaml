@@ -598,6 +598,19 @@ urlbar:
       description: >-
         semantic similarity distance threshold (0.0 - 1.0)
         defaulted at 0.6.
+    semanticHistorySupportedRegions:
+      type: string
+      setPref:
+        branch: user
+        pref: places.semanticHistory.supportedRegions
+      description: >-
+        map-like JSON of regions and locales for which the feature is supported.
+        When `semanticHistoryEnable` is false, this list is ignored and the
+        feature is disabled everywhere. When true, the feature is enabled only
+        in the regions/locales listed here.
+        The format is like: '[["AU",["en-*"]],["CA",["en-*"]], …]' where `-*`
+        can be used as a wildcard to match any locale that starts with the given
+        prefix.
     showDebuggingIcons:
       type: boolean
       setPref:
