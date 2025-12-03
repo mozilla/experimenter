@@ -23,7 +23,7 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       (
         github.event_name == 'pull_request' &&
-        contains(github.event.pull_request.labels.*.name, 'preview') &&
+        contains(github.event.pull_request.labels.*.name, 'pr-preview') &&
         github.event.pull_request.head.repo.full_name == github.repository
       )
     runs-on: ubuntu-latest
