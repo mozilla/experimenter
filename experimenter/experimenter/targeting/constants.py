@@ -1753,6 +1753,26 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_NEW_NON_DEFAULT_USER = NimbusTarget
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_BACKGROUND_TASK_NOTIFICATION_ONE_YEAR = NimbusTargetingConfig(
+    name="Lapsed users background task notification for up to a year",
+    slug="background_task_notification_one_year",
+    description=(
+        "Windows 10+ users with 0 days of activity in the past 28 days "
+        "who were last active 28 to 365 days ago "
+        "who are running a background task"
+    ),
+    targeting=(
+        "(os.isWindows && os.windowsVersion >= 10) && !isMSIX"
+        "&& ((currentDate|date - defaultProfile.currentDate|date) / 86400000 >= 28) "
+        "&& ((currentDate|date - defaultProfile.currentDate|date) / 86400000 <= 365) "
+        "&& isBackgroundTaskMode"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WINDOWS_10_BACKGROUND_TASK_NOTIFICATION_TASKBAR_TABS_ELIGIBLE = NimbusTargetingConfig(
     name=(
         "Windows 10+ users with background task notification, "
