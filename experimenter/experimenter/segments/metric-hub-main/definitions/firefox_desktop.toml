@@ -1407,7 +1407,6 @@ description = """
 Count of New Tab organic tile clicks across all positions.
 """
 
-
 [metrics.newtab_organic_topsite_impressions_v2]
 data_source = "newtab_clients_daily"
 select_expression = "COALESCE(SUM(organic_topsite_tile_impressions), 0)"
@@ -1417,48 +1416,6 @@ description = """
 Count of New Tab organic tile impressions across all positions.
 """
 
-[metrics.wallpaper_clicks]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(wallpaper_clicks), 0)"
-friendly_name = "Wallpaper Selection Clicks"
-description = """
-Count of total clicks on wallpaper selections.
-"""
-
-[metrics.wallpaper_clicks_had_previous_wallpaper]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(wallpaper_clicks_had_previous_wallpaper), 0)"
-friendly_name = "Wallpaper Selection Clicks With Previous Wallpaper"
-description = """
-Count of total clicks on wallpaper selections where the client had previously selected
-a wallpaper.
-"""
-
-[metrics.wallpaper_clicks_first_selected_wallpaper]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(wallpaper_clicks_first_selected_wallpaper), 0)"
-friendly_name = "Wallpaper Selection Clicks With No Previous Wallpaper"
-description = """
-Count of total clicks on wallpaper selections where the client had no previously selected
-a wallpaper.
-"""
-
-[metrics.wallpaper_highlight_dismissals]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(wallpaper_highlight_dismissals), 0)"
-friendly_name = "Wallpaper Highlight Dismissals"
-description = """
-Count of dismissals of the wallpaper highlight.
-"""
-
-[metrics.wallpaper_highlight_cta_clicks]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(wallpaper_highlight_cta_clicks), 0)"
-friendly_name = "Wallpaper Highlight CTA Clicks"
-description = """
-Count of total clicks on the CTA in the wallpaper feature highlight.
-"""
-
 [metrics.newtab_weather_widget_enabled]
 data_source = "newtab_clients_daily"
 select_expression = "COALESCE(MAX(CAST(newtab_weather_widget_enabled AS INT)), 0)"
@@ -1466,46 +1423,6 @@ friendly_name = "Weather Widget Enabled"
 type = "scalar"
 description = """
 Whether or not the weather widget is enabled on the New Tab.
-"""
-
-[metrics.weather_widget_impressions]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(weather_widget_impressions), 0)"
-friendly_name = "Weather Widget Impressions"
-description = """
-Count of total impressions of the New Tab weather widget.
-"""
-
-[metrics.weather_widget_clicks]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(weather_widget_clicks), 0)"
-friendly_name = "Weather Widget Clicks"
-description = """
-Count of total clicks on the New Tab weather widget.
-"""
-
-[metrics.weather_widget_load_errors]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(weather_widget_load_errors), 0)"
-friendly_name = "Weather Widget Load Errors"
-description = """
-Count of New Tab weather widget load errors.
-"""
-
-[metrics.weather_widget_change_display_to_detailed]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(weather_widget_change_display_to_detailed), 0)"
-friendly_name = "Weather Widget Change Display to Detailed"
-description = """
-Count of events where the client changed the weather widget display type to Detailed.
-"""
-
-[metrics.weather_widget_change_display_to_simple]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(weather_widget_change_display_to_simple), 0)"
-friendly_name = "Weather Widget Change Display to Simple"
-description = """
-Count of events where the client changed the weather widget display type to Simple.
 """
 
 ########################### END OF NEW TAB METRICS ###########################
