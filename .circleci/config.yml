@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  gh: circleci/github-cli@2.2
+  gh: circleci/github-cli@2.7.2
   gcp-cli: circleci/gcp-cli@3.3.1
   android: circleci/android@2.5.0
   macos: circleci/macos@2.5.4
