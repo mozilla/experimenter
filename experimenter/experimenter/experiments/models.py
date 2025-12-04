@@ -4,6 +4,7 @@ import json
 from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
+from itertools import chain
 from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urlencode, urljoin
@@ -2322,6 +2323,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return "badge rounded-pill bg-success"
         else:
             return "badge rounded-pill bg-secondary"
+
+    @property
+    def notification_emails(self):
+        emails = chain(
+            [self.owner.email],
+            self.subscribers.values_list("email", flat=True),
+            self.feature_configs.values_list("subscribers__email", flat=True),
+        )
+        return list({email for email in emails if email})
 
 
 class NimbusBranch(models.Model):

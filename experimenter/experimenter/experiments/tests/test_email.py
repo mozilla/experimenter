@@ -1,4 +1,5 @@
 import datetime
+from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase
@@ -16,7 +17,8 @@ from experimenter.openidc.tests.factories import UserFactory
 
 
 class TestNimbusEmail(TestCase):
-    def test_send_experiment_ending_email(self):
+    @patch("experimenter.kinto.tasks.nimbus_send_slack_notification.delay")
+    def test_send_experiment_ending_email(self, mock_slack_task):
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
@@ -47,7 +49,15 @@ class TestNimbusEmail(TestCase):
         self.assertEqual(sent_email.cc, [])
         self.assertIn(experiment.experiment_url, sent_email.body)
 
-    def test_send_experiment_ending_email_to_subscribers(self):
+        # Verify Slack notification task was queued
+        mock_slack_task.assert_called_once_with(
+            experiment_id=experiment.id,
+            email_addresses=[experiment.owner.email],
+            action_text="is ready to end",
+        )
+
+    @patch("experimenter.kinto.tasks.nimbus_send_slack_notification.delay")
+    def test_send_experiment_ending_email_to_subscribers(self, mock_slack_task):
         subscriber1 = UserFactory.create()
         subscriber2 = UserFactory.create()
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
@@ -70,7 +80,16 @@ class TestNimbusEmail(TestCase):
         self.assertIn(subscriber2.email, sent_email.cc)
         self.assertEqual(len(sent_email.recipients()), 3)
 
-    def test_send_enrollment_ending_email(self):
+        # Verify Slack notification task includes all recipients
+        mock_slack_task.assert_called_once()
+        call_args = mock_slack_task.call_args
+        self.assertEqual(
+            set(call_args.kwargs["email_addresses"]),
+            {experiment.owner.email, subscriber1.email, subscriber2.email},
+        )
+
+    @patch("experimenter.kinto.tasks.nimbus_send_slack_notification.delay")
+    def test_send_enrollment_ending_email(self, mock_slack_task):
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
@@ -100,7 +119,15 @@ class TestNimbusEmail(TestCase):
         self.assertEqual(sent_email.cc, [])
         self.assertIn(experiment.experiment_url, sent_email.body)
 
-    def test_send_enrollment_ending_email_to_subscribers(self):
+        # Verify Slack notification task was queued
+        mock_slack_task.assert_called_once_with(
+            experiment_id=experiment.id,
+            email_addresses=[experiment.owner.email],
+            action_text="is ready to end enrollment",
+        )
+
+    @patch("experimenter.kinto.tasks.nimbus_send_slack_notification.delay")
+    def test_send_enrollment_ending_email_to_subscribers(self, mock_slack_task):
         subscriber1 = UserFactory.create()
         subscriber2 = UserFactory.create()
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
@@ -123,7 +150,17 @@ class TestNimbusEmail(TestCase):
         self.assertIn(subscriber2.email, sent_email.cc)
         self.assertEqual(len(sent_email.recipients()), 3)
 
-    def test_send_experiment_ending_email_with_feature_subscribers(self):
+        # Verify Slack notification task includes all recipients
+        mock_slack_task.assert_called_once()
+        call_args = mock_slack_task.call_args
+        self.assertEqual(
+            set(call_args.kwargs["email_addresses"]),
+            {experiment.owner.email, subscriber1.email, subscriber2.email},
+        )
+        self.assertEqual(call_args.kwargs["action_text"], "is ready to end enrollment")
+
+    @patch("experimenter.kinto.tasks.nimbus_send_slack_notification.delay")
+    def test_send_experiment_ending_email_with_feature_subscribers(self, mock_slack_task):
         feature_subscriber1 = UserFactory.create()
         feature_subscriber2 = UserFactory.create()
         experiment_subscriber = UserFactory.create()

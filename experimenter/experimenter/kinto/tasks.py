@@ -14,6 +14,7 @@ from experimenter.experiments.email import (
     nimbus_send_experiment_ending_email,
 )
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
+from experimenter.experiments.slack import send_slack_notification
 from experimenter.kinto.client import KintoClient
 
 logger = get_task_logger(__name__)
@@ -505,3 +506,39 @@ def nimbus_send_emails():
             logger.info(f"{experiment} end email sent")
 
     metrics.incr("nimbus_send_emails.completed")
+
+
+@app.task(
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 3},
+    retry_jitter=True,
+)
+@metrics.timer_decorator("send_slack_notification")
+def nimbus_send_slack_notification(
+    experiment_id,
+    email_addresses,
+    action_text,
+    requesting_user_email=None,
+):
+    """
+    An invoked task that sends a Slack notification for an experiment action.
+    """
+    metrics.incr("send_slack_notification.started")
+
+    try:
+        send_slack_notification(
+            experiment_id=experiment_id,
+            email_addresses=email_addresses,
+            action_text=action_text,
+            requesting_user_email=requesting_user_email,
+        )
+
+        logger.info(f"Slack notification sent for experiment {experiment_id}")
+        metrics.incr("send_slack_notification.completed")
+    except Exception as e:
+        metrics.incr("send_slack_notification.failed")
+        logger.error(
+            f"Sending Slack notification for experiment {experiment_id} failed: {e}"
+        )
+        raise e
