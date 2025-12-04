@@ -3728,7 +3728,7 @@ FX_146_TRAINHOP = NimbusTargetingConfig(
 
 FX_146_1_TRAINHOP = NimbusTargetingConfig(
     name="New Tab Fx146 11-24 Trainhop",
-    slug="newtab-146-1124-trainhop",
+    slug="newtab-146-1-1124-trainhop",
     description=(
         "Desktop users having the New Tab 147.0.20251114.194929 train hop, "
         "which includes users of Fx145_0_1"
