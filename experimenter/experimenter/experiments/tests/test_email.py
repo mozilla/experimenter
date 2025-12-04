@@ -261,7 +261,9 @@ class TestNimbusEmail(TestCase):
         self.assertIn(feature_subscriber2.email, sent_email.cc)
 
     @patch("experimenter.kinto.tasks.nimbus_send_slack_notification.delay")
-    def test_send_experiment_ending_email_experiment_subscribers_only(self, mock_slack_task):
+    def test_send_experiment_ending_email_experiment_subscribers_only(
+        self, mock_slack_task
+    ):
         experiment_subscriber1 = UserFactory.create()
         experiment_subscriber2 = UserFactory.create()
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
