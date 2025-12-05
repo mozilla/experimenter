@@ -340,6 +340,7 @@ friendly_name = "Clicked Pocket organic recs in New Tab"
 description = """
     Counts the number of Pocket rec clicks made by each client.
 """
+deprecated = true
 
 
 [metrics.pocket_spoc_clicks]
@@ -353,6 +354,8 @@ friendly_name = "Clicked Pocket sponsored content in New Tab"
 description = """
     Counts the number of Pocket sponsored content clicks made by each client.
 """
+deprecated = true
+
 
 
 [metrics.days_of_use]
@@ -526,6 +529,8 @@ friendly_name = "Disabled Pocket in New Tab"
 description = """
     Counts the number of clicks to disable Pocket in New Tab made by each client.
 """
+deprecated = true
+
 
 
 [metrics.disable_pocket_spocs_clicks]
@@ -540,6 +545,8 @@ description = """
     Counts the number of clicks to disable Pocket sponsored content
     in New Tab made by each client.
 """
+deprecated = true
+
 
 
 [metrics.content_shutdown_crashes]
@@ -1783,6 +1790,71 @@ select_expression = "SUM(urlbar_impressions)"
 data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 friendly_name = "URL Bar Impressions"
 
+[metrics.number_of_sessions]
+select_expression = "COALESCE(COUNT(DISTINCT metrics.uuid.legacy_telemetry_session_id), 0)"
+data_source = "metrics"
+friendly_name = "Number of Cold Starts (Based on Legacy Session IDs)"
+
+[metrics.number_of_autostart_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'Autostart'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Autostart"
+
+[metrics.number_of_desktoplauncher_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'DesktopLauncher'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using the Desktop Launcher"
+
+[metrics.number_of_desktop_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'Desktop'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using an Desktop Shortcut (Normal Mode)"
+
+[metrics.number_of_desktopprivate_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'DesktopPrivate'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using an Desktop Shortcut (Private Mode)"
+
+[metrics.number_of_other_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'Other'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using an Unknown Method"
+
+[metrics.number_of_othershortcut_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'OtherShortcut'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Another Shortcut"
+
+[metrics.number_of_startmenu_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'StartMenu'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Start Menu (Normal Mode)"
+
+[metrics.number_of_startmenuprivate_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'StartMenuPrivate'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Start Menu (Private Mode)"
+
+[metrics.number_of_taskbar_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'Taskbar'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Taskbar (Normal Mode)"
+
+[metrics.number_of_taskbarprivate_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'TaskbarPrivate'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Taskbar (Private Mode)"
+
+[metrics.number_of_taskbartab_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'TaskbarTab'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Taskbar Tabs"
+
+[metrics.number_of_non_taskbartab_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method != 'TaskbarTab'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches without Using Taskbar Tabs"
+
 [dimensions]
 
 [dimensions.os]
@@ -1950,6 +2022,8 @@ from_expression = """(
 experiments_column_type = "native"
 friendly_name = "Activity Stream Events"
 description = "Activity Stream Event pings"
+deprecated = true
+
 
 [data_sources.clients_first_seen_v2]
 from_expression = "moz-fx-data-shared-prod.telemetry_derived.clients_first_seen_v2" # TODO: Replace with view
@@ -1975,22 +2049,6 @@ analysis_units = ["profile_group_id", "client_id"]
 friendly_name = "Urlbar Events Clients Daily"
 description = "Urlbar Events Clients Daily"
 submission_date_column = "submission_date"
-experiments_column_type = "native"
-
-[data_sources.urlbar_events_unnested_results]
-from_expression = """(
-    SELECT
-        e.* EXCEPT (results),
-        result
-    FROM
-        `moz-fx-data-shared-prod.firefox_desktop.urlbar_events` e
-    CROSS JOIN
-        UNNEST(e.results) AS result
-)"""
-friendly_name = "Urlbar Events with Unnested Results"
-description = "Urlbar Events table with the list of displayed results unnested"
-submission_date_column = "submission_date"
-client_id_column = "legacy_telemetry_client_id"
 experiments_column_type = "native"
 
 [data_sources.serp_events]
