@@ -923,7 +923,7 @@
           "properties": {
             "messageType": {
               "type": "string",
-              "description": "The subtype of the message. 'fxa_cta' is used for Firefox Accounts messaging and is only visible when signed out, unless 'allowWhenSignedIn' property is provided. 'default_cta' is used for general messages, regardless of sign in state and only visible within the App Menu.",
+              "description": "The subtype of the message. 'fxa_cta' is used for Firefox Accounts messaging and is only visible when signed out, unless 'allowWhenSignedIn' property is provided. It replaces the fxa menu item when displayed. 'default_cta' is used for general messages, regardless of sign in state and only visible within the App Menu.",
               "enum": [
                 "fxa_cta",
                 "default_cta"
@@ -935,7 +935,7 @@
             },
             "secondaryText": {
               "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText",
-              "description": "The second text for the message, which offers more detail on the value proposition to the user."
+              "description": "The secondary text for the message, which offers more detail on the value proposition to the user. Not displayed when layout is 'simple'."
             },
             "closeAction": {
               "type": "object",
@@ -1010,6 +1010,10 @@
             "containerVerticalBottomOffset": {
               "type": "number",
               "description": "The container's margin-block-end value in pixels. Used to visually offset the image in 'row' layouts when 'imageVerticalBottomOffset' is applied."
+            },
+            "containerPaddingBottom": {
+              "type": "number",
+              "description": "The container's padding-block-end value in pixels."
             },
             "layout": {
               "type": "string",
