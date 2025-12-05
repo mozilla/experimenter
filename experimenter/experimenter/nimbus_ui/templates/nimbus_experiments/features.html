@@ -15,7 +15,8 @@
             hx-select="#features-form"
             hx-target="#features-form"
             hx-swap="outerHTML"
-            hx-select-oob="#features-tables">
+            hx-select-oob="#features-tables"
+            hx-push-url="true">
         {% csrf_token %}
         <div class="card mb-3">
           <div class="card-body bg-primary-subtle">
