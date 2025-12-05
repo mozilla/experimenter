@@ -164,6 +164,11 @@ features:
           Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
         type: Boolean
         default: false
+      isolationStrategy:
+        description: |
+          The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
+        type: Int
+        default: 2
       shouldUseNimbus:
         description: |
           If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.

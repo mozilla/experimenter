@@ -48,10 +48,10 @@
 [metrics.connect_fxa.statistics.deciles]
 
 
-[metrics.pocket_rec_clicks.statistics.bootstrap_mean]
+[metrics.organic_pocket_clicks.statistics.bootstrap_mean]
 
 
-[metrics.pocket_spoc_clicks.statistics.bootstrap_mean]
+[metrics.sponsored_pocket_clicks.statistics.bootstrap_mean]
 
 
 [metrics.days_of_use.statistics.bootstrap_mean]
@@ -65,10 +65,10 @@ drop_highest = 0
 [metrics.qualified_cumulative_days_of_use.statistics.deciles]
 
 
-[metrics.disable_pocket_clicks.statistics.bootstrap_mean]
+[metrics.newtab_pocket_enabled.statistics.bootstrap_mean]
 
 
-[metrics.disable_pocket_spocs_clicks.statistics.bootstrap_mean]
+[metrics.newtab_sponsored_pocket_stories_enabled.statistics.bootstrap_mean]
 
 [metrics.imported_bookmarks.statistics.binomial]
 [metrics.imported_bookmarks_count.statistics.bootstrap_mean]

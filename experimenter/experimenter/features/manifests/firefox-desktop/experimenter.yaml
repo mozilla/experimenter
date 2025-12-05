@@ -3458,7 +3458,19 @@ networkingDenyIpAddrAny:
       type: boolean
       setPref:
         branch: default
-        pref: "network.socket.ip_addr_any.disabled"
+        pref: network.socket.ip_addr_any.disabled
+
+compressionDictionaries:
+  description: HTTP Compression Dictionaries
+  owner: rjesup@mozilla.com
+  hasExposure: false
+  variables:
+    enableDictionaries:
+      description: Enables/disables HTTP Compression Dictionaries
+      type: boolean
+      setPref:
+       branch: default
+       pref: network.http.dictionaries.enable
 
 cookieStore:
   description: Enablement of cookieStore API
