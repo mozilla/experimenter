@@ -602,6 +602,15 @@ class FeatureUnsubscribeView(FeatureSubscriberViewMixin):
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
     fields = None
 
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request"):
+            origin = self.request.GET.get("origin") or self.request.POST.get("origin")
+
+            if origin == "progress_card":
+                return ["nimbus_experiments/experiment_progress_card.html"]
+
+        return [self.template_name]
+
     def get_context_data(self, *, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
 
