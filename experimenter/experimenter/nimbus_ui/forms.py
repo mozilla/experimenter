@@ -13,6 +13,7 @@ from django.utils.text import slugify
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -26,6 +27,7 @@ from experimenter.experiments.models import (
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
+    nimbus_send_slack_notification,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
 from experimenter.klaatu.tasks import klaatu_start_job
@@ -1281,6 +1283,21 @@ class FeatureUnsubscribeForm(FeatureSubscriberFormMixin):
         return self.instance
 
 
+class SlackNotificationMixin:
+    slack_action = None
+
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        if self.slack_action:
+            nimbus_send_slack_notification.delay(
+                experiment_id=experiment.id,
+                email_addresses=experiment.notification_emails,
+                action_text=NimbusConstants.SLACK_FORM_ACTIONS[self.slack_action],
+                requesting_user_email=self.request.user.email,
+            )
+        return experiment
+
+
 class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     status = None
     status_next = None
@@ -1336,19 +1353,21 @@ class DraftToPreviewForm(UpdateStatusForm):
         return experiment
 
 
-class DraftToReviewForm(UpdateStatusForm):
+class DraftToReviewForm(SlackNotificationMixin, UpdateStatusForm):
     status = NimbusExperiment.Status.DRAFT
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
+    slack_action = NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
 
     def get_changelog_message(self):
         return f"{self.request.user} requested launch without Preview"
 
 
-class PreviewToReviewForm(UpdateStatusForm):
+class PreviewToReviewForm(SlackNotificationMixin, UpdateStatusForm):
     status = NimbusExperiment.Status.DRAFT
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
+    slack_action = NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
 
     def get_changelog_message(self):
         return f"{self.request.user} requested launch from Preview"
@@ -1403,14 +1422,16 @@ class ReviewToApproveForm(UpdateStatusForm):
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
+
         return experiment
 
 
-class LiveToEndEnrollmentForm(UpdateStatusForm):
+class LiveToEndEnrollmentForm(SlackNotificationMixin, UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
     is_paused = True
+    slack_action = NimbusConstants.SLACK_ACTION_END_ENROLLMENT_REQUEST
 
     def clean(self):
         if self.instance and self.instance.is_rollout_dirty:
@@ -1458,10 +1479,11 @@ class ApproveEndEnrollmentForm(UpdateStatusForm):
         return experiment
 
 
-class LiveToCompleteForm(UpdateStatusForm):
+class LiveToCompleteForm(SlackNotificationMixin, UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.COMPLETE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
+    slack_action = NimbusConstants.SLACK_ACTION_END_EXPERIMENT_REQUEST
 
     def get_changelog_message(self):
         return f"{self.request.user} requested review to end experiment"
@@ -1530,10 +1552,11 @@ class CancelEndExperimentForm(UpdateStatusForm):
         return f"{self.request.user} {self.cleaned_data['cancel_message']}"
 
 
-class LiveToUpdateRolloutForm(UpdateStatusForm):
+class LiveToUpdateRolloutForm(SlackNotificationMixin, UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
+    slack_action = NimbusConstants.SLACK_ACTION_UPDATE_REQUEST
 
     def get_changelog_message(self):
         return f"{self.request.user} requested review to update Audience"
