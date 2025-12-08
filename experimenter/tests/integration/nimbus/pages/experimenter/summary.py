@@ -306,7 +306,11 @@ class SummaryPage(ExperimenterBase):
 
     def promote_first_branch_to_rollout(self):
         self.js_click(self.promote_to_rollout_buttons[0])
+        old_url = self.selenium.current_url
         self.js_click(self.promote_to_rollout_save)
+        # Wait for navigation to the new rollout page
+        self.wait.until(EC.url_changes(old_url))
+        self.wait_for_page_to_load()
 
     @property
     def takeaways_edit_button(self):
