@@ -4,6 +4,7 @@ from unittest.mock import patch
 from django.core import mail
 from django.test import TestCase
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.email import (
     nimbus_send_enrollment_ending_email,
     nimbus_send_experiment_ending_email,
@@ -53,7 +54,9 @@ class TestNimbusEmail(TestCase):
         mock_slack_task.assert_called_once_with(
             experiment_id=experiment.id,
             email_addresses=[experiment.owner.email],
-            action_text="is ready to end",
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.EXPERIMENT_END
+            ],
         )
 
     @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
@@ -123,7 +126,9 @@ class TestNimbusEmail(TestCase):
         mock_slack_task.assert_called_once_with(
             experiment_id=experiment.id,
             email_addresses=[experiment.owner.email],
-            action_text="is ready to end enrollment",
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.ENROLLMENT_END
+            ],
         )
 
     @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
@@ -157,7 +162,12 @@ class TestNimbusEmail(TestCase):
             set(call_args.kwargs["email_addresses"]),
             {experiment.owner.email, subscriber1.email, subscriber2.email},
         )
-        self.assertEqual(call_args.kwargs["action_text"], "is ready to end enrollment")
+        self.assertEqual(
+            call_args.kwargs["action_text"],
+            NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.ENROLLMENT_END
+            ],
+        )
 
     @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
     def test_send_experiment_ending_email_with_feature_subscribers(self, mock_slack_task):

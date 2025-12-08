@@ -3,6 +3,8 @@ from unittest.mock import Mock, patch
 from django.test import TestCase, override_settings
 from slack_sdk.errors import SlackApiError
 
+from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.slack.notification import send_slack_notification
 
@@ -19,10 +21,13 @@ class TestSlackNotifications(TestCase):
         mock_client.users_lookupByEmail.return_value = {"user": {"id": "U123456"}}
         mock_client.chat_postMessage.return_value = {"ok": True}
 
+        action_text = NimbusConstants.SLACK_EMAIL_ACTIONS[
+            NimbusExperiment.EmailType.EXPERIMENT_END
+        ]
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text="is ready to end",
+            action_text=action_text,
         )
 
         mock_client.users_lookupByEmail.assert_called_once_with(email="test@example.com")
@@ -33,7 +38,7 @@ class TestSlackNotifications(TestCase):
         message = call_args.kwargs["text"]
         self.assertIn(self.experiment.experiment_url, message)
         self.assertIn(self.experiment.name, message)
-        self.assertIn("is ready to end", message)
+        self.assertIn(action_text, message)
         self.assertIn("<@U123456>", message)
 
     @override_settings(SLACK_AUTH_TOKEN=None)
@@ -42,7 +47,9 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text="is ready to end",
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.EXPERIMENT_END
+            ],
         )
 
         mock_webclient.assert_not_called()
@@ -60,7 +67,9 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["nonexistent@example.com"],
-            action_text="is ready to end",
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.EXPERIMENT_END
+            ],
         )
 
         mock_client.chat_postMessage.assert_called_once()
@@ -85,7 +94,9 @@ class TestSlackNotifications(TestCase):
             send_slack_notification(
                 experiment_id=self.experiment.id,
                 email_addresses=["test@example.com"],
-                action_text="is ready to end",
+                action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                    NimbusExperiment.EmailType.EXPERIMENT_END
+                ],
             )
 
         mock_client.chat_postMessage.assert_called_once()
@@ -99,7 +110,9 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=999999,  # Non-existent ID
             email_addresses=["test@example.com"],
-            action_text="is ready to end",
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.EXPERIMENT_END
+            ],
         )
 
         # Should not call Slack API when experiment doesn't exist
@@ -119,7 +132,9 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text="requests launch",
+            action_text=NimbusConstants.SLACK_FORM_ACTIONS[
+                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+            ],
             requesting_user_email="requester@example.com",
         )
 
@@ -131,7 +146,12 @@ class TestSlackNotifications(TestCase):
         message = call_args.kwargs["text"]
         # format: @user action: Experiment Name @mentions
         self.assertIn("<@U123456>", message)  # requesting user
-        self.assertIn("requests launch", message)
+        self.assertIn(
+            NimbusConstants.SLACK_FORM_ACTIONS[
+                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+            ],
+            message,
+        )
         self.assertIn("<@U789012>", message)  # mentioned user
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
@@ -151,7 +171,9 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text="requests launch",
+            action_text=NimbusConstants.SLACK_FORM_ACTIONS[
+                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+            ],
             requesting_user_email="nonexistent@example.com",
         )
 
@@ -176,7 +198,9 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text="is ready to end",
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.EXPERIMENT_END
+            ],
         )
 
         call_args = mock_client.chat_postMessage.call_args
@@ -195,7 +219,9 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["", None, "test@example.com"],
-            action_text="is ready to end",
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.EXPERIMENT_END
+            ],
         )
 
         mock_client.users_lookupByEmail.assert_called_once_with(email="test@example.com")
