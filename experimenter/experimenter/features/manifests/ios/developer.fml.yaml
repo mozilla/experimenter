@@ -777,15 +777,6 @@ features:
             is-position-feature-enabled: true
           search-highlights: false
           use-page-content: false
-  search-engine-consolidation-feature:
-    description: |
-      This feature is for managing the roll out of Search Engine Consolidation support in iOS
-    variables:
-      enabled:
-        description: |
-          Enables the feature
-        type: Boolean
-        default: true
   sent-from-firefox-feature:
     description: |
       Adds additional promo text to links shared to WhatsApp.
@@ -866,14 +857,6 @@ features:
           If true, enables translucency for tab tray actions at the bottom.
         type: Boolean
         default: true
-  tabTrayFeature:
-    description: The tab tray screen that the user goes to when they open the tab tray.
-    variables:
-      sections-enabled:
-        description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
-        type: Map<TabTraySection, Boolean>
-        default:
-          inactive-tabs: true
   toolbar-refactor-feature:
     description: |
       This feature is for managing the roll out of the Toolbar refactor feature
@@ -1253,11 +1236,6 @@ enums:
         description: A Firefox Suggestion specifically for mobile from adMarketplace.
       wikipedia:
         description: A Firefox Suggestion for a Wikipedia page.
-  TabTraySection:
-    description: The identifiers for the sections of the tab tray.
-    variants:
-      inactive-tabs:
-        description: Tabs that have been automatically closed for the user.
   ToolbarLayoutType:
     description: The type of toolbar layout.
     variants:
