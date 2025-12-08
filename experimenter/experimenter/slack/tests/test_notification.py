@@ -3,8 +3,8 @@ from unittest.mock import Mock, patch
 from django.test import TestCase, override_settings
 from slack_sdk.errors import SlackApiError
 
-from experimenter.experiments.slack import send_slack_notification
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.slack.notification import send_slack_notification
 
 
 class TestSlackNotifications(TestCase):
@@ -12,7 +12,7 @@ class TestSlackNotifications(TestCase):
         self.experiment = NimbusExperimentFactory.create()
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
-    @patch("experimenter.experiments.slack.WebClient")
+    @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_success(self, mock_webclient):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
@@ -31,14 +31,13 @@ class TestSlackNotifications(TestCase):
         # Verify message format includes experiment URL
         call_args = mock_client.chat_postMessage.call_args
         message = call_args.kwargs["text"]
-        self.assertIn("<Nimbus>", message)
         self.assertIn(self.experiment.experiment_url, message)
         self.assertIn(self.experiment.name, message)
         self.assertIn("is ready to end", message)
         self.assertIn("<@U123456>", message)
 
     @override_settings(SLACK_AUTH_TOKEN=None)
-    @patch("experimenter.experiments.slack.WebClient")
+    @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_no_token(self, mock_webclient):
         send_slack_notification(
             experiment_id=self.experiment.id,
@@ -49,7 +48,7 @@ class TestSlackNotifications(TestCase):
         mock_webclient.assert_not_called()
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
-    @patch("experimenter.experiments.slack.WebClient")
+    @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_user_not_found(self, mock_webclient):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
@@ -68,12 +67,11 @@ class TestSlackNotifications(TestCase):
         # Should still send message even if user lookup fails
         call_args = mock_client.chat_postMessage.call_args
         message = call_args.kwargs["text"]
-        self.assertIn("<Nimbus>", message)
         self.assertIn(self.experiment.experiment_url, message)
         self.assertNotIn("<@", message)  # No user mentions since lookup failed
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
-    @patch("experimenter.experiments.slack.WebClient")
+    @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_post_message_fails(self, mock_webclient):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
@@ -93,7 +91,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.assert_called_once()
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
-    @patch("experimenter.experiments.slack.WebClient")
+    @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_experiment_not_found(self, mock_webclient):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
@@ -108,7 +106,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.assert_not_called()
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
-    @patch("experimenter.experiments.slack.WebClient")
+    @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_with_requesting_user(self, mock_webclient):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
@@ -131,11 +129,13 @@ class TestSlackNotifications(TestCase):
 
         call_args = mock_client.chat_postMessage.call_args
         message = call_args.kwargs["text"]
-        self.assertIn("<Nimbus> <@U123456>", message)  # requesting user first
-        self.assertIn("requests launch <@U789012>", message)  # mentioned user at end
+        # format: @user action: Experiment Name @mentions
+        self.assertIn("<@U123456>", message)  # requesting user
+        self.assertIn("requests launch", message)
+        self.assertIn("<@U789012>", message)  # mentioned user
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
-    @patch("experimenter.experiments.slack.WebClient")
+    @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_requesting_user_not_found(self, mock_webclient):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
@@ -160,24 +160,24 @@ class TestSlackNotifications(TestCase):
         # Verify message format without requesting user mention
         call_args = mock_client.chat_postMessage.call_args
         message = call_args.kwargs["text"]
-        self.assertIn("<Nimbus>", message)
         self.assertNotIn("<@U123456>", message)  # requesting user not found
         self.assertIn("<@U789012>", message)  # mentioned user still there
 
-    @override_settings(SLACK_AUTH_TOKEN="test-token")
-    @patch("experimenter.experiments.slack.WebClient")
+    @override_settings(
+        SLACK_AUTH_TOKEN="test-token", SLACK_NIMBUS_CHANNEL="custom-channel"
+    )
+    @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_channel_setting(self, mock_webclient):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
         mock_client.users_lookupByEmail.return_value = {"user": {"id": "U123456"}}
         mock_client.chat_postMessage.return_value = {"ok": True}
 
-        with override_settings(SLACK_NIMBUS_CHANNEL="custom-channel"):
-            send_slack_notification(
-                experiment_id=self.experiment.id,
-                email_addresses=["test@example.com"],
-                action_text="is ready to end",
-            )
+        send_slack_notification(
+            experiment_id=self.experiment.id,
+            email_addresses=["test@example.com"],
+            action_text="is ready to end",
+        )
 
         call_args = mock_client.chat_postMessage.call_args
         self.assertEqual(call_args.kwargs["channel"], "custom-channel")
@@ -185,7 +185,7 @@ class TestSlackNotifications(TestCase):
         self.assertEqual(call_args.kwargs["unfurl_media"], False)
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
-    @patch("experimenter.experiments.slack.WebClient")
+    @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_empty_email(self, mock_webclient):
         mock_client = Mock()
         mock_webclient.return_value = mock_client

@@ -27,13 +27,13 @@ from experimenter.experiments.models import (
 )
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
-    nimbus_send_slack_notification,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
 from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.segments import Segments
+from experimenter.slack.tasks import nimbus_send_slack_notification
 from experimenter.targeting.constants import NimbusTargetingConfig
 
 metrics = markus.get_metrics("experimenter.nimbus_ui_forms")

@@ -50,7 +50,7 @@ def nimbus_format_and_send_html_email(
     email.content_subtype = "html"
     email.send(fail_silently=False)
 
-    from experimenter.kinto.tasks import nimbus_send_slack_notification
+    from experimenter.slack.tasks import nimbus_send_slack_notification
 
     action_text = NimbusConstants.SLACK_EMAIL_ACTIONS.get(email_type, "has updates")
     nimbus_send_slack_notification.delay(

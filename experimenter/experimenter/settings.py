@@ -113,6 +113,7 @@ INSTALLED_APPS = [
     "experimenter.projects",
     "experimenter.reporting",
     "experimenter.nimbus_ui",
+    "experimenter.slack",
 ]
 
 

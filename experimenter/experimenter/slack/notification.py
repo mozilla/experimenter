@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 def _get_slack_client():
-    if not (token := getattr(settings, "SLACK_AUTH_TOKEN", None)):
+    if not settings.SLACK_AUTH_TOKEN:
         return None
-    return WebClient(token=token)
+    return WebClient(token=settings.SLACK_AUTH_TOKEN)
 
 
 def _get_user_mentions(client, emails):
@@ -45,7 +45,7 @@ def send_slack_notification(
         logger.error(f"Experiment {experiment_id} not found")
         return
 
-    channel = getattr(settings, "SLACK_NIMBUS_CHANNEL", "nimbus-notifications")
+    channel = settings.SLACK_NIMBUS_CHANNEL
 
     requesting_user_mention = ""
     if requesting_user_email:
@@ -55,16 +55,14 @@ def send_slack_notification(
 
     if requesting_user_mention:
         message = (
-            f"<Nimbus> {requesting_user_mention} "
-            f"<{experiment.experiment_url}|{experiment.name}> {action_text}"
+            f"{requesting_user_mention} {action_text}: "
+            f"<{experiment.experiment_url}|{experiment.name}>"
         )
     else:
-        message = (
-            f"<Nimbus> <{experiment.experiment_url}|{experiment.name}> {action_text}"
-        )
+        message = f"{action_text}: <{experiment.experiment_url}|{experiment.name}>"
 
     if mentions:
-        message += f" {mentions}"
+        message = f"{message} {mentions}"
 
     try:
         client.chat_postMessage(
