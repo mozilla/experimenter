@@ -1250,16 +1250,16 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     # Slack form action text mappings
     SLACK_FORM_ACTIONS = {
-        SLACK_ACTION_LAUNCH_REQUEST: "requests launch",
-        SLACK_ACTION_UPDATE_REQUEST: "requests update",
-        SLACK_ACTION_END_ENROLLMENT_REQUEST: "requests end enrollment",
-        SLACK_ACTION_END_EXPERIMENT_REQUEST: "requests end experiment",
+        SLACK_ACTION_LAUNCH_REQUEST: "🚀 requests launch",
+        SLACK_ACTION_UPDATE_REQUEST: "🔄 requests update",
+        SLACK_ACTION_END_ENROLLMENT_REQUEST: "⏸️ requests end enrollment",
+        SLACK_ACTION_END_EXPERIMENT_REQUEST: "🛑 requests end experiment",
     }
 
     # Slack email action text mappings
     SLACK_EMAIL_ACTIONS = {
-        EmailType.EXPERIMENT_END: "is ready to end",
-        EmailType.ENROLLMENT_END: "is ready to end enrollment",
+        EmailType.EXPERIMENT_END: "🛑 is ready to end",
+        EmailType.ENROLLMENT_END: "⏸️ is ready to end enrollment",
     }
 
 
