@@ -1,0 +1,94 @@
+<form class="accordion"
+      method="post"
+      hx-post="{% url 'nimbus-ui-edit-outcome-summary' slug=experiment.slug %}"
+      id="edit-summary-form-{{ experiment.slug }}">
+  {% csrf_token %}
+  <div class="accordion-item border border-1 rounded-4 mt-4 py-4 px-5">
+    <button class="accordion-button shadow-none bg-transparent text-body"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#key-takeaways-{{ experiment_slug }}-{{ branch.slug }}"
+            aria-expanded="true"
+            aria-controls="key-takeaways-{{ experiment_slug }}-{{ branch.slug }}">
+      <div class="d-flex flex-column align-items-start">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <h5 class="mb-0">Key takeaways</h5>
+          {% if not experiment.takeaways_summary %}
+            <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
+          {% endif %}
+        </div>
+        <small class="text-muted">{{ NimbusUIConstants.KEY_TAKEAWAYS_EMPTY_TEXT }}</small>
+      </div>
+    </button>
+    <div id="key-takeaways-{{ experiment_slug }}-{{ branch.slug }}"
+         class="accordion-collapse collapse show">
+      <div class="accordion-body">{{ edit_outcome_summary_form.takeaways_summary }}</div>
+    </div>
+  </div>
+  <div class="accordion-item border border-1 rounded-4 mt-4 py-4 px-5">
+    <button class="accordion-button shadow-none bg-transparent text-body"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#next-steps-{{ experiment_slug }}-{{ branch.slug }}"
+            aria-expanded="true"
+            aria-controls="next-steps-{{ experiment_slug }}-{{ branch.slug }}">
+      <div class="d-flex flex-column align-items-start">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <h5 class="mb-0">Next Steps</h5>
+          {% if not experiment.next_steps %}
+            <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
+          {% endif %}
+        </div>
+        <small class="text-muted">{{ NimbusUIConstants.NEXT_STEPS_EMPTY_TEXT }}</small>
+      </div>
+    </button>
+    <div id="next-steps-{{ experiment_slug }}-{{ branch.slug }}"
+         class="accordion-collapse collapse show">
+      <div class="accordion-body">{{ edit_outcome_summary_form.next_steps }}</div>
+    </div>
+  </div>
+  <div class="accordion-item border border-1 rounded-4 mt-4 py-4 px-5">
+    <button class="accordion-button shadow-none bg-transparent text-body"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#project-impact-{{ experiment_slug }}-{{ branch.slug }}"
+            aria-expanded="true"
+            aria-controls="project-impact-{{ experiment_slug }}-{{ branch.slug }}">
+      <div class="d-flex flex-column align-items-start">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <h5 class="mb-0">Project Impact</h5>
+          {% if not experiment.project_impact %}
+            <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
+          {% endif %}
+        </div>
+        <small class="text-muted">{{ NimbusUIConstants.PROJECT_IMPACT_EMPTY_TEXT }}</small>
+      </div>
+    </button>
+    <div id="project-impact-{{ experiment_slug }}-{{ branch.slug }}"
+         class="accordion-collapse collapse show">
+      <div class="accordion-body d-flex flex-column gap-4">
+        {% for radio in edit_outcome_summary_form.project_impact %}
+          <div class="project-impact-option {{ key }}">
+            <label class="d-flex gap-3 align-items-center">
+              <div style="transform: scale(1.75)">{{ radio.tag }}</div>
+              <div class="ms-2">
+                <div>{{ radio.choice_label }} impact</div>
+                <small class="option-subtitle text-muted">
+                  {% for key, subtitle in NimbusUIConstants.PROJECT_IMPACT_SUBTITLES.items %}
+                    {% if key == radio.choice_label|upper %}{{ subtitle }}{% endif %}
+                  {% endfor %}
+                </small>
+              </div>
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer border-0">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="submit"
+            class="btn btn-primary"
+            form="edit-summary-form-{{ experiment.slug }}">Save changes</button>
+  </div>
+</form>

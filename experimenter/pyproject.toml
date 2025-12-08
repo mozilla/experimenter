@@ -81,6 +81,7 @@ pytest = "^8.4.0"
 pyjwt = { extras = ["crypto"], version = "^2.10.1" }
 humanize = "^4.14.0"
 deepdiff = "^8.6.1"
+django-summernote = "^0.8.20.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
