@@ -113,6 +113,7 @@ INSTALLED_APPS = [
     "experimenter.projects",
     "experimenter.reporting",
     "experimenter.nimbus_ui",
+    "experimenter.slack",
 ]
 
 
@@ -344,6 +345,10 @@ EMAIL_SHIP = config("EMAIL_SHIP")
 
 # Email to send to when an experiment is being signed-off
 EMAIL_RELEASE_DRIVERS = config("EMAIL_RELEASE_DRIVERS")
+
+# Slack configuration
+SLACK_AUTH_TOKEN = config("SLACK_AUTH_TOKEN", default=None)
+SLACK_NIMBUS_CHANNEL = config("SLACK_NIMBUS_CHANNEL", default="nimbus-notifications")
 
 # Bugzilla API Integration
 BUGZILLA_HOST = config("BUGZILLA_HOST")

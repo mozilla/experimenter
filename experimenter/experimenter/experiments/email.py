@@ -1,9 +1,8 @@
-from itertools import chain
-
 from django.conf import settings
 from django.core.mail.message import EmailMessage
 from django.template.loader import render_to_string
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusEmail, NimbusExperiment
 
 
@@ -36,21 +35,28 @@ def nimbus_format_and_send_html_email(
 ):
     content = render_to_string(file_string, template_vars)
 
-    emails = chain(
-        experiment.feature_configs.values_list("subscribers__email", flat=True),
-        experiment.subscribers.values_list("email", flat=True),
-    )
-    cc_emails = {email for email in emails if email}
+    all_emails = experiment.notification_emails
+    owner_email = experiment.owner.email
+    cc_emails = [email for email in all_emails if email != owner_email]
 
     email = EmailMessage(
         subject.format(name=experiment.name),
         content,
         settings.EMAIL_SENDER,
-        [experiment.owner.email],
-        cc=list(cc_emails),
+        [owner_email],
+        cc=cc_emails,
     )
 
     email.content_subtype = "html"
     email.send(fail_silently=False)
+
+    from experimenter.slack.tasks import nimbus_send_slack_notification
+
+    action_text = NimbusConstants.SLACK_EMAIL_ACTIONS.get(email_type, "has updates")
+    nimbus_send_slack_notification.delay(
+        experiment_id=experiment.id,
+        email_addresses=experiment.notification_emails,
+        action_text=action_text,
+    )
 
     NimbusEmail.objects.create(experiment=experiment, type=email_type)
