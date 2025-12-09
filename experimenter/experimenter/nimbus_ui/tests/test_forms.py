@@ -721,6 +721,9 @@ class TestLaunchForms(RequestFormTestCase):
             NimbusExperiment, "allocate_bucket_range"
         ).start()
         self.mock_klaatu_task = patch.object(klaatu_start_job, "delay").start()
+        self.mock_slack_task = patch(
+            "experimenter.slack.tasks.nimbus_send_slack_notification.delay"
+        ).start()
 
         self.addCleanup(patch.stopall)
 

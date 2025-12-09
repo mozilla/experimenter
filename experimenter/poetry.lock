@@ -3478,6 +3478,21 @@ files = [
 ]
 
 [[package]]
+name = "slack-sdk"
+version = "3.39.0"
+description = "The Slack API Platform SDK for Python"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "slack_sdk-3.39.0-py2.py3-none-any.whl", hash = "sha256:b1556b2f5b8b12b94e5ea3f56c4f2c7f04462e4e1013d325c5764ff118044fa8"},
+    {file = "slack_sdk-3.39.0.tar.gz", hash = "sha256:6a56be10dc155c436ff658c6b776e1c082e29eae6a771fccf8b0a235822bbcb1"},
+]
+
+[package.extras]
+optional = ["SQLAlchemy (>=1.4,<3)", "aiodns (>1.0)", "aiohttp (>=3.7.3,<4)", "boto3 (<=2)", "websocket-client (>=1,<2)", "websockets (>=9.1,<16)"]
+
+[[package]]
 name = "smmap"
 version = "5.0.1"
 description = "A pure Python implementation of a sliding window memory map manager"
@@ -3869,4 +3884,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "04c0db06a3fe63e47be1571ef28a38c65e9d8f7bea814ea029e51cfbc4e91419"
+content-hash = "d1cd3dd9f2c5316e1c8807654884690de1fe005995691e24d3b3312e57d2ab43"

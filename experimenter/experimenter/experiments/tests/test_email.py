@@ -1,8 +1,10 @@
 import datetime
+from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.email import (
     nimbus_send_enrollment_ending_email,
     nimbus_send_experiment_ending_email,
@@ -16,7 +18,8 @@ from experimenter.openidc.tests.factories import UserFactory
 
 
 class TestNimbusEmail(TestCase):
-    def test_send_experiment_ending_email(self):
+    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
+    def test_send_experiment_ending_email(self, mock_slack_task):
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
@@ -47,7 +50,17 @@ class TestNimbusEmail(TestCase):
         self.assertEqual(sent_email.cc, [])
         self.assertIn(experiment.experiment_url, sent_email.body)
 
-    def test_send_experiment_ending_email_to_subscribers(self):
+        # Verify Slack notification task was queued
+        mock_slack_task.assert_called_once_with(
+            experiment_id=experiment.id,
+            email_addresses=[experiment.owner.email],
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.EXPERIMENT_END
+            ],
+        )
+
+    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
+    def test_send_experiment_ending_email_to_subscribers(self, mock_slack_task):
         subscriber1 = UserFactory.create()
         subscriber2 = UserFactory.create()
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
@@ -70,7 +83,16 @@ class TestNimbusEmail(TestCase):
         self.assertIn(subscriber2.email, sent_email.cc)
         self.assertEqual(len(sent_email.recipients()), 3)
 
-    def test_send_enrollment_ending_email(self):
+        # Verify Slack notification task includes all recipients
+        mock_slack_task.assert_called_once()
+        call_args = mock_slack_task.call_args
+        self.assertEqual(
+            set(call_args.kwargs["email_addresses"]),
+            {experiment.owner.email, subscriber1.email, subscriber2.email},
+        )
+
+    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
+    def test_send_enrollment_ending_email(self, mock_slack_task):
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
@@ -100,7 +122,17 @@ class TestNimbusEmail(TestCase):
         self.assertEqual(sent_email.cc, [])
         self.assertIn(experiment.experiment_url, sent_email.body)
 
-    def test_send_enrollment_ending_email_to_subscribers(self):
+        # Verify Slack notification task was queued
+        mock_slack_task.assert_called_once_with(
+            experiment_id=experiment.id,
+            email_addresses=[experiment.owner.email],
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.ENROLLMENT_END
+            ],
+        )
+
+    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
+    def test_send_enrollment_ending_email_to_subscribers(self, mock_slack_task):
         subscriber1 = UserFactory.create()
         subscriber2 = UserFactory.create()
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
@@ -123,7 +155,22 @@ class TestNimbusEmail(TestCase):
         self.assertIn(subscriber2.email, sent_email.cc)
         self.assertEqual(len(sent_email.recipients()), 3)
 
-    def test_send_experiment_ending_email_with_feature_subscribers(self):
+        # Verify Slack notification task includes all recipients
+        mock_slack_task.assert_called_once()
+        call_args = mock_slack_task.call_args
+        self.assertEqual(
+            set(call_args.kwargs["email_addresses"]),
+            {experiment.owner.email, subscriber1.email, subscriber2.email},
+        )
+        self.assertEqual(
+            call_args.kwargs["action_text"],
+            NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.ENROLLMENT_END
+            ],
+        )
+
+    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
+    def test_send_experiment_ending_email_with_feature_subscribers(self, mock_slack_task):
         feature_subscriber1 = UserFactory.create()
         feature_subscriber2 = UserFactory.create()
         experiment_subscriber = UserFactory.create()
@@ -148,7 +195,8 @@ class TestNimbusEmail(TestCase):
         self.assertIn(feature_subscriber2.email, sent_email.cc)
         self.assertEqual(len(sent_email.cc), 3)
 
-    def test_send_enrollment_ending_email_with_feature_subscribers(self):
+    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
+    def test_send_enrollment_ending_email_with_feature_subscribers(self, mock_slack_task):
         feature_subscriber1 = UserFactory.create()
         feature_subscriber2 = UserFactory.create()
         experiment_subscriber = UserFactory.create()
@@ -172,7 +220,8 @@ class TestNimbusEmail(TestCase):
         self.assertIn(feature_subscriber2.email, sent_email.cc)
         self.assertEqual(len(sent_email.cc), 3)
 
-    def test_send_experiment_ending_email_deduplicates_subscribers(self):
+    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
+    def test_send_experiment_ending_email_deduplicates_subscribers(self, mock_slack_task):
         shared_subscriber = UserFactory.create()
         feature_only_subscriber = UserFactory.create()
         experiment_only_subscriber = UserFactory.create()
@@ -197,7 +246,8 @@ class TestNimbusEmail(TestCase):
         self.assertIn(feature_only_subscriber.email, sent_email.cc)
         self.assertIn(experiment_only_subscriber.email, sent_email.cc)
 
-    def test_send_experiment_ending_email_feature_subscribers_only(self):
+    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
+    def test_send_experiment_ending_email_feature_subscribers_only(self, mock_slack_task):
         feature_subscriber1 = UserFactory.create()
         feature_subscriber2 = UserFactory.create()
         feature_config = NimbusFeatureConfigFactory.create(
@@ -220,7 +270,10 @@ class TestNimbusEmail(TestCase):
         self.assertIn(feature_subscriber1.email, sent_email.cc)
         self.assertIn(feature_subscriber2.email, sent_email.cc)
 
-    def test_send_experiment_ending_email_experiment_subscribers_only(self):
+    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
+    def test_send_experiment_ending_email_experiment_subscribers_only(
+        self, mock_slack_task
+    ):
         experiment_subscriber1 = UserFactory.create()
         experiment_subscriber2 = UserFactory.create()
         feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
