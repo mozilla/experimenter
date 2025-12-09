@@ -2738,6 +2738,38 @@ gleanInternalSdk:
         branch: user
         pref: telemetry.glean.internal.maxPingsPerMinute
 
+legacyTelemetry:
+  description: "Controls for the Legacy Telemetry data collection system"
+  owner: chutten@mozilla.com
+  applications:
+    - firefox-desktop
+  hasExposure: false
+  variables:
+    disabledPings:
+      type: json
+      description: |
+        A list of Legacy Telemetry pings to disable.
+        Pings on this list will not be archived or uploaded.
+        On submit their payloads will be dropped.
+        Code that collects to and submits the ping will still operate as normal.
+        Cannot be used to disable the "main", "first-shutdown", "new-profile",
+        or "deletion-request" pings.
+    disableMainPingScalars:
+      type: boolean
+      description: |
+        If true, scalars will not be included in "main" pings.
+        Exceptions are made for two important engagement measures:
+        `browser.engagement.total_uri_count_normal_and_private_mode` and
+        `browser.engagement.active_ticks`.
+        These scalars will continue to be reported as normal, even if all
+        others are disabled by this variable.
+    disableMainPingHgrams:
+      type: boolean
+      description: |
+        If true, histograms will not be included in "main" pings.
+        Data will still be recorded locally,
+        it will merely not be included in "main" pings when they are submitted.
+
 browserLowMemoryPrefs:
   description: Prefs which control the browser's behaviour under low memory.
   owner: haftandilian@mozilla.com

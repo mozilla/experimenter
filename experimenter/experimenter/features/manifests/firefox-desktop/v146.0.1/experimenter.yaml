@@ -360,6 +360,14 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.merino.timeoutMs
       description: Timeout for Merino fetches (ms)
+    suggestOhttp:
+      type: boolean
+      description: >-
+        Whether search suggestions should be fetched over OHTTP.
+        Currently this applies only to Google suggestions.
+      setPref:
+        pref: browser.search.suggest.ohttp.featureGate
+        branch: user
     exposureResults:
       type: string
       setPref:
@@ -598,19 +606,6 @@ urlbar:
       description: >-
         semantic similarity distance threshold (0.0 - 1.0)
         defaulted at 0.6.
-    semanticHistorySupportedRegions:
-      type: string
-      setPref:
-        branch: user
-        pref: places.semanticHistory.supportedRegions
-      description: >-
-        map-like JSON of regions and locales for which the feature is supported.
-        When `semanticHistoryEnable` is false, this list is ignored and the
-        feature is disabled everywhere. When true, the feature is enabled only
-        in the regions/locales listed here.
-        The format is like: '[["AU",["en-*"]],["CA",["en-*"]], …]' where `-*`
-        can be used as a wildcard to match any locale that starts with the given
-        prefix.
     showDebuggingIcons:
       type: boolean
       setPref:
@@ -841,7 +836,7 @@ urlbar:
 
 aboutwelcome:
   description: "The about:welcome page"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     Exposure is sent once per browsing session when the about:welcome URL is
@@ -886,7 +881,7 @@ aboutwelcome:
 
 preonboarding:
   description: "A modal that shows on first startup, typically on top of about:welcome"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   # Exposure is recorded by the spotlight feature used to show the modal
   hasExposure: false
   # Needed at `sessionstore-windows-restored`.
@@ -928,7 +923,7 @@ preonboarding:
 
 moreFromMozilla:
   description: "New page on about:preferences to suggest more Mozilla products"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     Exposure is sent once per browsing session when the about:preferences URL is
@@ -945,7 +940,7 @@ moreFromMozilla:
 
 windowsLaunchOnLogin:
   description: "New checkbox in about:preferences startup section to start Firefox on Windows login"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     Exposure is sent once per browsing session when the about:preferences URL is
@@ -974,7 +969,7 @@ firefoxBridge:
 
 abouthomecache:
   description: "The startup about:home cache."
-  owner: omc-core@mozilla.com, mconley@mozilla.com
+  owner: omc@mozilla.com, mconley@mozilla.com
   hasExposure: false
   variables:
     enabled:
@@ -986,7 +981,7 @@ abouthomecache:
 
 newtab:
   description: "The about:newtab page"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     Exposure is sent once per browsing session when the first newtab page loads
@@ -1619,6 +1614,25 @@ newtabTrainhopAddon:
         branch: user
         pref: browser.newtabpage.trainhopAddon.version
 
+newtabTrendingSearchWidget:
+  description: >-
+      Adds trending search results widget to new tab
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.system.trendingSearch.enabled
+      description: Enables the refined cards layout for newtab
+    variant:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.trendingSearch.variant
+      description: Determines the layout variant for the trending search widget
+
 newtabTopicSelection:
   description: the about:newtab topic selection experience.
   owner: nbarrett@mozilla.com
@@ -1742,6 +1756,10 @@ pocketNewtab:
   hasExposure: false
   isEarlyStartup: true
   variables:
+    spocTopsitesPositions:
+      type: string
+      fallbackPref: browser.newtabpage.activity-stream.discoverystream.spoc-topsites-positions
+      description: CSV string of spoc position indexes on newtab topsites section
     contileTopsitesPositions:
       type: string
       fallbackPref: browser.newtabpage.activity-stream.discoverystream.contile-topsites-positions
@@ -1754,6 +1772,18 @@ pocketNewtab:
       type: string
       fallbackPref: browser.newtabpage.activity-stream.discoverystream.spocZoneIds
       description: CSV string of data to set the spoc content.
+    spocTopsitesAdTypes:
+      type: string
+      fallbackPref: browser.newtabpage.activity-stream.discoverystream.spocTopsitesAdTypes
+      description: CSV string of data to set the spoc content.
+    spocTopsitesZoneIds:
+      type: string
+      fallbackPref: browser.newtabpage.activity-stream.discoverystream.spocTopsitesZoneIds
+      description: CSV string of data to set the spoc content.
+    spocTopsitesPlacementEnabled:
+      type: boolean
+      fallbackPref: browser.newtabpage.activity-stream.discoverystream.spocTopsitesPlacement.enabled
+      description: Tuns on and off the sponsored topsites placement.
     spocSiteId:
       type: string
       fallbackPref: browser.newtabpage.activity-stream.discoverystream.spocSiteId
@@ -1974,6 +2004,12 @@ pocketNewtab:
       # Defined under `pocketNewtab` as it needs to be used along with other variables
       type: int
       description: The maximum number of sponsored Top Sites used from Contile
+    topSitesContileSovEnabled:
+      # Defined under `pocketNewtab` as it needs to be used along with other variables
+      description: Enable the Share-of-Voice feature for Sponsored Topsites.
+      type: boolean
+      fallbackPref: >-
+        browser.topsites.contile.sov.enabled
     pocketFeedParameters:
       type: string
       fallbackPref: >-
@@ -2137,7 +2173,7 @@ shellService:
       description: Whether or not the user should see the guidance notifications when setting Firefox as their default browser.
 upgradeDialog:
   description: The dialog shown for major upgrades
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: false
   isEarlyStartup: true
   variables:
@@ -2148,7 +2184,7 @@ upgradeDialog:
 
 cfr:
   description: "A Firefox Messaging System message for the cfr message channel"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
   schema:
@@ -2158,7 +2194,7 @@ cfr:
 
 "moments-page":
   description: "A Firefox Messaging System message for the moments-page message channel"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2169,7 +2205,7 @@ cfr:
 
 infobar:
   description: "A Firefox Messaging system message for the infobar message channel"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2180,7 +2216,7 @@ infobar:
 
 spotlight:
   description: "A Firefox Messaging System message for the spotlight message channel"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2193,7 +2229,7 @@ spotlight:
 # the minimum version for messaging experiments using this feature ID is 117.
 featureCallout:
   description: "A Firefox Messaging System message for the Feature Callout message channel"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2287,7 +2323,7 @@ pdfjs:
 
 fxms-message-1:
   description: "A Firefox Messaging System message"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2298,7 +2334,7 @@ fxms-message-1:
 
 fxms-message-2:
   description: "Firefox Messaging System message 2"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2309,7 +2345,7 @@ fxms-message-2:
 
 fxms-message-3:
   description: "Firefox Messaging System message 3"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2320,7 +2356,7 @@ fxms-message-3:
 
 fxms-message-4:
   description: "Firefox Messaging System message 4"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2331,7 +2367,7 @@ fxms-message-4:
 
 fxms-message-5:
   description: "Firefox Messaging System message 5"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2342,7 +2378,7 @@ fxms-message-5:
 
 fxms-message-6:
   description: "Firefox Messaging System message 6"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2353,7 +2389,7 @@ fxms-message-6:
 
 fxms-message-7:
   description: "Firefox Messaging System message 7"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2364,7 +2400,7 @@ fxms-message-7:
 
 fxms-message-8:
   description: "Firefox Messaging System message 8"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2375,7 +2411,7 @@ fxms-message-8:
 
 fxms-message-9:
   description: "Firefox Messaging System message 9"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2386,7 +2422,7 @@ fxms-message-9:
 
 fxms-message-10:
   description: "Firefox Messaging System message 10"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2397,7 +2433,7 @@ fxms-message-10:
 
 fxms-message-11:
   description: "Firefox Messaging System message 11"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2408,7 +2444,7 @@ fxms-message-11:
 
 fxms-message-12:
   description: "Firefox Messaging System message 12 - ONLY for Fx140+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2419,7 +2455,7 @@ fxms-message-12:
 
 fxms-message-13:
   description: "Firefox Messaging System message 13 - ONLY for Fx140+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2430,7 +2466,7 @@ fxms-message-13:
 
 fxms-message-14:
   description: "Firefox Messaging System message 14 - ONLY for Fx140+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2441,7 +2477,7 @@ fxms-message-14:
 
 fxms-message-15:
   description: "Firefox Messaging System message 15 - ONLY for Fx140+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2452,7 +2488,7 @@ fxms-message-15:
 
 fxms-message-16:
   description: "Firefox Messaging System message 16 - ONLY for Fx144+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2463,7 +2499,7 @@ fxms-message-16:
 
 fxms-message-17:
   description: "Firefox Messaging System message 17 - ONLY for Fx144+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2474,7 +2510,7 @@ fxms-message-17:
 
 fxms-message-18:
   description: "Firefox Messaging System message 18 - ONLY for Fx144+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2485,7 +2521,7 @@ fxms-message-18:
 
 fxms-message-19:
   description: "Firefox Messaging System message 19 - ONLY for Fx144+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2496,7 +2532,7 @@ fxms-message-19:
 
 fxms-message-20:
   description: "Firefox Messaging System message 20 - ONLY for Fx144+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2507,7 +2543,7 @@ fxms-message-20:
 
 fxms-message-21:
   description: "Firefox Messaging System message 21 - ONLY for Fx144+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2518,7 +2554,7 @@ fxms-message-21:
 
 fxms-message-22:
   description: "Firefox Messaging System message 22 - ONLY for Fx144+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2529,7 +2565,7 @@ fxms-message-22:
 
 fxms-message-23:
   description: "Firefox Messaging System message 23 - ONLY for Fx144+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2540,7 +2576,7 @@ fxms-message-23:
 
 fxms-message-24:
   description: "Firefox Messaging System message 24 - ONLY for Fx144+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2551,7 +2587,7 @@ fxms-message-24:
 
 fxms-message-25:
   description: "Firefox Messaging System message 25 - ONLY for Fx144+ targeting"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2562,7 +2598,7 @@ fxms-message-25:
 
 whatsNewPage:
   description: "A Firefox Messaging System message for the What's new page channel"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
@@ -2596,7 +2632,7 @@ whatsNewPage:
 
 pbNewtab:
   description: "A Firefox Messaging System message for the pbNewtab message channel"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched.
@@ -2737,38 +2773,6 @@ gleanInternalSdk:
       setPref:
         branch: user
         pref: telemetry.glean.internal.maxPingsPerMinute
-
-legacyTelemetry:
-  description: "Controls for the Legacy Telemetry data collection system"
-  owner: chutten@mozilla.com
-  applications:
-    - firefox-desktop
-  hasExposure: false
-  variables:
-    disabledPings:
-      type: json
-      description: |
-        A list of Legacy Telemetry pings to disable.
-        Pings on this list will not be archived or uploaded.
-        On submit their payloads will be dropped.
-        Code that collects to and submits the ping will still operate as normal.
-        Cannot be used to disable the "main", "first-shutdown", "new-profile",
-        or "deletion-request" pings.
-    disableMainPingScalars:
-      type: boolean
-      description: |
-        If true, scalars will not be included in "main" pings.
-        Exceptions are made for two important engagement measures:
-        `browser.engagement.total_uri_count_normal_and_private_mode` and
-        `browser.engagement.active_ticks`.
-        These scalars will continue to be reported as normal, even if all
-        others are disabled by this variable.
-    disableMainPingHgrams:
-      type: boolean
-      description: |
-        If true, histograms will not be included in "main" pings.
-        Data will still be recorded locally,
-        it will merely not be included in "main" pings when they are submitted.
 
 browserLowMemoryPrefs:
   description: Prefs which control the browser's behaviour under low memory.
@@ -3490,19 +3494,7 @@ networkingDenyIpAddrAny:
       type: boolean
       setPref:
         branch: default
-        pref: network.socket.ip_addr_any.disabled
-
-compressionDictionaries:
-  description: HTTP Compression Dictionaries
-  owner: rjesup@mozilla.com
-  hasExposure: false
-  variables:
-    enableDictionaries:
-      description: Enables/disables HTTP Compression Dictionaries
-      type: boolean
-      setPref:
-       branch: default
-       pref: network.http.dictionaries.enable
+        pref: "network.socket.ip_addr_any.disabled"
 
 cookieStore:
   description: Enablement of cookieStore API
@@ -4368,7 +4360,7 @@ opaqueResponseBlocking:
 
 updatePrompt:
   description: Prefs to control content and behavior of update notifications
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     Exposure is sent at most once per browsing session when an update
@@ -4443,7 +4435,7 @@ backgroundUpdate:
 
 bookmarks:
   description: Prefs to control aspects of the bookmarks system.
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: false
   variables:
     enableBookmarksToolbar:
@@ -5085,7 +5077,7 @@ sidebar:
 
 fxms_bmb_button:
   description: A feature for the Firefox Messaging System Bookmarks Bar button surface
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     Exposure is sent if the message is about to be shown after trigger and
@@ -5123,7 +5115,7 @@ certificateTransparency:
 
 setToDefaultPrompt:
   description: "Experimental set to default spotlight"
-  owner: omc-core@mozilla.com
+  owner: omc@mozilla.com
   hasExposure: true
   exposureDescription: >-
     "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
