@@ -58,6 +58,8 @@ from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.outcomes import Outcomes
+from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 
 
@@ -2363,8 +2365,12 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(second["num_participants"], 75)
         self.assertEqual(second["description"], branch_b.description)
 
+    @mock_valid_outcomes
     def test_get_metric_data_returns_correct_data(self):
-        experiment = NimbusExperimentFactory.create()
+        outcomes = Outcomes.all()
+        experiment = NimbusExperimentFactory.create(
+            primary_outcomes=[outcomes[0].slug],
+        )
         branch_a = NimbusBranchFactory.create(
             experiment=experiment, name="Branch A", slug="branch-a"
         )
