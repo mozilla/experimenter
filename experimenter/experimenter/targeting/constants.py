@@ -53,6 +53,9 @@ ACCEPTED_TOU_V4_OR_HIGHER = "'termsofuse.acceptedVersion'|preferenceValue >= 4"
 # 23:59 UTC on Dec 9, 2025 when an updated version of the privacy
 # notice was published.
 DEC_9_2025 = 1765324740000
+# Privacy Notification Published date of 12:00 PM UTC on Dec 15, 2025
+DEC_15_2025 = 1765800000000
+DEC_17_2025 = 1765972800000
 
 TOU_NOTIFICATION_BYPASS_ENABLED = "'termsofuse.bypassNotification'|preferenceValue"
 
@@ -3666,6 +3669,42 @@ ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+ACCEPTED_TOU_BEFORE_DEC_17_2025 = NimbusTargetingConfig(
+    name="Accepted TOU before Dec 17, 2025",
+    slug="accepted_tou_before_dec_17_2025",
+    description=("User accepted TOU before Dec 17, 2025 (excludes Linux)"),
+    targeting=f"""
+    (
+        !os.isLinux
+        &&
+        {HAS_TOU_ACCEPTED_DATE}
+        &&
+        ({TOU_ACCEPTED_DATE} < {DEC_17_2025})
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+ACCEPTED_TOU_ON_OR_AFTER_DEC_15_2025 = NimbusTargetingConfig(
+    name="Accepted TOU on or after Dec 15, 2025",
+    slug="accepted_tou_on_or_after_dec_15_2025",
+    description=("User accepted TOU on or after Dec 15, 2025"),
+    targeting=f"""
+    (
+        {HAS_TOU_ACCEPTED_DATE}
+        &&
+        ({TOU_ACCEPTED_DATE} >= {DEC_15_2025})
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WINDOWS_10_PLUS_SIGNED_OUT_USER = NimbusTargetingConfig(
     name="Windows 10+ signed out user",
     slug="windows_10_plus_signed_out",
@@ -3720,6 +3759,20 @@ FX_146_TRAINHOP = NimbusTargetingConfig(
         "which includes users of Fx145_0_1"
     ),
     targeting="newtabAddonVersion|versionCompare('146.0.20251107.60212') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_146_1_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx146 11-24 Trainhop",
+    slug="newtab-146-1-1124-trainhop",
+    description=(
+        "Desktop users having the New Tab 147.0.20251114.194929 train hop, "
+        "which includes users of Fx145_0_1"
+    ),
+    targeting="newtabAddonVersion|versionCompare('147.0.20251114.194929') >= 0",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

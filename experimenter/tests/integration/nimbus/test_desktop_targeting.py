@@ -1,5 +1,6 @@
 import json
 import logging
+from functools import cache
 from pathlib import Path
 
 import pytest
@@ -15,9 +16,11 @@ def targeting_config_slug(request):
 
 
 @pytest.fixture
-def filter_expression_path():
+@cache
+def targeting_script():
     path = Path(__file__).parent / "utils" / "filter_expression.js"
-    return path.absolute()
+    with path.open() as f:
+        return f.read()
 
 
 @pytest.mark.run_targeting
@@ -26,7 +29,7 @@ def test_check_advanced_targeting(
     targeting_config_slug,
     experiment_slug,
     default_data_api,
-    filter_expression_path,
+    targeting_script,
 ):
     default_data_api["targetingConfigSlug"] = targeting_config_slug
     experiment = helpers.create_experiment(
@@ -42,16 +45,13 @@ def test_check_advanced_targeting(
     recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
     logging.info(f"Experiment Recipe: {recipe}")
 
-    # Inject filter expression
-    selenium.get("about:blank")
-    with filter_expression_path.open() as js:
-        result = Browser.execute_async_script(
-            selenium,
-            targeting,
-            json.dumps({"experiment": recipe}),
-            script=js.read(),
-            context="chrome",
-        )
+    result = Browser.execute_async_script(
+        selenium,
+        targeting,
+        json.dumps({"experiment": recipe}),
+        script=targeting_script,
+        context="chrome",
+    )
     assert result is not None, "Invalid Targeting, or bad recipe"
 
 
@@ -82,7 +82,7 @@ def test_check_audience_targeting(
     audience_field,
     experiment_slug,
     default_data_api,
-    filter_expression_path,
+    targeting_script,
 ):
     default_data_api.update(audience_field)
     experiment = helpers.create_experiment(
@@ -98,14 +98,11 @@ def test_check_audience_targeting(
     recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
     logging.info(f"Experiment Recipe: {recipe}")
 
-    # Inject filter expression
-    selenium.get("about:blank")
-    with filter_expression_path.open() as js:
-        result = Browser.execute_async_script(
-            selenium,
-            targeting,
-            json.dumps({"experiment": recipe}),
-            script=js.read(),
-            context="chrome",
-        )
+    result = Browser.execute_async_script(
+        selenium,
+        targeting,
+        json.dumps({"experiment": recipe}),
+        script=targeting_script,
+        context="chrome",
+    )
     assert result is not None, "Invalid Targeting, or bad recipe"

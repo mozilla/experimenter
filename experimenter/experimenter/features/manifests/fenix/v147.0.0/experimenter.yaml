@@ -150,6 +150,10 @@ fission:
       type: boolean
       description: |
         Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
+    isolationStrategy:
+      type: int
+      description: |
+        The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
     shouldUseNimbus:
       type: boolean
       description: |
@@ -357,15 +361,6 @@ navigation-toolbar:
       type: boolean
       description: |
         When the feature is enabled then the user will see the new navigation toolbar.
-networking:
-  description: Enables networking features
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    fetchPriorityEnabled:
-      type: boolean
-      description: |
-        Enables or disables network.fetchpriority.enabled preference.
 networkingBannedPorts:
   description: Networking (Necko) Banned Ports
   hasExposure: true
@@ -486,14 +481,6 @@ private-browsing-lock:
       type: boolean
       description: |
         Whether or not to enable private browsing mode lock.
-query-parameter-stripping:
-  description: Features for query parameter stripping.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    sections-enabled:
-      type: json
-      description: This property provides a lookup table of whether or not the given section should be enabled.
 re-engagement-notification:
   description: A feature that shows the re-engagement notification if the user is inactive.
   hasExposure: true

@@ -15,8 +15,8 @@
             hx-select="#features-form"
             hx-target="#features-form"
             hx-swap="outerHTML"
-            hx-select-oob="#features-tables">
-        {% csrf_token %}
+            hx-select-oob="#features-tables"
+            hx-push-url="true">
         <div class="card mb-3">
           <div class="card-body bg-primary-subtle">
             <div class="row mb-4">
@@ -37,13 +37,13 @@
       <div id="features-tables"
            class="card shadow-sm p-3 border-0 h-100 rounded-3 bg-primary-subtle">
         <div scope="row" class="row">
-          <div scope="col" class="col-2 pe-0 align-items-center">
-            <h5 class="fw-semibold mt-3">
+          <div scope="col" class="col-8 pe-0 align-items-center">
+            <h5 class="fw-semibold mt-3 d-flex align-items-center">
               <img src="{% static 'assets/feature-deliveries.svg' %}"
                    alt="Hugging Foxes"
                    style="width: 60px;
                           height: auto" />
-              Deliveries
+              <span class="me-2">Deliveries</span>
               <i class="fa-regular fa-circle-question"
                  data-bs-toggle="tooltip"
                  data-bs-placement="top"
@@ -51,7 +51,7 @@
             </h5>
           </div>
           <div scope="col"
-               class="col-4 ps-0 d-inline-flex align-items-center flex-nowrap ">
+               class="col-4 ps-0 d-flex align-items-center justify-content-end">
             <div id="feature-subscription-button">
               {% if selected_feature_config %}
                 {% include "nimbus_experiments/feature_subscribe_button.html" %}
@@ -204,7 +204,7 @@
                alt="Hugging Foxes"
                style="width: 60px;
                       height: auto" />
-          QA Runs
+          <span>QA Runs</span>
         </h5>
         <div>
           <div id="qa-info-table">
@@ -350,7 +350,7 @@
                alt="Fox opening a box"
                style="width: 60px;
                       height: auto" />
-          Feature Changes
+          <span>Feature Changes</span>
           <i class="fa-regular fa-circle-question"
              data-bs-toggle="tooltip"
              data-bs-placement="top"

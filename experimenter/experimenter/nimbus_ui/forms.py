@@ -9,6 +9,7 @@ from django.db.models import Case, When
 from django.forms import BaseInlineFormSet, BaseModelFormSet, inlineformset_factory
 from django.http import HttpRequest
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.text import slugify
 
 from experimenter.base.models import Country, Language, Locale
@@ -239,6 +240,18 @@ class QAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         widgets = {
             "qa_status": forms.Select(choices=NimbusExperiment.QAStatus),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._initial_qa_status = self.instance.qa_status if self.instance.pk else None
+
+    def save(self, *args, **kwargs):
+        new_qa_status = self.cleaned_data.get("qa_status")
+        if self._initial_qa_status != new_qa_status:
+            if new_qa_status != NimbusExperiment.QAStatus.NOT_SET:
+                self.instance.qa_run_date = timezone.now().date()
+
+        return super().save(*args, **kwargs)
 
     def get_changelog_message(self):
         return f"{self.request.user} updated QA"

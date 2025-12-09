@@ -481,6 +481,10 @@ toolbar-refactor-feature:
       type: boolean
       description: |
         Enables translucency for toolbars.
+    translucency-refactor:
+      type: boolean
+      description: |
+        Enables translucency refactor for toolbars.
     unified_search:
       type: boolean
       description: |

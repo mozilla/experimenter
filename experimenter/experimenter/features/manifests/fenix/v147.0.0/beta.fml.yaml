@@ -164,6 +164,11 @@ features:
           Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
         type: Boolean
         default: false
+      isolationStrategy:
+        description: |
+          The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
+        type: Int
+        default: 2
       shouldUseNimbus:
         description: |
           If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
@@ -647,14 +652,6 @@ features:
           When the feature is enabled then the user will see the new navigation toolbar.
         type: Boolean
         default: false
-  networking:
-    description: Enables networking features
-    variables:
-      fetchPriorityEnabled:
-        description: |
-          Enables or disables network.fetchpriority.enabled preference.
-        type: Boolean
-        default: true
   networkingBannedPorts:
     description: Networking (Necko) Banned Ports
     variables:
@@ -773,17 +770,6 @@ features:
           Whether or not to enable private browsing mode lock.
         type: Boolean
         default: true
-  query-parameter-stripping:
-    description: Features for query parameter stripping.
-    variables:
-      sections-enabled:
-        description: This property provides a lookup table of whether or not the given section should be enabled.
-        type: Map<QueryParameterStrippingSection, String>
-        default:
-          query-parameter-stripping: '0'
-          query-parameter-stripping-pmb: '0'
-          query-parameter-stripping-allow-list: ''
-          query-parameter-stripping-strip-list: ''
   re-engagement-notification:
     description: A feature that shows the re-engagement notification if the user is inactive.
     variables:

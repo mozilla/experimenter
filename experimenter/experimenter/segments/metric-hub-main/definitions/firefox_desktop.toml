@@ -340,6 +340,7 @@ friendly_name = "Clicked Pocket organic recs in New Tab"
 description = """
     Counts the number of Pocket rec clicks made by each client.
 """
+deprecated = true
 
 
 [metrics.pocket_spoc_clicks]
@@ -353,6 +354,8 @@ friendly_name = "Clicked Pocket sponsored content in New Tab"
 description = """
     Counts the number of Pocket sponsored content clicks made by each client.
 """
+deprecated = true
+
 
 
 [metrics.days_of_use]
@@ -526,6 +529,8 @@ friendly_name = "Disabled Pocket in New Tab"
 description = """
     Counts the number of clicks to disable Pocket in New Tab made by each client.
 """
+deprecated = true
+
 
 
 [metrics.disable_pocket_spocs_clicks]
@@ -540,6 +545,8 @@ description = """
     Counts the number of clicks to disable Pocket sponsored content
     in New Tab made by each client.
 """
+deprecated = true
+
 
 
 [metrics.content_shutdown_crashes]
@@ -1407,7 +1414,6 @@ description = """
 Count of New Tab organic tile clicks across all positions.
 """
 
-
 [metrics.newtab_organic_topsite_impressions_v2]
 data_source = "newtab_clients_daily"
 select_expression = "COALESCE(SUM(organic_topsite_tile_impressions), 0)"
@@ -1417,48 +1423,6 @@ description = """
 Count of New Tab organic tile impressions across all positions.
 """
 
-[metrics.wallpaper_clicks]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(wallpaper_clicks), 0)"
-friendly_name = "Wallpaper Selection Clicks"
-description = """
-Count of total clicks on wallpaper selections.
-"""
-
-[metrics.wallpaper_clicks_had_previous_wallpaper]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(wallpaper_clicks_had_previous_wallpaper), 0)"
-friendly_name = "Wallpaper Selection Clicks With Previous Wallpaper"
-description = """
-Count of total clicks on wallpaper selections where the client had previously selected
-a wallpaper.
-"""
-
-[metrics.wallpaper_clicks_first_selected_wallpaper]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(wallpaper_clicks_first_selected_wallpaper), 0)"
-friendly_name = "Wallpaper Selection Clicks With No Previous Wallpaper"
-description = """
-Count of total clicks on wallpaper selections where the client had no previously selected
-a wallpaper.
-"""
-
-[metrics.wallpaper_highlight_dismissals]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(wallpaper_highlight_dismissals), 0)"
-friendly_name = "Wallpaper Highlight Dismissals"
-description = """
-Count of dismissals of the wallpaper highlight.
-"""
-
-[metrics.wallpaper_highlight_cta_clicks]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(wallpaper_highlight_cta_clicks), 0)"
-friendly_name = "Wallpaper Highlight CTA Clicks"
-description = """
-Count of total clicks on the CTA in the wallpaper feature highlight.
-"""
-
 [metrics.newtab_weather_widget_enabled]
 data_source = "newtab_clients_daily"
 select_expression = "COALESCE(MAX(CAST(newtab_weather_widget_enabled AS INT)), 0)"
@@ -1466,46 +1430,6 @@ friendly_name = "Weather Widget Enabled"
 type = "scalar"
 description = """
 Whether or not the weather widget is enabled on the New Tab.
-"""
-
-[metrics.weather_widget_impressions]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(weather_widget_impressions), 0)"
-friendly_name = "Weather Widget Impressions"
-description = """
-Count of total impressions of the New Tab weather widget.
-"""
-
-[metrics.weather_widget_clicks]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(weather_widget_clicks), 0)"
-friendly_name = "Weather Widget Clicks"
-description = """
-Count of total clicks on the New Tab weather widget.
-"""
-
-[metrics.weather_widget_load_errors]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(weather_widget_load_errors), 0)"
-friendly_name = "Weather Widget Load Errors"
-description = """
-Count of New Tab weather widget load errors.
-"""
-
-[metrics.weather_widget_change_display_to_detailed]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(weather_widget_change_display_to_detailed), 0)"
-friendly_name = "Weather Widget Change Display to Detailed"
-description = """
-Count of events where the client changed the weather widget display type to Detailed.
-"""
-
-[metrics.weather_widget_change_display_to_simple]
-data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(weather_widget_change_display_to_simple), 0)"
-friendly_name = "Weather Widget Change Display to Simple"
-description = """
-Count of events where the client changed the weather widget display type to Simple.
 """
 
 ########################### END OF NEW TAB METRICS ###########################
@@ -1606,12 +1530,6 @@ select_expression = "COUNT(payload.histograms.http_pageload_is_ssl) / COUNT(*)"
 data_source = "main"
 friendly_name = "SSL Loads Probe Ratio"
 description = "Ratio of clients that have the http_pageload_is_ssl_ratio_v1 probe"
-
-[metrics.sponsored_tiles_disabled]
-select_expression = '{{agg_any("sponsored_tiles_disable_count > 0")}}'
-data_source = "sponsored_tiles_clients_daily"
-friendly_name = "Sponsored Tiles Disabled Event"
-description = "Boolean that identifies clients that disabled sponsored tiles during experiment"
 
 [metrics.sponsored_tiles_dismissals]
 select_expression = "COALESCE(SUM(sponsored_topsite_tile_dismissals), 0)"
@@ -1872,6 +1790,71 @@ select_expression = "SUM(urlbar_impressions)"
 data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 friendly_name = "URL Bar Impressions"
 
+[metrics.number_of_sessions]
+select_expression = "COALESCE(COUNT(DISTINCT metrics.uuid.legacy_telemetry_session_id), 0)"
+data_source = "metrics"
+friendly_name = "Number of Cold Starts (Based on Legacy Session IDs)"
+
+[metrics.number_of_autostart_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'Autostart'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Autostart"
+
+[metrics.number_of_desktoplauncher_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'DesktopLauncher'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using the Desktop Launcher"
+
+[metrics.number_of_desktop_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'Desktop'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using an Desktop Shortcut (Normal Mode)"
+
+[metrics.number_of_desktopprivate_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'DesktopPrivate'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using an Desktop Shortcut (Private Mode)"
+
+[metrics.number_of_other_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'Other'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using an Unknown Method"
+
+[metrics.number_of_othershortcut_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'OtherShortcut'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Another Shortcut"
+
+[metrics.number_of_startmenu_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'StartMenu'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Start Menu (Normal Mode)"
+
+[metrics.number_of_startmenuprivate_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'StartMenuPrivate'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Start Menu (Private Mode)"
+
+[metrics.number_of_taskbar_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'Taskbar'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Taskbar (Normal Mode)"
+
+[metrics.number_of_taskbarprivate_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'TaskbarPrivate'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Taskbar (Private Mode)"
+
+[metrics.number_of_taskbartab_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method = 'TaskbarTab'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches Using Taskbar Tabs"
+
+[metrics.number_of_non_taskbartab_launches]
+select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_method != 'TaskbarTab'), 0)"
+data_source = "metrics"
+friendly_name = "Number of Launches without Using Taskbar Tabs"
+
 [dimensions]
 
 [dimensions.os]
@@ -2039,12 +2022,8 @@ from_expression = """(
 experiments_column_type = "native"
 friendly_name = "Activity Stream Events"
 description = "Activity Stream Event pings"
+deprecated = true
 
-[data_sources.sponsored_tiles_clients_daily]
-from_expression = "mozdata.telemetry.sponsored_tiles_clients_daily"
-submission_date_column = "submission_date"
-description = "Sponsored Tiles Clients Daily"
-friendly_name = "Sponsored Tiles Clients Daily"
 
 [data_sources.clients_first_seen_v2]
 from_expression = "moz-fx-data-shared-prod.telemetry_derived.clients_first_seen_v2" # TODO: Replace with view
@@ -2072,22 +2051,6 @@ description = "Urlbar Events Clients Daily"
 submission_date_column = "submission_date"
 experiments_column_type = "native"
 
-[data_sources.urlbar_events_unnested_results]
-from_expression = """(
-    SELECT
-        e.* EXCEPT (results),
-        result
-    FROM
-        `moz-fx-data-shared-prod.firefox_desktop.urlbar_events` e
-    CROSS JOIN
-        UNNEST(e.results) AS result
-)"""
-friendly_name = "Urlbar Events with Unnested Results"
-description = "Urlbar Events table with the list of displayed results unnested"
-submission_date_column = "submission_date"
-client_id_column = "legacy_telemetry_client_id"
-experiments_column_type = "native"
-
 [data_sources.serp_events]
 from_expression = "mozdata.firefox_desktop.serp_events"
 friendly_name = "SERP Events"
@@ -2110,35 +2073,6 @@ from_expression = """(
     )"""
 client_id_column = "metrics.uuid.legacy_telemetry_client_id"
 experiments_column_type = "glean"
-
-[data_sources.newtab_visits_topsite_tile_interactions]
-from_expression = """(
-    SELECT
-        e.* EXCEPT (topsite_tile_interactions),
-        topsite_tile_interactions
-    FROM
-        `moz-fx-data-shared-prod.telemetry.newtab_visits` e
-    CROSS JOIN
-        UNNEST(e.topsite_tile_interactions) AS topsite_tile_interactions
-)"""
-submission_date_column = "submission_date"
-description = "Topsite Tiles Visit Activity Daily"
-friendly_name = "Topsite Tiles Visit Activity Daily"
-[data_sources.newtab_visits_search_interactions]
-from_expression = """(
-    SELECT
-        e.* EXCEPT (search_interactions),
-        search_interactions
-    FROM
-        `moz-fx-data-shared-prod.telemetry.newtab_visits` e
-    CROSS JOIN
-        UNNEST(e.search_interactions) AS search_interactions
-)"""
-submission_date_column = "submission_date"
-description = "Search Tiles Visit Activity Daily"
-friendly_name = "Search Tiles Visit Activity Daily"
-client_id_column = "legacy_telemetry_client_id"
-experiments_column_type = "native"
 
 [data_sources.newtab_visits]
 from_expression = """(
