@@ -4019,46 +4019,6 @@ class TestNimbusFeaturesView(AuthTestCase):
             [experiment2.slug, experiment1.slug],
         )
 
-    def test_features_view_deliveries_table_can_sort_by_qa_run_type(self):
-        experiment1 = NimbusExperimentFactory.create(
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[self.feature_configs["feature-desktop"]],
-            qa_run_type=NimbusExperiment.QATestType.FULL,
-        )
-        experiment2 = NimbusExperimentFactory.create(
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[self.feature_configs["feature-desktop"]],
-            qa_run_type=NimbusExperiment.QATestType.SMOKE,
-        )
-
-        response = self.client.get(
-            reverse("nimbus-ui-features"),
-            {
-                "sort": FeaturesPageSortChoices.QARuns.TYPE_UP,
-                "application": NimbusExperiment.Application.DESKTOP.value,
-                "feature_configs": self.feature_configs["feature-desktop"].id,
-            },
-        )
-
-        self.assertEqual(
-            [e.slug for e in response.context["experiments_delivered"]],
-            [experiment1.slug, experiment2.slug],
-        )
-
-        response = self.client.get(
-            reverse("nimbus-ui-features"),
-            {
-                "sort": FeaturesPageSortChoices.QARuns.TYPE_DOWN,
-                "application": NimbusExperiment.Application.DESKTOP.value,
-                "feature_configs": self.feature_configs["feature-desktop"].id,
-            },
-        )
-
-        self.assertEqual(
-            [e.slug for e in response.context["experiments_delivered"]],
-            [experiment2.slug, experiment1.slug],
-        )
-
     def test_features_view_deliveries_table_can_sort_by_experiment_channel(self):
         experiment1 = NimbusExperimentFactory.create(
             application=NimbusExperiment.Application.DESKTOP,

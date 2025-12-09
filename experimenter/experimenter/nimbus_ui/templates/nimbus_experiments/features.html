@@ -234,7 +234,6 @@
     title="{{ experiment.name }}">{{ experiment.name }}</a>
                     </td>
                     <td id="qa-run-date">{{ experiment.qa_run_date|format_not_set }}</td>
-                    <td id="qa-run-type">{{ experiment.get_qa_run_type_display|format_not_set }}</td>
                     <td id="qa-run-status">
                       <div>
                         {% with icon_info=experiment.qa_status_icon_info %}
