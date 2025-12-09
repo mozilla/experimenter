@@ -35,8 +35,7 @@
         </div>
       </form>
       <div id="features-tables">
-        <!-- Deliveries Table -->
-        <div class="card shadow-sm p-3 border-0 h-100 rounded-3 bg-primary-subtle mb-4">
+        <div class="card shadow-sm p-3 border-0 mb-3 rounded-3 bg-primary-subtle">
           <div scope="row" class="row">
             <div scope="col" class="col-8 pe-0 align-items-center">
               <h5 class="fw-semibold mt-3 d-flex align-items-center">
@@ -63,451 +62,451 @@
           </div>
           <div>
             <div id="deliveries-table">
-              <div id="no-deliveries"></div>
-              <table class="table table-hover table-borderless align-middle mb-3 mt-1">
-                <thead>
-                  <tr>
-                    {% for field, label in deliveries_sortable_header %}
-                      {% if field not in deliveries_non_sortable_header %}
-                        {% include "common/home_sortable_header.html" with field=field label=label url=request.path hx_target="#deliveries-table" hx_select="#deliveries-table" current_sort=request.GET.sort %}
+            <div id="no-deliveries"></div>
+            <table class="table table-hover table-borderless align-middle mb-3 mt-1">
+              <thead>
+                <tr>
+                  {% for field, label in deliveries_sortable_header %}
+                    {% if field not in deliveries_non_sortable_header %}
+                      {% include "common/home_sortable_header.html" with field=field label=label url=request.path hx_target="#deliveries-table" hx_select="#deliveries-table" current_sort=request.GET.sort %}
 
-                      {% else %}
-                        <th scope="col" class="fw-semibold text-decoration-none">
-                          <div class="d-flex align-items-center">
-                            <span class="d-flex align-items-center text-body p-0">{{ label }}</span>
-                          </div>
-                        </th>
-                      {% endif %}
-                    {% endfor %}
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for experiment in experiments_delivered %}
-                    <tr scope="row">
-                      <td id="delivery-name" class="text-wrap col-3">
-                        <a target="_blank"
-                           href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
-                           class="text-decoration-none fw-medium"
-                           title="{{ experiment.name }}">{{ experiment.name }}</a>
-                      </td>
-                      <td id="delivery-published-date">{{ experiment.start_date|date:"M j, Y"|format_not_set }}</td>
-                      <td id="delivery-type-{{ experiment.home_type_choice }}">{{ experiment.home_type_choice }}</td>
-                      <td id="delivery-channel" class="col-1">
-                        {% render_channel_icons experiment as channel_data %}
-                        {% if channel_data %}
-                          <div class="d-flex flex-wrap">
-                            {% for channel in channel_data %}
-                              <span class="d-inline-flex align-items-center{% if channel.is_multi %} me-2 mb-1{% endif %}">
-                                <span class="{{ channel.icon_info.color }} me-1">
-                                  <i class="{{ channel.icon_info.icon }}"></i>
-                                </span>
-                                <span class="small">{{ channel.label }}</span>
+                    {% else %}
+                      <th scope="col" class="fw-semibold text-decoration-none">
+                        <div class="d-flex align-items-center">
+                          <span class="d-flex align-items-center text-body p-0">{{ label }}</span>
+                        </div>
+                      </th>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for experiment in experiments_delivered %}
+                  <tr scope="row">
+                    <td id="delivery-name" class="text-wrap col-3">
+                      <a target="_blank"
+                         href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+                         class="text-decoration-none fw-medium"
+                         title="{{ experiment.name }}">{{ experiment.name }}</a>
+                    </td>
+                    <td id="delivery-published-date">{{ experiment.start_date|date:"M j, Y"|format_not_set }}</td>
+                    <td id="delivery-type-{{ experiment.home_type_choice }}">{{ experiment.home_type_choice }}</td>
+                    <td id="delivery-channel" class="col-1">
+                      {% render_channel_icons experiment as channel_data %}
+                      {% if channel_data %}
+                        <div class="d-flex flex-wrap">
+                          {% for channel in channel_data %}
+                            <span class="d-inline-flex align-items-center{% if channel.is_multi %} me-2 mb-1{% endif %}">
+                              <span class="{{ channel.icon_info.color }} me-1">
+                                <i class="{{ channel.icon_info.icon }}"></i>
                               </span>
-                            {% endfor %}
-                          </div>
-                        {% endif %}
-                      </td>
-                      <td id="delivery-min-version">{{ experiment.firefox_min_version|parse_version }}</td>
-                      <td id="delivery-population-percent">{{ experiment.total_enrolled_clients|floatformat:"-1" }}</td>
-                      <td id="delivery-brief">{{ experiment.delivery_brief|format_not_set }}</td>
-                    </tr>
-                  {% empty %}
+                              <span class="small">{{ channel.label }}</span>
+                            </span>
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    </td>
+                    <td id="delivery-min-version">{{ experiment.firefox_min_version|parse_version }}</td>
+                    <td id="delivery-population-percent">{{ experiment.total_enrolled_clients|floatformat:"-1" }}</td>
+                    <td id="delivery-brief">{{ experiment.delivery_brief|format_not_set }}</td>
+                  </tr>
+                {% empty %}
+                  <tr>
                     <tr>
                       <td colspan="11" class="text-center text-muted py-5">No Deliveries</td>
                     </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-              <div>
-                {% if deliveries_page_obj.has_other_pages %}
-                  {% with current_sort=request.GET.sort %}
-                    <div id="pagination" class="row">
-                      <div class="col text-center">
-                        <ul class="pagination justify-content-center">
-                          {% if deliveries_page_obj.has_previous %}
-                            <li class="page-item">
-                              <a class="page-link"
-                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page=1&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                 hx-target="#deliveries-table"
-                                 hx-select="#deliveries-table"
-                                 hx-swap="outerHTML"
-                                 hx-push-url="true"><i class="fa-solid fa-angles-left"></i></a>
-                            </li>
-                            <li class="page-item">
-                              <a class="page-link"
-                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.previous_page_number }}&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                 hx-target="#deliveries-table"
-                                 hx-select="#deliveries-table"
-                                 hx-swap="outerHTML"
-                                 hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
-                            </li>
-                          {% else %}
-                            <li class="page-item disabled">
-                              <a class="page-link" href="#">
-                                <i class="fa-solid fa-angles-left"></i>
-                              </a>
-                            </li>
-                            <li class="page-item disabled">
-                              <a class="page-link" href="#">
-                                <i class="fa-solid fa-angle-left"></i>
-                              </a>
-                            </li>
-                          {% endif %}
-                          <li class="page-item">
-                            <div class="page-link">
-                              <a>{{ deliveries_page_obj.number }} of {{ deliveries_page_obj.paginator.num_pages }}</a>
-                            </div>
-                            {% if deliveries_page_obj.has_next %}
-                              <li class="page-item">
-                                <a class="page-link"
-                                   hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.next_page_number }}&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                   hx-target="#deliveries-table"
-                                   hx-select="#deliveries-table"
-                                   hx-swap="outerHTML"
-                                   hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
-                              </li>
-                              <li class="page-item">
-                                <a class="page-link"
-                                   hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.paginator.num_pages }}&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                   hx-target="#deliveries-table"
-                                   hx-select="#deliveries-table"
-                                   hx-swap="outerHTML"
-                                   hx-push-url="true">
-                                  <i class="fa-solid fa-angles-right"></i>
-                                </a>
-                              </li>
-                            {% else %}
-                              <li class="page-item disabled">
-                                <a class="page-link" href="#">
-                                  <i class="fa-solid fa-angle-right"></i>
-                                </a>
-                              </li>
-                              <li class="page-item disabled">
-                                <a class="page-link" href="#">
-                                  <i class="fa-solid fa-angles-right"></i>
-                                </a>
-                              </li>
-                            {% endif %}
-                          </ul>
-                        </div>
-                      </div>
-                    {% endwith %}
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- QA Runs Table -->
-          <div class="card shadow-sm p-3 border-0 h-100 rounded-3 bg-primary-subtle mb-4">
-            <h5 class="fw-semibold">
-              <img src="{% static 'assets/qa-runs.svg' %}"
-                   alt="Hugging Foxes"
-                   style="width: 60px;
-                          height: auto" />
-              <span>QA Runs</span>
-            </h5>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
             <div>
-              <div id="qa-info-table">
-                <table class="table table-hover table-borderless align-middle mb-3">
-                  <thead>
-                    <tr>
-                      {% for field, label in qa_runs_sortable_header %}
-                        {% if field not in qa_runs_non_sortable_header %}
-                          {% include "common/home_sortable_header.html" with field=field label=label url=request.path hx_target="#qa-info-table" hx_select="#qa-info-table" current_sort=request.GET.sort %}
-
-                        {% else %}
-                          <th scope="col" class="fw-semibold text-decoration-none">
-                            <div class="d-flex align-items-center">
-                              <span class="d-flex align-items-center text-body p-0">{{ label }}</span>
-                            </div>
-                          </th>
-                        {% endif %}
-                      {% endfor %}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for experiment in experiments_with_qa_status %}
-                      <tr scope="row">
-                        <td id="qa-run" class="text-wrap col-3">
-                          Request for: <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
-    class="text-decoration-none fw-medium"
-    title="{{ experiment.name }}">{{ experiment.name }}</a>
-                        </td>
-                        <td id="qa-run-date">{{ experiment.qa_run_date|format_not_set }}</td>
-                        <td id="qa-run-type">{{ experiment.get_qa_run_type_display|format_not_set }}</td>
-                        <td id="qa-run-status">
-                          <div>
-                            {% with icon_info=experiment.qa_status_icon_info %}
-                              {% if icon_info.icon %}<span class="{{ icon_info.color }}"><i class="{{ icon_info.icon }}"></i></span>{% endif %}
-                            {% endwith %}
-                            {{ experiment.get_qa_status_display }}
-                          </div>
-                        </td>
-                        <td id="qa-test-plan">
-                          {% if experiment.qa_run_test_plan %}
-                            <a href="{{ experiment.qa_run_test_plan }}">Test Plan Link</a>
-                          {% else %}
-                            <span class="text-danger">Not set</span>
-                          {% endif %}
-                        </td>
-                        <td id="qa-testrail-link" class="col-2">
-                          {% if experiment.qa_run_testrail_link %}
-                            <a href="{{ experiment.qa_run_testrail_link }}">TestRail Link</a>
-                          {% else %}
-                            <span class="text-danger">Not set</span>
-                          {% endif %}
-                        </td>
-                      {% empty %}
-                        <tr>
-                          <td colspan="11" class="text-center text-muted py-5">No QA runs</td>
-                        </tr>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                <div>
-                  {% with current_sort=request.GET.sort %}
-                    {% if qa_runs_page_obj.has_other_pages %}
-                      <div id="pagination" class="row">
-                        <div class="col text-center">
-                          <ul class="pagination justify-content-center">
-                            {% if qa_runs_page_obj.has_previous %}
-                              <li class="page-item">
-                                <a class="page-link"
-                                   hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs=1{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                   hx-target="#qa-info-table"
-                                   hx-select="#qa-info-table"
-                                   hx-swap="outerHTML"
-                                   hx-push-url="true"><i class="fa-solid fa-angles-left"></i></a>
-                              </li>
-                              <li class="page-item">
-                                <a class="page-link"
-                                   hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                   hx-target="#qa-info-table"
-                                   hx-select="#qa-info-table"
-                                   hx-swap="outerHTML"
-                                   hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
-                              </li>
-                            {% else %}
-                              <li class="page-item disabled">
-                                <a class="page-link" href="#">
-                                  <i class="fa-solid fa-angles-left"></i>
-                                </a>
-                              </li>
-                              <li class="page-item disabled">
-                                <a class="page-link" href="#">
-                                  <i class="fa-solid fa-angle-left"></i>
-                                </a>
-                              </li>
-                            {% endif %}
-                            <li class="page-item">
-                              <div class="page-link">
-                                <a>{{ qa_runs_page_obj.number }} of {{ qa_runs_page_obj.paginator.num_pages }}</a>
-                              </div>
-                              {% if qa_runs_page_obj.has_next %}
-                                <li class="page-item">
-                                  <a class="page-link"
-                                     hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                     hx-target="#qa-info-table"
-                                     hx-select="#qa-info-table"
-                                     hx-swap="outerHTML"
-                                     hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
-                                </li>
-                                <li class="page-item">
-                                  <a class="page-link"
-                                     hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.paginator.num_pages }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                     hx-target="#qa-info-table"
-                                     hx-select="#qa-info-table"
-                                     hx-swap="outerHTML"
-                                     hx-push-url="true">
-                                    <i class="fa-solid fa-angles-right"></i>
-                                  </a>
-                                </li>
-                              {% else %}
-                                <li class="page-item disabled">
-                                  <a class="page-link" href="#">
-                                    <i class="fa-solid fa-angle-right"></i>
-                                  </a>
-                                </li>
-                                <li class="page-item disabled">
-                                  <a class="page-link" href="#">
-                                    <i class="fa-solid fa-angles-right"></i>
-                                  </a>
-                                </li>
-                              {% endif %}
-                            </ul>
-                          </div>
-                        </div>
-                      {% endif %}
-                    {% endwith %}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- Feature Changes Table -->
-            <div class="card shadow-sm p-3 border-0 h-100 rounded-3 bg-primary-subtle">
-              <h5 class="fw-semibold">
-                <img src="{% static 'assets/feature-changes.svg' %}"
-                     alt="Fox opening a box"
-                     style="width: 60px;
-                            height: auto" />
-                <span>Feature Changes</span>
-                <i class="fa-regular fa-circle-question"
-                   data-bs-toggle="tooltip"
-                   data-bs-placement="top"
-                   data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.feature_changes_tooltip }}"></i>
-                <span class="badge bg-secondary">Number of changes: {{ schemas_with_changes }}</span>
-              </h5>
-              <div>
-                <div id="feature-changes-table">
-                  <table class="table table-hover table-borderless align-middle mb-3">
-                    <thead>
-                      <tr colspan="12">
-                        {% for field, label in feature_changes_headers %}
-                          {% if field not in feature_changes_non_sortable_headers %}
-                            {% include "common/home_sortable_header.html" with field=field label=label url=request.path hx_target="#feature-changes-table" hx_select="#feature-changes-table" current_sort=request.GET.sort %}
-
-                          {% else %}
-                            <th scope="col" class="fw-semibold text-decoration-none">
-                              <div class="d-flex align-items-center">
-                                <span class="d-flex align-items-center text-body p-0">{{ label }}</span>
-                              </div>
-                            </th>
-                          {% endif %}
-                        {% endfor %}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for item in feature_schemas %}
-                        <tr scope="row">
-                          <td id="feature-version-{{ item.schema.id }}" scope="col" class="col-4">
-                            {{ item.schema.version|default:"current" }}
-                          </td>
-                          <td scope="col" class="col-4">
-                            <span class="badge {{ item.size_badge }}">{{ item.size_label }}</span>
-                          </td>
-                          <td scope="col" class="col-4">
-                            {% if item.previous_json %}
-                              <button class="btn btn-sm btn-primary diff-toggle-btn"
-                                      type="button"
-                                      data-bs-toggle="collapse"
-                                      data-bs-target="#diff-row-{{ item.schema.id }}"
-                                      aria-expanded="false"
-                                      aria-controls="diff-row-{{ item.schema.id }}">
-                                <i class="fa-solid fa-chevron-down chevron-icon"></i>
-                                <span class="btn-text-collapsed">Show Diff</span>
-                                <span class="btn-text-expanded">Hide Diff</span>
-                              </button>
-                            {% else %}
-                              <span class="text-muted">First version</span>
-                            {% endif %}
-                          </td>
-                        </tr>
-                        {% if item.previous_json %}
-                          <tr class="collapse" id="diff-row-{{ item.schema.id }}">
-                            <td colspan="12" style="padding: 20px;">
-                              <div style="max-width: 100%; overflow-x: auto;">
-                                <div class="schema-merge-container"
-                                     data-current="{{ item.current_json }}"
-                                     data-previous="{{ item.previous_json }}"
-                                     style="max-height: 600px;
-                                            max-width: 1200px"></div>
-                              </div>
-                            </td>
-                          </tr>
-                        {% endif %}
-                      {% empty %}
-                        <tr>
-                          <td colspan="11" class="text-center text-muted py-5">No Tracked Feature Changes</td>
-                        </tr>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                <div>
-                  {% if feature_changes_page_obj.has_other_pages %}
-                    <div id="pagination" class="row">
-                      <div class="col text-center">
-                        <ul class="pagination justify-content-center">
-                          {% if feature_changes_page_obj.has_previous %}
-                            <li class="page-item">
-                              <a class="page-link"
-                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes=1{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                 hx-target="#feature-changes-table"
-                                 hx-select="#feature-changes-table"
-                                 hx-swap="outerHTML"
-                                 hx-push-url="true"><i class="fa-solid fa-angles-left"></i></a>
-                            </li>
-                            <li class="page-item">
-                              <a class="page-link"
-                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes={{ feature_changes_page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                 hx-target="#feature-changes-table"
-                                 hx-select="#feature-changes-table"
-                                 hx-swap="outerHTML"
-                                 hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
-                            </li>
-                          {% else %}
-                            <li class="page-item disabled">
-                              <a class="page-link" href="#">
-                                <i class="fa-solid fa-angles-left"></i>
-                              </a>
-                            </li>
-                            <li class="page-item disabled">
-                              <a class="page-link" href="#">
-                                <i class="fa-solid fa-angle-left"></i>
-                              </a>
-                            </li>
-                          {% endif %}
+              {% if deliveries_page_obj.has_other_pages %}
+                {% with current_sort=request.GET.sort %}
+                  <div id="pagination" class="row">
+                    <div class="col text-center">
+                      <ul class="pagination justify-content-center">
+                        {% if deliveries_page_obj.has_previous %}
                           <li class="page-item">
-                            <div class="page-link">
-                              <a>{{ feature_changes_page_obj.number }} of {{ feature_changes_page_obj.paginator.num_pages }}</a>
-                            </div>
-                            {% if feature_changes_page_obj.has_next %}
-                              <li class="page-item">
-                                <a class="page-link"
-                                   hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes={{ feature_changes_page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                   hx-target="#feature-changes-table"
-                                   hx-select="#feature-changes-table"
-                                   hx-swap="outerHTML"
-                                   hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
-                              </a>
-                            </li>
+                            <a class="page-link"
+                               hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page=1&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                               hx-target="#deliveries-table"
+                               hx-select="#deliveries-table"
+                               hx-swap="outerHTML"
+                               hx-push-url="true"><i class="fa-solid fa-angles-left"></i></a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link"
+                               hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.previous_page_number }}&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                               hx-target="#deliveries-table"
+                               hx-select="#deliveries-table"
+                               hx-swap="outerHTML"
+                               hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
+                          </li>
+                        {% else %}
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angles-left"></i>
+                            </a>
+                          </li>
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angle-left"></i>
+                            </a>
+                          </li>
+                        {% endif %}
+                        <li class="page-item">
+                          <div class="page-link">
+                            <a>{{ deliveries_page_obj.number }} of {{ deliveries_page_obj.paginator.num_pages }}</a>
+                          </li>
+                          {% if deliveries_page_obj.has_next %}
                             <li class="page-item">
                               <a class="page-link"
-                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes={{ feature_changes_page_obj.paginator.num_pages }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
-                                 hx-target="#feature-changes-table"
-                                 hx-select="#feature-changes-table"
+                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.next_page_number }}&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                 hx-target="#deliveries-table"
+                                 hx-select="#deliveries-table"
                                  hx-swap="outerHTML"
-                                 hx-push-url="true">
-                                <i class="fa-solid fa-angles-right"></i>
-                              </a>
-                            </li>
-                          {% else %}
-                            <li class="page-item disabled">
-                              <a class="page-link" href="#">
-                                <i class="fa-solid fa-angle-right"></i>
-                              </a>
-                            </li>
-                            <li class="page-item disabled">
-                              <a class="page-link" href="#">
-                                <i class="fa-solid fa-angles-right"></i>
-                              </a>
-                            </li>
-                          {% endif %}
-                        </ul>
-                      </div>
+                                 hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
+                            </a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link"
+                               hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.paginator.num_pages }}&qa_runs={{ qa_runs_page_obj.number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                               hx-target="#deliveries-table"
+                               hx-select="#deliveries-table"
+                               hx-swap="outerHTML"
+                               hx-push-url="true">
+                              <i class="fa-solid fa-angles-right"></i>
+                            </a>
+                          </li>
+                        {% else %}
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angle-right"></i>
+                            </a>
+                          </li>
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angles-right"></i>
+                            </a>
+                          </li>
+                        {% endif %}
+                      </ul>
                     </div>
-                  {% endif %}
-                </div>
-              </div>
+                  </div>
+                {% endwith %}
+              {% endif %}
             </div>
           </div>
         </div>
       </div>
-    </div>
-  {% endblock %}
+      <div class="card shadow-sm p-3 border-0 mb-3 rounded-3 bg-primary-subtle">
+        <h5 class="fw-semibold mt-3">
+          <img src="{% static 'assets/qa-runs.svg' %}"
+               alt="Hugging Foxes"
+               style="width: 60px;
+                      height: auto" />
+          <span>QA Runs</span>
+        </h5>
+        <div>
+          <div id="qa-info-table">
+            <table class="table table-hover table-borderless align-middle mb-3">
+              <thead>
+                <tr>
+                  {% for field, label in qa_runs_sortable_header %}
+                    {% if field not in qa_runs_non_sortable_header %}
+                      {% include "common/home_sortable_header.html" with field=field label=label url=request.path hx_target="#qa-info-table" hx_select="#qa-info-table" current_sort=request.GET.sort %}
 
-  {% block extrascripts %}
-    {{ block.super }}
-    <script src="{% static 'nimbus_ui/features_page.bundle.js' %}"></script>
-  {% endblock extrascripts %}
+                    {% else %}
+                      <th scope="col" class="fw-semibold text-decoration-none">
+                        <div class="d-flex align-items-center">
+                          <span class="d-flex align-items-center text-body p-0">{{ label }}</span>
+                        </div>
+                      </th>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for experiment in experiments_with_qa_status %}
+                  <tr scope="row">
+                    <td id="qa-run" class="text-wrap col-3">
+                      Request for: <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+    class="text-decoration-none fw-medium"
+    title="{{ experiment.name }}">{{ experiment.name }}</a>
+                    </td>
+                    <td id="qa-run-date">{{ experiment.qa_run_date|format_not_set }}</td>
+                    <td id="qa-run-type">{{ experiment.get_qa_run_type_display|format_not_set }}</td>
+                    <td id="qa-run-status">
+                      <div>
+                        {% with icon_info=experiment.qa_status_icon_info %}
+                          {% if icon_info.icon %}<span class="{{ icon_info.color }}"><i class="{{ icon_info.icon }}"></i></span>{% endif %}
+                        {% endwith %}
+                        {{ experiment.get_qa_status_display }}
+                      </div>
+                    </td>
+                    <td id="qa-test-plan">
+                      {% if experiment.qa_run_test_plan %}
+                        <a href="{{ experiment.qa_run_test_plan }}">Test Plan Link</a>
+                      {% else %}
+                        <span class="text-danger">Not set</span>
+                      {% endif %}
+                    </td>
+                    <td id="qa-testrail-link" class="col-2">
+                      {% if experiment.qa_run_testrail_link %}
+                        <a href="{{ experiment.qa_run_testrail_link }}">TestRail Link</a>
+                      {% else %}
+                        <span class="text-danger">Not set</span>
+                      {% endif %}
+                    </td>
+                  {% empty %}
+                    <tr>
+                      <td colspan="11" class="text-center text-muted py-5">No QA runs</td>
+                    </tr>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div>
+              {% with current_sort=request.GET.sort %}
+                {% if qa_runs_page_obj.has_other_pages %}
+                  <div id="pagination" class="row">
+                    <div class="col text-center">
+                      <ul class="pagination justify-content-center">
+                        {% if qa_runs_page_obj.has_previous %}
+                          <li class="page-item">
+                            <a class="page-link"
+                               hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs=1{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                               hx-target="#qa-info-table"
+                               hx-select="#qa-info-table"
+                               hx-swap="outerHTML"
+                               hx-push-url="true"><i class="fa-solid fa-angles-left"></i></a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link"
+                               hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                               hx-target="#qa-info-table"
+                               hx-select="#qa-info-table"
+                               hx-swap="outerHTML"
+                               hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
+                          </li>
+                        {% else %}
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angles-left"></i>
+                            </a>
+                          </li>
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angle-left"></i>
+                            </a>
+                          </li>
+                        {% endif %}
+                        <li class="page-item">
+                          <div class="page-link">
+                            <a>{{ qa_runs_page_obj.number }} of {{ qa_runs_page_obj.paginator.num_pages }}</a>
+                          </li>
+                          {% if qa_runs_page_obj.has_next %}
+                            <li class="page-item">
+                              <a class="page-link"
+                                 hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                 hx-target="#qa-info-table"
+                                 hx-select="#qa-info-table"
+                                 hx-swap="outerHTML"
+                                 hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
+                            </a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link"
+                               hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.paginator.num_pages }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                               hx-target="#qa-info-table"
+                               hx-select="#qa-info-table"
+                               hx-swap="outerHTML"
+                               hx-push-url="true">
+                              <i class="fa-solid fa-angles-right"></i>
+                            </a>
+                          </li>
+                        {% else %}
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angle-right"></i>
+                            </a>
+                          </li>
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                              <i class="fa-solid fa-angles-right"></i>
+                            </a>
+                          </li>
+                        {% endif %}
+                      </ul>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endwith %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm p-3 border-0 mb-3 rounded-3 bg-primary-subtle">
+        <h5 class="fw-semibold mt-3">
+          <img src="{% static 'assets/feature-changes.svg' %}"
+               alt="Fox opening a box"
+               style="width: 60px;
+                      height: auto" />
+          <span>Feature Changes</span>
+          <i class="fa-regular fa-circle-question"
+             data-bs-toggle="tooltip"
+             data-bs-placement="top"
+             data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.feature_changes_tooltip }}"></i>
+          <span class="badge bg-secondary">Number of changes: {{ schemas_with_changes }}</span>
+        </h5>
+        <div>
+          <div id="feature-changes-table">
+            <table class="table table-hover table-borderless align-middle mb-3">
+              <thead>
+                <tr colspan="12">
+                  {% for field, label in feature_changes_headers %}
+                    {% if field not in feature_changes_non_sortable_headers %}
+                      {% include "common/home_sortable_header.html" with field=field label=label url=request.path hx_target="#feature-changes-table" hx_select="#feature-changes-table" current_sort=request.GET.sort %}
+
+                    {% else %}
+                      <th scope="col" class="fw-semibold text-decoration-none">
+                        <div class="d-flex align-items-center">
+                          <span class="d-flex align-items-center text-body p-0">{{ label }}</span>
+                        </div>
+                      </th>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in feature_schemas %}
+                  <tr scope="row">
+                    <td id="feature-version-{{ item.schema.id }}" scope="col" class="col-4">
+                      {{ item.schema.version|default:"current" }}
+                    </td>
+                    <td scope="col" class="col-4">
+                      <span class="badge {{ item.size_badge }}">{{ item.size_label }}</span>
+                    </td>
+                    <td scope="col" class="col-4">
+                      {% if item.previous_json %}
+                        <button class="btn btn-sm btn-primary diff-toggle-btn"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#diff-row-{{ item.schema.id }}"
+                                aria-expanded="false"
+                                aria-controls="diff-row-{{ item.schema.id }}">
+                          <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                          <span class="btn-text-collapsed">Show Diff</span>
+                          <span class="btn-text-expanded">Hide Diff</span>
+                        </button>
+                      {% else %}
+                        <span class="text-muted">First version</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% if item.previous_json %}
+                    <tr class="collapse" id="diff-row-{{ item.schema.id }}">
+                      <td colspan="12" style="padding: 20px;">
+                        <div style="max-width: 100%; overflow-x: auto;">
+                          <div class="schema-merge-container"
+                               data-current="{{ item.current_json }}"
+                               data-previous="{{ item.previous_json }}"
+                               style="max-height: 600px;
+                                      max-width: 1200px"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endif %}
+                {% empty %}
+                  <tr>
+                    <td colspan="11" class="text-center text-muted py-5">No Tracked Feature Changes</td>
+                  </tr>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <div>
+            {% if feature_changes_page_obj.has_other_pages %}
+              <div id="pagination" class="row">
+                <div class="col text-center">
+                  <ul class="pagination justify-content-center">
+                    {% if feature_changes_page_obj.has_previous %}
+                      <li class="page-item">
+                        <a class="page-link"
+                           hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes=1{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                           hx-target="#feature-changes-table"
+                           hx-select="#feature-changes-table"
+                           hx-swap="outerHTML"
+                           hx-push-url="true"><i class="fa-solid fa-angles-left"></i></a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link"
+                           hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes={{ feature_changes_page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                           hx-target="#feature-changes-table"
+                           hx-select="#feature-changes-table"
+                           hx-swap="outerHTML"
+                           hx-push-url="true"><i class="fa-solid fa-angle-left"></i></a>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">
+                          <i class="fa-solid fa-angles-left"></i>
+                        </a>
+                      </li>
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">
+                          <i class="fa-solid fa-angle-left"></i>
+                        </a>
+                      </li>
+                    {% endif %}
+                    <li class="page-item">
+                      <div class="page-link">
+                        <a>{{ feature_changes_page_obj.number }} of {{ feature_changes_page_obj.paginator.num_pages }}</a>
+                      </li>
+                      {% if feature_changes_page_obj.has_next %}
+                        <li class="page-item">
+                          <a class="page-link"
+                             hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes={{ feature_changes_page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                             hx-target="#feature-changes-table"
+                             hx-select="#feature-changes-table"
+                             hx-swap="outerHTML"
+                             hx-push-url="true"><i class="fa-solid fa-angle-right"></i></a>
+                        </a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link"
+                           hx-get="{% url 'nimbus-ui-features' %}?application={{ application }}&feature_configs={{ feature_configs }}&deliveries_page={{ deliveries_page_obj.number }}&qa_runs={{ qa_runs_page_obj.number }}&feature_changes={{ feature_changes_page_obj.paginator.num_pages }}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                           hx-target="#feature-changes-table"
+                           hx-select="#feature-changes-table"
+                           hx-swap="outerHTML"
+                           hx-push-url="true">
+                          <i class="fa-solid fa-angles-right"></i>
+                        </a>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">
+                          <i class="fa-solid fa-angle-right"></i>
+                        </a>
+                      </li>
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">
+                          <i class="fa-solid fa-angles-right"></i>
+                        </a>
+                      </li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extrascripts %}
+  {{ block.super }}
+  <script src="{% static 'nimbus_ui/features_page.bundle.js' %}"></script>
+{% endblock extrascripts %}
