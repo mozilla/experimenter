@@ -624,8 +624,6 @@ class FeaturesPageSortChoices(models.TextChoices):
     class QARuns(models.TextChoices):
         DATE_UP = "qa_run_date", "Date"
         DATE_DOWN = "-qa_run_date", "Date"
-        TYPE_UP = "qa_run_type", "Testing Type"
-        TYPE_DOWN = "-qa_run_type", "Testing Type"
 
     class FeatureChanges(models.TextChoices):
         VERSION_UP = "change_version", "Version"
