@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('experiments', '0302_nimbusexperiment_firefox_min_version_parsed'),
+        ('experiments', '0303_backfill_qa_run_date_from_changelog'),
     ]
 
     operations = [
