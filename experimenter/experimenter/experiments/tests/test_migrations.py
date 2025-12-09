@@ -1,184 +1,151 @@
+import datetime
+
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 from experimenter.experiments.constants import NimbusConstants
 
 
-class TestFirefoxMinVersionParsedMigration(MigratorTestCase):
+class TestQARunDateBackfillMigration(MigratorTestCase):
     migrate_from = (
-        "experiments",
-        "0301_alter_nimbusdocumentationlink_title",
-    )
-    migrate_to = (
         "experiments",
         "0302_nimbusexperiment_firefox_min_version_parsed",
     )
-
-    def prepare(self):
-        """Prepare test data before the migration."""
-        User = self.old_state.apps.get_model("auth", "User")
-        NimbusExperiment = self.old_state.apps.get_model(
-            "experiments", "NimbusExperiment"
-        )
-        owner = User.objects.create()
-
-        self.experiment_with_bang = NimbusExperiment.objects.create(
-            owner=owner,
-            name="Experiment with ! version",
-            slug="experiment-with-bang",
-            application=NimbusConstants.Application.DESKTOP,
-            channel=NimbusConstants.Channel.NIGHTLY,
-            status=NimbusConstants.Status.DRAFT,
-            firefox_min_version="95.!",
-        )
-
-        self.experiment_with_semver = NimbusExperiment.objects.create(
-            owner=owner,
-            name="Experiment with semver",
-            slug="experiment-with-semver",
-            application=NimbusConstants.Application.DESKTOP,
-            channel=NimbusConstants.Channel.BETA,
-            status=NimbusConstants.Status.DRAFT,
-            firefox_min_version="92.0.1",
-        )
-
-        self.experiment_with_empty = NimbusExperiment.objects.create(
-            owner=owner,
-            name="Experiment with empty version",
-            slug="experiment-with-empty",
-            application=NimbusConstants.Application.DESKTOP,
-            channel=NimbusConstants.Channel.RELEASE,
-            status=NimbusConstants.Status.DRAFT,
-            firefox_min_version="",
-        )
-
-        self.experiment_with_major_minor = NimbusExperiment.objects.create(
-            owner=owner,
-            name="Experiment with major.minor",
-            slug="experiment-with-major-minor",
-            application=NimbusConstants.Application.FENIX,
-            channel=NimbusConstants.Channel.NIGHTLY,
-            status=NimbusConstants.Status.DRAFT,
-            firefox_min_version="100.1.0",
-        )
-
-    def test_migration(self):
-        NimbusExperiment = self.new_state.apps.get_model(
-            "experiments", "NimbusExperiment"
-        )
-
-        experiment_bang = NimbusExperiment.objects.get(slug="experiment-with-bang")
-        self.assertEqual(experiment_bang._firefox_min_version_parsed, [95, 0, 0])
-
-        experiment_semver = NimbusExperiment.objects.get(slug="experiment-with-semver")
-        self.assertEqual(experiment_semver._firefox_min_version_parsed, [92, 0, 1])
-
-        experiment_empty = NimbusExperiment.objects.get(slug="experiment-with-empty")
-        self.assertEqual(experiment_empty._firefox_min_version_parsed, [0, 0, 0])
-
-        experiment_full = NimbusExperiment.objects.get(slug="experiment-with-major-minor")
-        self.assertEqual(experiment_full._firefox_min_version_parsed, [100, 1, 0])
-
-        experiments = list(
-            NimbusExperiment.objects.all().order_by("_firefox_min_version_parsed")
-        )
-        self.assertEqual(experiments[0].slug, "experiment-with-empty")
-        self.assertEqual(experiments[1].slug, "experiment-with-semver")
-        self.assertEqual(experiments[2].slug, "experiment-with-bang")
-        self.assertEqual(experiments[3].slug, "experiment-with-major-minor")
-
-
-class TestMigrations(MigratorTestCase):
-    migrate_from = (
-        "experiments",
-        "0297_nimbusfeatureconfig_subscribers",
-    )
     migrate_to = (
         "experiments",
-        "0298_convert_projects_to_tags",
+        "0303_backfill_qa_run_date_from_changelog",
     )
 
     def prepare(self):
-        """Prepare test data before the migration."""
         User = self.old_state.apps.get_model("auth", "User")
-        Project = self.old_state.apps.get_model("projects", "Project")
         NimbusExperiment = self.old_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
-        owner = User.objects.create()
+        NimbusChangeLog = self.old_state.apps.get_model("experiments", "NimbusChangeLog")
 
-        # Create test projects
-        self.project1 = Project.objects.create(
-            name="Firefox Desktop", slug="firefox-desktop"
-        )
-        self.project2 = Project.objects.create(
-            name="Mobile Performance", slug="mobile-performance"
-        )
-        self.project3 = Project.objects.create(
-            name="Privacy Features", slug="privacy-features"
-        )
+        owner = User.objects.create(email="test@example.com", username="test")
 
-        # Create experiments with projects
+        # Experiment 1: Has QA status changes in changelog but no qa_run_date
         self.experiment1 = NimbusExperiment.objects.create(
             owner=owner,
-            name="Desktop Feature Test",
-            slug="desktop-feature-test",
+            name="Experiment with QA status changes",
+            slug="experiment-with-qa-changes",
             application=NimbusConstants.Application.DESKTOP,
             channel=NimbusConstants.Channel.NIGHTLY,
             status=NimbusConstants.Status.DRAFT,
+            qa_status=NimbusConstants.QAStatus.GREEN,
+            qa_run_date=None,
         )
-        self.experiment1.projects.add(self.project1, self.project3)
 
+        # Create changelogs showing QA status changes
+        NimbusChangeLog.objects.create(
+            experiment=self.experiment1,
+            changed_by=owner,
+            old_status=NimbusConstants.Status.DRAFT,
+            new_status=NimbusConstants.Status.DRAFT,
+            old_publish_status=NimbusConstants.PublishStatus.IDLE,
+            new_publish_status=NimbusConstants.PublishStatus.IDLE,
+            experiment_data={"qa_status": NimbusConstants.QAStatus.NOT_SET},
+            changed_on=datetime.datetime(2024, 1, 1, 10, 0, tzinfo=datetime.timezone.utc),
+        )
+
+        NimbusChangeLog.objects.create(
+            experiment=self.experiment1,
+            changed_by=owner,
+            old_status=NimbusConstants.Status.DRAFT,
+            new_status=NimbusConstants.Status.DRAFT,
+            old_publish_status=NimbusConstants.PublishStatus.IDLE,
+            new_publish_status=NimbusConstants.PublishStatus.IDLE,
+            experiment_data={"qa_status": NimbusConstants.QAStatus.YELLOW},
+            changed_on=datetime.datetime(
+                2024, 1, 15, 14, 30, tzinfo=datetime.timezone.utc
+            ),
+        )
+
+        self.most_recent_qa_change = datetime.datetime(
+            2024, 2, 1, 9, 45, tzinfo=datetime.timezone.utc
+        )
+        NimbusChangeLog.objects.create(
+            experiment=self.experiment1,
+            changed_by=owner,
+            old_status=NimbusConstants.Status.DRAFT,
+            new_status=NimbusConstants.Status.DRAFT,
+            old_publish_status=NimbusConstants.PublishStatus.IDLE,
+            new_publish_status=NimbusConstants.PublishStatus.IDLE,
+            experiment_data={"qa_status": NimbusConstants.QAStatus.GREEN},
+            changed_on=self.most_recent_qa_change,
+        )
+
+        # Experiment 2: Has qa_run_date already set (should not be modified)
+        self.existing_date = datetime.date(2024, 3, 1)
         self.experiment2 = NimbusExperiment.objects.create(
             owner=owner,
-            name="Mobile Performance Test",
-            slug="mobile-performance-test",
-            application=NimbusConstants.Application.FENIX,
+            name="Experiment with existing qa_run_date",
+            slug="experiment-with-existing-date",
+            application=NimbusConstants.Application.DESKTOP,
             channel=NimbusConstants.Channel.BETA,
             status=NimbusConstants.Status.DRAFT,
+            qa_status=NimbusConstants.QAStatus.GREEN,
+            qa_run_date=self.existing_date,
         )
-        self.experiment2.projects.add(self.project2)
 
-        # Create experiment with no projects
+        # Experiment 3: QA status is NOT_SET (should not be modified)
         self.experiment3 = NimbusExperiment.objects.create(
             owner=owner,
-            name="No Project Experiment",
-            slug="no-project-experiment",
+            name="Experiment with NOT_SET QA status",
+            slug="experiment-not-set",
+            application=NimbusConstants.Application.FENIX,
+            channel=NimbusConstants.Channel.NIGHTLY,
+            status=NimbusConstants.Status.DRAFT,
+            qa_status=NimbusConstants.QAStatus.NOT_SET,
+            qa_run_date=None,
+        )
+
+        # Experiment 4: Has only one changelog with QA status set
+        self.experiment4 = NimbusExperiment.objects.create(
+            owner=owner,
+            name="Experiment with single changelog",
+            slug="experiment-single-changelog",
             application=NimbusConstants.Application.DESKTOP,
             channel=NimbusConstants.Channel.RELEASE,
             status=NimbusConstants.Status.DRAFT,
+            qa_status=NimbusConstants.QAStatus.GREEN,
+            qa_run_date=None,
+        )
+
+        self.single_changelog_date = datetime.datetime(
+            2024, 1, 20, 11, 0, tzinfo=datetime.timezone.utc
+        )
+        NimbusChangeLog.objects.create(
+            experiment=self.experiment4,
+            changed_by=owner,
+            old_status=NimbusConstants.Status.DRAFT,
+            new_status=NimbusConstants.Status.DRAFT,
+            old_publish_status=NimbusConstants.PublishStatus.IDLE,
+            new_publish_status=NimbusConstants.PublishStatus.IDLE,
+            experiment_data={"qa_status": NimbusConstants.QAStatus.GREEN},
+            changed_on=self.single_changelog_date,
         )
 
     def test_migration(self):
-        """Test the projects to tags conversion migration."""
-        Tag = self.new_state.apps.get_model("experiments", "Tag")
+        """Test the qa_run_date backfill migration."""
         NimbusExperiment = self.new_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
 
-        # Test that tags were created from projects
-        self.assertTrue(Tag.objects.filter(name="Firefox Desktop").exists())
-        self.assertTrue(Tag.objects.filter(name="Mobile Performance").exists())
-        self.assertTrue(Tag.objects.filter(name="Privacy Features").exists())
+        # Test experiment 1: qa_run_date should be set to most recent QA status change
+        experiment1 = NimbusExperiment.objects.get(slug="experiment-with-qa-changes")
+        self.assertIsNotNone(experiment1.qa_run_date)
+        self.assertEqual(experiment1.qa_run_date, self.most_recent_qa_change.date())
 
-        # Test that tags have a color
-        desktop_tag = Tag.objects.get(name="Firefox Desktop")
-        self.assertTrue(desktop_tag.color)
+        # Test experiment 2: qa_run_date should remain unchanged
+        experiment2 = NimbusExperiment.objects.get(slug="experiment-with-existing-date")
+        self.assertEqual(experiment2.qa_run_date, self.existing_date)
 
-        mobile_tag = Tag.objects.get(name="Mobile Performance")
-        self.assertTrue(mobile_tag.color)
+        # Test experiment 3: qa_run_date should still be None (QA status is NOT_SET)
+        experiment3 = NimbusExperiment.objects.get(slug="experiment-not-set")
+        self.assertIsNone(experiment3.qa_run_date)
 
-        privacy_tag = Tag.objects.get(name="Privacy Features")
-        self.assertTrue(privacy_tag.color)
-
-        # Test that experiments have the correct tags
-        experiment1 = NimbusExperiment.objects.get(slug="desktop-feature-test")
-        experiment1_tag_names = set(experiment1.tags.values_list("name", flat=True))
-        self.assertEqual(experiment1_tag_names, {"Firefox Desktop", "Privacy Features"})
-
-        experiment2 = NimbusExperiment.objects.get(slug="mobile-performance-test")
-        experiment2_tag_names = set(experiment2.tags.values_list("name", flat=True))
-        self.assertEqual(experiment2_tag_names, {"Mobile Performance"})
-
-        # Test that experiment with no projects has no tags
-        experiment3 = NimbusExperiment.objects.get(slug="no-project-experiment")
-        self.assertEqual(experiment3.tags.count(), 0)
+        # Test experiment 4: qa_run_date should be set from single changelog
+        experiment4 = NimbusExperiment.objects.get(slug="experiment-single-changelog")
+        self.assertIsNotNone(experiment4.qa_run_date)
+        self.assertEqual(experiment4.qa_run_date, self.single_changelog_date.date())

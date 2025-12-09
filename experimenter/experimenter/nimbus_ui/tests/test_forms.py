@@ -6,6 +6,7 @@ from unittest.mock import patch
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from django.utils import timezone
 from parameterized import parameterized
 from PIL import Image
 
@@ -427,6 +428,81 @@ class TestQAStatusForm(RequestFormTestCase):
             changelog.message,
             "dev@example.com updated QA",
         )
+
+    def test_form_updates_qa_run_date_when_status_changes(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_status=NimbusExperiment.QAStatus.NOT_SET,
+            qa_run_date=None,
+        )
+
+        data = {
+            "qa_status": NimbusExperiment.QAStatus.GREEN,
+            "qa_comment": "tests passed",
+        }
+        form = QAStatusForm(data, request=self.request, instance=experiment)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.qa_status, NimbusExperiment.QAStatus.GREEN)
+        self.assertEqual(experiment.qa_run_date, timezone.now().date())
+
+    def test_form_updates_qa_run_date_only_when_status_changes(self):
+        initial_date = datetime.date(2024, 1, 1)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_status=NimbusExperiment.QAStatus.GREEN,
+            qa_run_date=initial_date,
+        )
+
+        data = {
+            "qa_status": NimbusExperiment.QAStatus.GREEN,
+            "qa_comment": "updated comment",
+        }
+        form = QAStatusForm(data, request=self.request, instance=experiment)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.qa_run_date, initial_date)
+
+    def test_form_updates_qa_run_date_when_status_changes_from_one_to_another(self):
+        old_date = datetime.date(2024, 1, 1)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_status=NimbusExperiment.QAStatus.YELLOW,
+            qa_run_date=old_date,
+        )
+
+        data = {
+            "qa_status": NimbusExperiment.QAStatus.GREEN,
+            "qa_comment": "retested and passed",
+        }
+        form = QAStatusForm(data, request=self.request, instance=experiment)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.qa_status, NimbusExperiment.QAStatus.GREEN)
+        self.assertEqual(experiment.qa_run_date, timezone.now().date())
+        self.assertNotEqual(experiment.qa_run_date, old_date)
+
+    def test_form_does_not_update_qa_run_date_when_changing_to_not_set(self):
+        old_date = datetime.date(2024, 1, 1)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_status=NimbusExperiment.QAStatus.GREEN,
+            qa_run_date=old_date,
+        )
+
+        data = {
+            "qa_status": NimbusExperiment.QAStatus.NOT_SET,
+            "qa_comment": "resetting status",
+        }
+        form = QAStatusForm(data, request=self.request, instance=experiment)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.qa_status, NimbusExperiment.QAStatus.NOT_SET)
+        self.assertEqual(experiment.qa_run_date, old_date)
 
 
 class TestTakeawaysForm(RequestFormTestCase):
