@@ -3025,6 +3025,7 @@ class TestSaveAndContinueMixin(AuthTestCase):
         )
 
 
+@mock_valid_outcomes
 class TestResultsView(AuthTestCase):
     def test_render_to_response(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
