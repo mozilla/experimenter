@@ -15,7 +15,7 @@
             hx-select="#features-form"
             hx-target="#features-form"
             hx-swap="outerHTML"
-            hx-select-oob="#features-tables"
+            hx-select-oob="#deliveries-card, #qa-runs-card, #feature-changes-card"
             hx-push-url="true">
         <div class="card mb-3">
           <div class="card-body bg-primary-subtle">
@@ -34,8 +34,9 @@
           </div>
         </div>
       </form>
-      <div id="features-tables"
-           class="card shadow-sm p-3 border-0 h-100 rounded-3 bg-primary-subtle">
+      <!-- Deliveries Card -->
+      <div id="deliveries-card"
+           class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle mb-4">
         <div scope="row" class="row">
           <div scope="col" class="col-8 pe-0 align-items-center">
             <h5 class="fw-semibold mt-3 d-flex align-items-center">
@@ -198,13 +199,16 @@
             </div>
           </div>
         </div>
-        <hr>
-        <h5 class="fw-semibold">
+      </div>
+      <!-- QA Runs Card -->
+      <div id="qa-runs-card"
+           class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle mb-4">
+        <h5 class="fw-semibold mt-3 d-flex align-items-center">
           <img src="{% static 'assets/qa-runs.svg' %}"
                alt="Hugging Foxes"
                style="width: 60px;
                       height: auto" />
-          <span>QA Runs</span>
+          <span class="me-2">QA Runs</span>
         </h5>
         <div>
           <div id="qa-info-table">
@@ -344,18 +348,21 @@
             </div>
           </div>
         </div>
-        <hr>
-        <h5 class="fw-semibold">
+      </div>
+      <!-- Feature Changes Card -->
+      <div id="feature-changes-card"
+           class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle mb-4">
+        <h5 class="fw-semibold mt-3 d-flex align-items-center">
           <img src="{% static 'assets/feature-changes.svg' %}"
                alt="Fox opening a box"
                style="width: 60px;
                       height: auto" />
-          <span>Feature Changes</span>
+          <span class="me-2">Feature Changes</span>
           <i class="fa-regular fa-circle-question"
              data-bs-toggle="tooltip"
              data-bs-placement="top"
              data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.feature_changes_tooltip }}"></i>
-          <span class="badge bg-secondary">Number of changes: {{ schemas_with_changes }}</span>
+          <span class="badge bg-secondary ms-2">Number of changes: {{ schemas_with_changes }}</span>
         </h5>
         <div>
           <div id="feature-changes-table">
@@ -502,7 +509,6 @@
       </div>
     </div>
   </div>
-</div>
 {% endblock %}
 
 {% block extrascripts %}
