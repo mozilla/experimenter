@@ -473,12 +473,6 @@ class NimbusConstants:
                 status, QA_STATUS_ICON_MAP[NimbusConstants.QAStatus.NOT_SET]
             )
 
-    class QATestType(models.TextChoices):
-        FULL = "FULL", "Full"
-        SMOKE = "SMOKE", "Smoke"
-        SELF = "SELF", "Self"
-        REGRESSION = "REGRESSION", "Regression"
-
     APPLICATION_CONFIGS = {
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,
         Application.FENIX: APPLICATION_CONFIG_FENIX,
