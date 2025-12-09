@@ -3,7 +3,7 @@ import logging
 import markus
 from celery import shared_task
 
-from .notification import send_slack_notification
+from experimenter.slack.notification import send_slack_notification
 
 logger = logging.getLogger(__name__)
 metrics = markus.get_metrics("slack.tasks")
