@@ -2389,6 +2389,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         else:
             return "badge rounded-pill bg-secondary"
 
+    @property
+    def notification_emails(self):
+        emails = chain(
+            [self.owner.email],
+            self.subscribers.values_list("email", flat=True),
+            self.feature_configs.values_list("subscribers__email", flat=True),
+        )
+        return list({email for email in emails if email})
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(

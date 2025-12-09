@@ -1411,6 +1411,13 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(
 
 
 class TestNimbusSendEmails(MockKintoClientMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.mock_slack_task = mock.patch(
+            "experimenter.slack.tasks.nimbus_send_slack_notification.delay"
+        ).start()
+        self.addCleanup(mock.patch.stopall)
+
     def test_enrollment_ending_email_not_sent_for_experiments_before_enrollment_end_date(
         self,
     ):

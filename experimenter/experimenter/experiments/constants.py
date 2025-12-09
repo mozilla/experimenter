@@ -1232,6 +1232,26 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ERROR_CANNOT_PAUSE_INVALID = "Cannot end enrollment at this time"
 
+    # Slack action constants
+    SLACK_ACTION_LAUNCH_REQUEST = "launch_request"
+    SLACK_ACTION_UPDATE_REQUEST = "update_request"
+    SLACK_ACTION_END_ENROLLMENT_REQUEST = "end_enrollment_request"
+    SLACK_ACTION_END_EXPERIMENT_REQUEST = "end_experiment_request"
+
+    # Slack form action text mappings
+    SLACK_FORM_ACTIONS = {
+        SLACK_ACTION_LAUNCH_REQUEST: "🚀 Requests launch",
+        SLACK_ACTION_UPDATE_REQUEST: "🔄 Requests update",
+        SLACK_ACTION_END_ENROLLMENT_REQUEST: "⏸️ Requests end enrollment",
+        SLACK_ACTION_END_EXPERIMENT_REQUEST: "🛑 Requests end experiment",
+    }
+
+    # Slack email action text mappings
+    SLACK_EMAIL_ACTIONS = {
+        EmailType.EXPERIMENT_END: "🛑 Is ready to end",
+        EmailType.ENROLLMENT_END: "⏸️ Is ready to end enrollment",
+    }
+
 
 EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/qa-sign-off",
