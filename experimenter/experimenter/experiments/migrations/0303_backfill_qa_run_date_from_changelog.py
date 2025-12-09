@@ -5,7 +5,6 @@ from django.db import migrations
 
 def backfill_qa_run_date_from_changelog(apps, schema_editor):
     NimbusExperiment = apps.get_model("experiments", "NimbusExperiment")
-    NimbusChangeLog = apps.get_model("experiments", "NimbusChangeLog")
 
     experiments_to_update = NimbusExperiment.objects.filter(
         qa_run_date__isnull=True
@@ -14,32 +13,18 @@ def backfill_qa_run_date_from_changelog(apps, schema_editor):
     )
 
     for experiment in experiments_to_update:
-        # Get changelogs for this experiment ordered by most recent first
-        changelogs = list(
-            NimbusChangeLog.objects.filter(experiment=experiment)
+        # Find the most recent changelog where qa_status matches the current value
+        # This represents when the qa_status was last set to its current value
+        latest_qa_changelog = (
+            experiment.changes.all()
+            .filter(experiment_data__qa_status=experiment.qa_status)
             .order_by("-changed_on")
-            .values("experiment_data", "changed_on")
+            .first()
         )
 
-        if not changelogs:
-            continue
-
-        # If there's only one changelog, check if qa_status is set
-        if len(changelogs) == 1:
-            qa_status = changelogs[0]["experiment_data"].get("qa_status")
-            if qa_status and qa_status != "NOT_SET":
-                experiment.qa_run_date = changelogs[0]["changed_on"].date()
-                experiment.save(update_fields=["qa_run_date"])
-            continue
-
-        for i in range(len(changelogs) - 1):
-            current_qa_status = changelogs[i]["experiment_data"].get("qa_status")
-            previous_qa_status = changelogs[i + 1]["experiment_data"].get("qa_status")
-
-            if current_qa_status != previous_qa_status:
-                experiment.qa_run_date = changelogs[i]["changed_on"].date()
-                experiment.save(update_fields=["qa_run_date"])
-                break
+        if latest_qa_changelog:
+            experiment.qa_run_date = latest_qa_changelog.changed_on.date()
+            experiment.save(update_fields=["qa_run_date"])
 
 
 class Migration(migrations.Migration):
