@@ -901,6 +901,11 @@ features:
     description: |
       This feature is for managing the rollout of the Terms of Use (ToU) implementation.
     variables:
+      enable-drag-to-dismiss:
+        description: |
+          Whether to show a drag handle on the prompt and allows users to use it to dismiss the prompt.
+        type: Boolean
+        default: true
       max-reminders-count:
         description: |
           Maximum number of ToU bottom sheet reminders that can be displayed
