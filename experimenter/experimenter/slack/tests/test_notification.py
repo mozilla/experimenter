@@ -185,6 +185,45 @@ class TestSlackNotifications(TestCase):
         self.assertNotIn("<@U123456>", message)  # requesting user not found
         self.assertIn("<@U789012>", message)  # mentioned user still there
 
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_send_slack_notification_no_duplicate_mention(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        requesting_email = "requester@example.com"
+        mock_client.users_lookupByEmail.side_effect = [
+            {"user": {"id": "U123456"}},
+            {"user": {"id": "U789012"}},
+        ]
+        mock_client.chat_postMessage.return_value = {"ok": True}
+
+        send_slack_notification(
+            experiment_id=self.experiment.id,
+            email_addresses=[requesting_email, "other@example.com"],
+            action_text=NimbusConstants.SLACK_FORM_ACTIONS[
+                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+            ],
+            requesting_user_email=requesting_email,
+        )
+
+        self.assertEqual(mock_client.users_lookupByEmail.call_count, 2)
+        mock_client.chat_postMessage.assert_called_once()
+
+        call_args = mock_client.chat_postMessage.call_args
+        message = call_args.kwargs["text"]
+        mention_count = message.count("<@U123456>")
+        self.assertEqual(
+            mention_count, 1, "Requesting user should only be mentioned once"
+        )
+        self.assertIn("<@U123456>", message)
+        self.assertIn("<@U789012>", message)
+        self.assertIn(
+            NimbusConstants.SLACK_FORM_ACTIONS[
+                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+            ],
+            message,
+        )
+
     @override_settings(
         SLACK_AUTH_TOKEN="test-token", SLACK_NIMBUS_CHANNEL="custom-channel"
     )
