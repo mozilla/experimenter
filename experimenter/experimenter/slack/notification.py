@@ -50,6 +50,8 @@ def send_slack_notification(
     requesting_user_mention = ""
     if requesting_user_email:
         requesting_user_mention = _get_user_mentions(client, [requesting_user_email])
+        # Exclude requesting_user_email from email_addresses to avoid duplicate mentions
+        email_addresses = [e for e in email_addresses if e and e != requesting_user_email]
 
     mentions = _get_user_mentions(client, email_addresses)
 
