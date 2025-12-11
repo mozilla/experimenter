@@ -16,7 +16,6 @@ def _get_slack_client():
 
 
 def _lookup_users(client, emails):
-    mentions = []
     user_ids = []
     for email in emails:
         if not email:
@@ -24,12 +23,11 @@ def _lookup_users(client, emails):
         try:
             response = client.users_lookupByEmail(email=email)
             user_id = response["user"]["id"]
-            mentions.append(f"<@{user_id}>")
             user_ids.append(user_id)
         except SlackApiError as e:
             logger.warning(f"Could not find Slack user for {email}: {e}")
             continue
-    return " ".join(mentions), user_ids
+    return user_ids
 
 
 def _send_dm_to_user(client, user_id, message, channel_message_link=None):
@@ -70,18 +68,20 @@ def send_slack_notification(
 
     all_user_ids = []
 
-    requesting_user_mention = ""
+    requesting_user_ids = []
     if requesting_user_email:
-        requesting_user_mention, requesting_user_ids = _lookup_users(
-            client, [requesting_user_email]
-        )
-        if requesting_user_ids:
-            all_user_ids.extend(requesting_user_ids)
+        requesting_user_ids = _lookup_users(client, [requesting_user_email])
+        all_user_ids.extend(requesting_user_ids)
         # Exclude requesting_user_email from email_addresses to avoid duplicate mentions
         email_addresses = [e for e in email_addresses if e and e != requesting_user_email]
 
-    mentions, mentioned_user_ids = _lookup_users(client, email_addresses)
+    mentioned_user_ids = _lookup_users(client, email_addresses)
     all_user_ids.extend(mentioned_user_ids)
+
+    requesting_user_mention = (
+        f"<@{requesting_user_ids[0]}>" if requesting_user_ids else ""
+    )
+    mentions = " ".join(f"<@{user_id}>" for user_id in mentioned_user_ids)
 
     if requesting_user_mention:
         message = (
