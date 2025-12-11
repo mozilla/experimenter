@@ -50,6 +50,10 @@ class NimbusChangeLogFormMixin:
 
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
+
+        if type(experiment) is NimbusBranchScreenshot:
+            experiment = self.instance.branch.experiment
+
         generate_nimbus_changelog(
             experiment, self.request.user, self.get_changelog_message()
         )
@@ -1771,3 +1775,24 @@ class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated collaborators"
+
+
+class BranchLeadingScreenshotForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    image = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={"class": "form-control"}),
+    )
+    description = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+
+    class Meta:
+        model = NimbusBranchScreenshot
+        fields = ["image", "description"]
+
+    def get_changelog_message(self):
+        return (
+            f"{self.request.user} updated leading screenshot for "
+            f"{self.instance.branch.slug} branch"
+        )
