@@ -23,13 +23,18 @@ def fetch_experiment_data(experiment_id):
     experiment = None
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
-        experiment.results_data = get_experiment_data(experiment)
-        experiment.save()
-        generate_nimbus_changelog(
-            experiment,
-            get_kinto_user(),
-            message=NimbusChangeLog.Messages.RESULTS_FETCHED,
-        )
+        old_results_data = experiment.results_data
+        new_results_data = get_experiment_data(experiment)
+
+        if old_results_data != new_results_data:
+            experiment.results_data = new_results_data
+            experiment.save()
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.RESULTS_UPDATED,
+            )
+
         metrics.incr("fetch_experiment_data.completed")
     except Exception as e:
         metrics.incr("fetch_experiment_data.failed")
