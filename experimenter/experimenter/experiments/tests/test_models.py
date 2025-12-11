@@ -2367,8 +2367,10 @@ class TestNimbusExperiment(TestCase):
 
     @mock_valid_outcomes
     def test_get_metric_data_returns_correct_data(self):
-        outcomes = Outcomes.all()
+        application = NimbusExperiment.Application.DESKTOP
+        outcomes = Outcomes.by_application(application)
         experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[outcomes[0].slug],
         )
         branch_a = NimbusBranchFactory.create(
