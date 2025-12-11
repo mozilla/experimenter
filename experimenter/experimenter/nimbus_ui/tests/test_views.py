@@ -1,11 +1,14 @@
 import datetime
+import io
 import json
 from unittest.mock import patch
 
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
+from PIL import Image
 
 from experimenter.base.tests.factories import (
     CountryFactory,
@@ -3026,6 +3029,62 @@ class TestSaveAndContinueMixin(AuthTestCase):
             response.headers["HX-Redirect"],
             reverse(next_url, kwargs={"slug": experiment.slug}),
         )
+
+
+@mock_valid_outcomes
+class TestResultsEditBranchImagesView(AuthTestCase):
+    def test_upload_updates_screenshot(self):
+        experiment = NimbusExperimentFactory.create(owner=self.user)
+        branch = NimbusBranchFactory.create(experiment=experiment, slug="t1")
+
+        url = reverse(
+            "nimbus-ui-branch-leading-screenshot-upload",
+            kwargs={"slug": experiment.slug, "branch_slug": branch.slug},
+        )
+
+        image_bytes = io.BytesIO()
+        image = Image.new("RGB", (10, 10), color="red")
+        image.save(image_bytes, format="PNG")
+        image_bytes.seek(0)
+        dummy_image = SimpleUploadedFile(
+            "test.png", image_bytes.read(), content_type="image/png"
+        )
+
+        response = self.client.post(url, {"image": dummy_image})
+
+        self.assertEqual(response.status_code, 200)
+
+        branch.refresh_from_db()
+        shot = branch.screenshots.first()
+        self.assertIsNotNone(shot)
+
+    def test_upload_creates_screenshot(self):
+        experiment = NimbusExperimentFactory.create(owner=self.user)
+        experiment.branches.all().delete()
+
+        branch = NimbusBranchFactory.create(experiment=experiment, slug="t1")
+        branch.screenshots.all().delete()
+
+        url = reverse(
+            "nimbus-ui-branch-leading-screenshot-upload",
+            kwargs={"slug": experiment.slug, "branch_slug": branch.slug},
+        )
+
+        image_bytes = io.BytesIO()
+        image = Image.new("RGB", (10, 10), color="red")
+        image.save(image_bytes, format="PNG")
+        image_bytes.seek(0)
+        dummy_image = SimpleUploadedFile(
+            "test.png", image_bytes.read(), content_type="image/png"
+        )
+
+        response = self.client.post(url, {"image": dummy_image})
+
+        self.assertEqual(response.status_code, 200)
+
+        branch.refresh_from_db()
+        shot = branch.screenshots.first()
+        self.assertIsNotNone(shot)
 
 
 @mock_valid_outcomes
