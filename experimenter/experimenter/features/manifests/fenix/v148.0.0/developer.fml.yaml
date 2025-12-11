@@ -214,13 +214,6 @@ features:
         type: Int
         default: 1000
     allow-coenrollment: true
-  growth-data:
-    description: A feature measuring campaign growth data
-    variables:
-      enabled:
-        description: If true, the feature is active
-        type: Boolean
-        default: false
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -1094,9 +1087,9 @@ features:
   toolbar-redesign-option:
     description: Control the visibility of toolbar redesign option in settings.
     variables:
-      show-expanded-customization:
+      show-customization:
         description: |
-          Whether or not the expanded toolbar customization option is visible to the user.
+          Whether or not the simple/expanded toolbar customization option is visible to the user.
         type: Boolean
         default: false
       show-options:
@@ -1104,11 +1097,6 @@ features:
           Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.
         type: Boolean
         default: true
-      show-simple-customization:
-        description: |
-          Whether or not the simple toolbar customization option is visible to the user.
-        type: Boolean
-        default: false
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
