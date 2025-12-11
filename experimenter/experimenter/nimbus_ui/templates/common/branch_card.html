@@ -1,17 +1,31 @@
 {% load nimbus_extras %}
 
-<div class="d-flex gap-4">
+<div class="d-flex gap-3">
   {% with shot=branch.screenshots.first %}
     {% if shot and shot.image %}
-      <img src="{{ shot.image.url }}"
-           alt="{{ shot.description|default:branch.name }}"
-           class="border border-secondary-subtle rounded w-50"
-           style="height: 120px;
-                  object-fit: cover" />
+      <div class="position-relative border border-secondary-subtle rounded w-50 h-100">
+        <img src="{{ shot.image.url }}"
+             alt="{{ shot.description|default:branch.name }}"
+             class="rounded w-100"
+             style="height: 120px;
+                    object-fit: cover" />
+        <button type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#{{ experiment_slug }}-{{ branch.slug }}-image-edit"
+                class="position-absolute border-0 opacity-75 bg-secondary-subtle top-0 end-0 p-2 m-1 rounded lh-1">
+          <i class="fa-solid fa-up-right-and-down-left-from-center text-muted"></i>
+        </button>
+      </div>
     {% else %}
-      <div class="border border-secondary-subtle rounded text-center d-flex align-items-center justify-content-center w-50"
+      <div class="position-relative border border-secondary-subtle rounded text-center d-flex align-items-center justify-content-center w-50"
            style="height: 120px">
         <small class="text-muted">No screenshot</small>
+        <button type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#{{ experiment_slug }}-{{ branch.slug }}-image-edit"
+                class="position-absolute border-0 opacity-75 bg-secondary-subtle top-0 end-0 p-2 m-1 rounded lh-1">
+          <i class="fa-solid fa-up-right-and-down-left-from-center text-muted"></i>
+        </button>
       </div>
     {% endif %}
   {% endwith %}
@@ -26,5 +40,65 @@
     </span>
     <h6 class="mt-2">{{ branch.name }}</h6>
     <p class="text-muted">{{ branch.description|truncatechars:100 }}</p>
+  </div>
+</div>
+<div class="modal fade"
+     id="{{ experiment_slug }}-{{ branch.slug }}-image-edit"
+     tabindex="-1"
+     aria-labelledby="{{ experiment_slug }}-{{ branch.slug }}-image-edit"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content p-4">
+      <div class="modal-header border-0">
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post"
+              id="branch-screenshot-form-{{ experiment_slug }}-{{ branch.slug }}"
+              hx-encoding="multipart/form-data"
+              hx-post="{% url "nimbus-ui-branch-leading-screenshot-upload" slug=experiment_slug branch_slug=branch.slug %}"
+              class="accordion">
+          {% csrf_token %}
+          {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
+            <div class="position-relative border border-secondary-subtle rounded h-100 mb-3">
+              <img src="{{ screenshot_form.instance.image.url }}"
+                   alt="{{ screenshot_form.instance.description }}"
+                   class="w-100 rounded">
+            </div>
+          {% else %}
+            <div class="border border-secondary-subtle rounded mb-3">
+              <small class="text-muted d-block p-5 text-center">No screenshot uploaded</small>
+            </div>
+          {% endif %}
+          {{ screenshot_form.image }}
+          {% if screenshot_form.instance.image %}
+            <div class="accordion-item border border-1 rounded mt-4">
+              <button class="accordion-button shadow-none bg-transparent text-body"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#screenshot-form-{{ experiment_slug }}-{{ branch.slug }}"
+                      aria-expanded="true"
+                      aria-controls="screenshot-form-{{ experiment_slug }}-{{ branch.slug }}">
+                <div class="d-flex flex-column align-items-start">
+                  <h6 class="mb-1">Add image description</h6>
+                  <small class="text-muted">Add a short description so people who can't see the image know what it shows.</small>
+                </div>
+              </button>
+              <div id="screenshot-form-{{ experiment_slug }}-{{ branch.slug }}"
+                   class="accordion-collapse collapse show">
+                <div class="accordion-body pt-0">{{ screenshot_form.description }}</div>
+              </div>
+            </div>
+          {% endif %}
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
