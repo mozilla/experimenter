@@ -19,7 +19,15 @@ class TestSlackNotifications(TestCase):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
         mock_client.users_lookupByEmail.return_value = {"user": {"id": "U123456"}}
-        mock_client.chat_postMessage.return_value = {"ok": True}
+        mock_client.chat_postMessage.return_value = {
+            "ok": True,
+            "ts": "1234567890.123456",
+        }
+        mock_client.chat_getPermalink.return_value = {
+            "ok": True,
+            "permalink": "https://mozilla.slack.com/archives/C123/p1234567890123456",
+        }
+        mock_client.conversations_open.return_value = {"channel": {"id": "D123456"}}
 
         action_text = NimbusConstants.SLACK_EMAIL_ACTIONS[
             NimbusExperiment.EmailType.EXPERIMENT_END
@@ -31,11 +39,14 @@ class TestSlackNotifications(TestCase):
         )
 
         mock_client.users_lookupByEmail.assert_called_once_with(email="test@example.com")
-        mock_client.chat_postMessage.assert_called_once()
+        # Should be called once for channel message and once for DM
+        self.assertEqual(mock_client.chat_postMessage.call_count, 2)
+        mock_client.chat_getPermalink.assert_called_once()
+        mock_client.conversations_open.assert_called_once()
 
-        # Verify message format includes experiment URL
-        call_args = mock_client.chat_postMessage.call_args
-        message = call_args.kwargs["text"]
+        # Verify channel message format includes experiment URL
+        channel_call = mock_client.chat_postMessage.call_args_list[0]
+        message = channel_call.kwargs["text"]
         self.assertIn(self.experiment.experiment_url, message)
         self.assertIn(self.experiment.name, message)
         self.assertIn(action_text, message)
@@ -62,7 +73,14 @@ class TestSlackNotifications(TestCase):
         mock_client.users_lookupByEmail.side_effect = SlackApiError(
             message="User not found", response={"error": "users_not_found"}
         )
-        mock_client.chat_postMessage.return_value = {"ok": True}
+        mock_client.chat_postMessage.return_value = {
+            "ok": True,
+            "ts": "1234567890.123456",
+        }
+        mock_client.chat_getPermalink.return_value = {
+            "ok": True,
+            "permalink": "https://mozilla.slack.com/archives/C123/p1234567890123456",
+        }
 
         send_slack_notification(
             experiment_id=self.experiment.id,
@@ -127,7 +145,15 @@ class TestSlackNotifications(TestCase):
             {"user": {"id": "U123456"}},  # requesting user
             {"user": {"id": "U789012"}},  # mentioned user
         ]
-        mock_client.chat_postMessage.return_value = {"ok": True}
+        mock_client.chat_postMessage.return_value = {
+            "ok": True,
+            "ts": "1234567890.123456",
+        }
+        mock_client.chat_getPermalink.return_value = {
+            "ok": True,
+            "permalink": "https://mozilla.slack.com/archives/C123/p1234567890123456",
+        }
+        mock_client.conversations_open.return_value = {"channel": {"id": "D123456"}}
 
         send_slack_notification(
             experiment_id=self.experiment.id,
@@ -140,9 +166,12 @@ class TestSlackNotifications(TestCase):
 
         # Should call users_lookupByEmail twice
         self.assertEqual(mock_client.users_lookupByEmail.call_count, 2)
-        mock_client.chat_postMessage.assert_called_once()
+        # Should be called once for channel message and twice for DMs
+        self.assertEqual(mock_client.chat_postMessage.call_count, 3)
+        mock_client.chat_getPermalink.assert_called_once()
+        self.assertEqual(mock_client.conversations_open.call_count, 2)
 
-        call_args = mock_client.chat_postMessage.call_args
+        call_args = mock_client.chat_postMessage.call_args_list[0]
         message = call_args.kwargs["text"]
         # format: @user action: Experiment Name @mentions
         self.assertIn("<@U123456>", message)  # requesting user
@@ -166,7 +195,15 @@ class TestSlackNotifications(TestCase):
             ),
             {"user": {"id": "U789012"}},
         ]
-        mock_client.chat_postMessage.return_value = {"ok": True}
+        mock_client.chat_postMessage.return_value = {
+            "ok": True,
+            "ts": "1234567890.123456",
+        }
+        mock_client.chat_getPermalink.return_value = {
+            "ok": True,
+            "permalink": "https://mozilla.slack.com/archives/C123/p1234567890123456",
+        }
+        mock_client.conversations_open.return_value = {"channel": {"id": "D123456"}}
 
         send_slack_notification(
             experiment_id=self.experiment.id,
@@ -177,13 +214,14 @@ class TestSlackNotifications(TestCase):
             requesting_user_email="nonexistent@example.com",
         )
 
-        mock_client.chat_postMessage.assert_called_once()
+        # Should be called once for channel message and once for DM to mentioned user
+        self.assertEqual(mock_client.chat_postMessage.call_count, 2)
 
-        # Verify message format without requesting user mention
-        call_args = mock_client.chat_postMessage.call_args
+        # Verify channel message format without requesting user mention
+        call_args = mock_client.chat_postMessage.call_args_list[0]
         message = call_args.kwargs["text"]
-        self.assertNotIn("<@U123456>", message)  # requesting user not found
-        self.assertIn("<@U789012>", message)  # mentioned user still there
+        self.assertIn("<@U789012>", message)  # mentioned user should be present
+        self.assertNotIn("<@U123456>", message)  # requesting user should not be present
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
     @patch("experimenter.slack.notification.WebClient")
@@ -195,7 +233,15 @@ class TestSlackNotifications(TestCase):
             {"user": {"id": "U123456"}},
             {"user": {"id": "U789012"}},
         ]
-        mock_client.chat_postMessage.return_value = {"ok": True}
+        mock_client.chat_postMessage.return_value = {
+            "ok": True,
+            "ts": "1234567890.123456",
+        }
+        mock_client.chat_getPermalink.return_value = {
+            "ok": True,
+            "permalink": "https://mozilla.slack.com/archives/C123/p1234567890123456",
+        }
+        mock_client.conversations_open.return_value = {"channel": {"id": "D123456"}}
 
         send_slack_notification(
             experiment_id=self.experiment.id,
@@ -207,9 +253,12 @@ class TestSlackNotifications(TestCase):
         )
 
         self.assertEqual(mock_client.users_lookupByEmail.call_count, 2)
-        mock_client.chat_postMessage.assert_called_once()
+        # Should be called once for channel message and twice for DMs
+        self.assertEqual(mock_client.chat_postMessage.call_count, 3)
+        mock_client.chat_getPermalink.assert_called_once()
+        self.assertEqual(mock_client.conversations_open.call_count, 2)
 
-        call_args = mock_client.chat_postMessage.call_args
+        call_args = mock_client.chat_postMessage.call_args_list[0]
         message = call_args.kwargs["text"]
         mention_count = message.count("<@U123456>")
         self.assertEqual(
@@ -232,7 +281,15 @@ class TestSlackNotifications(TestCase):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
         mock_client.users_lookupByEmail.return_value = {"user": {"id": "U123456"}}
-        mock_client.chat_postMessage.return_value = {"ok": True}
+        mock_client.chat_postMessage.return_value = {
+            "ok": True,
+            "ts": "1234567890.123456",
+        }
+        mock_client.chat_getPermalink.return_value = {
+            "ok": True,
+            "permalink": "https://mozilla.slack.com/archives/C123/p1234567890123456",
+        }
+        mock_client.conversations_open.return_value = {"channel": {"id": "D123456"}}
 
         send_slack_notification(
             experiment_id=self.experiment.id,
@@ -242,7 +299,7 @@ class TestSlackNotifications(TestCase):
             ],
         )
 
-        call_args = mock_client.chat_postMessage.call_args
+        call_args = mock_client.chat_postMessage.call_args_list[0]
         self.assertEqual(call_args.kwargs["channel"], "custom-channel")
         self.assertEqual(call_args.kwargs["unfurl_links"], False)
         self.assertEqual(call_args.kwargs["unfurl_media"], False)
@@ -253,7 +310,15 @@ class TestSlackNotifications(TestCase):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
         mock_client.users_lookupByEmail.return_value = {"user": {"id": "U123456"}}
-        mock_client.chat_postMessage.return_value = {"ok": True}
+        mock_client.chat_postMessage.return_value = {
+            "ok": True,
+            "ts": "1234567890.123456",
+        }
+        mock_client.chat_getPermalink.return_value = {
+            "ok": True,
+            "permalink": "https://mozilla.slack.com/archives/C123/p1234567890123456",
+        }
+        mock_client.conversations_open.return_value = {"channel": {"id": "D123456"}}
 
         send_slack_notification(
             experiment_id=self.experiment.id,
@@ -264,4 +329,64 @@ class TestSlackNotifications(TestCase):
         )
 
         mock_client.users_lookupByEmail.assert_called_once_with(email="test@example.com")
-        mock_client.chat_postMessage.assert_called_once()
+        # Should be called once for channel message and once for DM
+        self.assertEqual(mock_client.chat_postMessage.call_count, 2)
+        mock_client.chat_getPermalink.assert_called_once()
+        mock_client.conversations_open.assert_called_once()
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_send_slack_notification_dm_fails(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.users_lookupByEmail.return_value = {"user": {"id": "U123456"}}
+        mock_client.chat_postMessage.side_effect = [
+            {"ok": True, "ts": "1234567890.123456"},  # Channel message succeeds
+            SlackApiError(
+                message="DM failed", response={"error": "channel_not_found"}
+            ),  # DM fails
+        ]
+        mock_client.chat_getPermalink.return_value = {
+            "ok": True,
+            "permalink": "https://mozilla.slack.com/archives/C123/p1234567890123456",
+        }
+        mock_client.conversations_open.return_value = {"channel": {"id": "D123456"}}
+
+        send_slack_notification(
+            experiment_id=self.experiment.id,
+            email_addresses=["test@example.com"],
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.EXPERIMENT_END
+            ],
+        )
+
+        # Should call chat_postMessage twice (channel + DM attempt)
+        self.assertEqual(mock_client.chat_postMessage.call_count, 2)
+        mock_client.conversations_open.assert_called_once()
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_send_slack_notification_permalink_fails(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.users_lookupByEmail.return_value = {"user": {"id": "U123456"}}
+        mock_client.chat_postMessage.return_value = {
+            "ok": True,
+            "ts": "1234567890.123456",
+        }
+        mock_client.chat_getPermalink.side_effect = SlackApiError(
+            message="Permalink failed", response={"error": "not_found"}
+        )
+        mock_client.conversations_open.return_value = {"channel": {"id": "D123456"}}
+
+        send_slack_notification(
+            experiment_id=self.experiment.id,
+            email_addresses=["test@example.com"],
+            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.EXPERIMENT_END
+            ],
+        )
+
+        # Should still send DM even if permalink fails
+        self.assertEqual(mock_client.chat_postMessage.call_count, 2)
+        mock_client.conversations_open.assert_called_once()
