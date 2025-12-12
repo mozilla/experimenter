@@ -456,6 +456,26 @@ class NimbusConstants:
         "qa_comment",
     )
 
+    class ProjectImpact(models.TextChoices):
+        HIGH = "HIGH"
+        MODERATE = "MODERATE"
+        TARGETED = "TARGETED"
+
+    PROJECT_IMPACT_SUBTITLES = {
+        ProjectImpact.HIGH: (
+            "Moved key company metrics or made visible progress toward "
+            "broader goals. Worth sharing across teams or with leadership."
+        ),
+        ProjectImpact.MODERATE: (
+            "Provided meaningful progress or insights, with impact more "
+            "localized than company-wide."
+        ),
+        ProjectImpact.TARGETED: (
+            "Met intended goals and delivered useful learnings, though "
+            "it didn't shift broader metrics."
+        ),
+    }
+
     class QAStatus(models.TextChoices):
         RED = "RED", "QA: Red"
         YELLOW = "YELLOW", "QA: Yellow"

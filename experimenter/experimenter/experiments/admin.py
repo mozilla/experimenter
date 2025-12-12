@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.postgres import forms as pgforms
 from django.utils.encoding import force_str
+from django_summernote.admin import SummernoteModelAdmin
 from import_export import fields, resources
 from import_export.admin import ExportActionMixin, ImportMixin
 from import_export.widgets import DecimalWidget, ForeignKeyWidget
@@ -353,7 +354,11 @@ class NimbusExperimentAdminForm(forms.ModelForm):
 
 
 class NimbusExperimentAdmin(
-    NoDeleteAdminMixin, ImportMixin, ExportActionMixin, admin.ModelAdmin[NimbusExperiment]
+    NoDeleteAdminMixin,
+    ImportMixin,
+    ExportActionMixin,
+    SummernoteModelAdmin,
+    admin.ModelAdmin[NimbusExperiment],
 ):
     inlines = (
         NimbusDocumentationLinkInlineAdmin,
@@ -386,6 +391,7 @@ class NimbusExperimentAdmin(
     actions = [force_fetch_jetstream_data]
     resource_class = NimbusExperimentResource
     readonly_fields = ("_firefox_min_version_parsed",)
+    summernote_fields = ("takeaways_summary", "next_steps")
 
 
 class NimbusFeatureVersionAdmin(

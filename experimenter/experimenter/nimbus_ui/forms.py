@@ -11,6 +11,7 @@ from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
+from django_summernote.widgets import SummernoteWidget
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
@@ -1775,6 +1776,29 @@ class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated collaborators"
+
+
+class EditOutcomeSummaryForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    takeaways_summary = forms.CharField(required=False, widget=SummernoteWidget())
+    next_steps = forms.CharField(required=False, widget=SummernoteWidget())
+    project_impact = forms.ChoiceField(
+        required=False,
+        choices=NimbusExperiment.ProjectImpact.choices,
+        widget=forms.RadioSelect,
+        label="Project Impact",
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["takeaways_summary", "next_steps", "project_impact"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.project_impact_subtitles = NimbusConstants.PROJECT_IMPACT_SUBTITLES
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated outcome summary"
 
 
 class BranchLeadingScreenshotForm(NimbusChangeLogFormMixin, forms.ModelForm):

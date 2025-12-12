@@ -342,3 +342,10 @@ def to_percentage(value, precision=None):
 
     format_string = f"{{:.{precision}f}}%"
     return format_string.format(percentage_value)
+
+
+@register.filter
+def capitalize_case(value):
+    if isinstance(value, str) and value:
+        return value[0].upper() + value[1:].lower()
+    return value

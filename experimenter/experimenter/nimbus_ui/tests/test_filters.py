@@ -30,6 +30,7 @@ from experimenter.nimbus_ui.filtersets import (
 )
 from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     application_icon_info,
+    capitalize_case,
     channel_icon_info,
     choices_with_icons,
     experiment_date_progress,
@@ -158,6 +159,15 @@ class FilterTests(TestCase):
         self.assertEqual(to_percentage(0.123456), "12.3456%")
         self.assertEqual(to_percentage(0.123), "12.3%")
         self.assertEqual(to_percentage(0.12), "12.0%")
+
+    def test_capitalize_case_string_input(self):
+        self.assertEqual(capitalize_case("test string"), "Test string")
+        self.assertEqual(capitalize_case("another Test STRING"), "Another test string")
+        self.assertEqual(capitalize_case("MIXED case STRING"), "Mixed case string")
+
+    def test_capitalize_case_non_string_input(self):
+        self.assertEqual(capitalize_case(123), 123)
+        self.assertEqual(capitalize_case(None), None)
 
 
 class TestHomeFilters(AuthTestCase):
