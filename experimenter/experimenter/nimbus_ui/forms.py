@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 import markus
 from django import forms
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.db.models import Case, When
 from django.forms import BaseInlineFormSet, BaseModelFormSet, inlineformset_factory
 from django.http import HttpRequest
@@ -48,6 +49,7 @@ class NimbusChangeLogFormMixin:
     def get_changelog_message(self) -> str:
         raise NotImplementedError
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
 
@@ -137,6 +139,7 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
             cleaned_data["slug"] = slugify(cleaned_data["name"])
         return cleaned_data
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
 
@@ -186,6 +189,7 @@ class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm
     def get_changelog_message(self):
         return f"{self.request.user} cloned this experiment from {self.instance.name}"
 
+    @transaction.atomic
     def save(self):
         return self.instance.clone(self.cleaned_data["name"], self.cleaned_data["owner"])
 
@@ -213,6 +217,7 @@ class NimbusExperimentPromoteToRolloutForm(
         model = NimbusExperiment
         fields = ["owner", "name", "slug"]
 
+    @transaction.atomic
     def save(self):
         return self.instance.clone(
             self.cleaned_data["name"],
@@ -226,6 +231,7 @@ class ToggleArchiveForm(NimbusChangeLogFormMixin, forms.ModelForm):
         model = NimbusExperiment
         fields = []
 
+    @transaction.atomic
     def save(self):
         self.instance.is_archived = not self.instance.is_archived
         super().save()
@@ -249,6 +255,7 @@ class QAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self._initial_qa_status = self.instance.qa_status if self.instance.pk else None
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         new_qa_status = self.cleaned_data.get("qa_status")
         if self._initial_qa_status != new_qa_status:
@@ -418,6 +425,7 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def is_valid(self):
         return super().is_valid() and self.documentation_links.is_valid()
 
+    @transaction.atomic
     def save(self):
         experiment = super().save()
         self.documentation_links.save()
@@ -428,6 +436,7 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class DocumentationLinkCreateForm(OverviewForm):
+    @transaction.atomic
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.instance.documentation_links.create()
@@ -444,6 +453,7 @@ class DocumentationLinkDeleteForm(OverviewForm):
         model = NimbusExperiment
         fields = [*OverviewForm.Meta.fields, "link_id"]
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         documentation_link = self.cleaned_data["link_id"]
@@ -616,6 +626,7 @@ class NimbusBranchForm(forms.ModelForm):
             cleaned_data["slug"] = slugify(cleaned_data["name"])
         return cleaned_data
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         branch = super().save(*args, **kwargs)
         self.branch_feature_values.save()
@@ -803,6 +814,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         return cleaned_data
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
         self.branches.save()
@@ -847,6 +859,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class NimbusBranchCreateForm(NimbusBranchesForm):
+    @transaction.atomic
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
         if not experiment.reference_branch:
@@ -889,6 +902,7 @@ class NimbusBranchDeleteForm(NimbusBranchesForm):
             raise forms.ValidationError("You cannot delete the reference branch.")
         return branch
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
         branch = self.cleaned_data["branch_id"]
@@ -909,6 +923,7 @@ class BranchScreenshotCreateForm(NimbusBranchesForm):
             *NimbusBranchesForm.Meta.fields,
         ]
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
         branch = self.cleaned_data["branch_id"]
@@ -929,6 +944,7 @@ class BranchScreenshotDeleteForm(NimbusBranchesForm):
             *NimbusBranchesForm.Meta.fields,
         ]
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
         screenshot = self.cleaned_data["screenshot_id"]
@@ -1243,6 +1259,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         ):
             instance.is_rollout_dirty = True
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
         self.check_rollout_dirty(instance)
@@ -1265,6 +1282,7 @@ class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         model = NimbusExperiment
         fields = []
 
+    @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         experiment.subscribers.add(self.request.user)
@@ -1279,6 +1297,7 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         model = NimbusExperiment
         fields = []
 
+    @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         experiment.subscribers.remove(self.request.user)
@@ -1289,12 +1308,14 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class FeatureSubscribeForm(FeatureSubscriberFormMixin):
+    @transaction.atomic
     def save(self, commit=True):
         self.instance.subscribers.add(self.request.user)
         return self.instance
 
 
 class FeatureUnsubscribeForm(FeatureSubscriberFormMixin):
+    @transaction.atomic
     def save(self, commit=True):
         self.instance.subscribers.remove(self.request.user)
         return self.instance
@@ -1303,6 +1324,7 @@ class FeatureUnsubscribeForm(FeatureSubscriberFormMixin):
 class SlackNotificationMixin:
     slack_action = None
 
+    @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         if self.slack_action:
@@ -1325,6 +1347,7 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         model = NimbusExperiment
         fields = []
 
+    @transaction.atomic
     def save(self, commit=True):
         self.instance.status = self.status
         self.instance.status_next = self.status_next
@@ -1362,6 +1385,7 @@ class DraftToPreviewForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} launched experiment to Preview"
 
+    @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         experiment.allocate_bucket_range()
@@ -1398,6 +1422,7 @@ class PreviewToDraftForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} moved the experiment back to Draft"
 
+    @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
@@ -1433,6 +1458,7 @@ class ReviewToApproveForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} approved the review."
 
+    @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         experiment.allocate_bucket_range()
@@ -1488,6 +1514,7 @@ class ApproveEndEnrollmentForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} approved the end enrollment request"
 
+    @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         nimbus_check_kinto_push_queue_by_collection.apply_async(
@@ -1514,6 +1541,7 @@ class ApproveEndExperimentForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} approved the end experiment request"
 
+    @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         nimbus_check_kinto_push_queue_by_collection.apply_async(
@@ -1608,6 +1636,7 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
     def get_changelog_message(self):
         return f"{self.request.user} approved the update review request"
 
+    @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         experiment.allocate_bucket_range()
@@ -1712,6 +1741,7 @@ class TagBaseFormSet(BaseModelFormSet):
         if len(names) != len(set(names)):
             raise forms.ValidationError(NimbusUIConstants.ERROR_TAG_DUPLICATE_NAME)
 
+    @transaction.atomic
     def create_tag(self):
         # Create a new tag with a unique name and random color
         base_name = "Tag"
@@ -1766,6 +1796,7 @@ class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
         if self.instance and self.instance.pk:
             self.fields["collaborators"].initial = self.instance.subscribers.all()
 
+    @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         if commit:
