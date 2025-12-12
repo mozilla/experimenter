@@ -605,6 +605,10 @@ class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDe
 
     def get_context_data(self, *, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
+        origin = self.request.GET.get("origin") or self.request.POST.get("origin")
+        context["render_progress_card_fragment"] = (
+            self.request.headers.get("HX-Request") and origin == "progress_card"
+        )
 
         if self.request.method in ("POST", "PUT") and not form.is_valid():
             context["update_status_form_errors"] = form.errors["__all__"]
