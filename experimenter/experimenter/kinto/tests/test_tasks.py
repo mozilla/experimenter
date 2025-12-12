@@ -412,6 +412,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
             new_status=NimbusExperiment.Status.DRAFT,
             old_publish_status=NimbusExperiment.PublishStatus.WAITING,
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            filter_kwargs={
+                "message": NimbusChangeLog.Messages.TIMED_OUT_IN_KINTO,
+            },
         )
         self.assertIsNone(pending_experiment.published_date)
         self.assertEqual(
@@ -460,6 +463,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
             new_status=NimbusExperiment.Status.LIVE,
             old_publish_status=NimbusExperiment.PublishStatus.WAITING,
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            filter_kwargs={
+                "message": NimbusChangeLog.Messages.TIMED_OUT_IN_KINTO,
+            },
         )
         self.assertEqual(pending_experiment.published_date, expected_published_date)
         self.assertEqual(
@@ -508,6 +514,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
             new_status=NimbusExperiment.Status.LIVE,
             old_publish_status=NimbusExperiment.PublishStatus.WAITING,
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            filter_kwargs={
+                "message": NimbusChangeLog.Messages.TIMED_OUT_IN_KINTO,
+            },
         )
         self.assertEqual(pending_experiment.published_date, expected_published_date)
         self.assertEqual(
@@ -869,6 +878,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
             new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             filter_kwargs={
                 "changed_by__email": settings.KINTO_DEFAULT_CHANGELOG_USER,
+                "message": NimbusChangeLog.Messages.UPDATED_IN_KINTO,
             },
         )
 
@@ -998,6 +1008,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
             new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             filter_kwargs={
                 "changed_by__email": settings.KINTO_DEFAULT_CHANGELOG_USER,
+                "message": NimbusChangeLog.Messages.LIVE,
             },
         )
         self.assertIsNone(launching_experiment.status_next)
@@ -1327,6 +1338,12 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(
         self.assertEqual(should_publish_experiment.published_dto, data)
         self.assertIsNotNone(should_publish_experiment.published_date)
 
+        pushed_to_preview_changelog = should_publish_experiment.changes.filter(
+            message=NimbusChangeLog.Messages.PUSHED_TO_PREVIEW,
+            changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+        )
+        self.assertTrue(pushed_to_preview_changelog.exists())
+
         should_unpublish_experiment = NimbusExperiment.objects.get(
             id=should_unpublish_experiment.id
         )
@@ -1400,6 +1417,38 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(
             id=old_preview_experiment.slug,
             collection=NimbusExperiment.APPLICATION_CONFIGS[
                 NimbusExperiment.Application.DESKTOP
+            ].preview_collection,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+    def test_unpublish_live_experiments_but_dont_unset_published_dto(self):
+        application = NimbusExperiment.Application.DESKTOP
+        published_dto = {"id": "live_experiment", "some": "data"}
+        live_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+            published_dto=published_dto,
+            published_date=timezone.now(),
+        )
+
+        self.setup_kinto_get_main_records([live_experiment.slug])
+
+        tasks.nimbus_synchronize_preview_experiments_in_kinto()
+
+        live_experiment = NimbusExperiment.objects.get(id=live_experiment.id)
+        self.assertEqual(live_experiment.published_dto, published_dto)
+        self.assertIsNotNone(live_experiment.published_date)
+
+        removed_from_preview_changelog = live_experiment.changes.filter(
+            message=NimbusChangeLog.Messages.REMOVED_FROM_PREVIEW,
+            changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+        )
+        self.assertTrue(removed_from_preview_changelog.exists())
+
+        self.mock_kinto_client.delete_record.assert_called_with(
+            id=live_experiment.slug,
+            collection=NimbusExperiment.APPLICATION_CONFIGS[
+                application
             ].preview_collection,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
