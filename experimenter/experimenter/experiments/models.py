@@ -3087,6 +3087,8 @@ class NimbusChangeLog(FilterMixin, models.Model):
         COMPLETED = "Experiment is complete"
         RESULTS_UPDATED = "Experiment results updated"
         EXPIRED_FROM_PREVIEW = "Expired from preview collection after 30 days"
+        REMOVED_FROM_PREVIEW = "Removed from preview collection"
+        PUSHED_TO_PREVIEW = "Pushed to preview collection"
 
     def __str__(self):
         return self.message or (
