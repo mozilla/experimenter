@@ -4,7 +4,7 @@ import json
 from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
-from itertools import chain
+from itertools import chain, zip_longest
 from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urlencode, urljoin
@@ -1437,78 +1437,100 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return branch_data
 
-    def get_metric_area_data(
-        self, metrics, analysis_basis, segment, reference_branch, window="overall"
-    ):
-        metric_data = {}
+    def get_metric_area_data(self, metrics, analysis_basis, segment, reference_branch):
+        def get_window_metric_data(reference_branch, window_results, window):
+            window_metric_data = {}
+
+            for metric in metrics:
+                slug = metric.get("slug")
+                group = metric.get("group")
+
+                branch_metrics = self.build_branch_metrics(
+                    group, slug, window_results, reference_branch, window
+                )
+
+                window_metric_data[slug] = branch_metrics
+
+            return window_metric_data
+
+        metric_data = {
+            "overall": get_window_metric_data(
+                reference_branch,
+                self.get_window_results(analysis_basis, segment, "overall"),
+                "overall",
+            ),
+            "weekly": get_window_metric_data(
+                reference_branch,
+                self.get_window_results(analysis_basis, segment, "weekly"),
+                "weekly",
+            ),
+        }
+
         metric_area_data = {"metrics": metrics, "data": metric_data}
 
-        window_results = self.get_window_results(analysis_basis, segment, window)
-
-        for metric in metrics:
-            slug = metric.get("slug")
-            group = metric.get("group")
-            branch_metrics = {}
-
-            for branch in self.get_sorted_branches():
-                branch_results = window_results.get(branch.slug, {}).get(
-                    "branch_data", {}
-                )
-
-                metric_src = branch_results.get(group, {}).get(slug, {})
-                absolute_data_list = metric_src.get("absolute", {}).get("all", [])
-                relative_data_list = (
-                    metric_src.get("relative_uplift", {})
-                    .get(reference_branch, {})
-                    .get("all", [])
-                )
-
-                def formatted_analysis_point_comparator(point):
-                    wi = point.get("window_index")
-                    return int(wi) if wi is not None else 0
-
-                absolute_data_list.sort(key=formatted_analysis_point_comparator)
-                relative_data_list.sort(key=formatted_analysis_point_comparator)
-
-                significance_map = (
-                    metric_src.get("significance", {})
-                    .get(reference_branch, {})
-                    .get(window, {})
-                )
-
-                abs_entries = []
-                for i, data_point in enumerate(absolute_data_list):
-                    lower = data_point.get("lower")
-                    upper = data_point.get("upper")
-
-                    significance = significance_map.get(str(i + 1), "neutral")
-                    abs_entries.append(
-                        {"lower": lower, "upper": upper, "significance": significance}
-                    )
-
-                rel_entries = []
-                for i, data_point in enumerate(relative_data_list):
-                    lower = data_point.get("lower")
-                    upper = data_point.get("upper")
-                    avg_rel_change = abs(data_point.get("point"))
-                    significance = significance_map.get(str(i + 1), "neutral")
-                    rel_entries.append(
-                        {
-                            "lower": lower,
-                            "upper": upper,
-                            "significance": significance,
-                            "avg_rel_change": avg_rel_change,
-                        }
-                    )
-
-                branch_metrics[branch.slug] = {
-                    "absolute": abs_entries,
-                    "relative": rel_entries,
-                }
-
-            metric_data[slug] = branch_metrics
-
         return metric_area_data
+
+    def window_index_for_sort(self, point):
+        wi = point.get("window_index")
+        return int(wi) if wi is not None else 0
+
+    def format_absolute_entries(self, metric_src, significance_map):
+        absolute_data_list = metric_src.get("absolute", {}).get("all", [])
+        absolute_data_list.sort(key=self.window_index_for_sort)
+        abs_entries = []
+        for i, data_point in enumerate(absolute_data_list):
+            lower = data_point.get("lower")
+            upper = data_point.get("upper")
+            significance = significance_map.get(str(i + 1), "neutral")
+            abs_entries.append(
+                {"lower": lower, "upper": upper, "significance": significance}
+            )
+        return abs_entries
+
+    def format_relative_entries(self, metric_src, significance_map, reference_branch):
+        relative_data_list = (
+            metric_src.get("relative_uplift", {}).get(reference_branch, {}).get("all", [])
+        )
+        relative_data_list.sort(key=self.window_index_for_sort)
+        rel_entries = []
+        for i, data_point in enumerate(relative_data_list):
+            lower = data_point.get("lower")
+            upper = data_point.get("upper")
+            avg_rel_change = abs(data_point.get("point"))
+            significance = significance_map.get(str(i + 1), "neutral")
+            rel_entries.append(
+                {
+                    "lower": lower,
+                    "upper": upper,
+                    "significance": significance,
+                    "avg_rel_change": avg_rel_change,
+                }
+            )
+        return rel_entries
+
+    def build_branch_metrics(self, group, slug, window_results, reference_branch, window):
+        branch_metrics = {}
+        for branch in self.get_sorted_branches():
+            branch_results = window_results.get(branch.slug, {}).get("branch_data", {})
+            metric_src = branch_results.get(group, {}).get(slug, {})
+
+            significance_map = (
+                metric_src.get("significance", {})
+                .get(reference_branch, {})
+                .get(window, {})
+            )
+
+            abs_entries = self.format_absolute_entries(metric_src, significance_map)
+            rel_entries = self.format_relative_entries(
+                metric_src, significance_map, reference_branch
+            )
+
+            branch_metrics[branch.slug] = {
+                "absolute": abs_entries,
+                "relative": rel_entries,
+            }
+
+        return branch_metrics
 
     def get_kpi_metrics(
         self, analysis_basis, segment, reference_branch, window="overall"
@@ -1560,7 +1582,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 analysis_basis,
                 segment,
                 reference_branch,
-                window,
             )
 
         return metric_data
@@ -1605,6 +1626,48 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     max_value = max(max_value, abs(lower), abs(upper))
 
         return max_value
+
+    def get_weekly_metric_data(self, analysis_basis, segment, reference_branch):
+        all_metrics = self.get_metric_data(analysis_basis, segment, reference_branch)
+
+        weekly_metric_data = {}
+
+        for metric_data in all_metrics.values():
+            metadata = metric_data.get("metrics", {})
+
+            for metric_metadata in metadata:
+                data = (
+                    metric_data.get("data", {})
+                    .get("weekly", {})
+                    .get(metric_metadata["slug"], {})
+                )
+                weekly_data = {}
+
+                for branch_slug, branch_data in data.items():
+                    # Always produce a list of pairs by zipping absolute and relative
+                    # When one side is missing or shorter, pad it with None so templates
+                    # can iterate without complex conditionals.
+                    abs_list = branch_data.get("absolute") or []
+                    rel_list = branch_data.get("relative") or []
+
+                    weekly_data[branch_slug] = list(
+                        zip_longest(abs_list, rel_list, fillvalue=None)
+                    )
+
+                weekly_metric_data[metric_metadata["slug"]] = weekly_data
+
+        return weekly_metric_data
+
+    def get_weekly_dates(self):
+        weekly_dates = []
+        if not self.is_rollout:
+            if self._enrollment_end_date:
+                date = self._enrollment_end_date
+                while (date + datetime.timedelta(days=7)) <= self.computed_end_date:
+                    weekly_dates.append((date, date + datetime.timedelta(days=7)))
+                    date += datetime.timedelta(days=7)
+
+        return weekly_dates
 
     def get_sorted_branches(self):
         return (
