@@ -2,7 +2,6 @@ from decimal import Decimal
 from unittest import mock
 
 from django.conf import settings
-from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
@@ -13,7 +12,6 @@ from experimenter.experiments.admin import (
     NimbusBranchForeignKeyWidget,
     NimbusExperimentAdmin,
     NimbusExperimentAdminForm,
-    NimbusExperimentChangeLogInlineAdmin,
     NimbusExperimentResource,
 )
 from experimenter.experiments.changelog_utils import NimbusBranchChangeLogSerializer
@@ -176,11 +174,10 @@ class TestNimbusExperimentAdmin(TestCase):
         mock_fetch_experiment_data.delay.assert_called_with(experiment.id)
 
     def test_admin_save_creates_changelog(self):
+        admin = NimbusExperimentAdmin(NimbusExperiment, None)
         user = UserFactory.create()
         request = RequestFactory().post("/")
         request.user = user
-        site = AdminSite()
-        admin = NimbusExperimentAdmin(model=NimbusExperiment, admin_site=site)
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
@@ -217,36 +214,44 @@ class TestNimbusExperimentAdmin(TestCase):
 
 
 class TestNimbusExperimentChangeLogInlineAdmin(TestCase):
-    def setUp(self):
-        self.user = UserFactory.create()
-        self.request = RequestFactory().get("/")
-        self.request.user = self.user
-        self.site = AdminSite()
-
-    def test_query_count(self):
+    def test_changelog_display_with_changes(self):
+        admin = NimbusExperimentAdmin(NimbusExperiment, None)
+        user = UserFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            owner=self.user,
+            owner=user,
         )
 
-        for _ in range(100):
-            NimbusChangeLogFactory.create(
-                experiment=experiment,
-                experiment_data={"some": "data"},
-                changed_by=UserFactory.create(),
-            )
-
-        admin = NimbusExperimentChangeLogInlineAdmin(
-            parent_model=NimbusExperiment,
-            admin_site=self.site,
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.PREVIEW,
+            old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            message="Test change",
         )
 
-        # This does some queries that are unaffected by our model admin.
-        formset_cls = admin.get_formset(self.request)
+        result = admin.changelog_display(experiment)
+        self.assertIn("Test change", result)
 
-        with self.assertNumQueries(1):
-            formset = formset_cls(instance=experiment)
-            formset.render()
+    def test_changelog_display_without_changes(self):
+        admin = NimbusExperimentAdmin(NimbusExperiment, None)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        # Clear any changelog entries
+        experiment.changes.all().delete()
+
+        result = admin.changelog_display(experiment)
+        self.assertEqual(result, "No change history")
+
+    def test_changelog_display_without_pk(self):
+        admin = NimbusExperimentAdmin(NimbusExperiment, None)
+        experiment = NimbusExperiment()
+
+        result = admin.changelog_display(experiment)
+        self.assertEqual(result, "No change history")
 
 
 class TestNimbusExperimentExport(TestCase):
