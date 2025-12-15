@@ -1,8 +1,7 @@
 {% load static %}
 {% load nimbus_extras %}
 
-<div class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle"
-     style="min-height: 450px">
+<div class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle d-flex flex-column">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="fw-semibold mb-0">
       {{ title }}
@@ -18,31 +17,80 @@
       <span class="badge rounded-pill bg-primary fs-6 px-3 py-1">{{ page_obj.paginator.count }}</span>
     </div>
   </div>
-  {% if experiments %}
-    <ul id="home-section-experiments"
-        class="list-group list-group-flush rounded-3">
-      {% for experiment in experiments %}
-        <li class="list-group-item px-2 border-0 pb-2">
-          <div class="mb-1">
-            <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
-               class="fw-semibold text-decoration-none text-primary"
-               style="font-size: 1.05rem">{{ experiment.name }}</a>
-            {% include "nimbus_experiments/experiment_tags.html" with hide_no_tags=True %}
+  <div class="flex-grow-1 d-flex flex-column">
+    {% if experiments %}
+      <ul id="home-section-experiments"
+          class="list-group list-group-flush rounded-3">
+        {% for experiment in experiments %}
+          <li class="list-group-item px-2 border-0 pb-2">
+            <div class="mb-1">
+              <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+                 class="fw-semibold text-decoration-none text-primary"
+                 style="font-size: 1.05rem">{{ experiment.name }}</a>
+              {% include "nimbus_experiments/experiment_tags.html" with hide_no_tags=True %}
 
-          </div>
-          <div class="text-muted small">
-            {% with status_info=experiment|home_status_display_with_icon %}
-              {% if status_info.icon_info.icon %}
-                <span class="me-1 {{ status_info.icon_info.color }}">
-                  <i class="{{ status_info.icon_info.icon }}"></i>
-                </span>
+            </div>
+            <div class="text-muted small">
+              {% with status_info=experiment|home_status_display_with_icon %}
+                {% if status_info.icon_info.icon %}
+                  <span class="me-1 {{ status_info.icon_info.color }}">
+                    <i class="{{ status_info.icon_info.icon }}"></i>
+                  </span>
+                {% endif %}
+                {{ status_info.status }}
+              {% endwith %}
+              {% if experiment.application %}• {{ experiment.application }}{% endif %}
+              {% with channel=experiment.get_channel_display %}
+                {% if channel %}• {{ channel }}{% endif %}
+              {% endwith %}
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+      {% if page_obj.has_other_pages %}
+        <div class="row mt-2 mt-auto">
+          <div class="col text-center">
+            <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <button class="page-link"
+                          type="button"
+                          hx-get="?{{ pagination_param }}={{ page_obj.previous_page_number }}{% if pagination_param != 'draft_page' and request.GET.draft_page %}&draft_page={{ request.GET.draft_page }}{% endif %}{% if pagination_param != 'attention_page' and request.GET.attention_page %}&attention_page={{ request.GET.attention_page }}{% endif %}{% if pagination_param != 'my_deliveries_page' and request.GET.my_deliveries_page %}&my_deliveries_page={{ request.GET.my_deliveries_page }}{% endif %}"
+                          hx-target="#draft-preview-ready-for-attention"
+                          hx-select="#draft-preview-ready-for-attention"
+                          hx-push-url="true">
+                    <i class="fa-solid fa-angle-left"></i>
+                  </button>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link">
+                    <i class="fa-solid fa-angle-left"></i>
+                  </span>
+                </li>
               {% endif %}
-              {{ status_info.status }}
-            {% endwith %}
-            {% if experiment.application %}• {{ experiment.application }}{% endif %}
-            {% with channel=experiment.get_channel_display %}
-              {% if channel %}• {{ channel }}{% endif %}
-            {% endwith %}
+              <li class="page-item">
+                <div class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</div>
+              </li>
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <button class="page-link"
+                          type="button"
+                          hx-get="?{{ pagination_param }}={{ page_obj.next_page_number }}{% if pagination_param != 'draft_page' and request.GET.draft_page %}&draft_page={{ request.GET.draft_page }}{% endif %}{% if pagination_param != 'attention_page' and request.GET.attention_page %}&attention_page={{ request.GET.attention_page }}{% endif %}{% if pagination_param != 'my_deliveries_page' and request.GET.my_deliveries_page %}&my_deliveries_page={{ request.GET.my_deliveries_page }}{% endif %}"
+                          hx-target="#draft-preview-ready-for-attention"
+                          hx-select="#draft-preview-ready-for-attention"
+                          hx-push-url="true">
+                    <i class="fa-solid fa-angle-right"></i>
+                  </button>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link">
+                    <i class="fa-solid fa-angle-right"></i>
+                  </span>
+                </li>
+              {% endif %}
+            </ul>
           </div>
         </li>
       {% endfor %}
@@ -93,16 +141,17 @@
               </li>
             {% endif %}
           </ul>
+
         </div>
+      {% endif %}
+    {% else %}
+      <div class="text-center text-muted py-3 mt-auto mx-auto">
+        <img src="{% static empty_image_path %}"
+              alt="No experiments illustration"
+              class="mb-3"
+              style="max-width: 150px" />
+        <p class="mb-0">{{ empty_message|default:"No experiments to show." }}</p>
       </div>
     {% endif %}
-  {% else %}
-    <div class="text-center text-muted py-3">
-      <img src="{% static empty_image_path %}"
-           alt="No experiments illustration"
-           class="mb-3"
-           style="max-width: 150px" />
-      <p class="mb-0">{{ empty_message|default:"No experiments to show." }}</p>
-    </div>
-  {% endif %}
+  </div>
 </div>
