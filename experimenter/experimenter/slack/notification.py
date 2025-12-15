@@ -30,6 +30,15 @@ def _lookup_users(client, emails):
     return user_ids
 
 
+def _is_user_in_channel(client, user_id, channel):
+    try:
+        response = client.conversations_members(channel=channel)
+        return user_id in response.get("members", [])
+    except SlackApiError as e:
+        logger.warning(f"Failed to check if user {user_id} is in channel {channel}: {e}")
+        return False
+
+
 def _send_dm_to_user(client, user_id, message, channel_message_link=None):
     try:
         conversation = client.conversations_open(users=[user_id])
@@ -111,7 +120,12 @@ def send_slack_notification(
             logger.warning(f"Could not get permalink for channel message: {e}")
 
         for user_id in all_user_ids:
-            _send_dm_to_user(client, user_id, message, channel_message_link)
+            if not _is_user_in_channel(client, user_id, channel):
+                _send_dm_to_user(client, user_id, message, channel_message_link)
+            else:
+                logger.info(
+                    f"Skipping DM to user {user_id} - already in channel {channel}"
+                )
 
     except SlackApiError as e:
         logger.error(f"Failed to send Slack notification for {experiment.name}: {e}")
