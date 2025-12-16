@@ -532,16 +532,6 @@ trending-searches-feature:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
-unified-ads:
-  description: |
-    This property is for managing the roll out of the unified ads API
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        If true, we will enable user to use the unified ads API
 updated-password-manager-feature:
   description: |
     This property determines if we use the updated password manager or the legacy one.

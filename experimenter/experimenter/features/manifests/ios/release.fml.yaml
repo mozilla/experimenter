@@ -947,15 +947,6 @@ features:
         description: The number of maximum suggestions.
         type: Int
         default: 5
-  unified-ads:
-    description: |
-      This property is for managing the roll out of the unified ads API
-    variables:
-      enabled:
-        description: |
-          If true, we will enable user to use the unified ads API
-        type: Boolean
-        default: true
   updated-password-manager-feature:
     description: |
       This property determines if we use the updated password manager or the legacy one.

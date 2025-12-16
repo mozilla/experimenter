@@ -1,6 +1,6 @@
 friendly_name = "New Tab - Do No Harm"
 description = """
-Guardrail metrics for the New Tab. Includes user experience and revenue-related metrics for Search, Pocket and AdMarketplace Sponsored Tiles.
+Guardrail metrics for the New Tab. Includes user experience and revenue-related metrics for Search, content and AdMarketplace Sponsored Tiles.
 """
 
 
@@ -29,21 +29,21 @@ Guardrail metrics for the New Tab. Includes user experience and revenue-related 
 [metrics.newtab_organic_topsite_impressions_v2.statistics.sum]
 [metrics.newtab_organic_topsite_impressions_v2.statistics.linear_model_mean]
 
-[metrics.sponsored_pocket_clicks.statistics.sum]
-[metrics.sponsored_pocket_clicks.statistics.linear_model_mean]
-[metrics.sponsored_pocket_impressions.statistics.sum]
-[metrics.sponsored_pocket_impressions.statistics.linear_model_mean]
+[metrics.sponsored_content_clicks.statistics.sum]
+[metrics.sponsored_content_clicks.statistics.linear_model_mean]
+[metrics.sponsored_content_impressions.statistics.sum]
+[metrics.sponsored_content_impressions.statistics.linear_model_mean]
 
 
-[metrics.organic_pocket_clicks.statistics.sum]
-[metrics.organic_pocket_clicks.statistics.linear_model_mean]
-[metrics.organic_pocket_impressions.statistics.sum]
-[metrics.organic_pocket_impressions.statistics.linear_model_mean]
+[metrics.organic_content_clicks.statistics.sum]
+[metrics.organic_content_clicks.statistics.linear_model_mean]
+[metrics.organic_content_impressions.statistics.sum]
+[metrics.organic_content_impressions.statistics.linear_model_mean]
 
 [metrics.sponsored_tile_ctr.statistics.population_ratio]
 numerator='sponsored_tile_clicks'
 denominator='sponsored_tile_impressions'
 
-[metrics.sponsored_pocket_ctr.statistics.population_ratio]
-numerator='sponsored_pocket_clicks'
-denominator='sponsored_pocket_impressions'
+[metrics.sponsored_content_ctr.statistics.population_ratio]
+numerator='sponsored_content_clicks'
+denominator='sponsored_content_impressions'
