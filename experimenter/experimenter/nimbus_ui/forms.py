@@ -246,9 +246,11 @@ class ToggleArchiveForm(NimbusChangeLogFormMixin, forms.ModelForm):
 class QAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     class Meta:
         model = NimbusExperiment
-        fields = ["qa_status", "qa_comment"]
+        fields = ["qa_status", "qa_comment", "qa_run_test_plan", "qa_run_testrail_link"]
         widgets = {
             "qa_status": forms.Select(choices=NimbusExperiment.QAStatus),
+            "qa_run_test_plan": forms.URLInput(attrs={"class": "form-control"}),
+            "qa_run_testrail_link": forms.URLInput(attrs={"class": "form-control"}),
         }
 
     def __init__(self, *args, **kwargs):

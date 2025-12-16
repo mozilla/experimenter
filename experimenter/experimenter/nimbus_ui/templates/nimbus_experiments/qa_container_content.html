@@ -1,3 +1,5 @@
+{% load nimbus_extras %}
+
 <table class="table table-striped">
   <tbody>
     <tr>
@@ -7,6 +9,30 @@
     <tr>
       <th>QA Comment</th>
       <td colspan="3">{{ experiment.qa_comment|default:"No comment" }}</td>
+    </tr>
+    <tr>
+      <th>Test scenarios/suite</th>
+      <td colspan="3">
+        {% if experiment.qa_run_test_plan %}
+          <a href="{{ experiment.qa_run_test_plan }}"
+             target="_blank"
+             rel="noopener noreferrer">{{ experiment.qa_run_test_plan }}</a>
+        {% else %}
+          {{ experiment.qa_run_test_plan|default:"Not provided" }}
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th>TestRail Results</th>
+      <td colspan="3">
+        {% if experiment.qa_run_testrail_link %}
+          <a href="{{ experiment.qa_run_testrail_link }}"
+             target="_blank"
+             rel="noopener noreferrer">{{ experiment.qa_run_testrail_link }}</a>
+        {% else %}
+          {{ experiment.qa_run_testrail_link|default:"Not provided" }}
+        {% endif %}
+      </td>
     </tr>
   </tbody>
 </table>
