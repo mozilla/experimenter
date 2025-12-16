@@ -2996,6 +2996,42 @@ IS_64BIT_WITH_8GB_RAM = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+# --- Desktop Tier 1: High-End (≥16GB RAM) ---
+IS_DESKTOP_TIER_1_HIGH_END = NimbusTargetingConfig(
+    name="Desktop Tier 1: High-End (≥16GB RAM)",
+    slug="desktop_tier_1_high_end",
+    targeting="memoryMB >= 16384",
+    description="High-end desktop devices with ≥16GB RAM, typically with SSDs and modern CPUs. Suitable for Performance Mode with acceptable memory/CPU trade-offs. Approximately 18.7% of desktop users (Dec 2025 data).",
+    desktop_telemetry="metrics.quantity.system_memory >= 16384",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+# --- Desktop Tier 2: Mid-Range (8-16GB RAM) ---
+IS_DESKTOP_TIER_2_MID_RANGE = NimbusTargetingConfig(
+    name="Desktop Tier 2: Mid-Range (8-16GB RAM)",
+    slug="desktop_tier_2_mid_range",
+    targeting="memoryMB >= 8192 && memoryMB < 16384",
+    description="Mid-range desktop devices with 8-16GB RAM. Suitable for Eco Mode when on battery, not recommended for Performance Mode due to OOM risk. Approximately 34.4% of desktop users (Dec 2025 data).",
+    desktop_telemetry="metrics.quantity.system_memory >= 8192 AND metrics.quantity.system_memory < 16384",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+# --- Desktop Tier 3: Low-End (<8GB RAM) ---
+IS_DESKTOP_TIER_3_LOW_END = NimbusTargetingConfig(
+    name="Desktop Tier 3: Low-End (<8GB RAM)",
+    slug="desktop_tier_3_low_end",
+    targeting="memoryMB < 8192",
+    description="Low-end desktop devices with <8GB RAM, often with HDDs and older CPUs. Strongly recommended for Eco Mode to improve battery life and reduce thermal issues. Approximately 46.9% of desktop users (Dec 2025 data) - LARGEST segment.",
+    desktop_telemetry="metrics.quantity.system_memory < 8192",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 VIEWPOINT_SURVEY_DESKTOP = NimbusTargetingConfig(
     name="User Research Viewpoint Survey (Rolling Enrollment)",
     slug="viewpoint_survey_desktop",
