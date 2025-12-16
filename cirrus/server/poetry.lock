@@ -426,14 +426,14 @@ standard-no-fastapi-cloud-cli = ["email-validator (>=2.0.0)", "fastapi-cli[stand
 
 [[package]]
 name = "glean-parser"
-version = "18.1.1"
+version = "18.2.0"
 description = "Parser tools for Mozilla's Glean telemetry"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "glean_parser-18.1.1-py3-none-any.whl", hash = "sha256:44052346083dddfbe4c68a05391b9b769902529fefb5c04e690418f2e5e2bea8"},
-    {file = "glean_parser-18.1.1.tar.gz", hash = "sha256:90b3465a5ef0958a62916051c2196db15388be2f4eb2aafb01c1b1ef6248be30"},
+    {file = "glean_parser-18.2.0-py3-none-any.whl", hash = "sha256:870db77d6c6112eba34fcd6035395ff38d2f516d7a9bc57ce0951828ee7c7fc2"},
+    {file = "glean_parser-18.2.0.tar.gz", hash = "sha256:5432ce64bf47329dfe4a6b7e404d539ccb06d99fddeb7deeed745491fbd5b7e7"},
 ]
 
 [package.dependencies]
@@ -1455,4 +1455,4 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10.10"
-content-hash = "cc8861599b62665f442e8c107cf2fd672abe67fc66be055f5805b6f7c4c9de1a"
+content-hash = "f3ced8ee9ababfac3b6e62fb224cabddef0dfa47e34ab938b5c8e9e275bd8241"
