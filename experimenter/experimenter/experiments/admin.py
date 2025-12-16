@@ -1,12 +1,13 @@
 from typing import Any
-from weakref import WeakKeyDictionary
 
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.postgres import forms as pgforms
 from django.db import transaction
+from django.template.loader import render_to_string
 from django.utils.encoding import force_str
+from django.utils.safestring import mark_safe
 from import_export import fields, resources
 from import_export.admin import ExportActionMixin, ImportMixin
 from import_export.widgets import DecimalWidget, ForeignKeyWidget
@@ -233,43 +234,6 @@ class NimbusDocumentationLinkInlineAdmin(
     extra = 1
 
 
-class NimbusExperimentChangeLogInlineAdmin(
-    NoDeleteAdminMixin, admin.StackedInline[NimbusChangeLog]
-):
-    model = NimbusChangeLog
-
-    # A mapping of Django HttpRequests to the choices for the "changed_by"
-    # field.
-    #
-    # This uses a WeakKeyDictionary to ensure we don't leak requests.
-    CHANGED_BY_CHOICES = WeakKeyDictionary()
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "changed_by":
-            field = super().formfield_for_foreignkey(db_field, request, **kwargs)
-            if field is not None:
-                field.choices = self._get_changed_by_choices(request)
-
-        else:
-            field = super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-        return field
-
-    def _get_changed_by_choices(self, request):
-        """Return a cached list of all available Users.
-
-        If the list of users has not been computed for the changed_by field this
-        request, it will be computed and cached.
-        """
-        choices = self.CHANGED_BY_CHOICES.get(request)
-
-        if not choices:
-            choices = list(forms.ModelChoiceField(User.objects.all()).choices)
-            self.CHANGED_BY_CHOICES[request] = choices
-
-        return choices
-
-
 class NimbusExperimentBucketRangeInlineAdmin(
     ReadOnlyAdminMixin, admin.StackedInline[NimbusBucketRange]
 ):
@@ -361,7 +325,6 @@ class NimbusExperimentAdmin(
         NimbusDocumentationLinkInlineAdmin,
         NimbusBranchInlineAdmin,
         NimbusExperimentBucketRangeInlineAdmin,
-        NimbusExperimentChangeLogInlineAdmin,
     )
     list_display = (
         "name",
@@ -387,7 +350,21 @@ class NimbusExperimentAdmin(
     form = NimbusExperimentAdminForm
     actions = [force_fetch_jetstream_data]
     resource_class = NimbusExperimentResource
-    readonly_fields = ("_firefox_min_version_parsed",)
+    readonly_fields = ("_firefox_min_version_parsed", "changelog_display")
+
+    @admin.display(description="Change History")
+    def changelog_display(self, obj):
+        if obj.pk:
+            changes = obj.changes.all().order_by("-changed_on")
+            if not changes:
+                return "No change history"
+
+            html = render_to_string(
+                "admin/changelog_display.html",
+                {"changes": changes},
+            )
+            return mark_safe(html)
+        return "No change history"
 
     @transaction.atomic
     def save_form(self, request, form, change):
