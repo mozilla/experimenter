@@ -1,26 +1,26 @@
-friendly_name = "Pocket in New Tab"
-description = "Usage and engagement metrics for Pocket content in New Tab."
+friendly_name = "Content (formerly known as Pocket) in New Tab"
+description = "Usage and engagement metrics for content in New Tab."
 
-[metrics.organic_pocket_clicks.statistics.bootstrap_mean]
-[metrics.organic_pocket_clicks.statistics.deciles]
+[metrics.organic_content_clicks.statistics.bootstrap_mean]
+[metrics.organic_content_clicks.statistics.deciles]
 
-[metrics.sponsored_pocket_clicks.statistics.bootstrap_mean]
-[metrics.sponsored_pocket_clicks.statistics.deciles]
+[metrics.sponsored_content_clicks.statistics.bootstrap_mean]
+[metrics.sponsored_content_clicks.statistics.deciles]
 
 [metrics.newtab_searches.statistics.bootstrap_mean]
 [metrics.newtab_searches.statistics.deciles]
 
-[metrics.newtab_pocket_enabled.statistics.binomial]
-[metrics.newtab_sponsored_pocket_stories_enabled.statistics.binomial]
-[metrics.any_organic_pocket_clicks.statistics.binomial]
+[metrics.newtab_content_enabled.statistics.binomial]
+[metrics.newtab_sponsored_content_stories_enabled.statistics.binomial]
+[metrics.any_organic_content_clicks.statistics.binomial]
 
 
-[metrics.sponsored_pocket_impressions.statistics.sum]
-[metrics.sponsored_pocket_impressions.statistics.linear_model_mean]
+[metrics.sponsored_content_impressions.statistics.sum]
+[metrics.sponsored_content_impressions.statistics.linear_model_mean]
 
-[metrics.organic_pocket_impressions.statistics.sum]
-[metrics.organic_pocket_impressions.statistics.linear_model_mean]
+[metrics.organic_content_impressions.statistics.sum]
+[metrics.organic_content_impressions.statistics.linear_model_mean]
 
-[metrics.sponsored_pocket_ctr.statistics.population_ratio]
-numerator='sponsored_pocket_clicks'
-denominator='sponsored_pocket_impressions'
+[metrics.sponsored_content_ctr.statistics.population_ratio]
+numerator='sponsored_content_clicks'
+denominator='sponsored_content_impressions'
