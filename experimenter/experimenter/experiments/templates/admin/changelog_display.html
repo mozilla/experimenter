@@ -1,0 +1,26 @@
+<table class="listing">
+    <thead>
+        <tr>
+            <th>Changed On</th>
+            <th>Changed By</th>
+            <th>Old Status</th>
+            <th>New Status</th>
+            <th>Old Publish Status</th>
+            <th>New Publish Status</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for change in changes %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <td>{{ change.changed_on }}</td>
+            <td>{{ change.changed_by.email|default:"Unknown" }}</td>
+            <td>{{ change.old_status|default:"-" }}</td>
+            <td>{{ change.new_status|default:"-" }}</td>
+            <td>{{ change.old_publish_status|default:"-" }}</td>
+            <td>{{ change.new_publish_status|default:"-" }}</td>
+            <td>{{ change.message|default:"No message" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
