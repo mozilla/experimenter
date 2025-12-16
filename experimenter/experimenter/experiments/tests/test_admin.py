@@ -11,6 +11,7 @@ from import_export import fields
 from experimenter.experiments.admin import (
     DecimalWidget,
     NimbusBranchForeignKeyWidget,
+    NimbusExperimentAdmin,
     NimbusExperimentAdminForm,
     NimbusExperimentChangeLogInlineAdmin,
     NimbusExperimentResource,
@@ -173,6 +174,46 @@ class TestNimbusExperimentAdmin(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         mock_fetch_experiment_data.delay.assert_called_with(experiment.id)
+
+    def test_admin_save_creates_changelog(self):
+        user = UserFactory.create()
+        request = RequestFactory().post("/")
+        request.user = user
+        site = AdminSite()
+        admin = NimbusExperimentAdmin(model=NimbusExperiment, admin_site=site)
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        initial_changelog_count = experiment.changes.count()
+
+        form = NimbusExperimentAdminForm(
+            instance=experiment,
+            data={
+                "owner": experiment.owner.id,
+                "status": experiment.status,
+                "publish_status": experiment.publish_status,
+                "name": "Updated Name",
+                "slug": experiment.slug,
+                "proposed_duration": experiment.proposed_duration,
+                "proposed_enrollment": experiment.proposed_enrollment,
+                "population_percent": experiment.population_percent,
+                "total_enrolled_clients": experiment.total_enrolled_clients,
+                "application": experiment.application,
+                "hypothesis": experiment.hypothesis,
+            },
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = admin.save_form(request, form, change=True)
+
+        self.assertEqual(experiment.name, "Updated Name")
+        self.assertEqual(experiment.changes.count(), initial_changelog_count + 1)
+
+        latest_change = experiment.changes.latest("changed_on")
+        self.assertEqual(latest_change.changed_by, user)
+        self.assertEqual(
+            latest_change.message, NimbusExperiment.CHANGELOG_MESSAGE_ADMIN_EDIT
+        )
 
 
 class TestNimbusExperimentChangeLogInlineAdmin(TestCase):

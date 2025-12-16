@@ -5,6 +5,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.postgres import forms as pgforms
+from django.db import transaction
 from django.utils.encoding import force_str
 from import_export import fields, resources
 from import_export.admin import ExportActionMixin, ImportMixin
@@ -13,6 +14,7 @@ from import_export.widgets import DecimalWidget, ForeignKeyWidget
 from experimenter.experiments.changelog_utils import (
     NimbusBranchChangeLogSerializer,
     NimbusChangeLogSerializer,
+    generate_nimbus_changelog,
 )
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
@@ -386,6 +388,14 @@ class NimbusExperimentAdmin(
     actions = [force_fetch_jetstream_data]
     resource_class = NimbusExperimentResource
     readonly_fields = ("_firefox_min_version_parsed",)
+
+    @transaction.atomic
+    def save_form(self, request, form, change):
+        instance = super().save_form(request, form, change)
+        generate_nimbus_changelog(
+            instance, request.user, NimbusConstants.CHANGELOG_MESSAGE_ADMIN_EDIT
+        )
+        return instance
 
 
 class NimbusFeatureVersionAdmin(
