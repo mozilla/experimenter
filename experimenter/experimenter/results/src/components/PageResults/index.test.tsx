@@ -123,6 +123,7 @@ describe("PageResults", () => {
 
     const defaultSegment = "all";
     const otherSegment = "a_different_segment";
+    const otherSegmentLabel = "a different segment";
 
     expect(screen.getByText("Segment"));
     const segmentSelectParent = screen.getByTestId("segment-results-selector");
@@ -132,7 +133,7 @@ describe("PageResults", () => {
         `${defaultSegment}-segment-radio`,
       ),
     ).toBeChecked();
-    within(segmentSelectParent).getByText(otherSegment);
+    within(segmentSelectParent).getByText(otherSegmentLabel);
     expect(
       within(segmentSelectParent).getByTestId(`${otherSegment}-segment-radio`),
     ).not.toBeChecked();

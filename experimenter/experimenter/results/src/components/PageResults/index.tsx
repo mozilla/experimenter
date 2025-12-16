@@ -436,7 +436,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                           radioGroup="segment-radio-group"
                           type="radio"
                           onChange={() => setSelectedSegment(segment)}
-                          label={segment}
+                          label={segment.replace(/_/g, " ")}
                           checked={segment === selectedSegment}
                           data-testid={`${segment}-segment-radio`}
                         />

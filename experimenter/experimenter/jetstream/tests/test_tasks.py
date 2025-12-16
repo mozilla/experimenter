@@ -607,11 +607,87 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             tasks.fetch_experiment_data(experiment.id)
             experiment = NimbusExperiment.objects.get(id=experiment.id)
             self.assertEqual(experiment.results_data, FULL_DATA)
-            self.assertTrue(
+            self.assertEqual(
                 experiment.changes.filter(
-                    message=NimbusChangeLog.Messages.RESULTS_FETCHED
-                ).exists()
+                    message=NimbusChangeLog.Messages.RESULTS_UPDATED
+                ).count(),
+                1,
             )
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_no_changelog_when_results_data_unchanged(self, lifecycle):
+        primary_outcomes = ["default-browser"]
+        secondary_outcomes = ["secondary_outcome"]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            primary_outcomes=primary_outcomes,
+            secondary_outcomes=secondary_outcomes,
+        )
+        experiment.reference_branch.slug = "control"
+        experiment.reference_branch.save()
+        treatment_branch = experiment.treatment_branches[0]
+        treatment_branch.slug = "variant"
+        treatment_branch.save()
+
+        (
+            _,
+            WEEKLY_DATA,
+            OVERALL_DATA,
+            ERRORS,
+            _,
+            _,
+            _,
+        ) = JetstreamTestData.get_test_data(primary_outcomes)
+
+        FULL_DATA = {
+            "v3": {
+                "weekly": {
+                    "enrollments": {
+                        "all": WEEKLY_DATA,
+                    },
+                },
+                "overall": {
+                    "enrollments": {
+                        "all": OVERALL_DATA,
+                    },
+                },
+                "other_metrics": {
+                    Group.OTHER.value: {
+                        "some_count": "Some Count",
+                    },
+                },
+                "metadata": {},
+                "show_analysis": False,
+                "errors": ERRORS,
+            },
+        }
+
+        experiment.results_data = FULL_DATA
+        experiment.save()
+
+        initial_changelog_count = experiment.changes.filter(
+            message=NimbusChangeLog.Messages.RESULTS_UPDATED
+        ).count()
+
+        with patch(
+            "experimenter.jetstream.tasks.get_experiment_data"
+        ) as mock_get_experiment_data:
+            mock_get_experiment_data.return_value = FULL_DATA
+
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+            self.assertEqual(experiment.results_data, FULL_DATA)
+
+            final_changelog_count = experiment.changes.filter(
+                message=NimbusChangeLog.Messages.RESULTS_UPDATED
+            ).count()
+            self.assertEqual(final_changelog_count, initial_changelog_count)
 
     @parameterized.expand(
         [
