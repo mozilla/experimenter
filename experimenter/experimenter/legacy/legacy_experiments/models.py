@@ -323,94 +323,8 @@ class Experiment(ExperimentConstants, models.Model):
             )
 
     @property
-    def should_use_normandy(self):
-        return self.type in (
-            self.TYPE_PREF,
-            self.TYPE_ADDON,
-            self.TYPE_ROLLOUT,
-            self.TYPE_MESSAGE,
-        )
-
-    def generate_recipe_slug(self):
-        if self.is_addon_experiment and not self.use_branched_addon_serializer:
-            if not self.addon_experiment_id:
-                raise ValueError(
-                    (
-                        "An Add-on experiment requires an Active "
-                        "Experiment Name before it can be sent to Normandy"
-                    )
-                )
-            return self.addon_experiment_id
-
-        error_msg = "The {field} must be set before a Normandy slug can be generated"
-
-        if not self.firefox_min_version:
-            raise ValueError(error_msg.format(field="Firefox version"))
-
-        if not self.firefox_channel:
-            raise ValueError(error_msg.format(field="Firefox channel"))
-
-        if not self.bugzilla_id:
-            raise ValueError(error_msg.format(field="Bugzilla ID"))
-
-        version_string = self.firefox_min_version_integer
-        if self.firefox_max_version:
-            version_string = (
-                f"{self.firefox_min_version_integer}-{self.firefox_max_version_integer}"
-            )
-
-        slug_prefix = f"bug-{self.bugzilla_id}-{self.type}-"
-        slug_postfix = f"-{self.firefox_channel}-{version_string}"
-        remaining_chars = settings.RECIPE_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
-        truncated_slug = slugify(self.name[:remaining_chars])
-        return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
-
-    @property
-    def normandy_recipe_json(self):
-        from experimenter.legacy.normandy.serializers import ExperimentRecipeSerializer
-
-        return json.dumps(ExperimentRecipeSerializer(self).data, indent=2)
-
-    @property
     def has_normandy_info(self):
         return self.recipe_slug or self.normandy_id
-
-    @property
-    def format_ndt_normandy_urls(self):
-        # returns a list of dictionaries containing D.C. and Normandy
-        # urls for the main normandy id and other normandy ids if they exist
-        normandy_recipe_url = settings.NORMANDY_API_RECIPE_URL
-        ndt_recipe_url = settings.NORMANDY_DEVTOOLS_RECIPE_URL
-        urls = []
-
-        if self.normandy_id:
-            urls.append(
-                {
-                    "id": self.normandy_id,
-                    "normandy_url": normandy_recipe_url.format(id=self.normandy_id),
-                    "ndt_url": ndt_recipe_url.format(id=self.normandy_id),
-                }
-            )
-
-            if self.other_normandy_ids:
-                for norm_id in self.other_normandy_ids:
-                    urls.append(
-                        {
-                            "id": norm_id,
-                            "normandy_url": normandy_recipe_url.format(id=norm_id),
-                            "ndt_url": ndt_recipe_url.format(id=norm_id),
-                        }
-                    )
-
-        return urls
-
-    @property
-    def normandy_devtools_import_url(self):
-        return settings.NORMANDY_DEVTOOLS_RECIPE_IMPORT_URL.format(slug=self.slug)
-
-    @property
-    def api_recipe_url(self):
-        return reverse("experiments-api-recipe", kwargs={"slug": self.slug})
 
     @property
     def has_external_urls(self):
@@ -1066,13 +980,6 @@ class ExperimentVariant(models.Model):
 
     def __str__(self):
         return self.name
-
-    @property
-    def type(self):
-        if self.is_control:
-            return "Control"
-        else:
-            return "Treatment"
 
 
 class Preference(models.Model):

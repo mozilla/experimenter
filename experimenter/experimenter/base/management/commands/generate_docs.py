@@ -24,13 +24,7 @@ class Command(BaseCommand):
         schema = generator.get_schema()
         paths = schema.get("paths") or []
         for path in paths:
-            if "/api/v1/" in path:
-                for method in paths[path]:
-                    paths[path][method]["tags"] = ["Core: Public"]
-            elif "/api/v2/" in path:
-                for method in paths[path]:
-                    paths[path][method]["tags"] = ["Core: Private"]
-            elif "/api/v6/" in path:
+            if "/api/v6/" in path:
                 for method in paths[path]:
                     paths[path][method]["tags"] = ["Nimbus: Public"]
             elif "/api/v8/" in path:

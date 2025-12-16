@@ -1,8 +1,0 @@
-<!-- this template exists to provide form-inline html with a
-url link for help instead of popping up a helper message
-underneath the text box. -->
-{% extends "experiments/field_inline.html" %}
-
-{% block help %}
-  <a target="_blank" rel="noreferrer noopener" href="{{ field.help_text }}">Help</a>
-{% endblock %}

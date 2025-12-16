@@ -7,7 +7,12 @@
 
 {% block section_content %}
   {% for value, label in experiment.risk_values_labels %}
-    {% include "experiments/risk_inline.html" with value=value label=label %}
+    <p>
+      {{ label }}
+      <strong class="{% if value %}text-danger{% endif %}">
+        {{ value|yesno:"Yes,No" }}
+      </strong>
+    </p>
   {% endfor %}
 
   {% if experiment.risk_technical %}
