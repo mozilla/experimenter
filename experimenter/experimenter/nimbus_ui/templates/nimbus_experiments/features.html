@@ -248,14 +248,14 @@
                     </td>
                     <td id="qa-test-plan">
                       {% if experiment.qa_run_test_plan_url %}
-                        <a href="{{ experiment.qa_run_test_plan_url }}">Test Plan Link</a>
+                        <a href="{{ experiment.qa_run_test_plan_url }}">Test Plan URL</a>
                       {% else %}
                         <span class="text-danger">Not set</span>
                       {% endif %}
                     </td>
                     <td id="qa-testrail-link" class="col-2">
                       {% if experiment.qa_run_testrail_url %}
-                        <a href="{{ experiment.qa_run_testrail_url }}">TestRail Link</a>
+                        <a href="{{ experiment.qa_run_testrail_url }}">TestRail URL</a>
                       {% else %}
                         <span class="text-danger">Not set</span>
                       {% endif %}
