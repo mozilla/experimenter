@@ -414,6 +414,8 @@ class TestQAStatusForm(RequestFormTestCase):
         data = {
             "qa_status": NimbusExperiment.QAStatus.GREEN,
             "qa_comment": "tests passed",
+            "qa_run_test_plan_url": "",
+            "qa_run_testrail_url": "",
         }
         form = QAStatusForm(data, request=self.request, instance=experiment)
         self.assertTrue(form.is_valid(), form.errors)
@@ -440,6 +442,8 @@ class TestQAStatusForm(RequestFormTestCase):
         data = {
             "qa_status": NimbusExperiment.QAStatus.GREEN,
             "qa_comment": "tests passed",
+            "qa_run_test_plan_url": "",
+            "qa_run_testrail_url": "",
         }
         form = QAStatusForm(data, request=self.request, instance=experiment)
         self.assertTrue(form.is_valid(), form.errors)
@@ -459,6 +463,8 @@ class TestQAStatusForm(RequestFormTestCase):
         data = {
             "qa_status": NimbusExperiment.QAStatus.GREEN,
             "qa_comment": "updated comment",
+            "qa_run_test_plan_url": "",
+            "qa_run_testrail_url": "",
         }
         form = QAStatusForm(data, request=self.request, instance=experiment)
         self.assertTrue(form.is_valid(), form.errors)
@@ -477,6 +483,8 @@ class TestQAStatusForm(RequestFormTestCase):
         data = {
             "qa_status": NimbusExperiment.QAStatus.GREEN,
             "qa_comment": "retested and passed",
+            "qa_run_test_plan_url": "",
+            "qa_run_testrail_url": "",
         }
         form = QAStatusForm(data, request=self.request, instance=experiment)
         self.assertTrue(form.is_valid(), form.errors)
@@ -497,6 +505,8 @@ class TestQAStatusForm(RequestFormTestCase):
         data = {
             "qa_status": NimbusExperiment.QAStatus.NOT_SET,
             "qa_comment": "resetting status",
+            "qa_run_test_plan_url": "",
+            "qa_run_testrail_url": "",
         }
         form = QAStatusForm(data, request=self.request, instance=experiment)
         self.assertTrue(form.is_valid(), form.errors)
@@ -504,6 +514,39 @@ class TestQAStatusForm(RequestFormTestCase):
         experiment = form.save()
         self.assertEqual(experiment.qa_status, NimbusExperiment.QAStatus.NOT_SET)
         self.assertEqual(experiment.qa_run_date, old_date)
+
+    def test_form_updates_qa_url_fields(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_status=NimbusExperiment.QAStatus.NOT_SET,
+            qa_run_test_plan_url="",
+            qa_run_testrail_url="",
+        )
+        existing_changes = list(experiment.changes.values_list("id", flat=True))
+        data = {
+            "qa_status": NimbusExperiment.QAStatus.GREEN,
+            "qa_comment": "tests passed",
+            "qa_run_test_plan_url": "https://example.com/test-plan",
+            "qa_run_testrail_url": "https://testrail.example.com/results",
+        }
+        form = QAStatusForm(data, request=self.request, instance=experiment)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.qa_status, NimbusExperiment.QAStatus.GREEN)
+        self.assertEqual(experiment.qa_comment, "tests passed")
+        self.assertEqual(experiment.qa_run_test_plan_url, "https://example.com/test-plan")
+        self.assertEqual(
+            experiment.qa_run_testrail_url, "https://testrail.example.com/results"
+        )
+
+        self.assertEqual(experiment.changes.count(), 2)
+        changelog = experiment.changes.exclude(id__in=existing_changes).get()
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertEqual(
+            changelog.message,
+            "dev@example.com updated QA",
+        )
 
 
 class TestTakeawaysForm(RequestFormTestCase):

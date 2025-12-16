@@ -11,26 +11,26 @@
       <td colspan="3">{{ experiment.qa_comment|default:"No comment" }}</td>
     </tr>
     <tr>
-      <th>Test scenarios/suite</th>
+      <th>Test Scenarios/Suites URL</th>
       <td colspan="3">
-        {% if experiment.qa_run_test_plan %}
-          <a href="{{ experiment.qa_run_test_plan }}"
+        {% if experiment.qa_run_test_plan_url %}
+          <a href="{{ experiment.qa_run_test_plan_url }}"
              target="_blank"
-             rel="noopener noreferrer">{{ experiment.qa_run_test_plan }}</a>
+             rel="noopener noreferrer">{{ experiment.qa_run_test_plan_url }}</a>
         {% else %}
-          {{ experiment.qa_run_test_plan|default:"Not provided" }}
+          {{ experiment.qa_run_test_plan_url|default:"Not provided" }}
         {% endif %}
       </td>
     </tr>
     <tr>
-      <th>TestRail Results</th>
+      <th>TestRail Results URL</th>
       <td colspan="3">
-        {% if experiment.qa_run_testrail_link %}
-          <a href="{{ experiment.qa_run_testrail_link }}"
+        {% if experiment.qa_run_testrail_url %}
+          <a href="{{ experiment.qa_run_testrail_url }}"
              target="_blank"
-             rel="noopener noreferrer">{{ experiment.qa_run_testrail_link }}</a>
+             rel="noopener noreferrer">{{ experiment.qa_run_testrail_url }}</a>
         {% else %}
-          {{ experiment.qa_run_testrail_link|default:"Not provided" }}
+          {{ experiment.qa_run_testrail_url|default:"Not provided" }}
         {% endif %}
       </td>
     </tr>

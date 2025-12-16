@@ -13,17 +13,17 @@
       <div class="col-sm-10">{{ form.qa_comment }}</div>
     </div>
     <div class="mb-3 row">
-      <label for="id_qa_run_test_plan" class="col-sm-2 col-form-label">Test scenarios/suite:</label>
+      <label for="id_qa_run_test_plan_url" class="col-sm-2 col-form-label">Test Scenarios/Suites URL:</label>
       <div class="col-sm-10">
-        {{ form.qa_run_test_plan }}
-        {% for error in form.qa_run_test_plan.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        {{ form.qa_run_test_plan_url }}
+        {% for error in form.qa_run_test_plan_url.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       </div>
     </div>
     <div class="mb-3 row">
-      <label for="id_qa_run_testrail_link" class="col-sm-2 col-form-label">TestRail Results:</label>
+      <label for="id_qa_run_testrail_url" class="col-sm-2 col-form-label">TestRail Results URL:</label>
       <div class="col-sm-10">
-        {{ form.qa_run_testrail_link }}
-        {% for error in form.qa_run_testrail_link.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        {{ form.qa_run_testrail_url }}
+        {% for error in form.qa_run_testrail_url.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       </div>
     </div>
     <div class="d-flex justify-content-end mt-3">
