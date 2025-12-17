@@ -138,7 +138,7 @@ class TestSlackNotifications(TestCase):
         # Should not call Slack API when experiment doesn't exist
         mock_client.chat_postMessage.assert_not_called()
 
-    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @override_settings(SLACK_AUTH_TOKEN="test-token", SLACK_NIMBUS_CHANNEL="test-channel")
     @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_with_requesting_user(self, mock_webclient):
         mock_client = Mock()
@@ -192,7 +192,7 @@ class TestSlackNotifications(TestCase):
         dm_call_2 = mock_client.chat_postMessage.call_args_list[2]
         for dm_call in [dm_call_1, dm_call_2]:
             dm_message = dm_call.kwargs["text"]
-            self.assertIn("to get slack notifications:", dm_message)
+            self.assertIn("Join test-channel to get slack notifications:", dm_message)
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
     @patch("experimenter.slack.notification.WebClient")
