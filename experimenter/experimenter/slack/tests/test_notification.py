@@ -187,6 +187,13 @@ class TestSlackNotifications(TestCase):
         )
         self.assertIn("<@U789012>", message)  # mentioned user
 
+        # Verify both DM messages include channel name prefix
+        dm_call_1 = mock_client.chat_postMessage.call_args_list[1]
+        dm_call_2 = mock_client.chat_postMessage.call_args_list[2]
+        for dm_call in [dm_call_1, dm_call_2]:
+            dm_message = dm_call.kwargs["text"]
+            self.assertIn("to get slack notifications:", dm_message)
+
     @override_settings(SLACK_AUTH_TOKEN="test-token")
     @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_requesting_user_not_found(self, mock_webclient):
@@ -313,6 +320,11 @@ class TestSlackNotifications(TestCase):
         self.assertEqual(call_args.kwargs["channel"], "custom-channel")
         self.assertEqual(call_args.kwargs["unfurl_links"], False)
         self.assertEqual(call_args.kwargs["unfurl_media"], False)
+
+        # Verify DM message includes the custom channel name
+        dm_call = mock_client.chat_postMessage.call_args_list[1]
+        dm_message = dm_call.kwargs["text"]
+        self.assertIn("Join custom-channel to get slack notifications:", dm_message)
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
     @patch("experimenter.slack.notification.WebClient")
