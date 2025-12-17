@@ -20,7 +20,12 @@ Results
 <p><em class="text-secondary">Not Complete.</em></p>
 {% endif %}
 
-{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_CONFIDENCE_LABEL field=experiment.results_confidence %}
+<p>
+  {{ experiment.RESULTS_CONFIDENCE_LABEL }}
+  <strong class="{% if experiment.results_confidence %}text-danger{% elif experiment.results_confidence is None %}text-muted{% endif %} ">
+    {{ experiment.results_confidence|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
 
 <p><strong>Lessons Learned: </strong></p>
 {% if experiment.results_lessons_learned %}
@@ -29,7 +34,12 @@ Results
 <p><em class="text-secondary">Not Complete.</em></p>
 {% endif %}
 
-{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_RECIPE_ERRORS_LABEL field=experiment.results_recipe_errors %}
+<p>
+  {{ experiment.RESULTS_RECIPE_ERRORS_LABEL }}
+  <strong class="{% if experiment.results_recipe_errors %}text-danger{% elif experiment.results_recipe_errors is None %}text-muted{% endif %} ">
+    {{ experiment.results_recipe_errors|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
 
 {% if experiment.results_failures_notes %}
 <p><strong>Recipe Error Notes: </strong></p>
@@ -41,20 +51,60 @@ Results
 <h4> Additional Results</h4>
 <h5>What Went Wrong?</h5>
 
-{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_FAIL_TO_LAUNCH_LABEL field=experiment.results_fail_to_launch %}
+<p>
+  {{ experiment.RESULTS_FAIL_TO_LAUNCH_LABEL }}
+  <strong class="{% if experiment.results_fail_to_launch %}text-danger{% elif experiment.results_fail_to_launch is None %}text-muted{% endif %} ">
+    {{ experiment.results_fail_to_launch|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
 
-{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_RESTARTS_LABEL field=experiment.results_restarts %}
-{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_LOW_ENROLLMENT_LABEL field=experiment.results_low_enrollment %}
-{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_EARLY_END_LABEL field=experiment.results_early_end %}
-{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_NO_USABLE_DATA_LABEL field=experiment.results_no_usable_data %}
+<p>
+  {{ experiment.RESULTS_RESTARTS_LABEL }}
+  <strong class="{% if experiment.results_restarts %}text-danger{% elif experiment.results_restarts is None %}text-muted{% endif %} ">
+    {{ experiment.results_restarts|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
+<p>
+  {{ experiment.RESULTS_LOW_ENROLLMENT_LABEL }}
+  <strong class="{% if experiment.results_low_enrollment %}text-danger{% elif experiment.results_low_enrollment is None %}text-muted{% endif %} ">
+    {{ experiment.results_low_enrollment|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
+<p>
+  {{ experiment.RESULTS_EARLY_END_LABEL }}
+  <strong class="{% if experiment.results_early_end %}text-danger{% elif experiment.results_early_end is None %}text-muted{% endif %} ">
+    {{ experiment.results_early_end|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
+<p>
+  {{ experiment.RESULTS_NO_USABLE_DATA_LABEL }}
+  <strong class="{% if experiment.results_no_usable_data %}text-danger{% elif experiment.results_no_usable_data is None %}text-muted{% endif %} ">
+    {{ experiment.results_no_usable_data|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
 
 <hr />
 <h5>What Went Right?</h5>
 
-{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_CHANGES_TO_FIREFOX_LABEL field=experiment.results_changes_to_firefox %}
-{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_DATA_FOR_HYPOTHESIS_LABEL field=experiment.results_data_for_hypothesis %}
+<p>
+  {{ experiment.RESULTS_CHANGES_TO_FIREFOX_LABEL }}
+  <strong class="{% if experiment.results_changes_to_firefox %}text-danger{% elif experiment.results_changes_to_firefox is None %}text-muted{% endif %} ">
+    {{ experiment.results_changes_to_firefox|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
+<p>
+  {{ experiment.RESULTS_DATA_FOR_HYPOTHESIS_LABEL }}
+  <strong class="{% if experiment.results_data_for_hypothesis %}text-danger{% elif experiment.results_data_for_hypothesis is None %}text-muted{% endif %} ">
+    {{ experiment.results_data_for_hypothesis|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
 
-{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_MEASURE_IMPACT_LABEL field=experiment.results_measure_impact %}
+<p>
+  {{ experiment.RESULTS_MEASURE_IMPACT_LABEL }}
+  <strong class="{% if experiment.results_measure_impact %}text-danger{% elif experiment.results_measure_impact is None %}text-muted{% endif %} ">
+    {{ experiment.results_measure_impact|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
 
 
 {% if experiment.results_impact_notes %}

@@ -6,7 +6,6 @@ WAIT_FOR_RUNSERVER = /experimenter/bin/wait-for-it.sh -t 30 localhost:7001 &&
 COMPOSE_CIRRUS = [[ -n $$CIRRUS ]] && echo "-f docker-compose-cirrus.yml"
 COMPOSE = docker compose -f docker-compose.yml $$(${COMPOSE_CIRRUS})
 COMPOSE_RUN = ${COMPOSE} run --rm
-COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
 COMPOSE_TEST = docker compose -f docker-compose-test.yml
 COMPOSE_TEST_RUN = ${COMPOSE_TEST} run --name experimenter_test
 COMPOSE_PROD = docker compose -f docker-compose-prod.yml $$(${COMPOSE_CIRRUS})
@@ -36,8 +35,6 @@ PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_TYPECHECK = pyright experimenter/
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 PYTHON_MIGRATE = python manage.py migrate
-ESLINT_LEGACY = yarn workspace @experimenter/core lint
-ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
 ESLINT_RESULTS = yarn workspace @experimenter/results lint
 ESLINT_FIX_RESULTS = yarn workspace @experimenter/results lint-fix
 ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui lint
@@ -45,7 +42,6 @@ ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui format
 TYPECHECK_RESULTS = yarn workspace @experimenter/results lint:tsc
 DJLINT_CHECK = djlint --check experimenter/nimbus_ui/ experimenter/glean/
 DJLINT_FIX = djlint --reformat experimenter/nimbus_ui/ experimenter/glean/
-JS_TEST_LEGACY = yarn workspace @experimenter/core test
 JS_TEST_RESULTS = DEBUG_PRINT_LIMIT=999999 CI=yes yarn workspace @experimenter/results test:cov
 RESULTS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/results/test_schema.graphql&&diff experimenter/results/test_schema.graphql experimenter/results/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
 RESULTS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/results/schema.graphql&&yarn workspace @experimenter/results generate-types
@@ -166,7 +162,7 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 
 lint: build_test  ## Running linting on source code
 	-docker rm experimenter_test
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_RESULTS)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_RESULTS)" "$(RESULTS_SCHEMA_CHECK)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_RESULTS)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_RESULTS)" "$(RESULTS_SCHEMA_CHECK)") ${COLOR_CHECK}'
 
 check: lint
 
@@ -187,9 +183,6 @@ start: build_dev  ## Start containers
 	$(COMPOSE) up
 
 up: start
-
-up_legacy: build_dev
-	$(COMPOSE_LEGACY) up
 
 up_prod: build_prod
 	$(COMPOSE_PROD) up
@@ -213,7 +206,7 @@ generate_types: build_dev
 	$(COMPOSE_RUN) experimenter sh -c "$(RESULTS_TYPES_GENERATE)"
 
 format: build_dev  ## Format source tree
-	$(COMPOSE_RUN) experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_RESULTS)" "$(ESLINT_FIX_NIMBUS_UI)"'
+	$(COMPOSE_RUN) experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_RESULTS)" "$(ESLINT_FIX_NIMBUS_UI)"'
 code_format: format
 
 makemigrations: build_dev
@@ -248,9 +241,6 @@ integration_sdk_shell: build_prod build_integration_test
 integration_vnc_shell: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox
 	docker exec -it $$(docker ps -qf "name=experimenter-firefox-1") bash
-
-integration_test_legacy: build_prod integration_clean
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "./experimenter/tests/experimenter_legacy_tests.sh"
 
 integration_test_nimbus_desktop: build_prod integration_clean
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "FIREFOX_CHANNEL=$(FIREFOX_CHANNEL) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"

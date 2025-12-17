@@ -104,7 +104,7 @@ COPY . /experimenter/
 FROM test AS ui
 
 # Build legacy assets
-COPY ./experimenter/legacy/legacy-ui/* /experimenter/experimenter/legacy/legacy-ui/
+COPY ./experimenter/legacy/legacy-ui/core/ /experimenter/experimenter/legacy/legacy-ui/core/
 RUN yarn workspace @experimenter/core build
 
 # Build results assets
