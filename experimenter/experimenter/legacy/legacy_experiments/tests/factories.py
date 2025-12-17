@@ -155,7 +155,8 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             )
 
             if status_value == Experiment.STATUS_SHIP:
-                experiment.recipe_slug = experiment.generate_recipe_slug()
+                # Recipe slug generation removed - using dummy slug for tests
+                experiment.recipe_slug = f"test-recipe-{experiment.slug}"
 
             if status_value == target_status:
                 break

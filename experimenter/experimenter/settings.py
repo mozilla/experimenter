@@ -106,7 +106,6 @@ INSTALLED_APPS = [
     "experimenter.jetstream",
     "experimenter.kinto",
     "experimenter.legacy.legacy_experiments",
-    "experimenter.legacy.normandy",
     "experimenter.legacy.notifications",
     "experimenter.openidc",
     "experimenter.outcomes",
