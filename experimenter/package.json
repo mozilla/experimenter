@@ -3,7 +3,7 @@
   "license": "MPL-2.0",
   "private": true,
   "workspaces": [
-    "experimenter/legacy/legacy-ui/*",
+    "experimenter/legacy/legacy-ui/core",
     "experimenter/nimbus_ui/static",
     "experimenter/results"
   ],
