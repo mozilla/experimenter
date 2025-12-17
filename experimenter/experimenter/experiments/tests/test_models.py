@@ -4306,15 +4306,15 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(qa_run_date=test_date)
         self.assertEqual(experiment.qa_run_date, test_date)
 
-    def test_qa_run_test_plan_accepts_valid_url(self):
+    def test_qa_run_test_plan_url_accepts_valid_url(self):
         test_url = "https://example.com/test-plan"
-        experiment = NimbusExperimentFactory.create(qa_run_test_plan=test_url)
-        self.assertEqual(experiment.qa_run_test_plan, test_url)
+        experiment = NimbusExperimentFactory.create(qa_run_test_plan_url=test_url)
+        self.assertEqual(experiment.qa_run_test_plan_url, test_url)
 
-    def test_qa_run_testrail_link_accepts_valid_url(self):
+    def test_qa_run_testrail_url_accepts_valid_url(self):
         test_url = "https://testrail.example.com/index.php?/runs/view/12345"
-        experiment = NimbusExperimentFactory.create(qa_run_testrail_link=test_url)
-        self.assertEqual(experiment.qa_run_testrail_link, test_url)
+        experiment = NimbusExperimentFactory.create(qa_run_testrail_url=test_url)
+        self.assertEqual(experiment.qa_run_testrail_url, test_url)
 
     def test_clone_created_experiment(self):
         owner = UserFactory.create()
@@ -4466,8 +4466,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.qa_status, NimbusExperiment.QAStatus.NOT_SET)
         self.assertEqual(child.qa_comment, None)
         self.assertEqual(child.qa_run_date, None)
-        self.assertEqual(child.qa_run_test_plan, None)
-        self.assertEqual(child.qa_run_testrail_link, None)
+        self.assertEqual(child.qa_run_test_plan_url, None)
+        self.assertEqual(child.qa_run_testrail_url, None)
         self.assertEqual(child._start_date, None)
         self.assertEqual(child._end_date, None)
         self.assertEqual(child._enrollment_end_date, None)
