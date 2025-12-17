@@ -464,15 +464,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     )
     tags = models.ManyToManyField(Tag, blank=True, related_name="experiments")
     qa_run_date = models.DateField("QA Run Date", blank=True, null=True, default=None)
-    qa_run_test_plan = models.URLField(
-        "QA Run Test Plan Link",
+    qa_run_test_plan_url = models.URLField(
+        "QA Run Test Plan URL",
         max_length=500,
         blank=True,
         null=True,
         default=None,
     )
-    qa_run_testrail_link = models.URLField(
-        "QA Run TestRail Link",
+    qa_run_testrail_url = models.URLField(
+        "QA Run TestRail URL",
         max_length=500,
         blank=True,
         null=True,
