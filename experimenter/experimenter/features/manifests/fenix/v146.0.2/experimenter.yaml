@@ -41,6 +41,14 @@ baseline-fpp:
     overrides:
       type: string
       description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
+bookmarks:
+  description: Feature for Bookmarks
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    new-compose-ui:
+      type: boolean
+      description: if true, enable new compose based UI
 composable-toolbar:
   description: Use a composable toolbar instead of the View based one.
   hasExposure: true
@@ -150,10 +158,6 @@ fission:
       type: boolean
       description: |
         Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
-    isolationStrategy:
-      type: int
-      description: |
-        The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
     shouldUseNimbus:
       type: boolean
       description: |
@@ -191,6 +195,14 @@ glean:
     ping-lifetime-threshold:
       type: int
       description: Write count threshold when to auto-flush
+growth-data:
+  description: A feature measuring campaign growth data
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature is active
 homepage-as-new-tab:
   description: Enables homepage as a a new tab.
   hasExposure: true
@@ -268,14 +280,6 @@ lna-blocking:
   hasExposure: true
   exposureDescription: ''
   variables:
-    block-trackers:
-      type: boolean
-      description: |
-        Whether or not to block trackers
-    blocking:
-      type: boolean
-      description: |
-        Whether or not to block LNA requests
     enabled:
       type: boolean
       description: |
@@ -344,15 +348,14 @@ microsurveys:
       type: boolean
       description: |
         When the feature is enabled then microsurveys can be used.
-minimal-addressbar:
-  description: Show a smaller height bottom addressbar with just the URL.
+mr2022:
+  description: Features for MR 2022.
   hasExposure: true
   exposureDescription: ''
   variables:
-    at-bottom-while-entering-text:
-      type: boolean
-      description: |
-        Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
+    sections-enabled:
+      type: json
+      description: This property provides a lookup table of whether or not the given section should be enabled.
 navigation-toolbar:
   description: Feature for navigation toolbar.
   hasExposure: true
@@ -362,6 +365,15 @@ navigation-toolbar:
       type: boolean
       description: |
         When the feature is enabled then the user will see the new navigation toolbar.
+networking:
+  description: Enables networking features
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    fetchPriorityEnabled:
+      type: boolean
+      description: |
+        Enables or disables network.fetchpriority.enabled preference.
 networkingBannedPorts:
   description: Networking (Necko) Banned Ports
   hasExposure: true
@@ -482,6 +494,14 @@ private-browsing-lock:
       type: boolean
       description: |
         Whether or not to enable private browsing mode lock.
+query-parameter-stripping:
+  description: Features for query parameter stripping.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    sections-enabled:
+      type: json
+      description: This property provides a lookup table of whether or not the given section should be enabled.
 re-engagement-notification:
   description: A feature that shows the re-engagement notification if the user is inactive.
   hasExposure: true
@@ -570,6 +590,14 @@ search-suggestions-on-homepage:
       type: boolean
       description: |
         Whether or not to enable search suggestions on homepage.
+search-term-groups:
+  description: A feature allowing the grouping of URLs around the search term that it came from.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature shows up on the homescreen and on the new tab screen.
 sent-from-firefox:
   description: A feature that allows the user to add a download firefox footer to a shared link.
   hasExposure: true
@@ -662,15 +690,6 @@ tab-management-enhancements:
     opening_animation_enabled:
       type: boolean
       description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
-tab-search:
-  description: Control the visibility of the tab search feature.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the tab search feature.
 tab-strip:
   description: Enables tab strip.
   hasExposure: true
@@ -719,14 +738,18 @@ toolbar-redesign-option:
   hasExposure: true
   exposureDescription: ''
   variables:
-    show-customization:
+    show-expanded-customization:
       type: boolean
       description: |
-        Whether or not the simple/expanded toolbar customization option is visible to the user.
+        Whether or not the expanded toolbar customization option is visible to the user.
     show-options:
       type: boolean
       description: |
         Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.
+    show-simple-customization:
+      type: boolean
+      description: |
+        Whether or not the simple toolbar customization option is visible to the user.
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true

@@ -1611,6 +1611,20 @@ newtabTrainhopAddon:
         branch: user
         pref: browser.newtabpage.trainhopAddon.version
 
+newtabTrainhopFirstStartup:
+  description: |
+    Controls startup behaviours if and when a train-hop is available for a
+    fresh install.
+  owner: mconley@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        True if New Tab should attempt to download, install and enable
+        train-hopped newtab XPIs for the first profile of new installs on
+        Windows. This is true by default, but can be set to false to disable.
+
 newtabTopicSelection:
   description: the about:newtab topic selection experience.
   owner: nbarrett@mozilla.com

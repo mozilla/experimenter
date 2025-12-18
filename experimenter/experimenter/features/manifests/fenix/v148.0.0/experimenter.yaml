@@ -344,6 +344,15 @@ microsurveys:
       type: boolean
       description: |
         When the feature is enabled then microsurveys can be used.
+minimal-addressbar:
+  description: Show a smaller height bottom addressbar with just the URL.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    at-bottom-while-entering-text:
+      type: boolean
+      description: |
+        Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
 navigation-toolbar:
   description: Feature for navigation toolbar.
   hasExposure: true
@@ -653,6 +662,15 @@ tab-management-enhancements:
     opening_animation_enabled:
       type: boolean
       description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
+tab-search:
+  description: Control the visibility of the tab search feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable the tab search feature.
 tab-strip:
   description: Enables tab strip.
   hasExposure: true
