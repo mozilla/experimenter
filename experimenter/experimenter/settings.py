@@ -416,6 +416,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.jetstream.tasks.fetch_population_sizing_data",
         "schedule": crontab(minute=0, hour=6, day_of_week=1),
     },
+    "nimbus_sync_published_dto": {
+        "task": "experimenter.kinto.tasks.nimbus_sync_published_dto",
+        "schedule": crontab(minute=0, hour="*"),
+    },
 }
 
 # Recipe Configuration

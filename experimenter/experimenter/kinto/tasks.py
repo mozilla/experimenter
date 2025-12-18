@@ -535,3 +535,52 @@ def nimbus_send_emails():
             logger.info(f"{experiment} end email sent")
 
     metrics.incr("nimbus_send_emails.completed")
+
+
+@app.task
+@metrics.timer_decorator("nimbus_sync_published_dto")
+def nimbus_sync_published_dto():
+    """
+    A scheduled task that finds live experiments with published_dto=null,
+    reads their record from Kinto, and saves it to the published_dto field.
+    """
+    metrics.incr("nimbus_sync_published_dto.started")
+
+    kinto_clients = {
+        app_config.slug: KintoClient(app_config.preview_collection, review=False)
+        for app_config in NimbusConstants.APPLICATION_CONFIGS.values()
+    }
+
+    try:
+        experiments = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
+            published_dto__isnull=True,
+        )
+
+        for experiment in experiments:
+            logger.info(f"Syncing published_dto for {experiment.slug}")
+
+            kinto_client = kinto_clients[experiment.application]
+            records = kinto_client.get_main_records()
+
+            if experiment.slug in records:
+                published_record = records[experiment.slug].copy()
+                published_record.pop("last_modified", None)
+
+                experiment.published_dto = published_record
+                experiment.save()
+
+                logger.info(f"Synced published_dto for {experiment.slug}")
+                metrics.incr("nimbus_sync_published_dto.synced")
+            else:
+                logger.warning(
+                    f"Experiment {experiment.slug} not found in Kinto collection"
+                )
+                metrics.incr("nimbus_sync_published_dto.not_found")
+
+        metrics.incr("nimbus_sync_published_dto.completed")
+
+    except Exception as e:
+        metrics.incr("nimbus_sync_published_dto.failed")
+        logger.info(f"Syncing published_dto failed: {e}")
+        raise e
