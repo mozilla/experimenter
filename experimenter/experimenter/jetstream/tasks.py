@@ -16,6 +16,25 @@ logger = get_task_logger(__name__)
 metrics = markus.get_metrics("jetstream.tasks")
 
 
+def strip_errors(data):
+    """
+    Strip errors from result data for meaningful comparison.
+
+    Errors contain timestamps and other metadata that change on every fetch
+    even when the actual analysis results are unchanged. We still store errors
+    in the database, but don't use them to determine if results have changed.
+    """
+    if not data:
+        return data
+
+    return {
+        version_key: {k: v for k, v in version_data.items() if k != "errors"}
+        if isinstance(version_data, dict)
+        else version_data
+        for version_key, version_data in data.items()
+    }
+
+
 @app.task
 @metrics.timer_decorator("fetch_experiment_data")
 def fetch_experiment_data(experiment_id):
@@ -29,11 +48,16 @@ def fetch_experiment_data(experiment_id):
         if old_results_data != new_results_data:
             experiment.results_data = new_results_data
             experiment.save()
-            generate_nimbus_changelog(
-                experiment,
-                get_kinto_user(),
-                message=NimbusChangeLog.Messages.RESULTS_UPDATED,
-            )
+
+            old_normalized = strip_errors(old_results_data)
+            new_normalized = strip_errors(new_results_data)
+
+            if old_normalized != new_normalized:
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.RESULTS_UPDATED,
+                )
 
         metrics.incr("fetch_experiment_data.completed")
     except Exception as e:
