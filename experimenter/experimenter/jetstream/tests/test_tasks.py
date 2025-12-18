@@ -620,6 +620,81 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
+    def test_no_changelog_when_only_timestamps_changed(self, lifecycle):
+        primary_outcomes = ["default-browser"]
+        secondary_outcomes = ["secondary_outcome"]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            primary_outcomes=primary_outcomes,
+            secondary_outcomes=secondary_outcomes,
+        )
+
+        old_data = {
+            "v3": {
+                "errors": {
+                    "experiment": [
+                        {
+                            "metric": None,
+                            "message": "Could not find data",
+                            "timestamp": "2025-12-17T02:00:47.111Z",
+                            "experiment": "test-experiment",
+                        }
+                    ]
+                },
+                "weekly": {},
+                "overall": {},
+                "metadata": None,
+                "show_analysis": False,
+            }
+        }
+
+        new_data = {
+            "v3": {
+                "errors": {
+                    "experiment": [
+                        {
+                            "metric": None,
+                            "message": "Could not find data",
+                            "timestamp": "2025-12-17T04:00:47.764Z",
+                            "experiment": "test-experiment",
+                        }
+                    ]
+                },
+                "weekly": {},
+                "overall": {},
+                "metadata": None,
+                "show_analysis": False,
+            }
+        }
+
+        experiment.results_data = old_data
+        experiment.save()
+
+        initial_changelog_count = experiment.changes.filter(
+            message=NimbusChangeLog.Messages.RESULTS_UPDATED
+        ).count()
+
+        with patch(
+            "experimenter.jetstream.tasks.get_experiment_data"
+        ) as mock_get_experiment_data:
+            mock_get_experiment_data.return_value = new_data
+
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+            self.assertEqual(experiment.results_data, new_data)
+
+            final_changelog_count = experiment.changes.filter(
+                message=NimbusChangeLog.Messages.RESULTS_UPDATED
+            ).count()
+            self.assertEqual(final_changelog_count, initial_changelog_count)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
     def test_no_changelog_when_results_data_unchanged(self, lifecycle):
         primary_outcomes = ["default-browser"]
         secondary_outcomes = ["secondary_outcome"]
