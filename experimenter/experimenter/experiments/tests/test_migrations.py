@@ -5,14 +5,14 @@ from django_test_migrations.contrib.unittest_case import MigratorTestCase
 from experimenter.experiments.constants import NimbusConstants
 
 
-class TestDeleteJetstreamChangelogsMigration(MigratorTestCase):
+class TestDeleteDuplicateResultsChangesMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0304_remove_nimbusexperiment_qa_run_type",
+        "0307_nimbusexperiment_next_steps_and_more",
     )
     migrate_to = (
         "experiments",
-        "0305_delete_jetstream_changelogs",
+        "0308_delete_duplicate_results_changes",
     )
 
     def prepare(self):
@@ -41,7 +41,7 @@ class TestDeleteJetstreamChangelogsMigration(MigratorTestCase):
                 new_status=NimbusConstants.Status.COMPLETE,
                 old_publish_status=NimbusConstants.PublishStatus.IDLE,
                 new_publish_status=NimbusConstants.PublishStatus.IDLE,
-                message="Experiment results fetched",
+                message="Experiment results updated",
                 changed_on=datetime.datetime(
                     2024, 1, i + 1, 10, 0, tzinfo=datetime.timezone.utc
                 ),
@@ -79,10 +79,10 @@ class TestDeleteJetstreamChangelogsMigration(MigratorTestCase):
             "experiments", "NimbusExperiment"
         )
 
-        results_fetched_count = NimbusChangeLog.objects.filter(
-            message="Experiment results fetched"
+        results_updated_count = NimbusChangeLog.objects.filter(
+            message="Experiment results updated"
         ).count()
-        self.assertEqual(results_fetched_count, 0)
+        self.assertEqual(results_updated_count, 0)
 
         experiment = NimbusExperiment.objects.get(slug="test-experiment")
         remaining_changelogs = NimbusChangeLog.objects.filter(
