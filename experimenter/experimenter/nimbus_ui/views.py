@@ -733,34 +733,32 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         )
         context["selected_analysis_basis"] = analysis_basis
 
-        context["results_data"] = analysis_data
-
         context["branch_data"] = experiment.get_branch_data(
             analysis_basis, selected_segment
         )
-
-        context["metric_area_data"] = experiment.get_metric_data(
-            analysis_basis, selected_segment, selected_reference_branch
-        )
-
         branch_leading_screenshot_forms = {
             branch.slug: BranchLeadingScreenshotForm(instance=branch.screenshots.first())
             for branch in experiment.branches.all()
         }
-
         context["branch_leading_screenshot_forms"] = branch_leading_screenshot_forms
-
-        relative_metric_changes = {}
 
         all_metrics = experiment.get_metric_data(
             analysis_basis, selected_segment, selected_reference_branch
         )
+        context["metric_area_data"] = all_metrics
+
+        relative_metric_changes = {}
 
         for metric_data in all_metrics.values():
             metadata = metric_data.get("metrics", {})
 
+            # Prepare relative metric changes for UI rendering
             for metric_metadata in metadata:
-                data = metric_data.get("data", {}).get(metric_metadata["slug"], {})
+                data = (
+                    metric_data.get("data", {})
+                    .get("overall", {})
+                    .get(metric_metadata["slug"], {})
+                )
                 metric_ui_properties = {}
                 extreme_bound = experiment.get_max_metric_value(
                     analysis_basis,
@@ -803,6 +801,9 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
                     )
 
         context["relative_metric_changes"] = relative_metric_changes
+        context["all_weekly_metric_data"] = experiment.get_weekly_metric_data(
+            analysis_basis, selected_segment, selected_reference_branch
+        )
 
         return context
 

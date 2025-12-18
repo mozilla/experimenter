@@ -3152,9 +3152,6 @@ class TestResultsView(AuthTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.context["results_data"], experiment.results_data.get("v3")
-        )
-        self.assertEqual(
             response.context["selected_reference_branch"],
             experiment.reference_branch.slug,
         )
