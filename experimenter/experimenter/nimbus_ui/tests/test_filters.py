@@ -32,6 +32,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     application_icon_info,
     channel_icon_info,
     choices_with_icons,
+    dict_get,
     experiment_date_progress,
     format_json,
     format_not_set,
@@ -158,6 +159,13 @@ class FilterTests(TestCase):
         self.assertEqual(to_percentage(0.123456), "12.3456%")
         self.assertEqual(to_percentage(0.123), "12.3%")
         self.assertEqual(to_percentage(0.12), "12.0%")
+
+    def test_dict_get(self):
+        sample_dict = {"key1": "value1", "key2": "value2"}
+        self.assertEqual(dict_get(sample_dict, "key1"), "value1")
+        self.assertEqual(dict_get(sample_dict, "key2"), "value2")
+        self.assertIsNone(dict_get(sample_dict, "key3"))
+        self.assertIsNone(dict_get("not_a_dict", "key1"))
 
 
 class TestHomeFilters(AuthTestCase):
