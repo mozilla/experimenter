@@ -3023,7 +3023,8 @@ IS_DESKTOP_TIER_2_MID_RANGE = NimbusTargetingConfig(
         "Approximately 34.4% of desktop users (Dec 2025 data)."
     ),
     desktop_telemetry=(
-        "metrics.quantity.system_memory >= 8192 AND metrics.quantity.system_memory < 16384")
+        "metrics.quantity.system_memory >= 8192 "
+        "AND metrics.quantity.system_memory < 16384")
     ,
     sticky_required=False,
     is_first_run_required=False,
