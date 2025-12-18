@@ -3024,8 +3024,8 @@ IS_DESKTOP_TIER_2_MID_RANGE = NimbusTargetingConfig(
     ),
     desktop_telemetry=(
         "metrics.quantity.system_memory >= 8192 "
-        "AND metrics.quantity.system_memory < 16384")
-    ,
+        "AND metrics.quantity.system_memory < 16384"
+    ),
     sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
