@@ -342,3 +342,10 @@ def to_percentage(value, precision=None):
 
     format_string = f"{{:.{precision}f}}%"
     return format_string.format(percentage_value)
+
+
+@register.filter
+def dict_get(d, key):
+    if isinstance(d, dict):
+        return d.get(key)
+    return None

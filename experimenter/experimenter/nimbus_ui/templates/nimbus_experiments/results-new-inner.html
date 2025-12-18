@@ -129,7 +129,7 @@
   </div>
   {% comment %} Metrics {% endcomment %}
   {% for area, metric_data_metadata in metric_area_data.items %}
-    {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data %}
+    {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data.overall %}
       <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
         <button class="accordion-button bg-transparent shadow-none text-body d-flex collapsed"
                 type="button"

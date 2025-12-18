@@ -1418,6 +1418,35 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(targeting_config_slug="invalid slug")
         self.assertIsNone(experiment.targeting_config)
 
+    @parameterized.expand(
+        [
+            [
+                datetime.date(2025, 1, 1),
+                datetime.date(2025, 1, 30),
+                [
+                    (datetime.date(2025, 1, 1), datetime.date(2025, 1, 8)),
+                    (datetime.date(2025, 1, 8), datetime.date(2025, 1, 15)),
+                    (datetime.date(2025, 1, 15), datetime.date(2025, 1, 22)),
+                    (datetime.date(2025, 1, 22), datetime.date(2025, 1, 29)),
+                ],
+            ],
+            [
+                datetime.date(2025, 1, 1),
+                datetime.date(2025, 1, 8),
+                [(datetime.date(2025, 1, 1), datetime.date(2025, 1, 8))],
+            ],
+            [datetime.date(2025, 1, 1), datetime.date(2025, 1, 3), []],
+        ]
+    )
+    def test_get_weekly_dates_for_experiment(self, start_date, end_date, expected_dates):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            _enrollment_end_date=start_date,
+            _computed_end_date=end_date,
+        )
+
+        self.assertEqual(experiment.get_weekly_dates(), expected_dates)
+
     def test_start_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2487,8 +2516,8 @@ class TestNimbusExperiment(TestCase):
         results_a = experiment.get_metric_data("enrollments", "all", "branch-a")
         results_b = experiment.get_metric_data("enrollments", "all", "branch-b")
 
-        data_a = results_b.get("KPI Metrics", {}).get("data", {})
-        data_b = results_a.get("KPI Metrics", {}).get("data", {})
+        data_a = results_b.get("KPI Metrics", {}).get("data", {}).get("overall", {})
+        data_b = results_a.get("KPI Metrics", {}).get("data", {}).get("overall", {})
 
         self.assertEqual(
             data_a.get("retained").get(branch_a.slug).get("absolute"),
