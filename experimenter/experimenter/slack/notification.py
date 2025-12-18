@@ -44,10 +44,12 @@ def _send_dm_to_user(client, user_id, message, channel_message_link=None):
         conversation = client.conversations_open(users=[user_id])
         channel_id = conversation["channel"]["id"]
 
-        # Add channel message link if provided
-        dm_message = message
+        # Add prefix message and channel message link if provided
+        dm_message = (
+            f"Join {settings.SLACK_NIMBUS_CHANNEL} to get slack notifications: {message}"
+        )
         if channel_message_link:
-            dm_message = f"{message}\n\nView in channel: {channel_message_link}"
+            dm_message = f"{dm_message}\n\nView in channel: {channel_message_link}"
 
         client.chat_postMessage(
             channel=channel_id, text=dm_message, unfurl_links=False, unfurl_media=False
