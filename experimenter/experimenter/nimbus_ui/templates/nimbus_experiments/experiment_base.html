@@ -1,5 +1,7 @@
 {% extends "common/with_sidebar.html" %}
 
+{% load nimbus_extras %}
+
 {% block sidebar %}
   {% include "nimbus_experiments/sidebar.html" with experiment=experiment %}
 
@@ -14,6 +16,9 @@
         <span class="badge rounded-pill bg-danger" id="archive-badge">Archived</span>
       {% endif %}
       {% if experiment.is_rollout %}<span class="badge rounded-pill bg-primary" id="rollout-badge">Rollout</span>{% endif %}
+      {% if experiment.project_impact %}
+        <span class="badge rounded-pill text-bg-warning border border-secondary-subtle"><i class="fa-solid fa-trophy me-2"></i>{{ experiment.project_impact|lower|capfirst }} impact</span>
+      {% endif %}
       <span id="qa-status-header" class="{{ experiment.qa_status_badge_class }}">
         QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
       </span>

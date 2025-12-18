@@ -363,6 +363,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         "Takeaways QBR Learning", default=False, blank=False, null=False
     )
     takeaways_summary = models.TextField("Takeaways Summary", blank=True, null=True)
+    next_steps = models.TextField("Next Steps", blank=True, null=True)
+    project_impact = models.CharField(
+        "Project Impact",
+        max_length=255,
+        blank=True,
+        null=True,
+        default=None,
+        choices=NimbusConstants.ProjectImpact.choices,
+    )
     is_first_run = models.BooleanField("Is First Run Flag", default=False)
     is_client_schema_disabled = models.BooleanField(
         "Is Client Schema Disabled Flag", default=False
@@ -2255,6 +2264,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.published_date = None
         cloned.results_data = None
         cloned.takeaways_summary = None
+        cloned.next_steps = None
+        cloned.project_impact = None
         cloned.conclusion_recommendations = []
         cloned.takeaways_metric_gain = False
         cloned.takeaways_gain_amount = None
