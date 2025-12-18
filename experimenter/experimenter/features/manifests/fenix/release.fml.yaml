@@ -637,6 +637,14 @@ features:
           When the feature is enabled then microsurveys can be used.
         type: Boolean
         default: false
+  minimal-addressbar:
+    description: Show a smaller height bottom addressbar with just the URL.
+    variables:
+      at-bottom-while-entering-text:
+        description: |
+          Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
+        type: Boolean
+        default: false
   navigation-toolbar:
     description: Feature for navigation toolbar.
     variables:
@@ -935,6 +943,14 @@ features:
         default: false
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
+        type: Boolean
+        default: false
+  tab-search:
+    description: Control the visibility of the tab search feature.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable the tab search feature.
         type: Boolean
         default: false
   tab-strip:

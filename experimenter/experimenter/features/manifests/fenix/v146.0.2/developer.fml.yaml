@@ -49,6 +49,13 @@ features:
         description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
         type: String
         default: ''
+  bookmarks:
+    description: Feature for Bookmarks
+    variables:
+      new-compose-ui:
+        description: if true, enable new compose based UI
+        type: Boolean
+        default: false
   composable-toolbar:
     description: Use a composable toolbar instead of the View based one.
     variables:
@@ -164,11 +171,6 @@ features:
           Whether or not to enable fission. Fission is enabled when set to true. Fission is disabled when set to false.
         type: Boolean
         default: false
-      isolationStrategy:
-        description: |
-          The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
-        type: Int
-        default: 2
       shouldUseNimbus:
         description: |
           If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
@@ -214,6 +216,13 @@ features:
         type: Int
         default: 1000
     allow-coenrollment: true
+  growth-data:
+    description: A feature measuring campaign growth data
+    variables:
+      enabled:
+        description: If true, the feature is active
+        type: Boolean
+        default: false
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -514,16 +523,6 @@ features:
   lna-blocking:
     description: Feature that allows blocking local network or device access.
     variables:
-      block-trackers:
-        description: |
-          Whether or not to block trackers
-        type: Boolean
-        default: false
-      blocking:
-        description: |
-          Whether or not to block LNA requests
-        type: Boolean
-        default: false
       enabled:
         description: |
           Whether or not to turn on local network / device access blocking
@@ -739,20 +738,30 @@ features:
           When the feature is enabled then microsurveys can be used.
         type: Boolean
         default: false
-  minimal-addressbar:
-    description: Show a smaller height bottom addressbar with just the URL.
+  mr2022:
+    description: Features for MR 2022.
     variables:
-      at-bottom-while-entering-text:
-        description: |
-          Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
-        type: Boolean
-        default: true
+      sections-enabled:
+        description: This property provides a lookup table of whether or not the given section should be enabled.
+        type: Map<MR2022Section, Boolean>
+        default:
+          wallpapers-selection-tool: true
+          tcp-cfr: true
+          tcp-feature: true
   navigation-toolbar:
     description: Feature for navigation toolbar.
     variables:
       enabled:
         description: |
           When the feature is enabled then the user will see the new navigation toolbar.
+        type: Boolean
+        default: true
+  networking:
+    description: Enables networking features
+    variables:
+      fetchPriorityEnabled:
+        description: |
+          Enables or disables network.fetchpriority.enabled preference.
         type: Boolean
         default: true
   networkingBannedPorts:
@@ -873,6 +882,17 @@ features:
           Whether or not to enable private browsing mode lock.
         type: Boolean
         default: true
+  query-parameter-stripping:
+    description: Features for query parameter stripping.
+    variables:
+      sections-enabled:
+        description: This property provides a lookup table of whether or not the given section should be enabled.
+        type: Map<QueryParameterStrippingSection, String>
+        default:
+          query-parameter-stripping: '0'
+          query-parameter-stripping-pmb: '0'
+          query-parameter-stripping-allow-list: ''
+          query-parameter-stripping-strip-list: ''
   re-engagement-notification:
     description: A feature that shows the re-engagement notification if the user is inactive.
     variables:
@@ -959,6 +979,13 @@ features:
           Whether or not to enable search suggestions on homepage.
         type: Boolean
         default: false
+  search-term-groups:
+    description: A feature allowing the grouping of URLs around the search term that it came from.
+    variables:
+      enabled:
+        description: If true, the feature shows up on the homescreen and on the new tab screen.
+        type: Boolean
+        default: true
   sent-from-firefox:
     description: A feature that allows the user to add a download firefox footer to a shared link.
     variables:
@@ -985,7 +1012,7 @@ features:
         description: |
           Enables the user to search for settings.
         type: Boolean
-        default: true
+        default: false
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
@@ -1047,14 +1074,6 @@ features:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
         default: false
-  tab-search:
-    description: Control the visibility of the tab search feature.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the tab search feature.
-        type: Boolean
-        default: false
   tab-strip:
     description: Enables tab strip.
     variables:
@@ -1103,9 +1122,9 @@ features:
   toolbar-redesign-option:
     description: Control the visibility of toolbar redesign option in settings.
     variables:
-      show-customization:
+      show-expanded-customization:
         description: |
-          Whether or not the simple/expanded toolbar customization option is visible to the user.
+          Whether or not the expanded toolbar customization option is visible to the user.
         type: Boolean
         default: false
       show-options:
@@ -1113,6 +1132,11 @@ features:
           Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.
         type: Boolean
         default: true
+      show-simple-customization:
+        description: |
+          Whether or not the simple toolbar customization option is visible to the user.
+        type: Boolean
+        default: false
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -1210,6 +1234,15 @@ enums:
         description: The synced tabs section of the homepage.
       top-sites:
         description: The frecency and pinned sites.
+  MR2022Section:
+    description: The identifiers for the sections of the MR 2022.
+    variants:
+      tcp-cfr:
+        description: CFR for the first time you use the browse with Total Cookie Protection on the browser screen.
+      tcp-feature:
+        description: Controls the Total Cookie Protection feature.
+      wallpapers-selection-tool:
+        description: Wallpapers selection dialog tool for the home screen.
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
