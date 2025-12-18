@@ -21,6 +21,7 @@ from experimenter.nimbus_ui.views import (
     DocumentationLinkDeleteView,
     DraftToPreviewView,
     DraftToReviewView,
+    EditOutcomeSummaryView,
     FeatureSubscribeView,
     FeatureUnsubscribeView,
     LiveToCompleteView,
@@ -298,6 +299,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/delete_branch_screenshot/$",
         BranchScreenshotDeleteView.as_view(),
         name="nimbus-ui-delete-branch-screenshot",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/edit_outcome_summary/$",
+        EditOutcomeSummaryView.as_view(),
+        name="nimbus-ui-edit-outcome-summary",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/branches/(?P<branch_slug>[\w-]+)/leading-screenshot/",

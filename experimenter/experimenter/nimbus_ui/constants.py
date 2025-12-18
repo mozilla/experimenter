@@ -1,5 +1,7 @@
 from enum import Enum
 
+from experimenter.experiments.constants import NimbusConstants
+
 
 class NimbusUIConstants:
     HYPOTHESIS_PLACEHOLDER = """
@@ -177,6 +179,32 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Note: This feature supports co-enrollment with other experiments/rollouts "
         "for the selected versions."
     )
+
+    KEY_TAKEAWAYS_EMPTY_TEXT = """Was your hypothesis right, wrong, or somewhere in
+    between? Call out what changed in a meaningful way (ideally things that were
+    statistically significant)."""
+
+    NEXT_STEPS_EMPTY_TEXT = """Ship, stop, or iterate? If shipping, how do we roll it
+    out? If iterating, what signals suggest it's worth more testing?"""
+
+    PROJECT_IMPACT_EMPTY_TEXT = """Rate the overall business impact of this project. Did
+    it shift key company metrics, or did it mainly deliver targeted learnings? Your
+    rating helps teams filter, compare, and learn from experiments across the org."""
+
+    PROJECT_IMPACT_SUBTITLES = {
+        NimbusConstants.ProjectImpact.HIGH: (
+            "Moved key company metrics or made visible progress toward "
+            "broader goals. Worth sharing across teams or with leadership."
+        ),
+        NimbusConstants.ProjectImpact.MODERATE: (
+            "Provided meaningful progress or insights, with impact more "
+            "localized than company-wide."
+        ),
+        NimbusConstants.ProjectImpact.TARGETED: (
+            "Met intended goals and delivered useful learnings, though "
+            "it didn't shift broader metrics."
+        ),
+    }
 
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"

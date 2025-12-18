@@ -47,6 +47,7 @@ from experimenter.nimbus_ui.forms import (
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
+    EditOutcomeSummaryForm,
     FeaturesForm,
     FeatureSubscribeForm,
     FeatureUnsubscribeForm,
@@ -672,6 +673,17 @@ class ApproveUpdateRolloutView(StatusUpdateView):
     form_class = ApproveUpdateRolloutForm
 
 
+class EditOutcomeSummaryView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = EditOutcomeSummaryForm
+    template_name = "common/edit_outcome_summary_form.html"
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        response = HttpResponse()
+        response.headers["HX-Refresh"] = "true"
+        return response
+
+
 class BranchLeadingScreenshotView(
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -736,6 +748,13 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         context["branch_data"] = experiment.get_branch_data(
             analysis_basis, selected_segment
         )
+
+        context["metric_area_data"] = experiment.get_metric_data(
+            analysis_basis, selected_segment, selected_reference_branch
+        )
+
+        context["edit_outcome_summary_form"] = EditOutcomeSummaryForm(instance=experiment)
+
         branch_leading_screenshot_forms = {
             branch.slug: BranchLeadingScreenshotForm(instance=branch.screenshots.first())
             for branch in experiment.branches.all()

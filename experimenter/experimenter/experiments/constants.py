@@ -458,6 +458,11 @@ class NimbusConstants:
 
     CHANGELOG_MESSAGE_ADMIN_EDIT = "Modified by an administrator."
 
+    class ProjectImpact(models.TextChoices):
+        HIGH = "HIGH"
+        MODERATE = "MODERATE"
+        TARGETED = "TARGETED"
+
     class QAStatus(models.TextChoices):
         RED = "RED", "QA: Red"
         YELLOW = "YELLOW", "QA: Yellow"
