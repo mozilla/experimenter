@@ -52,6 +52,7 @@ from experimenter.nimbus_ui.forms import (
     DocumentationLinkDeleteForm,
     DraftToPreviewForm,
     DraftToReviewForm,
+    EditOutcomeSummaryForm,
     FeaturesForm,
     FeatureSubscribeForm,
     FeatureUnsubscribeForm,
@@ -4455,6 +4456,36 @@ class FeatureSubscriptionFormTests(RequestFormTestCase):
         self.assertTrue(form.is_valid())
         form.save()
         self.assertNotIn(self.request.user, feature_config.subscribers.all())
+
+
+class EditOutcomeSummaryFormTests(RequestFormTestCase):
+    def test_edit_outcome_summary_form_updates_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            takeaways_summary="",
+            next_steps="",
+            project_impact="",
+        )
+        form = EditOutcomeSummaryForm(
+            instance=experiment,
+            data={
+                "takeaways_summary": "<p>Rich text paragraph</p>",
+                "next_steps": "<p>Next steps paragraph</p>",
+                "project_impact": "HIGH",
+            },
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        self.assertEqual(experiment.takeaways_summary, "<p>Rich text paragraph</p>")
+        self.assertEqual(experiment.next_steps, "<p>Next steps paragraph</p>")
+        self.assertEqual(experiment.project_impact, "HIGH")
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertEqual(
+            changelog.message,
+            "dev@example.com updated outcome summary",
+        )
 
 
 class ResultsEditBranchLeadingImageTests(RequestFormTestCase):
