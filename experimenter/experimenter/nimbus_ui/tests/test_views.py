@@ -45,7 +45,11 @@ from experimenter.nimbus_ui.filtersets import (
     StatusChoices,
     TypeChoices,
 )
-from experimenter.nimbus_ui.forms import QAStatusForm, TakeawaysForm
+from experimenter.nimbus_ui.forms import (
+    EditOutcomeSummaryForm,
+    QAStatusForm,
+    TakeawaysForm,
+)
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
@@ -3152,9 +3156,6 @@ class TestResultsView(AuthTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.context["results_data"], experiment.results_data.get("v3")
-        )
-        self.assertEqual(
             response.context["selected_reference_branch"],
             experiment.reference_branch.slug,
         )
@@ -3351,6 +3352,36 @@ class TestResultsView(AuthTestCase):
             response.context["relative_metric_changes"],
             expected_relative_change_ui_properties,
         )
+
+    def test_edit_outcome_summary_get(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-edit-outcome-summary", kwargs={"slug": experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.context["form"], EditOutcomeSummaryForm)
+
+    def test_edit_outcome_summary_post_valid_form(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        data = {
+            "takeaways_summary": "<p>Rich text paragraph</p>",
+            "next_steps": "<p>Next steps paragraph</p>",
+            "project_impact": "HIGH",
+        }
+        response = self.client.post(
+            reverse("nimbus-ui-edit-outcome-summary", kwargs={"slug": experiment.slug}),
+            data,
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.takeaways_summary, "<p>Rich text paragraph</p>")
+        self.assertEqual(experiment.next_steps, "<p>Next steps paragraph</p>")
+        self.assertEqual(experiment.project_impact, "HIGH")
 
 
 class TestBranchScreenshotCreateView(AuthTestCase):

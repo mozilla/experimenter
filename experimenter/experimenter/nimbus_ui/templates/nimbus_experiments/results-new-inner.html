@@ -1,3 +1,5 @@
+{% load nimbus_extras %}
+
 <div class="accordion d-flex flex-column gap-4"
      id="{{ experiment.slug }}-results-accordion">
   {% comment %} Overview {% endcomment %}
@@ -100,36 +102,102 @@
           </div>
         </div>
         <div class="card p-5">
-          <div class="row">
-            <div class="col">
-              <h5>Key takeaways</h5>
-              <p class="text-muted">
-                {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.key_takeaways }}
-              </p>
-            </div>
-            <div class="col">
-              <h5>Next steps</h5>
-              <p class="text-muted">
-                {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.next_steps }}
-              </p>
-            </div>
-            <div class="col">
-              <div class="d-flex align-items-start gap-2">
-                <h5>Project Impact</h5>
-                <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
+          {% if experiment.takeaways_summary or experiment.next_steps %}
+            <div class="row">
+              <div class="col">
+                <h5>Key takeaways</h5>
+                {% if experiment.takeaways_summary %}
+                  <div>{{ experiment.takeaways_summary|safe }}</div>
+                {% else %}
+                  <p class="text-muted">
+                    {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.key_takeaways }}
+                  </p>
+                {% endif %}
               </div>
-              <p class="text-muted">
-                {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.project_impact }}
-              </p>
+              <div class="col d-flex flex-column gap-4">
+                <div>
+                  <h5>Next steps</h5>
+                  {% if experiment.next_steps %}
+                    <div>{{ experiment.next_steps|safe }}</div>
+                  {% else %}
+                    <p class="text-muted">
+                      {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.next_steps }}
+                    </p>
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="d-flex align-items-start gap-2">
+                    <h5>Project Impact</h5>
+                    {% if not experiment.project_impact %}
+                      <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
+                    {% endif %}
+                  </div>
+                  {% if experiment.project_impact %}
+                    <span class="badge rounded-pill text-bg-warning border border-secondary-subtle"><i class="fa-solid fa-trophy me-2"></i>{{ experiment.project_impact|lower|capfirst }} impact experiment</span>
+                  {% else %}
+                    <p class="text-muted">
+                      {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.project_impact }}
+                    </p>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="d-flex justify-content-end align-items-start col-1">
+                <button type="button"
+                        class="bg-transparent border-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#edit-summary-{{ experiment.slug }}">
+                  <i class="fa-solid fa-pencil text-muted fs-5"></i>
+                </button>
+              </div>
             </div>
-          </div>
+          {% else %}
+            <div class="row">
+              <div class="col">
+                <h5>Key takeaways</h5>
+                <p class="text-muted">
+                  {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.key_takeaways }}
+                </p>
+              </div>
+              <div class="col">
+                <h5>Next steps</h5>
+                <p class="text-muted">
+                  {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.next_steps }}
+                </p>
+              </div>
+              <div class="col">
+                <div class="d-flex align-items-start gap-2">
+                  <h5>Project Impact</h5>
+                  {% if not experiment.project_impact %}
+                    <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
+                  {% endif %}
+                </div>
+                <p class="text-muted">
+                  {% if experiment.project_impact %}
+                    <span class="badge rounded-pill text-bg-warning border border-secondary-subtle"><i class="fa-solid fa-trophy me-2"></i>{{ experiment.project_impact|lower|capfirst }} impact experiment</span>
+                  {% else %}
+                    <p class="text-muted">
+                      {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.project_impact }}
+                    </p>
+                  {% endif %}
+                </p>
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-start">
+                <button type="button"
+                        class="bg-transparent border-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#edit-summary-{{ experiment.slug }}">
+                  <i class="fa-solid fa-pencil text-muted fs-5"></i>
+                </button>
+              </div>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
   {% comment %} Metrics {% endcomment %}
   {% for area, metric_data_metadata in metric_area_data.items %}
-    {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data %}
+    {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data.overall %}
       <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
         <button class="accordion-button bg-transparent shadow-none text-body d-flex collapsed"
                 type="button"
@@ -217,4 +285,25 @@
       </div>
     {% endwith %}
   {% endfor %}
+</div>
+<div class="modal fade"
+     id="edit-summary-{{ experiment.slug }}"
+     tabindex="-1"
+     aria-labelledby="edit-summary-{{ experiment.slug }}-label"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content p-5">
+      <div class="modal-header border-0">
+        <h4 class="modal-title" id="edit-summary-{{ experiment.slug }}-label">Edit outcome summary</h4>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {% include "common/edit_outcome_summary_form.html" %}
+
+      </div>
+    </div>
+  </div>
 </div>
