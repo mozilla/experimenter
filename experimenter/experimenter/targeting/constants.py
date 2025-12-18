@@ -3826,6 +3826,21 @@ PROFILES_NUM_NON_ZERO = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+AI_TAB_GROUPING_ENABLED = NimbusTargetingConfig(
+    name="AI Tab Grouping Enabled",
+    slug="ai_tab_grouping_enabled",
+    description="Users with AI tab grouping feature enabled via preferences",
+    targeting=(
+        "'browser.tabs.groups.smart.enabled'|preferenceValue && "
+        "'browser.tabs.groups.smart.userEnabled'|preferenceValue && "
+        "'browser.tabs.groups.smart.optin'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
