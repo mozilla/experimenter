@@ -1592,3 +1592,123 @@ class TestNimbusSendEmails(MockKintoClientMixin, TestCase):
         )
         self.assertEqual(experiment.emails.count(), 1)
         self.assertEqual(len(mail.outbox), 1)
+
+
+class TestNimbusSyncPublishedDto(MockKintoClientMixin, TestCase):
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.IOS,
+        ]
+    )
+    def test_syncs_published_dto_for_live_experiments_with_null_published_dto(
+        self, application
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+            published_dto=None,
+        )
+
+        self.setup_kinto_get_main_records([experiment.slug])
+
+        tasks.nimbus_sync_published_dto()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.published_dto, {"id": experiment.slug})
+
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.IOS,
+        ]
+    )
+    def test_does_not_sync_published_dto_for_experiments_with_existing_published_dto(
+        self, application
+    ):
+        existing_dto = {"id": "test-experiment", "some": "data"}
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+            published_dto=existing_dto,
+        )
+
+        self.setup_kinto_get_main_records([experiment.slug])
+
+        tasks.nimbus_sync_published_dto()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.published_dto, existing_dto)
+
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.IOS,
+        ]
+    )
+    def test_does_not_sync_published_dto_for_non_live_experiments(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            published_dto=None,
+        )
+
+        self.setup_kinto_get_main_records([experiment.slug])
+
+        tasks.nimbus_sync_published_dto()
+
+        experiment.refresh_from_db()
+        self.assertIsNone(experiment.published_dto)
+
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.IOS,
+        ]
+    )
+    def test_handles_experiment_not_found_in_kinto(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+            published_dto=None,
+        )
+
+        self.setup_kinto_get_main_records([])
+
+        tasks.nimbus_sync_published_dto()
+
+        experiment.refresh_from_db()
+        self.assertIsNone(experiment.published_dto)
+
+    def test_strips_last_modified_from_published_dto(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_dto=None,
+        )
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "last_modified": "123456"}
+        ]
+
+        tasks.nimbus_sync_published_dto()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.published_dto, {"id": experiment.slug})
+        self.assertNotIn("last_modified", experiment.published_dto)
+
+    def test_reraises_exception(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_dto=None,
+        )
+
+        self.mock_kinto_client.get_records.side_effect = Exception("test error")
+
+        with self.assertRaises(Exception):
+            tasks.nimbus_sync_published_dto()
