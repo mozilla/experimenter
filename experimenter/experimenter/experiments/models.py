@@ -427,6 +427,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         verbose_name="Subscribers",
     )
+    enable_review_slack_notifications = models.BooleanField(
+        "Enable Review Slack Notifications",
+        default=True,
+    )
     use_group_id = models.BooleanField(default=True)
     objects = NimbusExperimentManager()
     is_firefox_labs_opt_in = models.BooleanField(
