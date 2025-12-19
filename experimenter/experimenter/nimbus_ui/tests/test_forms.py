@@ -409,16 +409,16 @@ class TestToggleReviewSlackNotificationsForm(RequestFormTestCase):
     @parameterized.expand(
         [
             (
-                "disable",
+                "enable",
                 False,
                 True,
-                "disabled",
+                "enabled",
             ),
             (
-                "enable",
+                "disable",
                 True,
                 False,
-                "enabled",
+                "disabled",
             ),
         ]
     )
@@ -429,11 +429,11 @@ class TestToggleReviewSlackNotificationsForm(RequestFormTestCase):
             owner=self.user,
             name="Test Experiment",
             slug="test-experiment",
-            disable_review_slack_notifications=initial_value,
+            enable_review_slack_notifications=initial_value,
         )
 
         data = {
-            "disable_review_slack_notifications": new_value,
+            "enable_review_slack_notifications": new_value,
         }
 
         form = ToggleReviewSlackNotificationsForm(
@@ -443,7 +443,7 @@ class TestToggleReviewSlackNotificationsForm(RequestFormTestCase):
 
         updated_experiment = form.save()
 
-        self.assertEqual(updated_experiment.disable_review_slack_notifications, new_value)
+        self.assertEqual(updated_experiment.enable_review_slack_notifications, new_value)
 
         changelog_message = form.get_changelog_message()
 
@@ -1438,7 +1438,7 @@ class TestLaunchForms(RequestFormTestCase):
                 DraftToReviewForm,
                 NimbusExperiment.Status.DRAFT,
                 {},
-                True,
+                False,
                 False,
             ),
             (
@@ -1446,7 +1446,7 @@ class TestLaunchForms(RequestFormTestCase):
                 DraftToReviewForm,
                 NimbusExperiment.Status.DRAFT,
                 {},
-                False,
+                True,
                 True,
             ),
             (
@@ -1454,7 +1454,7 @@ class TestLaunchForms(RequestFormTestCase):
                 LiveToUpdateRolloutForm,
                 NimbusExperiment.Status.LIVE,
                 {"is_rollout": True},
-                True,
+                False,
                 False,
             ),
             (
@@ -1462,7 +1462,7 @@ class TestLaunchForms(RequestFormTestCase):
                 LiveToUpdateRolloutForm,
                 NimbusExperiment.Status.LIVE,
                 {"is_rollout": True},
-                False,
+                True,
                 True,
             ),
             (
@@ -1470,7 +1470,7 @@ class TestLaunchForms(RequestFormTestCase):
                 LiveToEndEnrollmentForm,
                 NimbusExperiment.Status.LIVE,
                 {},
-                True,
+                False,
                 False,
             ),
             (
@@ -1478,7 +1478,7 @@ class TestLaunchForms(RequestFormTestCase):
                 LiveToEndEnrollmentForm,
                 NimbusExperiment.Status.LIVE,
                 {},
-                False,
+                True,
                 True,
             ),
             (
@@ -1486,7 +1486,7 @@ class TestLaunchForms(RequestFormTestCase):
                 LiveToCompleteForm,
                 NimbusExperiment.Status.LIVE,
                 {},
-                True,
+                False,
                 False,
             ),
             (
@@ -1494,7 +1494,7 @@ class TestLaunchForms(RequestFormTestCase):
                 LiveToCompleteForm,
                 NimbusExperiment.Status.LIVE,
                 {},
-                False,
+                True,
                 True,
             ),
         ]
@@ -1505,14 +1505,14 @@ class TestLaunchForms(RequestFormTestCase):
         form_class,
         status,
         extra_kwargs,
-        disable_slack,
+        enable_slack,
         should_call_slack,
     ):
         experiment = NimbusExperimentFactory.create(
             status=status,
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
-            disable_review_slack_notifications=disable_slack,
+            enable_review_slack_notifications=enable_slack,
             **extra_kwargs,
         )
         form = form_class(data={}, instance=experiment, request=self.request)

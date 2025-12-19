@@ -1617,17 +1617,17 @@ class TestToggleReviewSlackNotificationsView(AuthTestCase):
             slug="test-experiment",
             name="Test Experiment",
             owner=self.user,
-            disable_review_slack_notifications=False,
+            enable_review_slack_notifications=True,
         )
 
     @parameterized.expand(
         [
-            ("disable", False, True),
-            ("enable", True, False),
+            ("disable", True, False),
+            ("enable", False, True),
         ]
     )
     def test_toggle_slack_notifications(self, _name, initial_value, new_value):
-        self.experiment.disable_review_slack_notifications = initial_value
+        self.experiment.enable_review_slack_notifications = initial_value
         self.experiment.save()
 
         response = self.client.post(
@@ -1635,7 +1635,7 @@ class TestToggleReviewSlackNotificationsView(AuthTestCase):
                 "nimbus-ui-toggle-review-slack-notifications",
                 kwargs={"slug": self.experiment.slug},
             ),
-            {"disable_review_slack_notifications": new_value},
+            {"enable_review_slack_notifications": new_value},
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -1644,7 +1644,7 @@ class TestToggleReviewSlackNotificationsView(AuthTestCase):
         )
 
         updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
-        self.assertEqual(updated_experiment.disable_review_slack_notifications, new_value)
+        self.assertEqual(updated_experiment.enable_review_slack_notifications, new_value)
 
 
 class TestOverviewUpdateView(AuthTestCase):
