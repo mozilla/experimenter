@@ -73,6 +73,7 @@ from experimenter.nimbus_ui.forms import (
     TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
+    ToggleLaunchSlackNotificationsForm,
     UnsubscribeForm,
 )
 
@@ -589,6 +590,17 @@ class UnsubscribeView(
     UpdateView,
 ):
     form_class = UnsubscribeForm
+
+
+class ToggleLaunchSlackNotificationsView(
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    UpdateView,
+):
+    form_class = ToggleLaunchSlackNotificationsForm
+
+    def get_success_url(self):
+        return reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
 
 
 class FeatureSubscribeView(FeatureSubscriberViewMixin):

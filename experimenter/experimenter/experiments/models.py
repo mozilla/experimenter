@@ -427,6 +427,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         verbose_name="Subscribers",
     )
+    disable_launch_slack_notifications = models.BooleanField(
+        "Disable Launch Slack Notifications",
+        default=False,
+    )
     use_group_id = models.BooleanField(default=True)
     objects = NimbusExperimentManager()
     is_firefox_labs_opt_in = models.BooleanField(
