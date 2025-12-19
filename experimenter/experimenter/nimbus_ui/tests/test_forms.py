@@ -80,7 +80,7 @@ from experimenter.nimbus_ui.forms import (
     TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
-    ToggleLaunchSlackNotificationsForm,
+    ToggleReviewSlackNotificationsForm,
     UnsubscribeForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
@@ -405,7 +405,7 @@ class TestToggleArchiveForm(RequestFormTestCase):
         )
 
 
-class TestToggleLaunchSlackNotificationsForm(RequestFormTestCase):
+class TestToggleReviewSlackNotificationsForm(RequestFormTestCase):
     @parameterized.expand(
         [
             (
@@ -429,27 +429,27 @@ class TestToggleLaunchSlackNotificationsForm(RequestFormTestCase):
             owner=self.user,
             name="Test Experiment",
             slug="test-experiment",
-            disable_launch_slack_notifications=initial_value,
+            disable_review_slack_notifications=initial_value,
         )
 
         data = {
-            "disable_launch_slack_notifications": new_value,
+            "disable_review_slack_notifications": new_value,
         }
 
-        form = ToggleLaunchSlackNotificationsForm(
+        form = ToggleReviewSlackNotificationsForm(
             data, instance=experiment, request=self.request
         )
         self.assertTrue(form.is_valid())
 
         updated_experiment = form.save()
 
-        self.assertEqual(updated_experiment.disable_launch_slack_notifications, new_value)
+        self.assertEqual(updated_experiment.disable_review_slack_notifications, new_value)
 
         changelog_message = form.get_changelog_message()
 
         self.assertEqual(
             changelog_message,
-            f"{self.user} {expected_status} launch Slack notifications",
+            f"{self.user} {expected_status} review Slack notifications",
         )
 
 
@@ -1512,7 +1512,7 @@ class TestLaunchForms(RequestFormTestCase):
             status=status,
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
-            disable_launch_slack_notifications=disable_slack,
+            disable_review_slack_notifications=disable_slack,
             **extra_kwargs,
         )
         form = form_class(data={}, instance=experiment, request=self.request)

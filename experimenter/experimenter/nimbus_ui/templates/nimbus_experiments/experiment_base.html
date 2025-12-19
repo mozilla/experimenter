@@ -38,16 +38,16 @@
       </div>
       <div class="d-flex align-items-center mb-3">
         <form method="post"
-              action="{% url 'nimbus-ui-toggle-launch-slack-notifications' slug=experiment.slug %}"
+              action="{% url 'nimbus-ui-toggle-review-slack-notifications' slug=experiment.slug %}"
               class="d-flex align-items-center">
           {% csrf_token %}
-          <input type="hidden" name="disable_launch_slack_notifications" value="false">
+          <input type="hidden" name="disable_review_slack_notifications" value="false">
           <div class="form-check form-switch">
             <input type="checkbox"
                    id="slack-notifications-toggle"
-                   name="disable_launch_slack_notifications"
+                   name="disable_review_slack_notifications"
                    value="true"
-                   {% if experiment.disable_launch_slack_notifications %}checked{% endif %}
+                   {% if experiment.disable_review_slack_notifications %}checked{% endif %}
                    onchange="this.form.submit()"
                    class="form-check-input"
                    role="switch"
@@ -56,7 +56,7 @@
                    class="form-check-label text-secondary small"
                    style="cursor: pointer">
               <i class="fa-solid fa-bell-slash me-1"></i>
-              <span>Disable launch Slack notifications</span>
+              <span>Disable review Slack notifications</span>
             </label>
           </div>
         </form>

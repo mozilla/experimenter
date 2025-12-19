@@ -427,8 +427,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         verbose_name="Subscribers",
     )
-    disable_launch_slack_notifications = models.BooleanField(
-        "Disable Launch Slack Notifications",
+    disable_review_slack_notifications = models.BooleanField(
+        "Disable Review Slack Notifications",
         default=False,
     )
     use_group_id = models.BooleanField(default=True)
