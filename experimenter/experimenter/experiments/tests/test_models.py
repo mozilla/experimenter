@@ -1584,6 +1584,36 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(experiment.end_date, cached_date)
 
+    def test_days_of_enrollment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date.today() - datetime.timedelta(days=2),
+        )
+        self.assertEqual(experiment.days_since_enrollment_start, 2)
+
+    def test_enrollment_completion_percent(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            _enrollment_end_date=datetime.date.today() + datetime.timedelta(days=8),
+            start_date=datetime.date.today() - datetime.timedelta(days=2),
+        )
+        self.assertEqual(experiment.enrollment_percent_completion, 20)
+
+    def test_days_of_observation(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            _enrollment_end_date=datetime.date.today() - datetime.timedelta(days=4),
+        )
+        self.assertEqual(experiment.days_since_observation_start, 4)
+
+    def test_observation_completion_percent(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            _computed_end_date=datetime.date.today() + datetime.timedelta(days=9),
+            _enrollment_end_date=datetime.date.today() - datetime.timedelta(days=1),
+        )
+        self.assertEqual(experiment.observation_percent_completion, 10)
+
     def test_enrollment_duration_for_ended_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
@@ -2673,27 +2703,26 @@ class TestNimbusExperiment(TestCase):
         self.assertListEqual(kpi_metrics, expected_kpi_metrics)
 
     def test_get_defaults_metrics_with_exclusions(self):
-        experiment = NimbusExperimentFactory.create()
-
-        experiment.results_data = {
-            "v3": {
-                "metadata": {
-                    "metrics": {
-                        "metricA": {
-                            "retained": "Retained",
+        experiment = NimbusExperimentFactory.create(
+            results_data={
+                "v3": {
+                    "metadata": {
+                        "metrics": {
+                            "metricA": {
+                                "retained": "Retained",
+                                "search_count": "Search Count",
+                            }
+                        },
+                    },
+                    "other_metrics": {
+                        "other_metrics": {
+                            "retained": "2 Week Retention",
                             "search_count": "Search Count",
                         }
                     },
-                },
-                "other_metrics": {
-                    "other_metrics": {
-                        "retained": "2 Week Retention",
-                        "search_count": "Search Count",
-                    }
-                },
+                }
             }
-        }
-        experiment.save()
+        )
 
         remaining_metrics = experiment.get_remaining_metrics_metadata(
             exclude_slugs=["search_count"]
