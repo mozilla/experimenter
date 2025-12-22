@@ -789,14 +789,14 @@ parsimonious = "*"
 
 [[package]]
 name = "pyparsing"
-version = "3.2.0"
-description = "pyparsing module - Classes and methods to define and execute parsing grammars"
+version = "3.3.0"
+description = "pyparsing - Classes and methods to define and execute parsing grammars"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "pyparsing-3.2.0-py3-none-any.whl", hash = "sha256:93d9577b88da0bbea8cc8334ee8b918ed014968fd2ec383e868fb8afb1ccef84"},
-    {file = "pyparsing-3.2.0.tar.gz", hash = "sha256:cbf74e27246d595d9a74b186b810f6fbb86726dbf3b9532efb343f6d7294fe9c"},
+    {file = "pyparsing-3.3.0-py3-none-any.whl", hash = "sha256:d15038408e0097d3a01e7e0846731f7f2450c5b6e4a75a52baabd6bbf24585be"},
+    {file = "pyparsing-3.3.0.tar.gz", hash = "sha256:0de16f2661afbab11fe6645d9472c3b96968d2fffea5b0cc9da88f5be286f039"},
 ]
 
 [package.extras]
@@ -1859,4 +1859,4 @@ test = ["zope.security", "zope.testrunner"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "110077a99fd1112f4af0cab3a7939daa23772fdf457e3ea449e573b87105d18a"
+content-hash = "a54f9204bd1e8284c928d9fd5c8ba2e3114d9bf2019b01f8c0e4eceb9095bcff"
