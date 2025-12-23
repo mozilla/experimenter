@@ -60,7 +60,10 @@
               data-bs-delay={"hide":2000}>
             </i>
           </h5>
-          <div class="d-flex gap-2 ms-auto">
+          <div class="d-flex gap-2 ms-auto align-items-center">
+            <div class="htmx-spinner" style="opacity: 0; pointer-events: none">
+              <i class="fa-solid fa-spinner fa-spin fa-lg text-primary"></i>
+            </div>
             <a href="{% url 'nimbus-ui-home' %}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
                class="btn btn-outline-primary btn-sm"
                hx-get="{% url 'nimbus-ui-home' %}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
@@ -270,4 +273,9 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extrascripts %}
+  {{ block.super }}
+  <script src="{% static 'nimbus_ui/experiment_home.bundle.js' %}"></script>
 {% endblock %}

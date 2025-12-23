@@ -5,6 +5,7 @@ const nodeModulesPath = path.resolve(__dirname, "../../../node_modules");
 module.exports = {
   entry: {
     app: "./js/index.js",
+    experiment_home: "./js/experiment_home.js",
     experiment_list: "./js/experiment_list.js",
     review_controls: "./js/review_controls.js",
     edit_audience: "./js/edit_audience.js",
