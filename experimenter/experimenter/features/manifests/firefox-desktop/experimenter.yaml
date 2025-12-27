@@ -2918,12 +2918,6 @@ networking:
       setPref:
         branch: default
         pref: "network.preconnect"
-    networkPredictor:
-      description: Whether the Necko predictor is enabled
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.predictor.enabled"
     http3CCalgorithm:
       description: The congestion control algorithm with which to configure neqo. 0 for NewReno, 1 for Cubic
       type: int
@@ -4217,18 +4211,6 @@ jitHintsCache:
       setPref:
         branch: user
         pref: "javascript.options.jithints"
-
-asmjs:
-  description: Pref to toggle support for asm.js.
-  owner: dpalmeiro@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      description: True to enable the asm.js feature.
-      type: boolean
-      setPref:
-        branch: user
-        pref: "javascript.options.asmjs"
 
 scriptloader:
   description: Prefs that control scriptloader heuristics.
