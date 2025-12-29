@@ -1,0 +1,6 @@
+[metrics]
+
+[metrics.some_metric]
+friendly_name = "Some Metric"
+description = "Description of some metric"
+metric_area = "KPI"

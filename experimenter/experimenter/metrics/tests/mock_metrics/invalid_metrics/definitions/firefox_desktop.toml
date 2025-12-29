@@ -1,0 +1,4 @@
+[metrics]
+
+[metrics.bad_metric]
+description = "Some Missing Metric"

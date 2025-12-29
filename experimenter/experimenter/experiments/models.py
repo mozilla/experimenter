@@ -32,6 +32,7 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
+from experimenter.metrics import Metrics
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
@@ -1232,8 +1233,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ]
 
     def results_sidebar_sections(self):
-        # TODO: show metrics by grouped categories based on metric area
-
         return [
             {
                 "title": "Overview",
@@ -1245,13 +1244,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     {"title": "Project Impact"},
                 ],
             },
-            {
-                "title": "All metrics",
-                "subitems": [
-                    {"title": metric["friendly_name"]}
-                    for metric in self.get_remaining_metrics_metadata()
-                ],
-            },
+            *[
+                {
+                    "title": area,
+                    "subitems": [
+                        {"title": metric["friendly_name"], "slug": metric["slug"]}
+                        for metric in metrics
+                    ],
+                }
+                for area, metrics in self.get_metric_areas(
+                    "enrollments", "all", self.reference_branch
+                ).items()
+            ],
         ]
 
     def timeline(self):
@@ -1358,9 +1362,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             outcome_metrics.sort(key=lambda m: m["friendly_name"])
             metric_areas[outcome.friendly_name if outcome else slug] = outcome_metrics
 
-        metric_areas[NimbusUIConstants.OTHER_METRICS_AREA] = (
-            self.get_remaining_metrics_metadata(exclude_slugs=all_outcome_metric_slugs)
+        remaining_metrics = self.get_remaining_metrics_metadata(
+            exclude_slugs=all_outcome_metric_slugs
         )
+        grouped_metrics = []
+        for metric in remaining_metrics:
+            metric_details = Metrics.get_by_slug_and_application(
+                metric["slug"], self.application.replace("-", "_")
+            )
+            metric_area = metric_details.metric_area if metric_details else None
+
+            if metric_area:
+                if metric_area not in metric_areas:
+                    metric_areas[metric_area] = []
+                metric_areas[metric_area].append(metric)
+                grouped_metrics.append(metric)
+
+        metric_areas[NimbusUIConstants.OTHER_METRICS_AREA] = [
+            m for m in remaining_metrics if m not in grouped_metrics
+        ]
 
         window_results = self.get_window_results(analysis_basis, segment, window)
 
@@ -1505,7 +1525,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for i, data_point in enumerate(relative_data_list):
             lower = data_point.get("lower")
             upper = data_point.get("upper")
-            avg_rel_change = abs(data_point.get("point"))
+            avg_rel_change = (
+                abs(data_point.get("point")) if data_point.get("point") else None
+            )
             significance = significance_map.get(str(i + 1), "neutral")
             rel_entries.append(
                 {

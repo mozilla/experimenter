@@ -1,0 +1,6 @@
+[metrics]
+
+[metrics.awesome_measure]
+friendly_name = "Awesome Level"
+description = "A measure of an experiment's objective awesomeness"
+metric_area = "Engagement"
