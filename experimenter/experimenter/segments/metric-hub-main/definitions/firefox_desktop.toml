@@ -21,6 +21,7 @@ description = """
 """
 select_expression = '{{agg_sum("active_hours_sum")}}'
 data_source = "clients_daily"
+metric_area = "Engagement"
 
 [metrics.active_hours_glean]
 friendly_name = "Active hours in Glean"
@@ -42,6 +43,7 @@ description = """
 """
 category = "performance"
 type = "scalar"
+metric_area = "Engagement"
 
 [metrics.uri_count_v2]
 data_source = "clients_daily"
@@ -77,6 +79,7 @@ description = """
 """
 category = "search"
 type = "scalar"
+metric_area = "KPI"
 
 [metrics.search_count_glean]
 data_source = "glean_sap_events_stream"
@@ -104,6 +107,7 @@ description = """
 """
 category = "search"
 type = "scalar"
+metric_area = "Search"
 
 [metrics.tagged_search_count_glean]
 data_source = "serp_events"
@@ -132,6 +136,7 @@ description = """
 """
 category = "search"
 type = "scalar"
+metric_area = "Search"
 
 [metrics.tagged_follow_on_search_count_glean]
 data_source = "serp_events"
@@ -157,7 +162,7 @@ description = """
 """
 category = "search"
 type = "scalar"
-
+metric_area = "Search Ads"
 
 [metrics.searches_with_ads]
 data_source = "search_clients_engines_sources_daily"
@@ -171,6 +176,7 @@ description = """
 """
 category = "search"
 type = "scalar"
+metric_area = "Search Ads"
 
 [metrics.searches_with_ads_glean]
 data_source = "serp_events"
@@ -197,6 +203,7 @@ description = """
 """
 category = "search"
 type = "scalar"
+metric_area = "Search"
 
 [metrics.organic_search_count_glean]
 data_source = "serp_events"
@@ -250,7 +257,7 @@ description = """
     Counts the number of clients with an experiment unenrollment event.
 """
 bigger_is_better = false
-
+metric_area = "Engagement"
 
 [data_sources.browser_launched_to_handle_events]
 from_expression = """(
@@ -363,6 +370,7 @@ data_source = "clients_daily"
 select_expression = "COUNT(submission_date)"
 friendly_name = "Days of use"
 description = "The number of days in the interval that each client sent a main ping."
+metric_area = "KPI"
 
 [metrics.days_of_use_glean]
 data_source = "baseline_clients_daily"
@@ -381,6 +389,7 @@ description = """
     The number of days in the interval that each client sent a main ping,
     given that the client had >0 active hours and >0 URIs loaded.
 """
+metric_area = "Engagement"
 
 [metrics.qualified_cumulative_days_of_use_glean]
 data_source = "baseline_clients_daily"
@@ -462,6 +471,7 @@ description = """
 """
 owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
 deprecated = false
+metric_area = "KPI"
 
 [metrics.client_level_daily_active_users_v2_glean]
 friendly_name = "Firefox Desktop Client-Level DAU in Glean"
@@ -1139,6 +1149,7 @@ type = "scalar"
 description = """
 Was Firefox the default browser at any point during the interval?
 """
+metric_area = "Browser Config"
 
 [metrics.is_default_browser_glean]
 data_source = "baseline_clients_daily"
@@ -1166,6 +1177,7 @@ type = "scalar"
 description = """
 Was Firefox pinned to the Windows Taskbar at any point during the interval?
 """
+metric_area = "Browser Config"
 
 ########################### START OF NEW TAB METRICS ###########################
 
@@ -1508,6 +1520,7 @@ select_expression = "COALESCE(SUM(pings_aggregated_by_this_row), 0) > 0"
 data_source = "clients_daily"
 friendly_name = "Retained"
 description = "Records whether a client submitted any pings (i.e. used Firefox)."
+metric_area = "KPI"
 
 [metrics.non_ssl_loads_v1]
 select_expression = """SUM(
@@ -1575,71 +1588,6 @@ select_expression = "COUNT(*)"
 type = "scalar"
 friendly_name = "New Profiles"
 description = "The number of newly acquired Firefox Desktop clients. A client is newly acquired on the first date they appear in either of new profile, main or first shutdown pings based on submission date"
-
-[metrics.pdf_engagement]
-select_expression = """(
-    (COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "freetext")) > 0, FALSE) OR
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "ink")) > 0, FALSE) OR
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing_highlight_kind, "highlight")) > 0, FALSE) OR
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing_highlight_kind, "free_highlight")) > 0, FALSE)) AND
-    (COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "print")) > 0, FALSE) OR
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "save")) > 0, FALSE))
-)"""
-data_source = "metrics"
-
-[metrics.pdf_freetext]
-select_expression = """(
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "freetext")) > 0, FALSE)
-)"""
-data_source = "metrics"
-
-[metrics.pdf_ink]
-select_expression = """(
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "ink")) > 0, FALSE)
-)"""
-data_source = "metrics"
-
-[metrics.pdf_stamp]
-select_expression = """(
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "stamp")) > 0, FALSE)
-)"""
-data_source = "metrics"
-
-[metrics.pdf_signature]
-select_expression = """(
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "signature")) > 0, FALSE)
-)"""
-data_source = "metrics"
-
-[metrics.pdf_print]
-select_expression = """(
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "print")) > 0, FALSE)
-)"""
-data_source = "metrics"
-
-[metrics.pdf_save]
-select_expression = """(
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing, "save")) > 0, FALSE)
-)"""
-data_source = "metrics"
-
-[metrics.pdf_opening]
-select_expression = """(
-    COALESCE(SUM(metrics.counter.pdfjs_used) > 0, FALSE)
-)"""
-data_source = "metrics"
-
-[metrics.pdf_highlight]
-select_expression = """(
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing_highlight_kind, "highlight")) > 0, FALSE)
-)"""
-data_source = "metrics"
-
-[metrics.pdf_free_highlight]
-select_expression = """(
-    COALESCE(SUM(mozfun.map.get_key(metrics.labeled_counter.pdfjs_editing_highlight_kind, "free_highlight")) > 0, FALSE)
-)"""
-data_source = "metrics"
 
 [metrics.pdf_invoked_to_handle]
 select_expression = """(

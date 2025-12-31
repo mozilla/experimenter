@@ -24,7 +24,16 @@
             <ul class="nav flex-column ms-4">
               {% for subitem in item.subitems %}
                 <li class="nav-item w-100">
-                  <a class="nav-link text-reset" href="#">{{ subitem.title }}</a>
+                  <a href="#{{ experiment.slug }}-results-{{ item.title|slugify }}"
+                     class="text-reset text-decoration-none">
+                    <button class="nav-link text-start text-reset"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#{{ experiment.slug }}-results-{{ item.title|slugify }}"
+                            aria-expanded="true"
+                            aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}">
+                      {{ subitem.title }}
+                    </button>
+                  </a>
                 </li>
               {% endfor %}
             </ul>

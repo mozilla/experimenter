@@ -24,13 +24,14 @@ select_expression = "COALESCE(SUM(metrics.timespan.glean_baseline_duration.value
 data_source = "baseline"
 friendly_name = "Active Hours"
 description = "Total time Firefox was active"
+metric_area = "Engagement"
 
 [metrics.days_of_use]
 friendly_name = "Days of use"
 description = "The number of days in an observation window that clients used the browser."
 select_expression = "COUNT(DISTINCT DATE(submission_timestamp))"
 data_source = "baseline"
-
+metric_area = "KPI"
 
 [metrics.daily_active_users]
 data_source = "baseline_v2"
@@ -126,6 +127,7 @@ description = """
 """
 owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
 deprecated = false
+metric_area = "KPI"
 
 ## search metrics
 
@@ -174,6 +176,7 @@ data_source = "mobile_search_clients_engines_sources_daily"
 category = "search"
 type = "scalar"
 owner = "xluo-all@mozilla.com"
+metric_area = "KPI"
 
 [metrics.searches_with_ads]
 friendly_name = "Search result pages with ads"
@@ -188,6 +191,7 @@ type = "scalar"
 select_expression = "{{agg_sum('search_with_ads')}}"
 data_source = "mobile_search_clients_engines_sources_daily"
 owner = "xluo-all@mozilla.com"
+metric_area = "Search Ads"
 
 [metrics.ad_clicks]
 select_expression = "{{agg_sum('ad_click')}}"
@@ -200,6 +204,7 @@ description = """
 category = "search"
 type = "scalar"
 owner = "xluo-all@mozilla.com"
+metric_area = "Search Ads"
 
 [metrics.tagged_search_count]
 select_expression = "{{agg_sum('tagged_sap')}}"
