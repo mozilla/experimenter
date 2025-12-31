@@ -1418,6 +1418,175 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(targeting_config_slug="invalid slug")
         self.assertIsNone(experiment.targeting_config)
 
+    @mock_valid_outcomes
+    def test_get_weekly_metric_data(self):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+        branch_b = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch B", slug="branch-b"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "weekly": {
+                    "enrollments": {
+                        "all": {
+                            branch_a.slug: {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 140,
+                                                        "upper": 160,
+                                                        "point": 150,
+                                                    },
+                                                    {
+                                                        "lower": 130,
+                                                        "upper": 150,
+                                                        "point": 140,
+                                                    },
+                                                    {
+                                                        "lower": 120,
+                                                        "upper": 140,
+                                                        "point": 130,
+                                                    },
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                branch_a.slug: {"all": []},
+                                            },
+                                        }
+                                    }
+                                },
+                            },
+                            branch_b.slug: {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 140,
+                                                        "upper": 160,
+                                                        "point": 150,
+                                                    },
+                                                    {
+                                                        "lower": 130,
+                                                        "upper": 150,
+                                                        "point": 140,
+                                                    },
+                                                    {
+                                                        "lower": 120,
+                                                        "upper": 140,
+                                                        "point": 130,
+                                                    },
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                branch_a.slug: {
+                                                    "all": [
+                                                        {
+                                                            "lower": 10,
+                                                            "upper": 20,
+                                                            "point": 15,
+                                                        },
+                                                        {
+                                                            "lower": 5,
+                                                            "upper": 15,
+                                                            "point": 10,
+                                                        },
+                                                        {
+                                                            "lower": 0,
+                                                            "upper": 10,
+                                                            "point": 5,
+                                                        },
+                                                    ]
+                                                },
+                                                branch_b.slug: {"all": []},
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment.save()
+
+        expected_weekly_data = {
+            "retained": {
+                "data": {
+                    branch_a.slug: [
+                        (
+                            {"lower": 140, "upper": 160, "significance": "neutral"},
+                            None,
+                        ),
+                        (
+                            {"lower": 130, "upper": 150, "significance": "neutral"},
+                            None,
+                        ),
+                        (
+                            {"lower": 120, "upper": 140, "significance": "neutral"},
+                            None,
+                        ),
+                    ],
+                    branch_b.slug: [
+                        (
+                            {"lower": 140, "upper": 160, "significance": "neutral"},
+                            {
+                                "avg_rel_change": 15,
+                                "lower": 10,
+                                "upper": 20,
+                                "significance": "neutral",
+                            },
+                        ),
+                        (
+                            {"lower": 130, "upper": 150, "significance": "neutral"},
+                            {
+                                "avg_rel_change": 10,
+                                "lower": 5,
+                                "upper": 15,
+                                "significance": "neutral",
+                            },
+                        ),
+                        (
+                            {"lower": 120, "upper": 140, "significance": "neutral"},
+                            {
+                                "avg_rel_change": 5,
+                                "lower": 0,
+                                "upper": 10,
+                                "significance": "neutral",
+                            },
+                        ),
+                    ],
+                },
+                "has_weekly_data": True,
+            },
+            "search_count": {
+                "data": {},
+                "has_weekly_data": False,
+            },
+            "total_amazon_search_count": {
+                "data": {},
+                "has_weekly_data": False,
+            },
+            "urlbar_amazon_search_count": {
+                "data": {},
+                "has_weekly_data": False,
+            },
+        }
+
+        self.assertEqual(
+            experiment.get_weekly_metric_data("enrollments", "all", branch_a.slug),
+            expected_weekly_data,
+        )
+
     @parameterized.expand(
         [
             [

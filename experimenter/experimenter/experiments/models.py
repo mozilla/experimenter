@@ -1659,11 +1659,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     abs_list = branch_data.get("absolute") or []
                     rel_list = branch_data.get("relative") or []
 
-                    weekly_data[branch_slug] = list(
-                        zip_longest(abs_list, rel_list, fillvalue=None)
-                    )
+                    if abs_list or rel_list:
+                        weekly_data[branch_slug] = list(
+                            zip_longest(abs_list, rel_list, fillvalue=None)
+                        )
 
-                weekly_metric_data[metric_metadata["slug"]] = weekly_data
+                if weekly_data:
+                    weekly_metric_data[metric_metadata["slug"]] = {
+                        "has_weekly_data": True,
+                        "data": weekly_data,
+                    }
+                else:
+                    weekly_metric_data[metric_metadata["slug"]] = {
+                        "has_weekly_data": False,
+                        "data": {},
+                    }
 
         return weekly_metric_data
 
