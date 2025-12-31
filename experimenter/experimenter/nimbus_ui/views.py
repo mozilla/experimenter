@@ -728,7 +728,7 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         context = super().get_context_data(**kwargs)
         experiment = self.get_object()
 
-        analysis_data = experiment.results_data.get("v3", {})
+        analysis_data = (experiment.results_data or {}).get("v3", {})
 
         selected_reference_branch = self.request.GET.get(
             "reference_branch", experiment.reference_branch.slug
