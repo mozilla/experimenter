@@ -80,6 +80,11 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     analysis?.metadata?.metrics || {},
   );
 
+  if (analysis) {
+    analysis.show_analysis = true;
+  }
+  console.log("analysis data:", analysis);
+
   const getNestedSidebarItems = (
     metrics: { [metric: string]: string },
     title: string,
