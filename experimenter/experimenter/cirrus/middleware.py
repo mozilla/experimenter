@@ -40,9 +40,8 @@ class CirrusMiddleware:
             self.cirrus_url
             and hasattr(request, "user")
             and request.user.is_authenticated
-            and not (
-                hasattr(request.user, "glean_prefs") and request.user.glean_prefs.opt_out
-            )
+            and hasattr(request.user, "glean_prefs")
+            and not request.user.glean_prefs.opt_out
         ):
             params = {}
             if (nimbus_preview := request.GET.get("nimbus_preview")) is not None:
@@ -50,7 +49,10 @@ class CirrusMiddleware:
             try:
                 cirrus_response = requests.post(
                     self.cirrus_url,
-                    json={"client_id": str(request.user.id), "context": {}},
+                    json={
+                        "client_id": str(request.user.glean_prefs.nimbus_user_id),
+                        "context": {},
+                    },
                     params=params,
                 )
                 cirrus_response.raise_for_status()
