@@ -3,6 +3,7 @@ from unittest import mock
 from django.test import TestCase
 
 from experimenter.glean.middleware import GleanMiddleware
+from experimenter.glean.models import Prefs
 
 
 class GleanMiddlewareTests(TestCase):
@@ -14,12 +15,19 @@ class GleanMiddlewareTests(TestCase):
         request = mock.Mock()
         request.META.get.return_value = None
         request.path = "/some/path"
-        request.user.id = 123
         request.user.is_authenticated = True
         del request.user.glean_prefs
         request.cirrus = None
 
-        with mock.patch.object(self.middleware.page_view_ping, "record") as record:
+        def fake_create(user):
+            user.glean_prefs = mock.Mock()
+            user.glean_prefs.opt_out = False
+            user.glean_prefs.nimbus_user_id = "uuid"
+
+        with (
+            mock.patch.object(self.middleware.page_view_ping, "record") as record,
+            mock.patch.object(Prefs.objects, "create", wraps=fake_create),
+        ):
             response = self.middleware(request)
 
         self.assertEqual(response, self.response)
@@ -30,7 +38,7 @@ class GleanMiddlewareTests(TestCase):
                     user_agent=None,
                     ip_address=None,
                     nimbus_enrollments=[],
-                    nimbus_nimbus_user_id="123",
+                    nimbus_nimbus_user_id="uuid",
                     url_path="/some/path",
                     events=[],
                 )
@@ -41,9 +49,9 @@ class GleanMiddlewareTests(TestCase):
         request = mock.Mock()
         request.META.get.return_value = None
         request.path = "/some/path"
-        request.user.id = 123
         request.user.is_authenticated = True
         request.user.glean_prefs.opt_out = False
+        request.user.glean_prefs.nimbus_user_id = "uuid"
         request.cirrus.enrollments = [
             {
                 "app_id": "experimenter_cirrus",
@@ -51,7 +59,7 @@ class GleanMiddlewareTests(TestCase):
                 "experiment": "some-experiment",
                 "experiment_type": "rollout",
                 "is_preview": "false",
-                "nimbus_user_id": "not-123",
+                "nimbus_user_id": "not-uuid",
             }
         ]
 
@@ -72,12 +80,30 @@ class GleanMiddlewareTests(TestCase):
                             "experiment": "some-experiment",
                             "experiment_type": "rollout",
                             "is_preview": False,
-                            "nimbus_user_id": "not-123",
+                            "nimbus_user_id": "not-uuid",
                         }
                     ],
-                    nimbus_nimbus_user_id="123",
+                    nimbus_nimbus_user_id="uuid",
                     url_path="/some/path",
                     events=[],
                 )
             ],
+        )
+
+    def test_page_view_after_opt_out(self):
+        request = mock.Mock()
+        request.META.get.return_value = None
+        request.path = "/some/path"
+        request.user.is_authenticated = True
+        request.user.glean_prefs.opt_out = True
+        request.user.glean_prefs.nimbus_user_id = None
+        request.cirrus = None
+
+        with mock.patch.object(self.middleware.page_view_ping, "record") as record:
+            response = self.middleware(request)
+
+        self.assertEqual(response, self.response)
+        self.assertEqual(
+            record.mock_calls,
+            [],
         )

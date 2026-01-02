@@ -14,8 +14,8 @@ class CirrusMiddlewareTests(TestCase):
         self.request = mock.Mock()
         self.request.path = "/some/path"
         self.request.user.is_authenticated = True
-        self.request.user.id = "test"
         self.request.user.glean_prefs.opt_out = False
+        self.request.user.glean_prefs.nimbus_user_id = "test"
         self.request.GET = QueryDict()
         del self.request.cirrus
 
@@ -51,6 +51,21 @@ class CirrusMiddlewareTests(TestCase):
         self.assertEqual(mock_requests_post.mock_calls, [])
         self.assertIsNone(self.request.cirrus)
 
+    def test_without_glean_prefs(self):
+        del self.request.user.glean_prefs
+
+        with self.settings(CIRRUS_URL="cirrus"):
+            middleware = CirrusMiddleware(lambda request: self.response)
+
+        with mock.patch(
+            "experimenter.cirrus.middleware.requests.post"
+        ) as mock_requests_post:
+            response = middleware(self.request)
+
+        self.assertEqual(response, self.response)
+        self.assertEqual(mock_requests_post.mock_calls, [])
+        self.assertIsNone(self.request.cirrus)
+
     def test_without_cirrus(self):
         with self.settings(CIRRUS_URL=None):
             middleware = CirrusMiddleware(lambda request: self.response)
@@ -64,9 +79,7 @@ class CirrusMiddlewareTests(TestCase):
         self.assertEqual(mock_requests_post.mock_calls, [])
         self.assertIsNone(self.request.cirrus)
 
-    def test_without_preview_nor_glean_prefs(self):
-        del self.request.user.glean_prefs
-
+    def test_without_preview(self):
         with self.settings(CIRRUS_URL="cirrus"):
             middleware = CirrusMiddleware(lambda request: self.response)
 
