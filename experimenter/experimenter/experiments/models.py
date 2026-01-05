@@ -1538,7 +1538,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for i, data_point in enumerate(relative_data_list):
             lower = data_point.get("lower")
             upper = data_point.get("upper")
-            avg_rel_change = abs(data_point.get("point"))
+            avg_rel_change = (
+                abs(data_point.get("point")) if data_point.get("point") else None
+            )
             significance = significance_map.get(str(i + 1), "neutral")
             rel_entries.append(
                 {
