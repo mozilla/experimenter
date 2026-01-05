@@ -160,6 +160,10 @@ class FilterTests(TestCase):
         self.assertEqual(to_percentage(0.123), "12.3%")
         self.assertEqual(to_percentage(0.12), "12.0%")
 
+    def test_to_percentage_invalid(self):
+        self.assertEqual(to_percentage("invalid"), "N/A")
+        self.assertEqual(to_percentage(None), "N/A")
+
     def test_dict_get(self):
         sample_dict = {"key1": "value1", "key2": "value2"}
         self.assertEqual(dict_get(sample_dict, "key1"), "value1")
