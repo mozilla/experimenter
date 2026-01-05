@@ -29,8 +29,6 @@ class OptOutView(UpdateView):
     )
 
     def get_object(self, queryset=None):
-        if not hasattr(self.request.user, "glean_prefs"):
-            Prefs.objects.create(user=self.request.user)
         return self.request.user.glean_prefs
 
     def form_valid(self, form):
@@ -38,7 +36,7 @@ class OptOutView(UpdateView):
             self.data_collection_opt_out_ping.record(
                 user_agent=self.request.META.get("HTTP_USER_AGENT"),
                 ip_address=get_request_ip(self.request),
-                nimbus_nimbus_user_id=str(self.request.user.id),
+                nimbus_nimbus_user_id=str(self.request.user.glean_prefs.nimbus_user_id),
                 events=[],
             )
 
@@ -53,8 +51,6 @@ class AlertDismissedView(UpdateView):
     template_name = "glean/opt_out_alert.html"
 
     def get_object(self, queryset=None):
-        if not hasattr(self.request.user, "glean_prefs"):
-            Prefs.objects.create(user=self.request.user)
         return self.request.user.glean_prefs
 
     def form_valid(self, form):
