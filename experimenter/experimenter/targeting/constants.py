@@ -2812,41 +2812,11 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetin
     application_choice_names=(Application.FENIX.name,),
 )
 
-# Obselete: To be deleted in https://bugzilla.mozilla.org/show_bug.cgi?id=1995564
-TOU_TARGETING_ANDROID_NOT_ACCEPTED = NimbusTargetingConfig(
-    name="Users that have not accepted the Terms of Use",
-    slug="users_not_accepted_tou",
-    description="Targeting users who have NOT accepted the Terms of Use",
-    targeting="user_accepted_tou == false",
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name,),
-)
-
 TOU_TARGETING_ANDROID_ACCEPTED = NimbusTargetingConfig(
     name="Users that have accepted the Terms of Use",
     slug="users_accepted_tou",
     description="Targeting users who have accepted the Terms of Use",
     targeting="user_accepted_tou == true",
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name,),
-)
-
-# Obselete: To be deleted in https://bugzilla.mozilla.org/show_bug.cgi?id=1995564
-TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingConfig(
-    name=(
-        "Users that have not accepted the Terms of Use "
-        "and have not opted out of any sponsored content"
-    ),
-    slug="users_not_accepted_tou_no_shortcuts_or_stories_opt_outs",
-    description=(
-        "Targeting users who have NOT accepted the Terms of Use "
-        "and have NOT opted out of any sponsored content"
-    ),
-    targeting="user_accepted_tou == false && no_shortcuts_or_stories_opt_outs == true",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
