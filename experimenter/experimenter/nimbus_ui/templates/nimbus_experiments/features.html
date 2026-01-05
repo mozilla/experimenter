@@ -55,6 +55,10 @@
           </div>
         </div>
       </form>
+      <!-- Feature Collaborators Section -->
+      {% if selected_feature_config %}
+        {% include "nimbus_experiments/feature_collaborators_section.html" %}
+      {% endif %}
       <!-- Deliveries Card -->
       <div id="deliveries-card"
            class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle mb-4">

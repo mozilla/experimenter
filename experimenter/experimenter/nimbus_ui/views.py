@@ -48,6 +48,7 @@ from experimenter.nimbus_ui.forms import (
     DraftToPreviewForm,
     DraftToReviewForm,
     EditOutcomeSummaryForm,
+    FeatureCollaboratorsForm,
     FeaturesForm,
     FeatureSubscribeForm,
     FeatureUnsubscribeForm,
@@ -601,6 +602,17 @@ class FeatureUnsubscribeView(FeatureSubscriberViewMixin):
     url_name = "nimbus-ui-feature-unsubscribe"
 
 
+class FeatureCollaboratorsUpdateView(
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
+):
+    model = NimbusFeatureConfig
+    form_class = FeatureCollaboratorsForm
+    template_name = "nimbus_experiments/feature_collaborators_section.html"
+    context_object_name = "selected_feature_config"
+
+
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
     fields = None
 
@@ -1057,6 +1069,13 @@ class NimbusFeaturesView(TemplateView):
             "feature_changes_headers": feature_change_headers,
             "feature_changes_non_sortable_headers": feature_changes_non_sortable_headers,
         }
+
+        # Add collaborators form if a feature is selected
+        if selected_feature_config:
+            context["collaborators_form"] = FeatureCollaboratorsForm(
+                instance=selected_feature_config
+            )
+
         return context
 
 

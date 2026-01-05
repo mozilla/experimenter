@@ -1816,6 +1816,33 @@ class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated collaborators"
 
 
+class FeatureCollaboratorsForm(forms.ModelForm):
+    collaborators = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all().order_by("email"),
+        widget=MultiSelectWidget(),
+        required=False,
+        label="Collaborators",
+    )
+
+    class Meta:
+        model = NimbusFeatureConfig
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Initialize the collaborators field with current subscribers
+        if self.instance and self.instance.pk:
+            self.fields["collaborators"].initial = self.instance.subscribers.all()
+
+    @transaction.atomic
+    def save(self, commit=True):
+        feature = super().save(commit=commit)
+        if commit:
+            # Update subscribers with selected collaborators
+            feature.subscribers.set(self.cleaned_data["collaborators"])
+        return feature
+
+
 class EditOutcomeSummaryForm(NimbusChangeLogFormMixin, forms.ModelForm):
     takeaways_summary = forms.CharField(required=False, widget=SummernoteWidget())
     next_steps = forms.CharField(required=False, widget=SummernoteWidget())
