@@ -36,24 +36,20 @@
         <button type="button"
                 class="btn btn-success"
                 hx-post="{% url approval_url slug=experiment.slug %}"
-                hx-select="#content"
-                hx-target="#content"
+                hx-select="{{ replaced_element|default:"#content" }}"
+                hx-target="{{ replaced_element|default:"#content" }}"
+                hx-vals='{"fragment": "{{ fragment }}"}'
                 hx-swap="outerHTML">Approve and {{ action_label }}</button>
         <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
       </div>
     {% endif %}
   {% endif %}
-  <div class="alert alert-primary">
-    <button type="button"
-            class="btn btn-secondary"
-            hx-post="{% url cancel_reject_url slug=experiment.slug %}"
-            hx-select="#content"
-            hx-target="#content"
-            hx-swap="outerHTML"
-            hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}"}'>
-      Cancel Review
-    </button>
-  </div>
+  {% if not replaced_element %}
+    <div class="alert alert-primary">
+      {% include "common/cancel_review_button.html" %}
+
+    </div>
+  {% endif %}
 </div>
 <!-- Rejection Form -->
 <div id="reject-form-container" class="d-none alert alert-warning">
@@ -69,8 +65,9 @@
           id="submit-rejection-button"
           class="btn btn-danger mt-2"
           hx-post="{% url cancel_reject_url slug=experiment.slug %}"
-          hx-select="#content"
-          hx-target="#content"
+          hx-select="{{ replaced_element|default:"#content" }}"
+          hx-target="{{ replaced_element|default:"#content" }}"
+          hx-vals='{"fragment": "{{ fragment }}"}'
           hx-swap="outerHTML"
           hx-include="[name='changelog_message']">Submit Rejection</button>
   <button type="button" class="btn btn-secondary mt-2" id="cancel">Cancel</button>
