@@ -68,6 +68,22 @@ class AuthTestCase(TestCase):
 
 
 class LiveToEndEnrollmentViewTests(AuthTestCase):
+    def test_htmx_progress_card_renders_fragment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-live-to-end-enrollment", kwargs={"slug": experiment.slug}),
+            {"fragment": "progress_card"},
+            HTTP_HX_REQUEST="true",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        template_names = [t.name for t in response.templates if getattr(t, "name", None)]
+        self.assertIn("nimbus_experiments/launch_controls_v2.html", template_names)
+
     def test_invalid_submission(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
