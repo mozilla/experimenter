@@ -950,6 +950,7 @@ workflows:
       - update_firefox_fennec_release
 
   build:
+    max_auto_reruns: 1
     jobs:
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
