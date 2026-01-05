@@ -746,7 +746,7 @@ features:
         description: |
           Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
         type: Boolean
-        default: true
+        default: false
   navigation-toolbar:
     description: Feature for navigation toolbar.
     variables:

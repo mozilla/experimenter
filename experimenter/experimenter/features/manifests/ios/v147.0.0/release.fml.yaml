@@ -371,6 +371,11 @@ features:
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
         default: false
+      other-error-pages:
+        description: |
+          This feature is for managing the roll out of other native error pages
+        type: Boolean
+        default: false
   onboarding-framework-feature:
     description: |
       The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
@@ -702,6 +707,13 @@ features:
       should-use-japan-configuration:
         description: |
           Toggle between standard (false) and Japan-specific (true) assets and content.
+        type: Boolean
+        default: false
+  privacy-notice-feature:
+    description: This feature manages the prviacy notice homepage card
+    variables:
+      enabled:
+        description: Setting 'enabled' to true will allow the privacy notice homepage card to be presented under certain conditions
         type: Boolean
         default: false
   recent-searches-feature:
