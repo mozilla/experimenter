@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -8,6 +10,9 @@ class Prefs(models.Model):
     )
     alert_dismissed = models.BooleanField(default=False)
     opt_out = models.BooleanField(default=False)
+    nimbus_user_id = models.UUIDField(
+        default=uuid4, editable=False, null=True, unique=True
+    )
 
     class Meta:
         verbose_name = "glean prefs"
@@ -16,5 +21,12 @@ class Prefs(models.Model):
     def __str__(self):
         return (
             f"Prefs(user={self.user},alert_dismissed={self.alert_dismissed}"
-            f",opt_out={self.opt_out})"
+            f",opt_out={self.opt_out},nimbus_user_id={self.nimbus_user_id})"
         )
+
+    def save(self, *args, **kwargs):
+        if self.nimbus_user_id is not None and self.opt_out:
+            self.nimbus_user_id = None
+        if self.nimbus_user_id is None and not self.opt_out:
+            self.nimbus_user_id = uuid4()
+        super().save(*args, **kwargs)

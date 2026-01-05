@@ -42,6 +42,7 @@ class GleanOptOutViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Prefs.objects.get(user=prefs.user).opt_out)
+        self.assertIsNotNone(Prefs.objects.get(user=prefs.user).nimbus_user_id)
 
     def test_opt_out(self):
         user = UserFactory.create()
@@ -55,13 +56,14 @@ class GleanOptOutViewTest(TestCase):
             )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Prefs.objects.get(user=user).opt_out)
+        self.assertIsNone(Prefs.objects.get(user=user).nimbus_user_id)
         self.assertEqual(
             record.mock_calls,
             [
                 mock.call(
                     user_agent=None,
                     ip_address="127.0.0.1",
-                    nimbus_nimbus_user_id=str(user.id),
+                    nimbus_nimbus_user_id=mock.ANY,
                     events=[],
                 )
             ],
@@ -79,13 +81,14 @@ class GleanOptOutViewTest(TestCase):
             )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Prefs.objects.get(user=prefs.user).opt_out)
+        self.assertIsNone(Prefs.objects.get(user=prefs.user).nimbus_user_id)
         self.assertEqual(
             record.mock_calls,
             [
                 mock.call(
                     user_agent=None,
                     ip_address="127.0.0.1",
-                    nimbus_nimbus_user_id=str(prefs.user.id),
+                    nimbus_nimbus_user_id=str(prefs.nimbus_user_id),
                     events=[],
                 )
             ],
