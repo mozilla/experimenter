@@ -269,6 +269,10 @@ native-error-page-feature:
       type: boolean
       description: |
         This feature is for managing the roll out of the no interet connection native error page feature
+    other-error-pages:
+      type: boolean
+      description: |
+        This feature is for managing the roll out of other native error pages
 onboarding-framework-feature:
   description: |
     The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
@@ -295,6 +299,14 @@ onboarding-framework-feature:
       type: boolean
       description: |
         Toggle between standard (false) and Japan-specific (true) assets and content.
+privacy-notice-feature:
+  description: This feature manages the prviacy notice homepage card
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: Setting 'enabled' to true will allow the privacy notice homepage card to be presented under certain conditions
 recent-searches-feature:
   description: |
     Enables recent searches.
