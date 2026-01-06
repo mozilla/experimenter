@@ -80,6 +80,7 @@ from experimenter.nimbus_ui.forms import (
     TagFormSet,
     TakeawaysForm,
     ToggleArchiveForm,
+    ToggleReviewSlackNotificationsForm,
     UnsubscribeForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
@@ -401,6 +402,54 @@ class TestToggleArchiveForm(RequestFormTestCase):
 
         self.assertEqual(
             changelog_message, f"{self.user} set the Is Archived Flag to False"
+        )
+
+
+class TestToggleReviewSlackNotificationsForm(RequestFormTestCase):
+    @parameterized.expand(
+        [
+            (
+                "enable",
+                False,
+                True,
+                "enabled",
+            ),
+            (
+                "disable",
+                True,
+                False,
+                "disabled",
+            ),
+        ]
+    )
+    def test_toggle_slack_notifications(
+        self, _name, initial_value, new_value, expected_status
+    ):
+        experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Test Experiment",
+            slug="test-experiment",
+            enable_review_slack_notifications=initial_value,
+        )
+
+        data = {
+            "enable_review_slack_notifications": new_value,
+        }
+
+        form = ToggleReviewSlackNotificationsForm(
+            data, instance=experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+
+        updated_experiment = form.save()
+
+        self.assertEqual(updated_experiment.enable_review_slack_notifications, new_value)
+
+        changelog_message = form.get_changelog_message()
+
+        self.assertEqual(
+            changelog_message,
+            f"{self.user} {expected_status} review Slack notifications",
         )
 
 
@@ -1381,6 +1430,100 @@ class TestLaunchForms(RequestFormTestCase):
         )
         self.mock_preview_task.assert_called_once_with(countdown=5)
         self.mock_allocate_bucket_range.assert_called_once()
+
+    @parameterized.expand(
+        [
+            (
+                "draft_to_review_skips_slack_when_disabled",
+                DraftToReviewForm,
+                NimbusExperiment.Status.DRAFT,
+                {},
+                False,
+                False,
+            ),
+            (
+                "draft_to_review_sends_slack_when_enabled",
+                DraftToReviewForm,
+                NimbusExperiment.Status.DRAFT,
+                {},
+                True,
+                True,
+            ),
+            (
+                "live_to_update_rollout_skips_slack_when_disabled",
+                LiveToUpdateRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                {"is_rollout": True},
+                False,
+                False,
+            ),
+            (
+                "live_to_update_rollout_sends_slack_when_enabled",
+                LiveToUpdateRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                {"is_rollout": True},
+                True,
+                True,
+            ),
+            (
+                "live_to_end_enrollment_skips_slack_when_disabled",
+                LiveToEndEnrollmentForm,
+                NimbusExperiment.Status.LIVE,
+                {},
+                False,
+                False,
+            ),
+            (
+                "live_to_end_enrollment_sends_slack_when_enabled",
+                LiveToEndEnrollmentForm,
+                NimbusExperiment.Status.LIVE,
+                {},
+                True,
+                True,
+            ),
+            (
+                "live_to_complete_skips_slack_when_disabled",
+                LiveToCompleteForm,
+                NimbusExperiment.Status.LIVE,
+                {},
+                False,
+                False,
+            ),
+            (
+                "live_to_complete_sends_slack_when_enabled",
+                LiveToCompleteForm,
+                NimbusExperiment.Status.LIVE,
+                {},
+                True,
+                True,
+            ),
+        ]
+    )
+    def test_slack_notification_behavior(
+        self,
+        _name,
+        form_class,
+        status,
+        extra_kwargs,
+        enable_slack,
+        should_call_slack,
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=enable_slack,
+            **extra_kwargs,
+        )
+        form = form_class(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        if should_call_slack:
+            self.mock_slack_task.assert_called_once()
+        else:
+            self.mock_slack_task.assert_not_called()
 
 
 class TestOverviewForm(RequestFormTestCase):

@@ -1626,6 +1626,43 @@ class TestToggleArchiveView(AuthTestCase):
         self.assertFalse(updated_experiment.is_archived)
 
 
+class TestToggleReviewSlackNotificationsView(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperiment.objects.create(
+            slug="test-experiment",
+            name="Test Experiment",
+            owner=self.user,
+            enable_review_slack_notifications=True,
+        )
+
+    @parameterized.expand(
+        [
+            ("disable", True, False),
+            ("enable", False, True),
+        ]
+    )
+    def test_toggle_slack_notifications(self, _name, initial_value, new_value):
+        self.experiment.enable_review_slack_notifications = initial_value
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-toggle-review-slack-notifications",
+                kwargs={"slug": self.experiment.slug},
+            ),
+            {"enable_review_slack_notifications": new_value},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse("nimbus-ui-detail", kwargs={"slug": self.experiment.slug}),
+        )
+
+        updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
+        self.assertEqual(updated_experiment.enable_review_slack_notifications, new_value)
+
+
 class TestOverviewUpdateView(AuthTestCase):
     def test_get_renders_for_draft_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
