@@ -2812,41 +2812,11 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetin
     application_choice_names=(Application.FENIX.name,),
 )
 
-# Obselete: To be deleted in https://bugzilla.mozilla.org/show_bug.cgi?id=1995564
-TOU_TARGETING_ANDROID_NOT_ACCEPTED = NimbusTargetingConfig(
-    name="Users that have not accepted the Terms of Use",
-    slug="users_not_accepted_tou",
-    description="Targeting users who have NOT accepted the Terms of Use",
-    targeting="user_accepted_tou == false",
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name,),
-)
-
 TOU_TARGETING_ANDROID_ACCEPTED = NimbusTargetingConfig(
     name="Users that have accepted the Terms of Use",
     slug="users_accepted_tou",
     description="Targeting users who have accepted the Terms of Use",
     targeting="user_accepted_tou == true",
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name,),
-)
-
-# Obselete: To be deleted in https://bugzilla.mozilla.org/show_bug.cgi?id=1995564
-TOU_TARGETING_ANDROID_NOT_ACCEPTED_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingConfig(
-    name=(
-        "Users that have not accepted the Terms of Use "
-        "and have not opted out of any sponsored content"
-    ),
-    slug="users_not_accepted_tou_no_shortcuts_or_stories_opt_outs",
-    description=(
-        "Targeting users who have NOT accepted the Terms of Use "
-        "and have NOT opted out of any sponsored content"
-    ),
-    targeting="user_accepted_tou == false && no_shortcuts_or_stories_opt_outs == true",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -2991,6 +2961,58 @@ IS_64BIT_WITH_8GB_RAM = NimbusTargetingConfig(
     description="Target 64bit builds running on computers with at least 8GB of RAM.",
     targeting="archBits == 64 && memoryMB >= 8000",
     desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+# --- Desktop Tier 1: High-End (≥16GB RAM) ---
+IS_DESKTOP_TIER_1_HIGH_END = NimbusTargetingConfig(
+    name="Desktop Tier 1: High-End (≥16GB RAM)",
+    slug="desktop_tier_1_high_end",
+    targeting="memoryMB >= 16384",
+    description=(
+        "High-end desktop devices with ≥16GB RAM, typically with SSDs and modern CPUs. "
+        "Suitable for Performance Mode with acceptable memory/CPU trade-offs. "
+        "Approximately 18.7% of desktop users (Dec 2025 data)."
+    ),
+    desktop_telemetry="metrics.quantity.system_memory >= 16384",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+# --- Desktop Tier 2: Mid-Range (8-16GB RAM) ---
+IS_DESKTOP_TIER_2_MID_RANGE = NimbusTargetingConfig(
+    name="Desktop Tier 2: Mid-Range (8-16GB RAM)",
+    slug="desktop_tier_2_mid_range",
+    targeting="memoryMB >= 8192 && memoryMB < 16384",
+    description=(
+        "Mid-range desktop devices with 8-16GB RAM. Suitable for Eco Mode when "
+        "on battery, not recommended for Performance Mode due to OOM risk. "
+        "Approximately 34.4% of desktop users (Dec 2025 data)."
+    ),
+    desktop_telemetry=(
+        "metrics.quantity.system_memory >= 8192 "
+        "AND metrics.quantity.system_memory < 16384"
+    ),
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+# --- Desktop Tier 3: Low-End (<8GB RAM) ---
+IS_DESKTOP_TIER_3_LOW_END = NimbusTargetingConfig(
+    name="Desktop Tier 3: Low-End (<8GB RAM)",
+    slug="desktop_tier_3_low_end",
+    targeting="memoryMB < 8192",
+    description=(
+        "Low-end desktop devices with <8GB RAM, often with HDDs and older CPUs. "
+        "Strongly recommended for Eco Mode to improve battery life and reduce "
+        "thermal issues. Approximately 46.9% of desktop users "
+        "(Dec 2025 data) - LARGEST segment."
+    ),
+    desktop_telemetry="metrics.quantity.system_memory < 8192",
     sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),

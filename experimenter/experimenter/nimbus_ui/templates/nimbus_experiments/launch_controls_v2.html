@@ -1,0 +1,198 @@
+{% load nimbus_extras %}
+
+<div id="{{ experiment.slug }}-progress-card">
+  {% with rejection=experiment.rejection_block %}
+    {% if rejection %}
+      <div class="alert alert-warning"
+           id="rejection-reason"
+           data-testid="rejection-notice">
+        <div class="text-body">
+          <p class="mb-2">
+            The request to {{ rejection.action }} was <strong>Rejected</strong> due to:
+          </p>
+          <p class="mb-2">{{ rejection.email }} on {{ rejection.date|date:"F j, Y" }}:</p>
+          <p class="bg-light text-dark rounded border p-2 mb-0">{{ rejection.message }}</p>
+        </div>
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% if experiment|should_show_remote_settings_pending:user %}
+    <div class="alert alert-danger" role="alert">
+      <p>
+        <strong>Action required:</strong>
+        Please review this change in Remote Settings to {{ experiment.remote_settings_pending_message }}.
+      </p>
+      <a href="{{ experiment.review_url }}"
+         class="btn btn-primary"
+         target="_blank"
+         rel="noopener noreferrer">Open Remote Settings</a>
+    </div>
+  {% else %}
+    <form>
+      {% csrf_token %}
+      {% if experiment.is_rollout_update_requested %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Update Rollout" approval_url="nimbus-ui-approve-update-rollout" cancel_reject_url="nimbus-ui-cancel-update-rollout" experiment=experiment fragment="progress_card" replaced_element="#"|add:experiment.slug|add:"-progress-card" %}
+
+      {% elif experiment.is_enrollment_pause_requested %}
+        {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Enrollment" approval_url="nimbus-ui-approve-end-enrollment" cancel_reject_url="nimbus-ui-cancel-end-enrollment" experiment=experiment fragment="progress_card" replaced_element="#"|add:experiment.slug|add:"-progress-card" %}
+
+      {% elif experiment.is_end_experiment_requested %}
+        {% if experiment.is_rollout %}
+          {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Rollout" approval_url="nimbus-ui-approve-end-experiment" cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment fragment="progress_card" replaced_element="#"|add:experiment.slug|add:"-progress-card" %}
+
+        {% else %}
+          {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Experiment" approval_url="nimbus-ui-approve-end-experiment" cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment fragment="progress_card" replaced_element="#"|add:experiment.slug|add:"-progress-card" %}
+
+        {% endif %}
+      {% endif %}
+    </form>
+  {% endif %}
+  {% if experiment.is_enrolling %}
+    <div class="card bg-info-subtle p-4 mb-0 rounded-4">
+      <div class="row align-items-stretch">
+        <div class="col-5 py-4 mt-0">
+          <h5>Enrollment in progress — don't forget to close it</h5>
+          <p class="text-muted mb-0">
+            Enrollment is when participants can join your experiment. You'll need to end it yourself once enough people have joined, or when the time you set for enrollment has passed — it won't close automatically.
+          </p>
+          {% if experiment.should_show_end_enrollment %}
+            <div class="mt-4">
+              <form>
+                {% csrf_token %}
+                {% if experiment.is_rollout_update_requested %}
+                  {% include "common/cancel_review_button.html" with cancel_reject_url="nimbus-ui-cancel-update-rollout" experiment=experiment fragment="progress_card" replaced_element="#"|add:experiment.slug|add:"-progress-card" %}
+
+                {% elif experiment.is_enrollment_pause_requested %}
+                  {% include "common/cancel_review_button.html" with cancel_reject_url="nimbus-ui-cancel-end-enrollment" experiment=experiment fragment="progress_card" replaced_element="#"|add:experiment.slug|add:"-progress-card" %}
+
+                {% elif experiment.is_end_experiment_requested %}
+                  {% include "common/cancel_review_button.html" with cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment fragment="progress_card" replaced_element="#"|add:experiment.slug|add:"-progress-card" %}
+
+                {% elif experiment.should_show_end_enrollment or experiment.should_show_end_experiment or experiment.should_show_end_rollout or experiment.should_show_rollout_request_update %}
+                  {% if experiment.should_show_end_enrollment %}
+                    <button type="button"
+                            hx-post="{% url 'nimbus-ui-live-to-end-enrollment' slug=experiment.slug %}?fragment=progress_card"
+                            hx-select="#{{ experiment.slug }}-progress-card"
+                            hx-target="#{{ experiment.slug }}-progress-card"
+                            hx-swap="outerHTML"
+                            class="btn btn-primary end-enrollment_btn"
+                            {% if experiment.is_rollout_dirty %}disabled{% endif %}>Close Enrollment</button>
+                  {% endif %}
+                  {% if experiment.should_show_end_experiment %}
+                    <button type="button"
+                            hx-post="{% url 'nimbus-ui-live-to-complete' slug=experiment.slug %}?fragment=progress_card"
+                            hx-select="#{{ experiment.slug }}-progress-card"
+                            hx-target="#{{ experiment.slug }}-progress-card"
+                            hx-swap="outerHTML"
+                            id="end-experiment"
+                            class="btn btn-primary m-1 end_experiment_btn">
+                      End
+                      {% if experiment.is_rollout %}
+                        Rollout
+                      {% else %}
+                        Experiment
+                      {% endif %}
+                    </button>
+                  {% endif %}
+                {% endif %}
+              </form>
+            </div>
+          {% endif %}
+        </div>
+        <div class="col">
+          <div class="card p-2 bg-body-secondary bg-opacity-50 py-5 px-4 rounded-4 h-100 d-flex justify-content-center">
+            <h6>{{ experiment.enrollment_percent_completion }}% of enrollment complete</h6>
+            <div class="progress mb-2 bg-secondary-subtle"
+                 role="progressbar"
+                 aria-label="{{ experiment.name }} enrollment progress"
+                 aria-valuenow="{{ experiment.enrollment_percent_completion }}"
+                 aria-valuemin="0"
+                 aria-valuemax="100"
+                 style="height: 10px">
+              <div class="progress-bar"
+                   style="width: {{ experiment.enrollment_percent_completion }}%"></div>
+            </div>
+            <div class="text-muted d-flex gap-2 align-items-center mb-1">
+              <i class="fa-regular fa-calendar"></i>
+              <small>{{ experiment.days_since_enrollment_start }}/{{ experiment.proposed_enrollment }} days before end of enrollment</small>
+            </div>
+            <div class="text-muted d-flex gap-2 align-items-center">
+              <i class="fa-regular fa-circle-user"></i>
+              <small><a href="{{ experiment.monitoring_dashboard_url }}" class="text-reset">Check participant enrollment count</a></small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% elif experiment.is_observation %}
+    <div class="card bg-primary-subtle p-4 mb-0 rounded-4">
+      <div class="row align-items-center">
+        <div class="col-5 py-4 mt-0">
+          <h5>Observing — results still forming</h5>
+          <p class="text-muted mb-0">
+            Your experiment is officially in progress, and early numbers are starting to come in. These results are just for checking that everything's running correctly — they aren't reliable for decisions until the monitoring period is complete. <a href="https://experimenter.info/observing">
+            Learn more
+          </p>
+        </a>
+        <div class="mt-4">
+          <form>
+            {% csrf_token %}
+            {% if experiment.is_rollout_update_requested %}
+              {% include "common/cancel_review_button.html" with cancel_reject_url="nimbus-ui-cancel-update-rollout" experiment=experiment fragment="progress_card" replaced_element="#"|add:experiment.slug|add:"-progress-card" %}
+
+            {% elif experiment.is_enrollment_pause_requested %}
+              {% include "common/cancel_review_button.html" with cancel_reject_url="nimbus-ui-cancel-end-enrollment" experiment=experiment fragment="progress_card" replaced_element="#"|add:experiment.slug|add:"-progress-card" %}
+
+            {% elif experiment.is_end_experiment_requested %}
+              {% include "common/cancel_review_button.html" with cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment fragment="progress_card" replaced_element="#"|add:experiment.slug|add:"-progress-card" %}
+
+            {% elif experiment.should_show_end_enrollment or experiment.should_show_end_experiment or experiment.should_show_end_rollout or experiment.should_show_rollout_request_update %}
+              {% if experiment.should_show_end_experiment %}
+                <button type="button"
+                        hx-post="{% url 'nimbus-ui-live-to-complete' slug=experiment.slug %}?fragment=progress_card"
+                        hx-select="#{{ experiment.slug }}-progress-card"
+                        hx-target="#{{ experiment.slug }}-progress-card"
+                        hx-swap="outerHTML"
+                        id="end-experiment"
+                        class="btn btn-primary m-1 end_experiment_btn">
+                  End
+                  {% if experiment.is_rollout %}
+                    rollout
+                  {% else %}
+                    experiment
+                  {% endif %}
+                  early
+                </button>
+              {% endif %}
+            {% endif %}
+          </form>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card p-2 bg-body-secondary bg-opacity-50 py-5 px-4 rounded-4">
+          <h6>{{ experiment.days_since_observation_start }}/{{ experiment.computed_observations_days }} days monitored</h6>
+          <div class="progress mb-2 bg-secondary-subtle"
+               role="progressbar"
+               aria-label="{{ experiment.name }} enrollment progress"
+               aria-valuenow="{{ experiment.observation_percent_completion }}"
+               aria-valuemin="0"
+               aria-valuemax="100"
+               style="height: 10px">
+            <div class="progress-bar"
+                 style="width: {{ experiment.observation_percent_completion }}%"></div>
+          </div>
+          <div class="text-muted d-flex gap-2 align-items-center mb-1">
+            <i class="fa-solid fa-chart-line"></i>
+            <small>Results become reliable after {{ experiment.computed_observations_days }} days</small>
+          </div>
+          <div class="text-muted d-flex gap-2 align-items-center">
+            {% comment %} TODO(gh-13723): check if there are any metric errors and show them here {% endcomment %}
+            <i class="fa-solid fa-circle-check text-success"></i>
+            <small>Metrics reporting correctly</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+</div>

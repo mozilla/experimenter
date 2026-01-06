@@ -68,7 +68,7 @@ redis = "4.6.0"
 requests = { version = "2.32.4", extras = ["security"] }
 responses = "0.25.0"
 ruff = "^0.14.0"
-sentry-sdk = "^2.47.0"
+sentry-sdk = "^2.48.0"
 slack-sdk = "^3.33.4"
 sqlparse = "0.5.0"
 tblib = "1.7.0"
@@ -79,7 +79,7 @@ whitenoise = "5.3.0"
 inflection = "^0.5.1"
 pytest = "^8.4.0"
 pyjwt = { extras = ["crypto"], version = "^2.10.1" }
-humanize = "^4.14.0"
+humanize = "^4.15.0"
 deepdiff = "^8.6.1"
 django-summernote = "^0.8.20.0"
 

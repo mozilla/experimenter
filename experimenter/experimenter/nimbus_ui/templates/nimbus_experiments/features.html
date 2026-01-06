@@ -7,8 +7,29 @@
 {% block content %}
   <div id="feature-page" class="bg-body-tertiary py-4">
     <div class="container">
-      {% include "nimbus_experiments/heading_card.html" with page_name="feature" heading_text="Welcome to your Feature Health Dashboard," subheading_text="Track a feature's Nimbus history and QA status in this summary view!" link_url=NimbusUIConstants.FEATURE_PAGE_LINKS.feature_learn_more_url btn_text="Learn More" %}
-
+      <!-- Feature Health Dashboard Header -->
+      <div class="mb-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            <img src="{% static 'assets/welcome.svg' %}"
+                 alt="Hugging Foxes"
+                 style="width: 60px;
+                        height: auto"
+                 class="me-3" />
+            <div>
+              <h2 class="fw-semibold mb-1">Feature Health Dashboard</h2>
+              <p class="text-muted mb-0">Track a feature's Nimbus history and QA status in this summary view.</p>
+            </div>
+          </div>
+          <a href="{{ NimbusUIConstants.FEATURE_PAGE_LINKS.feature_learn_more_url }}"
+             class="btn btn-outline-primary btn-sm"
+             target="_blank"
+             rel="noopener noreferrer">
+            <i class="fa-solid fa-circle-info me-1"></i>
+            Learn More
+          </a>
+        </div>
+      </div>
       <form id="features-form"
             method="get"
             hx-get="{% url 'nimbus-ui-features' %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
