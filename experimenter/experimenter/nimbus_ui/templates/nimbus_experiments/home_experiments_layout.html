@@ -56,8 +56,9 @@
                 <button class="page-link"
                         type="button"
                         hx-get="?{{ pagination_param }}={{ page_obj.previous_page_number }}{% if pagination_param != 'draft_page' and request.GET.draft_page %}&draft_page={{ request.GET.draft_page }}{% endif %}{% if pagination_param != 'attention_page' and request.GET.attention_page %}&attention_page={{ request.GET.attention_page }}{% endif %}{% if pagination_param != 'my_deliveries_page' and request.GET.my_deliveries_page %}&my_deliveries_page={{ request.GET.my_deliveries_page }}{% endif %}"
-                        hx-target="#draft-preview-ready-for-attention"
-                        hx-select="#draft-preview-ready-for-attention"
+                        hx-target="{% if pagination_param == 'draft_page' %}#draft-preview{% elif pagination_param == 'attention_page' %}#ready-for-attention{% endif %}"
+                        hx-select="{% if pagination_param == 'draft_page' %}#draft-preview{% elif pagination_param == 'attention_page' %}#ready-for-attention{% endif %}"
+                        hx-swap="outerHTML"
                         hx-push-url="true">
                   <i class="fa-solid fa-angle-left"></i>
                 </button>
@@ -77,8 +78,9 @@
                 <button class="page-link"
                         type="button"
                         hx-get="?{{ pagination_param }}={{ page_obj.next_page_number }}{% if pagination_param != 'draft_page' and request.GET.draft_page %}&draft_page={{ request.GET.draft_page }}{% endif %}{% if pagination_param != 'attention_page' and request.GET.attention_page %}&attention_page={{ request.GET.attention_page }}{% endif %}{% if pagination_param != 'my_deliveries_page' and request.GET.my_deliveries_page %}&my_deliveries_page={{ request.GET.my_deliveries_page }}{% endif %}"
-                        hx-target="#draft-preview-ready-for-attention"
-                        hx-select="#draft-preview-ready-for-attention"
+                        hx-target="{% if pagination_param == 'draft_page' %}#draft-preview{% elif pagination_param == 'attention_page' %}#ready-for-attention{% endif %}"
+                        hx-select="{% if pagination_param == 'draft_page' %}#draft-preview{% elif pagination_param == 'attention_page' %}#ready-for-attention{% endif %}"
+                        hx-swap="outerHTML"
                         hx-push-url="true">
                   <i class="fa-solid fa-angle-right"></i>
                 </button>
