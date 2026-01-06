@@ -58,10 +58,9 @@
       <!-- Feature Collaborators Section -->
       {% if collaborators_form %}
         {% include "nimbus_experiments/feature_subscribe_button.html" %}
+
       {% endif %}
-      {% if not collaborators_form %}
-        <div id="feature-collaborators-section" style="display: none;"></div>
-      {% endif %}
+      {% if not collaborators_form %}<div id="feature-collaborators-section" style="display: none;"></div>{% endif %}
       <!-- Deliveries Card -->
       <div id="deliveries-card"
            class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle mb-4">
@@ -80,8 +79,7 @@
             </h5>
           </div>
           <div scope="col"
-               class="col-4 ps-0 d-flex align-items-center justify-content-end">
-          </div>
+               class="col-4 ps-0 d-flex align-items-center justify-content-end"></div>
         </div>
         <div>
           <div id="deliveries-table">

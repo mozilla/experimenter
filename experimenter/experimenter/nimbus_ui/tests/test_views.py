@@ -4928,7 +4928,6 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertIsNone(context.get("selected_feature_config"))
 
     def test_feature_update_collaborators_adds_users(self):
-
         feature = self.feature_configs["feature-desktop"]
         user1 = UserFactory.create()
         user2 = UserFactory.create()
@@ -4947,7 +4946,6 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_feature_update_collaborators_removes_users(self):
-
         feature = self.feature_configs["feature-desktop"]
         user1 = UserFactory.create()
         user2 = UserFactory.create()
@@ -4964,7 +4962,6 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_feature_update_collaborators_clears_all_users(self):
-
         feature = self.feature_configs["feature-desktop"]
         user1 = UserFactory.create()
         user2 = UserFactory.create()

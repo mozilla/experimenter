@@ -193,8 +193,6 @@ class CloneExperimentFormMixin:
         return context
 
 
-
-
 class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateView):
     model = NimbusFeatureConfig
     template_name = "nimbus_experiments/feature_subscribe_button.html"
@@ -207,9 +205,7 @@ class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Add collaborators form for the template
-        context["collaborators_form"] = FeatureCollaboratorsForm(
-            instance=self.object
-        )
+        context["collaborators_form"] = FeatureCollaboratorsForm(instance=self.object)
         return context
 
 

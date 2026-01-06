@@ -15,7 +15,6 @@
         </h5>
       </div>
     </div>
-
     <div class="row mb-3">
       <div class="col-12 d-flex align-items-center gap-3">
         <!-- Subscribe/Unsubscribe Button -->
@@ -56,7 +55,6 @@
                data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.subscribe_tooltip|format_string:selected_feature_config.name }}"></i>
           </form>
         {% endif %}
-
         <!-- Collaborators Dropdown -->
         <form method="post"
               action="{% url 'nimbus-ui-feature-update-collaborators' pk=selected_feature_config.pk %}"
