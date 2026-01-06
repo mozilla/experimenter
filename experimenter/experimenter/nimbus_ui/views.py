@@ -622,12 +622,6 @@ class FeatureCollaboratorsUpdateView(
     template_name = "nimbus_experiments/feature_subscribe_button.html"
     context_object_name = "selected_feature_config"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Pass the form as collaborators_form for the template
-        context["collaborators_form"] = context.get("form")
-        return context
-
 
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
     fields = None

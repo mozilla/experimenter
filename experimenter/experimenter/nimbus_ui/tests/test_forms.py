@@ -53,6 +53,7 @@ from experimenter.nimbus_ui.forms import (
     DraftToPreviewForm,
     DraftToReviewForm,
     EditOutcomeSummaryForm,
+    FeatureCollaboratorsForm,
     FeaturesForm,
     FeatureSubscribeForm,
     FeatureUnsubscribeForm,
@@ -4456,6 +4457,70 @@ class FeatureSubscriptionFormTests(RequestFormTestCase):
         self.assertTrue(form.is_valid())
         form.save()
         self.assertNotIn(self.request.user, feature_config.subscribers.all())
+
+    def test_feature_collaborators_form_updates_subscribers(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+        )
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        form = FeatureCollaboratorsForm(
+            instance=feature_config,
+            data={"collaborators": [user1.id, user2.id]},
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid())
+        feature_config = form.save()
+
+        self.assertEqual(set(feature_config.subscribers.all()), {user1, user2})
+
+    def test_feature_collaborators_form_removes_subscribers(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+        )
+        feature_config.subscribers.set([user1, user2])
+
+        form = FeatureCollaboratorsForm(
+            instance=feature_config,
+            data={"collaborators": [user1.id]},
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid())
+        feature_config = form.save()
+
+        self.assertEqual(list(feature_config.subscribers.all()), [user1])
+
+    def test_feature_collaborators_form_initial_value(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+        )
+        feature_config.subscribers.set([user1, user2])
+
+        form = FeatureCollaboratorsForm(instance=feature_config, request=self.request)
+        self.assertEqual(set(form.fields["collaborators"].initial), {user1, user2})
+
+    def test_feature_collaborators_form_clears_all_subscribers(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+        )
+        feature_config.subscribers.set([user1, user2])
+
+        form = FeatureCollaboratorsForm(
+            instance=feature_config,
+            data={"collaborators": []},
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid())
+        feature_config = form.save()
+
+        self.assertEqual(feature_config.subscribers.count(), 0)
 
 
 class EditOutcomeSummaryFormTests(RequestFormTestCase):

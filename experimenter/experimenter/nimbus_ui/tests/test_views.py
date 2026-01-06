@@ -4927,6 +4927,58 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(len(context["feature_schemas"]), 0)
         self.assertIsNone(context.get("selected_feature_config"))
 
+    def test_feature_update_collaborators_adds_users(self):
+
+        feature = self.feature_configs["feature-desktop"]
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        self.assertNotIn(user1, feature.subscribers.all())
+        self.assertNotIn(user2, feature.subscribers.all())
+
+        response = self.client.post(
+            reverse("nimbus-ui-feature-update-collaborators", kwargs={"pk": feature.pk}),
+            {"collaborators": [user1.id, user2.id]},
+        )
+
+        feature.refresh_from_db()
+        self.assertIn(user1, feature.subscribers.all())
+        self.assertIn(user2, feature.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
+    def test_feature_update_collaborators_removes_users(self):
+
+        feature = self.feature_configs["feature-desktop"]
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        feature.subscribers.set([user1, user2])
+
+        response = self.client.post(
+            reverse("nimbus-ui-feature-update-collaborators", kwargs={"pk": feature.pk}),
+            {"collaborators": [user1.id]},
+        )
+
+        feature.refresh_from_db()
+        self.assertIn(user1, feature.subscribers.all())
+        self.assertNotIn(user2, feature.subscribers.all())
+        self.assertEqual(response.status_code, 200)
+
+    def test_feature_update_collaborators_clears_all_users(self):
+
+        feature = self.feature_configs["feature-desktop"]
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        feature.subscribers.set([user1, user2])
+
+        response = self.client.post(
+            reverse("nimbus-ui-feature-update-collaborators", kwargs={"pk": feature.pk}),
+            {"collaborators": []},
+        )
+
+        feature.refresh_from_db()
+        self.assertEqual(feature.subscribers.count(), 0)
+        self.assertEqual(response.status_code, 200)
+
 
 class TestTagsManageView(AuthTestCase):
     def test_tags_manage_view_renders(self):

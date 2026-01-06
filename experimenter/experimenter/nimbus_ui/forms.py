@@ -1828,11 +1828,9 @@ class FeatureCollaboratorsForm(forms.ModelForm):
         model = NimbusFeatureConfig
         fields = []
 
-    def __init__(self, *args, **kwargs):
-        # Remove request from kwargs if present (passed by RequestFormMixin)
-        self.request = kwargs.pop("request", None)
+    def __init__(self, *args, request: HttpRequest = None, **kwargs):
         super().__init__(*args, **kwargs)
-        # Initialize the collaborators field with current subscribers
+        self.request = request
         if self.instance and self.instance.pk:
             self.fields["collaborators"].initial = self.instance.subscribers.all()
 
@@ -1840,7 +1838,6 @@ class FeatureCollaboratorsForm(forms.ModelForm):
     def save(self, commit=True):
         feature = super().save(commit=commit)
         if commit:
-            # Update subscribers with selected collaborators
             feature.subscribers.set(self.cleaned_data["collaborators"])
         return feature
 
