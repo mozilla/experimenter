@@ -5484,6 +5484,88 @@ class TestNimbusExperiment(TestCase):
                     f"('{version_string}'): {e}"
                 )
 
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "errors": {
+                            "ad_clicks": [
+                                {"analysis_basis": "enrollments", "segment": "all"}
+                            ],
+                            "experiment": [],
+                        },
+                    }
+                },
+                True,
+            ),
+            (
+                {
+                    "v3": {
+                        "errors": {"experiment": []},
+                    }
+                },
+                False,
+            ),
+        ]
+    )
+    def test_check_experiment_has_results_errors(self, results_data, expected_results):
+        experiment = NimbusExperimentFactory.create()
+
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertEqual(experiment.has_results_errors, expected_results)
+
+    def test_experiment_kpi_metrics_have_errors(self):
+        experiment = NimbusExperimentFactory.create()
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "errors": {
+                    "client_level_daily_active_users_v2": [
+                        {"analysis_basis": "enrollments", "segment": "all"}
+                    ],
+                    "experiment": [],
+                },
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "client_level_daily_active_users_v2": {
+                                            "absolute": {"all": []},
+                                            "difference": {
+                                                "branch-a": {"all": [{}]},
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                },
+            }
+        }
+
+        experiment.save()
+        kpi_metrics = experiment.get_kpi_metrics("enrollments", "all", branch_a.slug)
+
+        self.assertIn(
+            {
+                "group": "other_metrics",
+                "friendly_name": "Daily Active Users",
+                "slug": "client_level_daily_active_users_v2",
+                "description": "Average number of client that sent a main ping per day.",
+                "has_errors": True,
+            },
+            kpi_metrics,
+        )
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
