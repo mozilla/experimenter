@@ -951,14 +951,6 @@ class NimbusConstants:
         Application.FOCUS_IOS: Version.FIREFOX_116,
     }
 
-    ROLLOUT_SUPPORT_VERSION = {
-        Application.DESKTOP: Version.FIREFOX_105,
-        Application.FENIX: Version.FIREFOX_105,
-        Application.FOCUS_ANDROID: Version.FIREFOX_105,
-        Application.IOS: Version.FIREFOX_105,
-        Application.FOCUS_IOS: Version.FIREFOX_105,
-    }
-
     LOCALIZATION_SUPPORTED_VERSION = {
         Application.DESKTOP: Version.FIREFOX_113,
     }
@@ -1053,7 +1045,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_VERSION_MIN = (
         "Ensure this value is less than or equal to the maximum version"
     )
-    ERROR_FIREFOX_VERSION_MIN_96 = "The minimum targetable Firefox version is 96"
+    ERROR_FIREFOX_VERSION_MIN_SUPPORTED = "The minimum targetable Firefox version is 105"
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
@@ -1125,7 +1117,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     L10N_MIN_STRING_ID_LEN = 9
 
-    MIN_REQUIRED_VERSION = Version.FIREFOX_96
+    MIN_REQUIRED_VERSION = Version.FIREFOX_105
 
     EXCLUDED_REQUIRED_MIN_VERSION = Version.FIREFOX_116
 

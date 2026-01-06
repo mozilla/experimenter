@@ -2263,9 +2263,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         serializer_data = NimbusReviewSerializer(self).data
         serializer = NimbusReviewSerializer(self, data=serializer_data)
 
-        if serializer.is_valid():
-            return {}
-        else:
+        errors = {}
+        if not serializer.is_valid():
             errors = serializer.errors
 
             if "excluded_experiments" in errors:
@@ -2278,7 +2277,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "required_experiments"
                 )
 
-            return errors
+        return errors
 
     def clone(self, name, user, rollout_branch_slug=None, changed_on=None):
         # Inline import to prevent circular import
