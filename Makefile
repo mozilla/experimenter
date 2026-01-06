@@ -135,7 +135,7 @@ build_prod: ssl build_megazords
 	$(DOCKER_BUILD) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
 
 compose_stop:
-	$(COMPOSE) kill || true
+	$(CIRRUS_ENABLE) $(COMPOSE) kill || true
 	$(COMPOSE_INTEGRATION) kill || true
 	$(COMPOSE_PROD) kill || true
 
@@ -179,15 +179,15 @@ test: build_test  ## Run tests
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) python manage.py test --parallel'
 pytest: test
 
-start: build_dev  ## Start containers
+start: build_dev cirrus_build  ## Start containers
 	$(COMPOSE) up
 
 up: start
 
-up_prod: build_prod
+up_prod: build_prod cirrus_build
 	$(COMPOSE_PROD) up
 
-up_prod_detached: build_prod
+up_prod_detached: build_prod cirrus_build
 	$(COMPOSE_PROD) up -d
 
 up_db: build_dev
@@ -196,29 +196,29 @@ up_db: build_dev
 up_django: build_dev
 	$(COMPOSE) up nginx experimenter worker beat db redis kinto autograph
 
-up_detached: build_dev
+up_detached: build_dev cirrus_build
 	$(COMPOSE) up -d
 
 generate_docs: build_dev
-	$(COMPOSE_RUN) experimenter sh -c "$(GENERATE_DOCS)"
+	$(COMPOSE_RUN) --no-deps experimenter sh -c "$(GENERATE_DOCS)"
 
 generate_types: build_dev
-	$(COMPOSE_RUN) experimenter sh -c "$(RESULTS_TYPES_GENERATE)"
+	$(COMPOSE_RUN) --no-deps experimenter sh -c "$(RESULTS_TYPES_GENERATE)"
 
 format: build_dev  ## Format source tree
-	$(COMPOSE_RUN) experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_RESULTS)" "$(ESLINT_FIX_NIMBUS_UI)"'
+	$(COMPOSE_RUN) --no-deps experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_RESULTS)" "$(ESLINT_FIX_NIMBUS_UI)"'
 code_format: format
 
 makemigrations: build_dev
-	$(COMPOSE_RUN) experimenter python manage.py makemigrations
+	$(COMPOSE_RUN) --no-deps experimenter python manage.py makemigrations
 
-migrate: build_dev  ## Run database migrations
+migrate: build_dev cirrus_build  ## Run database migrations
 	$(COMPOSE_RUN) experimenter sh -c "$(WAIT_FOR_DB) $(PYTHON_MIGRATE)"
 
-bash: build_dev
+bash: build_dev cirrus_build
 	$(COMPOSE_RUN) experimenter bash
 
-refresh: kill build_dev compose_build refresh_db  ## Rebuild all containers and the database
+refresh: kill build_dev cirrus_build compose_build refresh_db  ## Rebuild all containers and the database
 
 refresh_db:  # Rebuild the database
 	$(COMPOSE_RUN) -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
@@ -285,7 +285,10 @@ cirrus_bash: cirrus_build_dev
 cirrus_up: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE) up cirrus
 
-cirrus_down: cirrus_build
+cirrus_up_detached: cirrus_build
+	$(CIRRUS_ENABLE) $(COMPOSE) up -d cirrus
+
+cirrus_down:
 	$(CIRRUS_ENABLE) $(COMPOSE) down cirrus
 
 cirrus_test: cirrus_build_test
