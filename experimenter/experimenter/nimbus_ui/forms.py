@@ -1329,6 +1329,20 @@ class FeatureUnsubscribeForm(FeatureSubscriberFormMixin):
         return self.instance
 
 
+class ToggleReviewSlackNotificationsForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = ["enable_review_slack_notifications"]
+
+    def get_changelog_message(self):
+        status = (
+            "enabled"
+            if self.cleaned_data.get("enable_review_slack_notifications")
+            else "disabled"
+        )
+        return f"{self.request.user} {status} review Slack notifications"
+
+
 class SlackNotificationMixin:
     slack_action = None
 
@@ -1336,12 +1350,13 @@ class SlackNotificationMixin:
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         if self.slack_action:
-            nimbus_send_slack_notification.delay(
-                experiment_id=experiment.id,
-                email_addresses=experiment.notification_emails,
-                action_text=NimbusConstants.SLACK_FORM_ACTIONS[self.slack_action],
-                requesting_user_email=self.request.user.email,
-            )
+            if experiment.enable_review_slack_notifications:
+                nimbus_send_slack_notification.delay(
+                    experiment_id=experiment.id,
+                    email_addresses=experiment.notification_emails,
+                    action_text=NimbusConstants.SLACK_FORM_ACTIONS[self.slack_action],
+                    requesting_user_email=self.request.user.email,
+                )
         return experiment
 
 
