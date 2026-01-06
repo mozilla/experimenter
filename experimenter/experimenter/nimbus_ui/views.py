@@ -618,6 +618,11 @@ class FeatureCollaboratorsUpdateView(
     template_name = "nimbus_experiments/feature_subscribe_button.html"
     context_object_name = "selected_feature_config"
 
+    def get_success_url(self):
+        return reverse(
+            "nimbus-ui-feature-update-collaborators", kwargs={"pk": self.object.pk}
+        )
+
 
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
     fields = None
