@@ -37,6 +37,8 @@
         {% for segment in segments %}
           <option value="{{ segment }}"
                   {% if segment == selected_segment %}selected{% endif %}>{{ segment }}</option>
+        {% empty %}
+          <option value="" selected>No segments available</option>
         {% endfor %}
       </select>
     </div>
