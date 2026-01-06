@@ -288,12 +288,29 @@
                         {% for metric in metric_metadata %}
                           {% for curr_metric_slug, metric_branch_data in metric_data.items %}
                             {% if curr_metric_slug == metric.slug %}
-                              {% for curr_branch_slug, branch_metric_data in metric_branch_data.items %}
-                                {% if curr_branch_slug == branch.slug %}
-                                  {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=branch_metric_data.absolute.0.lower absolute_upper=branch_metric_data.absolute.0.upper significance=branch_metric_data.relative.0.significance percentage=branch_metric_data.relative.0.avg_rel_change display_type=metric.display_type %}
-
+                              {% if metric.has_errors %}
+                                {% if forloop.parentloop.parentloop.first %}
+                                  <div class="d-flex align-items-center" style="height: 100px;">
+                                    <div class="position-absolute alert alert-warning d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
+                                      <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                                      <p class="mb-0 fw-semibold">Metric unavailable</p>
+                                      <p class="mb-0">Other metrics are unaffected.</p>
+                                      <button class="btn btn-secondary bg-secondary-subtle border-0 text-body fw-semibold">
+                                        Contact Experimenter Support
+                                      </button>
+                                    </div>
+                                  </div>
+                                {% else %}
+                                  <div class="invisible" style="height: 100px;" aria-hidden="true"></div>
                                 {% endif %}
-                              {% endfor %}
+                              {% else %}
+                                {% for curr_branch_slug, branch_metric_data in metric_branch_data.items %}
+                                  {% if curr_branch_slug == branch.slug %}
+                                    {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=branch_metric_data.absolute.0.lower absolute_upper=branch_metric_data.absolute.0.upper significance=branch_metric_data.relative.0.significance percentage=branch_metric_data.relative.0.avg_rel_change display_type=metric.display_type %}
+
+                                  {% endif %}
+                                {% endfor %}
+                              {% endif %}
                             {% endif %}
                           {% endfor %}
                         {% endfor %}

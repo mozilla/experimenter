@@ -335,7 +335,7 @@ def format_string(value, arg):
 
 @register.filter
 def to_percentage(value, precision=None):
-    if value is None or type(value) not in (int, float):
+    if value is None or type(value) not in [int, float]:
         return "N/A"
     percentage_value = value * 100
 
