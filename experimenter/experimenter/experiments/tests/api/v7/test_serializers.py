@@ -191,7 +191,9 @@ class TestNimbusExperimentSerializer(TestCase):
             "referenceBranch": experiment.reference_branch.slug,
             "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
             "slug": experiment.slug,
-            "targeting": "(locale in ['en-US'])",
+            "targeting": (
+                "(app_version|versionCompare('105.!') >= 0) && (locale in ['en-US'])"
+            ),
             "userFacingDescription": experiment.public_description,
             "userFacingName": experiment.name,
             "probeSets": [],

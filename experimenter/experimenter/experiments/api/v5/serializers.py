@@ -1877,7 +1877,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {
                     "firefox_min_version": [
-                        NimbusExperiment.ERROR_FIREFOX_VERSION_MIN_96
+                        NimbusExperiment.ERROR_FIREFOX_VERSION_MIN_SUPPORTED
                     ],
                 }
             )
@@ -1890,7 +1890,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {
                     "firefox_min_version": [
-                        NimbusExperiment.ERROR_FIREFOX_VERSION_MIN_96
+                        NimbusExperiment.ERROR_FIREFOX_VERSION_MIN_SUPPORTED
                     ],
                 }
             )
@@ -1938,46 +1938,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
         return data
 
-    def _validate_languages_versions(self, data):
-        application = data.get("application")
-        min_version = data.get("firefox_min_version", "")
-
-        if data.get("languages", []):
-            min_supported_version = (
-                NimbusConstants.LANGUAGES_APPLICATION_SUPPORTED_VERSION[application]
-            )
-            if NimbusExperiment.Version.parse(
-                min_version
-            ) < NimbusExperiment.Version.parse(min_supported_version):
-                raise serializers.ValidationError(
-                    {
-                        "languages": f"Language targeting is not \
-                            supported for this application below \
-                                version {min_supported_version}"
-                    }
-                )
-        return data
-
-    def _validate_countries_versions(self, data):
-        application = data.get("application")
-        min_version = data.get("firefox_min_version", "")
-
-        if data.get("countries", []):
-            min_supported_version = (
-                NimbusConstants.COUNTRIES_APPLICATION_SUPPORTED_VERSION[application]
-            )
-            if NimbusExperiment.Version.parse(
-                min_version
-            ) < NimbusExperiment.Version.parse(min_supported_version):
-                raise serializers.ValidationError(
-                    {
-                        "countries": f"Country targeting is \
-                            not supported for this application \
-                                below version {min_supported_version}"
-                    }
-                )
-        return data
-
     def _validate_enrollment_targeting(self, data):
         excluded_experiments = set(data.get("excluded_experiments", []))
         required_experiments = set(data.get("required_experiments", []))
@@ -2006,27 +1966,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 {
                     "is_sticky": "Selected targeting expression requires sticky\
                     enrollment to function correctly"
-                }
-            )
-
-        return data
-
-    def _validate_rollout_version_support(self, data):
-        if not self.instance or not self.instance.is_rollout:
-            return data
-
-        min_version = NimbusExperiment.Version.parse(self.instance.firefox_min_version)
-        rollout_version_supported = NimbusExperiment.ROLLOUT_SUPPORT_VERSION.get(
-            self.instance.application
-        )
-        if (
-            rollout_version_supported is not None
-            and min_version < NimbusExperiment.Version.parse(rollout_version_supported)
-        ):
-            raise serializers.ValidationError(
-                {
-                    "is_rollout": f"Rollouts are not supported for this application \
-                                below version {rollout_version_supported}"
                 }
             )
 
@@ -2442,7 +2381,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_configs(data)
         data = self._validate_enrollment_targeting(data)
         data = self._validate_sticky_enrollment(data)
-        data = self._validate_rollout_version_support(data)
         data = self._validate_bucket_duplicates(data)
         data = self._validate_proposed_release_date(data)
         data = self._validate_feature_value_variables(data)
@@ -2451,9 +2389,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if application == NimbusExperiment.Application.DESKTOP:
             data = self._validate_desktop_pref_rollouts(data)
             data = self._validate_desktop_pref_flips(data)
-        else:
-            data = self._validate_languages_versions(data)
-            data = self._validate_countries_versions(data)
         return data
 
 

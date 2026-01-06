@@ -9,8 +9,6 @@ from parameterized import parameterized
 
 import experimenter.experiments.constants
 from experimenter.base.tests.factories import (
-    CountryFactory,
-    LanguageFactory,
     LocaleFactory,
 )
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
@@ -219,8 +217,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
     def test_invalid_experiment_requires_min_version_less_than_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_83,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_96,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_115,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
             is_sticky=True,
         )
         experiment.save()
@@ -349,8 +347,8 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_9830,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_99,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10501,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_106,
             is_sticky=True,
         )
         experiment.save()
@@ -363,324 +361,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             context={"user": self.user},
         )
         self.assertTrue(serializer.is_valid())
-
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_102,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_102,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-        ]
-    )
-    def test_valid_experiments_supporting_languages_versions(
-        self, application, firefox_version
-    ):
-        experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=firefox_version,
-            is_sticky=True,
-        )
-        experiment_1.save()
-        serializer_1 = NimbusReviewSerializer(
-            experiment_1,
-            data=NimbusReviewSerializer(
-                experiment_1,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-        self.assertTrue(serializer_1.is_valid())
-        # selected languages
-        language = LanguageFactory.create()
-        experiment_2 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=firefox_version,
-            languages=[language.id],
-            is_sticky=True,
-        )
-        experiment_2.save()
-        serializer_2 = NimbusReviewSerializer(
-            experiment_2,
-            data=NimbusReviewSerializer(
-                experiment_2,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-        self.assertTrue(serializer_2.is_valid())
-
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_100,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_100,
-            ),
-        ]
-    )
-    def test_valid_experiments_with_all_languages(self, application, firefox_version):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=firefox_version,
-            is_sticky=True,
-        )
-        experiment.save()
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(
-                experiment,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-        self.assertTrue(serializer.is_valid())
-
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_100,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_100,
-            ),
-        ]
-    )
-    def test_invalid_experiments_with_specific_languages(
-        self, application, firefox_version
-    ):
-        language = LanguageFactory.create()
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=firefox_version,
-            languages=[language.id],
-            is_sticky=True,
-        )
-        experiment.save()
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(
-                experiment,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-        self.assertFalse(serializer.is_valid())
-
-        self.assertIn("languages", serializer.errors)
-
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_102,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_102,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-        ]
-    )
-    def test_valid_experiments_supporting_countries_versions_default_as_all_countries(
-        self, application, firefox_version
-    ):
-        experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=firefox_version,
-            countries=[],
-            is_sticky=True,
-        )
-
-        serializer_1 = NimbusReviewSerializer(
-            experiment_1,
-            data=NimbusReviewSerializer(
-                experiment_1,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-        self.assertTrue(serializer_1.is_valid())
-
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_102,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_102,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-        ]
-    )
-    def test_valid_experiments_supporting_countries_versions_selecting_specific_country(
-        self, application, firefox_version
-    ):
-        # selected countries
-        country = CountryFactory.create()
-        experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=firefox_version,
-            countries=[country.id],
-            is_sticky=True,
-        )
-
-        serializer_1 = NimbusReviewSerializer(
-            experiment_1,
-            data=NimbusReviewSerializer(
-                experiment_1,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-        self.assertTrue(serializer_1.is_valid())
-
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_100,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_100,
-            ),
-        ]
-    )
-    def test_valid_experiments_with_country_unsupported_version(
-        self, application, firefox_version
-    ):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=firefox_version,
-            countries=[],
-            is_sticky=True,
-        )
-
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(
-                experiment,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-        self.assertTrue(serializer.is_valid())
-
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_101,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_100,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_100,
-            ),
-        ]
-    )
-    def test_invalid_experiments_with_specific_countries(
-        self, application, firefox_version
-    ):
-        country = CountryFactory.create()
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=firefox_version,
-            countries=[country.id],
-            is_sticky=True,
-        )
-
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(
-                experiment,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-        self.assertFalse(serializer.is_valid())
-
-        self.assertIn("countries", serializer.errors)
 
     @parameterized.expand(
         [
@@ -1807,68 +1487,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_101,
-                NimbusExperiment.Channel.NO_CHANNEL,
-                [NimbusExperiment.Channel.RELEASE],
-                NimbusExperiment.TargetingConfig.URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_101,
-                NimbusExperiment.Channel.RELEASE,
-                [],
-                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_101,
-                NimbusExperiment.Channel.RELEASE,
-                [],
-                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
-            ),
-        ]
-    )
-    def test_rollout_invalid_version_support(
-        self, application, firefox_version, channel, channels, targeting_config
-    ):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            channel=channel,
-            channels=channels,
-            firefox_min_version=firefox_version,
-            feature_configs=[NimbusFeatureConfigFactory(application=application)],
-            is_sticky=True,
-            is_rollout=True,
-            targeting_config_slug=targeting_config,
-        )
-
-        experiment.save()
-        for branch in experiment.treatment_branches:
-            branch.delete()
-
-        data = {
-            "application": application,
-            "is_sticky": "true",
-            "is_rollout": "true",
-            "targeting_config_slug": targeting_config,
-            "changelog_message": "test changelog message",
-            "channel": NimbusExperiment.Channel.RELEASE,
-            "channels": [NimbusExperiment.Channel.RELEASE],
-            "firefox_min_version": firefox_version,
-        }
-        serializer = NimbusReviewSerializer(
-            experiment, data=data, partial=True, context={"user": self.user}
-        )
-
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(len(serializer.errors), 1)
-        self.assertIn("is_rollout", serializer.errors)
-
     def test_invalid_experiment_with_branch_missing_feature_value(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2794,9 +2412,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         self.maxDiff = None
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            firefox_min_version=NimbusExperiment.ROLLOUT_SUPPORT_VERSION[
-                NimbusExperiment.Application.DESKTOP
-            ],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_105,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             channels=[NimbusExperiment.Channel.RELEASE],
@@ -5290,7 +4906,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             (
                 NimbusExperiment.Version.NO_VERSION,
                 NimbusExperiment.Version.FIREFOX_95,
-                NimbusExperiment.Version.FIREFOX_100,
+                NimbusExperiment.Version.FIREFOX_106,
             ),
         )
     )
@@ -5328,7 +4944,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
                 serializer.errors,
                 {
                     "firefox_min_version": [
-                        NimbusExperiment.ERROR_FIREFOX_VERSION_MIN_96
+                        NimbusExperiment.ERROR_FIREFOX_VERSION_MIN_SUPPORTED
                     ],
                 },
             )
@@ -5367,7 +4983,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             feature_configs=[feature],
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
         )
         feature_value = experiment.reference_branch.feature_values.get()
         feature_value.value = json.dumps(value)
@@ -5459,7 +5075,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
         ):
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.CREATED,
-                firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
                 feature_configs=[
                     NimbusFeatureConfigFactory.create(
                         name="feature-1",
@@ -5498,7 +5114,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
         ):
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.CREATED,
-                firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
                 feature_configs=[
                     NimbusFeatureConfigFactory.create(
                         name=slug,
@@ -5547,7 +5163,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             feature_configs=[feature],
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
             warn_feature_schema=False,
         )
         feature_value = experiment.reference_branch.feature_values.get()
@@ -5588,7 +5204,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             feature_configs=[feature],
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
             warn_feature_schema=False,
         )
         feature_value = experiment.reference_branch.feature_values.get()
@@ -5620,7 +5236,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             feature_configs=[feature],
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
             warn_feature_schema=True,
         )
         feature_value = experiment.reference_branch.feature_values.get()
@@ -5656,7 +5272,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             primary_outcomes=["outcome"],
             secondary_outcomes=["outcome"],
@@ -5692,7 +5308,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
             channels=[],
