@@ -129,11 +129,7 @@ services:
       - "8000:8000"
 
   cirrus-experimenter:
-    build:
-      additional_contexts:
-        - fml=experimenter/experimenter/features/manifests/
-      context: cirrus/server/
-      dockerfile: Dockerfile
+    image: cirrus:deploy
     env_file: .env
     environment:
       CIRRUS_APP_ID: experimenter.cirrus

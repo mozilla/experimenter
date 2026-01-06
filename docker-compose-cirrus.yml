@@ -2,11 +2,7 @@ version: "3"
 
 services:
   cirrus:
-    build:
-      additional_contexts:
-        - fml=experimenter/experimenter/features/manifests/
-      context: cirrus/server/
-      dockerfile: Dockerfile
+    image: cirrus:deploy
     env_file: .env
     depends_on:
       - kinto
