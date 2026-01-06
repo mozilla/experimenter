@@ -2174,9 +2174,9 @@ INFREQUENT_USER_OR_NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NEED_DEFAULT = NimbusTargetingConfig(
-    name="Needs default",
-    slug="need_default",
+USER_NOT_SET_TO_DEFAULT = NimbusTargetingConfig(
+    name="User not set to default",
+    slug="user_not_set_to_default",
     description="Users who have not set to default",
     targeting=f"{NEED_DEFAULT}",
     desktop_telemetry="",
