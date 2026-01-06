@@ -1,40 +1,78 @@
 {% load nimbus_extras %}
 
-<div id="feature-subscription-container"
-     class="d-flex row align-items-center no-wrap">
-  {% if user in selected_feature_config.subscribers.all %}
-    <form method="post"
-          action="{% url 'nimbus-ui-feature-unsubscribe' pk=selected_feature_config.pk %}"
-          hx-post="{% url 'nimbus-ui-feature-unsubscribe' pk=selected_feature_config.pk %}"
-          hx-target="#feature-subscription-container"
-          hx-swap="innerHTML"
-          class="d-flex align-items-center gap-2">
-      {% csrf_token %}
-      <button type="submit"
-              id="feature-unsubscribe-button"
-              class="btn btn-primary"
-              style="min-width: 212px">Unsubscribe From Feature</button>
-      <i class="fa-regular fa-circle-question fs-5 p-0"
-         data-bs-toggle="tooltip"
-         data-bs-placement="right"
-         data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.unsubscribe_tooltip|format_string:selected_feature_config.name }}"></i>
-    </form>
-  {% else %}
-    <form method="post"
-          action="{% url 'nimbus-ui-feature-subscribe' pk=selected_feature_config.pk %}"
-          hx-post="{% url 'nimbus-ui-feature-subscribe' pk=selected_feature_config.pk %}"
-          hx-target="#feature-subscription-container"
-          hx-swap="innerHTML"
-          class="d-flex align-items-center gap-2">
-      {% csrf_token %}
-      <button type="submit"
-              id="feature-subscription-button"
-              class="btn btn-primary"
-              style="min-width: 212px">Subscribe To Feature</button>
-      <i class="fa-regular fa-circle-question fs-5 p-0"
-         data-bs-toggle="tooltip"
-         data-bs-placement="right"
-         data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.subscribe_tooltip|format_string:selected_feature_config.name }}"></i>
-    </form>
-  {% endif %}
+<div id="feature-collaborators-section"
+     class="card shadow-sm border-0 mb-3 rounded-3 bg-primary-subtle">
+  <div class="card-body px-3 pt-3">
+    <div class="row">
+      <div class="col-12">
+        <h5 class="fw-semibold d-flex align-items-center mb-3">
+          <i class="fa-solid fa-users me-2"></i>
+          <span class="me-2">Collaborators</span>
+          <i class="fa-regular fa-circle-question"
+             data-bs-toggle="tooltip"
+             data-bs-placement="top"
+             data-bs-title="Manage users who receive notifications when this feature configuration changes or when experiments use this feature."></i>
+        </h5>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-12 d-flex align-items-center gap-3">
+        <!-- Subscribe/Unsubscribe Button -->
+        {% if user in selected_feature_config.subscribers.all %}
+          <form method="post"
+                action="{% url 'nimbus-ui-feature-unsubscribe' pk=selected_feature_config.pk %}"
+                hx-post="{% url 'nimbus-ui-feature-unsubscribe' pk=selected_feature_config.pk %}"
+                hx-target="#feature-collaborators-section"
+                hx-swap="outerHTML"
+                class="d-inline-flex align-items-center gap-2">
+            {% csrf_token %}
+            <button type="submit"
+                    id="feature-unsubscribe-button"
+                    class="btn btn-sm btn-outline-secondary">
+              <i class="fa-solid fa-bell-slash me-1"></i>Unsubscribe
+            </button>
+            <i class="fa-regular fa-circle-question"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.unsubscribe_tooltip|format_string:selected_feature_config.name }}"></i>
+          </form>
+        {% else %}
+          <form method="post"
+                action="{% url 'nimbus-ui-feature-subscribe' pk=selected_feature_config.pk %}"
+                hx-post="{% url 'nimbus-ui-feature-subscribe' pk=selected_feature_config.pk %}"
+                hx-target="#feature-collaborators-section"
+                hx-swap="outerHTML"
+                class="d-inline-flex align-items-center gap-2">
+            {% csrf_token %}
+            <button type="submit"
+                    id="feature-subscription-button"
+                    class="btn btn-sm btn-primary">
+              <i class="fa-solid fa-bell me-1"></i>Subscribe
+            </button>
+            <i class="fa-regular fa-circle-question"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               data-bs-title="{{ NimbusUIConstants.FEATURE_PAGE_TOOLTIPS.subscribe_tooltip|format_string:selected_feature_config.name }}"></i>
+          </form>
+        {% endif %}
+
+        <!-- Collaborators Dropdown -->
+        <form method="post"
+              action="{% url 'nimbus-ui-feature-update-collaborators' pk=selected_feature_config.pk %}"
+              hx-post="{% url 'nimbus-ui-feature-update-collaborators' pk=selected_feature_config.pk %}"
+              hx-trigger="change"
+              hx-target="#feature-collaborators-section"
+              hx-swap="outerHTML"
+              class="flex-grow-1">
+          {% csrf_token %}
+          {% if collaborators_form %}
+            {{ collaborators_form.collaborators }}
+          {% else %}
+            {{ form.collaborators }}
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
 </div>

@@ -1829,6 +1829,8 @@ class FeatureCollaboratorsForm(forms.ModelForm):
         fields = []
 
     def __init__(self, *args, **kwargs):
+        # Remove request from kwargs if present (passed by RequestFormMixin)
+        self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
         # Initialize the collaborators field with current subscribers
         if self.instance and self.instance.pk:

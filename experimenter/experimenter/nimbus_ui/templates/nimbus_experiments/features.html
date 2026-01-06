@@ -36,7 +36,7 @@
             hx-select="#features-form"
             hx-target="#features-form"
             hx-swap="outerHTML"
-            hx-select-oob="#deliveries-card, #qa-runs-card, #feature-changes-card"
+            hx-select-oob="#deliveries-card, #qa-runs-card, #feature-changes-card, #feature-collaborators-section"
             hx-push-url="true">
         <div class="card mb-3">
           <div class="card-body bg-primary-subtle">
@@ -56,8 +56,11 @@
         </div>
       </form>
       <!-- Feature Collaborators Section -->
-      {% if selected_feature_config %}
-        {% include "nimbus_experiments/feature_collaborators_section.html" %}
+      {% if collaborators_form %}
+        {% include "nimbus_experiments/feature_subscribe_button.html" %}
+      {% endif %}
+      {% if not collaborators_form %}
+        <div id="feature-collaborators-section" style="display: none;"></div>
       {% endif %}
       <!-- Deliveries Card -->
       <div id="deliveries-card"
@@ -78,12 +81,6 @@
           </div>
           <div scope="col"
                class="col-4 ps-0 d-flex align-items-center justify-content-end">
-            <div id="feature-subscription-button">
-              {% if selected_feature_config %}
-                {% include "nimbus_experiments/feature_subscribe_button.html" %}
-
-              {% endif %}
-            </div>
           </div>
         </div>
         <div>

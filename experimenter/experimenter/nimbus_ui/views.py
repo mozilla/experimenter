@@ -193,6 +193,8 @@ class CloneExperimentFormMixin:
         return context
 
 
+
+
 class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateView):
     model = NimbusFeatureConfig
     template_name = "nimbus_experiments/feature_subscribe_button.html"
@@ -201,6 +203,14 @@ class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateVi
 
     def get_success_url(self):
         return reverse(self.url_name, kwargs={"pk": self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add collaborators form for the template
+        context["collaborators_form"] = FeatureCollaboratorsForm(
+            instance=self.object
+        )
+        return context
 
 
 class NimbusChangeLogsView(
@@ -609,8 +619,14 @@ class FeatureCollaboratorsUpdateView(
 ):
     model = NimbusFeatureConfig
     form_class = FeatureCollaboratorsForm
-    template_name = "nimbus_experiments/feature_collaborators_section.html"
+    template_name = "nimbus_experiments/feature_subscribe_button.html"
     context_object_name = "selected_feature_config"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Pass the form as collaborators_form for the template
+        context["collaborators_form"] = context.get("form")
+        return context
 
 
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
@@ -900,7 +916,7 @@ class NimbusFeaturesView(TemplateView):
 
         return (
             NimbusFeatureConfig.objects.filter(pk=self.feature_id, application=self.app)
-            .only("pk", "application")
+            .prefetch_related("subscribers")
             .first()
         )
 
