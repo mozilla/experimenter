@@ -64,16 +64,6 @@ class NimbusChangeLogFormMixin:
         return experiment
 
 
-class FeatureSubscriberFormMixin(forms.ModelForm):
-    class Meta:
-        model = NimbusFeatureConfig
-        fields = []
-
-    def __init__(self, *args, request: HttpRequest = None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.request = request
-
-
 class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
     owner = forms.ModelChoiceField(
         User.objects.all(),
@@ -1315,20 +1305,6 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} removed subscriber"
 
 
-class FeatureSubscribeForm(FeatureSubscriberFormMixin):
-    @transaction.atomic
-    def save(self, commit=True):
-        self.instance.subscribers.add(self.request.user)
-        return self.instance
-
-
-class FeatureUnsubscribeForm(FeatureSubscriberFormMixin):
-    @transaction.atomic
-    def save(self, commit=True):
-        self.instance.subscribers.remove(self.request.user)
-        return self.instance
-
-
 class ToggleReviewSlackNotificationsForm(NimbusChangeLogFormMixin, forms.ModelForm):
     class Meta:
         model = NimbusExperiment
@@ -1951,6 +1927,32 @@ class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated collaborators"
+
+
+class FeatureSubscribersForm(forms.ModelForm):
+    subscribers = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all().order_by("email"),
+        widget=MultiSelectWidget(),
+        required=False,
+        label="Subscribers",
+    )
+
+    class Meta:
+        model = NimbusFeatureConfig
+        fields = []
+
+    def __init__(self, *args, request: HttpRequest = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+        if self.instance and self.instance.pk:
+            self.fields["subscribers"].initial = self.instance.subscribers.all()
+
+    @transaction.atomic
+    def save(self, commit=True):
+        feature = super().save(commit=commit)
+        if commit:
+            feature.subscribers.set(self.cleaned_data["subscribers"])
+        return feature
 
 
 class EditOutcomeSummaryForm(NimbusChangeLogFormMixin, forms.ModelForm):
