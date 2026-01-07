@@ -330,16 +330,6 @@ relay-integration-feature:
       type: boolean
       description: |
         Enables the feature
-rust-fxa-keychain:
-  description: |
-    Feature that enables the rust FxA keychain logic.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    rust-fxa-keychain-enabled:
-      type: boolean
-      description: |
-        Whether the rust FxA keychain logic is enabled. When enabled, the rust keychain is used to store and retrieve encryption key data for the FxA rust comoponent. Otherwise, the pre-existing MZKeychainWrapper logic is used.
 search:
   description: |
     Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
