@@ -24,7 +24,10 @@ from cirrus.main import (
 
 
 def test_create_fml_with_error():
-    with patch.object(sys, "exit") as mock_exit, patch("cirrus.main.FML") as mock_fml:
+    with (
+        patch.object(sys, "exit") as mock_exit,
+        patch("cirrus.main.FeatureManifestLanguage") as mock_fml,
+    ):
         mock_fml.side_effect = FmlError("Error occurred during FML creation")
 
         fml = create_fml()
@@ -62,7 +65,6 @@ async def test_job_retry_scheduling(app_state_mock):
         patch("cirrus.main.remote_setting_refresh_max_attempts", 3),
         patch("cirrus.main.app.state.scheduler", scheduler),
     ):
-
         assert scheduler.get_jobs() == []
 
         try:
@@ -696,7 +698,6 @@ def test_get_features_v1_without_nimbus_preview(client, context):
     with patch(
         "cirrus.main.app.state.sdk_live.compute_enrollments"
     ) as mock_sdk_live_compute_enrollments:
-
         mock_sdk_live_compute_enrollments.return_value = {
             "enrolledFeatureConfigMap": {
                 "example-feature": {
@@ -762,7 +763,6 @@ def test_get_features_v1_with_nimbus_preview(client, context):
     with patch(
         "cirrus.main.app.state.sdk_preview.compute_enrollments"
     ) as mock_sdk_preview_compute_enrollments:
-
         mock_sdk_preview_compute_enrollments.return_value = {
             "enrolledFeatureConfigMap": {
                 "example-feature": {
@@ -815,14 +815,17 @@ def test_get_features_v2_enrollments_without_nimbus_preview(client):
         },
     }
 
-    with patch(
-        "cirrus.main.app.state.sdk_live.compute_enrollments"
-    ) as mock_sdk_live_compute_enrollments, patch(
-        "cirrus.main.collate_enrollment_metric_data"
-    ) as mock_collate_enrollment_metric_data, patch(
-        "cirrus.main.app.state.fml.compute_feature_configurations"
-    ) as mock_compute_feature_configurations:
-
+    with (
+        patch(
+            "cirrus.main.app.state.sdk_live.compute_enrollments"
+        ) as mock_sdk_live_compute_enrollments,
+        patch(
+            "cirrus.main.collate_enrollment_metric_data"
+        ) as mock_collate_enrollment_metric_data,
+        patch(
+            "cirrus.main.app.state.fml.compute_feature_configurations"
+        ) as mock_compute_feature_configurations,
+    ):
         # Mock live compute_enrollments response
         mock_sdk_live_compute_enrollments.return_value = {
             "enrolledFeatureConfigMap": {
@@ -911,14 +914,17 @@ def test_get_features_v2_enrollments_with_nimbus_preview(client):
         },
     }
 
-    with patch(
-        "cirrus.main.app.state.sdk_preview.compute_enrollments"
-    ) as mock_sdk_preview_compute_enrollments, patch(
-        "cirrus.main.collate_enrollment_metric_data"
-    ) as mock_collate_enrollment_metric_data, patch(
-        "cirrus.main.app.state.fml.compute_feature_configurations"
-    ) as mock_compute_feature_configurations:
-
+    with (
+        patch(
+            "cirrus.main.app.state.sdk_preview.compute_enrollments"
+        ) as mock_sdk_preview_compute_enrollments,
+        patch(
+            "cirrus.main.collate_enrollment_metric_data"
+        ) as mock_collate_enrollment_metric_data,
+        patch(
+            "cirrus.main.app.state.fml.compute_feature_configurations"
+        ) as mock_compute_feature_configurations,
+    ):
         # Mock preview compute_enrollments response
         mock_sdk_preview_compute_enrollments.return_value = {
             "enrolledFeatureConfigMap": {
@@ -1011,7 +1017,7 @@ def test_get_features_v1_preview_url_not_provided(client):
     with patch("cirrus.main.remote_setting_preview_url", ""):
         response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json() == {"detail": "This Cirrus doesn’t support preview mode"}
+        assert response.json() == {"detail": "This Cirrus doesn't support preview mode"}
 
 
 def test_get_features_v2_preview_url_not_provided(client):
@@ -1027,13 +1033,15 @@ def test_get_features_v2_preview_url_not_provided(client):
     with patch("cirrus.main.remote_setting_preview_url", ""):
         response = client.post("/v2/features/?nimbus_preview=true", json=request_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json() == {"detail": "This Cirrus doesn’t support preview mode"}
+        assert response.json() == {"detail": "This Cirrus doesn't support preview mode"}
 
 
 def test_verify_settings_logs_error_and_exits(caplog):
-    with patch("cirrus.main.remote_setting_url", ""), patch.object(
-        sys, "exit", side_effect=SystemExit
-    ) as mock_exit, caplog.at_level(logging.ERROR):
+    with (
+        patch("cirrus.main.remote_setting_url", ""),
+        patch.object(sys, "exit", side_effect=SystemExit) as mock_exit,
+        caplog.at_level(logging.ERROR),
+    ):
         with pytest.raises(SystemExit):
             verify_settings()
 
