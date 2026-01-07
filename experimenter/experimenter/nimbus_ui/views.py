@@ -48,8 +48,8 @@ from experimenter.nimbus_ui.forms import (
     DraftToPreviewForm,
     DraftToReviewForm,
     EditOutcomeSummaryForm,
-    FeatureCollaboratorsForm,
     FeaturesForm,
+    FeatureSubscribersForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -592,19 +592,19 @@ class ToggleReviewSlackNotificationsView(
         return reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
 
 
-class FeatureCollaboratorsUpdateView(
+class FeatureSubscribersUpdateView(
     RequestFormMixin,
     RenderResponseMixin,
     UpdateView,
 ):
     model = NimbusFeatureConfig
-    form_class = FeatureCollaboratorsForm
-    template_name = "nimbus_experiments/feature_subscribe_button.html"
+    form_class = FeatureSubscribersForm
+    template_name = "nimbus_experiments/feature_subscribers.html"
     context_object_name = "selected_feature_config"
 
     def get_success_url(self):
         return reverse(
-            "nimbus-ui-feature-update-collaborators", kwargs={"pk": self.object.pk}
+            "nimbus-ui-feature-update-subscribers", kwargs={"pk": self.object.pk}
         )
 
 
@@ -1065,9 +1065,9 @@ class NimbusFeaturesView(TemplateView):
             "feature_changes_non_sortable_headers": feature_changes_non_sortable_headers,
         }
 
-        # Add collaborators form if a feature is selected
+        # Add subscribers form if a feature is selected
         if selected_feature_config:
-            context["collaborators_form"] = FeatureCollaboratorsForm(
+            context["subscribers_form"] = FeatureSubscribersForm(
                 instance=selected_feature_config
             )
 

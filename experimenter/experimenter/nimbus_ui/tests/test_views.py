@@ -4908,7 +4908,7 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(len(context["feature_schemas"]), 0)
         self.assertIsNone(context.get("selected_feature_config"))
 
-    def test_feature_update_collaborators_adds_users(self):
+    def test_feature_update_subscribers_adds_users(self):
         feature = self.feature_configs["feature-desktop"]
         user1 = UserFactory.create()
         user2 = UserFactory.create()
@@ -4917,8 +4917,8 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertNotIn(user2, feature.subscribers.all())
 
         response = self.client.post(
-            reverse("nimbus-ui-feature-update-collaborators", kwargs={"pk": feature.pk}),
-            {"collaborators": [user1.id, user2.id]},
+            reverse("nimbus-ui-feature-update-subscribers", kwargs={"pk": feature.pk}),
+            {"subscribers": [user1.id, user2.id]},
         )
 
         feature.refresh_from_db()
@@ -4926,15 +4926,15 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertIn(user2, feature.subscribers.all())
         self.assertEqual(response.status_code, 200)
 
-    def test_feature_update_collaborators_removes_users(self):
+    def test_feature_update_subscribers_removes_users(self):
         feature = self.feature_configs["feature-desktop"]
         user1 = UserFactory.create()
         user2 = UserFactory.create()
         feature.subscribers.set([user1, user2])
 
         response = self.client.post(
-            reverse("nimbus-ui-feature-update-collaborators", kwargs={"pk": feature.pk}),
-            {"collaborators": [user1.id]},
+            reverse("nimbus-ui-feature-update-subscribers", kwargs={"pk": feature.pk}),
+            {"subscribers": [user1.id]},
         )
 
         feature.refresh_from_db()
@@ -4942,15 +4942,15 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertNotIn(user2, feature.subscribers.all())
         self.assertEqual(response.status_code, 200)
 
-    def test_feature_update_collaborators_clears_all_users(self):
+    def test_feature_update_subscribers_clears_all_users(self):
         feature = self.feature_configs["feature-desktop"]
         user1 = UserFactory.create()
         user2 = UserFactory.create()
         feature.subscribers.set([user1, user2])
 
         response = self.client.post(
-            reverse("nimbus-ui-feature-update-collaborators", kwargs={"pk": feature.pk}),
-            {"collaborators": []},
+            reverse("nimbus-ui-feature-update-subscribers", kwargs={"pk": feature.pk}),
+            {"subscribers": []},
         )
 
         feature.refresh_from_db()

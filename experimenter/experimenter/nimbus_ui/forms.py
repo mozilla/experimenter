@@ -1929,8 +1929,8 @@ class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated collaborators"
 
 
-class FeatureCollaboratorsForm(forms.ModelForm):
-    collaborators = forms.ModelMultipleChoiceField(
+class FeatureSubscribersForm(forms.ModelForm):
+    subscribers = forms.ModelMultipleChoiceField(
         queryset=User.objects.all().order_by("email"),
         widget=MultiSelectWidget(),
         required=False,
@@ -1945,13 +1945,13 @@ class FeatureCollaboratorsForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.request = request
         if self.instance and self.instance.pk:
-            self.fields["collaborators"].initial = self.instance.subscribers.all()
+            self.fields["subscribers"].initial = self.instance.subscribers.all()
 
     @transaction.atomic
     def save(self, commit=True):
         feature = super().save(commit=commit)
         if commit:
-            feature.subscribers.set(self.cleaned_data["collaborators"])
+            feature.subscribers.set(self.cleaned_data["subscribers"])
         return feature
 
 
