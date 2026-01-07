@@ -64,16 +64,6 @@ class NimbusChangeLogFormMixin:
         return experiment
 
 
-class FeatureSubscriberFormMixin(forms.ModelForm):
-    class Meta:
-        model = NimbusFeatureConfig
-        fields = []
-
-    def __init__(self, *args, request: HttpRequest = None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.request = request
-
-
 class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
     owner = forms.ModelChoiceField(
         User.objects.all(),
@@ -1315,20 +1305,6 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} removed subscriber"
 
 
-class FeatureSubscribeForm(FeatureSubscriberFormMixin):
-    @transaction.atomic
-    def save(self, commit=True):
-        self.instance.subscribers.add(self.request.user)
-        return self.instance
-
-
-class FeatureUnsubscribeForm(FeatureSubscriberFormMixin):
-    @transaction.atomic
-    def save(self, commit=True):
-        self.instance.subscribers.remove(self.request.user)
-        return self.instance
-
-
 class SlackNotificationMixin:
     slack_action = None
 
@@ -1821,7 +1797,7 @@ class FeatureCollaboratorsForm(forms.ModelForm):
         queryset=User.objects.all().order_by("email"),
         widget=MultiSelectWidget(),
         required=False,
-        label="Collaborators",
+        label="Subscribers",
     )
 
     class Meta:

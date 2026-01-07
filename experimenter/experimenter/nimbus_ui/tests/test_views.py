@@ -4748,46 +4748,6 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(feature_schemas[3]["size_label"], "No Changes")
         self.assertEqual(feature_schemas[4]["size_label"], "First Version")
 
-    def test_subscribe_to_feature(self):
-        feature = NimbusFeatureConfigFactory.create(
-            slug="feature-subscribe", name="Feature Subscribe"
-        )
-
-        self.assertNotIn(self.user, feature.subscribers.all())
-
-        response = self.client.post(
-            reverse("nimbus-ui-feature-subscribe", kwargs={"pk": feature.pk})
-        )
-
-        feature.refresh_from_db()
-
-        self.assertIn(self.user, feature.subscribers.all())
-        self.assertEqual(response.status_code, 200)
-
-    def test_subscribe_to_feature_with_duplicate_slug(self):
-        feature = NimbusFeatureConfigFactory.create(
-            slug="feature-subscribe",
-            name="Feature Subscribe",
-            application=NimbusExperiment.Application.IOS,
-        )
-        duplicate_feature = NimbusFeatureConfigFactory.create(
-            slug="feature-subscribe",
-            name="Feature Subscribe",
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-
-        self.assertNotIn(self.user, feature.subscribers.all())
-        self.assertNotIn(self.user, duplicate_feature.subscribers.all())
-
-        response = self.client.post(
-            reverse("nimbus-ui-feature-subscribe", kwargs={"pk": duplicate_feature.pk})
-        )
-        duplicate_feature.refresh_from_db()
-
-        self.assertIn(self.user, duplicate_feature.subscribers.all())
-        self.assertNotIn(self.user, feature.subscribers.all())
-        self.assertEqual(response.status_code, 200)
-
     def test_features_view_tables_reset_on_new_request_after_loading(self):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(
@@ -4847,22 +4807,6 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(len(context["experiments_delivered"]), 0)
         self.assertEqual(len(context["experiments_with_qa_status"]), 0)
         self.assertEqual(len(context["feature_schemas"]), 0)
-
-    def test_unsubscribe_from_feature(self):
-        feature = NimbusFeatureConfigFactory.create(
-            slug="feature-unsubscribe", name="Feature Unsubscribe"
-        )
-        feature.subscribers.add(self.user)
-
-        self.assertIn(self.user, feature.subscribers.all())
-
-        response = self.client.post(
-            reverse("nimbus-ui-feature-unsubscribe", kwargs={"pk": feature.pk})
-        )
-        feature.refresh_from_db()
-
-        self.assertNotIn(self.user, feature.subscribers.all())
-        self.assertEqual(response.status_code, 200)
 
     def test_features_view_with_only_application_selected(self):
         application = NimbusExperiment.Application.DESKTOP

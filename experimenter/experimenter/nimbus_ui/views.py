@@ -50,8 +50,6 @@ from experimenter.nimbus_ui.forms import (
     EditOutcomeSummaryForm,
     FeatureCollaboratorsForm,
     FeaturesForm,
-    FeatureSubscribeForm,
-    FeatureUnsubscribeForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -190,22 +188,6 @@ class CloneExperimentFormMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["clone_form"] = NimbusExperimentSidebarCloneForm(instance=self.object)
-        return context
-
-
-class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateView):
-    model = NimbusFeatureConfig
-    template_name = "nimbus_experiments/feature_subscribe_button.html"
-    context_object_name = "selected_feature_config"
-    url_name = None
-
-    def get_success_url(self):
-        return reverse(self.url_name, kwargs={"pk": self.object.pk})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Add collaborators form for the template
-        context["collaborators_form"] = FeatureCollaboratorsForm(instance=self.object)
         return context
 
 
@@ -596,16 +578,6 @@ class UnsubscribeView(
     UpdateView,
 ):
     form_class = UnsubscribeForm
-
-
-class FeatureSubscribeView(FeatureSubscriberViewMixin):
-    form_class = FeatureSubscribeForm
-    url_name = "nimbus-ui-feature-subscribe"
-
-
-class FeatureUnsubscribeView(FeatureSubscriberViewMixin):
-    form_class = FeatureUnsubscribeForm
-    url_name = "nimbus-ui-feature-unsubscribe"
 
 
 class FeatureCollaboratorsUpdateView(
