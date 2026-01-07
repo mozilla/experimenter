@@ -738,15 +738,6 @@ features:
           Enables the feature
         type: Boolean
         default: false
-  rust-fxa-keychain:
-    description: |
-      Feature that enables the rust FxA keychain logic.
-    variables:
-      rust-fxa-keychain-enabled:
-        description: |
-          Whether the rust FxA keychain logic is enabled. When enabled, the rust keychain is used to store and retrieve encryption key data for the FxA rust comoponent. Otherwise, the pre-existing MZKeychainWrapper logic is used.
-        type: Boolean
-        default: false
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
