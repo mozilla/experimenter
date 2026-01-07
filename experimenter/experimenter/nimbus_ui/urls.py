@@ -22,8 +22,7 @@ from experimenter.nimbus_ui.views import (
     DraftToPreviewView,
     DraftToReviewView,
     EditOutcomeSummaryView,
-    FeatureSubscribeView,
-    FeatureUnsubscribeView,
+    FeatureSubscribersUpdateView,
     LiveToCompleteView,
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
@@ -187,19 +186,14 @@ urlpatterns = [
         name="nimbus-ui-subscribe",
     ),
     re_path(
-        r"^feature/(?P<pk>\d+)/subscribe/",
-        FeatureSubscribeView.as_view(),
-        name="nimbus-ui-feature-subscribe",
-    ),
-    re_path(
         r"^(?P<slug>[\w-]+)/unsubscribe/",
         UnsubscribeView.as_view(),
         name="nimbus-ui-unsubscribe",
     ),
     re_path(
-        r"^feature/(?P<pk>\d+)/unsubscribe/",
-        FeatureUnsubscribeView.as_view(),
-        name="nimbus-ui-feature-unsubscribe",
+        r"^feature/(?P<pk>\d+)/update_subscribers/",
+        FeatureSubscribersUpdateView.as_view(),
+        name="nimbus-ui-feature-update-subscribers",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/toggle_review_slack_notifications/",

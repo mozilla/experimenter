@@ -49,8 +49,7 @@ from experimenter.nimbus_ui.forms import (
     DraftToReviewForm,
     EditOutcomeSummaryForm,
     FeaturesForm,
-    FeatureSubscribeForm,
-    FeatureUnsubscribeForm,
+    FeatureSubscribersForm,
     LiveToCompleteForm,
     LiveToEndEnrollmentForm,
     LiveToUpdateRolloutForm,
@@ -191,16 +190,6 @@ class CloneExperimentFormMixin:
         context = super().get_context_data(**kwargs)
         context["clone_form"] = NimbusExperimentSidebarCloneForm(instance=self.object)
         return context
-
-
-class FeatureSubscriberViewMixin(RequestFormMixin, RenderResponseMixin, UpdateView):
-    model = NimbusFeatureConfig
-    template_name = "nimbus_experiments/feature_subscribe_button.html"
-    context_object_name = "selected_feature_config"
-    url_name = None
-
-    def get_success_url(self):
-        return reverse(self.url_name, kwargs={"pk": self.object.pk})
 
 
 class NimbusChangeLogsView(
@@ -603,14 +592,20 @@ class ToggleReviewSlackNotificationsView(
         return reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
 
 
-class FeatureSubscribeView(FeatureSubscriberViewMixin):
-    form_class = FeatureSubscribeForm
-    url_name = "nimbus-ui-feature-subscribe"
+class FeatureSubscribersUpdateView(
+    RequestFormMixin,
+    RenderResponseMixin,
+    UpdateView,
+):
+    model = NimbusFeatureConfig
+    form_class = FeatureSubscribersForm
+    template_name = "nimbus_experiments/feature_subscribers.html"
+    context_object_name = "selected_feature_config"
 
-
-class FeatureUnsubscribeView(FeatureSubscriberViewMixin):
-    form_class = FeatureUnsubscribeForm
-    url_name = "nimbus-ui-feature-unsubscribe"
+    def get_success_url(self):
+        return reverse(
+            "nimbus-ui-feature-update-subscribers", kwargs={"pk": self.object.pk}
+        )
 
 
 class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
@@ -900,7 +895,7 @@ class NimbusFeaturesView(TemplateView):
 
         return (
             NimbusFeatureConfig.objects.filter(pk=self.feature_id, application=self.app)
-            .only("pk", "application")
+            .prefetch_related("subscribers")
             .first()
         )
 
@@ -1069,6 +1064,13 @@ class NimbusFeaturesView(TemplateView):
             "feature_changes_headers": feature_change_headers,
             "feature_changes_non_sortable_headers": feature_changes_non_sortable_headers,
         }
+
+        # Add subscribers form if a feature is selected
+        if selected_feature_config:
+            context["subscribers_form"] = FeatureSubscribersForm(
+                instance=selected_feature_config
+            )
+
         return context
 
 
