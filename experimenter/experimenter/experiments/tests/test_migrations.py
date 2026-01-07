@@ -1,18 +1,16 @@
-import datetime
-
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 from experimenter.experiments.constants import NimbusConstants
 
 
-class TestDeleteDuplicateResultsChangesMigration(MigratorTestCase):
+class TestFixPreviewStatesMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0307_nimbusexperiment_next_steps_and_more",
+        "0309_nimbusexperiment_enable_review_slack_notifications",
     )
     migrate_to = (
         "experiments",
-        "0308_delete_duplicate_results_changes",
+        "0310_fix_preview_states",
     )
 
     def prepare(self):
@@ -20,79 +18,38 @@ class TestDeleteDuplicateResultsChangesMigration(MigratorTestCase):
         NimbusExperiment = self.old_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
-        NimbusChangeLog = self.old_state.apps.get_model("experiments", "NimbusChangeLog")
 
         owner = User.objects.create(email="test@example.com", username="test")
 
-        experiment = NimbusExperiment.objects.create(
+        NimbusExperiment.objects.create(
             owner=owner,
-            name="Test Experiment",
-            slug="test-experiment",
+            name="Experiment with bad state",
+            slug="experiment-bad-state",
             application=NimbusConstants.Application.DESKTOP,
             channel=NimbusConstants.Channel.NIGHTLY,
-            status=NimbusConstants.Status.COMPLETE,
+            status=NimbusConstants.Status.PREVIEW,
+            status_next=NimbusConstants.Status.PREVIEW,
         )
 
-        for i in range(5):
-            NimbusChangeLog.objects.create(
-                experiment=experiment,
-                changed_by=owner,
-                old_status=NimbusConstants.Status.COMPLETE,
-                new_status=NimbusConstants.Status.COMPLETE,
-                old_publish_status=NimbusConstants.PublishStatus.IDLE,
-                new_publish_status=NimbusConstants.PublishStatus.IDLE,
-                message="Experiment results updated",
-                changed_on=datetime.datetime(
-                    2024, 1, i + 1, 10, 0, tzinfo=datetime.timezone.utc
-                ),
-            )
-
-        NimbusChangeLog.objects.create(
-            experiment=experiment,
-            changed_by=owner,
-            old_status=NimbusConstants.Status.DRAFT,
-            new_status=NimbusConstants.Status.COMPLETE,
-            old_publish_status=NimbusConstants.PublishStatus.IDLE,
-            new_publish_status=NimbusConstants.PublishStatus.APPROVED,
-            message="Experiment status changed",
-            changed_on=datetime.datetime(
-                2024, 1, 10, 10, 0, tzinfo=datetime.timezone.utc
-            ),
-        )
-
-        NimbusChangeLog.objects.create(
-            experiment=experiment,
-            changed_by=owner,
-            old_status=NimbusConstants.Status.COMPLETE,
-            new_status=NimbusConstants.Status.COMPLETE,
-            old_publish_status=NimbusConstants.PublishStatus.IDLE,
-            new_publish_status=NimbusConstants.PublishStatus.IDLE,
-            message="Experiment updated",
-            changed_on=datetime.datetime(
-                2024, 1, 15, 10, 0, tzinfo=datetime.timezone.utc
-            ),
+        NimbusExperiment.objects.create(
+            owner=owner,
+            name="Experiment with good state",
+            slug="experiment-good-state",
+            application=NimbusConstants.Application.DESKTOP,
+            channel=NimbusConstants.Channel.NIGHTLY,
+            status=NimbusConstants.Status.PREVIEW,
+            status_next=None,
         )
 
     def test_migration(self):
-        NimbusChangeLog = self.new_state.apps.get_model("experiments", "NimbusChangeLog")
         NimbusExperiment = self.new_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
 
-        results_updated_count = NimbusChangeLog.objects.filter(
-            message="Experiment results updated"
-        ).count()
-        self.assertEqual(results_updated_count, 0)
+        bad_experiment = NimbusExperiment.objects.get(slug="experiment-bad-state")
+        self.assertEqual(bad_experiment.status, NimbusConstants.Status.PREVIEW)
+        self.assertIsNone(bad_experiment.status_next)
 
-        experiment = NimbusExperiment.objects.get(slug="test-experiment")
-        remaining_changelogs = NimbusChangeLog.objects.filter(
-            experiment=experiment
-        ).count()
-        self.assertEqual(remaining_changelogs, 2)
-
-        self.assertTrue(
-            NimbusChangeLog.objects.filter(message="Experiment status changed").exists()
-        )
-        self.assertTrue(
-            NimbusChangeLog.objects.filter(message="Experiment updated").exists()
-        )
+        good_experiment = NimbusExperiment.objects.get(slug="experiment-good-state")
+        self.assertEqual(good_experiment.status, NimbusConstants.Status.PREVIEW)
+        self.assertIsNone(good_experiment.status_next)
