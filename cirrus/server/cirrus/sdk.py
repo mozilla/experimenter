@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 from cirrus_sdk import (  # type: ignore
     CirrusClient,
@@ -45,12 +45,12 @@ class SDK:
     def __init__(
         self,
         context: str,
-        coenrolling_feature_ids: List[str],
+        coenrolling_feature_ids: list[str],
         metrics_handler: CirrusMetricsHandler,
     ):
         self.client = CirrusClient(context, metrics_handler, coenrolling_feature_ids)
 
-    def compute_enrollments(self, targeting_context: Dict[str, str]) -> Dict[str, Any]:
+    def compute_enrollments(self, targeting_context: dict[str, str]) -> dict[str, Any]:
         try:
             res = self.client.handle_enrollment(json.dumps(targeting_context))
             return json.loads(res)
