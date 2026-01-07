@@ -93,9 +93,9 @@ class LiveToEndEnrollmentViewTests(AuthTestCase):
             reverse("nimbus-ui-live-to-end-enrollment", kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.context["update_status_form_errors"],
-            [NimbusExperiment.ERROR_CANNOT_PAUSE_NOT_LIVE],
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            response.context["update_status_form_errors"][0],
         )
 
         experiment.refresh_from_db()
@@ -2336,7 +2336,7 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
+        self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
         self.mock_klaatu_task.assert_called_once_with(experiment_id=experiment.id)
@@ -2362,7 +2362,7 @@ class TestLaunchViews(AuthTestCase):
     def test_preview_to_review(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
-            status_next=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
@@ -2378,7 +2378,7 @@ class TestLaunchViews(AuthTestCase):
     def test_preview_to_draft(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
-            status_next=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
@@ -2388,7 +2388,7 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
         self.mock_preview_task.assert_called_once_with(countdown=5)
@@ -2406,7 +2406,7 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
     def test_review_to_approve_view(self):
