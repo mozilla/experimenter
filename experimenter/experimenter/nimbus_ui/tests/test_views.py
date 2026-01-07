@@ -93,9 +93,9 @@ class LiveToEndEnrollmentViewTests(AuthTestCase):
             reverse("nimbus-ui-live-to-end-enrollment", kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.context["update_status_form_errors"],
-            [NimbusExperiment.ERROR_CANNOT_PAUSE_NOT_LIVE],
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            response.context["update_status_form_errors"][0],
         )
 
         experiment.refresh_from_db()
@@ -1626,6 +1626,43 @@ class TestToggleArchiveView(AuthTestCase):
         self.assertFalse(updated_experiment.is_archived)
 
 
+class TestToggleReviewSlackNotificationsView(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperiment.objects.create(
+            slug="test-experiment",
+            name="Test Experiment",
+            owner=self.user,
+            enable_review_slack_notifications=True,
+        )
+
+    @parameterized.expand(
+        [
+            ("disable", True, False),
+            ("enable", False, True),
+        ]
+    )
+    def test_toggle_slack_notifications(self, _name, initial_value, new_value):
+        self.experiment.enable_review_slack_notifications = initial_value
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-toggle-review-slack-notifications",
+                kwargs={"slug": self.experiment.slug},
+            ),
+            {"enable_review_slack_notifications": new_value},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse("nimbus-ui-detail", kwargs={"slug": self.experiment.slug}),
+        )
+
+        updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
+        self.assertEqual(updated_experiment.enable_review_slack_notifications, new_value)
+
+
 class TestOverviewUpdateView(AuthTestCase):
     def test_get_renders_for_draft_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -2299,7 +2336,7 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
+        self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
         self.mock_klaatu_task.assert_called_once_with(experiment_id=experiment.id)
@@ -2325,7 +2362,7 @@ class TestLaunchViews(AuthTestCase):
     def test_preview_to_review(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
-            status_next=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
@@ -2341,7 +2378,7 @@ class TestLaunchViews(AuthTestCase):
     def test_preview_to_draft(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
-            status_next=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
@@ -2351,7 +2388,7 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
         self.mock_preview_task.assert_called_once_with(countdown=5)
@@ -2369,7 +2406,7 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
     def test_review_to_approve_view(self):

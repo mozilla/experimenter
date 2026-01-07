@@ -1305,6 +1305,20 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} removed subscriber"
 
 
+class ToggleReviewSlackNotificationsForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = ["enable_review_slack_notifications"]
+
+    def get_changelog_message(self):
+        status = (
+            "enabled"
+            if self.cleaned_data.get("enable_review_slack_notifications")
+            else "disabled"
+        )
+        return f"{self.request.user} {status} review Slack notifications"
+
+
 class SlackNotificationMixin:
     slack_action = None
 
@@ -1312,12 +1326,13 @@ class SlackNotificationMixin:
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         if self.slack_action:
-            nimbus_send_slack_notification.delay(
-                experiment_id=experiment.id,
-                email_addresses=experiment.notification_emails,
-                action_text=NimbusConstants.SLACK_FORM_ACTIONS[self.slack_action],
-                requesting_user_email=self.request.user.email,
-            )
+            if experiment.enable_review_slack_notifications:
+                nimbus_send_slack_notification.delay(
+                    experiment_id=experiment.id,
+                    email_addresses=experiment.notification_emails,
+                    action_text=NimbusConstants.SLACK_FORM_ACTIONS[self.slack_action],
+                    requesting_user_email=self.request.user.email,
+                )
         return experiment
 
 
@@ -1327,9 +1342,50 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     publish_status = None
     is_paused = None
 
+    required_status = None
+    required_status_next = None
+    required_publish_status = None
+    required_is_paused = None
+
     class Meta:
         model = NimbusExperiment
         fields = []
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        required_state = (
+            self.required_status,
+            self.required_status_next,
+            self.required_publish_status,
+            self.required_is_paused,
+        )
+        current_state = (
+            self.instance.status,
+            self.instance.status_next,
+            self.instance.publish_status,
+            self.instance.is_paused,
+        )
+
+        state_mismatch = (
+            self.required_status != self.instance.status
+            or self.required_status_next != self.instance.status_next
+            or self.required_publish_status != self.instance.publish_status
+            or (
+                self.required_is_paused is not None
+                and self.required_is_paused != self.instance.is_paused
+            )
+        )
+
+        if state_mismatch:
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_INVALID_STATE_TRANSITION.format(
+                    required_state=required_state,
+                    current_state=current_state,
+                )
+            )
+
+        return cleaned_data
 
     @transaction.atomic
     def save(self, commit=True):
@@ -1362,9 +1418,15 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class DraftToPreviewForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DRAFT
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
     status = NimbusExperiment.Status.PREVIEW
-    status_next = NimbusExperiment.Status.PREVIEW
+    status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    is_paused = False
 
     def get_changelog_message(self):
         return f"{self.request.user} launched experiment to Preview"
@@ -1379,9 +1441,16 @@ class DraftToPreviewForm(UpdateStatusForm):
 
 
 class DraftToReviewForm(SlackNotificationMixin, UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DRAFT
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
     status = NimbusExperiment.Status.DRAFT
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = False
+
     slack_action = NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
 
     def get_changelog_message(self):
@@ -1389,9 +1458,16 @@ class DraftToReviewForm(SlackNotificationMixin, UpdateStatusForm):
 
 
 class PreviewToReviewForm(SlackNotificationMixin, UpdateStatusForm):
+    required_status = NimbusExperiment.Status.PREVIEW
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
     status = NimbusExperiment.Status.DRAFT
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = False
+
     slack_action = NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
 
     def get_changelog_message(self):
@@ -1399,9 +1475,15 @@ class PreviewToReviewForm(SlackNotificationMixin, UpdateStatusForm):
 
 
 class PreviewToDraftForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.PREVIEW
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
     status = NimbusExperiment.Status.DRAFT
-    status_next = NimbusExperiment.Status.DRAFT
+    status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    is_paused = False
 
     def get_changelog_message(self):
         return f"{self.request.user} moved the experiment back to Draft"
@@ -1414,9 +1496,16 @@ class PreviewToDraftForm(UpdateStatusForm):
 
 
 class ReviewToDraftForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DRAFT
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+    required_is_paused = False
+
     status = NimbusExperiment.Status.DRAFT
-    status_next = NimbusExperiment.Status.DRAFT
+    status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    is_paused = False
+
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
     )
@@ -1435,9 +1524,15 @@ class ReviewToDraftForm(UpdateStatusForm):
 
 
 class ReviewToApproveForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DRAFT
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+    required_is_paused = False
+
     status = NimbusExperiment.Status.DRAFT
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = False
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the review."
@@ -1454,46 +1549,43 @@ class ReviewToApproveForm(UpdateStatusForm):
 
 
 class LiveToEndEnrollmentForm(SlackNotificationMixin, UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
     is_paused = True
+
     slack_action = NimbusConstants.SLACK_ACTION_END_ENROLLMENT_REQUEST
 
     def clean(self):
+        cleaned_data = super().clean()
+
         if self.instance and self.instance.is_rollout_dirty:
             raise forms.ValidationError(NimbusExperiment.ERROR_CANNOT_PAUSE_UNPUBLISHED)
 
-        if not self.instance.should_show_end_enrollment:
-            if (
-                self.instance.is_draft
-                or self.instance.is_preview
-                or self.instance.is_complete
-            ):
-                raise forms.ValidationError(NimbusExperiment.ERROR_CANNOT_PAUSE_NOT_LIVE)
+        if self.instance.is_rollout and not self.instance.is_firefox_labs_opt_in:
+            raise forms.ValidationError(NimbusExperiment.ERROR_CANNOT_PAUSE_ROLLOUT)
 
-            if not self.instance.is_enrolling:
-                raise forms.ValidationError(NimbusExperiment.ERROR_CANNOT_PAUSE_PAUSED)
-
-            if self.instance.is_rollout and not self.instance.is_firefox_labs_opt_in:
-                raise forms.ValidationError(NimbusExperiment.ERROR_CANNOT_PAUSE_ROLLOUT)
-
-            # The conditions for Experiment.should_show_enrollment have changed
-            # but this function has become out of sync.
-            raise forms.ValidationError(
-                NimbusExperiment.ERROR_CANNOT_PAUSE_INVALID
-            )  # pragma: no cover
-
-        return super().clean()
+        return cleaned_data
 
     def get_changelog_message(self):
         return f"{self.request.user} requested review to end enrollment"
 
 
 class ApproveEndEnrollmentForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+    required_is_paused = True
+
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the end enrollment request"
@@ -1508,9 +1600,16 @@ class ApproveEndEnrollmentForm(UpdateStatusForm):
 
 
 class LiveToCompleteForm(SlackNotificationMixin, UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.COMPLETE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = False
+
     slack_action = NimbusConstants.SLACK_ACTION_END_EXPERIMENT_REQUEST
 
     def get_changelog_message(self):
@@ -1518,9 +1617,15 @@ class LiveToCompleteForm(SlackNotificationMixin, UpdateStatusForm):
 
 
 class ApproveEndExperimentForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.COMPLETE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+    required_is_paused = None
+
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.COMPLETE
     publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = True
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the end experiment request"
@@ -1535,10 +1640,16 @@ class ApproveEndExperimentForm(UpdateStatusForm):
 
 
 class CancelEndEnrollmentForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+    required_is_paused = True
+
     status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
     is_paused = False
+
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
     )
@@ -1557,9 +1668,15 @@ class CancelEndEnrollmentForm(UpdateStatusForm):
 
 
 class CancelEndExperimentForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.COMPLETE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+    required_is_paused = None
+
     status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
     )
@@ -1582,9 +1699,16 @@ class CancelEndExperimentForm(UpdateStatusForm):
 
 
 class LiveToUpdateRolloutForm(SlackNotificationMixin, UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = False
+
     slack_action = NimbusConstants.SLACK_ACTION_UPDATE_REQUEST
 
     def get_changelog_message(self):
@@ -1592,9 +1716,16 @@ class LiveToUpdateRolloutForm(SlackNotificationMixin, UpdateStatusForm):
 
 
 class CancelUpdateRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+    required_is_paused = False
+
     status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    is_paused = False
+
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
     )
@@ -1613,9 +1744,15 @@ class CancelUpdateRolloutForm(UpdateStatusForm):
 
 
 class ApproveUpdateRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+    required_is_paused = False
+
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = False
 
     def get_changelog_message(self):
         return f"{self.request.user} approved the update review request"

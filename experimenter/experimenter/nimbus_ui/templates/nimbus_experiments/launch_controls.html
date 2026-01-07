@@ -29,11 +29,16 @@
   {% endif %}
   {% if update_status_form_errors %}
     <div class="alert alert-danger" role="alert">
-      <p class="mb-1">Could not request an update for this experiment:</p>
-      {{ update_status_form_errors }}
-      <p class="mb-0">
-        Please fix the above issues or ask in <code>#ask-experimenter</code>.
+      <p class="mb-2">
+        That action could not be completed because the experiment has changed.
+        <a class="text-decoration-none"
+           data-bs-toggle="collapse"
+           href="#error-details"
+           role="button"
+           aria-expanded="false"
+           aria-controls="error-details">See more <i class="fa-solid fa-chevron-down"></i></a>
       </p>
+      <div class="collapse mt-2" id="error-details">{{ update_status_form_errors }}</div>
     </div>
   {% endif %}
   {% with rejection=experiment.rejection_block %}

@@ -22,6 +22,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Name maps to a pre-existing slug, please choose another name."
     )
     ERROR_TAG_DUPLICATE_NAME = "Tag with this Name already exists."
+    ERROR_INVALID_STATE_TRANSITION = (
+        "Cannot perform this action: experiment must be in state {required_state}, "
+        "but is currently in state {current_state}."
+    )
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/access"

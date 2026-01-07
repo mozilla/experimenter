@@ -427,6 +427,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         verbose_name="Subscribers",
     )
+    enable_review_slack_notifications = models.BooleanField(
+        "Enable Review Slack Notifications",
+        default=True,
+    )
     use_group_id = models.BooleanField(default=True)
     objects = NimbusExperimentManager()
     is_firefox_labs_opt_in = models.BooleanField(
@@ -1345,6 +1349,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return timeline_entries
 
+    def metric_has_errors(self, metric_slug, analysis_basis, segment):
+        if self.results_data:
+            for error, details in (
+                self.results_data.get("v3", {}).get("errors", {}).items()
+            ):
+                if (
+                    error == metric_slug
+                    and details[0].get("analysis_basis") == analysis_basis
+                    and details[0].get("segment") == segment
+                ):
+                    return True
+        return False
+
     def get_metric_areas(
         self, analysis_basis, segment, reference_branch, window="overall"
     ):
@@ -1383,6 +1400,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                             "friendly_name", metric.slug
                         )
                     ),
+                    "has_errors": self.metric_has_errors(
+                        metric.slug, analysis_basis, segment
+                    ),
                 }
                 if formatted_metric not in outcome_metrics:
                     outcome_metrics.append(formatted_metric)
@@ -1392,7 +1412,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             metric_areas[outcome.friendly_name if outcome else slug] = outcome_metrics
 
         metric_areas[NimbusUIConstants.OTHER_METRICS_AREA] = (
-            self.get_remaining_metrics_metadata(exclude_slugs=all_outcome_metric_slugs)
+            self.get_remaining_metrics_metadata(
+                exclude_slugs=all_outcome_metric_slugs,
+                analysis_basis=analysis_basis,
+                segment=segment,
+            )
         )
 
         window_results = self.get_window_results(analysis_basis, segment, window)
@@ -1423,7 +1447,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
         return metric_areas
 
-    def get_remaining_metrics_metadata(self, exclude_slugs=None):
+    def get_remaining_metrics_metadata(
+        self, exclude_slugs=None, analysis_basis=None, segment=None
+    ):
         analysis_data = self.results_data.get("v3", {}) if self.results_data else {}
         other_metrics = analysis_data.get("other_metrics", {})
         metadata = analysis_data.get("metadata", {})
@@ -1442,6 +1468,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         ),
                         "group": group,
                         "friendly_name": metric_friendly_name,
+                        "has_errors": self.metric_has_errors(
+                            slug, analysis_basis, segment
+                        ),
                     }
                 )
 
@@ -1538,7 +1567,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for i, data_point in enumerate(relative_data_list):
             lower = data_point.get("lower")
             upper = data_point.get("upper")
-            avg_rel_change = abs(data_point.get("point"))
+            avg_rel_change = (
+                abs(data_point.get("point")) if data_point.get("point") else None
+            )
             significance = significance_map.get(str(i + 1), "neutral")
             rel_entries.append(
                 {
@@ -1595,7 +1626,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
             for branch in diff_metrics:
                 if len(diff_metrics.get(branch, {}).get("all", [])) > 0:
-                    kpi_metrics.append(NimbusConstants.DAU_METRIC)
+                    kpi_metrics.append(NimbusConstants.DAU_METRIC.copy())
                     break
         elif NimbusConstants.DAYS_OF_USE in other_metrics:
             if (
@@ -1606,7 +1637,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 )
                 > 0
             ):
-                kpi_metrics.append(NimbusConstants.DOU_METRIC)
+                kpi_metrics.append(NimbusConstants.DOU_METRIC.copy())
+
+        for kpi in kpi_metrics:
+            if self.metric_has_errors(kpi["slug"], analysis_basis, segment):
+                kpi["has_errors"] = True
 
         return kpi_metrics
 
@@ -2251,15 +2286,22 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return warnings
 
+    @property
+    def has_results_errors(self):
+        if self.results_data:
+            for error in self.results_data.get("v3", {}).get("errors", {}).values():
+                if error:
+                    return True
+        return False
+
     def get_invalid_fields_errors(self):
         from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 
         serializer_data = NimbusReviewSerializer(self).data
         serializer = NimbusReviewSerializer(self, data=serializer_data)
 
-        if serializer.is_valid():
-            return {}
-        else:
+        errors = {}
+        if not serializer.is_valid():
             errors = serializer.errors
 
             if "excluded_experiments" in errors:
@@ -2272,7 +2314,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "required_experiments"
                 )
 
-            return errors
+        return errors
 
     def clone(self, name, user, rollout_branch_slug=None, changed_on=None):
         # Inline import to prevent circular import

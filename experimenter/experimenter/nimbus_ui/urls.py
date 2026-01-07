@@ -50,6 +50,7 @@ from experimenter.nimbus_ui.views import (
     TagsManageView,
     TakeawaysUpdateView,
     ToggleArchiveView,
+    ToggleReviewSlackNotificationsView,
     UnsubscribeView,
 )
 
@@ -193,6 +194,11 @@ urlpatterns = [
         r"^feature/(?P<pk>\d+)/update_collaborators/",
         FeatureCollaboratorsUpdateView.as_view(),
         name="nimbus-ui-feature-update-collaborators",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/toggle_review_slack_notifications/",
+        ToggleReviewSlackNotificationsView.as_view(),
+        name="nimbus-ui-toggle-review-slack-notifications",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/update_collaborators/",
