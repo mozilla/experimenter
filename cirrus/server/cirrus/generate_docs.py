@@ -1,10 +1,10 @@
 import argparse
 import json
-import os
 import sys
+from pathlib import Path
 
 # Get the path of the 'cirrus' directory by navigating up from the location of this script
-cirrus_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+cirrus_path = Path(__file__).parent.parent.absolute()
 
 # Append the 'cirrus' directory to the system path
 sys.path.append(cirrus_path)
@@ -14,8 +14,8 @@ from fastapi.openapi.utils import get_openapi
 
 from cirrus.main import app
 
-OPENAPI_PATH = os.path.join("cirrus", "docs", "openapi.json")
-API_DOC_PATH = os.path.join("cirrus", "docs", "apidoc.html")
+OPENAPI_PATH = Path("cirrus") / "docs" / "openapi.json"
+API_DOC_PATH = Path("cirrus") / "docs" / "apidoc.html"
 
 """Script to export the ReDoc documentation page into a standalone HTML file."""
 
@@ -45,6 +45,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </script>
 </body>
 </html>
+
 """
 
 
@@ -60,24 +61,21 @@ def generate_or_check_openapi(check_docs: bool) -> None:
     if check_docs:
         # Check if openapi.json is up-to-date
         try:
-            with open(OPENAPI_PATH, "r") as f:
-                if openapi_schema != json.load(f):
-                    print("openapi.json is not up-to-date.")
-                    print("Please update the docs using `make cirrus_generate_docs`.")
-                    sys.exit(1)
-                else:
-                    print("openapi.json is already up-to-date.")
+            if openapi_schema != json.loads(OPENAPI_PATH.read_text()):
+                print("openapi.json is not up-to-date.")
+                print("Please update the docs using `make cirrus_generate_docs`.")
+                sys.exit(1)
+            else:
+                print("openapi.json is already up-to-date.")
         except FileNotFoundError:
             print("openapi.json not found.")
             print("Please generate the docs using `make cirrus_generate_docs`.")
             sys.exit(1)
     else:
         # Update openapi.json
-        with open(OPENAPI_PATH, "w") as f:
-            json.dump(openapi_schema, f)
+        OPENAPI_PATH.write_text(json.dumps(openapi_schema))
         # Update docs
-        with open(API_DOC_PATH, "w") as fd:
-            print(HTML_TEMPLATE % json.dumps(openapi_schema), file=fd)
+        API_DOC_PATH.write_text(HTML_TEMPLATE % json.dumps(openapi_schema))
         print("openapi.json has been updated!")
 
 

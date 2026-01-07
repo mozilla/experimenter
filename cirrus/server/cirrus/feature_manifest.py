@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 from fml_sdk import FmlClient, FmlError, MergedJsonWithErrors  # type: ignore
 
@@ -10,12 +10,12 @@ logger = logging.getLogger(__name__)
 class FeatureManifestLanguage:
     def __init__(self, fml_path: str, channel: str):
         self.fml_client = FmlClient(fml_path, channel)
-        self.merge_errors: List[FmlError] = []
+        self.merge_errors: list[FmlError] = []
 
     def compute_feature_configurations(
         self,
-        enrolled_partial_configuration: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        enrolled_partial_configuration: dict[str, Any],
+    ) -> dict[str, Any]:
         feature_configs = {
             key: value["feature"]["value"]
             for key, value in enrolled_partial_configuration[
@@ -34,5 +34,5 @@ class FeatureManifestLanguage:
 
         return json.loads(merged_res.json)
 
-    def get_coenrolling_feature_ids(self) -> List[str]:
+    def get_coenrolling_feature_ids(self) -> list[str]:
         return self.fml_client.get_coenrolling_feature_ids()

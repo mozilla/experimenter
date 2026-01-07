@@ -259,8 +259,8 @@ make integration_test_and_report:
 
 # cirrus
 CIRRUS_ENABLE = export CIRRUS=1 &&
-CIRRUS_BLACK_CHECK = black -l 90 --check --diff .
-CIRRUS_BLACK_FIX = black -l 90 .
+CIRRUS_RUFF_FORMAT_CHECK = ruff format --check --diff .
+CIRRUS_RUFF_FORMAT_FIX = ruff format .
 CIRRUS_RUFF_CHECK = ruff check .
 CIRRUS_RUFF_FIX = ruff check --fix .
 CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus --cov-branch --cov-report json:cirrus_coverage.json --junitxml=cirrus_pytest.xml -v
@@ -280,7 +280,7 @@ cirrus_build_test: build_megazords
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST) build cirrus
 
 cirrus_bash: cirrus_build_dev
-	docker run --rm -ti -v ./cirrus/server:/cirrus cirrus:dev bash
+	docker run --rm -ti -v ./cirrus/server:/cirrus -v /cirrus/cirrus/glean cirrus:dev bash
 
 cirrus_up: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE) up cirrus
@@ -299,7 +299,7 @@ cirrus_check: cirrus_lint
 
 cirrus_lint: cirrus_build_test integration_clean
 	-docker rm experimenter_test
-	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
+	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c "$(CIRRUS_RUFF_FORMAT_CHECK) && $(CIRRUS_RUFF_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_check_and_report: cirrus_lint
 	docker cp experimenter_test:/cirrus/cirrus_pytest.xml workspace/test-results
@@ -308,7 +308,7 @@ cirrus_check_and_report: cirrus_lint
 	cp workspace/test-results/cirrus_coverage.json $(CIRRUS_COVERAGE_JSON)
 
 cirrus_code_format: cirrus_build
-	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_RUFF_FIX) && $(CIRRUS_BLACK_FIX)'
+	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_RUFF_FORMAT_FIX) && $(CIRRUS_RUFF_FIX)'
 
 cirrus_typecheck_createstub: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'

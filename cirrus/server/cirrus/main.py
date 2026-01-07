@@ -1,7 +1,7 @@
 import logging
 import sys
 from contextlib import asynccontextmanager
-from typing import Any, List, NamedTuple, TypedDict
+from typing import Any, NamedTuple, TypedDict
 
 import sentry_sdk
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
@@ -11,7 +11,7 @@ from fml_sdk import FmlError  # type: ignore
 from pydantic import BaseModel
 
 from .experiment_recipes import RemoteSettings
-from .feature_manifest import FeatureManifestLanguage as FML
+from .feature_manifest import FeatureManifestLanguage
 from .glean.server_events import (
     create_enrollment_server_event_logger,
     create_enrollment_status_server_event_logger,
@@ -123,13 +123,13 @@ def verify_settings():
 
 def create_fml():
     try:
-        return FML(fml_path=fml_path, channel=channel)
+        return FeatureManifestLanguage(fml_path=fml_path, channel=channel)
     except FmlError as e:  # type: ignore
         logger.error(f"Error occurred during FML creation: {e}")
         sys.exit(1)
 
 
-def create_sdk(coenrolling_feature_ids: List[str], metrics_handler: CirrusMetricsHandler):
+def create_sdk(coenrolling_feature_ids: list[str], metrics_handler: CirrusMetricsHandler):
     try:
         return SDK(
             context=context,
@@ -242,7 +242,7 @@ async def compute_features_enrollments(
     if nimbus_preview and not remote_setting_preview_url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="This Cirrus doesn’t support preview mode",
+            detail="This Cirrus doesn't support preview mode",
         )
 
     targeting_context = {

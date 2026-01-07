@@ -113,78 +113,74 @@ def fml_with_coenrolling_features(fml_with_coenrolling_features_path):
     return FeatureManifestLanguage(fml_with_coenrolling_features_path, channel)
 
 
-@fixture
-def create_recipe():
-    def _create(
-        slug="test",
-        app_id="org.mozilla.test",
-        app_name="test_app",
-        channel="release",
-        feature="test-feature",
-        value={"enabled": True},
-        is_rollout=False,
-        targeting="true",
-        bucket_count=10000,
-        bucket_start=0,
-        bucket_total=10000,
-        bucket_randomization_unit="user_id",
-        is_enrollment_paused=False,
-    ):
-        recipe = {
-            "slug": slug,
-            "appId": app_id,
-            "appName": app_name,
-            "channel": channel,
-            "endDate": None,
-            "locales": None,
-            "branches": [
-                {
-                    "slug": "control",
-                    "ratio": 1,
-                    "features": [
-                        {
-                            "value": value,
-                            "featureId": feature,
-                        }
-                    ],
-                }
-            ],
-            "outcomes": [],
-            "arguments": {},
-            "isRollout": is_rollout,
-            "probeSets": [],
-            "startDate": "2023-07-05",
-            "targeting": targeting,
-            "featureIds": [feature],
-            "application": app_id,
-            "bucketConfig": {
-                "count": bucket_count,
-                "start": bucket_start,
-                "total": bucket_total,
-                "namespace": f"{feature}-{slug}",
-                "randomizationUnit": bucket_randomization_unit,
-            },
-            "localizations": None,
-            "schemaVersion": "1.12.0",
-            "userFacingName": "",
-            "referenceBranch": "control",
-            "proposedDuration": 28,
-            "enrollmentEndDate": "2023-07-12",
-            "isEnrollmentPaused": is_enrollment_paused,
-            "proposedEnrollment": 7,
-            "userFacingDescription": "",
-            "featureValidationOptOut": False,
-            "id": slug,
-            "last_modified": 1689000336881,
-        }
-        check_schema("experiments/NimbusExperiment", recipe)
-        return recipe
-
-    return _create
+def create_recipe(
+    slug="test",
+    app_id="org.mozilla.test",
+    app_name="test_app",
+    channel="release",
+    feature="test-feature",
+    value=None,
+    is_rollout=False,
+    targeting="true",
+    bucket_count=10000,
+    bucket_start=0,
+    bucket_total=10000,
+    bucket_randomization_unit="user_id",
+    is_enrollment_paused=False,
+):
+    recipe = {
+        "slug": slug,
+        "appId": app_id,
+        "appName": app_name,
+        "channel": channel,
+        "endDate": None,
+        "locales": None,
+        "branches": [
+            {
+                "slug": "control",
+                "ratio": 1,
+                "features": [
+                    {
+                        "value": {"enabled": True} if value is None else value,
+                        "featureId": feature,
+                    }
+                ],
+            }
+        ],
+        "outcomes": [],
+        "arguments": {},
+        "isRollout": is_rollout,
+        "probeSets": [],
+        "startDate": "2023-07-05",
+        "targeting": targeting,
+        "featureIds": [feature],
+        "application": app_id,
+        "bucketConfig": {
+            "count": bucket_count,
+            "start": bucket_start,
+            "total": bucket_total,
+            "namespace": f"{feature}-{slug}",
+            "randomizationUnit": bucket_randomization_unit,
+        },
+        "localizations": None,
+        "schemaVersion": "1.12.0",
+        "userFacingName": "",
+        "referenceBranch": "control",
+        "proposedDuration": 28,
+        "enrollmentEndDate": "2023-07-12",
+        "isEnrollmentPaused": is_enrollment_paused,
+        "proposedEnrollment": 7,
+        "userFacingDescription": "",
+        "featureValidationOptOut": False,
+        "id": slug,
+        "last_modified": 1689000336881,
+    }
+    check_schema("experiments/NimbusExperiment", recipe)
+    return recipe
 
 
 @fixture
-def recipes(create_recipe):
+def recipes():
     return {
         "data": [
             create_recipe(slug="cirrus-test-1", feature="feature-1", is_rollout=True),
@@ -199,7 +195,7 @@ def recipes(create_recipe):
 
 
 @fixture
-def recipes_with_coenrolling_features(create_recipe):
+def recipes_with_coenrolling_features():
     value = {"map": {"{experiment}": "{experiment}"}}
     return json.dumps(
         {
