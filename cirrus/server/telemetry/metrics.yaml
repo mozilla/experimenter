@@ -104,3 +104,21 @@ cirrus_events:
     send_in_pings:
       - startup
 
+nimbus:
+  nimbus_user_id:
+    description: The ID of the user requesting enrollment
+    type: string
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/EXP-6305
+      - https://github.com/mozilla/experimenter/issues/14279
+    data_reviews:
+      - https://github.com/mozilla/experimenter/pull/9081#issuecomment-1625751843
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - jlockhart@mozilla.com
+      - project-nimbus@mozilla.com
+    expires: never
+    send_in_pings:
+      - enrollment
+      - enrollment-status

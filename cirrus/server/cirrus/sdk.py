@@ -19,9 +19,22 @@ class CirrusMetricsHandler(MetricsHandler):
     def record_enrollment_statuses(
         self, enrollment_status_extras: list[EnrollmentStatusExtraDef]
     ):
+        self.record_enrollment_statuses_v2(
+            enrollment_status_extras=enrollment_status_extras,
+            nimbus_user_id=(
+                enrollment_status_extras[0].user_id if enrollment_status_extras else None
+            ),
+        )
+
+    def record_enrollment_statuses_v2(
+        self,
+        enrollment_status_extras: list[EnrollmentStatusExtraDef],
+        nimbus_user_id: str | None,
+    ):
         self.enrollment_status_ping.record(
             user_agent=None,
             ip_address=None,
+            nimbus_nimbus_user_id=nimbus_user_id,
             events=[
                 {
                     "category": "cirrus_events",

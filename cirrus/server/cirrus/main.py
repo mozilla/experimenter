@@ -200,10 +200,13 @@ def collate_enrollment_metric_data(
     return data
 
 
-async def record_metrics(enrollment_data: list[EnrollmentMetricData]):
+async def record_metrics(
+    enrollment_data: list[EnrollmentMetricData], nimbus_user_id: str
+):
     app.state.enrollment_ping.record(
         user_agent=None,
         ip_address=None,
+        nimbus_nimbus_user_id=nimbus_user_id,
         events=[
             {
                 "category": "cirrus_events",
@@ -267,7 +270,7 @@ async def compute_features_enrollments(
     )
 
     # Record metrics
-    await record_metrics(enrollment_data)
+    await record_metrics(enrollment_data, request_data.client_id)
 
     return {
         "features": client_feature_configuration,

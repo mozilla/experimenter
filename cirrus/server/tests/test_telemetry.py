@@ -38,11 +38,12 @@ async def test_enrollment_metrics_recorded_with_record_metrics(mocker, recipes):
         ),
     ]
 
-    await record_metrics(enrollment_data)
+    await record_metrics(enrollment_data, "test_client_id")
 
     record_mock.assert_called_once_with(
         user_agent=None,
         ip_address=None,
+        nimbus_nimbus_user_id="test_client_id",
         events=[
             {
                 "category": "cirrus_events",
@@ -151,7 +152,9 @@ async def test_enrollment_metrics_recorded_with_compute_features_v1(
     response = client.post("/v1/features/", json=request_data)
     assert response.status_code == 200
     record_spy.assert_called_once()
-    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 2
+    call = record_spy.mock_calls[0]
+    assert call.kwargs.get("nimbus_nimbus_user_id") == "test_client_id"
+    assert len(events := call.kwargs["events"]) == 2
     assert events[0]["extra"]["is_preview"] == "false"
     assert events[1]["extra"]["is_preview"] == "false"
 
@@ -162,7 +165,9 @@ async def test_enrollment_metrics_recorded_with_compute_features_v1(
     response = client.post("/v1/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
     record_spy.assert_called_once()
-    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 2
+    call = record_spy.mock_calls[0]
+    assert call.kwargs.get("nimbus_nimbus_user_id") == "test_client_id"
+    assert len(events := call.kwargs["events"]) == 2
     assert events[0]["extra"]["is_preview"] == "true"
     assert events[1]["extra"]["is_preview"] == "true"
 
@@ -198,7 +203,9 @@ async def test_enrollment_metrics_recorded_with_compute_features_v2(
     response = client.post("/v2/features/", json=request_data)
     assert response.status_code == 200
     record_spy.assert_called_once()
-    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 2
+    call = record_spy.mock_calls[0]
+    assert call.kwargs.get("nimbus_nimbus_user_id") == "test_client_id"
+    assert len(events := call.kwargs["events"]) == 2
     assert events[0]["extra"]["is_preview"] == "false"
     assert events[1]["extra"]["is_preview"] == "false"
 
@@ -209,7 +216,9 @@ async def test_enrollment_metrics_recorded_with_compute_features_v2(
     response = client.post("/v2/features/?nimbus_preview=true", json=request_data)
     assert response.status_code == 200
     record_spy.assert_called_once()
-    assert len(events := record_spy.mock_calls[0].kwargs["events"]) == 2
+    call = record_spy.mock_calls[0]
+    assert call.kwargs.get("nimbus_nimbus_user_id") == "test_client_id"
+    assert len(events := call.kwargs["events"]) == 2
     assert events[0]["extra"]["is_preview"] == "true"
     assert events[1]["extra"]["is_preview"] == "true"
 
