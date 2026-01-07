@@ -30,11 +30,6 @@ from experimenter.experiments.tests.factories import (
     NimbusVersionedSchemaFactory,
     TagFactory,
 )
-from experimenter.kinto.tasks import (
-    nimbus_check_kinto_push_queue_by_collection,
-    nimbus_synchronize_preview_experiments_in_kinto,
-)
-from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.forms import (
     ApproveEndEnrollmentForm,
@@ -98,6 +93,58 @@ class RequestFormTestCase(TestCase):
         request_factory = RequestFactory()
         self.request = request_factory.get(reverse("nimbus-ui-create"))
         self.request.user = self.user
+
+
+class SlackNotificationMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_slack_task = patch(
+            "experimenter.slack.tasks.nimbus_send_slack_notification.delay"
+        ).start()
+        self.addCleanup(self.mock_slack_task.stop)
+
+
+class KintoPushQueueMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_push_task = patch(
+            "experimenter.kinto.tasks.nimbus_check_kinto_push_queue_by_collection.apply_async"
+        ).start()
+        self.addCleanup(self.mock_push_task.stop)
+
+
+class KintoPreviewMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_preview_task = patch(
+            "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_kinto.apply_async"
+        ).start()
+        self.addCleanup(self.mock_preview_task.stop)
+
+
+class AllocateBucketRangeMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_allocate_bucket_range = patch(
+            "experimenter.experiments.models.NimbusExperiment.allocate_bucket_range"
+        ).start()
+        self.addCleanup(self.mock_allocate_bucket_range.stop)
+
+
+class KlaatuStartJobMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_klaatu_task = patch(
+            "experimenter.klaatu.tasks.klaatu_start_job.delay"
+        ).start()
+        self.addCleanup(self.mock_klaatu_task.stop)
+
+
+class MetricsMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_metrics = patch("experimenter.nimbus_ui.forms.metrics").start()
+        self.addCleanup(self.mock_metrics.stop)
 
 
 class TestNimbusExperimentCreateForm(RequestFormTestCase):
@@ -801,52 +848,79 @@ class SubscriptionFormTests(RequestFormTestCase):
         self.assertIn("dev@example.com removed subscriber", changelog.message)
 
 
-class TestLaunchForms(RequestFormTestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.mock_preview_task = patch.object(
-            nimbus_synchronize_preview_experiments_in_kinto, "apply_async"
-        ).start()
-        self.mock_push_task = patch.object(
-            nimbus_check_kinto_push_queue_by_collection, "apply_async"
-        ).start()
-        self.mock_allocate_bucket_range = patch.object(
-            NimbusExperiment, "allocate_bucket_range"
-        ).start()
-        self.mock_klaatu_task = patch.object(klaatu_start_job, "delay").start()
-        self.mock_slack_task = patch(
-            "experimenter.slack.tasks.nimbus_send_slack_notification.delay"
-        ).start()
-
-        self.addCleanup(patch.stopall)
-
-    def test_draft_to_preview_form(self):
+class TestDraftToPreviewForm(
+    KintoPreviewMockMixin,
+    AllocateBucketRangeMockMixin,
+    KlaatuStartJobMockMixin,
+    RequestFormTestCase,
+):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
         )
         form = DraftToPreviewForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
         self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.PREVIEW)
+        self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.mock_klaatu_task.assert_called_once_with(experiment_id=experiment.id)
+        self.assertFalse(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("launched experiment to Preview", changelog.message)
         self.mock_preview_task.assert_called_once_with(countdown=5)
         self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_klaatu_task.assert_called_once_with(experiment_id=experiment.id)
 
-    def test_draft_to_review_form(self):
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.PREVIEW,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = DraftToPreviewForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+
+class TestDraftToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
         )
         form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
@@ -855,16 +929,84 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertFalse(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("requested launch without Preview", changelog.message)
 
-    def test_preview_to_review_form(self):
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+    def test_skips_slack_when_disabled(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=False,
+        )
+        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_slack_task.assert_not_called()
+
+    def test_sends_slack_when_enabled(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=True,
+        )
+        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_slack_task.assert_called_once()
+
+
+class TestPreviewToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
-            status_next=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
         )
         experiment.published_dto = NimbusExperimentSerializer(experiment).data
         experiment.save()
@@ -876,17 +1018,91 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertFalse(experiment.is_paused)
         self.assertEqual(experiment.published_dto, None)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("requested launch from Preview", changelog.message)
 
-    def test_preview_to_draft_form(self):
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = PreviewToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+    def test_skips_slack_when_disabled(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
-            status_next=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=False,
+        )
+        experiment.published_dto = NimbusExperimentSerializer(experiment).data
+        experiment.save()
+
+        form = PreviewToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_slack_task.assert_not_called()
+
+    def test_sends_slack_when_enabled(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=True,
+        )
+        experiment.published_dto = NimbusExperimentSerializer(experiment).data
+        experiment.save()
+
+        form = PreviewToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_slack_task.assert_called_once()
+
+
+class TestPreviewToDraftForm(KintoPreviewMockMixin, RequestFormTestCase):
+    def test_valid_transition(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
         )
         experiment.published_dto = NimbusExperimentSerializer(experiment).data
         experiment.save()
@@ -896,8 +1112,9 @@ class TestLaunchForms(RequestFormTestCase):
 
         experiment = form.save()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertFalse(experiment.is_paused)
         self.assertEqual(experiment.published_dto, None)
 
         changelog = experiment.changes.latest("changed_on")
@@ -905,19 +1122,52 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn("moved the experiment back to Draft", changelog.message)
         self.mock_preview_task.assert_called_once_with(countdown=5)
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = PreviewToDraftForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
     def test_preview_to_draft_form_resets_published_dto_and_targeting(self):
         experiment = NimbusExperimentFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
             status=NimbusExperiment.Status.PREVIEW,
-            status_next=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
             channels=[NimbusExperiment.Channel.NIGHTLY],
         )
 
-        # Publishing to the preview collection would set the published_dto field
-        # to the value in Remote Settings. However, since we're not actually
-        # publishing to Remote Settings, we need to fake it.
         experiment.published_dto = NimbusExperimentSerializer(experiment).data
         experiment.save()
 
@@ -943,11 +1193,14 @@ class TestLaunchForms(RequestFormTestCase):
             """(version|versionCompare('117.!') >= 0)""",
         )
 
-    def test_review_to_draft_form_with_changelog_message(self):
+
+class TestReviewToDraftForm(RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             status_next=NimbusExperiment.Status.LIVE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=False,
         )
         experiment.published_dto = NimbusExperimentSerializer(experiment).data
         experiment.save()
@@ -961,14 +1214,51 @@ class TestLaunchForms(RequestFormTestCase):
 
         experiment = form.save()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertFalse(experiment.is_paused)
         self.assertEqual(experiment.published_dto, None)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn(
             "rejected the review with reason: Needs further updates.", changelog.message
+        )
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = ReviewToDraftForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
         )
 
     def test_review_to_draft_form_with_cancel_message(self):
@@ -989,7 +1279,7 @@ class TestLaunchForms(RequestFormTestCase):
 
         experiment = form.save()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
         self.assertEqual(experiment.published_dto, None)
 
@@ -997,13 +1287,20 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn(f"{self.user} Review was withdrawn by the user.", changelog.message)
 
-    def test_review_to_approve_form(self):
+
+class TestReviewToApproveForm(
+    KintoPushQueueMockMixin,
+    AllocateBucketRangeMockMixin,
+    MetricsMockMixin,
+    RequestFormTestCase,
+):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             status_next=NimbusExperiment.Status.LIVE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=False,
         )
-
         form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -1013,46 +1310,73 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(
             experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
         )
+        self.assertFalse(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
-        self.assertIn(f"{self.user} approved the review.", changelog.message)
+        self.assertIn("approved the review.", changelog.message)
         self.mock_push_task.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
         )
         self.mock_allocate_bucket_range.assert_called_once()
 
-    def test_review_timing_metric(self):
-        data = {
-            "owner": self.user,
-            "name": "Test Experiment",
-            "hypothesis": "test hypothesis",
-            "application": NimbusExperiment.Application.DESKTOP,
-        }
-        form = NimbusExperimentCreateForm(data, request=self.request)
-        self.assertTrue(form.is_valid(), form.errors)
-        experiment = form.save()
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
 
-        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
-        self.assertTrue(form.is_valid(), form.errors)
-        experiment = form.save()
+    def test_review_timing_metric(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED
+        )
 
         form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
-        with patch("experimenter.nimbus_ui.forms.metrics") as mock_metrics:
-            experiment = form.save()
+        experiment = form.save()
 
-        mock_metrics.timing.assert_called_once()
+        self.mock_metrics.timing.assert_called_once()
 
-    def test_live_to_end_enrollment_form(self):
+
+class TestLiveToEndEnrollmentForm(SlackNotificationMockMixin, RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_paused=False,
         )
-
         form = LiveToEndEnrollmentForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -1065,6 +1389,42 @@ class TestLaunchForms(RequestFormTestCase):
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("requested review to end enrollment", changelog.message)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = LiveToEndEnrollmentForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
 
     def test_live_to_end_enrollment_form_rollout(self):
         rollout = NimbusExperimentFactory.create_with_lifecycle(
@@ -1117,45 +1477,43 @@ class TestLaunchForms(RequestFormTestCase):
             form.errors, {"__all__": [NimbusExperiment.ERROR_CANNOT_PAUSE_UNPUBLISHED]}
         )
 
-    def test_live_to_end_enrollment_form_paused(self):
+    def test_skips_slack_when_disabled(self):
         experiment = NimbusExperimentFactory.create(
-            status=NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            status=NimbusExperiment.Status.LIVE,
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=False,
         )
-
         form = LiveToEndEnrollmentForm(data={}, instance=experiment, request=self.request)
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
 
-        self.assertEqual(
-            form.errors, {"__all__": [NimbusExperiment.ERROR_CANNOT_PAUSE_PAUSED]}
+        form.save()
+
+        self.mock_slack_task.assert_not_called()
+
+    def test_sends_slack_when_enabled(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=True,
         )
-
-    @parameterized.expand(
-        [
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            NimbusExperimentFactory.Lifecycles.PREVIEW,
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-        ]
-    )
-    def test_live_to_end_enrollment_form_not_live(self, lifecycle):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
-
         form = LiveToEndEnrollmentForm(data={}, instance=experiment, request=self.request)
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
 
-        self.assertEqual(
-            form.errors, {"__all__": [NimbusExperiment.ERROR_CANNOT_PAUSE_NOT_LIVE]}
-        )
+        form.save()
 
-    def test_approve_end_enrollment_form(self):
+        self.mock_slack_task.assert_called_once()
+
+
+class TestApproveEndEnrollmentForm(KintoPushQueueMockMixin, RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=NimbusExperiment.Status.LIVE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             is_paused=True,
         )
-
         form = ApproveEndEnrollmentForm(
             data={}, instance=experiment, request=self.request
         )
@@ -1176,14 +1534,53 @@ class TestLaunchForms(RequestFormTestCase):
             countdown=5, args=[experiment.kinto_collection]
         )
 
-    def test_live_to_complete_form(self):
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = ApproveEndEnrollmentForm(
+            data={}, instance=experiment, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+
+class TestLiveToCompleteForm(SlackNotificationMockMixin, RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_paused=False,
         )
-
         form = LiveToCompleteForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
@@ -1191,19 +1588,85 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertFalse(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("requested review to end experiment", changelog.message)
 
-    def test_approve_end_experiment_form(self):
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = LiveToCompleteForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+    def test_skips_slack_when_disabled(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=False,
+        )
+        form = LiveToCompleteForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_slack_task.assert_not_called()
+
+    def test_sends_slack_when_enabled(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=True,
+        )
+        form = LiveToCompleteForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_slack_task.assert_called_once()
+
+
+class TestApproveEndExperimentForm(KintoPushQueueMockMixin, RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=NimbusExperiment.Status.COMPLETE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             is_paused=True,
         )
-
         form = ApproveEndExperimentForm(
             data={}, instance=experiment, request=self.request
         )
@@ -1224,18 +1687,82 @@ class TestLaunchForms(RequestFormTestCase):
             countdown=5, args=[experiment.kinto_collection]
         )
 
-    def test_reject_end_enrollment_request(self):
+    def test_valid_transition_not_paused(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.COMPLETE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=False,
+        )
+        form = ApproveEndExperimentForm(
+            data={}, instance=experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.assertTrue(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("approved the end experiment request", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = ApproveEndExperimentForm(
+            data={}, instance=experiment, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+
+class TestCancelEndEnrollmentForm(RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=NimbusExperiment.Status.LIVE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             is_paused=True,
         )
-
         form = CancelEndEnrollmentForm(
-            data={
-                "changelog_message": "Enrollment should continue.",
-            },
+            data={"changelog_message": "Enrollment should continue."},
             instance=experiment,
             request=self.request,
         )
@@ -1252,6 +1779,42 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn(
             "rejected the review with reason: Enrollment should continue.",
             changelog.message,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = CancelEndEnrollmentForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
         )
 
     def test_cancel_end_enrollment_request(self):
@@ -1281,18 +1844,17 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("Cancelled end enrollment request.", changelog.message)
 
-    def test_reject_end_experiment_request(self):
+
+class TestCancelEndExperimentForm(RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=NimbusExperiment.Status.COMPLETE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             is_paused=True,
         )
-
         form = CancelEndExperimentForm(
-            data={
-                "changelog_message": "Experiment should continue.",
-            },
+            data={"changelog_message": "Experiment should continue."},
             instance=experiment,
             request=self.request,
         )
@@ -1309,6 +1871,69 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertIn(
             "rejected the review with reason: Experiment should continue.",
             changelog.message,
+        )
+
+    def test_valid_transition_not_paused(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.COMPLETE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=False,
+        )
+        form = CancelEndExperimentForm(
+            data={"changelog_message": "Experiment should continue."},
+            instance=experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertFalse(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(
+            "rejected the review with reason: Experiment should continue.",
+            changelog.message,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = CancelEndExperimentForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
         )
 
     def test_cancel_end_experiment_request(self):
@@ -1338,7 +1963,9 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("Cancelled end experiment request.", changelog.message)
 
-    def test_live_to_update_rollout_form(self):
+
+class TestLiveToUpdateRolloutForm(SlackNotificationMockMixin, RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=None,
@@ -1346,25 +1973,95 @@ class TestLaunchForms(RequestFormTestCase):
             is_paused=False,
             is_rollout=True,
         )
-
         form = LiveToUpdateRolloutForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertFalse(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("requested review to update Audience", changelog.message)
 
-    def test_cancel_update_rollout_form_with_rejection_reason(self):
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = LiveToUpdateRolloutForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+    def test_skips_slack_when_disabled(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            enable_review_slack_notifications=False,
+        )
+        form = LiveToUpdateRolloutForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_slack_task.assert_not_called()
+
+    def test_sends_slack_when_enabled(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            enable_review_slack_notifications=True,
+        )
+        form = LiveToUpdateRolloutForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_slack_task.assert_called_once()
+
+
+class TestCancelUpdateRolloutForm(RequestFormTestCase):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=NimbusExperiment.Status.LIVE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=False,
             is_rollout=True,
         )
-
         form = CancelUpdateRolloutForm(
             data={"changelog_message": "Audience update not valid."},
             instance=experiment,
@@ -1373,13 +2070,52 @@ class TestLaunchForms(RequestFormTestCase):
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertFalse(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
         self.assertIn(
             "rejected the update review with reason: Audience update not valid.",
             changelog.message,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = CancelUpdateRolloutForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
         )
 
     def test_cancel_update_rollout_form_with_cancel_message(self):
@@ -1404,26 +2140,36 @@ class TestLaunchForms(RequestFormTestCase):
         changelog = experiment.changes.latest("changed_on")
         self.assertIn("Cancelled update rollout.", changelog.message)
 
-    def test_approve_update_rollout_form(self):
+
+class TestApproveUpdateRolloutForm(
+    KintoPushQueueMockMixin,
+    KintoPreviewMockMixin,
+    AllocateBucketRangeMockMixin,
+    RequestFormTestCase,
+):
+    def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=NimbusExperiment.Status.LIVE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=False,
             is_rollout=True,
         )
-
         form = ApproveUpdateRolloutForm(
             data={}, instance=experiment, request=self.request
         )
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
         self.assertEqual(
             experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
         )
+        self.assertFalse(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("approved the update review request", changelog.message)
         self.mock_push_task.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
@@ -1434,96 +2180,40 @@ class TestLaunchForms(RequestFormTestCase):
     @parameterized.expand(
         [
             (
-                "draft_to_review_skips_slack_when_disabled",
-                DraftToReviewForm,
                 NimbusExperiment.Status.DRAFT,
-                {},
-                False,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
                 False,
             ),
             (
-                "draft_to_review_sends_slack_when_enabled",
-                DraftToReviewForm,
-                NimbusExperiment.Status.DRAFT,
-                {},
-                True,
-                True,
-            ),
-            (
-                "live_to_update_rollout_skips_slack_when_disabled",
-                LiveToUpdateRolloutForm,
                 NimbusExperiment.Status.LIVE,
-                {"is_rollout": True},
-                False,
-                False,
-            ),
-            (
-                "live_to_update_rollout_sends_slack_when_enabled",
-                LiveToUpdateRolloutForm,
-                NimbusExperiment.Status.LIVE,
-                {"is_rollout": True},
-                True,
-                True,
-            ),
-            (
-                "live_to_end_enrollment_skips_slack_when_disabled",
-                LiveToEndEnrollmentForm,
-                NimbusExperiment.Status.LIVE,
-                {},
-                False,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
                 False,
             ),
             (
-                "live_to_end_enrollment_sends_slack_when_enabled",
-                LiveToEndEnrollmentForm,
                 NimbusExperiment.Status.LIVE,
-                {},
-                True,
-                True,
-            ),
-            (
-                "live_to_complete_skips_slack_when_disabled",
-                LiveToCompleteForm,
                 NimbusExperiment.Status.LIVE,
-                {},
+                NimbusExperiment.PublishStatus.IDLE,
                 False,
-                False,
-            ),
-            (
-                "live_to_complete_sends_slack_when_enabled",
-                LiveToCompleteForm,
-                NimbusExperiment.Status.LIVE,
-                {},
-                True,
-                True,
             ),
         ]
     )
-    def test_slack_notification_behavior(
-        self,
-        _name,
-        form_class,
-        status,
-        extra_kwargs,
-        enable_slack,
-        should_call_slack,
-    ):
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
         experiment = NimbusExperimentFactory.create(
             status=status,
-            status_next=None,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
-            enable_review_slack_notifications=enable_slack,
-            **extra_kwargs,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
         )
-        form = form_class(data={}, instance=experiment, request=self.request)
-        self.assertTrue(form.is_valid(), form.errors)
-
-        form.save()
-
-        if should_call_slack:
-            self.mock_slack_task.assert_called_once()
-        else:
-            self.mock_slack_task.assert_not_called()
+        form = ApproveUpdateRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
 
 
 class TestOverviewForm(RequestFormTestCase):
