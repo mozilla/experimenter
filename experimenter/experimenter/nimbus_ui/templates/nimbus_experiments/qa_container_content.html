@@ -1,6 +1,6 @@
 {% load nimbus_extras %}
 
-<table class="table table-striped">
+<table class="table table-striped mb-0">
   <tbody>
     <tr>
       <th>QA Status</th>
@@ -23,8 +23,8 @@
       </td>
     </tr>
     <tr>
-      <th>TestRail Results URL</th>
-      <td colspan="3">
+      <th class="border-bottom-0">TestRail Results URL</th>
+      <td colspan="3" class="border-bottom-0">
         {% if experiment.qa_run_testrail_url %}
           <a href="{{ experiment.qa_run_testrail_url }}"
              target="_blank"

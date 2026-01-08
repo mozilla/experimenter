@@ -7,7 +7,6 @@
 {% load error_helpers %}
 
 {% block title %}{{ experiment.name }} - Branches{% endblock %}
-
 {% block main_content %}
   <div class="position-relative">
     <!-- Full form overlay -->
@@ -417,7 +416,6 @@
     </form>
   </div>
 {% endblock main_content %}
-
 {% block extrascripts %}
   {{ block.super }}
   <script src="{% static 'nimbus_ui/edit_branches.bundle.js' %}"></script>

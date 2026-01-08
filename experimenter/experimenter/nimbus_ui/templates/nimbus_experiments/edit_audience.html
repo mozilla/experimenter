@@ -6,7 +6,6 @@
 {% load widget_tweaks %}
 
 {% block title %}{{ experiment.name }} - Audience{% endblock %}
-
 {% block main_content %}
   <div class="position-relative">
     <!-- Full form overlay -->
@@ -296,7 +295,6 @@
     </form>
   </div>
 {% endblock main_content %}
-
 {% block extrascripts %}
   {{ block.super }}
   <script src="{% static 'nimbus_ui/edit_audience.bundle.js' %}"></script>

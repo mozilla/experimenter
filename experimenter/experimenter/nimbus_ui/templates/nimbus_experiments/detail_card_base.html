@@ -1,0 +1,17 @@
+{% block card_wrapper %}
+  <div class="card mb-3" id="{% block card_id %}{% endblock %}">
+    <div class="card-header">
+      {% block card_header %}
+        <h4 class="mb-0">
+          <a href="#{% block card_anchor %}{% endblock %}"
+             class="text-decoration-none text-body">
+            {% block card_title %}{% endblock %}
+          </a>
+        </h4>
+      {% endblock %}
+    </div>
+    <div class="card-body p-0 overflow-hidden rounded-bottom">
+      {% block card_body %}{% endblock %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% if experiment.is_draft %}
+  {% if invalid_pages %}
+    <div class="alert alert-danger" role="alert">
+      <p class="mb-1">
+        Before this experiment can be reviewed or launched, all required fields must be completed. Fields on the
+        <strong>
+          {% for page in invalid_pages %}
+            {% if page == "overview" %}
+              <a href="{{ experiment.get_update_overview_url }}?show_errors=true"
+                 rel="noopener noreferrer">Overview</a>
+            {% elif page == "branches" %}
+              <a href="{{ experiment.get_update_branches_url }}?show_errors=true"
+                 rel="noopener noreferrer">Branches</a>
+            {% elif page == "metrics" %}
+              <a href="{{ experiment.get_update_metrics_url }}?show_errors=true"
+                 rel="noopener noreferrer">Metrics</a>
+            {% elif page == "audience" %}
+              <a href="{{ experiment.get_update_audience_url }}?show_errors=true"
+                 rel="noopener noreferrer">Audience</a>
+            {% else %}
+              {{ page|capfirst }}
+            {% endif %}
+            {% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </strong>
+        {% if invalid_pages|length == 1 %}
+          page
+        {% else %}
+          pages
+        {% endif %}
+        are missing details.
+      </p>
+    </div>
+  {% endif %}
+{% endif %}

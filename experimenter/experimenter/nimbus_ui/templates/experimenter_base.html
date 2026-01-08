@@ -11,13 +11,11 @@
     <title>
       {% block title %}
       {% endblock title %}
-
       | Experimenter
     </title>
     <script src="{% static 'nimbus_ui/app.bundle.js' %}"></script>
     {% block extra_head %}
     {% endblock extra_head %}
-
   </head>
   <body {# djlint:off #}
         id="{% block page_id %}{% endblock %}"
@@ -30,12 +28,10 @@
   <div class="container-fluid">
     {% block content %}
     {% endblock content %}
-
     {% include "common/footer.html" %}
 
   </div>
   {% block extrascripts %}
   {% endblock extrascripts %}
-
 </body>
 </html>

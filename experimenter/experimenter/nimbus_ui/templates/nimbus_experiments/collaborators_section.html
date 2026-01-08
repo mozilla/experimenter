@@ -1,8 +1,8 @@
 <tr id="collaborators-row"
     class="collaborators-section align-middle"
     {% if oob %}hx-swap-oob="true"{% endif %}>
-  <th scope="row" class="text-nowrap">Collaborators</th>
-  <td colspan="4">
+  <th scope="row" class="text-nowrap border-bottom-0">Collaborators</th>
+  <td colspan="4" class="border-bottom-0">
     <form method="post"
           action="{% url 'nimbus-ui-update-collaborators' slug=experiment.slug %}"
           hx-post="{% url 'nimbus-ui-update-collaborators' slug=experiment.slug %}"
