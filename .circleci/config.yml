@@ -733,7 +733,7 @@ jobs:
 
             gcloud auth configure-docker us-docker.pkg.dev --quiet
 
-            GIT_SHA=$(git rev-parse --short HEAD)
+            GIT_SHA=$(git rev-parse --short=9 HEAD)
 
             for DOCKER_IMAGE in "us-docker.pkg.dev/moz-fx-cirrus-prod/cirrus-prod/cirrus" "${DOCKERHUB_CIRRUS_REPO}"; do
               docker tag cirrus:deploy ${DOCKER_IMAGE}:latest
