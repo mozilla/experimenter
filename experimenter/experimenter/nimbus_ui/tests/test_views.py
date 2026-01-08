@@ -4957,6 +4957,50 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(feature.subscribers.count(), 0)
         self.assertEqual(response.status_code, 200)
 
+    def test_qa_runs_table_shows_experiments_with_testrail_urls_when_qa_status_not_set(
+        self,
+    ):
+        feature = self.feature_configs["feature-desktop"]
+
+        experiment_with_urls = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature],
+            qa_status=NimbusExperiment.QAStatus.NOT_SET,
+            qa_run_test_plan_url="https://testrail.example.com/testplan/1",
+            qa_run_testrail_url="https://testrail.example.com/run/1",
+        )
+
+        experiment_without_urls = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature],
+            qa_status=NimbusExperiment.QAStatus.NOT_SET,
+            qa_run_test_plan_url=None,
+            qa_run_testrail_url=None,
+        )
+
+        experiment_with_status = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature],
+            qa_status=NimbusExperiment.QAStatus.GREEN,
+            qa_run_test_plan_url=None,
+            qa_run_testrail_url=None,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": NimbusExperiment.Application.DESKTOP.value,
+                "feature_configs": feature.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        qa_runs = response.context["experiments_with_qa_status"]
+
+        self.assertIn(experiment_with_urls, qa_runs)
+        self.assertNotIn(experiment_without_urls, qa_runs)
+        self.assertIn(experiment_with_status, qa_runs)
+
 
 class TestTagsManageView(AuthTestCase):
     def test_tags_manage_view_renders(self):
