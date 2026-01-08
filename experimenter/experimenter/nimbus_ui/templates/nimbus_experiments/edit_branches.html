@@ -22,9 +22,9 @@
           {% if form.is_bound %}class="was-validated"{% endif %}
           hx-encoding="multipart/form-data"
           hx-post="{% url 'nimbus-ui-update-branches' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-          hx-select="#branches-form"
-          hx-target="#branches-form"
-          hx-swap="outerHTML">
+          hx-select="#content-with-sidebar"
+          hx-target="#content-with-sidebar"
+          hx-swap="innerHTML">
       {% csrf_token %}
       <div class="card mb-3">
         <div class="card-header">
