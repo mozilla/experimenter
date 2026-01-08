@@ -392,7 +392,7 @@
       </div>
       {% if form.is_bound %}
         {% if form.is_valid %}
-          <div class="toast text-bg-success position-fixed top-0 end-0 m-3 w-auto"
+          <div class="toast text-bg-success position-fixed top-0 end-0 m-3 w-auto z-3"
                role="alert"
                aria-live="assertive"
                aria-atomic="true">
@@ -403,7 +403,7 @@
           </div>
         {% endif %}
         {% if not form.is_valid or validation_errors %}
-          <div class="toast text-bg-danger position-fixed top-1 end-0 m-3 w-auto"
+          <div class="toast text-bg-danger position-fixed top-1 end-0 m-3 w-auto z-3"
                role="alert"
                aria-live="assertive"
                aria-atomic="true">
