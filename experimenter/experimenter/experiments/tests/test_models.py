@@ -56,6 +56,8 @@ from experimenter.experiments.tests.factories import (
 from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
+from experimenter.metrics import MetricAreas
+from experimenter.metrics.tests import mock_valid_metrics
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -2580,6 +2582,34 @@ class TestNimbusExperiment(TestCase):
                 }
             ],
         )
+
+    @mock_valid_metrics
+    def test_metric_areas_created_correctly(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        branch_a = NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "other_metrics": {
+                    "other_metrics": {
+                        "mock_engagement_metric": "Metric Name",
+                    }
+                },
+            }
+        }
+        experiment.save()
+
+        MetricAreas.clear_cache()
+        metric_areas = experiment.get_metric_areas(
+            "enrollments", "all", branch_a.slug
+        ).keys()
+
+        self.assertIn("KPI Metrics", metric_areas)
+        self.assertIn("Engagement", metric_areas)
 
     @parameterized.expand(
         [
