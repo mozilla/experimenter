@@ -1,0 +1,185 @@
+# This defines the default metrics and statistics calculated for each experiment
+
+[metrics]
+daily = ["retained", "unenroll", "client_level_daily_active_users_v2"]
+
+weekly = [
+  "active_hours",
+  "ad_clicks",
+  "days_of_use",
+  "retained",
+  "uri_count",
+  "search_count",
+  "qualified_cumulative_days_of_use",
+  "is_default_browser",
+  "client_level_daily_active_users_v2",
+]
+
+overall = [
+  "active_hours",
+  "ad_clicks",
+  "days_of_use",
+  "organic_search_count",
+  "search_count",
+  "searches_with_ads",
+  "tagged_search_count",
+  "tagged_follow_on_search_count",
+  "uri_count",
+  "qualified_cumulative_days_of_use",
+  "is_default_browser",
+  "client_level_daily_active_users_v2",
+]
+
+preenrollment_weekly = [
+  "active_hours",
+  "ad_clicks",
+  "days_of_use",
+  "organic_search_count",
+  "search_count",
+  "searches_with_ads",
+  "tagged_search_count",
+  "tagged_follow_on_search_count",
+  "uri_count",
+  "qualified_cumulative_days_of_use",
+  "is_default_browser",
+  "client_level_daily_active_users_v2",
+]
+
+preenrollment_days28 = [
+  "active_hours",
+  "ad_clicks",
+  "days_of_use",
+  "organic_search_count",
+  "search_count",
+  "searches_with_ads",
+  "tagged_search_count",
+  "tagged_follow_on_search_count",
+  "uri_count",
+  "qualified_cumulative_days_of_use",
+  "is_default_browser",
+  "client_level_daily_active_users_v2",
+]
+
+[metrics.areas]
+browser_config = [
+  "is_default_browser",
+  "is_pinned"
+]
+
+engagement = [
+  "active_hours",
+  "uri_count",
+  "qualified_cumulative_days_of_use"
+]
+
+experiment = [
+  "unenroll"
+]
+
+kpi = [
+  "client_level_daily_active_users_v2",
+  "days_of_use",
+  "retained",
+  "search_count"
+]
+
+search_ads = [
+  "ad_clicks",
+  "searches_with_ads"
+]
+
+search = [
+  "tagged_follow_on_search_count",
+  "tagged_search_count",
+  "organic_search_count"
+]
+
+[metrics.active_hours.statistics.bootstrap_mean]
+[metrics.active_hours.statistics.linear_model_mean]
+[metrics.active_hours.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+[metrics.active_hours.statistics.deciles]
+
+
+[metrics.ad_clicks.statistics.bootstrap_mean]
+[metrics.ad_clicks.statistics.linear_model_mean]
+[metrics.ad_clicks.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+[metrics.ad_clicks.statistics.deciles]
+
+
+[metrics.days_of_use.statistics.bootstrap_mean]
+drop_highest = 0.0
+[metrics.days_of_use.statistics.linear_model_mean]
+drop_highest = 0.0
+[metrics.days_of_use.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+[metrics.days_of_use.statistics.deciles]
+[metrics.days_of_use.statistics.empirical_cdf]
+
+
+[metrics.organic_search_count.statistics.bootstrap_mean]
+[metrics.organic_search_count.statistics.linear_model_mean]
+[metrics.organic_search_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+[metrics.organic_search_count.statistics.deciles]
+
+
+[metrics.retained.statistics.binomial]
+
+
+[metrics.uri_count.statistics.bootstrap_mean]
+[metrics.uri_count.statistics.linear_model_mean]
+[metrics.uri_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+[metrics.uri_count.statistics.deciles]
+
+
+[metrics.search_count.statistics.bootstrap_mean]
+[metrics.search_count.statistics.linear_model_mean]
+[metrics.search_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+[metrics.search_count.statistics.deciles]
+
+
+[metrics.searches_with_ads.statistics.bootstrap_mean]
+[metrics.searches_with_ads.statistics.linear_model_mean]
+[metrics.searches_with_ads.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+[metrics.searches_with_ads.statistics.deciles]
+
+
+[metrics.tagged_search_count.statistics.bootstrap_mean]
+[metrics.tagged_search_count.statistics.linear_model_mean]
+[metrics.tagged_search_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+[metrics.tagged_search_count.statistics.deciles]
+
+
+[metrics.tagged_follow_on_search_count.statistics.bootstrap_mean]
+[metrics.tagged_follow_on_search_count.statistics.linear_model_mean]
+[metrics.tagged_follow_on_search_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+[metrics.tagged_follow_on_search_count.statistics.deciles]
+
+
+[metrics.unenroll.statistics.binomial]
+
+
+[metrics.qualified_cumulative_days_of_use.statistics.bootstrap_mean]
+drop_highest = 0.0
+[metrics.qualified_cumulative_days_of_use.statistics.linear_model_mean]
+drop_highest = 0.0
+[metrics.qualified_cumulative_days_of_use.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+[metrics.qualified_cumulative_days_of_use.statistics.deciles]
+
+
+[metrics.is_default_browser.statistics.binomial]
+
+
+[metrics.is_pinned.statistics.binomial]
+
+
+[metrics.client_level_daily_active_users_v2.statistics.per_client_dau_impact]
+pre_treatments = ['normalize_over_analysis_period']

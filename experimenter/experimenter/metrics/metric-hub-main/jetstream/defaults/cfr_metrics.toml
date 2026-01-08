@@ -1,0 +1,7 @@
+# This defines the metrics and statistics calculated for CFR experiments
+
+[metrics]
+daily = []
+weekly = []
+28_day = []
+overall = []

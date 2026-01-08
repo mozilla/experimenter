@@ -1,0 +1,192 @@
+[metrics]
+daily = ["retained", "client_level_daily_active_users_v2"]
+weekly = [
+    "retained",
+    "active_hours",
+    "search_count",
+    "serp_ad_clicks",
+    "tagged_search_count",
+    "total_uri_count",
+    "days_of_use",
+    "client_level_daily_active_users_v2",
+]
+overall = [
+    "active_hours",
+    "serp_ad_clicks",
+    "tagged_search_count",
+    "organic_searches",
+    "search_count",
+    "searches_with_ads",
+    "tagged_follow_on_searches",
+    "total_uri_count",
+    "days_of_use",
+    "client_level_daily_active_users_v2",
+]
+
+preenrollment_weekly = [
+    "active_hours",
+    "serp_ad_clicks",
+    "organic_searches",
+    "search_count",
+    "searches_with_ads",
+    "tagged_follow_on_searches",
+    "total_uri_count",
+    "days_of_use",
+    "client_level_daily_active_users_v2",
+    "tagged_search_count",
+]
+
+preenrollment_days28 = [
+    "active_hours",
+    "serp_ad_clicks",
+    "organic_searches",
+    "search_count",
+    "searches_with_ads",
+    "tagged_follow_on_searches",
+    "total_uri_count",
+    "days_of_use",
+    "client_level_daily_active_users_v2",
+    "tagged_search_count",
+]
+
+[metrics.areas]
+
+engagement = [
+  "active_hours",
+  "total_uri_count",
+]
+
+kpi = [
+  "client_level_daily_active_users_v2",
+  "days_of_use",
+  "retained",
+  "search_count"
+]
+
+search_ads = [
+  "searches_with_ads",
+  "serp_ad_clicks"
+]
+
+search = [
+  "tagged_follow_on_searches",
+  "tagged_search_count",
+  "organic_searches"
+]
+
+[metrics.retained]
+select_expression = "COALESCE(COUNT(document_id), 0) > 0"
+data_source = "baseline"
+
+[metrics.retained.statistics]
+binomial = {}
+
+##
+
+[metrics.days_of_use.statistics]
+deciles = {}
+bootstrap_mean = { drop_highest = 0 }
+empirical_cdf = {}
+[metrics.days_of_use.statistics.linear_model_mean]
+drop_highest = 0.0
+[metrics.days_of_use.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
+
+
+##
+
+[metrics.active_hours.statistics]
+deciles = {}
+bootstrap_mean = {}
+[metrics.active_hours.statistics.linear_model_mean]
+[metrics.active_hours.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
+##
+
+[metrics.serp_ad_clicks]
+select_expression = "{{agg_sum('ad_click')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+
+[metrics.serp_ad_clicks.statistics]
+deciles = {}
+bootstrap_mean = {}
+[metrics.serp_ad_clicks.statistics.linear_model_mean]
+[metrics.serp_ad_clicks.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
+##
+
+[metrics.organic_searches]
+select_expression = "{{agg_sum('organic')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+
+[metrics.organic_searches.statistics]
+deciles = {}
+bootstrap_mean = {}
+[metrics.organic_searches.statistics.linear_model_mean]
+[metrics.organic_searches.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
+
+##
+
+[metrics.search_count.statistics]
+deciles = {}
+bootstrap_mean = {}
+[metrics.search_count.statistics.linear_model_mean]
+[metrics.search_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
+##
+
+[metrics.searches_with_ads]
+select_expression = "{{agg_sum('search_with_ads')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+
+[metrics.searches_with_ads.statistics]
+deciles = {}
+bootstrap_mean = {}
+[metrics.searches_with_ads.statistics.linear_model_mean]
+[metrics.searches_with_ads.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
+
+##
+
+[metrics.tagged_search_count.statistics]
+deciles = {}
+bootstrap_mean = {}
+[metrics.tagged_search_count.statistics.linear_model_mean]
+[metrics.tagged_search_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
+##
+
+[metrics.tagged_follow_on_searches]
+select_expression = "{{agg_sum('tagged_follow_on')}}"
+data_source = "mobile_search_clients_engines_sources_daily"
+
+[metrics.tagged_follow_on_searches.statistics]
+deciles = {}
+bootstrap_mean = {}
+[metrics.tagged_follow_on_searches.statistics.linear_model_mean]
+[metrics.tagged_follow_on_searches.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
+##
+
+[metrics.total_uri_count]
+select_expression = "{{agg_sum('metrics.counter.events_normal_and_private_uri_count')}}"
+data_source = "metrics"
+
+[metrics.total_uri_count.statistics]
+deciles = {}
+bootstrap_mean = {}
+[metrics.total_uri_count.statistics.linear_model_mean]
+[metrics.total_uri_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
+[metrics.client_level_daily_active_users_v2.statistics.per_client_dau_impact]
+pre_treatments = ['normalize_over_analysis_period']
