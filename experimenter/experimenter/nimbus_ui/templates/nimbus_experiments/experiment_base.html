@@ -7,7 +7,7 @@
 
 {% endblock %}
 {% block main_content_header %}
-  <div class="d-flex justify-content-between flex-column flex-xxl-row column-gap-3">
+  <div class="d-flex justify-content-between flex-column flex-xxl-row column-gap-3 mb-2">
     <div>
       <h4 class="mb-0">{{ experiment.name }}</h4>
       <div class="d-flex align-items-center">
@@ -19,11 +19,8 @@
           <i class="fa-solid fa-copy"></i>
         </button>
       </div>
-      <span id="qa-status-header" class="{{ experiment.qa_status_badge_class }}">
-        QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
-      </span>
       {% if experiment.parent %}
-        <p class="text-secondary small mb-0 mt-2">
+        <p class="text-secondary small mb-0">
           Cloned from
           <a href="{% url 'nimbus-ui-detail' experiment.parent.slug %}"
              target="_blank"
@@ -38,18 +35,8 @@
     </div>
   </div>
   <div class="row mb-2">
-    <div class="col-lg-8">
-      {% if experiment.is_archived %}
-        <span class="badge rounded-pill bg-danger" id="archive-badge">Archived</span>
-      {% endif %}
-      {% if experiment.is_rollout %}<span class="badge rounded-pill bg-primary" id="rollout-badge">Rollout</span>{% endif %}
-      {% if experiment.project_impact %}
-        <span class="badge rounded-pill text-bg-warning border border-secondary-subtle"><i class="fa-solid fa-trophy me-2"></i>{{ experiment.project_impact|lower|capfirst }} impact</span>
-      {% endif %}
-      {% if experiment.is_rollout_dirty %}
-        <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
-      {% endif %}
-      {% include "nimbus_experiments/experiment_tags.html" %}
+    <div class="col-lg-8 d-flex flex-wrap gap-1 align-items-center">
+      {% include "nimbus_experiments/experiment_tags.html" with show_status_badges=True %}
 
     </div>
     <div class="col-lg-4 d-flex align-items-start justify-content-lg-end">
