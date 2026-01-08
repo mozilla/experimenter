@@ -1071,6 +1071,10 @@ features:
   terms-of-use-prompt:
     description: Enables the terms of use prompt for users who have not accepted ToU
     variables:
+      content-option:
+        description: Defines which content option should used for the prompt.
+        type: TermsOfUsePromptContentOption
+        default: value-0
       enable-drag-to-dismiss:
         description: Whether to show a drag handle on the prompt and allows users to use it to dismiss the prompt.
         type: Boolean
@@ -1269,6 +1273,25 @@ enums:
         description: A firefox Suggestion from adMarketplace specifically for mobile.
       wikipedia:
         description: A Firefox Suggestion for a Wikipedia page.
+  TermsOfUsePromptContentOption:
+    description: |
+      Determines which predefined title and "learn more" strings are used for the Terms of Use prompt.
+    variants:
+      value-0:
+        description: |
+          Uses the current defaults:
+          - Title: "We've got an update"
+          - Learn more: "Please take a moment to review and accept. Learn more."
+      value-1:
+        description: |
+          Uses the following copy:
+          - Title: "Terms of Use"
+          - Learn more: "You can learn more here."
+      value-2:
+        description: |
+          Uses the following copy:
+          - Title: "A note from Firefox"
+          - Learn more: "You can learn more here."
   ThemeType:
     description: An enum to describe a theme selection option.
     variants:

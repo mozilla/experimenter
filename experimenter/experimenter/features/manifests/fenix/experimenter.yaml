@@ -689,6 +689,13 @@ terms-of-use-prompt:
   hasExposure: true
   exposureDescription: ''
   variables:
+    content-option:
+      type: string
+      description: Defines which content option should used for the prompt.
+      enum:
+      - value-0
+      - value-1
+      - value-2
     enable-drag-to-dismiss:
       type: boolean
       description: Whether to show a drag handle on the prompt and allows users to use it to dismiss the prompt.
