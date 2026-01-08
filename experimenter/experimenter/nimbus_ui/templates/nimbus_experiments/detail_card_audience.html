@@ -1,0 +1,160 @@
+{% extends "nimbus_experiments/detail_card_base.html" %}
+
+{% load nimbus_extras %}
+
+{% block card_id %}audience{% endblock %}
+{% block card_anchor %}audience{% endblock %}
+{% block card_header %}
+  <div class="row">
+    <div class="col">
+      <h4 class="mb-0">
+        <a href="#audience" class="text-decoration-none text-body">Audience</a>
+      </h4>
+    </div>
+    <div class="col pt-1 text-end">
+      <a href="{{ experiment.audience_url }}"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="text-decoration-none">Explore matching audiences</a>
+    </div>
+  </div>
+{% endblock %}
+{% block card_body %}
+  <table class="table table-striped mb-0">
+    <tbody>
+      <tr>
+        <th>Channel</th>
+        <td>{{ experiment.get_channel_display|default:"No Channel" }}</td>
+        <th>Advanced Targeting</th>
+        <td>{{ experiment.targeting_config.name }}</td>
+      </tr>
+      <tr>
+        <th>Minimum version</th>
+        <td>{{ experiment.firefox_min_version|parse_version }}</td>
+        <th>Maximum version</th>
+        <td>{{ experiment.firefox_max_version|parse_version }}</td>
+      </tr>
+      <tr>
+        {% if experiment.is_mobile %}
+          <th>
+            {% if experiment.exclude_languages %}
+              Excluded
+            {% else %}
+              Included
+            {% endif %}
+            Languages
+          </th>
+          <td>
+            {{ experiment.languages.all|join:"<br>"|default:"All Languages" }}
+          </td>
+        {% else %}
+          <th>
+            {% if experiment.exclude_locales %}
+              Excluded
+            {% else %}
+              Included
+            {% endif %}
+            Locales
+          </th>
+          <td>
+            {{ experiment.locales.all|join:"<br>"|default:"All Locales" }}
+          </td>
+        {% endif %}
+        <th>
+          {% if experiment.exclude_countries %}
+            Excluded
+          {% else %}
+            Included
+          {% endif %}
+          Countries
+        </th>
+        <td>
+          {{ experiment.countries.all|join:"<br>"| default:"All Countries" }}
+        </td>
+      </tr>
+      <tr>
+        <th>Expected enrolled clients</th>
+        <td>{{ experiment.total_enrolled_clients }}</td>
+        <th>Population %</th>
+        <td>{{ experiment.population_percent|floatformat:"-1" }}%</td>
+      </tr>
+      <tr>
+        <th>Sticky enrollment</th>
+        <td colspan="3">{{ experiment.is_sticky }}</td>
+      </tr>
+      {% if experiment.is_mobile %}
+        <tr>
+          <th>First Run Experiment</th>
+          <td data-testid="experiment-is-first-run">{{ experiment.is_first_run }}</td>
+          <th>First Run Release Date</th>
+          <td data-testid="experiment-release-date">{{ experiment.proposed_release_date }}</td>
+        </tr>
+      {% endif %}
+      <tr>
+        <th>Required experiments</th>
+        <td>
+          {% with experiment.required_experiments_branches.all as required_branches %}
+            {% if required_branches %}
+              {% for branch in required_branches %}
+                <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                  {{ branch.child_experiment.name }}
+                  ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+                </a>
+                <br>
+              {% endfor %}
+            {% else %}
+              None
+            {% endif %}
+          {% endwith %}
+        </td>
+        <th>Excluded experiments</th>
+        <td>
+          {% with experiment.excluded_experiments_branches.all as excluded_branches %}
+            {% if excluded_branches %}
+              {% for branch in excluded_branches %}
+                <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                  {{ branch.child_experiment.name }}
+                  ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+                </a>
+                <br>
+              {% endfor %}
+            {% else %}
+              None
+            {% endif %}
+          {% endwith %}
+        </td>
+      </tr>
+      <tr>
+        <th>Full targeting expression</th>
+        <td colspan="3">{{ experiment.targeting }}</td>
+      </tr>
+      <tr>
+        <th id="recipe-json" class="border-bottom-0">Recipe JSON</th>
+        <td colspan="3"
+            id="preview-recipe-json"
+            class="collapsed-json border-bottom-0">
+          <div style="max-height: 120px; overflow: hidden;">
+            <textarea class="readonly-json">{{ experiment.recipe_json }}</textarea>
+          </div>
+          <button class="btn btn-outline-primary btn-sm mt-2 d-block show-btn d-none">
+            <i class="fa-solid fa-plus"></i> Show more
+          </button>
+        </td>
+        <td colspan="3"
+            id="preview-recipe-json"
+            class="expanded-json d-none mw-0 border-bottom-0">
+          <div class="text-break">
+            <textarea class="readonly-json w-100">{{ experiment.recipe_json }}</textarea>
+          </div>
+          <button class="btn btn-outline-primary btn-sm mt-2 d-block hide-btn d-none">
+            <i class="fa-solid fa-minus"></i> Show less
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+{% endblock %}

@@ -12,7 +12,6 @@
   {% if cirrus and cirrus.features.is_example_feature_enabled %}{{ cirrus.features.example_feature_emoji }}{% endif %}
   Nimbus Experiments
 {% endblock title %}
-
 {% block sidebar %}
   <form id="filter-form"
         class="w-100"
@@ -28,14 +27,12 @@
     </a>
   </form>
 {% endblock sidebar %}
-
 {% block main_content %}
   <div id="experiment-list">
     {% include "nimbus_experiments/table.html" with experiments=experiments page_obj=page_obj filter=filter %}
 
   </div>
 {% endblock main_content %}
-
 {% block extrascripts %}
   {{ block.super }}
   <script src="{% static 'nimbus_ui/experiment_list.bundle.js' %}"></script>
