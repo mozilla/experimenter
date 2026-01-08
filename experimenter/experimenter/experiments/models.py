@@ -1281,18 +1281,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     {"title": "Project Impact"},
                 ],
             },
-            *[
-                {
-                    "title": area,
-                    "subitems": [
-                        {"title": metric["friendly_name"], "slug": metric["slug"]}
-                        for metric in metrics
-                    ],
-                }
-                for area, metrics in self.get_metric_areas(
-                    "enrollments", "all", self.reference_branch
-                ).items()
-            ],
         ]
 
     def timeline(self):
