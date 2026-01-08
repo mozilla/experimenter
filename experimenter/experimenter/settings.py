@@ -550,7 +550,9 @@ METRIC_HUB_OUTCOMES_PATH = (
 )
 
 METRIC_HUB_SEGMENTS_PATH_DEFAULT = BASE_DIR / "segments" / "metric-hub-main"
-
+METRIC_HUB_METRICS_PATH_DEFAULT = (
+    BASE_DIR / "metrics" / "metric-hub-main" / "jetstream" / "defaults"
+)
 
 # Feature Manifest path
 FEATURE_MANIFESTS_PATH = BASE_DIR / "features" / "manifests"
