@@ -3559,6 +3559,33 @@ TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfi
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED_V2 = NimbusTargetingConfig(
+    name="Mac or Windows users accepted TOU V4, all TopSites enabled",
+    slug="tou_accepted_mac_win_newtab_sponsored_topsites_enabled_v2",
+    description=(
+        "TOU version 4 or higher accepted, Mac or Win, and all TopSites enabled"
+    ),
+    targeting=f"""
+    (
+        (
+            os.isWindows
+            ||
+            os.isMac
+        )
+        &&
+        {ACCEPTED_TOU_V4_OR_HIGHER}
+        &&
+        'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue
+        &&
+        'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIN10_FIREFOX_VPN_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10 users eligible for Firefox VPN",
     slug="win10_firefox_vpn",
