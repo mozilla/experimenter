@@ -17,9 +17,9 @@
     <!-- Experiment Details Card -->
     <form id="metrics-form"
           hx-post="{% url 'nimbus-ui-update-metrics' experiment.slug %}"
-          hx-select="#metrics-form"
-          hx-target="#metrics-form"
-          hx-swap="outerHTML">
+          hx-select="#content-with-sidebar"
+          hx-target="#content-with-sidebar"
+          hx-swap="innerHTML">
       {% csrf_token %}
       {{ form.errors }}
       <div class="card mb-3">
