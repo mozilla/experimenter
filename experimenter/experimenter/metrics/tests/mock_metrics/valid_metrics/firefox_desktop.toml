@@ -1,7 +1,0 @@
-[metrics]
-
-[metrics.areas]
-engagement = [
-    "mock_engagement_metric",
-    "another_metric"
-]

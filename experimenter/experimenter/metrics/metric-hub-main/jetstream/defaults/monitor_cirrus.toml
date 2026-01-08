@@ -1,8 +1,0 @@
-# This defines the default metrics and statistics calculated for each experiment
-
-[metrics]
-daily = ["monitor_pageviews_v1"]
-
-weekly = ["monitor_pageviews_v1"]
-
-overall = ["monitor_pageviews_v1"]
