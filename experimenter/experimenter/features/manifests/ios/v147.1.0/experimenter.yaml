@@ -489,6 +489,14 @@ tou-feature:
   hasExposure: true
   exposureDescription: ''
   variables:
+    content-option:
+      type: string
+      description: |
+        Determines which predefined title and "learn more" strings are used for the Terms of Use prompt.
+      enum:
+      - value-0
+      - value-1
+      - value-2
     enable-drag-to-dismiss:
       type: boolean
       description: |
