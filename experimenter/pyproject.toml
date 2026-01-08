@@ -210,5 +210,5 @@ ignore = [
 [tool.djlint]
 profile = "django"
 ignore = "H021,H030,H031"
-blank_line_after_tag = "load,extends,include,endblock"
+blank_line_after_tag = "load,extends,include"
 indent = 2

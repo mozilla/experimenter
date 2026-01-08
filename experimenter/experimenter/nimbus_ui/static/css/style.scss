@@ -276,3 +276,58 @@
     rgba(255, 255, 255, 0) 100%
   );
 }
+
+// Fix for table striped background covering card rounded corners
+.card {
+  position: relative;
+  border: none !important;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: var(--bs-card-border-width) solid var(--bs-card-border-color);
+    border-radius: var(--bs-card-border-radius);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  // Align card header padding with table cell padding
+  .card-header {
+    padding-left: var(--bs-card-cap-padding-x);
+    padding-right: var(--bs-card-cap-padding-x);
+  }
+
+  // First cell should align with card header
+  .card-body .table th:first-child,
+  .card-body .table td:first-child {
+    padding-left: var(--bs-card-cap-padding-x) !important;
+    padding-right: 0.75rem !important;
+  }
+
+  // Last cell should have proper right padding
+  .card-body .table th:last-child,
+  .card-body .table td:last-child {
+    padding-right: var(--bs-card-cap-padding-x) !important;
+    padding-left: 0.75rem !important;
+  }
+
+  // Middle cells get increased padding on both sides
+  .card-body .table th:not(:first-child):not(:last-child),
+  .card-body .table td:not(:first-child):not(:last-child) {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  // Specific spacing between adjacent th and td cells
+  .card-body .table th {
+    padding-right: 1.5rem !important;
+  }
+
+  .card-body .table td {
+    padding-left: 0.75rem !important;
+  }
+}

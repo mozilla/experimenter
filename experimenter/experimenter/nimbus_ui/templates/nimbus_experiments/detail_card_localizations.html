@@ -1,0 +1,23 @@
+{% extends "nimbus_experiments/detail_card_base.html" %}
+
+{% block card_id %}localizations{% endblock %}
+{% block card_anchor %}localizations{% endblock %}
+{% block card_title %}Localizations{% endblock %}
+{% block card_body %}
+  <table class="table table-striped mb-0">
+    <tbody>
+      <tr>
+        <th>Is Localized</th>
+        <td colspan="3">{{ experiment.is_localized }}</td>
+      </tr>
+      <tr>
+        <th class="border-bottom-0">Localizations JSON</th>
+        <td colspan="3" class="mw-0 border-bottom-0">
+          <div class="mw-100 overflow-auto">
+            <textarea class="readonly-json">{{ experiment.localizations|default:"null" }}</textarea>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+{% endblock %}

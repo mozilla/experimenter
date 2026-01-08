@@ -11,15 +11,18 @@
           hx-swap-oob="true">QA Status: {{ experiment.qa_status|default:"Not Set"|title }}</span>
   {% endif %}
 {% else %}
-  <div class="card">
+  <div class="card mb-3" id="qa">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <h4 class="mb-0">Quality Assurance</h4>
+      <h4 class="mb-0">
+        <a href="#qa" class="text-decoration-none text-body">Quality Assurance</a>
+      </h4>
       <button class="btn btn-outline-primary btn-sm"
               hx-get="{% url 'nimbus-ui-update-qa-status' experiment.slug %}"
               hx-target="#qa-status-form-container"
               hx-swap="outerHTML">Edit</button>
     </div>
-    <div class="card-body p-0 overflow-hidden" id="qa-status-form-container">
+    <div class="card-body p-0 overflow-hidden rounded-bottom"
+         id="qa-status-form-container">
       {% include "nimbus_experiments/qa_container_content.html" %}
 
     </div>
