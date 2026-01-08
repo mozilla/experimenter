@@ -904,6 +904,11 @@ features:
     description: |
       This feature is for managing the rollout of the Terms of Use (ToU) implementation.
     variables:
+      content-option:
+        description: |
+          Determines which predefined title and "learn more" strings are used for the Terms of Use prompt.
+        type: TermsOfUsePromptContentOption
+        default: value-0
       enable-drag-to-dismiss:
         description: |
           Whether to show a drag handle on the prompt and allows users to use it to dismiss the prompt.
@@ -1207,6 +1212,25 @@ enums:
         description: A Firefox Suggestion specifically for mobile from adMarketplace.
       wikipedia:
         description: A Firefox Suggestion for a Wikipedia page.
+  TermsOfUsePromptContentOption:
+    description: |
+      Determines which predefined title and "learn more" strings are used for the Terms of Use prompt.
+    variants:
+      value-0:
+        description: |
+          Uses the current defaults:
+          - Title: "We've got an update"
+          - Learn more: "Please take a moment to review and accept. Learn more."
+      value-1:
+        description: |
+          Uses the following copy:
+          - Title: "Terms of Use"
+          - Learn more: "You can learn more here."
+      value-2:
+        description: |
+          Uses the following copy:
+          - Title: "A note from Firefox"
+          - Learn more: "You can learn more here."
   ToolbarLayoutType:
     description: The type of toolbar layout.
     variants:
