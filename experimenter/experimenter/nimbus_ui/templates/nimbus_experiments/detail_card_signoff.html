@@ -3,7 +3,9 @@
 <form id="signoff" class="card mb-3">
   {% csrf_token %}
   <div class="card-header d-flex justify-content-between align-items-center">
-    <h4 class="mb-0">Sign-Offs</h4>
+    <h4 class="mb-0">
+      <a href="#signoff" class="text-decoration-none text-body">Sign-Offs</a>
+    </h4>
     {{ errors }}
     {% if edit %}
       <div>

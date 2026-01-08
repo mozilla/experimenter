@@ -2,7 +2,7 @@
 
 <div id="takeaways-card" class="card mb-3">
   <div class="card-header d-flex justify-content-between align-items-center">
-    <h4 class="d-flex align-items-center">
+    <h4 class="mb-0 d-flex align-items-center">
       Takeaways
       <div class="px-2">
         {% for recommendation in experiment.conclusion_recommendation_labels %}
@@ -19,8 +19,8 @@
             hx-swap="outerHTML"
             data-testid="edit-takeaways">Edit</button>
   </div>
-  <div class="card-body">
-    <table class="table table-striped">
+  <div class="card-body p-0 overflow-hidden">
+    <table class="table table-striped mb-0">
       <tbody>
         <tr>
           <th>QBR Learning</th>
@@ -33,8 +33,10 @@
           <td colspan="3" id="takeawaysSummaryText">{{ experiment.takeaways_summary|format_not_set }}</td>
         </tr>
         <tr>
-          <th>Gain amount</th>
-          <td colspan="3" id="takeawaysGainAmount">{{ experiment.takeaways_gain_amount|format_not_set }}</td>
+          <th class="border-bottom-0">Gain amount</th>
+          <td colspan="3" id="takeawaysGainAmount" class="border-bottom-0">
+            {{ experiment.takeaways_gain_amount|format_not_set }}
+          </td>
         </tr>
       </tbody>
     </table>

@@ -6,28 +6,11 @@
   {% include "nimbus_experiments/sidebar.html" with experiment=experiment %}
 
 {% endblock %}
-
 {% block main_content_header %}
-  <div class="d-flex mb-2 justify-content-between flex-column flex-xxl-row column-gap-3">
-    <!-- Experiment Details -->
+  <div class="d-flex justify-content-between flex-column flex-xxl-row column-gap-3">
     <div>
       <h4 class="mb-0">{{ experiment.name }}</h4>
-      {% if experiment.is_archived %}
-        <span class="badge rounded-pill bg-danger" id="archive-badge">Archived</span>
-      {% endif %}
-      {% if experiment.is_rollout %}<span class="badge rounded-pill bg-primary" id="rollout-badge">Rollout</span>{% endif %}
-      {% if experiment.project_impact %}
-        <span class="badge rounded-pill text-bg-warning border border-secondary-subtle"><i class="fa-solid fa-trophy me-2"></i>{{ experiment.project_impact|lower|capfirst }} impact</span>
-      {% endif %}
-      <span id="qa-status-header" class="{{ experiment.qa_status_badge_class }}">
-        QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
-      </span>
-      {% include "nimbus_experiments/experiment_tags.html" %}
-
-      {% if experiment.is_rollout_dirty %}
-        <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
-      {% endif %}
-      <div class="d-flex align-items-center mb-2">
+      <div class="d-flex align-items-center">
         <button id="experiment-slug"
                 type="button"
                 class="btn text-secondary ps-0"
@@ -36,33 +19,11 @@
           <i class="fa-solid fa-copy"></i>
         </button>
       </div>
-      <div class="d-flex align-items-center mb-3">
-        <form method="post"
-              action="{% url 'nimbus-ui-toggle-review-slack-notifications' slug=experiment.slug %}"
-              class="d-flex align-items-center">
-          {% csrf_token %}
-          <input type="hidden" name="enable_review_slack_notifications" value="false">
-          <div class="form-check form-switch">
-            <input type="checkbox"
-                   id="slack-notifications-toggle"
-                   name="enable_review_slack_notifications"
-                   value="true"
-                   {% if experiment.enable_review_slack_notifications %}checked{% endif %}
-                   onchange="this.form.submit()"
-                   class="form-check-input"
-                   role="switch"
-                   style="cursor: pointer">
-            <label for="slack-notifications-toggle"
-                   class="form-check-label text-secondary small"
-                   style="cursor: pointer">
-              <i class="fa-solid fa-bell me-1"></i>
-              <span>Enable review Slack notifications</span>
-            </label>
-          </div>
-        </form>
-      </div>
+      <span id="qa-status-header" class="{{ experiment.qa_status_badge_class }}">
+        QA Status: {{ experiment.qa_status|default:"Not Set"|title }}
+      </span>
       {% if experiment.parent %}
-        <p class="text-secondary small">
+        <p class="text-secondary small mb-0 mt-2">
           Cloned from
           <a href="{% url 'nimbus-ui-detail' experiment.parent.slug %}"
              target="_blank"
@@ -71,10 +32,50 @@
         </p>
       {% endif %}
     </div>
-    <!-- Experiment Timeline -->
     <div id="experiment-timeline">
       {% include "nimbus_experiments/timeline.html" %}
 
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-lg-8">
+      {% if experiment.is_archived %}
+        <span class="badge rounded-pill bg-danger" id="archive-badge">Archived</span>
+      {% endif %}
+      {% if experiment.is_rollout %}<span class="badge rounded-pill bg-primary" id="rollout-badge">Rollout</span>{% endif %}
+      {% if experiment.project_impact %}
+        <span class="badge rounded-pill text-bg-warning border border-secondary-subtle"><i class="fa-solid fa-trophy me-2"></i>{{ experiment.project_impact|lower|capfirst }} impact</span>
+      {% endif %}
+      {% if experiment.is_rollout_dirty %}
+        <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
+      {% endif %}
+      {% include "nimbus_experiments/experiment_tags.html" %}
+
+    </div>
+    <div class="col-lg-4 d-flex align-items-start justify-content-lg-end">
+      <form method="post"
+            action="{% url 'nimbus-ui-toggle-review-slack-notifications' slug=experiment.slug %}"
+            class="d-flex align-items-center">
+        {% csrf_token %}
+        <input type="hidden" name="enable_review_slack_notifications" value="false">
+        <div class="form-check form-switch d-flex align-items-center">
+          <label for="slack-notifications-toggle"
+                 class="form-check-label text-secondary small me-2 mb-0"
+                 style="cursor: pointer">
+            <i class="fa-solid fa-bell me-1"></i>
+            <span>Enable review Slack notifications</span>
+          </label>
+          <input type="checkbox"
+                 id="slack-notifications-toggle"
+                 name="enable_review_slack_notifications"
+                 value="true"
+                 {% if experiment.enable_review_slack_notifications %}checked{% endif %}
+                 onchange="this.form.submit()"
+                 class="form-check-input m-0"
+                 role="switch"
+                 style="cursor: pointer">
+        </div>
+      </form>
     </div>
   </div>
   <div id="slug-toast"

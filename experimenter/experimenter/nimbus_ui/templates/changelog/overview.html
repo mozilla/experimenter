@@ -3,7 +3,6 @@
 {% load nimbus_extras %}
 
 {% block title %}{{ experiment.name }} - History{% endblock %}
-
 {% block main_content %}
   <div class="container-fluid">
     {% for changelog in experiment.get_changelogs_by_date %}
