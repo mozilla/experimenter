@@ -7,7 +7,6 @@
 {% load error_helpers %}
 
 {% block title %}{{ experiment.name }} - Branches{% endblock %}
-
 {% block main_content %}
   <div class="position-relative">
     <!-- Full form overlay -->
@@ -22,9 +21,9 @@
           {% if form.is_bound %}class="was-validated"{% endif %}
           hx-encoding="multipart/form-data"
           hx-post="{% url 'nimbus-ui-update-branches' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-          hx-select="#branches-form"
-          hx-target="#branches-form"
-          hx-swap="outerHTML">
+          hx-select="#content-with-sidebar"
+          hx-target="#content-with-sidebar"
+          hx-swap="innerHTML">
       {% csrf_token %}
       <div class="card mb-3">
         <div class="card-header">
@@ -417,7 +416,6 @@
     </form>
   </div>
 {% endblock main_content %}
-
 {% block extrascripts %}
   {{ block.super }}
   <script src="{% static 'nimbus_ui/edit_branches.bundle.js' %}"></script>

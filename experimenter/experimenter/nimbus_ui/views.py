@@ -911,7 +911,9 @@ class NimbusFeaturesView(TemplateView):
         deliveries_page_obj = deliveries_paginator.get_page(deliveries_page_number)
 
         experiments_with_qa_status = qs.exclude(
-            qa_status=NimbusExperiment.QAStatus.NOT_SET.value
+            qa_status=NimbusExperiment.QAStatus.NOT_SET.value,
+            qa_run_test_plan_url__isnull=True,
+            qa_run_testrail_url__isnull=True,
         )
 
         qa_runs_paginator = Paginator(experiments_with_qa_status, 5)

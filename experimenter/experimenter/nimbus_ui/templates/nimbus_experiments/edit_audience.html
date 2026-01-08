@@ -6,7 +6,6 @@
 {% load widget_tweaks %}
 
 {% block title %}{{ experiment.name }} - Audience{% endblock %}
-
 {% block main_content %}
   <div class="position-relative">
     <!-- Full form overlay -->
@@ -20,8 +19,9 @@
     <form id="audience-form"
           {% if form.is_bound and form.is_valid %}class="was-validated"{% endif %}
           hx-post="{% url 'nimbus-ui-update-audience' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
-          hx-select="#audience-form"
-          hx-target="#audience-form">
+          hx-select="#content-with-sidebar"
+          hx-target="#content-with-sidebar"
+          hx-swap="innerHTML">
       {% csrf_token %}
       <div class="card mb-3">
         <div class="card-header">
@@ -296,7 +296,6 @@
     </form>
   </div>
 {% endblock main_content %}
-
 {% block extrascripts %}
   {{ block.super }}
   <script src="{% static 'nimbus_ui/edit_audience.bundle.js' %}"></script>
