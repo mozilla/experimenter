@@ -146,6 +146,27 @@ class MetricsMockMixin:
         self.addCleanup(self.mock_metrics.stop)
 
 
+class TestSelectedFirstMixin(TestCase):
+    def test_selected_options_appear_first(self):
+        LocaleFactory.create(code="en-US", name="English (US)")
+        LocaleFactory.create(code="de-DE", name="German (Germany)")
+        locale1 = LocaleFactory.create(code="fr-FR", name="French (France)")
+        locale2 = LocaleFactory.create(code="es-ES", name="Spanish (Spain)")
+
+        experiment = NimbusExperimentFactory.create()
+        experiment.locales.set([locale1, locale2])
+
+        form = AudienceForm(instance=experiment)
+        bound_field = form["locales"]
+
+        first_two_ids = {
+            int(str(bound_field[0].data["value"])),
+            int(str(bound_field[1].data["value"])),
+        }
+
+        self.assertEqual(first_two_ids, {locale1.id, locale2.id})
+
+
 class TestNimbusExperimentCreateForm(RequestFormTestCase):
     def test_valid_form_creates_experiment_with_changelog(self):
         data = {
