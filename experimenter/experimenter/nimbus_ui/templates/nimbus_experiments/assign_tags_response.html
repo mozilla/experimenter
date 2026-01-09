@@ -2,4 +2,4 @@
 {% include "common/tag_button.html" with tag_count=experiment.tags.count %}
 
 <!-- This updates the tags display using out-of-band swap -->
-{% include "nimbus_experiments/experiment_tags.html" with hx_swap_oob=True %}
+{% include "nimbus_experiments/experiment_tags.html" with hx_swap_oob=True show_status_badges=True %}
