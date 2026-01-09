@@ -42,6 +42,14 @@ from experimenter.targeting.constants import NimbusTargetingConfig
 metrics = markus.get_metrics("experimenter.nimbus_ui_forms")
 
 
+class SelectedFirstMixin:
+    def optgroups(self, name, value, attrs=None):
+        groups = super().optgroups(name, value, attrs)
+        selected = [g for g in groups if any(o.get("selected") for o in g[1])]
+        unselected = [g for g in groups if not any(o.get("selected") for o in g[1])]
+        return [*selected, *unselected]
+
+
 class NimbusChangeLogFormMixin:
     def __init__(self, *args, request: HttpRequest = None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -301,7 +309,7 @@ class SignoffForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated sign off"
 
 
-class MultiSelectWidget(forms.SelectMultiple):
+class MultiSelectWidget(SelectedFirstMixin, forms.SelectMultiple):
     class_attrs = "selectpicker form-control"
 
     def __init__(self, *args, attrs=None, **kwargs):
@@ -317,7 +325,7 @@ class MultiSelectWidget(forms.SelectMultiple):
         super().__init__(*args, attrs=attrs, **kwargs)
 
 
-class SingleSelectWidget(forms.Select):
+class SingleSelectWidget(SelectedFirstMixin, forms.Select):
     class_attrs = "selectpicker form-control"
 
     def __init__(self, *args, attrs=None, **kwargs):
