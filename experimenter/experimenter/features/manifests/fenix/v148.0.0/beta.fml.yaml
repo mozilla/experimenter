@@ -883,7 +883,7 @@ features:
         description: |
           Enables the user to search for settings.
         type: Boolean
-        default: false
+        default: true
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
