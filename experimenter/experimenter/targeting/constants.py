@@ -729,9 +729,11 @@ URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED_NOT_STICKY = NimbusTargetingConfi
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-URLBAR_FIREFOX_SUGGEST_ONLINE_ACCEPTED_TOU_ON_OR_AFTER_DEC_15_2025 = NimbusTargetingConfig(
-    name="Urlbar (Firefox Suggest) - Online enabled, accepted TOU on or after Dec 15, 2025",
-    slug="urlbar_firefox_suggest_online_accepted_tou_on_or_after_dec_15_2025",
+URLBAR_FIREFOX_SUGGEST_ONLINE_ACCEPTED_TOU = NimbusTargetingConfig(
+    name=(
+        "Urlbar (Firefox Suggest) - Online enabled, accepted TOU"
+    ),
+    slug="urlbar_firefox_suggest_online_accepted_tou",
     description=(
         "User matches all of the following: "
         "(1) online Firefox Suggest enabled, "
@@ -752,9 +754,11 @@ URLBAR_FIREFOX_SUGGEST_ONLINE_ACCEPTED_TOU_ON_OR_AFTER_DEC_15_2025 = NimbusTarge
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-URLBAR_FIREFOX_SUGGEST_ONLINE_SPONSORED_ACCEPTED_TOU_ON_OR_AFTER_DEC_15_2025 = NimbusTargetingConfig(
-    name="Urlbar (Firefox Suggest) - Online enabled, sponsored enabled, accepted TOU on or after Dec 15, 2025",
-    slug="urlbar_firefox_suggest_online_sponsored_accepted_tou_on_or_after_dec_15_2025",
+URLBAR_FIREFOX_SUGGEST_ONLINE_SPONSORED_ACCEPTED_TOU = NimbusTargetingConfig(
+    name=(
+        "Urlbar (Firefox Suggest) - Online enabled, sponsored enabled, accepted TOU",
+    ),
+    slug="urlbar_firefox_suggest_online_sponsored_accepted_tou",
     description=(
         "User matches all of the following: "
         "(1) online Firefox Suggest enabled, "
