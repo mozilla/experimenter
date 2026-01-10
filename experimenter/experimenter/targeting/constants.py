@@ -729,15 +729,13 @@ URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED_NOT_STICKY = NimbusTargetingConfi
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-URLBAR_FIREFOX_SUGGEST_ONLINE_ACCEPTED_TOU = NimbusTargetingConfig(
-    name=(
-        "Urlbar (Firefox Suggest) - Online enabled, accepted TOU"
-    ),
-    slug="urlbar_firefox_suggest_online_accepted_tou",
+URLBAR_FIREFOX_SUGGEST_TOU_ONLINE = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) - Accepted ToU, online enabled",
+    slug="urlbar_firefox_suggest_tou_online",
     description=(
         "User matches all of the following: "
-        "(1) online Firefox Suggest enabled, "
-        "(2) accepted TOU on or after Dec 15, 2025"
+        "(1) accepted ToU on or after Dec 15, 2025, "
+        "(2) online Firefox Suggest enabled"
     ),
     targeting=f"""
     (
@@ -754,16 +752,14 @@ URLBAR_FIREFOX_SUGGEST_ONLINE_ACCEPTED_TOU = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-URLBAR_FIREFOX_SUGGEST_ONLINE_SPONSORED_ACCEPTED_TOU = NimbusTargetingConfig(
-    name=(
-        "Urlbar (Firefox Suggest) - Online enabled, sponsored enabled, accepted TOU",
-    ),
-    slug="urlbar_firefox_suggest_online_sponsored_accepted_tou",
+URLBAR_FIREFOX_SUGGEST_TOU_ONLINE_SPONSORED = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) - Accepted ToU, online enabled, sponsored enabled",
+    slug="urlbar_firefox_suggest_tou_online_sponsored",
     description=(
         "User matches all of the following: "
-        "(1) online Firefox Suggest enabled, "
-        "(2) sponsored suggestions enabled, "
-        "(3) accepted TOU on or after Dec 15, 2025 - "
+        "(1) accepted TOU on or after Dec 15, 2025, "
+        "(2) online Firefox Suggest enabled, "
+        "(3) sponsored suggestions enabled - "
         "IMPORTANT! You must restrict 'Locales' to one or more Firefox Suggest "
         "locales when using this!"
     ),
