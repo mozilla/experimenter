@@ -96,6 +96,14 @@ doh:
       type: boolean
       description: |
         When `true`, include DoH settings in the settings UI.
+email-masks:
+  description: Feature to enable Email Mask for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Email Mask feature is enabled.
 encourage-search-cfr:
   description: A feature that shows a CFR on first launch to encourage users to make a search
   hasExposure: true
@@ -493,14 +501,6 @@ re-engagement-notification:
     type:
       type: int
       description: The type of re-engagement notification that is shown to the inactive user.
-relay-email-masks:
-  description: Feature to enable Relay for users on Firefox on Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, Relay email masks feature is enabled.
 remote-search-configuration:
   description: Feature to use search configurations from remote servers.
   hasExposure: true
