@@ -63,7 +63,7 @@ features:
         description: |
           Variable description
         type: Boolean
-        default: true
+        default: false
   default-zoom-feature:
     description: |
       The feature flag to manage the rollout of default zoom feature.
