@@ -43,46 +43,6 @@ firefox_ios:
         tag_re: 'firefox-v(?P<major>\d+)\.(?P<minor>\d+)'
       - type: "branched"
 
-focus_android:
-  slug: "focus-android"
-  repo:
-    type: "github"
-    name: "mozilla-mobile/firefox-android"
-  fml_path: "focus-android/app/nimbus.fml.yaml"
-  release_discovery:
-    version_file:
-      type: "plaintext"
-      path: "version.txt"
-    strategies:
-      - type: "tagged"
-        branch_re: 'releases_v(?P<major>\d+)'
-        tag_re: 'focus-v(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?'
-      - type: "branched"
-
-focus_ios:
-  slug: "focus-ios"
-  repo:
-    type: "github"
-    name: "mozilla-mobile/firefox-ios"
-  fml_path:
-    - "focus-ios/nimbus.fml.yaml"
-  release_discovery:
-    version_file:
-      - type: "plaintext"
-        path: "version.txt"
-      - type: "plist"
-        path: "focus-ios/Blockzilla/Info.plist"
-        key: "CFBundleShortVersionString"
-      - type: "plist"
-        path: "Blockzilla/Info.plist"
-        key: "CFBundleShortVersionString"
-    strategies:
-      - type: "tagged"
-        branch_re: 'release/v(?P<major>\d+)'
-        tag_re: 'focus/klar-v(?P<major>\d+)\.(?P<minor>\d+)'
-        minimum_version: "124.0.0"  # Pre v124 it used the focus-ios repo.
-      - type: "branched"
-
 monitor_cirrus:
   slug: "monitor-web"
   repo:

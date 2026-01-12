@@ -140,8 +140,8 @@ class TestNimbusExperimentViewSet(CachedViewSetTest):
             reverse("nimbus-experiment-rest-v7-list"),
             {
                 "application": [
-                    NimbusExperiment.Application.FOCUS_ANDROID,
-                    NimbusExperiment.Application.KLAR_ANDROID,
+                    NimbusExperiment.Application.FENIX,
+                    NimbusExperiment.Application.IOS,
                 ]
             },
         )
@@ -153,8 +153,8 @@ class TestNimbusExperimentViewSet(CachedViewSetTest):
                 [
                     f"{application}-experiment"
                     for application in (
-                        NimbusExperiment.Application.FOCUS_ANDROID,
-                        NimbusExperiment.Application.KLAR_ANDROID,
+                        NimbusExperiment.Application.FENIX,
+                        NimbusExperiment.Application.IOS,
                     )
                 ]
             ),
