@@ -34,7 +34,7 @@ class CirrusMetricsHandler(MetricsHandler):
         self.enrollment_status_ping.record(
             user_agent=None,
             ip_address=None,
-            nimbus_nimbus_user_id=nimbus_user_id,
+            nimbus_nimbus_user_id=nimbus_user_id or "",
             events=[
                 {
                     "category": "cirrus_events",
