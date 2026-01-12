@@ -14,7 +14,8 @@
         <th class="border-bottom-0">Localizations JSON</th>
         <td colspan="3" class="mw-0 border-bottom-0">
           <div class="mw-100 overflow-auto">
-            <textarea class="readonly-json">{{ experiment.localizations|default:"null" }}</textarea>
+            {% include "common/readonly_json.html" with json_content=experiment.localizations|default:"null" %}
+
           </div>
         </td>
       </tr>
