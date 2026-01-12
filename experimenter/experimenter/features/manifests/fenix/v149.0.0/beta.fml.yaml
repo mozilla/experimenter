@@ -109,6 +109,13 @@ features:
           When `true`, include DoH settings in the settings UI.
         type: Boolean
         default: true
+  email-masks:
+    description: Feature to enable Email Mask for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Email Mask feature is enabled.
+        type: Boolean
+        default: false
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
@@ -782,13 +789,6 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
-  relay-email-masks:
-    description: Feature to enable Relay for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Relay email masks feature is enabled.
-        type: Boolean
-        default: false
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
