@@ -68,6 +68,23 @@ export const setupReadonlyJsonEditors = () => {
     const view = createReadonlyJsonEditor(textarea);
     if (view) {
       setupCodemirrorCollapsibleDisplay(textarea);
+      setupCopyButton(textarea, view);
     }
+  });
+};
+
+const setupCopyButton = (textarea, view) => {
+  const copyButton = textarea.parentNode.querySelector(".codemirror-copy-btn");
+  if (!copyButton) return;
+
+  copyButton.addEventListener("click", () => {
+    const content = view.state.doc.toString();
+    navigator.clipboard.writeText(content).then(() => {
+      const toast = document.getElementById("json-copy-toast");
+      if (toast) {
+        const bsToast = window.bootstrap.Toast.getOrCreateInstance(toast);
+        bsToast.show();
+      }
+    });
   });
 };

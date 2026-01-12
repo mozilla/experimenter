@@ -138,7 +138,8 @@
             id="preview-recipe-json"
             class="collapsed-json border-bottom-0">
           <div style="max-height: 120px; overflow: hidden;">
-            <textarea class="readonly-json">{{ experiment.recipe_json }}</textarea>
+            {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
+
           </div>
           <button class="btn btn-outline-primary btn-sm mt-2 d-block show-btn d-none">
             <i class="fa-solid fa-plus"></i> Show more
@@ -148,7 +149,8 @@
             id="preview-recipe-json"
             class="expanded-json d-none mw-0 border-bottom-0">
           <div class="text-break">
-            <textarea class="readonly-json w-100">{{ experiment.recipe_json }}</textarea>
+            {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
+
           </div>
           <button class="btn btn-outline-primary btn-sm mt-2 d-block hide-btn d-none">
             <i class="fa-solid fa-minus"></i> Show less
