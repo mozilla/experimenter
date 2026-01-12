@@ -718,17 +718,6 @@ URLBAR_FIREFOX_SUGGEST = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED = NimbusTargetingConfig(
-    name="Urlbar (Firefox Suggest) - Data Collection Enabled",
-    slug="urlbar_firefox_suggest_data_collection_enabled",
-    description="Users with Firefox Suggest data collection enabled",
-    targeting="'browser.urlbar.quicksuggest.dataCollection.enabled'|preferenceValue",
-    desktop_telemetry="",
-    sticky_required=True,
-    is_first_run_required=False,
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
 URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED_NOT_STICKY = NimbusTargetingConfig(
     name="Urlbar (Firefox Suggest) - Data Collection Enabled (not sticky)",
     slug="urlbar_firefox_suggest_data_collection_enabled_not_sticky",
@@ -740,48 +729,53 @@ URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED_NOT_STICKY = NimbusTargetingConfi
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_DISABLED = NimbusTargetingConfig(
-    name="Urlbar (Firefox Suggest) - Data Collection Disabled",
-    slug="urlbar_firefox_suggest_data_collection_disabled",
-    description="Users with Firefox Suggest data collection disabled",
-    targeting="!('browser.urlbar.quicksuggest.dataCollection.enabled'|preferenceValue)",
-    desktop_telemetry="",
-    sticky_required=True,
-    is_first_run_required=False,
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
-URLBAR_FIREFOX_SUGGEST_SPONSORED_ENABLED = NimbusTargetingConfig(
-    name="Urlbar (Firefox Suggest) - Sponsored Suggestions Enabled",
-    slug="urlbar_firefox_suggest_sponsored_enabled",
+URLBAR_FIREFOX_SUGGEST_TOU_ONLINE = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) - Accepted ToU, online enabled",
+    slug="urlbar_firefox_suggest_tou_online",
     description=(
-        "Users with sponsored Firefox Suggest suggestions enabled "
-        "(IMPORTANT: You must restrict 'Locales' to one or more Suggest "
-        "locales when using this!)"
+        "User matches all of the following: "
+        "(1) accepted ToU on or after Dec 15, 2025, "
+        "(2) online Firefox Suggest enabled"
     ),
-    targeting=(
-        "!('browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet) || "
-        "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue"
-    ),
+    targeting=f"""
+    (
+        {HAS_TOU_ACCEPTED_DATE}
+        &&
+        ({TOU_ACCEPTED_DATE} >= {DEC_15_2025})
+        &&
+        'browser.urlbar.quicksuggest.online.enabled'|preferenceValue
+    )
+    """,
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-URLBAR_FIREFOX_SUGGEST_SPONSORED_ENABLED_AND_4GB_RAM_MIN = NimbusTargetingConfig(
-    name="Urlbar (Firefox Suggest) - Sponsored Suggestions Enabled and 4GB+ of RAM",
-    slug="urlbar_firefox_suggest_sponsored_enabled_and_atleast_4GB_ram",
+URLBAR_FIREFOX_SUGGEST_TOU_ONLINE_SPONSORED = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) - Accepted ToU, online enabled, sponsored enabled",
+    slug="urlbar_firefox_suggest_tou_online_sponsored",
     description=(
-        "Users with sponsored Firefox Suggest suggestions enabled and at least 4GB of RAM"
-        "(IMPORTANT: You must restrict 'Locales' to one or more Suggest "
-        "locales when using this!)"
+        "User matches all of the following: "
+        "(1) accepted TOU on or after Dec 15, 2025, "
+        "(2) online Firefox Suggest enabled, "
+        "(3) sponsored suggestions enabled - "
+        "IMPORTANT! You must restrict 'Locales' to one or more Firefox Suggest "
+        "locales when using this!"
     ),
-    targeting=(
-        "(!('browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet) "
-        "|| 'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue) "
-        "&& memoryMB >= 4000"
-    ),
+    targeting=f"""
+    (
+        {HAS_TOU_ACCEPTED_DATE}
+        &&
+        ({TOU_ACCEPTED_DATE} >= {DEC_15_2025})
+        &&
+        'browser.urlbar.quicksuggest.online.enabled'|preferenceValue
+        && (
+            !('browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet) ||
+            'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue
+        )
+    )
+    """,
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

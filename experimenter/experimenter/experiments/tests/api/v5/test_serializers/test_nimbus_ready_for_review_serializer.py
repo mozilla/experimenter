@@ -1434,7 +1434,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 NimbusExperiment.Version.FIREFOX_105,
                 NimbusExperiment.Channel.NO_CHANNEL,
                 [NimbusExperiment.Channel.RELEASE],
-                NimbusExperiment.TargetingConfig.URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED,
+                NimbusExperiment.TargetingConfig.NEW_PROFILE_CREATED,
             ),
             (
                 NimbusExperiment.Application.FENIX,
