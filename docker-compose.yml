@@ -143,6 +143,22 @@ services:
       - /cirrus/cirrus/glean/
     working_dir: /cirrus
 
+  rust-sdk:
+    image: experimenter:dev
+    env_file: .env
+    environment:
+      - PYTEST_SPLIT_INDEX
+      - PYTEST_SPLIT_TOTAL
+      - INTEGRATION_TEST_NGINX_URL=https://nginx
+      - INTEGRATION_TEST_KINTO_URL=http://kinto:8888/v1
+    volumes:
+      - .:/code
+      - /code/experimenter/tests/integration/.tox
+    working_dir: /code
+    depends_on:
+      - nginx
+      - kinto
+
 volumes:
   db_volume:
   media_volume:

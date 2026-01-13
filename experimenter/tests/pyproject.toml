@@ -63,6 +63,7 @@ setuptools = "^70.3.0"
 dataclasses-json = "^0.6.7"
 flask = "^3.1.1"
 pytest-repeat = "^0.9.4"
+pytest-test-groups = "^1.2.1"
 
 
 [build-system]

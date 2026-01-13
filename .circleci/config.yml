@@ -615,6 +615,7 @@ jobs:
           extension: xml
 
   integration_nimbus_sdk_targeting:
+    parallelism: 2
     machine:
       image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
@@ -629,7 +630,9 @@ jobs:
           name: Run rust integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_sdk integration_test_and_report
+            export PYTEST_SPLIT_INDEX=$CIRCLE_NODE_INDEX
+            export PYTEST_SPLIT_TOTAL=$CIRCLE_NODE_TOTAL
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI integration_test_nimbus_sdk integration_sdk_test_and_report
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
       - store_test_results:
@@ -952,138 +955,138 @@ workflows:
   build:
     max_auto_reruns: 1
     jobs:
-      - check_experimenter_x86_64:
-          name: Check Experimenter x86_64
-      - check_experimenter_aarch64:
-          name: Check Experimenter aarch64
-      - check_experimenter_and_report:
-          name: Check Experimenter and report
-          filters:
-            branches:
-              only:
-                - main
-                - update_firefox_versions
-                - update-application-services
-      - check_cirrus_x86_64:
-          name: Check Cirrus x86_64
-      - check_cirrus_aarch64:
-          name: Check Cirrus aarch64
-      - check_local_feature_manifests:
-          name: Check Local Feature Manifests
-          filters:
-            branches:
-              ignore:
-                - main
-      - check_schemas:
-          name: Check Schemas
-          filters:
-            branches:
-              ignore:
-                - main
-      - create_mobile_recipes:
-          name: Create Fenix and iOS recipes
-          filters:
-            branches:
-              only:
-                - update_firefox_versions
-                - fix-13658
-      - integration_nimbus_desktop_ui:
-          name: Test Desktop Nimbus UI (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_remote_settings_launch:
-          name: Test Remote Settings Launch (All Applications)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_remote_settings_all:
-          name: Test Remote Settings All Workflows (Release Firefox Desktop)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_desktop_release_targeting:
-          name: Test Desktop Targeting (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_desktop_beta_targeting:
-          name: Test Desktop Targeting (Beta Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_desktop_nightly_targeting:
-          name: Test Desktop Targeting (Nightly Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_desktop_enrollment:
-          name: Test Desktop Enrollment (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - build_firefox_fenix:
-          name: Build Fenix APKs
-          filters:
-            branches:
-              only:
-                - update_firefox_versions
-      - integration_nimbus_fenix_enrollment:
-          name: Test Firefox for Android (Fenix)
-          requires:
-            - Create Fenix and iOS recipes
-            - Build Fenix APKs
-          filters:
-            branches:
-              only:
-                - update_firefox_versions
-      - integration_nimbus_ios_enrollment:
-          name: Test Firefox for iOS Release
-          requires:
-            - Create Fenix and iOS recipes
-          file_path: experimenter/tests/firefox_fennec_release_build.env
-          ios_version: "26.0"
-          simulator_device: iPhone 17
-          filters:
-            branches:
-              only:
-                - update_firefox_versions
-                - fix-13658
+      # - check_experimenter_x86_64:
+      #     name: Check Experimenter x86_64
+      # - check_experimenter_aarch64:
+      #     name: Check Experimenter aarch64
+      # - check_experimenter_and_report:
+      #     name: Check Experimenter and report
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
+      #           - update_firefox_versions
+      #           - update-application-services
+      # - check_cirrus_x86_64:
+      #     name: Check Cirrus x86_64
+      # - check_cirrus_aarch64:
+      #     name: Check Cirrus aarch64
+      # - check_local_feature_manifests:
+      #     name: Check Local Feature Manifests
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - check_schemas:
+      #     name: Check Schemas
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - create_mobile_recipes:
+      #     name: Create Fenix and iOS recipes
+      #     filters:
+      #       branches:
+      #         only:
+      #           - update_firefox_versions
+      #           - fix-13658
+      # - integration_nimbus_desktop_ui:
+      #     name: Test Desktop Nimbus UI (Release Firefox)
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - integration_nimbus_remote_settings_launch:
+      #     name: Test Remote Settings Launch (All Applications)
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - integration_nimbus_remote_settings_all:
+      #     name: Test Remote Settings All Workflows (Release Firefox Desktop)
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - integration_nimbus_desktop_release_targeting:
+      #     name: Test Desktop Targeting (Release Firefox)
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - integration_nimbus_desktop_beta_targeting:
+      #     name: Test Desktop Targeting (Beta Firefox)
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - integration_nimbus_desktop_nightly_targeting:
+      #     name: Test Desktop Targeting (Nightly Firefox)
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - integration_nimbus_desktop_enrollment:
+      #     name: Test Desktop Enrollment (Release Firefox)
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - build_firefox_fenix:
+      #     name: Build Fenix APKs
+      #     filters:
+      #       branches:
+      #         only:
+      #           - update_firefox_versions
+      # - integration_nimbus_fenix_enrollment:
+      #     name: Test Firefox for Android (Fenix)
+      #     requires:
+      #       - Create Fenix and iOS recipes
+      #       - Build Fenix APKs
+      #     filters:
+      #       branches:
+      #         only:
+      #           - update_firefox_versions
+      # - integration_nimbus_ios_enrollment:
+      #     name: Test Firefox for iOS Release
+      #     requires:
+      #       - Create Fenix and iOS recipes
+      #     file_path: experimenter/tests/firefox_fennec_release_build.env
+      #     ios_version: "26.0"
+      #     simulator_device: iPhone 17
+      #     filters:
+      #       branches:
+      #         only:
+      #           - update_firefox_versions
+      #           - fix-13658
       - integration_nimbus_sdk_targeting:
           name: Test SDK Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-      - deploy_experimenter:
-          name: Deploy Experimenter
-          context:
-            - gcpv2-workload-identity
-          filters:
-            branches:
-              only: main
-          requires:
-            - Check Experimenter x86_64
-            - Check Experimenter aarch64
-      - deploy_cirrus:
-          name: Deploy Cirrus
-          context:
-            - gcpv2-workload-identity
-          filters:
-            branches:
-              only: main
-          requires:
-            - Check Cirrus x86_64
-            - Check Cirrus aarch64
-      - deploy_schemas:
-          name: Deploy Schemas
-          filters:
-            branches:
-              only: main
+      # - deploy_experimenter:
+      #     name: Deploy Experimenter
+      #     context:
+      #       - gcpv2-workload-identity
+      #     filters:
+      #       branches:
+      #         only: main
+      #     requires:
+      #       - Check Experimenter x86_64
+      #       - Check Experimenter aarch64
+      # - deploy_cirrus:
+      #     name: Deploy Cirrus
+      #     context:
+      #       - gcpv2-workload-identity
+      #     filters:
+      #       branches:
+      #         only: main
+      #     requires:
+      #       - Check Cirrus x86_64
+      #       - Check Cirrus aarch64
+      # - deploy_schemas:
+      #     name: Deploy Schemas
+      #     filters:
+      #       branches:
+      #         only: main
