@@ -33,6 +33,11 @@
         <p>
           <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_messages }}</strong>
         </p>
+        {% if uses_secure_collection %}
+          <p class="mb-2">
+            <strong>Note:</strong> This must be reviewed by a member of the Release Management Team.
+          </p>
+        {% endif %}
         <button type="button"
                 class="btn btn-success"
                 hx-post="{% url approval_url slug=experiment.slug %}"
