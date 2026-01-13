@@ -245,16 +245,20 @@ integration_vnc_shell: build_prod
 integration_test_nimbus_desktop: build_prod integration_clean
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "FIREFOX_CHANNEL=$(FIREFOX_CHANNEL) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
 
-integration_test_nimbus_sdk: build_integration_test build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) -it rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"
+integration_test_nimbus_sdk: build_dev
+	MOZ_HEADLESS=1 $(COMPOSE_RUN) rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"
 
 integration_test_nimbus_fenix:
 	poetry -C experimenter/tests/integration/ -vvv install --no-root
 	poetry -C experimenter/tests/integration/ -vvv run pytest --html=workspace/test-results/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android --junitxml=experimenter/tests/integration/test-reports/experimenter_fenix_integration_tests.xml -vvv
 	cp experimenter/tests/integration/test-reports/experimenter_fenix_integration_tests.xml $(TEST_RESULTS_DIR)/$(TEST_FILE_PREFIX)integration__results.xml
 
-make integration_test_and_report:
+integration_test_and_report:
 	docker cp experimenter_integration:/code/experimenter/tests/integration/test-reports/experimenter_integration_tests.xml workspace/test-results
+	cp workspace/test-results/experimenter_integration_tests.xml $(INTEGRATION_JUNIT_XML)
+
+integration_sdk_test_and_report:
+	cp experimenter/tests/integration/test-reports/experimenter_integration_tests.xml workspace/test-results/
 	cp workspace/test-results/experimenter_integration_tests.xml $(INTEGRATION_JUNIT_XML)
 
 # cirrus

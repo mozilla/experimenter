@@ -30,6 +30,9 @@ services:
   rust-sdk:
     image: experimenter:integration-tests
     env_file: .env
+    environment:
+      - PYTEST_SPLIT_INDEX
+      - PYTEST_SPLIT_TOTAL
     volumes:
       - .:/code
       - /code/experimenter/tests/integration/.tox
