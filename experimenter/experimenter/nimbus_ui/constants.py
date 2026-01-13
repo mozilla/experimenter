@@ -317,22 +317,6 @@ def _get_application_icon_map():
             "icon": "fa-fw fa-brands fa-apple",
             "color": "text-secondary",
         },
-        NimbusConstants.Application.FOCUS_ANDROID: {
-            "icon": "fa-fw fa-brands fa-android",
-            "color": "text-success",
-        },
-        NimbusConstants.Application.KLAR_ANDROID: {
-            "icon": "fa-fw fa-brands fa-android",
-            "color": "text-success",
-        },
-        NimbusConstants.Application.FOCUS_IOS: {
-            "icon": "fa-fw fa-brands fa-apple",
-            "color": "text-secondary",
-        },
-        NimbusConstants.Application.KLAR_IOS: {
-            "icon": "fa-fw fa-brands fa-apple",
-            "color": "text-secondary",
-        },
         NimbusConstants.Application.MONITOR: {
             "icon": "fa-fw fa-solid fa-shield-alt",
             "color": "text-info",

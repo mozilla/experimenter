@@ -195,63 +195,6 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
 )
 
-APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
-    name="Focus for Android",
-    slug="focus-android",
-    app_name="focus_android",
-    channel_app_id={
-        Channel.NIGHTLY: "org.mozilla.focus.nightly",
-        Channel.BETA: "org.mozilla.focus.beta",
-        Channel.RELEASE: "org.mozilla.focus",
-    },
-    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
-    randomization_unit=BucketRandomizationUnit.NIMBUS,
-    is_web=False,
-    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
-)
-
-APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
-    name="Klar for Android",
-    slug="klar-android",
-    app_name="klar_android",
-    channel_app_id={
-        Channel.RELEASE: "org.mozilla.klar",
-    },
-    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
-    randomization_unit=BucketRandomizationUnit.NIMBUS,
-    is_web=False,
-    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
-)
-
-
-APPLICATION_CONFIG_FOCUS_IOS = ApplicationConfig(
-    name="Focus for iOS",
-    slug="focus-ios",
-    app_name="focus_ios",
-    channel_app_id={
-        Channel.RELEASE: "org.mozilla.ios.Focus",
-        Channel.TESTFLIGHT: "org.mozilla.ios.Focus",
-    },
-    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
-    randomization_unit=BucketRandomizationUnit.NIMBUS,
-    is_web=False,
-    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
-)
-
-APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
-    name="Klar for iOS",
-    slug="klar-ios",
-    app_name="klar_ios",
-    channel_app_id={
-        Channel.RELEASE: "org.mozilla.ios.Klar",
-        Channel.TESTFLIGHT: "org.mozilla.ios.Klar",
-    },
-    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
-    randomization_unit=BucketRandomizationUnit.NIMBUS,
-    is_web=False,
-    preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
-)
-
 APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     name="Monitor Web",
     slug="monitor-web",
@@ -338,10 +281,6 @@ APPLICATION_CONFIG_SUBPLAT = ApplicationConfig(
 )
 
 NO_FEATURE_SLUG = [
-    "no-feature-focus-android",
-    "no-feature-klar-ios",
-    "no-feature-focus-ios",
-    "no-feature-klar-android",
     "no-feature-ios",
     "no-feature-fenix",
     "no-feature-firefox-desktop",
@@ -353,22 +292,6 @@ class Application(models.TextChoices):
     DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
     FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.name)
     IOS = (APPLICATION_CONFIG_IOS.slug, APPLICATION_CONFIG_IOS.name)
-    FOCUS_ANDROID = (
-        APPLICATION_CONFIG_FOCUS_ANDROID.slug,
-        APPLICATION_CONFIG_FOCUS_ANDROID.name,
-    )
-    KLAR_ANDROID = (
-        APPLICATION_CONFIG_KLAR_ANDROID.slug,
-        APPLICATION_CONFIG_KLAR_ANDROID.name,
-    )
-    FOCUS_IOS = (
-        APPLICATION_CONFIG_FOCUS_IOS.slug,
-        APPLICATION_CONFIG_FOCUS_IOS.name,
-    )
-    KLAR_IOS = (
-        APPLICATION_CONFIG_KLAR_IOS.slug,
-        APPLICATION_CONFIG_KLAR_IOS.name,
-    )
     MONITOR = (
         APPLICATION_CONFIG_MONITOR_WEB.slug,
         APPLICATION_CONFIG_MONITOR_WEB.name,
@@ -400,10 +323,6 @@ class Application(models.TextChoices):
         return application in (
             Application.FENIX,
             Application.IOS,
-            Application.FOCUS_ANDROID,
-            Application.KLAR_ANDROID,
-            Application.FOCUS_IOS,
-            Application.KLAR_IOS,
         )
 
     @staticmethod
@@ -484,10 +403,6 @@ class NimbusConstants:
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,
         Application.FENIX: APPLICATION_CONFIG_FENIX,
         Application.IOS: APPLICATION_CONFIG_IOS,
-        Application.FOCUS_ANDROID: APPLICATION_CONFIG_FOCUS_ANDROID,
-        Application.KLAR_ANDROID: APPLICATION_CONFIG_KLAR_ANDROID,
-        Application.FOCUS_IOS: APPLICATION_CONFIG_FOCUS_IOS,
-        Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
         Application.MONITOR: APPLICATION_CONFIG_MONITOR_WEB,
         Application.VPN: APPLICATION_CONFIG_VPN_WEB,
         Application.FXA: APPLICATION_CONFIG_FXA_WEB,
@@ -918,9 +833,7 @@ class NimbusConstants:
 
     LANGUAGES_APPLICATION_SUPPORTED_VERSION = {
         Application.FENIX: Version.FIREFOX_102,
-        Application.FOCUS_ANDROID: Version.FIREFOX_102,
         Application.IOS: Version.FIREFOX_101,
-        Application.FOCUS_IOS: Version.FIREFOX_101,
         Application.DEMO_APP: Version.NO_VERSION,
         Application.MONITOR: Version.NO_VERSION,
         Application.VPN: Version.NO_VERSION,
@@ -931,9 +844,7 @@ class NimbusConstants:
 
     COUNTRIES_APPLICATION_SUPPORTED_VERSION = {
         Application.FENIX: Version.FIREFOX_102,
-        Application.FOCUS_ANDROID: Version.FIREFOX_102,
         Application.IOS: Version.FIREFOX_101,
-        Application.FOCUS_IOS: Version.FIREFOX_101,
         Application.DEMO_APP: Version.NO_VERSION,
         Application.MONITOR: Version.NO_VERSION,
         Application.VPN: Version.NO_VERSION,
@@ -946,9 +857,7 @@ class NimbusConstants:
     ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION = {
         Application.DESKTOP: Version.FIREFOX_115,
         Application.FENIX: Version.FIREFOX_116,
-        Application.FOCUS_ANDROID: Version.FIREFOX_116,
         Application.IOS: Version.FIREFOX_116,
-        Application.FOCUS_IOS: Version.FIREFOX_116,
     }
 
     LOCALIZATION_SUPPORTED_VERSION = {
@@ -958,9 +867,7 @@ class NimbusConstants:
     MIN_VERSIONED_FEATURE_VERSION = {
         Application.DESKTOP: Version.FIREFOX_120,
         Application.FENIX: Version.FIREFOX_116,
-        Application.FOCUS_ANDROID: Version.FIREFOX_116,
         Application.IOS: Version.FIREFOX_116,
-        Application.FOCUS_IOS: Version.FIREFOX_116,
     }
 
     # As of Firefox 142, experiments that publish to alternate collections can

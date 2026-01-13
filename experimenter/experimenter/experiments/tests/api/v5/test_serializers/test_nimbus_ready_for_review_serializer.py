@@ -243,9 +243,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         [
             NimbusExperiment.Application.DESKTOP,
             NimbusExperiment.Application.FENIX,
-            NimbusExperiment.Application.FOCUS_ANDROID,
             NimbusExperiment.Application.IOS,
-            NimbusExperiment.Application.FOCUS_IOS,
         ]
     )
     def test_rollout_min_version_under_115_shows_warning(self, application):
@@ -286,39 +284,9 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
 
     @parameterized.expand(
         [
-            NimbusExperiment.Application.KLAR_IOS,
-            NimbusExperiment.Application.KLAR_IOS,
-        ]
-    )
-    def test_rollout_klar_min_version_under_115_no_warning(self, application):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
-            is_rollout=True,
-            is_sticky=True,
-        )
-        for branch in experiment.treatment_branches:
-            branch.delete()
-        experiment.save()
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(
-                experiment,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-        self.assertTrue(serializer.is_valid())
-        self.assertEqual(serializer.warnings, {})
-
-    @parameterized.expand(
-        [
             NimbusExperiment.Application.DESKTOP,
             NimbusExperiment.Application.FENIX,
-            NimbusExperiment.Application.FOCUS_ANDROID,
             NimbusExperiment.Application.IOS,
-            NimbusExperiment.Application.FOCUS_IOS,
         ]
     )
     def test_rollout_min_version_over_115_no_warning(self, application):
@@ -1952,10 +1920,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             (NimbusExperiment.Application.DESKTOP, True),
             (NimbusExperiment.Application.FENIX, False),
             (NimbusExperiment.Application.IOS, False),
-            (NimbusExperiment.Application.FOCUS_ANDROID, False),
-            (NimbusExperiment.Application.FOCUS_IOS, False),
-            (NimbusExperiment.Application.KLAR_ANDROID, False),
-            (NimbusExperiment.Application.KLAR_IOS, False),
         ]
     )
     def test_localized_with_application(self, application, valid):

@@ -1302,10 +1302,8 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(
 ):
     @parameterized.expand(
         [
-            NimbusExperiment.Application.FOCUS_IOS,
             NimbusExperiment.Application.FENIX,
             NimbusExperiment.Application.IOS,
-            NimbusExperiment.Application.FOCUS_ANDROID,
             NimbusExperiment.Application.DESKTOP,
             NimbusExperiment.Application.MONITOR,
             NimbusExperiment.Application.FXA,

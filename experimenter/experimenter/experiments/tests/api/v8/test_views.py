@@ -146,8 +146,8 @@ class NimbusExperimentFilterMixin:
             reverse(self.LIST_VIEW),
             {
                 "application": [
-                    NimbusExperiment.Application.FOCUS_ANDROID,
-                    NimbusExperiment.Application.KLAR_ANDROID,
+                    NimbusExperiment.Application.FENIX,
+                    NimbusExperiment.Application.IOS,
                 ]
             },
         )
@@ -157,8 +157,8 @@ class NimbusExperimentFilterMixin:
             [
                 f"{application}-experiment"
                 for application in (
-                    NimbusExperiment.Application.FOCUS_ANDROID,
-                    NimbusExperiment.Application.KLAR_ANDROID,
+                    NimbusExperiment.Application.FENIX,
+                    NimbusExperiment.Application.IOS,
                 )
             ],
         )
