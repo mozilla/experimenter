@@ -125,34 +125,6 @@ class VersionTests(TestCase):
                     Version(117): Ref("release/v117"),
                 },
             ),
-            (
-                "focus_android",
-                [
-                    "main",
-                    "releases_v109",
-                    "releases_v110",
-                ],
-                {
-                    Version(109): Ref("releases_v109"),
-                    Version(110): Ref("releases_v110"),
-                },
-            ),
-            (
-                "focus_ios",
-                [
-                    "main",
-                    "3.10.1",
-                    "34",
-                    "39.0",
-                    "release_v98.1",
-                    "releases/v8.1.6",
-                    "releases_v107.1",
-                    "release/v124",
-                ],
-                {
-                    Version(124): Ref("release/v124"),
-                },
-            ),
         ]
     )
     def test_find_versioned_branches(
@@ -199,46 +171,6 @@ class VersionTests(TestCase):
                 {
                     Version(139, 2): Ref("firefox-v139.2"),
                     Version(139): Ref("firefox-v139.0"),
-                },
-            ),
-            (
-                "focus_android",
-                [
-                    "components-v118.0",
-                    "components-v118.2",
-                    "components-v119.1.1",
-                    "components-v120.0b9",
-                    "fenix-v118.0",
-                    "fenix-v118.2",
-                    "fenix-v119.1.1",
-                    "fenix-v120.0b9",
-                    "focus-v118.0",
-                    "focus-v118.2",
-                    "focus-v119.1.1",
-                    "focus-v120.0b9",
-                    "klar-v119.1.1",
-                    "klar-v118.2",
-                    "v109.0b2",
-                    "v108.1.1",
-                ],
-                {
-                    Version(118): Ref("focus-v118.0"),
-                    Version(118, 2): Ref("focus-v118.2"),
-                    Version(119, 1, 1): Ref("focus-v119.1.1"),
-                },
-            ),
-            (
-                "focus_ios",
-                [
-                    "focus/klar-v124.1",
-                    "v999.0.0",
-                    "v120.0",
-                    "v98.1.0",
-                    "v97.0.0-rc.1",
-                    "8.1.6",
-                ],
-                {
-                    Version(124, 1): Ref("focus/klar-v124.1"),
                 },
             ),
         ]

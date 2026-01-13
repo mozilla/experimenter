@@ -235,6 +235,4 @@ export const QA_STATUS_PROPERTIES: Record<
 export const MOBILE_APPLICATIONS = [
   NimbusExperimentApplicationEnum.FENIX,
   NimbusExperimentApplicationEnum.IOS,
-  NimbusExperimentApplicationEnum.FOCUS_ANDROID,
-  NimbusExperimentApplicationEnum.FOCUS_IOS,
 ];

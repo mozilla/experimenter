@@ -601,15 +601,7 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_97),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_97,
-            ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_97),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_96,
-            ),
         ]
     )
     def test_targeting_omits_version_for_unsupported_clients(self, application, version):
@@ -630,15 +622,7 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_98,
-            ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_97,
-            ),
         ]
     )
     def test_targeting_includes_min_version_for_supported_clients(
@@ -700,15 +684,7 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_98,
-            ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_97,
-            ),
         ]
     )
     def test_targeting_includes_max_version_for_supported_clients(
@@ -735,15 +711,7 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_98,
-            ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_97,
-            ),
         ]
     )
     def test_targeting_includes_min_and_max_version_for_supported_clients(

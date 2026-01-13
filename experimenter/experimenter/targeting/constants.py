@@ -599,10 +599,6 @@ MOBILE_NEW_USER = NimbusTargetingConfig(
     application_choice_names=(
         Application.FENIX.name,
         Application.IOS.name,
-        Application.FOCUS_ANDROID.name,
-        Application.FOCUS_IOS.name,
-        Application.KLAR_ANDROID.name,
-        Application.KLAR_IOS.name,
     ),
 )
 
@@ -620,10 +616,6 @@ MOBILE_NEW_USER_UNSTICKY = NimbusTargetingConfig(
     application_choice_names=(
         Application.FENIX.name,
         Application.IOS.name,
-        Application.FOCUS_ANDROID.name,
-        Application.FOCUS_IOS.name,
-        Application.KLAR_ANDROID.name,
-        Application.KLAR_IOS.name,
     ),
 )
 
@@ -638,10 +630,6 @@ MOBILE_EXISTING_USERS_OVER_7_DAYS = NimbusTargetingConfig(
     application_choice_names=(
         Application.FENIX.name,
         Application.IOS.name,
-        Application.FOCUS_ANDROID.name,
-        Application.FOCUS_IOS.name,
-        Application.KLAR_ANDROID.name,
-        Application.KLAR_IOS.name,
     ),
 )
 
@@ -684,10 +672,6 @@ MOBILE_RECENTLY_UPDATED = NimbusTargetingConfig(
     application_choice_names=(
         Application.FENIX.name,
         Application.IOS.name,
-        Application.FOCUS_ANDROID.name,
-        Application.FOCUS_IOS.name,
-        Application.KLAR_ANDROID.name,
-        Application.KLAR_IOS.name,
     ),
 )
 
@@ -1976,7 +1960,7 @@ ANDROID_CORE_ACTIVE_USER = NimbusTargetingConfig(
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name, Application.FOCUS_ANDROID.name),
+    application_choice_names=(Application.FENIX.name,),
 )
 
 IOS_CORE_ACTIVE_USER = NimbusTargetingConfig(
@@ -1987,7 +1971,7 @@ IOS_CORE_ACTIVE_USER = NimbusTargetingConfig(
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
-    application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
+    application_choice_names=(Application.IOS.name,),
 )
 
 IOS_EXISTING_USERS = NimbusTargetingConfig(
@@ -2009,7 +1993,7 @@ ANDROID_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name, Application.FOCUS_ANDROID.name),
+    application_choice_names=(Application.FENIX.name,),
 )
 
 IOS_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
@@ -2022,7 +2006,7 @@ IOS_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
-    application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
+    application_choice_names=(Application.IOS.name,),
 )
 
 HAS_GOOGLE_BING_DDG_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
@@ -3911,7 +3895,5 @@ class TargetingConstants:
 
     TARGETING_APPLICATION_SUPPORTED_VERSION = {
         Application.FENIX: NimbusConstants.Version.FIREFOX_98,
-        Application.FOCUS_ANDROID: NimbusConstants.Version.FIREFOX_98,
         Application.IOS: NimbusConstants.Version.FIREFOX_98,
-        Application.FOCUS_IOS: NimbusConstants.Version.FIREFOX_97,
     }
