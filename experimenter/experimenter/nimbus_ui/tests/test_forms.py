@@ -1614,6 +1614,26 @@ class TestLiveToCompleteForm(SlackNotificationMockMixin, RequestFormTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("requested review to end experiment", changelog.message)
 
+    def test_valid_transition_paused(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=True,
+        )
+        form = LiveToCompleteForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertFalse(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("requested review to end experiment", changelog.message)
+
     @parameterized.expand(
         [
             (
