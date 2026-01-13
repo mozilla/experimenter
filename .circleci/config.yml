@@ -134,36 +134,6 @@ jobs:
             cp .env.sample .env
             make check
 
-  check_experimenter_and_report:
-    machine:
-      image: ubuntu-2204:2024.11.1
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: ~/experimenter
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/"
-      - create_test_result_workspace
-      - run:
-          name: Run coverage
-          no_output_timeout: 20m
-          command: |
-            cp .env.sample .env
-            make check_and_report || true
-      - store_test_results:
-          path: workspace/test-results/experimenter_tests.xml
-      - store_test_results:
-          path: workspace/test-results/junit.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
-          extension: json
-
   check_experimenter_aarch64:
     machine:
       image: ubuntu-2204:2024.11.1
@@ -956,14 +926,6 @@ workflows:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
           name: Check Experimenter aarch64
-      - check_experimenter_and_report:
-          name: Check Experimenter and report
-          filters:
-            branches:
-              only:
-                - main
-                - update_firefox_versions
-                - update-application-services
       - check_cirrus_x86_64:
           name: Check Cirrus x86_64
       - check_cirrus_aarch64:
