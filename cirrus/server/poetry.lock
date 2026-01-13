@@ -1191,14 +1191,14 @@ files = [
 
 [[package]]
 name = "sentry-sdk"
-version = "2.48.0"
+version = "2.49.0"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "sentry_sdk-2.48.0-py2.py3-none-any.whl", hash = "sha256:6b12ac256769d41825d9b7518444e57fa35b5642df4c7c5e322af4d2c8721172"},
-    {file = "sentry_sdk-2.48.0.tar.gz", hash = "sha256:5213190977ff7fdff8a58b722fb807f8d5524a80488626ebeda1b5676c0c1473"},
+    {file = "sentry_sdk-2.49.0-py2.py3-none-any.whl", hash = "sha256:6ea78499133874445a20fe9c826c9e960070abeb7ae0cdf930314ab16bb97aa0"},
+    {file = "sentry_sdk-2.49.0.tar.gz", hash = "sha256:c1878599cde410d481c04ef50ee3aedd4f600e4d0d253f4763041e468b332c30"},
 ]
 
 [package.dependencies]
@@ -1416,4 +1416,4 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10.10"
-content-hash = "2be8f5a6ae8ee6185c7591f26e311adfd0db6e19a0cd5a8733955c13d2924bbb"
+content-hash = "8702f089641db2aa28199f0af995fcb58adc2f6c254b301a8eb015753c14a89d"
