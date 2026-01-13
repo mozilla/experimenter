@@ -1611,7 +1611,7 @@ class LiveToCompleteForm(SlackNotificationMixin, UpdateStatusForm):
     required_status = NimbusExperiment.Status.LIVE
     required_status_next = None
     required_publish_status = NimbusExperiment.PublishStatus.IDLE
-    required_is_paused = False
+    required_is_paused = None
 
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.COMPLETE
