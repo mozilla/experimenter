@@ -516,10 +516,6 @@ enum NimbusExperimentApplicationEnum {
   DESKTOP
   FENIX
   IOS
-  FOCUS_ANDROID
-  KLAR_ANDROID
-  FOCUS_IOS
-  KLAR_IOS
   MONITOR
   VPN
   FXA
