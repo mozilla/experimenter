@@ -295,6 +295,10 @@ onboarding-framework-feature:
       type: boolean
       description: |
         Toggle between legacy (false) and modern (true) UI variants.
+    should-use-brand-refresh-configuration:
+      type: boolean
+      description: |
+        Toggle between standard (false) and brand refresh (true) onboarding content.
     should-use-japan-configuration:
       type: boolean
       description: |
