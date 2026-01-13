@@ -291,6 +291,9 @@ def build_experiment_context(experiment):
         "primary_outcome_links": primary_outcome_links,
         "secondary_outcome_links": secondary_outcome_links,
         "segment_links": segment_links,
+        "uses_secure_collection": (
+            experiment.kinto_collection == settings.KINTO_COLLECTION_NIMBUS_SECURE
+        ),
     }
     return context
 

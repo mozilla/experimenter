@@ -1473,6 +1473,24 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             "`is_ready_to_launch` should be False when the review serializer is invalid",
         )
 
+    def test_uses_secure_collection_context_for_prefflips_feature(self):
+        secure_feature = NimbusFeatureConfigFactory.create(
+            slug="prefFlips",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create(
+            slug="secure-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[secure_feature],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["uses_secure_collection"])
+
 
 class TestNimbusExperimentsCreateView(AuthTestCase):
     def test_post_creates_experiment(self):
