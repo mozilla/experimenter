@@ -1,5 +1,11 @@
+{% load static %}
 {% load nimbus_extras %}
 
+{% comment %} TODO: bundle pdfmake with frontend assets instead of using the CDN after upgrading node {% endcomment %}
+{% block extra_head %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/vfs_fonts.js"></script>
+{% endblock extra_head %}
 <div class="accordion d-flex flex-column gap-4 position-relative"
      id="{{ experiment.slug }}-results-accordion">
   {% comment %} Loading overlay {% endcomment %}
@@ -213,47 +219,84 @@
     {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data|dict_get:displayed_window %}
       {% if metric_data or area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
         <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
-          <button class="{% if metric_data %}accordion-button{% else %}border-0 py-3 px-4{% endif %} bg-transparent shadow-none text-body d-flex {% if not area == NimbusUIConstants.NOTABLE_METRIC_AREA %}collapsed{% endif %}"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#{{ experiment.slug }}-results-{{ area|slugify }}"
-                  aria-expanded="{% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}true{% else %}false{% endif %}"
-                  aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}"
-                  style="{% if not metric_data %}cursor: default;
-                         {% endif %}">
-            <div class="pe-3 d-flex flex-column align-items-start">
-              <div class="d-flex align-items-center gap-3 mb-2">
-                <h4 class="mb-0">{{ area }}</h4>
-                {% if experiment.is_observation %}
-                  <span class="badge rounded-pill bg-primary-subtle border border-1 border-secondary-subtle"><span class="text-body">In progress &middot; <span class="text-muted fw-medium">results still forming</span></span></span>
-                {% endif %}
+          <h2 class="accordion-header d-flex justify-content-between align-items-center">
+            <button class="{% if metric_data %}accordion-button{% else %}border-0 py-3 px-4{% endif %} bg-transparent shadow-none text-body d-flex {% if not area == NimbusUIConstants.NOTABLE_METRIC_AREA %}collapsed{% endif %}"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#{{ experiment.slug }}-results-{{ area|slugify }}"
+                    aria-expanded="{% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}true{% else %}false{% endif %}"
+                    aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}"
+                    style="{% if not metric_data %}cursor: default;
+                           {% endif %}">
+              <div class="pe-3 d-flex flex-column align-items-start">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                  <h4 class="mb-0">{{ area }}</h4>
+                  {% if experiment.is_observation %}
+                    <span class="badge rounded-pill bg-primary-subtle border border-1 border-secondary-subtle"><span class="text-body">In progress &middot; <span class="text-muted fw-medium">results still forming</span></span></span>
+                  {% endif %}
+                </div>
+                <div class="d-inline-flex gap-3 flex-wrap row-gap-1">
+                  {% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
+                    <small class="text-muted">
+                      {% if metric_data %}
+                        All statistically significant changes that have occurred in the experiment
+                      {% else %}
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>There are no notable changes in this experiment
+                      {% endif %}
+                    </small>
+                  {% else %}
+                    {% for metric in metric_metadata %}
+                      <div>
+                        <small class="text-muted">{{ metric.friendly_name }}</small>
+                        <small>
+                          <i class="fa-solid ms-1 me-2 {% if metric.has_errors or not metric.has_data %}fa-triangle-exclamation text-warning{% elif metric.overall_change == 'positive' %}fa-up-long text-success{% elif metric.overall_change == 'negative' %}fa-down-long text-danger{% elif metric.overall_change == 'mixed' %}fa-up-down text-warning{% elif metric.overall_change == 'neutral' %}fa-left-long text-muted{% endif %}"
+                             data-bs-toggle="tooltip"
+                             title="{% if metric.has_errors or not metric.has_data %}No data available{% elif metric.overall_change == 'positive' %}Positive changes{% elif metric.overall_change == 'negative' %}Negative changes{% elif metric.overall_change == 'mixed' %}Mixed changes{% elif metric.overall_change == 'neutral' %}No notable change{% endif %}">
+                          </i>
+                        </small>
+                        {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
               </div>
-              <div class="d-inline-flex gap-3 flex-wrap row-gap-1">
-                {% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
-                  <small class="text-muted">
-                    {% if metric_data %}
-                      All statistically significant changes that have occurred in the experiment
-                    {% else %}
-                      <i class="fa-solid fa-triangle-exclamation me-2"></i>There are no notable changes in this experiment
-                    {% endif %}
-                  </small>
-                {% else %}
-                  {% for metric in metric_metadata %}
-                    <div>
-                      <small class="text-muted">{{ metric.friendly_name }}</small>
-                      <small>
-                        <i class="fa-solid ms-1 me-2 {% if metric.has_errors or not metric.has_data %}fa-triangle-exclamation text-warning{% elif metric.overall_change == 'positive' %}fa-up-long text-success{% elif metric.overall_change == 'negative' %}fa-down-long text-danger{% elif metric.overall_change == 'mixed' %}fa-up-down text-warning{% elif metric.overall_change == 'neutral' %}fa-left-long text-muted{% endif %}"
-                           data-bs-toggle="tooltip"
-                           title="{% if metric.has_errors or not metric.has_data %}No data available{% elif metric.overall_change == 'positive' %}Positive changes{% elif metric.overall_change == 'negative' %}Negative changes{% elif metric.overall_change == 'mixed' %}Mixed changes{% elif metric.overall_change == 'neutral' %}No notable change{% endif %}">
-                        </i>
-                      </small>
-                      {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
-                    </div>
-                  {% endfor %}
-                {% endif %}
-              </div>
+            </button>
+            <div class="dropdown results-table-actions"
+                 data-experiment-slug="{{ experiment.slug }}"
+                 data-controlling-area="{{ area|slugify }}">
+              <a class="btn border-0"
+                 href="#"
+                 role="button"
+                 data-bs-toggle="dropdown"
+                 data-bs-auto-close="outside"
+                 aria-expanded="false">
+                <i class="fa-solid fa-ellipsis-vertical text-secondary"></i>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item"
+                     id="copy-link-{{ experiment.slug }}-results-{{ area|slugify }}">Copy Link</a>
+                </li>
+                <li>
+                  <a class="dropdown-item"
+                     id="copy-table-{{ experiment.slug }}-results-{{ area|slugify }}">Copy Table</a>
+                </li>
+                <li class="dropend">
+                  <a class="dropdown-item dropdown-toggle d-flex justify-content-between align-items-center"
+                     id="export-{{ experiment.slug }}-results-{{ area|slugify }}"
+                     href="#"
+                     data-bs-toggle="dropdown"
+                     data-bs-auto-close="outside"
+                     aria-expanded="false">Export</a>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <a class="dropdown-item export-option" data-export-format="pdf">PDF</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
             </div>
-          </button>
+          </h2>
           {% if metric_data %}
             <div id="{{ experiment.slug }}-results-{{ area|slugify }}"
                  class="accordion-collapse collapse {% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}show{% endif %}">
@@ -349,6 +392,44 @@
             </div>
           {% endif %}
         </div>
+        <table id="clipboard-table-{{ experiment.slug }}-{{ area|slugify }}"
+               class="d-none">
+          <tr>
+            <th>{{ area }}</th>
+            {% for branch in branch_data %}<th>{{ branch.name }}</th>{% endfor %}
+          </tr>
+          {% for metric, metric_data in metric_data.items %}
+            {% for curr_metric_metadata in metric_metadata %}
+              {% if curr_metric_metadata.slug == metric %}
+                <tr>
+                  <th>{{ curr_metric_metadata.friendly_name }}</th>
+                  {% for branch_data in metric_data.values %}
+                    <td>
+                      {% if branch_data.relative.0.avg_rel_change %}
+                        {{ branch_data.relative.0.avg_rel_change|to_percentage:3 }}
+                        {% if branch_data.relative.0.significance == "positive" %}
+                          increase
+                        {% elif branch_data.relative.0.significance == "negative" %}
+                          decrease
+                        {% endif %}
+                      {% else %}
+                        Baseline
+                      {% endif %}
+                      --
+                      {% if branch_data.absolute.0.lower %}
+                        {% if curr_metric_metadata.display_type == "percentage" %}
+                          ({{ branch_data.absolute.0.lower|to_percentage:3 }} to {{ branch_data.absolute.0.upper|to_percentage:3 }})
+                        {% else %}
+                          ({{ branch_data.absolute.0.lower|floatformat:3 }} to {{ branch_data.absolute.0.upper|floatformat:3 }})
+                        {% endif %}
+                      {% endif %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+        </table>
       {% endif %}
     {% endwith %}
   {% endfor %}
@@ -374,3 +455,26 @@
     </div>
   </div>
 </div>
+<div id="copy-table-link-toast"
+     class="toast hide text-bg-primary position-fixed top-0 end-0 m-3 w-auto"
+     role="alert"
+     aria-live="assertive"
+     aria-atomic="true">
+  <div class="toast-body">
+    <i class="fa-regular fa-circle-check"></i>
+    Table URL copied to clipboard!
+  </div>
+</div>
+<div id="copy-table-toast"
+     class="toast hide text-bg-primary position-fixed top-0 end-0 m-3 w-auto"
+     role="alert"
+     aria-live="assertive"
+     aria-atomic="true">
+  <div class="toast-body">
+    <i class="fa-regular fa-circle-check"></i>
+    Table copied to clipboard!
+  </div>
+</div>
+{% block extrascripts %}
+  <script src="{% static 'nimbus_ui/results_data_actions.bundle.js' %}"></script>
+{% endblock extrascripts %}
