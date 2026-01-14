@@ -5403,13 +5403,6 @@ ipProtection:
         pref: browser.ipProtection.enabled
       description: >-
         Enables the IP Protection feature.
-    variant:
-      type: string
-      setPref:
-        branch: default
-        pref: browser.ipProtection.variant
-      description: >-
-        What variant of the feature to use.
 
 webApps:
   description: Enables or disables web apps.
