@@ -3279,7 +3279,12 @@ class TestResultsView(AuthTestCase):
         self.assertTemplateUsed(response, "nimbus_experiments/results-new-fragment.html")
 
     def test_results_view_relative_ui_properties(self):
-        experiment = NimbusExperimentFactory.create()
+        application = NimbusExperiment.Application.DESKTOP
+        outcomes = Outcomes.by_application(application)
+        experiment = NimbusExperimentFactory.create(
+            application=application,
+            primary_outcomes=[outcomes[0].slug],
+        )
         branch_a = NimbusBranchFactory.create(
             experiment=experiment, name="Branch A", slug="branch-a"
         )
@@ -3298,7 +3303,7 @@ class TestResultsView(AuthTestCase):
                             "branch-a": {
                                 "branch_data": {
                                     "other_metrics": {
-                                        "retained": {
+                                        "urlbar_amazon_search_count": {
                                             "relative_uplift": {
                                                 "branch-a": {"all": []},
                                                 "branch-b": {
@@ -3327,7 +3332,7 @@ class TestResultsView(AuthTestCase):
                             "branch-b": {
                                 "branch_data": {
                                     "other_metrics": {
-                                        "retained": {
+                                        "urlbar_amazon_search_count": {
                                             "relative_uplift": {
                                                 "branch-a": {
                                                     "all": [
@@ -3356,7 +3361,7 @@ class TestResultsView(AuthTestCase):
                             "branch-c": {
                                 "branch_data": {
                                     "other_metrics": {
-                                        "retained": {
+                                        "urlbar_amazon_search_count": {
                                             "relative_uplift": {
                                                 "branch-a": {
                                                     "all": [
@@ -3402,7 +3407,7 @@ class TestResultsView(AuthTestCase):
         )
 
         expected_relative_change_ui_properties = {
-            "retained": {
+            "urlbar_amazon_search_count": {
                 "branch-b": {
                     "bar_width": 2.5,
                     "bounds_width": 40,
