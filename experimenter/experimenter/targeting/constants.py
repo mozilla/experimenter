@@ -2779,7 +2779,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetin
     targeting=(
         "user_accepted_tou == false && "
         "days_since_install >= 28 && "
-        "("
+        "(tou_points > 1 || "
         "("
         "tou_points == 1 && "
         "("
@@ -2794,7 +2794,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetin
         "'kolesin.work@gmail.com' in addon_ids || "
         "'adblocker@pcmatic.com' in addon_ids || "
         "'{73a6fe31-595d-460b-a920-fcc0f8843232}' in addon_ids"
-        ")) || tou_points > 1)"
+        ")))"
     ),
     desktop_telemetry="",
     sticky_required=False,
