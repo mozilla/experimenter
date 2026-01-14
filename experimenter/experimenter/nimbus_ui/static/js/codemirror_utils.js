@@ -12,60 +12,72 @@ import $ from "jquery";
 
 const VISIBLE_LINE_COUNT = 5;
 
-export const createReadonlyJsonEditor = (textarea) => {
+export const createReadonlyJsonEditor = (textarea, maxLines = null) => {
   if (!textarea || textarea.dataset.is_rendered) return null;
 
   textarea.dataset.is_rendered = true;
 
-  const extensions = [
-    basicSetup,
-    json(),
-    linter(jsonParseLinter()),
-    EditorState.readOnly.of(true),
-    EditorView.editable.of(false),
-    EditorView.lineWrapping,
-    themeCompartment.of(getThemeExtensions()),
-  ];
+  const lines = textarea.value.split("\n");
+  const docContent =
+    maxLines && lines.length > maxLines
+      ? lines.slice(0, maxLines).join("\n")
+      : textarea.value;
 
   const view = new EditorView({
-    doc: textarea.value,
-    extensions,
+    doc: docContent,
+    extensions: [
+      basicSetup,
+      json(),
+      linter(jsonParseLinter()),
+      EditorState.readOnly.of(true),
+      EditorView.editable.of(false),
+      EditorView.lineWrapping,
+      themeCompartment.of(getThemeExtensions()),
+    ],
     parent: textarea.parentNode,
   });
 
   view.dom.style.border = "1px solid #ccc";
-  view.dom.style.maxHeight = "inherit";
+
   textarea.parentNode.insertBefore(view.dom, textarea);
   textarea.style.display = "none";
 
   registerView(view);
-
   return view;
 };
 
 export const setupCodemirrorCollapsibleDisplay = (textarea) => {
-  const lines = textarea.value.split("\n").length;
+  if (textarea.value.split("\n").length <= VISIBLE_LINE_COUNT) return;
 
-  if (lines > VISIBLE_LINE_COUNT) {
-    textarea.parentNode.nextElementSibling?.classList.remove("d-none");
-    textarea.nextElementSibling?.classList.remove("d-none");
+  const collapsedCell = textarea.closest(".collapsed-json");
+  const expandedCell = collapsedCell?.nextElementSibling;
+  if (!collapsedCell || !expandedCell) return;
 
-    $(".show-btn").on("click", (e) => {
-      e.target.parentNode.classList.add("d-none");
-      e.target.parentNode.nextElementSibling.classList.remove("d-none");
+  collapsedCell.querySelector(".show-btn")?.classList.remove("d-none");
+  expandedCell.querySelector(".hide-btn")?.classList.remove("d-none");
+
+  $(collapsedCell)
+    .find(".show-btn")
+    .on("click", () => {
+      $(collapsedCell).addClass("d-none");
+      $(expandedCell).removeClass("d-none");
     });
 
-    $(".hide-btn").on("click", (e) => {
-      e.target.parentNode.classList.add("d-none");
-      e.target.parentNode.previousElementSibling.classList.remove("d-none");
+  $(expandedCell)
+    .find(".hide-btn")
+    .on("click", () => {
+      $(expandedCell).addClass("d-none");
+      $(collapsedCell).removeClass("d-none");
     });
-  }
 };
 
 export const setupReadonlyJsonEditors = () => {
-  const textareas = document.querySelectorAll(".readonly-json");
-  textareas.forEach((textarea) => {
-    const view = createReadonlyJsonEditor(textarea);
+  document.querySelectorAll(".readonly-json").forEach((textarea) => {
+    const maxLines = textarea.closest(".collapsed-json")
+      ? VISIBLE_LINE_COUNT
+      : null;
+    const view = createReadonlyJsonEditor(textarea, maxLines);
+
     if (view) {
       setupCodemirrorCollapsibleDisplay(textarea);
       setupCopyButton(textarea, view);

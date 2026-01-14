@@ -23,10 +23,10 @@
   <table class="table table-striped mb-0">
     <tbody>
       <tr>
-        <th>Channel</th>
-        <td>{{ experiment.get_channel_display|default:"No Channel" }}</td>
-        <th>Advanced Targeting</th>
-        <td>{{ experiment.targeting_config.name }}</td>
+        <th class="w-25">Channel</th>
+        <td class="w-25">{{ experiment.get_channel_display|default:"No Channel" }}</td>
+        <th class="w-25">Advanced Targeting</th>
+        <td class="w-25">{{ experiment.targeting_config.name }}</td>
       </tr>
       <tr>
         <th>Minimum version</th>
@@ -137,21 +137,17 @@
         <td colspan="3"
             id="preview-recipe-json"
             class="collapsed-json border-bottom-0">
-          <div style="max-height: 120px; overflow: hidden;">
-            {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
+          {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
 
-          </div>
           <button class="btn btn-outline-primary btn-sm mt-2 d-block show-btn d-none">
             <i class="fa-solid fa-plus"></i> Show more
           </button>
         </td>
         <td colspan="3"
             id="preview-recipe-json"
-            class="expanded-json d-none mw-0 border-bottom-0">
-          <div class="text-break">
-            {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
+            class="expanded-json d-none border-bottom-0">
+          {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
 
-          </div>
           <button class="btn btn-outline-primary btn-sm mt-2 d-block hide-btn d-none">
             <i class="fa-solid fa-minus"></i> Show less
           </button>
