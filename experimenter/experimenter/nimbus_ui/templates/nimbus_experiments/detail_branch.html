@@ -45,21 +45,17 @@
               <td colspan="3"
                   id="preview-recipe-json"
                   class="collapsed-json {% if forloop.last and not branch.screenshots.all.exists %}border-bottom-0{% endif %}">
-                <div style="max-height: 120px; overflow: hidden;">
-                  {% include "common/readonly_json.html" with json_content=feature_value.value %}
+                {% include "common/readonly_json.html" with json_content=feature_value.value %}
 
-                </div>
                 <button class="btn btn-outline-primary btn-sm mt-2 d-block show-btn d-none">
                   <i class="fa-solid fa-plus"></i> Show more
                 </button>
               </td>
               <td colspan="3"
                   id="preview-recipe-json"
-                  class="expanded-json d-none mw-0 {% if forloop.last and not branch.screenshots.all.exists %}border-bottom-0{% endif %}">
-                <div class="text-break">
-                  {% include "common/readonly_json.html" with json_content=feature_value.value %}
+                  class="expanded-json d-none {% if forloop.last and not branch.screenshots.all.exists %}border-bottom-0{% endif %}">
+                {% include "common/readonly_json.html" with json_content=feature_value.value %}
 
-                </div>
                 <button class="btn btn-outline-primary btn-sm mt-2 d-block hide-btn d-none">
                   <i class="fa-solid fa-minus"></i> Show less
                 </button>
