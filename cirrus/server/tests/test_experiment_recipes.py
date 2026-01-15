@@ -32,10 +32,14 @@ def test_update_recipes(remote_settings):
     ["remote_settings_live", "remote_settings_preview"],
     indirect=True,
 )
-def test_empty_data_key(mock_get, remote_settings):
+@pytest.mark.parametrize(
+    "rs_response_key",
+    ["data", "changes"],
+)
+def test_empty_data_key(mock_get, remote_settings, rs_response_key):
     mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_response.json.return_value = {"data": []}
+    mock_response.json.return_value = {rs_response_key: []}
     mock_get.return_value = mock_response
 
     remote_settings.fetch_recipes()
@@ -48,11 +52,15 @@ def test_empty_data_key(mock_get, remote_settings):
     ["remote_settings_live", "remote_settings_preview"],
     indirect=True,
 )
-def test_non_empty_data_key(mock_get, remote_settings):
+@pytest.mark.parametrize(
+    "rs_response_key",
+    ["data", "changes"],
+)
+def test_non_empty_data_key(mock_get, remote_settings, rs_response_key):
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.json.return_value = {
-        "data": [{"experiment1": True}, {"experiment2": False}]
+        rs_response_key: [{"experiment1": True}, {"experiment2": False}]
     }
     mock_get.return_value = mock_response
 
@@ -68,10 +76,14 @@ def test_non_empty_data_key(mock_get, remote_settings):
     ["remote_settings_live", "remote_settings_preview"],
     indirect=True,
 )
-def test_successful_response(mock_get, remote_settings):
+@pytest.mark.parametrize(
+    "rs_response_key",
+    ["data", "changes"],
+)
+def test_successful_response(mock_get, remote_settings, rs_response_key):
     mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_response.json.return_value = {"data": []}
+    mock_response.json.return_value = {rs_response_key: []}
     mock_get.return_value = mock_response
 
     remote_settings.fetch_recipes()
@@ -101,10 +113,16 @@ def test_failed_request(mock_get, remote_settings):
     ["remote_settings_live", "remote_settings_preview"],
     indirect=True,
 )
-def test_empty_data_key_with_non_empty_recipes(mock_get, remote_settings):
+@pytest.mark.parametrize(
+    "rs_response_key",
+    ["data", "changes"],
+)
+def test_empty_data_key_with_non_empty_recipes(
+    mock_get, remote_settings, rs_response_key
+):
     mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_response.json.return_value = {"data": []}
+    mock_response.json.return_value = {rs_response_key: []}
     mock_get.return_value = mock_response
 
     remote_settings.update_recipes({"data": [{"experiment1": True}]})
