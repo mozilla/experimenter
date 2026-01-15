@@ -234,7 +234,7 @@
                 <p class="text-muted mb-0 invisible" aria-hidden="true">Metrics</p>
                 <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
                 {% for metric in metric_metadata %}
-                  <button class="card p-3 {% if forloop.last %}mb-4{% endif %} mb-3 d-flex justify-content-center rounded-4 border-3 w-100 text-start nav-link-hover position-relative border-light-subtle"
+                  <button class="btn border-3 p-3 {% if forloop.last %}mb-4{% endif %} align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle nav-link-hover "
                           type="button"
                           data-bs-toggle="modal"
                           data-bs-target="#{{ experiment.slug }}-{{ metric.slug }}-{{ area|slugify }}"
