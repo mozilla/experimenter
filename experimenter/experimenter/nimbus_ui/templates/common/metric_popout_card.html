@@ -2,7 +2,7 @@
 
 {% with sig=significance|default:"neutral" %}
   {% if type == "absolute" %}
-    <div class="card p-3 bg-body-tertiary border-0 text-center d-flex flex-row align-items-center justify-content-center mb-3 fw-semibold {% if sig == "positive" %}bg-success-subtle text-success{% elif sig == "negative" %}bg-danger-subtle text-danger{% else %}bg-body-tertiary text-muted{% endif %}"
+    <div class="p-3 bg-body-tertiary rounded-3 text-center d-flex flex-row align-items-center justify-content-center mb-3 fw-semibold {% if sig == "positive" %}bg-success-subtle text-success{% elif sig == "negative" %}bg-danger-subtle text-danger{% else %}bg-body-tertiary text-muted{% endif %}"
          style="height: 75px">
       {% if not absolute_lower or reference_branch == branch_slug %}
         <i class="fa-solid fa-house me-2"></i>
@@ -36,9 +36,9 @@
       {% endif %}
     </div>
   {% elif type == "relative" %}
-    <div class="card pt-3 mx-5 mb-3 border-0 position-relative overflow-visible"
+    <div class="pt-3 mx-5 mb-3 position-relative overflow-visible d-flex"
          style="height: 75px">
-      <div class="w-100 border-bottom my-auto "></div>
+      <div class="w-100 border-bottom align-self-center"></div>
       {% if branch_relative_ui_properties %}
         <div class="d-flex flex-row flex-nowrap justify-content-between position-absolute {% if sig == "positive" %}text-success{% elif sig == "negative" %}text-danger{% else %}text-body-tertiary{% endif %}"
              style="width: {{ branch_relative_ui_properties.bounds_width }}%;
