@@ -1,0 +1,8 @@
+friendly_name = "Firefox Backup Metrics"
+description = "Metrics for Firefox Backup"
+
+[metrics.backup_scheduler_enabled]
+data_source = 'clients_daily'
+select_expression = 'CAST(COALESCE(LOGICAL_OR(browser_backup_scheduler_enabled), FALSE) AS INT)'
+
+[metrics.backup_scheduler_enabled.statistics.binomial]

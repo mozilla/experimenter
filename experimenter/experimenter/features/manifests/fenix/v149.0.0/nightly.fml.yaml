@@ -978,7 +978,7 @@ features:
         description: |
           Whether or not to enable the tab search feature.
         type: Boolean
-        default: false
+        default: true
   tab-strip:
     description: Enables tab strip.
     variables:
