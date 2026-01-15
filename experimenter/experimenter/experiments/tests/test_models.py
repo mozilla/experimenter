@@ -1390,7 +1390,12 @@ class TestNimbusExperiment(TestCase):
 
     @mock_valid_outcomes
     def test_get_weekly_metric_data(self):
-        experiment = NimbusExperimentFactory.create()
+        application = NimbusExperiment.Application.DESKTOP
+        outcomes = Outcomes.by_application(application)
+        experiment = NimbusExperimentFactory.create(
+            application=application,
+            primary_outcomes=[outcomes[0].slug],
+        )
         branch_a = NimbusBranchFactory.create(
             experiment=experiment, name="Branch A", slug="branch-a"
         )
@@ -1406,7 +1411,7 @@ class TestNimbusExperiment(TestCase):
                             branch_a.slug: {
                                 "branch_data": {
                                     "other_metrics": {
-                                        "retained": {
+                                        "urlbar_amazon_search_count": {
                                             "absolute": {
                                                 "all": [
                                                     {
@@ -1436,7 +1441,7 @@ class TestNimbusExperiment(TestCase):
                             branch_b.slug: {
                                 "branch_data": {
                                     "other_metrics": {
-                                        "retained": {
+                                        "urlbar_amazon_search_count": {
                                             "absolute": {
                                                 "all": [
                                                     {
@@ -1490,7 +1495,7 @@ class TestNimbusExperiment(TestCase):
         experiment.save()
 
         expected_weekly_data = {
-            "retained": {
+            "urlbar_amazon_search_count": {
                 "data": {
                     branch_a.slug: [
                         (
@@ -1538,15 +1543,7 @@ class TestNimbusExperiment(TestCase):
                 },
                 "has_weekly_data": True,
             },
-            "search_count": {
-                "data": {},
-                "has_weekly_data": False,
-            },
             "total_amazon_search_count": {
-                "data": {},
-                "has_weekly_data": False,
-            },
-            "urlbar_amazon_search_count": {
                 "data": {},
                 "has_weekly_data": False,
             },
@@ -2401,6 +2398,32 @@ class TestNimbusExperiment(TestCase):
         )  # Check if the last status "Complete" is active
         self.assertEqual(timeline[-1]["date"], experiment.end_date)
 
+    def test_get_sidebar_results_sections_with_no_available_metadata(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment.results_data = {
+            "v3": {
+                "overall": {},
+                "metadata": None,
+            }
+        }
+        experiment.save()
+
+        sections = experiment.results_sidebar_sections()
+        base_expected_sections = {
+            "title": "Overview",
+            "subitems": [
+                {"title": "Hypothesis"},
+                {"title": "Branch overview"},
+                {"title": "Key takeaways"},
+                {"title": "Next steps"},
+                {"title": "Project Impact"},
+            ],
+        }
+
+        self.assertIn(base_expected_sections, sections)
+
     @parameterized.expand(
         [
             (
@@ -2586,7 +2609,7 @@ class TestNimbusExperiment(TestCase):
                             "branch-a": {
                                 "branch_data": {
                                     "other_metrics": {
-                                        "retained": {
+                                        "urlbar_amazon_search_count": {
                                             "absolute": {
                                                 "all": [
                                                     {
@@ -2631,7 +2654,7 @@ class TestNimbusExperiment(TestCase):
                             "branch-b": {
                                 "branch_data": {
                                     "other_metrics": {
-                                        "retained": {
+                                        "urlbar_amazon_search_count": {
                                             "absolute": {
                                                 "all": [
                                                     {
@@ -2685,15 +2708,23 @@ class TestNimbusExperiment(TestCase):
         results_a = experiment.get_metric_data("enrollments", "all", "branch-a")
         results_b = experiment.get_metric_data("enrollments", "all", "branch-b")
 
-        data_a = results_b.get("KPI Metrics", {}).get("data", {}).get("overall", {})
-        data_b = results_a.get("KPI Metrics", {}).get("data", {}).get("overall", {})
+        data_a = (
+            results_b.get(outcomes[0].friendly_name, {})
+            .get("data", {})
+            .get("overall", {})
+        )
+        data_b = (
+            results_a.get(outcomes[0].friendly_name, {})
+            .get("data", {})
+            .get("overall", {})
+        )
 
         self.assertEqual(
-            data_a.get("retained").get(branch_a.slug).get("absolute"),
+            data_a.get("urlbar_amazon_search_count").get(branch_a.slug).get("absolute"),
             [{"lower": 1.49, "upper": 1.74, "significance": "neutral"}],
         )
         self.assertEqual(
-            data_a.get("retained").get(branch_a.slug).get("relative"),
+            data_a.get("urlbar_amazon_search_count").get(branch_a.slug).get("relative"),
             [
                 {
                     "lower": -0.12,
@@ -2705,11 +2736,11 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertEqual(
-            data_b.get("retained").get(branch_b.slug).get("absolute"),
+            data_b.get("urlbar_amazon_search_count").get(branch_b.slug).get("absolute"),
             [{"lower": 1.24, "upper": 1.63, "significance": "positive"}],
         )
         self.assertEqual(
-            data_b.get("retained").get(branch_b.slug).get("relative"),
+            data_b.get("urlbar_amazon_search_count").get(branch_b.slug).get("relative"),
             [
                 {
                     "lower": -0.3,

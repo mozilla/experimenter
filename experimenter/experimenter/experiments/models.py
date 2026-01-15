@@ -1281,6 +1281,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     {"title": "Project Impact"},
                 ],
             },
+            *[
+                {
+                    "title": area,
+                    "subitems": [
+                        {"title": metric["friendly_name"], "slug": metric["slug"]}
+                        for metric in metrics
+                    ],
+                }
+                for area, metrics in self.get_metric_areas(
+                    "enrollments", "all", self.reference_branch
+                ).items()
+                if metrics
+            ],
         ]
 
     def timeline(self):
@@ -1365,9 +1378,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         metrics_metadata = {}
         if self.results_data:
-            metrics_metadata = (
-                self.results_data.get("v3", {}).get("metadata", {}).get("metrics", {})
-            )
+            v3 = self.results_data.get("v3") or {}
+            metadata = v3.get("metadata") or {}
+            metrics_metadata = metadata.get("metrics") or {}
 
         all_outcome_metric_slugs = []
         for slug in chain(self.primary_outcomes, self.secondary_outcomes):
@@ -1635,6 +1648,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 > 0
             ):
                 kpi_metrics.append(NimbusConstants.DOU_METRIC.copy())
+        else:
+            return []
 
         for kpi in kpi_metrics:
             if self.metric_has_errors(kpi["slug"], analysis_basis, segment):
