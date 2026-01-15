@@ -45,7 +45,9 @@ class RemoteSettings:
         try:
             response = requests.get(self.url)
             response.raise_for_status()
-            data = response.json().get("data")
+            response_json = response.json()
+            # While moving from records api to changeset api, support both
+            data = response_json.get("changes", response_json.get("data"))
             if data is not None:
                 self.update_recipes({"data": data})
                 logger.info(f"Fetched resources: {data}")

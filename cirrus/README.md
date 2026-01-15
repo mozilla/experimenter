@@ -21,8 +21,8 @@ To set up the Cirrus environment, follow these steps:
 3. Open the `.env` file and modify the values of the following environment variables:
 
    ```plaintext
-   CIRRUS_REMOTE_SETTING_URL=https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/nimbus-web-experiments/records
-   CIRRUS_REMOTE_SETTING_PREVIEW_URL=https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/nimbus-web-preview/records
+   CIRRUS_REMOTE_SETTING_URL=https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/nimbus-web-experiments/changeset?_expected=0
+   CIRRUS_REMOTE_SETTING_PREVIEW_URL=https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/nimbus-web-preview/changeset?_expected=0
    CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS=10
    CIRRUS_REMOTE_SETTING_REFRESH_JITTER_IN_SECONDS=1
    CIRRUS_REMOTE_SETTING_REFRESH_RETRY_DELAY_IN_SECONDS=30
