@@ -1393,8 +1393,9 @@ class TestNimbusExperiment(TestCase):
         application = NimbusExperiment.Application.DESKTOP
         outcomes = Outcomes.by_application(application)
         experiment = NimbusExperimentFactory.create(
-            application=application,
+            application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[outcomes[0].slug],
+            secondary_outcomes=[],
         )
         branch_a = NimbusBranchFactory.create(
             experiment=experiment, name="Branch A", slug="branch-a"
@@ -1496,6 +1497,7 @@ class TestNimbusExperiment(TestCase):
 
         expected_weekly_data = {
             "urlbar_amazon_search_count": {
+                "has_weekly_data": True,
                 "data": {
                     branch_a.slug: [
                         (
@@ -1515,33 +1517,32 @@ class TestNimbusExperiment(TestCase):
                         (
                             {"lower": 140, "upper": 160, "significance": "neutral"},
                             {
-                                "avg_rel_change": 15,
                                 "lower": 10,
                                 "upper": 20,
                                 "significance": "neutral",
+                                "avg_rel_change": 15,
                             },
                         ),
                         (
                             {"lower": 130, "upper": 150, "significance": "neutral"},
                             {
-                                "avg_rel_change": 10,
                                 "lower": 5,
                                 "upper": 15,
                                 "significance": "neutral",
+                                "avg_rel_change": 10,
                             },
                         ),
                         (
                             {"lower": 120, "upper": 140, "significance": "neutral"},
                             {
-                                "avg_rel_change": 5,
                                 "lower": 0,
                                 "upper": 10,
                                 "significance": "neutral",
+                                "avg_rel_change": 5,
                             },
                         ),
                     ],
                 },
-                "has_weekly_data": True,
             },
             "total_amazon_search_count": {
                 "data": {},
