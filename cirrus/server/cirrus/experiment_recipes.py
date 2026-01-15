@@ -19,6 +19,8 @@ class RecipeType(Enum):
 class RemoteSettings:
     def __init__(self, url: str, sdk: SDK):
         self.recipes: dict[str, list[Any]] = {"data": []}
+        if url.endswith("/records"):
+            raise ValueError("cirrus no longer supports remote settings records api")
         self.url: str = url
         self.sdk = sdk
 
@@ -46,8 +48,7 @@ class RemoteSettings:
             response = requests.get(self.url)
             response.raise_for_status()
             response_json = response.json()
-            # While moving from records api to changeset api, support both
-            data = response_json.get("changes", response_json.get("data"))
+            data = response_json.get("changes")
             if data is not None:
                 self.update_recipes({"data": data})
                 logger.info(f"Fetched resources: {data}")
