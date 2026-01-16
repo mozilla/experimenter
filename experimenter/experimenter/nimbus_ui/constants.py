@@ -206,6 +206,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         ),
     }
 
+    ASK_EXPERIMENTER_SLACK_LINK = (
+        "https://mozilla.enterprise.slack.com/archives/CF94YGE03"
+    )
+
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"
         END_ENROLLMENT = "end enrollment for this experiment"
