@@ -1391,10 +1391,12 @@ class TestNimbusExperiment(TestCase):
     @mock_valid_outcomes
     def test_get_weekly_metric_data(self):
         application = NimbusExperiment.Application.DESKTOP
+        Outcomes.clear_cache()
         outcomes = Outcomes.by_application(application)
         experiment = NimbusExperimentFactory.create(
-            application=application,
+            application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[outcomes[0].slug],
+            secondary_outcomes=[],
         )
         branch_a = NimbusBranchFactory.create(
             experiment=experiment, name="Branch A", slug="branch-a"
@@ -2593,6 +2595,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[outcomes[0].slug],
+            secondary_outcomes=[],
         )
         branch_a = NimbusBranchFactory.create(
             experiment=experiment, name="Branch A", slug="branch-a"
