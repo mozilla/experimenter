@@ -786,6 +786,8 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         )
         context["metric_area_data"] = all_metrics
 
+        context["ask_experimenter_slack_link"] = settings.ASK_EXPERIMENTER_SLACK_LINK
+
         relative_metric_changes = {}
 
         for metric_data in all_metrics.values():

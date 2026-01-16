@@ -10,12 +10,12 @@
           <p class="text-muted">
             Your experiment is still running. Results for some metrics aren't available, but others are unaffected.
           </p>
-          <button class="btn btn-secondary bg-secondary-subtle bg-opacity-25 border-0 text-body fw-semibold">
-            Contact Experimenter Support
-          </button>
+          <a class="btn btn-secondary bg-secondary-subtle bg-opacity-25 border-0 text-body fw-semibold"
+             target="_blank"
+             href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
         </div>
         <div class="col">
-          <div class="card bg-warning bg-opacity-25 px-4 py-3 rounded-4 h-100 d-flex justify-content-center">
+          <div class="bg-warning bg-opacity-25 px-4 py-3 rounded-4 h-100 d-flex flex-column justify-content-start text-body">
             <p class="text-muted mb-2">Possible Issues</p>
             <ul class="list-unstyled mb-0">
               {% for error_group, error_list in experiment.results_data.v3.errors.items %}
