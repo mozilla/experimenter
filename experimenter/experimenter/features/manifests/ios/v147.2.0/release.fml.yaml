@@ -153,11 +153,6 @@ features:
         default:
           discover-more-v1-experience: false
           show-discover-more-button: false
-      enabled:
-        description: |
-          Enables the feature.
-        type: Boolean
-        default: false
       scrim:
         description: |
           If true, enables the scrim on the homepage when searching.
