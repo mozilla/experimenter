@@ -152,6 +152,10 @@ homepage-redesign-feature:
       type: json
       description: |
         A configuration for the Discover More feature
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
     scrim:
       type: boolean
       description: |
@@ -291,10 +295,6 @@ onboarding-framework-feature:
       type: boolean
       description: |
         Toggle between legacy (false) and modern (true) UI variants.
-    should-use-brand-refresh-configuration:
-      type: boolean
-      description: |
-        Toggle between standard (false) and brand refresh (true) onboarding content.
     should-use-japan-configuration:
       type: boolean
       description: |

@@ -293,9 +293,6 @@ menu-redesign:
   hasExposure: true
   exposureDescription: ''
   variables:
-    enabled:
-      type: boolean
-      description: If true, the new menu redesign is available.
     menu-banner:
       type: boolean
       description: If true, the menu banner is visible.
