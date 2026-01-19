@@ -288,6 +288,7 @@ def create_experiment(base_url, default_data, mobile_apps, application):
         # Fill Overview Page
         summary = home.save_and_continue()
         overview = summary.navigate_to_overview()
+        overview.select_risk_ai_false()
         overview.select_risk_brand_false()
         overview.select_risk_message_false()
         overview.select_risk_revenue_false()
@@ -396,6 +397,7 @@ def default_data_api(application, application_feature_ids):
         "changelogMessage": "test updates",
         "targetingConfigSlug": "no_targeting",
         "publicDescription": "Some sort of Fancy Words",
+        "riskAi": False,
         "riskRevenue": False,
         "riskPartnerRelated": False,
         "riskBrand": False,

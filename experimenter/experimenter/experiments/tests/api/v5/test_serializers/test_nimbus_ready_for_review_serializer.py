@@ -539,6 +539,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             risk_revenue=None,
             risk_brand=None,
             risk_message=None,
+            risk_ai=None,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
                 NimbusFeatureConfigFactory(
@@ -570,6 +571,10 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
         self.assertEqual(
             str(serializer.errors["risk_message"][0]),
+            NimbusExperiment.ERROR_REQUIRED_QUESTION,
+        )
+        self.assertEqual(
+            str(serializer.errors["risk_ai"][0]),
             NimbusExperiment.ERROR_REQUIRED_QUESTION,
         )
 

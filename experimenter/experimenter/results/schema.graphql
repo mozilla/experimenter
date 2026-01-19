@@ -50,6 +50,7 @@ type NimbusExperimentType {
   riskRevenue: Boolean
   riskBrand: Boolean
   riskMessage: Boolean
+  riskAi: Boolean
   conclusionRecommendations: [NimbusExperimentConclusionRecommendationEnum!]!
   takeawaysMetricGain: Boolean!
   takeawaysGainAmount: String
@@ -802,6 +803,7 @@ input ExperimentInput {
   qaStatus: NimbusExperimentQAStatusEnum
   referenceBranch: BranchInput = null
   requiredExperimentsBranches: [NimbusExperimentBranchThroughRequiredInput!]
+  riskAi: Boolean
   riskBrand: Boolean
   riskMessage: Boolean
   riskMitigationLink: String

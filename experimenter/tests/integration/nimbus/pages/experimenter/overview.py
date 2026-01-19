@@ -26,6 +26,7 @@ class OverviewPage(ExperimenterBase):
         "#overview-form button.btn.btn-outline-primary",
     )
     _public_description_locator = (By.CSS_SELECTOR, "#id_public_description")
+    _risk_ai_locator = (By.CSS_SELECTOR, "#id_risk_ai_1")
     _risk_brand_locator = (By.CSS_SELECTOR, "#id_risk_brand_1")
     _risk_message_locator = (By.CSS_SELECTOR, "#id_risk_message_1")
     _risk_revenue_locator = (By.CSS_SELECTOR, "#id_risk_revenue_1")
@@ -43,6 +44,10 @@ class OverviewPage(ExperimenterBase):
     def public_description(self, text=None):
         name = self.wait_for_and_find_element(*self._public_description_locator)
         name.send_keys(text)
+
+    def select_risk_ai_false(self):
+        el = self.wait_for_and_find_element(*self._risk_ai_locator)
+        el.click()
 
     def select_risk_brand_false(self):
         el = self.wait_for_and_find_element(*self._risk_brand_locator)
