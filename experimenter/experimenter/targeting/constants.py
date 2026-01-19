@@ -2772,7 +2772,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConf
         days_since_install >= 28
         &&
         (
-            (tou_points == 1 && !({ANDROID_AD_BLOCKER_INSTALLED}))
+            (tou_points == 1 && not({ANDROID_AD_BLOCKER_INSTALLED}))
             ||
             (tou_points == 0 && {ANDROID_AD_BLOCKER_INSTALLED})
         )
