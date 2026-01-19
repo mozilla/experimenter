@@ -243,10 +243,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=NimbusConstants.Version.NO_VERSION,
         blank=True,
     )
+
+    def default_firefox_version_parsed():
+        return [0, 0, 0]
+
     _firefox_min_version_parsed = ArrayField(
         models.IntegerField(),
         size=3,
-        default=[0, 0, 0],
+        default=default_firefox_version_parsed,
         verbose_name="Firefox Minimum Version (Parsed)",
         help_text="Parsed version as [major, minor, patch] for sorting",
     )
