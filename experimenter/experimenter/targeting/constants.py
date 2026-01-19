@@ -2728,6 +2728,32 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingCo
     application_choice_names=(Application.FENIX.name,),
 )
 
+ANDROID_AD_BLOCKER_INSTALLED = """
+(
+    'uBlock0@raymondhill.net' in addon_ids
+    ||
+    '{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}' in addon_ids
+    ||
+    'adguardadblocker@adguard.com' in addon_ids
+    ||
+    'adblockultimate@adblockultimate.net' in addon_ids
+    ||
+    'firefox@ghostery.com' in addon_ids
+    ||
+    'lock@adblock' in addon_ids
+    ||
+    'ultrablock-pro@ultrablock.com' in addon_ids
+    ||
+    '{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}' in addon_ids
+    ||
+    'kolesin.work@gmail.com' in addon_ids
+    ||
+    'adblocker@pcmatic.com' in addon_ids
+    ||
+    '{73a6fe31-595d-460b-a920-fcc0f8843232}' in addon_ids
+)
+"""
+
 ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConfig(
     name=(
         "Existing users who have not accepted the Terms of Use and have one ToU point."
@@ -2743,20 +2769,9 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConf
         "user_accepted_tou == false && "
         "days_since_install >= 28 && "
         "("
-        "tou_points == 1 || "
-        "("
-        "'uBlock0@raymondhill.net' in addon_ids || "
-        "'{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}' in addon_ids || "
-        "'adguardadblocker@adguard.com' in addon_ids || "
-        "'adblockultimate@adblockultimate.net' in addon_ids || "
-        "'firefox@ghostery.com' in addon_ids || "
-        "'lock@adblock' in addon_ids || "
-        "'ultrablock-pro@ultrablock.com' in addon_ids || "
-        "'{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}' in addon_ids || "
-        "'kolesin.work@gmail.com' in addon_ids || "
-        "'adblocker@pcmatic.com' in addon_ids || "
-        "'{73a6fe31-595d-460b-a920-fcc0f8843232}' in addon_ids"
-        "))"
+        "(tou_points == 1 && !{AD_BLOCK_INSTALLED}) || "
+        "(tou_points == 0 1 && {AD_BLOCK_INSTALLED}) "
+        ")"
     ),
     desktop_telemetry="",
     sticky_required=False,
@@ -2779,22 +2794,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetin
     targeting=(
         "user_accepted_tou == false && "
         "days_since_install >= 28 && "
-        "(tou_points > 1 || "
-        "("
-        "tou_points == 1 && "
-        "("
-        "'uBlock0@raymondhill.net' in addon_ids || "
-        "'{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}' in addon_ids || "
-        "'adguardadblocker@adguard.com' in addon_ids || "
-        "'adblockultimate@adblockultimate.net' in addon_ids || "
-        "'firefox@ghostery.com' in addon_ids || "
-        "'lock@adblock' in addon_ids || "
-        "'ultrablock-pro@ultrablock.com' in addon_ids || "
-        "'{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}' in addon_ids || "
-        "'kolesin.work@gmail.com' in addon_ids || "
-        "'adblocker@pcmatic.com' in addon_ids || "
-        "'{73a6fe31-595d-460b-a920-fcc0f8843232}' in addon_ids"
-        ")))"
+        "(tou_points > 1 || (tou_points == 1 && {AD_BLOCK_INSTALLED}))"
     ),
     desktop_telemetry="",
     sticky_required=False,
