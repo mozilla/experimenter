@@ -2765,14 +2765,19 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConf
         "have one ToU point or "
         "have at least one of the specified ad-blockers installed."
     ),
-    targeting=(
-        "user_accepted_tou == false && "
-        "days_since_install >= 28 && "
-        "("
-        "(tou_points == 1 && !{ANDROID_AD_BLOCKER_INSTALLED}) || "
-        "(tou_points == 0 && {ANDROID_AD_BLOCKER_INSTALLED}) "
-        ")"
-    ),
+    targeting=f"""
+    (
+        user_accepted_tou == false
+        &&
+        days_since_install >= 28
+        &&
+        (
+            (tou_points == 1 && !{ANDROID_AD_BLOCKER_INSTALLED})
+            ||
+            (tou_points == 0 && {ANDROID_AD_BLOCKER_INSTALLED})
+        )
+    )
+    """,
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -2791,11 +2796,19 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetin
         "have one ToU point and "
         "have at least one of the specified ad-blockers installed."
     ),
-    targeting=(
-        "user_accepted_tou == false && "
-        "days_since_install >= 28 && "
-        "(tou_points > 1 || (tou_points == 1 && {ANDROID_AD_BLOCKER_INSTALLED}))"
-    ),
+    targeting=f"""
+    (
+        user_accepted_tou == false
+        &&
+        days_since_install >= 28
+        &&
+        (
+            tou_points > 1
+            ||
+            (tou_points == 1 && {ANDROID_AD_BLOCKER_INSTALLED})
+        )
+    )
+    """,
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
