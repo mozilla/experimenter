@@ -2770,7 +2770,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConf
         "days_since_install >= 28 && "
         "("
         "(tou_points == 1 && !{AD_BLOCK_INSTALLED}) || "
-        "(tou_points == 0 1 && {AD_BLOCK_INSTALLED}) "
+        "(tou_points == 0 && {AD_BLOCK_INSTALLED}) "
         ")"
     ),
     desktop_telemetry="",
