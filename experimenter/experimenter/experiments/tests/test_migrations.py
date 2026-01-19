@@ -1,14 +1,14 @@
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 
-class TestResultsV3OverallDictMigration(MigratorTestCase):
+class TestFixPublishStatusPreviewMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0314_nimbusexperiment_risk_ai",
+        "0315_results_v3_overall_dict",
     )
     migrate_to = (
         "experiments",
-        "0315_results_v3_overall_dict",
+        "0316_fix_publish_status_preview",
     )
 
     def prepare(self):
@@ -22,134 +22,34 @@ class TestResultsV3OverallDictMigration(MigratorTestCase):
             defaults={"email": "test@example.com"},
         )
 
-        results_data_broken = {
-            "v3": {
-                "overall": {
-                    "enrollments": {
-                        "all": {
-                            "control": {
-                                "is_control": True,
-                                "branch_data": {
-                                    "identity": {
-                                        "retention": {
-                                            "absolute": {"all": [], "first": {}},
-                                            "difference": {
-                                                "treatment": {"all": [], "first": {}}
-                                            },
-                                            "relative_uplift": {
-                                                "treatment": {"all": [], "first": {}}
-                                            },
-                                            "significance": {
-                                                "treatment": {
-                                                    "weekly": {},
-                                                    "overall": [],
-                                                }
-                                            },
-                                            "percent": 0.0,
-                                        }
-                                    }
-                                },
-                            },
-                            "treatment": {
-                                "is_control": False,
-                                "branch_data": {
-                                    "identity": {
-                                        "retention": {
-                                            "absolute": {"all": [], "first": {}},
-                                            "difference": {
-                                                "control": {"all": [], "first": {}}
-                                            },
-                                            "relative_uplift": {
-                                                "control": {"all": [], "first": {}}
-                                            },
-                                            "significance": {
-                                                "control": {
-                                                    "weekly": {},
-                                                    "overall": [],
-                                                }
-                                            },
-                                            "percent": 0.0,
-                                        }
-                                    }
-                                },
-                            },
-                        }
-                    }
-                }
-            }
-        }
-
-        results_data_healthy = {
-            "v3": {
-                "overall": {
-                    "enrollments": {
-                        "all": {
-                            "control": {
-                                "is_control": True,
-                                "branch_data": {
-                                    "identity": {
-                                        "retention": {
-                                            "absolute": {"all": [], "first": {}},
-                                            "difference": {
-                                                "treatment": {"all": [], "first": {}}
-                                            },
-                                            "relative_uplift": {
-                                                "treatment": {"all": [], "first": {}}
-                                            },
-                                            "significance": {
-                                                "treatment": {
-                                                    "weekly": {},
-                                                    "overall": {},
-                                                }
-                                            },
-                                            "percent": 0.0,
-                                        }
-                                    }
-                                },
-                            },
-                            "treatment": {
-                                "is_control": False,
-                                "branch_data": {
-                                    "identity": {
-                                        "retention": {
-                                            "absolute": {"all": [], "first": {}},
-                                            "difference": {
-                                                "control": {"all": [], "first": {}}
-                                            },
-                                            "relative_uplift": {
-                                                "control": {"all": [], "first": {}}
-                                            },
-                                            "significance": {
-                                                "control": {
-                                                    "weekly": {},
-                                                    "overall": {},
-                                                }
-                                            },
-                                            "percent": 0.0,
-                                        }
-                                    }
-                                },
-                            },
-                        }
-                    }
-                }
-            }
-        }
-
         NimbusExperiment.objects.create(
-            slug="test-experiment-broken",
-            name="Test Experiment Broken",
-            application="fenix",
+            slug="test-invalid-preview",
+            name="Test Invalid Preview",
+            application="firefox-desktop",
             owner=owner,
-            results_data=results_data_broken,
+            status="Live",
+            status_next="Complete",
+            publish_status="Preview",
         )
 
         NimbusExperiment.objects.create(
-            slug="test-experiment-healthy",
-            name="Test Experiment Healthy",
-            application="fenix",
+            slug="test-valid-idle",
+            name="Test Valid Idle",
+            application="firefox-desktop",
             owner=owner,
-            results_data=results_data_healthy,
+            status="Draft",
+            status_next=None,
+            publish_status="Idle",
+        )
+
+        NimbusExperiment.objects.create(
+            slug="test-valid-review",
+            name="Test Valid Review",
+            application="firefox-desktop",
+            owner=owner,
+            status="Draft",
+            status_next=None,
+            publish_status="Review",
         )
 
     def test_migration(self):
@@ -157,27 +57,17 @@ class TestResultsV3OverallDictMigration(MigratorTestCase):
             "experiments", "NimbusExperiment"
         )
 
-        experiment_broken = NimbusExperiment.objects.get(slug="test-experiment-broken")
+        invalid_exp = NimbusExperiment.objects.get(slug="test-invalid-preview")
+        self.assertEqual(invalid_exp.status, "Draft")
+        self.assertIsNone(invalid_exp.status_next)
+        self.assertEqual(invalid_exp.publish_status, "Idle")
 
-        control_significance = experiment_broken.results_data["v3"]["overall"][
-            "enrollments"
-        ]["all"]["control"]["branch_data"]["identity"]["retention"]["significance"]
-        self.assertEqual(control_significance["treatment"]["overall"], {})
-        self.assertNotEqual(control_significance["treatment"]["overall"], [])
+        valid_idle = NimbusExperiment.objects.get(slug="test-valid-idle")
+        self.assertEqual(valid_idle.status, "Draft")
+        self.assertIsNone(valid_idle.status_next)
+        self.assertEqual(valid_idle.publish_status, "Idle")
 
-        treatment_significance = experiment_broken.results_data["v3"]["overall"][
-            "enrollments"
-        ]["all"]["treatment"]["branch_data"]["identity"]["retention"]["significance"]
-        self.assertEqual(treatment_significance["control"]["overall"], {})
-        self.assertNotEqual(treatment_significance["control"]["overall"], [])
-
-        experiment_healthy = NimbusExperiment.objects.get(slug="test-experiment-healthy")
-        control_significance_healthy = experiment_healthy.results_data["v3"]["overall"][
-            "enrollments"
-        ]["all"]["control"]["branch_data"]["identity"]["retention"]["significance"]
-        self.assertEqual(control_significance_healthy["treatment"]["overall"], {})
-
-        treatment_significance_healthy = experiment_healthy.results_data["v3"]["overall"][
-            "enrollments"
-        ]["all"]["treatment"]["branch_data"]["identity"]["retention"]["significance"]
-        self.assertEqual(treatment_significance_healthy["control"]["overall"], {})
+        valid_review = NimbusExperiment.objects.get(slug="test-valid-review")
+        self.assertEqual(valid_review.status, "Draft")
+        self.assertIsNone(valid_review.status_next)
+        self.assertEqual(valid_review.publish_status, "Review")
