@@ -7,25 +7,20 @@
   <table class="table table-striped mb-0">
     <tbody>
       <tr>
-        <th colspan="3">{{ RISK_QUESTIONS.BRAND }}</th>
-        <td class="{% if experiment.risk_brand %}text-danger font-weight-bold{% endif %}">
-          {% if experiment.risk_brand != None %}
-            {{ experiment.risk_brand|yesno:"Yes,No" }}
+        <th colspan="3">{{ RISK_QUESTIONS.AI }}</th>
+        <td class="{% if experiment.risk_ai %}text-danger font-weight-bold{% endif %}">
+          {% if experiment.risk_ai != None %}
+            {{ experiment.risk_ai|yesno:"Yes,No" }}
           {% else %}
             Not Set
           {% endif %}
         </td>
       </tr>
       <tr>
-        <th colspan="3">
-          {{ RISK_QUESTIONS.MESSAGE }}
-          <a href="{{ NimbusUIConstants.RISK_MESSAGE_URL }}"
-             target="_blank"
-             rel="noopener noreferrer">Message Consult</a>
-        </th>
-        <td class="{% if experiment.risk_message %}text-danger font-weight-bold{% endif %}">
-          {% if experiment.risk_message != None %}
-            {{ experiment.risk_message|yesno:"Yes,No" }}
+        <th colspan="3">{{ RISK_QUESTIONS.BRAND }}</th>
+        <td class="{% if experiment.risk_brand %}text-danger font-weight-bold{% endif %}">
+          {% if experiment.risk_brand != None %}
+            {{ experiment.risk_brand|yesno:"Yes,No" }}
           {% else %}
             Not Set
           {% endif %}
@@ -42,10 +37,25 @@
         </td>
       </tr>
       <tr>
-        <th colspan="3" class="border-bottom-0">{{ RISK_QUESTIONS.PARTNER }}</th>
-        <td class="border-bottom-0 {% if experiment.risk_partner_related %}text-danger font-weight-bold{% endif %}">
+        <th colspan="3">{{ RISK_QUESTIONS.PARTNER }}</th>
+        <td class="{% if experiment.risk_partner_related %}text-danger font-weight-bold{% endif %}">
           {% if experiment.risk_partner_related != None %}
             {{ experiment.risk_partner_related|yesno:"Yes,No" }}
+          {% else %}
+            Not Set
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <th colspan="3" class="border-bottom-0">
+          {{ RISK_QUESTIONS.MESSAGE }}
+          <a href="{{ NimbusUIConstants.RISK_MESSAGE_URL }}"
+             target="_blank"
+             rel="noopener noreferrer">Message Consult</a>
+        </th>
+        <td class="border-bottom-0 {% if experiment.risk_message %}text-danger font-weight-bold{% endif %}">
+          {% if experiment.risk_message != None %}
+            {{ experiment.risk_message|yesno:"Yes,No" }}
           {% else %}
             Not Set
           {% endif %}

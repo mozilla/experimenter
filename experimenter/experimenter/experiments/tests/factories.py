@@ -502,6 +502,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     risk_revenue = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_brand = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_message = factory.LazyAttribute(lambda o: random.choice([True, False]))
+    risk_ai = False
     is_localized = factory.LazyAttribute(lambda o: False)
     localizations = factory.LazyAttribute(lambda o: None)
     qa_status = factory.LazyAttribute(

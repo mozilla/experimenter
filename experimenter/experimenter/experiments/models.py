@@ -355,6 +355,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     risk_message = models.BooleanField(
         "Is a Message Risk Flag", default=None, blank=True, null=True
     )
+    risk_ai = models.BooleanField(
+        "Is an AI Risk Flag", default=None, blank=True, null=True
+    )
     conclusion_recommendations = models.JSONField(
         verbose_name="Conclusion Recommendations", blank=True, null=True, default=list
     )
@@ -769,6 +772,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     self.is_rollout,
                     (f"!('{pref}'|preferenceIsUserSet)" for pref in sorted(prefs)),
                 )
+            )
+
+        if (
+            self.risk_ai
+            and self.is_desktop
+            and self.firefox_min_version
+            and NimbusExperiment.Version.parse(self.firefox_min_version)
+            >= NimbusExperiment.Version.parse(NimbusExperiment.Version.FIREFOX_148)
+        ):
+            expressions.append(
+                "'browser.ai.control.default'|preferenceValue == 'available'"
             )
 
         #  If there is no targeting defined all clients should match, so we return "true"
@@ -2137,9 +2151,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     self.risk_brand,
                     self.risk_revenue,
                     self.risk_partner_related,
+                    self.risk_ai,
                 )
             ),
-            "legal_signoff": any((self.risk_revenue, self.risk_partner_related)),
+            "legal_signoff": any(
+                (self.risk_revenue, self.risk_partner_related, self.risk_ai)
+            ),
         }
 
     @property
@@ -2378,6 +2395,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned._computed_end_date = None
         cloned.qa_status = NimbusExperiment.QAStatus.NOT_SET
         cloned.qa_comment = None
+        cloned.risk_ai = None
+        cloned.risk_brand = None
+        cloned.risk_message = None
+        cloned.risk_partner_related = None
+        cloned.risk_revenue = None
         cloned.klaatu_status = False
         cloned.klaatu_recent_run_id = None
         cloned.save()

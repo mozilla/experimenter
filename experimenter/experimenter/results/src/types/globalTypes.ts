@@ -527,6 +527,7 @@ export interface ExperimentInput {
   qaStatus?: NimbusExperimentQAStatusEnum | null;
   referenceBranch?: BranchInput | null;
   requiredExperimentsBranches?: NimbusExperimentBranchThroughRequiredInput[] | null;
+  riskAi?: boolean | null;
   riskBrand?: boolean | null;
   riskMessage?: boolean | null;
   riskMitigationLink?: string | null;
