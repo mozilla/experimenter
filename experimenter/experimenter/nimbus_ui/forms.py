@@ -402,6 +402,12 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         widget=InlineRadioSelect,
         coerce=lambda x: x == "True",
     )
+    risk_ai = forms.TypedChoiceField(
+        required=False,
+        choices=YES_NO_CHOICES,
+        widget=InlineRadioSelect,
+        coerce=lambda x: x == "True",
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -413,6 +419,7 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "risk_revenue",
             "risk_brand",
             "risk_message",
+            "risk_ai",
         ]
 
     def __init__(self, *args, **kwargs):

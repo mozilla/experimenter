@@ -741,6 +741,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     computedEnrollmentEndDate
 
                     riskMitigationLink
+                    riskAi
                     riskRevenue
                     riskBrand
                     riskMessage
@@ -1017,6 +1018,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     else None
                 ),
                 "reviewUrl": experiment.review_url,
+                "riskAi": experiment.risk_ai,
                 "riskBrand": experiment.risk_brand,
                 "riskMessage": experiment.risk_message,
                 "riskMitigationLink": experiment.risk_mitigation_link,
