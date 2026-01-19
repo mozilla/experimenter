@@ -2769,8 +2769,8 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConf
         "user_accepted_tou == false && "
         "days_since_install >= 28 && "
         "("
-        "(tou_points == 1 && !{AD_BLOCK_INSTALLED}) || "
-        "(tou_points == 0 && {AD_BLOCK_INSTALLED}) "
+        "(tou_points == 1 && !{ANDROID_AD_BLOCKER_INSTALLED}) || "
+        "(tou_points == 0 && {ANDROID_AD_BLOCKER_INSTALLED}) "
         ")"
     ),
     desktop_telemetry="",
@@ -2794,7 +2794,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetin
     targeting=(
         "user_accepted_tou == false && "
         "days_since_install >= 28 && "
-        "(tou_points > 1 || (tou_points == 1 && {AD_BLOCK_INSTALLED}))"
+        "(tou_points > 1 || (tou_points == 1 && {ANDROID_AD_BLOCKER_INSTALLED}))"
     ),
     desktop_telemetry="",
     sticky_required=False,
