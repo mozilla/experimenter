@@ -43,7 +43,6 @@
                 {% endif %}
               </th>
               <td colspan="3"
-                  id="preview-recipe-json"
                   class="collapsed-json {% if forloop.last and not branch.screenshots.all.exists %}border-bottom-0{% endif %}">
                 {% include "common/readonly_json.html" with json_content=feature_value.value %}
 
@@ -52,7 +51,6 @@
                 </button>
               </td>
               <td colspan="3"
-                  id="preview-recipe-json"
                   class="expanded-json d-none {% if forloop.last and not branch.screenshots.all.exists %}border-bottom-0{% endif %}">
                 {% include "common/readonly_json.html" with json_content=feature_value.value %}
 
