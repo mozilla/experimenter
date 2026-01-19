@@ -98,6 +98,7 @@ class ExperimentInput(graphene.InputObjectType):
     required_experiments_branches = graphene.List(
         graphene.NonNull(NimbusExperimentBranchThroughRequiredInput)
     )
+    risk_ai = graphene.Boolean()
     risk_brand = graphene.Boolean()
     risk_message = graphene.Boolean()
     risk_mitigation_link = graphene.String()

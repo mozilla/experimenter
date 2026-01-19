@@ -1388,6 +1388,65 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(targeting_config_slug="invalid slug")
         self.assertIsNone(experiment.targeting_config)
 
+    @parameterized.expand(
+        [
+            (
+                True,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_148,
+                True,
+            ),
+            (
+                False,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_148,
+                False,
+            ),
+            (
+                None,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_148,
+                False,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.NO_VERSION,
+                False,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_147,
+                False,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.NO_VERSION,
+                False,
+            ),
+        ]
+    )
+    def test_targeting_with_risk_ai(
+        self, risk_ai, application, firefox_min_version, should_include_targeting
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+            firefox_min_version=firefox_min_version,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            risk_ai=risk_ai,
+        )
+        ai_targeting_expr = "'browser.ai.control.default'|preferenceValue == 'available'"
+        if should_include_targeting:
+            self.assertIn(ai_targeting_expr, experiment.targeting)
+        else:
+            self.assertNotIn(ai_targeting_expr, experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
     @mock_valid_outcomes
     def test_get_weekly_metric_data(self):
         application = NimbusExperiment.Application.DESKTOP
@@ -4505,10 +4564,11 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            [False, False, False, False, False],
-            [True, False, False, True, False],
-            [False, True, False, True, True],
-            [False, False, True, True, True],
+            [False, False, False, False, False, False],
+            [True, False, False, False, True, False],
+            [False, True, False, False, True, True],
+            [False, False, True, False, True, True],
+            [False, False, False, True, True, True],
         ]
     )
     def test_signoff_recommendations(
@@ -4516,6 +4576,7 @@ class TestNimbusExperiment(TestCase):
         risk_brand,
         risk_revenue,
         risk_partner_related,
+        risk_ai,
         vp_recommended,
         legal_recommended,
     ):
@@ -4524,6 +4585,7 @@ class TestNimbusExperiment(TestCase):
             risk_brand=risk_brand,
             risk_revenue=risk_revenue,
             risk_partner_related=risk_partner_related,
+            risk_ai=risk_ai,
         )
         self.assertEqual(experiment.signoff_recommendations["qa_signoff"], True)
         self.assertEqual(experiment.signoff_recommendations["vp_signoff"], vp_recommended)
@@ -4630,9 +4692,11 @@ class TestNimbusExperiment(TestCase):
             child.targeting_config_slug, NimbusExperiment.TargetingConfig.NO_TARGETING
         )
 
-        self.assertFalse(child.risk_partner_related)
-        self.assertFalse(child.risk_revenue)
-        self.assertFalse(child.risk_brand)
+        self.assertIsNone(child.risk_ai)
+        self.assertIsNone(child.risk_brand)
+        self.assertIsNone(child.risk_message)
+        self.assertIsNone(child.risk_partner_related)
+        self.assertIsNone(child.risk_revenue)
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
         self.assertFalse(child.is_rollout_dirty)
         self.assertFalse(child.takeaways_metric_gain)
@@ -4754,9 +4818,11 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.secondary_outcomes, parent.secondary_outcomes)
         self.assertEqual(child.segments, parent.segments)
         self.assertEqual(child.targeting_config_slug, parent.targeting_config_slug)
-        self.assertEqual(child.risk_partner_related, parent.risk_partner_related)
-        self.assertEqual(child.risk_revenue, parent.risk_revenue)
-        self.assertEqual(child.risk_brand, parent.risk_brand)
+        self.assertIsNone(child.risk_ai)
+        self.assertIsNone(child.risk_brand)
+        self.assertIsNone(child.risk_message)
+        self.assertIsNone(child.risk_partner_related)
+        self.assertIsNone(child.risk_revenue)
 
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
 

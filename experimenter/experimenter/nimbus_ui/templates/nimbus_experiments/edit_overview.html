@@ -47,34 +47,6 @@
             </div>
           </div>
           <div class="row mb-3">
-            <div class="col-10">
-              <label for="id_risk_brand" class="form-label">
-                If the public, users or press, were to discover this experiment and description, do you think it could negatively impact their perception of the brand?
-                <a target="_blank"
-                   href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.risk_link }}">Learn more</a>
-              </label>
-            </div>
-            <div class="col-2 text-end">
-              {{ form.risk_brand|add_error_class:"is-invalid" }}
-              {% for error in form.risk_brand.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in validation_errors.risk_brand %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-10">
-              <label for="id_risk_message" class="form-label">
-                Does your experiment include ANY messages? If yes, this requires the
-                <a target="_blank"
-                   href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.message_consult_link }}">Message Consult</a>
-              </label>
-            </div>
-            <div class="col-2 text-end">
-              {{ form.risk_message|add_error_class:"is-invalid" }}
-              {% for error in form.risk_message.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in validation_errors.risk_message %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-            </div>
-          </div>
-          <div class="row mb-3">
             <div class="col">
               <label for="id_application" class="form-label">Application</label>
               <input class="form-control"
@@ -100,6 +72,31 @@
           </div>
           <div class="row mb-3">
             <div class="col-10">
+              <label for="id_risk_ai" class="form-label fw-bold">Does this experiment use any AI features/functionality?</label>
+              <p class="form-text">Note: Selecting Yes will exclude all users that have opted out of AI functionality.</p>
+            </div>
+            <div class="col-2 text-end">
+              {{ form.risk_ai|add_error_class:"is-invalid" }}
+              {% for error in form.risk_ai.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              {% for error in validation_errors.risk_ai %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-10">
+              <label for="id_risk_brand" class="form-label">
+                If the public, users or press, were to discover this experiment and description, do you think it could negatively impact their perception of the brand?
+                <a target="_blank"
+                   href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.risk_link }}">Learn more</a>
+              </label>
+            </div>
+            <div class="col-2 text-end">
+              {{ form.risk_brand|add_error_class:"is-invalid" }}
+              {% for error in form.risk_brand.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              {% for error in validation_errors.risk_brand %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-10">
               <label for="id_risk_revenue" class="form-label">
                 Does this experiment have a risk to negatively impact revenue (e.g. search, Pocket revenue)?
                 <a target="_blank"
@@ -115,7 +112,7 @@
           <div class="row mb-3">
             <div class="col-10">
               <label for="id_risk_partner_related" class="form-label">
-                Does this experiment rely on AI (e.g. ML, chatbot), impact or rely on a partner or outside company (e.g. Google, Amazon), or deliver any encryption or VPN?
+                Does this experiment impact or rely on a partner or outside company (e.g. Google, Amazon), or deliver any encryption or VPN?
                 <a target="_blank"
                    href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.partner_related_risk_link }}">Learn more</a>
               </label>
@@ -126,6 +123,20 @@
               {% for error in validation_errors.risk_partner_related %}
                 <div class="form-text text-danger">{{ error }}</div>
               {% endfor %}
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-10">
+              <label for="id_risk_message" class="form-label">
+                Does your experiment include ANY messages? If yes, this requires the
+                <a target="_blank"
+                   href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.message_consult_link }}">Message Consult</a>
+              </label>
+            </div>
+            <div class="col-2 text-end">
+              {{ form.risk_message|add_error_class:"is-invalid" }}
+              {% for error in form.risk_message.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              {% for error in validation_errors.risk_message %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             </div>
           </div>
           <div class="row mb-2">

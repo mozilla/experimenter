@@ -788,6 +788,7 @@ class NimbusExperimentSerializer(
             "qa_status",
             "reference_branch",
             "required_experiments_branches",
+            "risk_ai",
             "risk_brand",
             "risk_message",
             "risk_mitigation_link",
@@ -1233,6 +1234,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
     )
     risk_message = serializers.BooleanField(
+        required=True,
+        allow_null=False,
+        error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
+    )
+    risk_ai = serializers.BooleanField(
         required=True,
         allow_null=False,
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},

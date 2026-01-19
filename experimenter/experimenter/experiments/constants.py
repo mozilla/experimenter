@@ -1174,11 +1174,12 @@ RISK_QUESTIONS = {
     ),
     "MESSAGE": ("Does your experiment include ANY messages? If yes, this requires the "),
     "PARTNER": (
-        "Does this experiment rely on AI (e.g. ML, chatbot), impact or rely on a partner "
+        "Does this experiment impact or rely on a partner "
         "or outside company (e.g. Google, Amazon), or deliver any encryption or VPN?"
     ),
     "REVENUE": (
         "Does this experiment have a risk to negatively impact revenue "
         "(e.g. search, Pocket revenue)?"
     ),
+    "AI": "Does this experiment use any AI features/functionality?",
 }
