@@ -3164,6 +3164,11 @@ class TestResultsEditBranchImagesView(AuthTestCase):
 
 @mock_valid_outcomes
 class TestResultsView(AuthTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Outcomes.clear_cache()
+
     def test_render_to_response(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
@@ -3280,10 +3285,13 @@ class TestResultsView(AuthTestCase):
 
     def test_results_view_relative_ui_properties(self):
         application = NimbusExperiment.Application.DESKTOP
-        outcomes = Outcomes.by_application(application)
+        desktop_outcome_1 = Outcomes.get_by_slug_and_application(
+            "desktop_outcome_1", application
+        )
         experiment = NimbusExperimentFactory.create(
             application=application,
-            primary_outcomes=[outcomes[0].slug],
+            primary_outcomes=[desktop_outcome_1.slug],
+            secondary_outcomes=[],
         )
         branch_a = NimbusBranchFactory.create(
             experiment=experiment, name="Branch A", slug="branch-a"
