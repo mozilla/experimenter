@@ -1391,10 +1391,14 @@ class TestNimbusExperiment(TestCase):
     @mock_valid_outcomes
     def test_get_weekly_metric_data(self):
         application = NimbusExperiment.Application.DESKTOP
-        outcomes = Outcomes.by_application(application)
+        Outcomes.clear_cache()
+        desktop_outcome_1 = Outcomes.get_by_slug_and_application(
+            "desktop_outcome_1", application
+        )
         experiment = NimbusExperimentFactory.create(
-            application=application,
-            primary_outcomes=[outcomes[0].slug],
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[desktop_outcome_1.slug],
+            secondary_outcomes=[],
         )
         branch_a = NimbusBranchFactory.create(
             experiment=experiment, name="Branch A", slug="branch-a"
@@ -2589,10 +2593,14 @@ class TestNimbusExperiment(TestCase):
     @mock_valid_outcomes
     def test_get_metric_data_returns_correct_data(self):
         application = NimbusExperiment.Application.DESKTOP
-        outcomes = Outcomes.by_application(application)
+        Outcomes.clear_cache()
+        desktop_outcome_1 = Outcomes.get_by_slug_and_application(
+            "desktop_outcome_1", application
+        )
         experiment = NimbusExperimentFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
-            primary_outcomes=[outcomes[0].slug],
+            primary_outcomes=[desktop_outcome_1.slug],
+            secondary_outcomes=[],
         )
         branch_a = NimbusBranchFactory.create(
             experiment=experiment, name="Branch A", slug="branch-a"
@@ -2709,12 +2717,12 @@ class TestNimbusExperiment(TestCase):
         results_b = experiment.get_metric_data("enrollments", "all", "branch-b")
 
         data_a = (
-            results_b.get(outcomes[0].friendly_name, {})
+            results_b.get(desktop_outcome_1.friendly_name, {})
             .get("data", {})
             .get("overall", {})
         )
         data_b = (
-            results_a.get(outcomes[0].friendly_name, {})
+            results_a.get(desktop_outcome_1.friendly_name, {})
             .get("data", {})
             .get("overall", {})
         )
