@@ -152,10 +152,6 @@ homepage-redesign-feature:
       type: json
       description: |
         A configuration for the Discover More feature
-    enabled:
-      type: boolean
-      description: |
-        Enables the feature.
     scrim:
       type: boolean
       description: |

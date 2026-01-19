@@ -463,10 +463,6 @@ features:
   menu-redesign:
     description: Control the new menu redesign.
     variables:
-      enabled:
-        description: If true, the new menu redesign is available.
-        type: Boolean
-        default: false
       menu-banner:
         description: If true, the menu banner is visible.
         type: Boolean
