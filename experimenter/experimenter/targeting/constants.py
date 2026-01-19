@@ -2758,7 +2758,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingCo
     targeting=(
         "user_accepted_tou == false && "
         "days_since_install >= 28 && "
-        "(tou_points == 0 && {ANDROID_AD_BLOCKER_NOT_INSTALLED})"
+        f"(tou_points == 0 && {ANDROID_AD_BLOCKER_NOT_INSTALLED})"
     ),
     desktop_telemetry="",
     sticky_required=False,
