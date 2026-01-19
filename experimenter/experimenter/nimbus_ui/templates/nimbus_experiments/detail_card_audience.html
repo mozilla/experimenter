@@ -134,18 +134,14 @@
       </tr>
       <tr>
         <th id="recipe-json" class="border-bottom-0">Recipe JSON</th>
-        <td colspan="3"
-            id="preview-recipe-json"
-            class="collapsed-json border-bottom-0">
+        <td colspan="3" class="collapsed-json border-bottom-0">
           {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
 
           <button class="btn btn-outline-primary btn-sm mt-2 d-block show-btn d-none">
             <i class="fa-solid fa-plus"></i> Show more
           </button>
         </td>
-        <td colspan="3"
-            id="preview-recipe-json"
-            class="expanded-json d-none border-bottom-0">
+        <td colspan="3" class="expanded-json d-none border-bottom-0">
           {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
 
           <button class="btn btn-outline-primary btn-sm mt-2 d-block hide-btn d-none">
