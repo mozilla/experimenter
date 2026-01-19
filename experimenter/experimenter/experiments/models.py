@@ -1579,6 +1579,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         relative_data_list.sort(key=self.window_index_for_sort)
         rel_entries = []
         for i, data_point in enumerate(relative_data_list):
+            if not data_point:
+                continue
+
             lower = data_point.get("lower")
             upper = data_point.get("upper")
             avg_rel_change = (
@@ -1713,6 +1716,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     .get(reference_branch, {})
                     .get("all", [])
                 ):
+                    if not data_point:
+                        continue
+
                     lower = data_point.get("lower")
                     upper = data_point.get("upper")
 
