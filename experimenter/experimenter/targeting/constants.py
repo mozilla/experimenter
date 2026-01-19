@@ -2728,31 +2728,29 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingCo
     application_choice_names=(Application.FENIX.name,),
 )
 
-ANDROID_AD_BLOCKER_INSTALLED = f"""
+ANDROID_AD_BLOCKER_INSTALLED = """
 (
-    (
-        'uBlock0@raymondhill.net' in addon_ids
-        ||
-        '{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}' in addon_ids
-        ||
-        'adguardadblocker@adguard.com' in addon_ids
-        ||
-        'adblockultimate@adblockultimate.net' in addon_ids
-        ||
-        'firefox@ghostery.com' in addon_ids
-        ||
-        'lock@adblock' in addon_ids
-        ||
-        'ultrablock-pro@ultrablock.com' in addon_ids
-        ||
-        '{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}' in addon_ids
-        ||
-        'kolesin.work@gmail.com' in addon_ids
-        ||
-        'adblocker@pcmatic.com' in addon_ids
-        ||
-        '{73a6fe31-595d-460b-a920-fcc0f8843232}' in addon_ids
-      )
+    'uBlock0@raymondhill.net' in addon_ids
+    ||
+    '{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}' in addon_ids
+    ||
+    'adguardadblocker@adguard.com' in addon_ids
+    ||
+    'adblockultimate@adblockultimate.net' in addon_ids
+    ||
+    'firefox@ghostery.com' in addon_ids
+    ||
+    'lock@adblock' in addon_ids
+    ||
+    'ultrablock-pro@ultrablock.com' in addon_ids
+    ||
+    '{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}' in addon_ids
+    ||
+    'kolesin.work@gmail.com' in addon_ids
+    ||
+    'adblocker@pcmatic.com' in addon_ids
+    ||
+    '{73a6fe31-595d-460b-a920-fcc0f8843232}' in addon_ids
 )
 """
 
