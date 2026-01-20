@@ -18,6 +18,7 @@ from experimenter.experiments.models import (
     NimbusVersionedSchema,
     Tag,
 )
+from experimenter.jetstream.results_manager import ExperimentResultsManager
 from experimenter.nimbus_ui.constants import (
     METRICS_MIN_BOUNDS_WIDTH,
     SCHEMA_DIFF_SIZE_CONFIG,
@@ -747,6 +748,7 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         experiment = self.get_object()
+        results_manager = ExperimentResultsManager(experiment)
 
         analysis_data = (experiment.results_data or {}).get("v3", {})
 
@@ -765,12 +767,8 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         )
         context["selected_analysis_basis"] = analysis_basis
 
-        context["branch_data"] = experiment.get_branch_data(
+        context["branch_data"] = results_manager.get_branch_data(
             analysis_basis, selected_segment
-        )
-
-        context["metric_area_data"] = experiment.get_metric_data(
-            analysis_basis, selected_segment, selected_reference_branch
         )
 
         context["edit_outcome_summary_form"] = EditOutcomeSummaryForm(instance=experiment)
@@ -781,7 +779,7 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         }
         context["branch_leading_screenshot_forms"] = branch_leading_screenshot_forms
 
-        all_metrics = experiment.get_metric_data(
+        all_metrics = results_manager.get_metric_data(
             analysis_basis, selected_segment, selected_reference_branch
         )
         context["metric_area_data"] = all_metrics
@@ -799,7 +797,7 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
                     .get(metric_metadata["slug"], {})
                 )
                 metric_ui_properties = {}
-                extreme_bound = experiment.get_max_metric_value(
+                extreme_bound = results_manager.get_max_metric_value(
                     analysis_basis,
                     selected_segment,
                     selected_reference_branch,
@@ -840,7 +838,7 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
                     )
 
         context["relative_metric_changes"] = relative_metric_changes
-        context["all_weekly_metric_data"] = experiment.get_weekly_metric_data(
+        context["all_weekly_metric_data"] = results_manager.get_weekly_metric_data(
             analysis_basis, selected_segment, selected_reference_branch
         )
 
