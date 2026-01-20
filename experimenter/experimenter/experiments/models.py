@@ -1455,11 +1455,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     branch_data.get("branch_data", {}).get(group, {}).get(slug, {})
                 )
                 for branch_significance in metric_data.get("significance", {}).values():
-                    if (
-                        "positive" in branch_significance.get(window, {}).values()
-                        or "negative" in branch_significance.get(window, {}).values()
-                    ):
-                        return True
+                    window_data = branch_significance.get(window, {})
+                    if isinstance(window_data, dict):
+                        if (
+                            "positive" in window_data.values()
+                            or "negative" in window_data.values()
+                        ):
+                            return True
+                    elif isinstance(window_data, list):
+                        if "positive" in window_data or "negative" in window_data:
+                            return True
             return False
 
         for metrics in metric_areas.values():
@@ -1615,11 +1620,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             branch_results = window_results.get(branch.slug, {}).get("branch_data", {})
             metric_src = branch_results.get(group, {}).get(slug, {})
 
-            significance_map = (
+            significance_data = (
                 metric_src.get("significance", {})
                 .get(reference_branch, {})
                 .get(window, {})
             )
+            if isinstance(significance_data, list):
+                significance_map = {}
+            else:
+                significance_map = significance_data
 
             abs_entries = self.format_absolute_entries(metric_src, significance_map)
             rel_entries = self.format_relative_entries(

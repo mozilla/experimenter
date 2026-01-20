@@ -2846,6 +2846,84 @@ class TestNimbusExperiment(TestCase):
         self.assertIn("KPI Metrics", metric_areas)
         self.assertIn("Engagement", metric_areas)
 
+    @mock_valid_outcomes
+    def test_metric_notable_handles_list_significance_values(self):
+        """Test that is_metric_notable handles list significance values from migration."""
+        application = NimbusExperiment.Application.DESKTOP
+        Outcomes.clear_cache()
+        desktop_outcome_1 = Outcomes.get_by_slug_and_application(
+            "desktop_outcome_1", application
+        )
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[desktop_outcome_1.slug],
+            secondary_outcomes=[],
+        )
+        NimbusBranchFactory.create(
+            experiment=experiment, name="Branch A", slug="branch-a"
+        )
+        NimbusBranchFactory.create(
+            experiment=experiment, name="Branch B", slug="branch-b"
+        )
+
+        experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "urlbar_amazon_search_count": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.49,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ]
+                                            },
+                                            "significance": {
+                                                "branch-a": {"overall": []},
+                                                "branch-b": {"overall": []},
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "urlbar_amazon_search_count": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.24,
+                                                        "upper": 1.63,
+                                                        "point": 1.43,
+                                                    }
+                                                ]
+                                            },
+                                            "significance": {
+                                                "branch-a": {"overall": ["positive"]},
+                                                "branch-b": {"overall": []},
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment.save()
+
+        results = experiment.get_metric_data("enrollments", "all", "branch-b")
+
+        self.assertIsNotNone(results)
+
     @parameterized.expand(
         [
             (
