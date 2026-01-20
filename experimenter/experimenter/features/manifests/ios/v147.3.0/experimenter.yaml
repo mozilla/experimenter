@@ -164,14 +164,6 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the shortcuts library feature, accessible from the homepage
-    stories-redesign:
-      type: boolean
-      description: |
-        If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)
-    stories-redesign-v2:
-      type: boolean
-      description: |
-        If true, enables the redesigned story cards and homepage layout, and disables the bookmarks and jump-back-in homepage sections by default.
 hosted-summarizer-feature:
   description: |
     This feature enables the hosted summarizer feature.
