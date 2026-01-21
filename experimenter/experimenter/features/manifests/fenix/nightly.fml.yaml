@@ -674,6 +674,13 @@ features:
           Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
         type: Boolean
         default: false
+  native-share-sheet:
+    description: Feature to enable the Native Share Sheet for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Native Share Sheet is enabled.
+        type: Boolean
+        default: false
   navigation-toolbar:
     description: Feature for navigation toolbar.
     variables:

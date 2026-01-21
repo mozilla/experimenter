@@ -27,7 +27,7 @@ features:
         description: |
           Controls whether users see the fun icons in the app icon settings.
         type: Boolean
-        default: false
+        default: true
   appearance-menu-feature:
     description: |
       This property determines if we show the new appearance menu entry or the old theme settings
@@ -146,13 +146,6 @@ features:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.
     variables:
-      discover-more-feature-configuration:
-        description: |
-          A configuration for the Discover More feature
-        type: DiscoverMoreConfiguration
-        default:
-          discover-more-v1-experience: false
-          show-discover-more-button: false
       scrim:
         description: |
           If true, enables the scrim on the homepage when searching.
@@ -1035,6 +1028,15 @@ features:
         description: If true, firefox will use the  the updated password manager.
         type: Boolean
         default: false
+  voice-search-feature:
+    description: |
+      The feature flag to manage the roll out of the voice search feature.
+    variables:
+      enabled:
+        description: |
+          Enables the feature.
+        type: Boolean
+        default: false
   web-engine-integration-refactor:
     description: |
       The feature flag to manage the roll out of the integration of WebEngine into Firefox.
@@ -1339,20 +1341,6 @@ objects:
         default: false
       use-page-content:
         description: Search in the open tab's text content when typing.
-        type: Boolean
-        default: false
-  DiscoverMoreConfiguration:
-    description: |
-      A configuration that dictates the behaviour/subfeatures of the Discover More feature
-    fields:
-      discover-more-v1-experience:
-        description: |
-          Whether to show the Discover More experience is enabled
-        type: Boolean
-        default: false
-      show-discover-more-button:
-        description: |
-          Whether to show the Discover More button on the homepage
         type: Boolean
         default: false
   GeneralFeature:
