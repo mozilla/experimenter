@@ -358,6 +358,14 @@ minimal-addressbar:
       type: boolean
       description: |
         Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
+native-share-sheet:
+  description: Feature to enable the Native Share Sheet for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Native Share Sheet is enabled.
 navigation-toolbar:
   description: Feature for navigation toolbar.
   hasExposure: true
