@@ -148,10 +148,6 @@ homepage-redesign-feature:
   hasExposure: true
   exposureDescription: ''
   variables:
-    scrim:
-      type: boolean
-      description: |
-        If true, enables the scrim on the homepage when searching.
     search-bar:
       type: boolean
       description: |
