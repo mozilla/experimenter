@@ -1158,6 +1158,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         EmailType.ENROLLMENT_END: "⏸️ Is ready to end enrollment",
     }
 
+    EXPOSURE_CLIENT_CUTOFF = 10
+
 
 EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/qa-sign-off",

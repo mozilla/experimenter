@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 from experimenter.experiments.constants import NimbusConstants
 
@@ -213,6 +213,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         LAUNCH_ROLLOUT = "launch this rollout"
         UPDATE_ROLLOUT = "update this rollout"
         END_ROLLOUT = "end this rollout"
+
+    class ExposuresStatus(IntEnum):
+        NO_EXPOSURES = 0
+        VALID = 1
+        INVALID = 2
 
 
 def _get_qa_status_icon_map():
