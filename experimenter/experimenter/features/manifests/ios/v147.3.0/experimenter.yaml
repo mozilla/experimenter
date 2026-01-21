@@ -148,10 +148,6 @@ homepage-redesign-feature:
   hasExposure: true
   exposureDescription: ''
   variables:
-    discover-more-feature-configuration:
-      type: json
-      description: |
-        A configuration for the Discover More feature
     scrim:
       type: boolean
       description: |
@@ -539,6 +535,16 @@ updated-password-manager-feature:
     status:
       type: boolean
       description: If true, firefox will use the  the updated password manager.
+voice-search-feature:
+  description: |
+    The feature flag to manage the roll out of the voice search feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
 web-engine-integration-refactor:
   description: |
     The feature flag to manage the roll out of the integration of WebEngine into Firefox.
