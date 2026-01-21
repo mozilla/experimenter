@@ -160,10 +160,6 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the search bar feature on homepage for users.
-    shortcuts-library:
-      type: boolean
-      description: |
-        If true, enables the shortcuts library feature, accessible from the homepage
 hosted-summarizer-feature:
   description: |
     This feature enables the hosted summarizer feature.

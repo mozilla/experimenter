@@ -163,11 +163,6 @@ features:
           If true, enables the search bar feature on homepage for users.
         type: Boolean
         default: false
-      shortcuts-library:
-        description: |
-          If true, enables the shortcuts library feature, accessible from the homepage
-        type: Boolean
-        default: false
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
