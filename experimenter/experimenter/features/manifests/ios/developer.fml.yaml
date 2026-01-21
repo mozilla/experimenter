@@ -146,6 +146,11 @@ features:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.
     variables:
+      bookmarks-section-default:
+        description: |
+          If true, enables the bookmarks homepage section by default
+        type: Boolean
+        default: false
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
