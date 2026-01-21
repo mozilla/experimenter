@@ -146,11 +146,6 @@ features:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.
     variables:
-      scrim:
-        description: |
-          If true, enables the scrim on the homepage when searching.
-        type: Boolean
-        default: false
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
