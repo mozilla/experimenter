@@ -1716,10 +1716,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             results_data = self.results_data["v3"]
             for window in ["overall", "weekly"]:
                 if results_data.get(window):
-                    exposure_data = results_data[window].get("exposures", {}).get("all")
-                    if exposure_data is not None:
-                        return True
-
+                    exposures_branch_data = (
+                        results_data[window].get("exposures", {}).get("all", {})
+                    )
+                    for branch_data in exposures_branch_data.values():
+                        client_count = (
+                            branch_data.get("branch_data", {})
+                            .get("other_metrics", {})
+                            .get("identity", {})
+                            .get("absolute", {})
+                            .get("first", {})
+                            .get("point", 0)
+                        )
+                        if client_count > 10:
+                            return True
         return False
 
     @property
