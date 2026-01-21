@@ -582,3 +582,8 @@ SUMMERNOTE_CONFIG = {
         ],
     },
 }
+
+ASK_EXPERIMENTER_SLACK_LINK = config(
+    "ASK_EXPERIMENTER_SLACK_LINK",
+    default="https://experimenter.info/",
+)
