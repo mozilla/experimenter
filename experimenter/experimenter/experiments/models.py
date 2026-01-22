@@ -774,13 +774,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 )
             )
 
-        if (
-            self.risk_ai
-            and self.is_desktop
-            and self.firefox_min_version
-            and NimbusExperiment.Version.parse(self.firefox_min_version)
-            >= NimbusExperiment.Version.parse(NimbusExperiment.Version.FIREFOX_148)
-        ):
+        if self.risk_ai and self.is_desktop:
             expressions.append(
                 "'browser.ai.control.default'|preferenceValue == 'available'"
             )
