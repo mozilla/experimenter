@@ -1386,51 +1386,17 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (
-                True,
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_148,
-                True,
-            ),
-            (
-                False,
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_148,
-                False,
-            ),
-            (
-                None,
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_148,
-                False,
-            ),
-            (
-                True,
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.NO_VERSION,
-                False,
-            ),
-            (
-                True,
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_147,
-                False,
-            ),
-            (
-                True,
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.NO_VERSION,
-                False,
-            ),
+            (True, NimbusExperiment.Application.DESKTOP, True),
+            (False, NimbusExperiment.Application.DESKTOP, False),
+            (None, NimbusExperiment.Application.DESKTOP, False),
+            (True, NimbusExperiment.Application.FENIX, False),
         ]
     )
-    def test_targeting_with_risk_ai(
-        self, risk_ai, application, firefox_min_version, should_include_targeting
-    ):
+    def test_targeting_with_risk_ai(self, risk_ai, application, should_include_targeting):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=application,
-            firefox_min_version=firefox_min_version,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_148,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             channels=[],
