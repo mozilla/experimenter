@@ -814,7 +814,7 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
                     lower = relative[0].get("lower") * 100
                     upper = relative[0].get("upper") * 100
                     confidence_range = round(extreme_bound * 1000) / 10
-                    full_width = confidence_range * 2
+                    full_width = confidence_range * 2 if confidence_range != 0 else 1
                     bar_width = ((upper - lower) / full_width) * 100
                     left_percent = (abs(lower - confidence_range * -1) / full_width) * 100
                     left_bounds_percent = left_percent
