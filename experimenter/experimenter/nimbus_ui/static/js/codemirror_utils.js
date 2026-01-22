@@ -1,8 +1,7 @@
 import { basicSetup } from "codemirror";
 import { EditorView } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
-import { json, jsonParseLinter } from "@codemirror/lang-json";
-import { linter } from "@codemirror/lint";
+import { json } from "@codemirror/lang-json";
 import {
   themeCompartment,
   getThemeExtensions,
@@ -28,7 +27,6 @@ export const createReadonlyJsonEditor = (textarea, maxLines = null) => {
     extensions: [
       basicSetup,
       json(),
-      linter(jsonParseLinter()),
       EditorState.readOnly.of(true),
       EditorView.editable.of(false),
       EditorView.lineWrapping,
