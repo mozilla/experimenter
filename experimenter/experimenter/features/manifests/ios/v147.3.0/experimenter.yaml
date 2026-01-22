@@ -152,6 +152,10 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the bookmarks homepage section by default
+    jbi-section-default:
+      type: boolean
+      description: |
+        If true, enables the jump back in homepage section by default
     search-bar:
       type: boolean
       description: |
