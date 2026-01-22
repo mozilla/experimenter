@@ -28,9 +28,11 @@ def format_jexl(expression):
         if isinstance(node, ArrayLiteral):
             return f"[{', '.join(node_to_str(a) for a in node.value)}]"
         if isinstance(node, Transform):
-            args_str = ", ".join(node_to_str(a) for a in node.args)
+            args_list = [node_to_str(a) or format_node(a, False, 0) for a in node.args]
+            args_str = ", ".join(args_list)
             args = f"({args_str})" if node.args else ""
-            return f"{node_to_str(node.subject)}|{node.name}{args}"
+            subject_str = node_to_str(node.subject) or format_node(node.subject, False, 0)
+            return f"{subject_str}|{node.name}{args}"
         if isinstance(node, FilterExpression):
             subject_str = node_to_str(node.subject) or format_node(node.subject, False, 0)
             expr_str = node_to_str(node.expression) or format_node(

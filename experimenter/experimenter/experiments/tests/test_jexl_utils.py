@@ -101,6 +101,10 @@ locale != "en-US\""""
         result = format_jexl('"test"|preferenceValue(true)')
         self.assertEqual(result, '"test"|preferenceValue(true)')
 
+    def test_transform_with_expression_arguments(self):
+        result = format_jexl('["a", b]|bucketSample(x / 1000, 7, 233)')
+        self.assertEqual(result, '["a", b]|bucketSample(x / 1000, 7, 233)')
+
     def test_filter_expression(self):
         result = format_jexl("items[0]")
         self.assertEqual(result, "items[0]")
