@@ -130,7 +130,10 @@
       </tr>
       <tr>
         <th>Full targeting expression</th>
-        <td colspan="3">{{ experiment.targeting }}</td>
+        <td colspan="3">
+          {% include "common/readonly_json.html" with json_content=experiment.targeting_formatted %}
+
+        </td>
       </tr>
       <tr>
         <th id="recipe-json" class="border-bottom-0">Recipe JSON</th>
