@@ -1944,6 +1944,27 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
         return data
 
+    def _validate_risk_ai_version(self, data):
+        risk_ai = data.get("risk_ai")
+        firefox_min_version = data.get("firefox_min_version")
+        application = data.get("application")
+
+        if (
+            risk_ai
+            and application == NimbusExperiment.Application.DESKTOP
+            and firefox_min_version
+            and NimbusExperiment.Version.parse(firefox_min_version)
+            < NimbusExperiment.Version.parse(NimbusExperiment.AI_RISK_MIN_VERSION)
+        ):
+            raise serializers.ValidationError(
+                {
+                    "firefox_min_version": [
+                        NimbusConstants.ERROR_FIREFOX_VERSION_MIN_148_FOR_AI_RISK
+                    ],
+                }
+            )
+        return data
+
     def _validate_enrollment_targeting(self, data):
         excluded_experiments = set(data.get("excluded_experiments", []))
         required_experiments = set(data.get("required_experiments", []))
@@ -2383,6 +2404,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
         data = super().validate(data)
         data = self._validate_versions(data)
+        data = self._validate_risk_ai_version(data)
         data = self._validate_localizations(data)
         data = self._validate_feature_configs(data)
         data = self._validate_enrollment_targeting(data)
