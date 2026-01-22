@@ -1059,7 +1059,7 @@ WIN10_NOT_WIN11 = NimbusTargetingConfig(
 WIN11_ONLY = NimbusTargetingConfig(
     name="Windows 11 users only",
     slug="windows_11_only",
-    description="Windows 11 users but not Windows 10 users (Windows 10 build 22000 or higher)",
+    description="Windows 11 users but not Windows 10 users (Windows 10 build 22000+)",
     targeting="os.isWindows && os.windowsVersion >= 10 && os.windowsBuildNumber >= 22000",
     desktop_telemetry="",
     sticky_required=False,
