@@ -3,15 +3,15 @@
 <table class="table table-striped mb-0">
   <tbody>
     <tr>
-      <th>QA Status</th>
+      <th class="w-25">QA Status</th>
       <td colspan="3">{{ experiment.get_qa_status_display }}</td>
     </tr>
     <tr>
-      <th>QA Comment</th>
+      <th class="w-25">QA Comment</th>
       <td colspan="3">{{ experiment.qa_comment|default:"No comment" }}</td>
     </tr>
     <tr>
-      <th>Test Scenarios/Suites URL</th>
+      <th class="w-25">Test Scenarios/Suites URL</th>
       <td colspan="3">
         {% if experiment.qa_run_test_plan_url %}
           <a href="{{ experiment.qa_run_test_plan_url }}"
@@ -23,7 +23,7 @@
       </td>
     </tr>
     <tr>
-      <th class="border-bottom-0">TestRail Results URL</th>
+      <th class="w-25 border-bottom-0">TestRail Results URL</th>
       <td colspan="3" class="border-bottom-0">
         {% if experiment.qa_run_testrail_url %}
           <a href="{{ experiment.qa_run_testrail_url }}"
