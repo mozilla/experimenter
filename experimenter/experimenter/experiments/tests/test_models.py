@@ -5915,6 +5915,7 @@ locale in ["en-CA", "en-US"] &&
 region in ["CA", "US"]"""
         self.assertEqual(result, expected)
 
+
 class TestNimbusAlert(TestCase):
     def test_str_representation(self):
         experiment = NimbusExperimentFactory.create(slug="test-experiment")
