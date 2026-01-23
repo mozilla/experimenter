@@ -2907,17 +2907,6 @@ class NimbusEmail(models.Model):
         return f"Email: {self.experiment} {self.type} on {self.sent_on}"
 
 
-class NimbusAlertType(models.TextChoices):
-    ANALYSIS_ERROR_DAILY = "analysis_error_daily", "Daily Analysis Error"
-    ANALYSIS_ERROR_WEEKLY = "analysis_error_weekly", "Weekly Analysis Error"
-    ANALYSIS_ERROR_OVERALL = "analysis_error_overall", "Overall Analysis Error"
-    DAILY_RESULTS_READY = "daily_results_ready", "Daily Results Ready"
-    WEEKLY_RESULTS_READY = "weekly_results_ready", "Weekly Results Ready"
-    OVERALL_RESULTS_READY = "overall_results_ready", "Overall Results Ready"
-    EXPERIMENT_LAUNCHED = "experiment_launched", "Experiment Launched"
-    ENROLLMENT_HEALTHY = "enrollment_healthy", "Enrollment Healthy"
-
-
 class NimbusAlert(models.Model):
     experiment = models.ForeignKey(
         NimbusExperiment,
@@ -2927,7 +2916,7 @@ class NimbusAlert(models.Model):
     )
     alert_type = models.CharField(
         max_length=64,
-        choices=NimbusAlertType.choices,
+        choices=NimbusConstants.AlertType.choices,
         help_text="Category of alert",
     )
     message = models.TextField(help_text="Alert message text sent to Slack")

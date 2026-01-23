@@ -32,7 +32,6 @@ from experimenter.experiments.constants import (
 )
 from experimenter.experiments.models import (
     NimbusAlert,
-    NimbusAlertType,
     NimbusBranch,
     NimbusBranchScreenshot,
     NimbusBucketRange,
@@ -5932,7 +5931,7 @@ class TestNimbusAlert(TestCase):
         experiment = NimbusExperimentFactory.create(slug="test-experiment")
         alert = NimbusAlert.objects.create(
             experiment=experiment,
-            alert_type=NimbusAlertType.EXPERIMENT_LAUNCHED,
+            alert_type=NimbusConstants.AlertType.EXPERIMENT_LAUNCHED,
             message="🚀 Experiment is now live",
         )
         expected = f"{experiment.slug} - {alert.alert_type} - {alert.sent_on}"
@@ -5942,33 +5941,37 @@ class TestNimbusAlert(TestCase):
         experiment = NimbusExperimentFactory.create()
         NimbusAlert.objects.create(
             experiment=experiment,
-            alert_type=NimbusAlertType.DAILY_RESULTS_READY,
+            alert_type=NimbusConstants.AlertType.DAILY_RESULTS_READY,
             message="✅ Daily results ready",
         )
 
         self.assertTrue(
-            NimbusAlert.has_been_sent(experiment, NimbusAlertType.DAILY_RESULTS_READY)
+            NimbusAlert.has_been_sent(
+                experiment, NimbusConstants.AlertType.DAILY_RESULTS_READY
+            )
         )
 
     def test_has_been_sent_returns_false_when_alert_does_not_exist(self):
         experiment = NimbusExperimentFactory.create()
 
         self.assertFalse(
-            NimbusAlert.has_been_sent(experiment, NimbusAlertType.DAILY_RESULTS_READY)
+            NimbusAlert.has_been_sent(
+                experiment, NimbusConstants.AlertType.DAILY_RESULTS_READY
+            )
         )
 
     def test_unique_constraint_prevents_duplicate_alert_types(self):
         experiment = NimbusExperimentFactory.create()
         NimbusAlert.objects.create(
             experiment=experiment,
-            alert_type=NimbusAlertType.DAILY_RESULTS_READY,
+            alert_type=NimbusConstants.AlertType.DAILY_RESULTS_READY,
             message="First message",
         )
 
         with self.assertRaises(Exception):  # IntegrityError
             NimbusAlert.objects.create(
                 experiment=experiment,
-                alert_type=NimbusAlertType.DAILY_RESULTS_READY,
+                alert_type=NimbusConstants.AlertType.DAILY_RESULTS_READY,
                 message="Second message",
             )
 
@@ -5978,12 +5981,12 @@ class TestNimbusAlert(TestCase):
 
         alert1 = NimbusAlert.objects.create(
             experiment=experiment1,
-            alert_type=NimbusAlertType.DAILY_RESULTS_READY,
+            alert_type=NimbusConstants.AlertType.DAILY_RESULTS_READY,
             message="Alert for exp1",
         )
         alert2 = NimbusAlert.objects.create(
             experiment=experiment2,
-            alert_type=NimbusAlertType.DAILY_RESULTS_READY,
+            alert_type=NimbusConstants.AlertType.DAILY_RESULTS_READY,
             message="Alert for exp2",
         )
 
