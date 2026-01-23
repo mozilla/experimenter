@@ -1,6 +1,7 @@
 import json
 import logging
-from typing import Any
+from enum import StrEnum
+from typing import Any, NotRequired, TypedDict
 
 from cirrus_sdk import (  # type: ignore
     CirrusClient,
@@ -10,6 +11,52 @@ from cirrus_sdk import (  # type: ignore
 )
 
 logger = logging.getLogger(__name__)
+
+
+class ExperimentEnrollment(TypedDict):
+    slug: str
+    status: str
+
+
+class EnrollmentRequest(TypedDict):
+    clientId: str | None
+    requestContext: dict[str, Any]
+    prevEnrollments: NotRequired[list[ExperimentEnrollment]]
+
+
+class FeatureConfig(TypedDict):
+    featureId: str
+    value: dict[str, Any]
+
+
+class EnrolledFeatureConfig(TypedDict):
+    feature: FeatureConfig
+    slug: str
+    branch: str | None
+    featureId: str
+
+
+class EnrollmentChangeEventType(StrEnum):
+    Enrollment = "Enrollment"
+    EnrollFailed = "EnrollFailed"
+    Disqualification = "Disqualification"
+    Unenrollment = "Unenrollment"
+    UnenrollFailed = "UnenrolLFailed"
+
+
+class EnrollmentChangeEvent(TypedDict):
+    experiment_slug: str
+    branch_slug: str
+    reason: str | None
+    change: EnrollmentChangeEventType
+
+
+# N.B.: This type is much looser than the actual EnrollmentResponse type because
+# `compute_enrollments()` returns `{}` as a fallback on error.
+class EnrollmentResponse(TypedDict):
+    enrolledFeatureConfigMap: NotRequired[dict[str, EnrolledFeatureConfig]]
+    enrollments: NotRequired[list[ExperimentEnrollment]]
+    events: NotRequired[list[EnrollmentChangeEvent]]
 
 
 class CirrusMetricsHandler(MetricsHandler):
@@ -63,9 +110,12 @@ class SDK:
     ):
         self.client = CirrusClient(context, metrics_handler, coenrolling_feature_ids)
 
-    def compute_enrollments(self, targeting_context: dict[str, str]) -> dict[str, Any]:
+    def compute_enrollments(
+        self,
+        enrollment_request: EnrollmentRequest,
+    ) -> EnrollmentResponse:
         try:
-            res = self.client.handle_enrollment(json.dumps(targeting_context))
+            res = self.client.handle_enrollment(json.dumps(enrollment_request))
             return json.loads(res)
         except (NimbusError, Exception) as e:  # type: ignore
             logger.error(f"An error occurred during compute_enrollments: {e}")
