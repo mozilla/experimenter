@@ -2907,6 +2907,49 @@ class NimbusEmail(models.Model):
         return f"Email: {self.experiment} {self.type} on {self.sent_on}"
 
 
+class NimbusAlertType(models.TextChoices):
+    ANALYSIS_ERROR_DAILY = "analysis_error_daily", "Daily Analysis Error"
+    ANALYSIS_ERROR_WEEKLY = "analysis_error_weekly", "Weekly Analysis Error"
+    ANALYSIS_ERROR_OVERALL = "analysis_error_overall", "Overall Analysis Error"
+    DAILY_RESULTS_READY = "daily_results_ready", "Daily Results Ready"
+    WEEKLY_RESULTS_READY = "weekly_results_ready", "Weekly Results Ready"
+    OVERALL_RESULTS_READY = "overall_results_ready", "Overall Results Ready"
+    EXPERIMENT_LAUNCHED = "experiment_launched", "Experiment Launched"
+    ENROLLMENT_HEALTHY = "enrollment_healthy", "Enrollment Healthy"
+
+
+class NimbusAlert(models.Model):
+    experiment = models.ForeignKey(
+        NimbusExperiment,
+        on_delete=models.CASCADE,
+        related_name="alerts",
+        help_text="Experiment this alert belongs to",
+    )
+    alert_type = models.CharField(
+        max_length=64,
+        choices=NimbusAlertType.choices,
+        help_text="Category of alert",
+    )
+    message = models.TextField(help_text="Alert message text sent to Slack")
+    sent_on = models.DateTimeField(auto_now_add=True, help_text="When the alert was sent")
+    slack_thread_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Slack message timestamp for threading",
+    )
+
+    class Meta:
+        unique_together = [["experiment", "alert_type"]]
+
+    def __str__(self):
+        return f"{self.experiment.slug} - {self.alert_type} - {self.sent_on}"
+
+    @classmethod
+    def has_been_sent(cls, experiment, alert_type):
+        return cls.objects.filter(experiment=experiment, alert_type=alert_type).exists()
+
+
 def make_sticky_targeting_expression(is_desktop, is_rollout, expressions):
     if is_desktop:
         if is_rollout:

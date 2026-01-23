@@ -31,6 +31,8 @@ from experimenter.experiments.constants import (
     TargetingMultipleKintoCollectionsError,
 )
 from experimenter.experiments.models import (
+    NimbusAlert,
+    NimbusAlertType,
     NimbusBranch,
     NimbusBranchScreenshot,
     NimbusBucketRange,
@@ -5923,3 +5925,68 @@ class ApplicationConfigTests(TestCase):
             application_config.kinto_collections,
             expected_collections,
         )
+
+
+class TestNimbusAlert(TestCase):
+    def test_str_representation(self):
+        experiment = NimbusExperimentFactory.create(slug="test-experiment")
+        alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusAlertType.EXPERIMENT_LAUNCHED,
+            message="🚀 Experiment is now live",
+        )
+        expected = f"{experiment.slug} - {alert.alert_type} - {alert.sent_on}"
+        self.assertEqual(str(alert), expected)
+
+    def test_has_been_sent_returns_true_when_alert_exists(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusAlertType.DAILY_RESULTS_READY,
+            message="✅ Daily results ready",
+        )
+
+        self.assertTrue(
+            NimbusAlert.has_been_sent(experiment, NimbusAlertType.DAILY_RESULTS_READY)
+        )
+
+    def test_has_been_sent_returns_false_when_alert_does_not_exist(self):
+        experiment = NimbusExperimentFactory.create()
+
+        self.assertFalse(
+            NimbusAlert.has_been_sent(experiment, NimbusAlertType.DAILY_RESULTS_READY)
+        )
+
+    def test_unique_constraint_prevents_duplicate_alert_types(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusAlertType.DAILY_RESULTS_READY,
+            message="First message",
+        )
+
+        with self.assertRaises(Exception):  # IntegrityError
+            NimbusAlert.objects.create(
+                experiment=experiment,
+                alert_type=NimbusAlertType.DAILY_RESULTS_READY,
+                message="Second message",
+            )
+
+    def test_can_create_same_alert_type_for_different_experiments(self):
+        experiment1 = NimbusExperimentFactory.create()
+        experiment2 = NimbusExperimentFactory.create()
+
+        alert1 = NimbusAlert.objects.create(
+            experiment=experiment1,
+            alert_type=NimbusAlertType.DAILY_RESULTS_READY,
+            message="Alert for exp1",
+        )
+        alert2 = NimbusAlert.objects.create(
+            experiment=experiment2,
+            alert_type=NimbusAlertType.DAILY_RESULTS_READY,
+            message="Alert for exp2",
+        )
+
+        self.assertIsNotNone(alert1)
+        self.assertIsNotNone(alert2)
+        self.assertNotEqual(alert1.id, alert2.id)

@@ -20,6 +20,7 @@ from experimenter.experiments.changelog_utils import (
 )
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
+    NimbusAlert,
     NimbusBranch,
     NimbusBranchFeatureValue,
     NimbusBranchScreenshot,
@@ -474,4 +475,5 @@ admin.site.register(NimbusVersionedSchema, NimbusVersionedSchemaAdmin)
 admin.site.register(NimbusBranch, NimbusBranchAdmin)
 admin.site.register(NimbusFeatureVersion, NimbusFeatureVersionAdmin)
 admin.site.register(NimbusDocumentationLink)
+admin.site.register(NimbusAlert)
 admin.site.register(Tag, TagAdmin)
