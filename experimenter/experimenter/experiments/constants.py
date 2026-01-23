@@ -963,6 +963,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Ensure this value is less than or equal to the maximum version"
     )
     ERROR_FIREFOX_VERSION_MIN_SUPPORTED = "The minimum targetable Firefox version is 105"
+    ERROR_FIREFOX_VERSION_MIN_148_FOR_AI_RISK = (
+        "Experiments using AI features require Firefox version 148 or higher"
+    )
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
@@ -1037,6 +1040,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     MIN_REQUIRED_VERSION = Version.FIREFOX_105
 
     EXCLUDED_REQUIRED_MIN_VERSION = Version.FIREFOX_116
+
+    AI_RISK_MIN_VERSION = Version.FIREFOX_148
 
     MULTIFEATURE_MAX_FEATURES = 20
     ERROR_MULTIFEATURE_TOO_MANY_FEATURES = (

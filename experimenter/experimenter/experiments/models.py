@@ -32,6 +32,7 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
+from experimenter.experiments.jexl_utils import format_jexl
 from experimenter.jetstream.results_manager import ExperimentResultsManager
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.projects.models import Project
@@ -773,13 +774,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 )
             )
 
-        if (
-            self.risk_ai
-            and self.is_desktop
-            and self.firefox_min_version
-            and NimbusExperiment.Version.parse(self.firefox_min_version)
-            >= NimbusExperiment.Version.parse(NimbusExperiment.Version.FIREFOX_148)
-        ):
+        if self.risk_ai and self.is_desktop:
             expressions.append(
                 "'browser.ai.control.default'|preferenceValue == 'available'"
             )
@@ -790,6 +785,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if expressions
             else "true"
         )
+
+    @property
+    def targeting_formatted(self):
+        return format_jexl(self.targeting)
 
     @property
     def application_config(self):

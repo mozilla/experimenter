@@ -1056,6 +1056,17 @@ WIN10_NOT_WIN11 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN11_ONLY = NimbusTargetingConfig(
+    name="Windows 11 users only",
+    slug="windows_11_only",
+    description="Windows 11 users but not Windows 10 users (Windows 10 build 22000+)",
+    targeting="os.isWindows && os.windowsVersion >= 10 && os.windowsBuildNumber >= 22000",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIN10_VPN_PROMOTION_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10 users eligible for VPN promotion",
     slug="win10_vpn_promotion_eligible",
@@ -3898,6 +3909,27 @@ AI_TAB_GROUPING_ENABLED = NimbusTargetingConfig(
         "'browser.tabs.groups.smart.enabled'|preferenceValue && "
         "'browser.tabs.groups.smart.userEnabled'|preferenceValue && "
         "'browser.tabs.groups.smart.optin'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+VPN_EARLY_ACCESS = NimbusTargetingConfig(
+    name="VPN Early Access",
+    slug="vpn_early_access",
+    description=(
+        "Users who are signed out, are not using new profile, "
+        "are not enterprise, are not using a proxy, and "
+        "are not Mozilla VPN subscribers"
+    ),
+    targeting=(
+        "isFxAEnabled && !isFxASignedIn && "
+        f"{NOT_NEW_PROFILE_CREATED.targeting} && "
+        f"{NO_ENTERPRISE.targeting} && "
+        "'network.proxy.type'|preferenceValue != 1 && "
+        '!("e6eb0d1e856335fc" in attachedFxAOAuthClients|mapToProperty("id"))'
     ),
     desktop_telemetry="",
     sticky_required=False,

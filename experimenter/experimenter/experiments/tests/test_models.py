@@ -1387,51 +1387,17 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (
-                True,
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_148,
-                True,
-            ),
-            (
-                False,
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_148,
-                False,
-            ),
-            (
-                None,
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_148,
-                False,
-            ),
-            (
-                True,
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.NO_VERSION,
-                False,
-            ),
-            (
-                True,
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_147,
-                False,
-            ),
-            (
-                True,
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.NO_VERSION,
-                False,
-            ),
+            (True, NimbusExperiment.Application.DESKTOP, True),
+            (False, NimbusExperiment.Application.DESKTOP, False),
+            (None, NimbusExperiment.Application.DESKTOP, False),
+            (True, NimbusExperiment.Application.FENIX, False),
         ]
     )
-    def test_targeting_with_risk_ai(
-        self, risk_ai, application, firefox_min_version, should_include_targeting
-    ):
+    def test_targeting_with_risk_ai(self, risk_ai, application, should_include_targeting):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=application,
-            firefox_min_version=firefox_min_version,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_148,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             channels=[],
@@ -5925,6 +5891,29 @@ class ApplicationConfigTests(TestCase):
             expected_collections,
         )
 
+    def test_targeting_formatted_with_complex_expression(self):
+        locale_ca = LocaleFactory.create(code="en-CA")
+        locale_us = LocaleFactory.create(code="en-US")
+        country_us = CountryFactory.create(code="US")
+        country_ca = CountryFactory.create(code="CA")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_110,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            locales=[locale_ca, locale_us],
+            countries=[country_us, country_ca],
+        )
+        result = experiment.targeting_formatted
+        expected = """browserSettings.update.channel in ["release"] &&
+version|versionCompare("110.*") <= 0 &&
+os.isMac &&
+version|versionCompare("100.!") >= 0 &&
+locale in ["en-CA", "en-US"] &&
+region in ["CA", "US"]"""
+        self.assertEqual(result, expected)
 
 class TestNimbusAlert(TestCase):
     def test_str_representation(self):

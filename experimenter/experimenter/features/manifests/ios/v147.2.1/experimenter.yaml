@@ -148,18 +148,30 @@ homepage-redesign-feature:
   hasExposure: true
   exposureDescription: ''
   variables:
-    bookmarks-section-default:
+    discover-more-feature-configuration:
+      type: json
+      description: |
+        A configuration for the Discover More feature
+    scrim:
       type: boolean
       description: |
-        If true, enables the bookmarks homepage section by default
-    jbi-section-default:
-      type: boolean
-      description: |
-        If true, enables the jump back in homepage section by default
+        If true, enables the scrim on the homepage when searching.
     search-bar:
       type: boolean
       description: |
         If true, enables the search bar feature on homepage for users.
+    shortcuts-library:
+      type: boolean
+      description: |
+        If true, enables the shortcuts library feature, accessible from the homepage
+    stories-redesign:
+      type: boolean
+      description: |
+        If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)
+    stories-redesign-v2:
+      type: boolean
+      description: |
+        If true, enables the redesigned story cards and homepage layout, and disables the bookmarks and jump-back-in homepage sections by default.
 hosted-summarizer-feature:
   description: |
     This feature enables the hosted summarizer feature.
@@ -539,16 +551,6 @@ updated-password-manager-feature:
     status:
       type: boolean
       description: If true, firefox will use the  the updated password manager.
-voice-search-feature:
-  description: |
-    The feature flag to manage the roll out of the voice search feature.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables the feature.
 web-engine-integration-refactor:
   description: |
     The feature flag to manage the roll out of the integration of WebEngine into Firefox.

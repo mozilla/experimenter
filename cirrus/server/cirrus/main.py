@@ -17,7 +17,7 @@ from .glean.server_events import (
     create_enrollment_status_server_event_logger,
     create_startup_server_event_logger,
 )
-from .sdk import SDK, CirrusMetricsHandler
+from .sdk import SDK, CirrusMetricsHandler, EnrollmentResponse
 from .settings import (
     app_id,
     channel,
@@ -171,11 +171,11 @@ class ComputeFeaturesEnrollmentResult(TypedDict):
 
 
 def collate_enrollment_metric_data(
-    enrolled_partial_configuration: dict[str, Any],
+    enrolled_partial_configuration: EnrollmentResponse,
     client_id: str,
     nimbus_preview_flag: bool,
 ) -> list[EnrollmentMetricData]:
-    events: list[dict[str, Any]] = enrolled_partial_configuration.get("events", [])
+    events = enrolled_partial_configuration.get("events", [])
     remote_settings = (
         app.state.remote_setting_preview
         if nimbus_preview_flag
@@ -248,15 +248,13 @@ async def compute_features_enrollments(
             detail="This Cirrus doesn't support preview mode",
         )
 
-    targeting_context = {
+    enrollment_request = {
         "clientId": request_data.client_id,
         "requestContext": request_data.context,
     }
 
     sdk = app.state.sdk_preview if nimbus_preview else app.state.sdk_live
-    enrolled_partial_configuration: dict[str, Any] = sdk.compute_enrollments(
-        targeting_context
-    )
+    enrolled_partial_configuration = sdk.compute_enrollments(enrollment_request)
 
     client_feature_configuration: dict[str, Any] = (
         app.state.fml.compute_feature_configurations(enrolled_partial_configuration)
