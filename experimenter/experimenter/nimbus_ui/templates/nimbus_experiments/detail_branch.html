@@ -1,24 +1,18 @@
 {% load nimbus_extras %}
 
 <div class="card mb-3" id="{{ branch.slug }}">
-  <div class="card-header">
-    <div class="row align-items-center">
-      <div class="col-md-8">
-        <h5 class="mb-0">
-          <a href="#{{ branch.slug }}" class="text-decoration-none text-body">
-            {{ branch.name|title }} Branch ({{ branch_number }}/{{ total_branches }})
-          </a>
-        </h5>
-      </div>
-      {% if not experiment.is_rollout %}
-        <div class="col-md-4 text-end">
-          <button class="btn btn-outline-primary btn-sm"
-                  data-testid="promote-rollout"
-                  data-bs-toggle="modal"
-                  data-bs-target="#promoteToRolloutModal-{{ branch.slug }}">Promote to Rollout</button>
-        </div>
-      {% endif %}
-    </div>
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="mb-0">
+      <a href="#{{ branch.slug }}" class="text-decoration-none text-body">
+        {{ branch.name|title }} Branch ({{ branch_number }}/{{ total_branches }})
+      </a>
+    </h4>
+    {% if not experiment.is_rollout %}
+      <button class="btn btn-outline-primary btn-sm"
+              data-testid="promote-rollout"
+              data-bs-toggle="modal"
+              data-bs-target="#promoteToRolloutModal-{{ branch.slug }}">Promote to Rollout</button>
+    {% endif %}
   </div>
   <div class="card-body p-0 overflow-hidden rounded-bottom">
     <table class="table table-striped mb-0">
@@ -43,20 +37,9 @@
                 {% endif %}
               </th>
               <td colspan="3"
-                  class="collapsed-json {% if forloop.last and not branch.screenshots.all.exists %}border-bottom-0{% endif %}">
+                  class="{% if forloop.last and not branch.screenshots.all.exists %}border-bottom-0{% endif %}">
                 {% include "common/readonly_json.html" with json_content=feature_value.value %}
 
-                <button class="btn btn-outline-primary btn-sm mt-2 d-block show-btn d-none">
-                  <i class="fa-solid fa-plus"></i> Show more
-                </button>
-              </td>
-              <td colspan="3"
-                  class="expanded-json d-none {% if forloop.last and not branch.screenshots.all.exists %}border-bottom-0{% endif %}">
-                {% include "common/readonly_json.html" with json_content=feature_value.value %}
-
-                <button class="btn btn-outline-primary btn-sm mt-2 d-block hide-btn d-none">
-                  <i class="fa-solid fa-minus"></i> Show less
-                </button>
               </td>
             </tr>
           {% endfor %}
@@ -88,51 +71,6 @@
       </tbody>
     </table>
   </div>
-  {% if experiment.is_firefox_labs_opt_in %}
-    <div class="card-header border-top">
-      <h6 class="mb-0">Firefox Labs</h6>
-    </div>
-    <div class="card-body p-0 overflow-hidden rounded-bottom">
-      <table class="table table-striped mb-0">
-        <tbody>
-          <tr>
-            <th>Title</th>
-            <td class="w-75">{{ experiment.firefox_labs_title|default:"---" }}</td>
-          </tr>
-          <tr>
-            <th>Description</th>
-            <td class="w-75">{{ experiment.firefox_labs_description|default:"---" }}</td>
-          </tr>
-          <tr>
-            <th>Description Links</th>
-            <td class="w-75">
-              {% if experiment.firefox_labs_description_links %}
-                <code>{{ experiment.firefox_labs_description_links|format_not_set|format_json }}</code>
-              {% else %}
-                ---
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th>Group</th>
-            <td class="w-75">{{ experiment.firefox_labs_group }}</td>
-          </tr>
-          <tr>
-            <th class="border-bottom-0">Requires Restart?</th>
-            {% if experiment.requires_restart %}
-              <td class="w-75 border-bottom-0">
-                <i class="fa-regular fa-circle-check text-success"></i></i>
-              </td>
-            {% else %}
-              <td class="w-75 border-bottom-0">
-                <i class="fa-regular fa-circle-xmark text-danger"></i>
-              </td>
-            {% endif %}
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  {% endif %}
 </div>
 <div class="modal fade"
      id="promoteToRolloutModal-{{ branch.slug }}"
