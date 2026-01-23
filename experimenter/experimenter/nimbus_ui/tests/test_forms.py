@@ -1628,7 +1628,7 @@ class TestLiveToCompleteForm(SlackNotificationMockMixin, RequestFormTestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
-        self.assertFalse(experiment.is_paused)
+        self.assertTrue(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
@@ -1745,7 +1745,7 @@ class TestApproveEndExperimentForm(KintoPushQueueMockMixin, RequestFormTestCase)
         self.assertEqual(
             experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
         )
-        self.assertTrue(experiment.is_paused)
+        self.assertFalse(experiment.is_paused)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
