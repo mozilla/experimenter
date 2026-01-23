@@ -5927,43 +5927,30 @@ class TestNimbusAlert(TestCase):
         expected = f"{experiment.slug} - {alert.alert_type} - {alert.sent_on}"
         self.assertEqual(str(alert), expected)
 
-    def test_has_been_sent_returns_true_when_alert_exists(self):
+    def test_can_create_multiple_alerts_of_same_type(self):
         experiment = NimbusExperimentFactory.create()
-        NimbusAlert.objects.create(
+        alert1 = NimbusAlert.objects.create(
             experiment=experiment,
-            alert_type=NimbusConstants.AlertType.DAILY_RESULTS_READY,
-            message="✅ Daily results ready",
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+            message="Error: metric A broken",
         )
 
-        self.assertTrue(
-            NimbusAlert.has_been_sent(
-                experiment, NimbusConstants.AlertType.DAILY_RESULTS_READY
-            )
-        )
-
-    def test_has_been_sent_returns_false_when_alert_does_not_exist(self):
-        experiment = NimbusExperimentFactory.create()
-
-        self.assertFalse(
-            NimbusAlert.has_been_sent(
-                experiment, NimbusConstants.AlertType.DAILY_RESULTS_READY
-            )
-        )
-
-    def test_unique_constraint_prevents_duplicate_alert_types(self):
-        experiment = NimbusExperimentFactory.create()
-        NimbusAlert.objects.create(
+        alert2 = NimbusAlert.objects.create(
             experiment=experiment,
-            alert_type=NimbusConstants.AlertType.DAILY_RESULTS_READY,
-            message="First message",
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+            message="Error: metric B broken",
         )
 
-        with self.assertRaises(Exception):  # IntegrityError
-            NimbusAlert.objects.create(
+        self.assertIsNotNone(alert1)
+        self.assertIsNotNone(alert2)
+        self.assertNotEqual(alert1.id, alert2.id)
+        self.assertEqual(
+            NimbusAlert.objects.filter(
                 experiment=experiment,
-                alert_type=NimbusConstants.AlertType.DAILY_RESULTS_READY,
-                message="Second message",
-            )
+                alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+            ).count(),
+            2,
+        )
 
     def test_can_create_same_alert_type_for_different_experiments(self):
         experiment1 = NimbusExperimentFactory.create()
@@ -5983,3 +5970,45 @@ class TestNimbusAlert(TestCase):
         self.assertIsNotNone(alert1)
         self.assertIsNotNone(alert2)
         self.assertNotEqual(alert1.id, alert2.id)
+
+    def test_was_sent_recently_returns_true_for_recent_alert(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+            message="Recent error",
+        )
+        self.assertTrue(
+            NimbusAlert.was_sent_recently(
+                experiment,
+                NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+                within_hours=24,
+            )
+        )
+
+    def test_was_sent_recently_returns_false_for_old_alert(self):
+        experiment = NimbusExperimentFactory.create()
+        alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+            message="Old error",
+        )
+        NimbusAlert.objects.filter(id=alert.id).update(
+            sent_on=timezone.now() - datetime.timedelta(days=2)
+        )
+        self.assertFalse(
+            NimbusAlert.was_sent_recently(
+                experiment,
+                NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+                within_hours=24,
+            )
+        )
+
+    def test_was_sent_recently_returns_false_when_no_alert(self):
+        experiment = NimbusExperimentFactory.create()
+
+        self.assertFalse(
+            NimbusAlert.was_sent_recently(
+                experiment, NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY
+            )
+        )

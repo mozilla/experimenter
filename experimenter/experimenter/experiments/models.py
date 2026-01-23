@@ -2927,15 +2927,15 @@ class NimbusAlert(models.Model):
         help_text="Slack message timestamp for threading",
     )
 
-    class Meta:
-        unique_together = [["experiment", "alert_type"]]
-
     def __str__(self):
         return f"{self.experiment.slug} - {self.alert_type} - {self.sent_on}"
 
     @classmethod
-    def has_been_sent(cls, experiment, alert_type):
-        return cls.objects.filter(experiment=experiment, alert_type=alert_type).exists()
+    def was_sent_recently(cls, experiment, alert_type, within_hours=24):
+        cutoff = timezone.now() - datetime.timedelta(hours=within_hours)
+        return cls.objects.filter(
+            experiment=experiment, alert_type=alert_type, sent_on__gte=cutoff
+        ).exists()
 
 
 def make_sticky_targeting_expression(is_desktop, is_rollout, expressions):
