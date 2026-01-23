@@ -420,12 +420,9 @@ class ExperimentResultsManager:
 
     def get_window_results(self, analysis_basis, segment, window="overall"):
         return (
-            (
-                self.experiment.results_data.get("v3", {})
-                .get(window, {})
-                .get(analysis_basis, {})
-                .get(segment, {})
-            )
+            (self.experiment.results_data.get("v3", {}).get(window, {}) or {})
+            .get(analysis_basis, {})
+            .get(segment, {})
             if self.experiment.results_data
             else {}
         )

@@ -765,3 +765,183 @@ class TestExperimentResultsManager(TestCase):
             },
             kpi_metrics,
         )
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 1.49,
+                                                                "upper": 1.74,
+                                                                "point": 1.62,
+                                                            }
+                                                        ]
+                                                    },
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "overall",
+                {
+                    "branch-a": {
+                        "branch_data": {
+                            "other_metrics": {
+                                "urlbar_amazon_search_count": {
+                                    "absolute": {
+                                        "all": [
+                                            {
+                                                "lower": 1.49,
+                                                "upper": 1.74,
+                                                "point": 1.62,
+                                            }
+                                        ]
+                                    },
+                                    "percent": 12,
+                                }
+                            }
+                        }
+                    },
+                },
+            ),
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                            },
+                                                        ]
+                                                    },
+                                                }
+                                            }
+                                        },
+                                    },
+                                }
+                            }
+                        },
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 1.49,
+                                                                "upper": 1.74,
+                                                                "point": 1.62,
+                                                            }
+                                                        ]
+                                                    },
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "weekly",
+                {
+                    "branch-a": {
+                        "branch_data": {
+                            "other_metrics": {
+                                "urlbar_amazon_search_count": {
+                                    "absolute": {
+                                        "all": [
+                                            {
+                                                "lower": 140,
+                                                "upper": 160,
+                                                "point": 150,
+                                            },
+                                            {
+                                                "lower": 130,
+                                                "upper": 150,
+                                                "point": 140,
+                                            },
+                                        ]
+                                    },
+                                }
+                            }
+                        },
+                    },
+                },
+            ),
+            (
+                {
+                    "v3": {
+                        "weekly": None,
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 1.49,
+                                                                "upper": 1.74,
+                                                                "point": 1.62,
+                                                            }
+                                                        ]
+                                                    },
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "weekly",
+                {},
+            ),
+        ]
+    )
+    def test_get_window_results(self, results_data, window, expected):
+        self.experiment.results_data = results_data
+        self.experiment.save()
+
+        self.assertEqual(
+            self.results_manager.get_window_results("enrollments", "all", window),
+            expected,
+        )
