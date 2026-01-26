@@ -144,13 +144,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     LIVE_MONITOR_TOOLTIP = """Live Monitoring shows enrollment/unenrollment for this
     delivery"""
 
-    OVERVIEW_SECTIONS = [
-        "Hypothesis",
-        "Branch overview",
-        "Key takeaways",
-        "Next steps",
-        "Project impact",
-    ]
     KPI_AREA = "KPI Metrics"
     OTHER_METRICS_AREA = "Other Metrics"
     NOTABLE_METRIC_AREA = "Notable Changes"
