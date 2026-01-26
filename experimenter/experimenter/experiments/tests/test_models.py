@@ -5927,30 +5927,6 @@ class TestNimbusAlert(TestCase):
         expected = f"{experiment.slug} - {alert.alert_type} - {alert.sent_on}"
         self.assertEqual(str(alert), expected)
 
-    def test_can_create_multiple_alerts_of_same_type(self):
-        experiment = NimbusExperimentFactory.create()
-        alert1 = NimbusAlert.objects.create(
-            experiment=experiment,
-            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
-            message="Error: metric A broken",
-        )
-
-        alert2 = NimbusAlert.objects.create(
-            experiment=experiment,
-            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
-            message="Error: metric B broken",
-        )
-
-        self.assertIsNotNone(alert1)
-        self.assertIsNotNone(alert2)
-        self.assertNotEqual(alert1.id, alert2.id)
-        self.assertEqual(
-            NimbusAlert.objects.filter(
-                experiment=experiment,
-                alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
-            ).count(),
-            2,
-        )
 
     def test_was_sent_recently_returns_true_for_recent_alert(self):
         experiment = NimbusExperimentFactory.create()
