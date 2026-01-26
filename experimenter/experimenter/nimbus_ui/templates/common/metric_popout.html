@@ -95,7 +95,6 @@
                    id="{{ experiment_slug }}-{{ metric_info.slug }}-weekly-collapse">
                 <div class="accordion-body d-flex">
                   <div class="col-2">
-                    <p class="text-muted mb-0 invisible" aria-hidden="true">Metrics</p>
                     <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
                     {% with reference_branch_weekly=weekly_metric_data.data|dict_get:reference_branch %}
                       {% for week in experiment.get_weekly_dates %}
@@ -115,12 +114,7 @@
                       {% endif %}
                       {% for branch in branch_data %}
                         <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 3 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-                          <p class="text-muted mb-0 text-truncate">{{ branch.name }}</p>
-                          {% if branch.slug == selected_reference_branch %}
-                            <p class="fs-5 mb-3">Baseline</p>
-                          {% else %}
-                            <p class="fs-5">{{ branch.name }}</p>
-                          {% endif %}
+                          <p class="fs-5">{{ branch.name }}</p>
                           <div class="d-flex flex-column gap-3 w-100">
                             {% for curr_branch_slug, branch_weekly_metric_data in weekly_metric_data.data.items %}
                               {% if curr_branch_slug == branch.slug %}
