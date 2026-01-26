@@ -5927,7 +5927,6 @@ class TestNimbusAlert(TestCase):
         expected = f"{experiment.slug} - {alert.alert_type} - {alert.sent_on}"
         self.assertEqual(str(alert), expected)
 
-
     def test_was_sent_recently_returns_true_for_recent_alert(self):
         experiment = NimbusExperimentFactory.create()
         NimbusAlert.objects.create(
