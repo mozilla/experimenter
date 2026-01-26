@@ -18,7 +18,7 @@ The backend of the Demo App is accessible at: [http://localhost:3002](http://loc
 ## Env config used for the demo app
 
 ```
-REMOTE_SETTING_URL=http://kinto:8888/v1/buckets/main/collections/nimbus-web-experiments/records
+REMOTE_SETTING_URL=http://kinto:8888/v1/buckets/main/collections/nimbus-web-experiments/changeset?_expected=0
 APP_ID=demo-app-beta
 APP_NAME=demo_app
 CHANNEL=beta
