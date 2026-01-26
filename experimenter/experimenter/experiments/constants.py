@@ -826,9 +826,9 @@ class NimbusConstants:
         ANALYSIS_ERROR_DAILY = "analysis_error_daily", "Daily Analysis Error"
         ANALYSIS_ERROR_WEEKLY = "analysis_error_weekly", "Weekly Analysis Error"
         ANALYSIS_ERROR_OVERALL = "analysis_error_overall", "Overall Analysis Error"
-        DAILY_RESULTS_READY = "daily_results_ready", "Daily Results Ready"
-        WEEKLY_RESULTS_READY = "weekly_results_ready", "Weekly Results Ready"
-        OVERALL_RESULTS_READY = "overall_results_ready", "Overall Results Ready"
+        ANALYSIS_READY_DAILY = "analysis_ready_daily", "Daily Analysis Ready"
+        ANALYSIS_READY_WEEKLY = "analysis_ready_weekly", "Weekly Analysis Ready"
+        ANALYSIS_READY_OVERALL = "analysis_ready_overall", "Overall Analysis Ready"
         EXPERIMENT_LAUNCHED = "experiment_launched", "Experiment Launched"
         ENROLLMENT_HEALTHY = "enrollment_healthy", "Enrollment Healthy"
 

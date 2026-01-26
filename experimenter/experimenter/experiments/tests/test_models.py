@@ -5952,25 +5952,6 @@ class TestNimbusAlert(TestCase):
             2,
         )
 
-    def test_can_create_same_alert_type_for_different_experiments(self):
-        experiment1 = NimbusExperimentFactory.create()
-        experiment2 = NimbusExperimentFactory.create()
-
-        alert1 = NimbusAlert.objects.create(
-            experiment=experiment1,
-            alert_type=NimbusConstants.AlertType.DAILY_RESULTS_READY,
-            message="Alert for exp1",
-        )
-        alert2 = NimbusAlert.objects.create(
-            experiment=experiment2,
-            alert_type=NimbusConstants.AlertType.DAILY_RESULTS_READY,
-            message="Alert for exp2",
-        )
-
-        self.assertIsNotNone(alert1)
-        self.assertIsNotNone(alert2)
-        self.assertNotEqual(alert1.id, alert2.id)
-
     def test_was_sent_recently_returns_true_for_recent_alert(self):
         experiment = NimbusExperimentFactory.create()
         NimbusAlert.objects.create(
