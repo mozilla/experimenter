@@ -26,13 +26,17 @@
                 <li class="nav-item w-100">
                   <a href="#{{ experiment.slug }}-results-{{ item.title|slugify }}"
                      class="text-reset text-decoration-none">
-                    <button class="nav-link text-start text-reset"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#{{ experiment.slug }}-results-{{ item.title|slugify }}"
-                            aria-expanded="true"
-                            aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}">
-                      {{ subitem.title }}
-                    </button>
+                    {% if item.title == "Overview" %}
+                      <span class="nav-link text-start text-reset">{{ subitem.title }}</span>
+                    {% else %}
+                      <button class="nav-link text-start text-reset"
+                              data-bs-toggle="collapse"
+                              data-bs-target="#{{ experiment.slug }}-results-{{ item.title|slugify }}"
+                              aria-expanded="true"
+                              aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}">
+                        {{ subitem.title }}
+                      </button>
+                    {% endif %}
                   </a>
                 </li>
               {% endfor %}
