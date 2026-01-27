@@ -339,6 +339,7 @@ class TestExperimentResultsManager(TestCase):
                 "other_metrics": {
                     "other_metrics": {
                         "mock_engagement_metric": "Metric Name",
+                        "custom_metric": "Custom Metric Name",
                     }
                 },
             }
@@ -352,6 +353,7 @@ class TestExperimentResultsManager(TestCase):
 
         self.assertIn("KPI Metrics", metric_areas)
         self.assertIn("Engagement", metric_areas)
+        self.assertIn("Other Metrics", metric_areas)
 
     def test_get_branch_data_returns_correct_data(self):
         self.experiment.results_data = {

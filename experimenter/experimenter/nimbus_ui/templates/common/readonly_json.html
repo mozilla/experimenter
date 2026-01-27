@@ -1,8 +1,28 @@
-<div class="position-relative">
-  <textarea class="readonly-json">{{ json_content }}</textarea>
-  <button type="button"
-          class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-1 py-0 px-1 codemirror-copy-btn"
-          aria-label="Copy JSON">
-    <i class="fa-solid fa-copy"></i>
-  </button>
+<div class="readonly-json-collapsible">
+  <div class="collapsed-json">
+    <div class="position-relative">
+      <textarea class="readonly-json">{{ json_content }}</textarea>
+      <button type="button"
+              class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-1 py-0 px-1 codemirror-copy-btn"
+              aria-label="Copy JSON">
+        <i class="fa-solid fa-copy"></i>
+      </button>
+    </div>
+    <button class="btn btn-outline-primary btn-sm mt-2 d-block show-btn d-none">
+      <i class="fa-solid fa-plus"></i> Show more
+    </button>
+  </div>
+  <div class="expanded-json d-none">
+    <div class="position-relative">
+      <textarea class="readonly-json">{{ json_content }}</textarea>
+      <button type="button"
+              class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-1 py-0 px-1 codemirror-copy-btn"
+              aria-label="Copy JSON">
+        <i class="fa-solid fa-copy"></i>
+      </button>
+    </div>
+    <button class="btn btn-outline-primary btn-sm mt-2 d-block hide-btn d-none">
+      <i class="fa-solid fa-minus"></i> Show less
+    </button>
+  </div>
 </div>
