@@ -332,8 +332,9 @@ class ExperimentResultsManager:
         for metric in remaining_metrics:
             area = MetricAreas.get(self.experiment.application, metric["slug"])
 
-            metric_areas[area].append(metric)
-            grouped_metrics.append(metric)
+            if area:
+                metric_areas[area].append(metric)
+                grouped_metrics.append(metric)
 
         metric_areas[NimbusUIConstants.OTHER_METRICS_AREA] = [
             m for m in remaining_metrics if m not in grouped_metrics
