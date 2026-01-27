@@ -31,6 +31,7 @@ from experimenter.experiments.constants import (
     TargetingMultipleKintoCollectionsError,
 )
 from experimenter.experiments.models import (
+    NimbusAlert,
     NimbusBranch,
     NimbusBranchScreenshot,
     NimbusBucketRange,
@@ -5913,3 +5914,57 @@ version|versionCompare("100.!") >= 0 &&
 locale in ["en-CA", "en-US"] &&
 region in ["CA", "US"]"""
         self.assertEqual(result, expected)
+
+
+class TestNimbusAlert(TestCase):
+    def test_str_representation(self):
+        experiment = NimbusExperimentFactory.create(slug="test-experiment")
+        alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.EXPERIMENT_LAUNCHED,
+            message="🚀 Experiment is now live",
+        )
+        expected = f"{experiment.slug} - {alert.alert_type} - {alert.sent_on}"
+        self.assertEqual(str(alert), expected)
+
+    def test_was_sent_recently_returns_true_for_recent_alert(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+            message="Recent error",
+        )
+        self.assertTrue(
+            NimbusAlert.was_sent_recently(
+                experiment,
+                NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+                within_hours=24,
+            )
+        )
+
+    def test_was_sent_recently_returns_false_for_old_alert(self):
+        experiment = NimbusExperimentFactory.create()
+        alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+            message="Old error",
+        )
+        NimbusAlert.objects.filter(id=alert.id).update(
+            sent_on=timezone.now() - datetime.timedelta(days=2)
+        )
+        self.assertFalse(
+            NimbusAlert.was_sent_recently(
+                experiment,
+                NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+                within_hours=24,
+            )
+        )
+
+    def test_was_sent_recently_returns_false_when_no_alert(self):
+        experiment = NimbusExperimentFactory.create()
+
+        self.assertFalse(
+            NimbusAlert.was_sent_recently(
+                experiment, NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY
+            )
+        )

@@ -2906,6 +2906,38 @@ class NimbusEmail(models.Model):
         return f"Email: {self.experiment} {self.type} on {self.sent_on}"
 
 
+class NimbusAlert(models.Model):
+    experiment = models.ForeignKey(
+        NimbusExperiment,
+        on_delete=models.CASCADE,
+        related_name="alerts",
+        help_text="Experiment this alert belongs to",
+    )
+    alert_type = models.CharField(
+        max_length=64,
+        choices=NimbusConstants.AlertType.choices,
+        help_text="Category of alert",
+    )
+    message = models.TextField(help_text="Alert message text sent to Slack")
+    sent_on = models.DateTimeField(auto_now_add=True, help_text="When the alert was sent")
+    slack_thread_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Slack message timestamp for threading",
+    )
+
+    def __str__(self):
+        return f"{self.experiment.slug} - {self.alert_type} - {self.sent_on}"
+
+    @classmethod
+    def was_sent_recently(cls, experiment, alert_type, within_hours=24):
+        cutoff = timezone.now() - datetime.timedelta(hours=within_hours)
+        return cls.objects.filter(
+            experiment=experiment, alert_type=alert_type, sent_on__gte=cutoff
+        ).exists()
+
+
 def make_sticky_targeting_expression(is_desktop, is_rollout, expressions):
     if is_desktop:
         if is_rollout:

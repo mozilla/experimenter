@@ -822,6 +822,16 @@ class NimbusConstants:
         EXPERIMENT_END = "experiment end"
         ENROLLMENT_END = "enrollment end"
 
+    class AlertType(models.TextChoices):
+        ANALYSIS_ERROR_DAILY = "analysis_error_daily", "Daily Analysis Error"
+        ANALYSIS_ERROR_WEEKLY = "analysis_error_weekly", "Weekly Analysis Error"
+        ANALYSIS_ERROR_OVERALL = "analysis_error_overall", "Overall Analysis Error"
+        ANALYSIS_READY_DAILY = "analysis_ready_daily", "Daily Analysis Ready"
+        ANALYSIS_READY_WEEKLY = "analysis_ready_weekly", "Weekly Analysis Ready"
+        ANALYSIS_READY_OVERALL = "analysis_ready_overall", "Overall Analysis Ready"
+        EXPERIMENT_LAUNCHED = "experiment_launched", "Experiment Launched"
+        ENROLLMENT_HEALTHY = "enrollment_healthy", "Enrollment Healthy"
+
     class FirefoxLabsGroups(models.TextChoices):
         CUSTOMIZE_BROWSING = "experimental-features-group-customize-browsing"
         WEBPAGE_DISPLAY = "experimental-features-group-webpage-display"
