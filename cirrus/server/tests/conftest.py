@@ -21,13 +21,17 @@ from cirrus.settings import (
 
 class TestMetricsHandler(MetricsHandler):
     records = []
+    nimbus_user_id = None
 
     def __init__(self):
         pass
 
-    def record_enrollment_statuses(
-        self, enrollment_status_extras: [EnrollmentStatusExtraDef]
+    def record_enrollment_statuses_v2(
+        self,
+        enrollment_status_extras: [EnrollmentStatusExtraDef],
+        nimbus_user_id: str | None,
     ):
+        self.nimbus_user_id = nimbus_user_id
         for enrollment_status_extra in enrollment_status_extras:
             self.records.append(enrollment_status_extra)
 

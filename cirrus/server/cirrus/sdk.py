@@ -63,16 +63,6 @@ class CirrusMetricsHandler(MetricsHandler):
     def __init__(self, enrollment_status_ping: Any):
         self.enrollment_status_ping = enrollment_status_ping
 
-    def record_enrollment_statuses(
-        self, enrollment_status_extras: list[EnrollmentStatusExtraDef]
-    ):
-        self.record_enrollment_statuses_v2(
-            enrollment_status_extras=enrollment_status_extras,
-            nimbus_user_id=(
-                enrollment_status_extras[0].user_id if enrollment_status_extras else None
-            ),
-        )
-
     def record_enrollment_statuses_v2(
         self,
         enrollment_status_extras: list[EnrollmentStatusExtraDef],
