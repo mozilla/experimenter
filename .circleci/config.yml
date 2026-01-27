@@ -127,7 +127,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/"
+          paths: "experimenter/|application-services/"
       - run:
           name: Run tests and linting
           command: |
@@ -143,7 +143,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/"
+          paths: "experimenter/|application-services/"
       - create_test_result_workspace
       - run:
           name: Run coverage
