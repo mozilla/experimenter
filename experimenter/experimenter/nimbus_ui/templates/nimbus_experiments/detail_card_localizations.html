@@ -12,19 +12,9 @@
       </tr>
       <tr>
         <th class="border-bottom-0">Localizations JSON</th>
-        <td colspan="3" class="collapsed-json border-bottom-0">
+        <td colspan="3" class="border-bottom-0">
           {% include "common/readonly_json.html" with json_content=experiment.localizations|default:"null" %}
 
-          <button class="btn btn-outline-primary btn-sm mt-2 d-block show-btn d-none">
-            <i class="fa-solid fa-plus"></i> Show more
-          </button>
-        </td>
-        <td colspan="3" class="expanded-json d-none border-bottom-0">
-          {% include "common/readonly_json.html" with json_content=experiment.localizations|default:"null" %}
-
-          <button class="btn btn-outline-primary btn-sm mt-2 d-block hide-btn d-none">
-            <i class="fa-solid fa-minus"></i> Show less
-          </button>
         </td>
       </tr>
     </tbody>

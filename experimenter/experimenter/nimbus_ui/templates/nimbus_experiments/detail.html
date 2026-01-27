@@ -27,6 +27,8 @@
       {% include "nimbus_experiments/detail_branch.html" with branch=branch experiment=experiment branch_number=forloop.counter|add:1 total_branches=experiment.branches.all.count %}
 
     {% endfor %}
+    {% include "nimbus_experiments/detail_card_firefox_labs.html" %}
+
     {% if experiment.is_localized %}
       {% include "nimbus_experiments/detail_card_localizations.html" %}
 
