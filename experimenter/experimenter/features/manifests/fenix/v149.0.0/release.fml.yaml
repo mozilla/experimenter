@@ -49,6 +49,13 @@ features:
         description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
         type: String
         default: ''
+  browser-mode-toggle:
+    description: Feature to enable the Browser Mode Toggle for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Browser Mode Toggle is enabled.
+        type: Boolean
+        default: false
   composable-toolbar:
     description: Use a composable toolbar instead of the View based one.
     variables:
@@ -968,7 +975,7 @@ features:
         description: |
           Whether or not to enable tab strip.
         type: Boolean
-        default: false
+        default: true
   terms-of-use-prompt:
     description: Enables the terms of use prompt for users who have not accepted ToU
     variables:
