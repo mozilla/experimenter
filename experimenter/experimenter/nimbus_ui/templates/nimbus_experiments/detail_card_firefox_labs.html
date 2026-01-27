@@ -1,0 +1,45 @@
+{% extends "nimbus_experiments/detail_card_base.html" %}
+
+{% block card_wrapper %}
+  {% if experiment.is_firefox_labs_opt_in %}{{ block.super }}{% endif %}
+{% endblock %}
+{% block card_id %}firefox-labs{% endblock %}
+{% block card_anchor %}firefox-labs{% endblock %}
+{% block card_title %}Firefox Labs{% endblock %}
+{% block card_body %}
+  <table class="table table-striped mb-0">
+    <tbody>
+      <tr>
+        <th>Title</th>
+        <td class="w-75">{{ experiment.firefox_labs_title|default:"---" }}</td>
+      </tr>
+      <tr>
+        <th>Description</th>
+        <td class="w-75">{{ experiment.firefox_labs_description|default:"---" }}</td>
+      </tr>
+      <tr>
+        <th>Description Links</th>
+        <td colspan="3" class="w-75">
+          {% include "common/readonly_json.html" with json_content=experiment.firefox_labs_description_links|default:"null" %}
+
+        </td>
+      </tr>
+      <tr>
+        <th>Group</th>
+        <td class="w-75">{{ experiment.firefox_labs_group }}</td>
+      </tr>
+      <tr>
+        <th class="border-bottom-0">Requires Restart?</th>
+        {% if experiment.requires_restart %}
+          <td class="w-75 border-bottom-0">
+            <i class="fa-regular fa-circle-check text-success"></i></i>
+          </td>
+        {% else %}
+          <td class="w-75 border-bottom-0">
+            <i class="fa-regular fa-circle-xmark text-danger"></i>
+          </td>
+        {% endif %}
+      </tr>
+    </tbody>
+  </table>
+{% endblock %}
