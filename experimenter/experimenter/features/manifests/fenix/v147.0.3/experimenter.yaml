@@ -41,14 +41,6 @@ baseline-fpp:
     overrides:
       type: string
       description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
-browser-mode-toggle:
-  description: Feature to enable the Browser Mode Toggle for users on Firefox on Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, Browser Mode Toggle is enabled.
 composable-toolbar:
   description: Use a composable toolbar instead of the View based one.
   hasExposure: true
@@ -104,14 +96,6 @@ doh:
       type: boolean
       description: |
         When `true`, include DoH settings in the settings UI.
-email-masks:
-  description: Feature to enable Email Mask for users on Firefox on Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, Email Mask feature is enabled.
 encourage-search-cfr:
   description: A feature that shows a CFR on first launch to encourage users to make a search
   hasExposure: true
@@ -207,6 +191,14 @@ glean:
     ping-lifetime-threshold:
       type: int
       description: Write count threshold when to auto-flush
+growth-data:
+  description: A feature measuring campaign growth data
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature is active
 homepage-as-new-tab:
   description: Enables homepage as a a new tab.
   hasExposure: true
@@ -301,6 +293,9 @@ menu-redesign:
   hasExposure: true
   exposureDescription: ''
   variables:
+    enabled:
+      type: boolean
+      description: If true, the new menu redesign is available.
     menu-banner:
       type: boolean
       description: If true, the menu banner is visible.
@@ -357,23 +352,6 @@ microsurveys:
       type: boolean
       description: |
         When the feature is enabled then microsurveys can be used.
-minimal-addressbar:
-  description: Show a smaller height bottom addressbar with just the URL.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    at-bottom-while-entering-text:
-      type: boolean
-      description: |
-        Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
-native-share-sheet:
-  description: Feature to enable the Native Share Sheet for users on Firefox on Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, Native Share Sheet is enabled.
 navigation-toolbar:
   description: Feature for navigation toolbar.
   hasExposure: true
@@ -514,6 +492,14 @@ re-engagement-notification:
     type:
       type: int
       description: The type of re-engagement notification that is shown to the inactive user.
+relay-email-masks:
+  description: Feature to enable Relay for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Relay email masks feature is enabled.
 remote-search-configuration:
   description: Feature to use search configurations from remote servers.
   hasExposure: true
@@ -675,15 +661,6 @@ tab-management-enhancements:
     opening_animation_enabled:
       type: boolean
       description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
-tab-search:
-  description: Control the visibility of the tab search feature.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the tab search feature.
 tab-strip:
   description: Enables tab strip.
   hasExposure: true
