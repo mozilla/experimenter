@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- release
+- nightly
 features:
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
@@ -49,13 +49,6 @@ features:
         description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
         type: String
         default: ''
-  browser-mode-toggle:
-    description: Feature to enable the Browser Mode Toggle for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Browser Mode Toggle is enabled.
-        type: Boolean
-        default: false
   composable-toolbar:
     description: Use a composable toolbar instead of the View based one.
     variables:
@@ -116,13 +109,6 @@ features:
           When `true`, include DoH settings in the settings UI.
         type: Boolean
         default: true
-  email-masks:
-    description: Feature to enable Email Mask for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Email Mask feature is enabled.
-        type: Boolean
-        default: false
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
@@ -182,7 +168,7 @@ features:
         description: |
           The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
         type: Int
-        default: 0
+        default: 2
       shouldUseNimbus:
         description: |
           If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
@@ -200,7 +186,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -228,6 +214,13 @@ features:
         type: Int
         default: 1000
     allow-coenrollment: true
+  growth-data:
+    description: A feature measuring campaign growth data
+    variables:
+      enabled:
+        description: If true, the feature is active
+        type: Boolean
+        default: false
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -304,21 +297,24 @@ features:
             enabled: true
             extra-data:
               term-of-service-data:
-                line-one-text: onboarding_term_of_service_line_one_2
-                line-one-link-text: onboarding_term_of_service_line_one_link_text_2
-                line-two-text: onboarding_term_of_service_line_two_2
-                line-two-link-text: onboarding_term_of_service_line_two_link_text
-                line-three-text: onboarding_term_of_service_line_three
-                line-three-link-text: onboarding_term_of_service_line_three_link_text
+                line-one-text: onboarding_redesign_tou_body_one
+                line-one-link-text: onboarding_redesign_tou_body_one_link_text
+                line-two-text: onboarding_redesign_tou_body_two
+                line-two-link-text: onboarding_redesign_tou_body_two_link_text
+                line-three-text: onboarding_redesign_tou_body_three
+                line-three-link-text: onboarding_redesign_tou_body_three_link_text
+                subheader-one-text: onboarding_redesign_tou_subheader_one
+                subheader-two-text: onboarding_redesign_tou_subheader_two
+                subheader-three-text: onboarding_redesign_tou_subheader_three
             image-res: ic_firefox
             ordering: 1
             prerequisites:
             - ALWAYS
-            primary-button-label: onboarding_term_of_service_agree_and_continue_button_label_2
+            primary-button-label: onboarding_redesign_tou_agree_and_continue_button_label
             secondary-button-label: ''
-            title: onboarding_welcome_to_firefox
+            title: onboarding_redesign_tou_title
           default-browser:
-            body: juno_onboarding_default_browser_description_nimbus_3
+            body: onboarding_redesign_set_default_browser_body
             card-type: default-browser
             disqualifiers:
             - NEVER
@@ -330,7 +326,7 @@ features:
             - ALWAYS
             primary-button-label: juno_onboarding_default_browser_positive_button
             secondary-button-label: juno_onboarding_default_browser_negative_button
-            title: juno_onboarding_default_browser_title_nimbus_2
+            title: onboarding_redesign_set_default_browser_title
           add-search-widget:
             body: juno_onboarding_add_search_widget_description
             card-type: add-search-widget
@@ -346,7 +342,7 @@ features:
             secondary-button-label: juno_onboarding_add_search_widget_negative_button
             title: juno_onboarding_add_search_widget_title
           sync-sign-in:
-            body: juno_onboarding_sign_in_description_3
+            body: onboarding_redesign_sync_body
             card-type: sync-sign-in
             disqualifiers:
             - NEVER
@@ -356,9 +352,9 @@ features:
             ordering: 20
             prerequisites:
             - ALWAYS
-            primary-button-label: juno_onboarding_sign_in_positive_button
-            secondary-button-label: juno_onboarding_sign_in_negative_button
-            title: juno_onboarding_sign_in_title_2
+            primary-button-label: onboarding_redesign_sync_positive_button
+            secondary-button-label: onboarding_redesign_sync_negative_button
+            title: onboarding_redesign_sync_title
           notification-permission:
             body: juno_onboarding_enable_notifications_description_nimbus_2
             card-type: notification-permission
@@ -378,7 +374,7 @@ features:
             card-type: theme-selection
             disqualifiers:
             - NEVER
-            enabled: true
+            enabled: false
             extra-data:
               customization-theme-data:
               - theme-type: theme-system
@@ -415,9 +411,9 @@ features:
             ordering: 37
             prerequisites:
             - ALWAYS
-            primary-button-label: onboarding_save_and_continue_button
+            primary-button-label: onboarding_redesign_continue_button
             secondary-button-label: ''
-            title: onboarding_customize_toolbar_title
+            title: onboarding_redesign_customize_toolbar_title
           marketing:
             body: onboarding_marketing_body
             card-type: marketing-data
@@ -426,16 +422,16 @@ features:
             enabled: true
             extra-data:
               marketing-data:
-                body-line-one-text: onboarding_marketing_learn_more
-                body-line-one-link-text: onboarding_marketing_learn_more
-                body-line-two-text: onboarding_marketing_opt_out_checkbox
-            image-res: ic_onboarding_welcome
+                body-line-one-text: onboarding_marketing_redesign_learn_more
+                body-line-one-link-text: onboarding_marketing_redesign_learn_more
+                body-line-two-text: onboarding_marketing_redesign_opt_out_checkbox
+            image-res: ic_onboarding_marketing_redesign
             ordering: 40
             prerequisites:
             - ALWAYS
-            primary-button-label: onboarding_marketing_positive_button
+            primary-button-label: onboarding_marketing_redesign_positive_button
             secondary-button-label: ''
-            title: onboarding_marketing_title
+            title: onboarding_marketing_redesign_title
         string-alias: OnboardingCardKey
       conditions:
         description: |
@@ -448,7 +444,7 @@ features:
       use-onboarding-redesign:
         description: If true, use the onboarding redesign.
         type: Boolean
-        default: false
+        default: true
   lna-blocking:
     description: Feature that allows blocking local network or device access.
     variables:
@@ -470,6 +466,10 @@ features:
   menu-redesign:
     description: Control the new menu redesign.
     variables:
+      enabled:
+        description: If true, the new menu redesign is available.
+        type: Boolean
+        default: true
       menu-banner:
         description: If true, the menu banner is visible.
         type: Boolean
@@ -477,7 +477,7 @@ features:
       report-site-issue:
         description: If true, report site issue menu item and preview is available.
         type: Boolean
-        default: false
+        default: true
   messaging:
     description: |
       The in-app messaging system.
@@ -555,6 +555,29 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
+          microsurvey-printing-example-nightly:
+            title: microsurvey_prompt_printing_title
+            text: microsurvey_survey_printing_title
+            surface: microsurvey
+            trigger-if-all:
+            - RECENTLY_PRINTED
+            style: MICROSURVEY
+            microsurvey-config:
+              utm-content: homepage
+              icon: ic_print
+              answers:
+              - text: likert_scale_option_1
+                ordering: 0
+              - text: likert_scale_option_2
+                ordering: 1
+              - text: likert_scale_option_3
+                ordering: 2
+              - text: likert_scale_option_4
+                ordering: 3
+              - text: likert_scale_option_5
+                ordering: 4
+              - text: likert_scale_option_6
+                ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -647,21 +670,6 @@ features:
           When the feature is enabled then microsurveys can be used.
         type: Boolean
         default: false
-  minimal-addressbar:
-    description: Show a smaller height bottom addressbar with just the URL.
-    variables:
-      at-bottom-while-entering-text:
-        description: |
-          Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
-        type: Boolean
-        default: false
-  native-share-sheet:
-    description: Feature to enable the Native Share Sheet for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Native Share Sheet is enabled.
-        type: Boolean
-        default: false
   navigation-toolbar:
     description: Feature for navigation toolbar.
     variables:
@@ -669,7 +677,7 @@ features:
         description: |
           When the feature is enabled then the user will see the new navigation toolbar.
         type: Boolean
-        default: false
+        default: true
   networkingBannedPorts:
     description: Networking (Necko) Banned Ports
     variables:
@@ -799,6 +807,13 @@ features:
         description: The type of re-engagement notification that is shown to the inactive user.
         type: Int
         default: 0
+  relay-email-masks:
+    description: Feature to enable Relay for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Relay email masks feature is enabled.
+        type: Boolean
+        default: false
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -834,7 +849,7 @@ features:
         description: |
           Overrides the loadType when it is a same document navigation
         type: Boolean
-        default: true
+        default: false
       force-disable-uri:
         description: |
           Disable overriding the loadType during same document navigation on the domain specified by this URI.
@@ -893,7 +908,7 @@ features:
         description: |
           Enables the user to search for settings.
         type: Boolean
-        default: false
+        default: true
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
@@ -950,19 +965,11 @@ features:
         description: |
           Whether or not to enable the tab management enhancements.
         type: Boolean
-        default: false
+        default: true
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
-        default: false
-  tab-search:
-    description: Control the visibility of the tab search feature.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the tab search feature.
-        type: Boolean
-        default: false
+        default: true
   tab-strip:
     description: Enables tab strip.
     variables:
