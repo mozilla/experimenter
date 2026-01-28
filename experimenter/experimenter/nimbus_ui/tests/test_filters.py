@@ -1153,7 +1153,6 @@ class TestHomeFilters(AuthTestCase):
             (NimbusExperiment.Application.FENIX,),
             (NimbusExperiment.Application.IOS,),
             (NimbusExperiment.Application.MONITOR,),
-            (NimbusExperiment.Application.VPN,),
             (NimbusExperiment.Application.FXA,),
             (NimbusExperiment.Application.DEMO_APP,),
             (NimbusExperiment.Application.EXPERIMENTER,),
