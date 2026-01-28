@@ -1416,16 +1416,16 @@ class TestNimbusExperiment(TestCase):
                 datetime.date(2025, 1, 1),
                 datetime.date(2025, 1, 30),
                 [
-                    (datetime.date(2025, 1, 1), datetime.date(2025, 1, 8)),
-                    (datetime.date(2025, 1, 8), datetime.date(2025, 1, 15)),
-                    (datetime.date(2025, 1, 15), datetime.date(2025, 1, 22)),
-                    (datetime.date(2025, 1, 22), datetime.date(2025, 1, 29)),
+                    (datetime.date(2025, 1, 1), datetime.date(2025, 1, 7)),
+                    (datetime.date(2025, 1, 8), datetime.date(2025, 1, 14)),
+                    (datetime.date(2025, 1, 15), datetime.date(2025, 1, 21)),
+                    (datetime.date(2025, 1, 22), datetime.date(2025, 1, 28)),
                 ],
             ],
             [
                 datetime.date(2025, 1, 1),
                 datetime.date(2025, 1, 8),
-                [(datetime.date(2025, 1, 1), datetime.date(2025, 1, 8))],
+                [(datetime.date(2025, 1, 1), datetime.date(2025, 1, 7))],
             ],
             [datetime.date(2025, 1, 1), datetime.date(2025, 1, 3), []],
         ]

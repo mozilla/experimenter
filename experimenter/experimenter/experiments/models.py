@@ -1375,8 +1375,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if not self.is_rollout:
             if self._enrollment_end_date:
                 date = self._enrollment_end_date
-                while (date + datetime.timedelta(days=7)) <= self.computed_end_date:
-                    weekly_dates.append((date, date + datetime.timedelta(days=7)))
+                while (date + datetime.timedelta(days=6)) <= self.computed_end_date:
+                    weekly_dates.append((date, date + datetime.timedelta(days=6)))
                     date += datetime.timedelta(days=7)
 
         return weekly_dates
