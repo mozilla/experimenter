@@ -668,10 +668,6 @@ tab-management-enhancements:
   hasExposure: true
   exposureDescription: ''
   variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the tab management enhancements.
     opening_animation_enabled:
       type: boolean
       description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
