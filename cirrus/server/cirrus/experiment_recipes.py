@@ -3,7 +3,9 @@ import logging
 from enum import Enum
 from typing import Any
 
-import requests
+from requests import Session
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 from .sdk import SDK
 
@@ -17,12 +19,17 @@ class RecipeType(Enum):
 
 
 class RemoteSettings:
-    def __init__(self, url: str, sdk: SDK):
+    def __init__(self, url: str, sdk: SDK, retry: Retry | None = None):
         self.recipes: dict[str, list[Any]] = {"data": []}
         if url.endswith("/records"):
             raise ValueError("cirrus no longer supports remote settings records api")
         self.url: str = url
         self.sdk = sdk
+        self.session = Session()
+        if retry is not None:
+            adapter = HTTPAdapter(max_retries=retry)
+            self.session.mount("http://", adapter)
+            self.session.mount("https://", adapter)
 
     def get_recipes(self) -> dict[str, list[Any]]:
         return self.recipes
@@ -44,16 +51,12 @@ class RemoteSettings:
         self.sdk.set_experiments(json.dumps(self.recipes))
 
     def fetch_recipes(self) -> None:
-        try:
-            response = requests.get(self.url)
-            response.raise_for_status()
-            response_json = response.json()
-            data = response_json.get("changes")
-            if data is not None:
-                self.update_recipes({"data": data})
-                logger.info(f"Fetched resources: {data}")
-            else:
-                logger.warning("No recipes found in the response")
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to fetch recipes: {e}")
-            raise e
+        response = self.session.get(self.url)
+        response.raise_for_status()
+        response_json = response.json()
+        data = response_json.get("changes")
+        if data is not None:
+            self.update_recipes({"data": data})
+            logger.info(f"Fetched resources: {data}")
+        else:
+            logger.warning("No recipes found in the response")
