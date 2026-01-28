@@ -209,19 +209,6 @@ APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
     preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
 )
 
-APPLICATION_CONFIG_VPN_WEB = ApplicationConfig(
-    name="VPN Web",
-    slug="vpn-web",
-    app_name="mozillavpn_backend_cirrus",
-    channel_app_id={
-        Channel.PRODUCTION: "mozillavpn_backend_cirrus",
-    },
-    default_kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
-    randomization_unit=BucketRandomizationUnit.USER_ID,
-    is_web=True,
-    preview_collection=settings.KINTO_COLLECTION_NIMBUS_WEB_PREVIEW,
-)
-
 APPLICATION_CONFIG_FXA_WEB = ApplicationConfig(
     name="Firefox Accounts Web",
     slug="fxa-web",
@@ -296,10 +283,6 @@ class Application(models.TextChoices):
         APPLICATION_CONFIG_MONITOR_WEB.slug,
         APPLICATION_CONFIG_MONITOR_WEB.name,
     )
-    VPN = (
-        APPLICATION_CONFIG_VPN_WEB.slug,
-        APPLICATION_CONFIG_VPN_WEB.name,
-    )
     FXA = (
         APPLICATION_CONFIG_FXA_WEB.slug,
         APPLICATION_CONFIG_FXA_WEB.name,
@@ -330,7 +313,6 @@ class Application(models.TextChoices):
         return application in (
             Application.DEMO_APP,
             Application.MONITOR,
-            Application.VPN,
             Application.FXA,
             Application.EXPERIMENTER,
             Application.SUBPLAT,
@@ -404,7 +386,6 @@ class NimbusConstants:
         Application.FENIX: APPLICATION_CONFIG_FENIX,
         Application.IOS: APPLICATION_CONFIG_IOS,
         Application.MONITOR: APPLICATION_CONFIG_MONITOR_WEB,
-        Application.VPN: APPLICATION_CONFIG_VPN_WEB,
         Application.FXA: APPLICATION_CONFIG_FXA_WEB,
         Application.DEMO_APP: APPLICATION_CONFIG_DEMO_APP,
         Application.EXPERIMENTER: APPLICATION_CONFIG_EXPERIMENTER,
@@ -846,7 +827,6 @@ class NimbusConstants:
         Application.IOS: Version.FIREFOX_101,
         Application.DEMO_APP: Version.NO_VERSION,
         Application.MONITOR: Version.NO_VERSION,
-        Application.VPN: Version.NO_VERSION,
         Application.FXA: Version.NO_VERSION,
         Application.EXPERIMENTER: Version.NO_VERSION,
         Application.SUBPLAT: Version.NO_VERSION,
@@ -857,7 +837,6 @@ class NimbusConstants:
         Application.IOS: Version.FIREFOX_101,
         Application.DEMO_APP: Version.NO_VERSION,
         Application.MONITOR: Version.NO_VERSION,
-        Application.VPN: Version.NO_VERSION,
         Application.FXA: Version.NO_VERSION,
         Application.EXPERIMENTER: Version.NO_VERSION,
         Application.SUBPLAT: Version.NO_VERSION,
