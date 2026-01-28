@@ -1048,11 +1048,6 @@ features:
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
-      enabled:
-        description: |
-          Whether or not to enable the tab management enhancements.
-        type: Boolean
-        default: false
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
