@@ -321,10 +321,6 @@ def _get_application_icon_map():
             "icon": "fa-fw fa-solid fa-shield-alt",
             "color": "text-info",
         },
-        NimbusConstants.Application.VPN: {
-            "icon": "fa-fw fa-solid fa-user-shield",
-            "color": "text-warning",
-        },
         NimbusConstants.Application.FXA: {
             "icon": "fa-fw fa-solid fa-user-circle",
             "color": "text-primary",

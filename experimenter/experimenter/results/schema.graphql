@@ -518,7 +518,6 @@ enum NimbusExperimentApplicationEnum {
   FENIX
   IOS
   MONITOR
-  VPN
   FXA
   DEMO_APP
   EXPERIMENTER

@@ -16,7 +16,6 @@ export enum NimbusExperimentApplicationEnum {
   IOS = "IOS",
   MONITOR = "MONITOR",
   SUBPLAT = "SUBPLAT",
-  VPN = "VPN",
 }
 
 export enum NimbusExperimentChannelEnum {
