@@ -1,4 +1,4 @@
-<div class="d-flex flex-column gap-4 mt-4" id="experiment-results-page">
+<div class="d-flex flex-column gap-4 mt-3" id="experiment-results-page">
   {% if experiment.has_results_errors %}
     <div class="alert p-4 py-3 mb-0 rounded-4 alert-warning" role="alert">
       <div class="row align-items-center">
@@ -115,7 +115,7 @@
         hx-push-url="true"
         hx-trigger="change"
         hx-target="#experiment-results-page"
-        hx-swap="innerHTML"
+        hx-swap="outerHTML"
         class="d-flex gap-4">
     <div class="col">
       <span class="fw-medium">Analysis Basis</span>

@@ -1,7 +1,15 @@
 {% load nimbus_extras %}
 
-<div class="accordion d-flex flex-column gap-4"
+<div class="accordion d-flex flex-column gap-4 position-relative"
      id="{{ experiment.slug }}-results-accordion">
+  {% comment %} Loading overlay {% endcomment %}
+  <div id="htmx-loading-overlay"
+       class="position-absolute bg-secondary top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center rounded">
+    <div class="text-center text-white">
+      <i class="fa-solid fa-spinner fa-spin-pulse fa-3x mb-3"></i>
+      <div class="fs-5">Loading...</div>
+    </div>
+  </div>
   {% comment %} Overview {% endcomment %}
   <div class="accordion-item p-3 px-4 shadow-sm rounded-4">
     <button class="accordion-button bg-transparent shadow-none text-body d-flex"
