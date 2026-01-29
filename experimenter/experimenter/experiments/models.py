@@ -707,6 +707,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             languages = [
                 language.code for language in sorted(languages, key=lambda l: l.code)
             ]
+            if self.application == self.Application.FENIX:
+                languages = [
+                    self.ANDROID_LANGUAGE_CODE_MAPPING.get(code, code)
+                    for code in languages
+                ]
             languages_expression = f"language in {languages}"
             if self.exclude_languages:
                 languages_expression = f"({languages_expression}) != true"
