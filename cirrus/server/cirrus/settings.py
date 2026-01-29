@@ -9,11 +9,15 @@ remote_setting_refresh_rate_in_seconds: int = int(
 remote_setting_refresh_jitter_in_seconds: int = int(
     config("CIRRUS_REMOTE_SETTING_REFRESH_JITTER_IN_SECONDS", default=1)  # type: ignore
 )
-remote_setting_refresh_retry_delay_in_seconds: int = int(
-    config("CIRRUS_REMOTE_SETTING_REFRESH_RETRY_DELAY_IN_SECONDS", default=30)  # type: ignore
+remote_setting_retry_backoff_factor_in_seconds: int = int(
+    config("CIRRUS_REMOTE_SETTING_RETRY_BACKOFF_FACTOR_IN_SECONDS", default=1)  # type: ignore
 )
-remote_setting_refresh_max_attempts: int = int(
-    config("CIRRUS_REMOTE_SETTING_REFRESH_MAX_ATTEMPTS", default=3)  # type: ignore
+remote_setting_retry_total: int = int(
+    config("CIRRUS_REMOTE_SETTING_RETRY_TOTAL", default=5)  # type: ignore
+)
+remote_setting_require_fetch_before_start: bool = (
+    config("CIRRUS_REMOTE_SETTING_REQUIRE_FETCH_BEFORE_START", default="").lower()  # type: ignore
+    in ("true", "yes", "1")
 )
 remote_setting_url: str = cast(str, config("CIRRUS_REMOTE_SETTING_URL", default=""))
 remote_setting_preview_url: str = cast(
