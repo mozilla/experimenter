@@ -1,4 +1,4 @@
-<div class="d-flex flex-column gap-4" id="experiment-results-page">
+<div class="d-flex flex-column gap-4 mt-4" id="experiment-results-page">
   {% if experiment.has_results_errors %}
     <div class="alert p-4 py-3 mb-0 rounded-4 alert-warning" role="alert">
       <div class="row align-items-center">
@@ -107,27 +107,31 @@
       </div>
     </div>
   {% endif %}
+  {% if experiment.is_enrolling or experiment.is_observation %}
+    {% include "nimbus_experiments/launch_controls_v2.html" %}
+
+  {% endif %}
   <form hx-get="{{ request.path }}"
         hx-push-url="true"
         hx-trigger="change"
         hx-target="#experiment-results-page"
         hx-swap="innerHTML"
-        class="d-flex gap-4 mb-3">
-    <div class="col-3">
-      <span>Show results by</span>
+        class="d-flex gap-4">
+    <div class="col">
+      <span class="fw-medium">Analysis Basis</span>
       <select name="analysis_basis"
               class="form-select bg-secondary-subtle"
               aria-label="Analysis Basis">
+        <option value="enrollments"
+                {% if selected_analysis_basis == "enrollments" %}selected{% endif %}>Enrollments</option>
         {% if experiment.has_exposures %}
           <option value="exposures"
                   {% if selected_analysis_basis == "exposures" %}selected{% endif %}>Exposures</option>
         {% endif %}
-        <option value="enrollments"
-                {% if selected_analysis_basis == "enrollments" %}selected{% endif %}>Enrollments</option>
       </select>
     </div>
-    <div class="col-3">
-      <span>Reference branch</span>
+    <div class="col">
+      <span class="fw-medium">Reference branch</span>
       <select name="reference_branch"
               class="form-select bg-secondary-subtle"
               aria-label="Reference Branch">
@@ -137,8 +141,8 @@
         {% endfor %}
       </select>
     </div>
-    <div class="col-3">
-      <span>Segment</span>
+    <div class="col">
+      <span class="fw-medium">Segment</span>
       <select name="segment"
               class="form-select bg-secondary-subtle"
               aria-label="Segment">
@@ -151,7 +155,6 @@
       </select>
     </div>
   </form>
-  {% include "nimbus_experiments/launch_controls_v2.html" %}
   {% include "nimbus_experiments/results-new-inner.html" %}
 
 </div>
