@@ -1,4 +1,4 @@
-<div class="d-flex flex-column gap-4" id="experiment-results-page">
+<div class="d-flex flex-column gap-3 mt-4" id="experiment-results-page">
   {% if experiment.has_results_errors %}
     <div class="alert p-4 py-3 mb-0 rounded-4 alert-warning" role="alert">
       <div class="row align-items-center">
@@ -112,22 +112,31 @@
         hx-trigger="change"
         hx-target="#experiment-results-page"
         hx-swap="innerHTML"
-        class="d-flex gap-4 mb-3">
-    <div class="col-3">
-      <span>Show results by</span>
+        class="d-flex gap-4">
+    <div class="col">
+      <span class="fw-medium">Analysis Basis</span>
+      <i class="fa-regular fa-circle-question ps-1"
+        data-bs-toggle="tooltip"
+        data-bs-html="true"
+        data-bs-delay={"hide":1000}
+      title="Select the <b>analysis basis</b> whose results you want to see. See <a href='https://experimenter.info/jetstream/configuration/#defining-exposure-signals'>defining exposure signals</a> in the docs for more info."></i>
       <select name="analysis_basis"
               class="form-select bg-secondary-subtle"
               aria-label="Analysis Basis">
+        <option value="enrollments"
+                {% if selected_analysis_basis == "enrollments" %}selected{% endif %}>Enrollments</option>
         {% if experiment.has_exposures %}
           <option value="exposures"
                   {% if selected_analysis_basis == "exposures" %}selected{% endif %}>Exposures</option>
         {% endif %}
-        <option value="enrollments"
-                {% if selected_analysis_basis == "enrollments" %}selected{% endif %}>Enrollments</option>
       </select>
     </div>
-    <div class="col-3">
-      <span>Reference branch</span>
+    <div class="col">
+      <span class="fw-medium">Reference branch</span>
+      <i class="fa-regular fa-circle-question ps-1"
+         data-bs-toggle="tooltip"
+         data-bs-html="true"
+         title="Select the <b>reference branch</b> to set it as the baseline for comparison results. By default this is the experiment's configured reference branch (commonly named 'control')."></i>
       <select name="reference_branch"
               class="form-select bg-secondary-subtle"
               aria-label="Reference Branch">
@@ -137,8 +146,13 @@
         {% endfor %}
       </select>
     </div>
-    <div class="col-3">
-      <span>Segment</span>
+    <div class="col">
+      <span class="fw-medium">Segment</span>
+      <i class="fa-regular fa-circle-question ps-1"
+        data-bs-toggle="tooltip"
+        data-bs-html="true"
+        data-bs-delay={"hide":1000}
+      title="Select the <b>analysis segment</b> whose results you want to see. See <a href='https://experimenter.info/jetstream/configuration/#defining-segments'>defining segments</a> in the docs for more info."></i>
       <select name="segment"
               class="form-select bg-secondary-subtle"
               aria-label="Segment">
