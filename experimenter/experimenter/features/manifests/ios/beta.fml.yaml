@@ -854,6 +854,13 @@ features:
           If true, shares the treatment A text. If false, shares the treatment B text.
         type: Boolean
         default: true
+  snapkit-removal-refactor:
+    description: This property defines if SnapKit removal refactor is enbaled
+    variables:
+      enabled:
+        description: If true the SnapKit removal refactor version will be used
+        type: Boolean
+        default: false
   splash-screen:
     description: |
       A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
