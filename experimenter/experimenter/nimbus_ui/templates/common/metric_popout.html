@@ -17,117 +17,94 @@
                 data-bs-dismiss="modal"
                 aria-label="Close"></button>
       </div>
-      <div class="modal-body accordion d-flex flex-column gap-4"
+      <div class="modal-body d-flex flex-column gap-4"
            id="{{ experiment_slug }}-{{ metric_info.slug }}-accordion">
-        <div class="accordion-item p-3 px-4 rounded-4">
-          <h2 class="accordion-header">
-            <button class="accordion-button fw-bold shadow-none bg-transparent text-body"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#{{ experiment_slug }}-{{ metric_info.slug }}-overview-collapse"
-                    aria-expanded="true"
-                    aria-controls="{{ experiment_slug }}-{{ metric_info.slug }}-overview-collapse">Overview</button>
-          </h2>
-          <div class="accordion-collapse collapse show"
-               data-bs-parent="#{{ experiment_slug }}-{{ metric_info.slug }}-accordion"
-               id="{{ experiment_slug }}-{{ metric_info.slug }}-overview-collapse">
-            <div class="accordion-body row row-cols-3 g-3">
-              <div class="col">
-                <p class="fw-bold text-center">Branches</p>
-                {% for branch in branch_data %}
-                  <div class="p-3 mb-3 d-flex justify-content-center text-start text-center"
-                       style="height: 75px">
-                    <div class="d-flex flex-column align-items-center">
-                      <small class="text-muted mb-0">{{ branch.name }}</small>
-                      <p class="mb-0">
-                        {% if branch.slug == reference_branch %}
-                          Baseline
-                        {% else %}
-                          {{ branch.name }}
-                        {% endif %}
-                      </p>
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
-              <div class="col">
-                <p class="fw-bold text-center">Absolute count</p>
-                {% for branch_slug, branch_data in metric_data.items %}
-                  {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=branch_data.absolute.0.lower absolute_upper=branch_data.absolute.0.upper significance=branch_data.absolute.0.significance reference_branch=reference_branch branch_slug=branch_slug %}
-
-                {% endfor %}
-              </div>
-              <div class="col">
-                <p class="fw-bold text-center">Relative change</p>
-                <div class="d-flex flex-column">
-                  {% for branch_slug, branch_data in metric_data.items %}
-                    {% for branch_relative_ui, branch_relative_ui_properties in ui_properties.items %}
-                      {% if branch_slug == branch_relative_ui %}
-                        {% include "common/metric_popout_card.html" with type="relative" lower_confidence=branch_data.relative.0.lower upper_confidence=branch_data.relative.0.upper significance=branch_data.relative.0.significance reference_branch=reference_branch branch_slug=branch_slug branch_relative_ui_properties=branch_relative_ui_properties lower_relative=branch_data.relative.0.lower upper_relative=branch_data.relative.0.upper %}
-
+        <div class="border border-1 rounded py-4 px-5 rounded-4">
+          <h2 class="fs-6 fw-bold">Overview</h2>
+          <div class="row row-cols-3 g-3">
+            <div class="col">
+              <p class="fw-bold text-center">Branches</p>
+              {% for branch in branch_data %}
+                <div class="p-3 mb-3 d-flex justify-content-center text-start text-center"
+                     style="height: 75px">
+                  <div class="d-flex flex-column align-items-center">
+                    <small class="text-muted mb-0">{{ branch.name }}</small>
+                    <p class="mb-0">
+                      {% if branch.slug == reference_branch %}
+                        Baseline
+                      {% else %}
+                        {{ branch.name }}
                       {% endif %}
-                    {% endfor %}
-                    {% comment %} the reference branch does not have relative comparision data therefore it must be separately rendered {% endcomment %}
-                    {% if branch_slug == reference_branch %}
-                      {% include "common/metric_popout_card.html" with type="relative" lower_confidence=branch_data.relative.0.lower upper_confidence=branch_data.relative.0.upper significance=branch_data.relative.0.significance reference_branch=reference_branch branch_slug=branch_slug %}
+                    </p>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="col">
+              <p class="fw-bold text-center">Absolute count</p>
+              {% for branch_slug, branch_data in metric_data.items %}
+                {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=branch_data.absolute.0.lower absolute_upper=branch_data.absolute.0.upper significance=branch_data.absolute.0.significance reference_branch=reference_branch branch_slug=branch_slug %}
+
+              {% endfor %}
+            </div>
+            <div class="col">
+              <p class="fw-bold text-center">Relative change</p>
+              <div class="d-flex flex-column">
+                {% for branch_slug, branch_data in metric_data.items %}
+                  {% for branch_relative_ui, branch_relative_ui_properties in ui_properties.items %}
+                    {% if branch_slug == branch_relative_ui %}
+                      {% include "common/metric_popout_card.html" with type="relative" lower_confidence=branch_data.relative.0.lower upper_confidence=branch_data.relative.0.upper significance=branch_data.relative.0.significance reference_branch=reference_branch branch_slug=branch_slug branch_relative_ui_properties=branch_relative_ui_properties lower_relative=branch_data.relative.0.lower upper_relative=branch_data.relative.0.upper %}
 
                     {% endif %}
                   {% endfor %}
-                </div>
+                  {% comment %} the reference branch does not have relative comparision data therefore it must be separately rendered {% endcomment %}
+                  {% if branch_slug == reference_branch %}
+                    {% include "common/metric_popout_card.html" with type="relative" lower_confidence=branch_data.relative.0.lower upper_confidence=branch_data.relative.0.upper significance=branch_data.relative.0.significance reference_branch=reference_branch branch_slug=branch_slug %}
+
+                  {% endif %}
+                {% endfor %}
               </div>
             </div>
           </div>
         </div>
         {% with weekly_metric_data=all_weekly_metric_data|dict_get:metric_info.slug %}
           {% if weekly_metric_data.has_weekly_data %}
-            <div class="accordion-item p-3 px-4 rounded-4 border border-1">
-              <h2 class="accordion-header">
-                <button class="accordion-button fw-bold shadow-none bg-transparent text-body"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#{{ experiment_slug }}-{{ metric_info.slug }}-weekly-collapse"
-                        aria-expanded="true"
-                        aria-controls="{{ experiment_slug }}-{{ metric_info.slug }}-weekly-collapse">
-                  Weekly breakdown
-                </button>
-              </h2>
-              <div class="accordion-collapse collapse show"
-                   id="{{ experiment_slug }}-{{ metric_info.slug }}-weekly-collapse">
-                <div class="accordion-body d-flex">
-                  <div class="col-2">
-                    <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
-                    {% with reference_branch_weekly=weekly_metric_data.data|dict_get:reference_branch %}
-                      {% for week in experiment.get_weekly_dates %}
-                        <div class="{% if forloop.last %}mb-4{% endif %} mb-3 d-flex text-center rounded-4 w-100 text-start position-relative d-flex flex-column align-items-center justify-content-center"
-                             style="height: 100px">
-                          <small class="text-muted">Week {{ forloop.counter }}</small>
-                          <p class="mb-0">{{ week.0|date:"M j" }} - {{ week.1|date:"M j" }}</p>
-                        </div>
-                      {% endfor %}
-                    {% endwith %}
-                  </div>
-                  <div class="col position-relative w-25">
-                    <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 3 %}mx-4{% endif %}">
-                      {% if branch_data|length > 3 %}
-                        <div class="branch-fade branch-fade-left"></div>
-                        <div class="branch-fade branch-fade-right"></div>
-                      {% endif %}
-                      {% for branch in branch_data %}
-                        <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 3 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-                          <p class="fs-5">{{ branch.name }}</p>
-                          <div class="d-flex flex-column gap-3 w-100">
-                            {% for curr_branch_slug, branch_weekly_metric_data in weekly_metric_data.data.items %}
-                              {% if curr_branch_slug == branch.slug %}
-                                {% for weekly_data_point in branch_weekly_metric_data %}
-                                  {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=weekly_data_point.0.lower absolute_upper=weekly_data_point.0.upper significance=weekly_data_point.1.significance percentage=weekly_data_point.1.avg_rel_change %}
+            <div class="border border-1 rounded py-4 px-5 rounded-4">
+              <h2 class="fs-6 fw-bold">Weekly breakdown</h2>
+              <div class="d-flex mt-3">
+                <div class="col-2">
+                  <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
+                  {% with reference_branch_weekly=weekly_metric_data.data|dict_get:reference_branch %}
+                    {% for week in experiment.get_weekly_dates %}
+                      <div class="{% if forloop.last %}mb-4{% endif %} mb-3 d-flex text-center rounded-4 w-100 text-start position-relative d-flex flex-column align-items-center justify-content-center"
+                           style="height: 100px">
+                        <small class="text-muted">Week {{ forloop.counter }}</small>
+                        <p class="mb-0">{{ week.0|date:"M j" }} - {{ week.1|date:"M j" }}</p>
+                      </div>
+                    {% endfor %}
+                  {% endwith %}
+                </div>
+                <div class="col position-relative w-25">
+                  <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 3 %}mx-4{% endif %}">
+                    {% if branch_data|length > 3 %}
+                      <div class="branch-fade branch-fade-left"></div>
+                      <div class="branch-fade branch-fade-right"></div>
+                    {% endif %}
+                    {% for branch in branch_data %}
+                      <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 3 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                        <p class="fs-5">{{ branch.name }}</p>
+                        <div class="d-flex flex-column gap-3 w-100">
+                          {% for curr_branch_slug, branch_weekly_metric_data in weekly_metric_data.data.items %}
+                            {% if curr_branch_slug == branch.slug %}
+                              {% for weekly_data_point in branch_weekly_metric_data %}
+                                {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=weekly_data_point.0.lower absolute_upper=weekly_data_point.0.upper significance=weekly_data_point.1.significance percentage=weekly_data_point.1.avg_rel_change %}
 
-                                {% endfor %}
-                              {% endif %}
-                            {% endfor %}
-                          </div>
+                              {% endfor %}
+                            {% endif %}
+                          {% endfor %}
                         </div>
-                      {% endfor %}
-                    </div>
+                      </div>
+                    {% endfor %}
                   </div>
                 </div>
               </div>
