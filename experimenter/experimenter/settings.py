@@ -422,7 +422,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "check_experiment_alerts": {
         "task": "experimenter.slack.tasks.check_experiment_alerts",
-        "schedule": crontab(minute=0, hour=16),
+        "schedule": crontab(minute=0, hour=18),
     },
 }
 
