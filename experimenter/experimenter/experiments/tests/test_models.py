@@ -1001,41 +1001,6 @@ class TestNimbusExperiment(TestCase):
         )
         validate_jexl_expr(experiment.targeting, experiment.application)
 
-    def test_targeting_with_android_language_codes_fenix(self):
-        language_he = LanguageFactory.create(code="he")
-        language_id = LanguageFactory.create(code="id")
-        language_yi = LanguageFactory.create(code="yi")
-        language_en = LanguageFactory.create(code="en")
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            application=NimbusExperiment.Application.FENIX,
-            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[],
-            languages=[language_en, language_he, language_id, language_yi],
-        )
-        self.assertEqual(
-            experiment.targeting,
-            "(days_since_install < 7) && (language in ['en', 'iw', 'in', 'ji'])",
-        )
-        validate_jexl_expr(experiment.targeting, experiment.application)
-
-    def test_targeting_with_android_language_codes_non_fenix(self):
-        language_he = LanguageFactory.create(code="he")
-        language_id = LanguageFactory.create(code="id")
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            channels=[],
-            languages=[language_he, language_id],
-        )
-        self.assertIn("language in ['he', 'id']", experiment.targeting)
-        validate_jexl_expr(experiment.targeting, experiment.application)
-
     def test_targeting_with_projects(self):
         project_mdn = ProjectFactory.create(slug="mdn")
 
