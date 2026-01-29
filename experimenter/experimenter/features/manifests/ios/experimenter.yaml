@@ -341,6 +341,14 @@ sent-from-firefox-feature:
       type: boolean
       description: |
         If true, shares the treatment A text. If false, shares the treatment B text.
+snapkit-removal-refactor:
+  description: This property defines if SnapKit removal refactor is enbaled
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true the SnapKit removal refactor version will be used
 splash-screen:
   description: |
     A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.

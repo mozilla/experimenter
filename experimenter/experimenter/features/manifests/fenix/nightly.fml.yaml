@@ -481,6 +481,13 @@ features:
         description: If true, report site issue menu item and preview is available.
         type: Boolean
         default: true
+  merino-client:
+    description: Feature to enable the Merino Client for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Merino Client is enabled.
+        type: Boolean
+        default: false
   messaging:
     description: |
       The in-app messaging system.
