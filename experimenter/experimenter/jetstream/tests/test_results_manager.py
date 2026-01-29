@@ -419,18 +419,21 @@ class TestExperimentResultsManager(TestCase):
                         "slug": "retained",
                         "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
                         "display_type": "percentage",
+                        "overall_change": "neutral",
                     },
                     {
                         "group": "search_metrics",
                         "friendly_name": "Search Count",
                         "slug": "search_count",
                         "description": "Daily mean number of searches per user.",
+                        "overall_change": "neutral",
                     },
                     {
                         "group": "other_metrics",
                         "friendly_name": "Daily Active Users",
                         "slug": "client_level_daily_active_users_v2",
                         "description": "Average number of client that sent a main ping per day.",  # noqa E501
+                        "overall_change": "neutral",
                     },
                 ],
             ),
@@ -443,18 +446,21 @@ class TestExperimentResultsManager(TestCase):
                         "slug": "retained",
                         "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
                         "display_type": "percentage",
+                        "overall_change": "neutral",
                     },
                     {
                         "group": "search_metrics",
                         "friendly_name": "Search Count",
                         "slug": "search_count",
                         "description": "Daily mean number of searches per user.",
+                        "overall_change": "neutral",
                     },
                     {
                         "group": "other_metrics",
                         "friendly_name": "Days of Use",
                         "slug": "days_of_use",
                         "description": "Average number of days each client sent a main ping.",  # noqa E501
+                        "overall_change": "neutral",
                     },
                 ],
             ),
@@ -764,6 +770,7 @@ class TestExperimentResultsManager(TestCase):
                 "slug": "client_level_daily_active_users_v2",
                 "description": "Average number of client that sent a main ping per day.",
                 "has_errors": True,
+                "overall_change": "neutral",
             },
             kpi_metrics,
         )
@@ -945,5 +952,389 @@ class TestExperimentResultsManager(TestCase):
 
         self.assertEqual(
             self.results_manager.get_window_results("enrollments", "all", window),
+            expected,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "neutral",
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "positive"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "positive",
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "negative"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "negative",
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "negative"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "positive"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "mixed",
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "positive"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "negative"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "mixed",
+            ),
+        ]
+    )
+    def test_get_overall_change(self, results_data, expected):
+        self.experiment.results_data = results_data
+        self.experiment.save()
+
+        self.assertEqual(
+            self.results_manager.get_overall_change(
+                "other_metrics",
+                "urlbar_amazon_search_count",
+                "enrollments",
+                "all",
+                "branch-a",
+            ),
             expected,
         )
