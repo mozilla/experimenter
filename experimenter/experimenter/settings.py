@@ -420,6 +420,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.kinto.tasks.nimbus_sync_published_dto",
         "schedule": crontab(minute=0, hour="*"),
     },
+    "check_experiment_alerts": {
+        "task": "experimenter.slack.tasks.check_experiment_alerts",
+        "schedule": crontab(minute=0, hour=18),
+    },
 }
 
 # Recipe Configuration
