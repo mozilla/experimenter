@@ -1,20 +1,26 @@
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 
-class TestFixPublishStatusPreviewMigration(MigratorTestCase):
+class TestRemoveVpnApplicationsMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0315_results_v3_overall_dict",
+        "0318_alter_nimbusexperiment_application_and_more",
     )
     migrate_to = (
         "experiments",
-        "0316_fix_publish_status_preview",
+        "0319_delete_vpn_features",
     )
 
     def prepare(self):
         User = self.old_state.apps.get_model("auth", "User")
+        NimbusFeatureConfig = self.old_state.apps.get_model(
+            "experiments", "NimbusFeatureConfig"
+        )
         NimbusExperiment = self.old_state.apps.get_model(
             "experiments", "NimbusExperiment"
+        )
+        NimbusIsolationGroup = self.old_state.apps.get_model(
+            "experiments", "NimbusIsolationGroup"
         )
 
         owner, _ = User.objects.get_or_create(
@@ -22,52 +28,77 @@ class TestFixPublishStatusPreviewMigration(MigratorTestCase):
             defaults={"email": "test@example.com"},
         )
 
-        NimbusExperiment.objects.create(
-            slug="test-invalid-preview",
-            name="Test Invalid Preview",
-            application="firefox-desktop",
-            owner=owner,
-            status="Live",
-            status_next="Complete",
-            publish_status="Preview",
+        NimbusFeatureConfig.objects.get_or_create(
+            slug="no-feature-vpn-web",
+            defaults={
+                "name": "No Feature VPN Web",
+                "application": "vpn-web",
+            },
         )
 
-        NimbusExperiment.objects.create(
-            slug="test-valid-idle",
-            name="Test Valid Idle",
-            application="firefox-desktop",
-            owner=owner,
-            status="Draft",
-            status_next=None,
-            publish_status="Idle",
+        NimbusFeatureConfig.objects.get_or_create(
+            slug="no-feature-fenix",
+            defaults={
+                "name": "No Feature Fenix",
+                "application": "fenix",
+            },
         )
 
-        NimbusExperiment.objects.create(
-            slug="test-valid-review",
-            name="Test Valid Review",
-            application="firefox-desktop",
-            owner=owner,
-            status="Draft",
-            status_next=None,
-            publish_status="Review",
+        NimbusExperiment.objects.get_or_create(
+            slug="test-vpn-web",
+            defaults={
+                "name": "Test VPN Web",
+                "application": "vpn-web",
+                "owner": owner,
+            },
+        )
+
+        NimbusExperiment.objects.get_or_create(
+            slug="test-fenix",
+            defaults={
+                "name": "Test Fenix",
+                "application": "fenix",
+                "owner": owner,
+            },
+        )
+
+        NimbusIsolationGroup.objects.get_or_create(
+            application="vpn-web",
+            name="test-group",
+            instance=1,
+        )
+
+        NimbusIsolationGroup.objects.get_or_create(
+            application="fenix",
+            name="test-group",
+            instance=1,
         )
 
     def test_migration(self):
+        NimbusFeatureConfig = self.new_state.apps.get_model(
+            "experiments", "NimbusFeatureConfig"
+        )
         NimbusExperiment = self.new_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
+        NimbusIsolationGroup = self.new_state.apps.get_model(
+            "experiments", "NimbusIsolationGroup"
+        )
 
-        invalid_exp = NimbusExperiment.objects.get(slug="test-invalid-preview")
-        self.assertEqual(invalid_exp.status, "Draft")
-        self.assertIsNone(invalid_exp.status_next)
-        self.assertEqual(invalid_exp.publish_status, "Idle")
+        self.assertFalse(
+            NimbusFeatureConfig.objects.filter(slug="no-feature-vpn-web").exists()
+        )
 
-        valid_idle = NimbusExperiment.objects.get(slug="test-valid-idle")
-        self.assertEqual(valid_idle.status, "Draft")
-        self.assertIsNone(valid_idle.status_next)
-        self.assertEqual(valid_idle.publish_status, "Idle")
+        self.assertTrue(
+            NimbusFeatureConfig.objects.filter(slug="no-feature-fenix").exists()
+        )
 
-        valid_review = NimbusExperiment.objects.get(slug="test-valid-review")
-        self.assertEqual(valid_review.status, "Draft")
-        self.assertIsNone(valid_review.status_next)
-        self.assertEqual(valid_review.publish_status, "Review")
+        self.assertFalse(NimbusExperiment.objects.filter(application="vpn-web").exists())
+
+        self.assertTrue(NimbusExperiment.objects.filter(application="fenix").exists())
+
+        self.assertFalse(
+            NimbusIsolationGroup.objects.filter(application="vpn-web").exists()
+        )
+
+        self.assertTrue(NimbusIsolationGroup.objects.filter(application="fenix").exists())
