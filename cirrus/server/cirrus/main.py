@@ -9,6 +9,7 @@ from cirrus_sdk import NimbusError  # type: ignore
 from fastapi import FastAPI, HTTPException, Query, status
 from fml_sdk import FmlError  # type: ignore
 from pydantic import BaseModel
+from urllib3.util import Retry
 
 from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage
@@ -30,15 +31,14 @@ from .settings import (
     instance_name,
     remote_setting_preview_url,
     remote_setting_refresh_jitter_in_seconds,
-    remote_setting_refresh_max_attempts,
     remote_setting_refresh_rate_in_seconds,
-    remote_setting_refresh_retry_delay_in_seconds,
+    remote_setting_require_fetch_before_start,
+    remote_setting_retry_backoff_factor_in_seconds,
+    remote_setting_retry_total,
     remote_setting_url,
 )
 
 logger = logging.getLogger(__name__)
-
-FETCH_SCHEDULE_RECIPES_JOB_ID = "FETCH_SCHEDULE_RECIPES_JOB_ID"
 
 
 class FeatureRequest(BaseModel):
@@ -76,10 +76,24 @@ async def lifespan(app: FastAPI):
         CirrusMetricsHandler(app.state.enrollment_status_ping),
     )
 
-    app.state.remote_setting_live = RemoteSettings(remote_setting_url, app.state.sdk_live)
-    app.state.remote_setting_preview = RemoteSettings(
-        remote_setting_preview_url, app.state.sdk_preview
+    retry = Retry(
+        total=remote_setting_retry_total,
+        backoff_factor=remote_setting_retry_backoff_factor_in_seconds,
+        # 401 happens when a collection does not exist, for example
+        # when experimenter hasn't created it yet in local dev
+        status_forcelist=[401, 500, 502, 503, 504],
     )
+    app.state.remote_setting_live = RemoteSettings(
+        remote_setting_url, app.state.sdk_live, retry
+    )
+    app.state.remote_setting_preview = RemoteSettings(
+        remote_setting_preview_url, app.state.sdk_preview, retry
+    )
+
+    if remote_setting_require_fetch_before_start:
+        app.state.remote_setting_live.fetch_recipes()
+        if app.state.remote_setting_preview:
+            app.state.remote_setting_preview.fetch_recipes()
 
     app.state.scheduler = create_scheduler()
     start_and_set_initial_job()
@@ -153,7 +167,17 @@ def create_scheduler():
 
 def start_and_set_initial_job():
     app.state.scheduler.start()
-    schedule_next_attempt(attempt=1, failed=False)
+    jobs = [fetch_recipes_live]
+    if app.state.remote_setting_preview:
+        jobs.append(fetch_recipes_preview)
+    for job in jobs:
+        app.state.scheduler.add_job(
+            job,
+            "interval",
+            seconds=remote_setting_refresh_rate_in_seconds,
+            jitter=remote_setting_refresh_jitter_in_seconds,
+            max_instances=1,
+        )
 
 
 class EnrollmentMetricData(NamedTuple):
@@ -307,51 +331,22 @@ async def compute_features_enrollments_v2(
     }
 
 
-async def fetch_schedule_recipes(attempt: int = 0) -> None:
-    failed = False
-
+def fetch_recipes_live():
+    # This function blocks on requests, so it must be a synchronous function to make the
+    # scheduler execute it in a thread and not block main event loop
     try:
         app.state.remote_setting_live.fetch_recipes()
     except Exception as e:
         logger.error(f"Failed to fetch live recipes: {e}")
-        failed = True
 
+
+def fetch_recipes_preview():
+    # This function blocks on requests, so it must be a synchronous function to make the
+    # scheduler execute it in a thread and not block main event loop
     try:
-        if app.state.remote_setting_preview:
-            app.state.remote_setting_preview.fetch_recipes()
+        app.state.remote_setting_preview.fetch_recipes()
     except Exception as e:
         logger.error(f"Failed to fetch preview recipes: {e}")
-        failed = True
-
-    schedule_next_attempt(attempt=attempt, failed=failed)
-
-
-def schedule_next_attempt(attempt: int, failed: bool):
-    if attempt == 0 and not failed:
-        pass
-    elif attempt < remote_setting_refresh_max_attempts and failed:
-        # increase attempt and set retry delay
-        app.state.scheduler.add_job(
-            fetch_schedule_recipes,
-            "interval",
-            seconds=remote_setting_refresh_retry_delay_in_seconds,
-            jitter=remote_setting_refresh_jitter_in_seconds,
-            max_instances=1,
-            id=FETCH_SCHEDULE_RECIPES_JOB_ID,
-            replace_existing=True,
-            kwargs={"attempt": attempt + 1},
-        )
-    else:
-        # reset attempt and set refresh rate
-        app.state.scheduler.add_job(
-            fetch_schedule_recipes,
-            "interval",
-            seconds=remote_setting_refresh_rate_in_seconds,
-            jitter=remote_setting_refresh_jitter_in_seconds,
-            max_instances=1,
-            id=FETCH_SCHEDULE_RECIPES_JOB_ID,
-            replace_existing=True,
-        )
 
 
 @app.get("/__lbheartbeat__")
