@@ -307,6 +307,14 @@ menu-redesign:
     report-site-issue:
       type: boolean
       description: If true, report site issue menu item and preview is available.
+merino-client:
+  description: Feature to enable the Merino Client for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Merino Client is enabled.
 messaging:
   description: |
     The in-app messaging system.
