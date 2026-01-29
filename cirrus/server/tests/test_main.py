@@ -1,24 +1,20 @@
 import logging
 import sys
-from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.interval import IntervalTrigger
 from cirrus_sdk import NimbusError
 from fastapi import status
 from fml_sdk import FmlError
 
 from cirrus.main import (
-    FETCH_SCHEDULE_RECIPES_JOB_ID,
     EnrollmentMetricData,
     create_fml,
     create_scheduler,
     create_sdk,
-    fetch_schedule_recipes,
-    schedule_next_attempt,
-    start_and_set_initial_job,
+    fetch_recipes_live,
+    fetch_recipes_preview,
     verify_settings,
 )
 
@@ -50,62 +46,6 @@ def test_create_scheduler():
     scheduler = create_scheduler()
 
     assert isinstance(scheduler, AsyncIOScheduler)
-
-
-@pytest.mark.asyncio
-async def test_job_retry_scheduling(app_state_mock):
-    # Use a real scheduler, but don't await between start and shutdown,
-    # so it will never actually run any jobs
-    scheduler = create_scheduler()
-
-    with (
-        patch("cirrus.main.remote_setting_refresh_rate_in_seconds", 10),
-        patch("cirrus.main.remote_setting_refresh_jitter_in_seconds", 1),
-        patch("cirrus.main.remote_setting_refresh_retry_delay_in_seconds", 30),
-        patch("cirrus.main.remote_setting_refresh_max_attempts", 3),
-        patch("cirrus.main.app.state.scheduler", scheduler),
-    ):
-        assert scheduler.get_jobs() == []
-
-        try:
-            start_and_set_initial_job()
-
-            #  initial job is scheduled
-            assert [j.id for j in scheduler.get_jobs()] == [FETCH_SCHEDULE_RECIPES_JOB_ID]
-            (job,) = scheduler.get_jobs()
-            assert job.func == fetch_schedule_recipes
-            assert job.kwargs == {}
-            assert job.max_instances == 1
-            assert isinstance(job.trigger, IntervalTrigger)
-            assert job.trigger.interval == timedelta(seconds=10)
-            assert job.trigger.jitter == 1
-
-            schedule_next_attempt(attempt=0, failed=True)
-
-            # job changed to retry settings
-            assert [j.id for j in scheduler.get_jobs()] == [FETCH_SCHEDULE_RECIPES_JOB_ID]
-            (job,) = scheduler.get_jobs()
-            assert job.func == fetch_schedule_recipes
-            assert job.kwargs == {"attempt": 1}
-            assert job.max_instances == 1
-            assert isinstance(job.trigger, IntervalTrigger)
-            assert job.trigger.interval == timedelta(seconds=30)
-            assert job.trigger.jitter == 1
-
-            schedule_next_attempt(attempt=1, failed=False)
-
-            # job changed to non-retry settings
-            assert [j.id for j in scheduler.get_jobs()] == [FETCH_SCHEDULE_RECIPES_JOB_ID]
-            (job,) = scheduler.get_jobs()
-            assert job.func == fetch_schedule_recipes
-            assert job.kwargs == {}
-            assert job.max_instances == 1
-            assert isinstance(job.trigger, IntervalTrigger)
-            assert job.trigger.interval == timedelta(seconds=10)
-            assert job.trigger.jitter == 1
-
-        finally:
-            scheduler.shutdown(wait=False)
 
 
 def test_read_root(client):
@@ -310,142 +250,20 @@ def test_get_features_v2_missing_required_field(
     assert response.json()["detail"] == expected_message
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    (
-        "live_side_effect, preview_side_effect, has_preview"
-        ", attempt, expect_retry, expect_reset"
-    ),
-    [
-        pytest.param(
-            None,
-            None,
-            False,
-            0,
-            False,
-            False,
-            id="live_succeeds_no_preview",
-        ),
-        pytest.param(
-            None,
-            None,
-            True,
-            0,
-            False,
-            False,
-            id="both_succeed",
-        ),
-        pytest.param(
-            Exception("live error"),
-            None,
-            True,
-            0,
-            True,
-            False,
-            id="live_fails_no_preview",
-        ),
-        pytest.param(
-            Exception("live error"),
-            None,
-            True,
-            0,
-            True,
-            False,
-            id="live_fails_preview_succeeds",
-        ),
-        pytest.param(
-            None,
-            Exception("preview error"),
-            True,
-            0,
-            True,
-            False,
-            id="live_succeeds_preview_fails",
-        ),
-        pytest.param(
-            Exception("live error"),
-            Exception("preview error"),
-            True,
-            0,
-            True,
-            False,
-            id="both_fail",
-        ),
-        pytest.param(
-            None,
-            None,
-            True,
-            1,
-            False,
-            True,
-            id="both_succeed_on_retry",
-        ),
-        pytest.param(
-            Exception("live error"),
-            Exception("preview error"),
-            True,
-            3,
-            False,
-            True,
-            id="both_fail_on_last_attempt",
-        ),
-    ],
-)
-async def test_fetch_schedule_recipes(
+def test_fetch_recipes_live(
     remote_setting_live_mock,
-    remote_setting_preview_mock,
-    scheduler_mock,
-    live_side_effect,
-    preview_side_effect,
-    has_preview,
-    attempt,
-    expect_retry,
-    expect_reset,
 ):
-    if live_side_effect is not None:
-        remote_setting_live_mock.fetch_recipes.side_effect = live_side_effect
-    if preview_side_effect is not None:
-        remote_setting_preview_mock.fetch_recipes.side_effect = preview_side_effect
-    remote_setting_preview_mock.__bool__.return_value = has_preview
-
-    with (
-        patch("cirrus.main.remote_setting_refresh_rate_in_seconds", 10),
-        patch("cirrus.main.remote_setting_refresh_jitter_in_seconds", 1),
-        patch("cirrus.main.remote_setting_refresh_retry_delay_in_seconds", 30),
-        patch("cirrus.main.remote_setting_refresh_max_attempts", 3),
-    ):
-        await fetch_schedule_recipes(attempt=attempt)
-
+    fetch_recipes_live()
     remote_setting_live_mock.fetch_recipes.assert_called_once()
 
-    if has_preview:
-        remote_setting_preview_mock.fetch_recipes.assert_called_once()
-    else:
-        remote_setting_preview_mock.fetch_recipes.assert_not_called()
 
-    if expect_retry:
-        scheduler_mock.add_job.assert_called_once_with(
-            fetch_schedule_recipes,
-            "interval",
-            seconds=30,
-            jitter=1,
-            max_instances=1,
-            id=FETCH_SCHEDULE_RECIPES_JOB_ID,
-            replace_existing=True,
-            kwargs={"attempt": 1},
-        )
-    elif expect_reset:
-        scheduler_mock.add_job.assert_called_once_with(
-            fetch_schedule_recipes,
-            "interval",
-            seconds=10,
-            jitter=1,
-            max_instances=1,
-            id=FETCH_SCHEDULE_RECIPES_JOB_ID,
-            replace_existing=True,
-        )
-    else:
-        scheduler_mock.add_job.assert_not_called()
+def test_fetch_recipes_preview(
+    remote_setting_preview_mock,
+):
+    # function is not expected to evaluate whether remote_setting_preview is truthy
+    remote_setting_preview_mock.__bool__.return_value = False
+    fetch_recipes_preview()
+    remote_setting_preview_mock.fetch_recipes.assert_called_once()
 
 
 def test_lbheartbeat_endpoint(client):
