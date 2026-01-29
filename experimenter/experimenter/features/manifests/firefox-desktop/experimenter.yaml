@@ -5079,6 +5079,21 @@ setToDefaultPrompt:
       description: Message to show instead of the default prompt
       type: json
 
+tabNotes:
+  description: >-
+    Associate short text notes with specific web pages and surface those notes later
+    when the user returns to that web page in a tab.
+  owner: sthompson@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: >-
+        Controls whether tab notes storage, code, and UI elements are turned on.
+      setPref:
+        branch: default
+        pref: browser.tabs.notes.enabled
+
 tabGroups:
   description: Prefs to control Tab Groups
   owner: dao@mozilla.com
