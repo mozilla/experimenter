@@ -342,12 +342,6 @@ class NimbusConstants:
 
     Application = Application
 
-    ANDROID_LANGUAGE_CODE_MAPPING = {
-        "he": "iw",
-        "id": "in",
-        "yi": "ji",
-    }
-
     class Type(models.TextChoices):
         EXPERIMENT = "Experiment"
         ROLLOUT = "Rollout"
