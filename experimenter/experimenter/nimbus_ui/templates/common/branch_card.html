@@ -1,3 +1,4 @@
+{% load static %}
 {% load nimbus_extras %}
 
 <div class="d-flex gap-3">
@@ -19,7 +20,11 @@
     {% else %}
       <div class="position-relative border border-secondary-subtle rounded text-center d-flex align-items-center justify-content-center w-50"
            style="height: 120px">
-        <small class="text-muted">No screenshot</small>
+        <img src="{% static 'assets/img-placeholder.svg' %}"
+             class="rounded w-100"
+             alt="No screenshot uploaded yet"
+             style="height: 120px;
+                    object-fit: cover" />
         <button type="button"
                 data-bs-toggle="modal"
                 data-bs-target="#{{ experiment_slug }}-{{ branch.slug }}-image-edit"
@@ -30,16 +35,17 @@
     {% endif %}
   {% endwith %}
   <div class="w-50">
-    <span class="badge rounded text-body-secondary bg-body-secondary border border-secondary-subtle d-flex-inline d-inline-flex flex-wrap gap-2">
-      {{ branch.name }}
+    <span class="badge rounded text-body-secondary bg-body-secondary border border-secondary-subtle d-inline-flex flex-column w-100 align-items-start gap-2 fs-6">
+      <div>{{ branch.name }}</div>
       <div class="d-inline-flex gap-1 fw-normal">
         {{ branch.percentage|floatformat:"0g" }}%
         <span>&middot;</span>
-        {{ branch.num_participants|short_number }} users
+        <span class="mb-0"
+              data-bs-toggle="tooltip"
+              data-bs-title="{{ branch.num_participants }}">{{ branch.num_participants|short_number }}</span>users
       </div>
     </span>
-    <h6 class="mt-2">{{ branch.name }}</h6>
-    <p class="text-muted">{{ branch.description|truncatechars:100 }}</p>
+    <p class="mt-2 text-muted">{{ branch.description|truncatechars:100 }}</p>
   </div>
 </div>
 <div class="modal fade"
@@ -70,7 +76,9 @@
             </div>
           {% else %}
             <div class="border border-secondary-subtle rounded mb-3">
-              <small class="text-muted d-block p-5 text-center">No screenshot uploaded</small>
+              <img src="{% static 'assets/img-placeholder.svg' %}"
+                   alt="No screenshot uploaded yet"
+                   class="rounded w-100" />
             </div>
           {% endif %}
           {{ screenshot_form.image }}
@@ -94,7 +102,6 @@
             </div>
           {% endif %}
           <div class="d-flex justify-content-end gap-2 mt-4">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary">Save changes</button>
           </div>
         </form>
