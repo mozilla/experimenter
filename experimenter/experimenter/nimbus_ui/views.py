@@ -22,6 +22,7 @@ from experimenter.jetstream.results_manager import ExperimentResultsManager
 from experimenter.nimbus_ui.constants import (
     METRICS_MIN_BOUNDS_WIDTH,
     SCHEMA_DIFF_SIZE_CONFIG,
+    NimbusUIConstants,
 )
 from experimenter.nimbus_ui.filtersets import (
     STATUS_FILTERS,
@@ -763,9 +764,14 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         context["segments"] = segments
 
         analysis_basis = self.request.GET.get(
-            "analysis_basis", "exposures" if experiment.has_exposures else "enrollments"
+            "analysis_basis",
+            "exposures"
+            if experiment.has_exposures == NimbusUIConstants.ExposuresStatus.VALID
+            else "enrollments",
         )
         context["selected_analysis_basis"] = analysis_basis
+
+        context["invalid_exposure_status"] = NimbusUIConstants.ExposuresStatus.INVALID
 
         context["branch_data"] = results_manager.get_branch_data(
             analysis_basis, selected_segment

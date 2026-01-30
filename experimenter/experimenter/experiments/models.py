@@ -1705,16 +1705,45 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def has_exposures(self):
-        # True if there are any exposures in the results data
+        # Returns the enum corresponding to exposures state:
+        # - VALID when exposures exist for all branches
+        # - INVALID when exposures exist for some but not all branches
+        # - NO_EXPOSURES when no exposures data is present
+
         if self.results_data and "v3" in self.results_data:
             results_data = self.results_data["v3"]
             for window in ["overall", "weekly"]:
                 if results_data.get(window):
-                    exposure_data = results_data[window].get("exposures", {}).get("all")
-                    if exposure_data is not None:
-                        return True
+                    exposures_branch_data = (
+                        results_data[window].get("exposures", {}).get("all", {})
+                    )
+                    branches_with_exposures = 0
 
-        return False
+                    for branch_data in exposures_branch_data.values():
+                        client_count = (
+                            branch_data.get("branch_data", {})
+                            .get("other_metrics", {})
+                            .get("identity", {})
+                            .get("absolute", {})
+                            .get("first", {})
+                            .get("point", 0)
+                        )
+
+                        # Treat a branch as having meaningful exposures only when the
+                        # client_count exceeds a set cutoff. Manual testing can produce
+                        # tiny non-zero counts, so we use EXPOSURE_CLIENT_CUTOFF as an
+                        # arbitrary threshold to avoid false positives.
+                        if client_count > NimbusConstants.EXPOSURE_CLIENT_CUTOFF:
+                            branches_with_exposures += 1
+
+                    if branches_with_exposures == self.branches.all().count():
+                        return NimbusUIConstants.ExposuresStatus.VALID
+                    # Handles the case where exposures were only implemented for some but
+                    # not all branches.
+                    elif branches_with_exposures > 0:
+                        return NimbusUIConstants.ExposuresStatus.INVALID
+
+        return NimbusUIConstants.ExposuresStatus.NO_EXPOSURES
 
     @property
     def show_results_url(self):

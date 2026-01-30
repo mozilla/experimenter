@@ -107,6 +107,25 @@
       </div>
     </div>
   {% endif %}
+  {% if experiment.has_exposures == invalid_exposure_status %}
+    <div class="alert p-4 mb-0 rounded-4 alert-warning" role="alert">
+      <div class="d-flex flex-column gap-2 align-items-start">
+        <div class="d-flex align-items-center mb-2 gap-2">
+          <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+          <h5 class="mb-0">Exposure data misconfigured</h5>
+        </div>
+        <p class="text-muted">
+          Some branches are missing exposure data while others have them. Exposure-based
+          analysis may be incomplete. You can still view available results — try switching
+          the analysis basis to "Exposures" to inspect what's present, or contact Experimenter
+          Support if you need help fixing the data.
+        </p>
+        <a class="btn btn-secondary bg-secondary-subtle bg-opacity-25 border-0 text-body fw-semibold"
+           target="_blank"
+           href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
+      </div>
+    </div>
+  {% endif %}
   {% if experiment.is_enrolling or experiment.is_observation %}
     {% include "nimbus_experiments/launch_controls_v2.html" %}
 
@@ -124,10 +143,12 @@
               aria-label="Analysis Basis">
         <option value="enrollments"
                 {% if selected_analysis_basis == "enrollments" %}selected{% endif %}>Enrollments</option>
-        {% if experiment.has_exposures %}
-          <option value="exposures"
-                  {% if selected_analysis_basis == "exposures" %}selected{% endif %}>Exposures</option>
-        {% endif %}
+        <option value="exposures"
+                {% if selected_analysis_basis == "exposures" %}selected{% endif %}
+                {% if not experiment.has_exposures %}disabled{% endif %}>
+          Exposures
+          {% if not experiment.has_exposures %}(No exposure data){% endif %}
+        </option>
       </select>
     </div>
     <div class="col">
