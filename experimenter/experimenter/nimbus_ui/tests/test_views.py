@@ -3192,11 +3192,36 @@ class TestResultsView(AuthTestCase):
                         },
                         "overall": {
                             "enrollments": {"all": {}},
-                            "exposures": {"all": {}},
-                        },
-                        "weekly": {
-                            "enrollments": {"all": {}},
-                            "exposures": {"all": {}},
+                            "exposures": {
+                                "all": {
+                                    "control": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "point": 210,
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "treatment": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "point": 210,
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
                         },
                     }
                 },
@@ -3210,6 +3235,25 @@ class TestResultsView(AuthTestCase):
                             "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
                         },
                         "overall": {"enrollments": {"all": {}}},
+                    }
+                },
+                "enrollments",
+            ),
+            (
+                {
+                    "v3": {
+                        "other_metrics": {"group": {"metricA": "Metric A"}},
+                        "metadata": {
+                            "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
+                        },
+                        "overall": {
+                            "enrollments": {"all": {}},
+                            "exposures": {"all": {}},
+                        },
+                        "weekly": {
+                            "enrollments": {"all": {}},
+                            "exposures": {"all": {}},
+                        },
                     }
                 },
                 "enrollments",
