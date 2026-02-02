@@ -66,6 +66,15 @@
                     {% endif %}
                   </p>
                 </div>
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Outcomes</p>
+                  {% for outcome, url in experiment_context.primary_outcome_links %}
+                    <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
+                  {% endfor %}
+                  {% for outcome, url in experiment_context.secondary_outcome_links %}
+                    <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
+                  {% endfor %}
+                </div>
                 <div class="col-4 d-flex"></div>
                 <div class="row mt-2">
                   <p class="text-muted mb-0">Feature tags</p>
