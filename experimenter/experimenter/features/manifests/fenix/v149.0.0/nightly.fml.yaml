@@ -268,6 +268,14 @@ features:
           pocket-sponsored-stories: true
           synced-tabs: true
           collections: true
+  homescreen-edge-to-edge-background:
+    description: |
+      Feature that sets an edge to edge background on the Home Screen if the user hasn't selected a custom wallpaper
+    variables:
+      enabled:
+        description: Enables the feature
+        type: Boolean
+        default: true
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
@@ -684,6 +692,13 @@ features:
       at-bottom-while-entering-text:
         description: |
           Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
+        type: Boolean
+        default: false
+  mozilla-ads-client:
+    description: Feature to enable the Mozilla Ads Client for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Mozilla Ads Client is enabled.
         type: Boolean
         default: false
   native-share-sheet:
