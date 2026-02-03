@@ -496,17 +496,14 @@ features:
             card-type: toolbar-placement
             enabled: false
             title: nova_onboarding_toolbar_selection_title
-            body: onboarding_customize_toolbar_description
             ordering: 35
             primary-button-label: nova_onboarding_continue_button
             extra-data:
               customization-toolbar-data:
               - toolbar-type: toolbar-top
                 label: nova_onboarding_toolbar_selection_top_label
-                image-res: ic_onboarding_top_toolbar
               - toolbar-type: toolbar-bottom
                 label: nova_onboarding_toolbar_selection_bottom_label
-                image-res: ic_onboarding_bottom_toolbar
           marketing-data:
             card-type: marketing-data
             enabled: false
