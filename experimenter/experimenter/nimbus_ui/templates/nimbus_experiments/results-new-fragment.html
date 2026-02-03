@@ -8,7 +8,11 @@
             <h5 class="mb-0">Issues detected in a few metrics</h5>
           </div>
           <p class="text-muted">
-            Your experiment is still running. Results for some metrics aren't available, but others are unaffected.
+            {% if experiment.is_complete %}
+              Your experiment is complete, but there were issues computing some results. Contact Experimenter support using the button below for help resolving analysis errors.
+            {% else %}
+              Your experiment is still running &mdash; some metrics aren't available yet. This usually affects early results but may indicate a configuration issue; see error details on the right or Contact Experimenter Support using the button below.
+            {% endif %}
           </p>
           <a class="btn btn-secondary bg-secondary-subtle bg-opacity-25 border-0 text-body fw-semibold"
              target="_blank"
@@ -44,6 +48,7 @@
                       <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
                           <div class="modal-header">
+                            <h5 class="modal-title">Error Details</h5>
                             <button type="button"
                                     class="btn-close"
                                     data-bs-dismiss="modal"
@@ -51,7 +56,6 @@
                           </div>
                           <div class="modal-body">
                             <dl class="row">
-                              <small class="text-muted mb-3">[{{ error.timestamp }}]</small>
                               <dt class="col-sm-4">Level</dt>
                               <dd class="col-sm-8">
                                 {{ error.log_level }}
@@ -59,6 +63,10 @@
                               <dt class="col-sm-4">Type</dt>
                               <dd class="col-sm-8">
                                 {{ error.exception_type }}
+                              </dd>
+                              <dt class="col-sm-4">Timestamp</dt>
+                              <dd class="col-sm-8">
+                                [{{ error.timestamp }}]
                               </dd>
                               <dt class="col-sm-4">Message</dt>
                               <dd class="col-sm-8 text-break">
@@ -91,9 +99,6 @@
                                 </details>
                               {% endif %}
                             </dl>
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                           </div>
                         </div>
                       </div>
