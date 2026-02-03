@@ -333,7 +333,7 @@ features:
             - NEVER
             enabled: true
             extra-data: null
-            image-res: ic_onboarding_welcome
+            image-res: nova_onboarding_set_to_default
             ordering: 10
             prerequisites:
             - ALWAYS
@@ -347,7 +347,7 @@ features:
             - NEVER
             enabled: true
             extra-data: null
-            image-res: ic_onboarding_search_widget
+            image-res: nova_onboarding_widget
             ordering: 15
             prerequisites:
             - ALWAYS
@@ -361,7 +361,7 @@ features:
             - NEVER
             enabled: true
             extra-data: null
-            image-res: ic_onboarding_sync
+            image-res: nova_onboarding_sync
             ordering: 20
             prerequisites:
             - ALWAYS
@@ -375,7 +375,7 @@ features:
             - NEVER
             enabled: true
             extra-data: null
-            image-res: ic_notification_permission
+            image-res: nova_onboarding_notifications
             ordering: 30
             prerequisites:
             - ALWAYS
@@ -416,15 +416,13 @@ features:
               customization-toolbar-data:
               - toolbar-type: toolbar-top
                 label: nova_onboarding_toolbar_selection_top_label
-                image-res: ic_onboarding_top_toolbar
               - toolbar-type: toolbar-bottom
                 label: nova_onboarding_toolbar_selection_bottom_label
-                image-res: ic_onboarding_bottom_toolbar
             image-res: ic_onboarding_customize_toolbar
             ordering: 37
             prerequisites:
             - ALWAYS
-            primary-button-label: onboarding_redesign_continue_button
+            primary-button-label: nova_onboarding_continue_button
             secondary-button-label: ''
             title: nova_onboarding_toolbar_selection_title
           marketing:
