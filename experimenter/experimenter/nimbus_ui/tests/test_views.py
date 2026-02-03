@@ -3511,6 +3511,24 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(experiment.next_steps, "<p>Next steps paragraph</p>")
         self.assertEqual(experiment.project_impact, "HIGH")
 
+    def test_experiment_outcome_links(self):
+        application = NimbusExperiment.Application.DESKTOP
+        outcome_1 = Outcomes.get_by_slug_and_application("desktop_outcome_1", application)
+        outcome_2 = Outcomes.get_by_slug_and_application("desktop_outcome_2", application)
+        experiment = NimbusExperimentFactory.create(
+            application=application,
+            primary_outcomes=[outcome_1.slug],
+            secondary_outcomes=[outcome_2.slug],
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-new-results", kwargs={"slug": experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+
+        self.assertIn("primary_outcome_links", response.context["experiment_context"])
+        self.assertIn("secondary_outcome_links", response.context["experiment_context"])
+
 
 class TestBranchScreenshotCreateView(AuthTestCase):
     def test_post_creates_screenshot(self):
