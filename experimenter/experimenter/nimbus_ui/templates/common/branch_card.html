@@ -65,8 +65,7 @@
         <form method="post"
               id="branch-screenshot-form-{{ experiment_slug }}-{{ branch.slug }}"
               hx-encoding="multipart/form-data"
-              hx-post="{% url "nimbus-ui-branch-leading-screenshot-upload" slug=experiment_slug branch_slug=branch.slug %}"
-              class="accordion">
+              hx-post="{% url "nimbus-ui-branch-leading-screenshot-upload" slug=experiment_slug branch_slug=branch.slug %}">
           {% csrf_token %}
           {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
             <div class="position-relative border border-secondary-subtle rounded h-100 mb-3">
@@ -83,22 +82,13 @@
           {% endif %}
           {{ screenshot_form.image }}
           {% if screenshot_form.instance.image %}
-            <div class="accordion-item border border-1 rounded mt-4">
-              <button class="accordion-button shadow-none bg-transparent text-body"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#screenshot-form-{{ experiment_slug }}-{{ branch.slug }}"
-                      aria-expanded="true"
-                      aria-controls="screenshot-form-{{ experiment_slug }}-{{ branch.slug }}">
-                <div class="d-flex flex-column align-items-start">
-                  <h6 class="mb-1">Add image description</h6>
-                  <small class="text-muted">Add a short description so people who can't see the image know what it shows.</small>
-                </div>
-              </button>
-              <div id="screenshot-form-{{ experiment_slug }}-{{ branch.slug }}"
-                   class="accordion-collapse collapse show">
-                <div class="accordion-body pt-0">{{ screenshot_form.description }}</div>
+            <div class="border border-1 rounded mt-4 p-3">
+              <div class="d-flex flex-column align-items-start">
+                <h6 class="mb-1">Add image description</h6>
+                <small class="text-muted">Add a short description so people who can't see the image know what it shows.</small>
               </div>
+              <div id="screenshot-form-{{ experiment_slug }}-{{ branch.slug }}"
+                   class="mt-3">{{ screenshot_form.description }}</div>
             </div>
           {% endif %}
           <div class="d-flex justify-content-end gap-2 mt-4">
