@@ -290,24 +290,22 @@ features:
             enabled: true
             extra-data:
               term-of-service-data:
-                line-one-text: onboarding_redesign_tou_body_one
-                line-one-link-text: onboarding_redesign_tou_body_one_link_text
-                line-two-text: onboarding_redesign_tou_body_two
-                line-two-link-text: onboarding_redesign_tou_body_two_link_text
-                line-three-text: onboarding_redesign_tou_body_three
-                line-three-link-text: onboarding_redesign_tou_body_three_link_text
-                subheader-one-text: onboarding_redesign_tou_subheader_one
-                subheader-two-text: onboarding_redesign_tou_subheader_two
-                subheader-three-text: onboarding_redesign_tou_subheader_three
-            image-res: ic_firefox
+                line-one-text: nova_onboarding_tou_body_line_1
+                line-one-link-text: nova_onboarding_tou_body_line_1_link_text
+                line-two-text: nova_onboarding_tou_body_line_2
+                line-two-link-text: nova_onboarding_tou_body_line_2_link_text
+                line-three-text: nova_onboarding_tou_body_line_3
+                line-three-link-text: nova_onboarding_tou_body_line_3_link_text
+                subheader-one-text: nova_onboarding_tou_subtitle
+            image-res: nova_onboarding_tou
             ordering: 1
             prerequisites:
             - ALWAYS
-            primary-button-label: onboarding_redesign_tou_agree_and_continue_button_label
+            primary-button-label: nova_onboarding_continue_button
             secondary-button-label: ''
-            title: onboarding_redesign_tou_title
+            title: nova_onboarding_tou_title
           default-browser:
-            body: onboarding_redesign_set_default_browser_body
+            body: nova_onboarding_set_to_default_subtitle
             card-type: default-browser
             disqualifiers:
             - NEVER
@@ -317,11 +315,11 @@ features:
             ordering: 10
             prerequisites:
             - ALWAYS
-            primary-button-label: juno_onboarding_default_browser_positive_button
-            secondary-button-label: juno_onboarding_default_browser_negative_button
-            title: onboarding_redesign_set_default_browser_title
+            primary-button-label: nova_onboarding_set_to_default_button
+            secondary-button-label: nova_onboarding_negative_button
+            title: nova_onboarding_set_to_default_title_2
           add-search-widget:
-            body: juno_onboarding_add_search_widget_description
+            body: nova_onboarding_add_search_widget_subtitle
             card-type: add-search-widget
             disqualifiers:
             - NEVER
@@ -331,11 +329,11 @@ features:
             ordering: 15
             prerequisites:
             - ALWAYS
-            primary-button-label: juno_onboarding_add_search_widget_positive_button
-            secondary-button-label: juno_onboarding_add_search_widget_negative_button
-            title: juno_onboarding_add_search_widget_title
+            primary-button-label: nova_onboarding_add_search_widget_button
+            secondary-button-label: nova_onboarding_negative_button
+            title: nova_onboarding_add_search_widget_title
           sync-sign-in:
-            body: onboarding_redesign_sync_body
+            body: nova_onboarding_sync_subtitle
             card-type: sync-sign-in
             disqualifiers:
             - NEVER
@@ -345,11 +343,11 @@ features:
             ordering: 20
             prerequisites:
             - ALWAYS
-            primary-button-label: onboarding_redesign_sync_positive_button
-            secondary-button-label: onboarding_redesign_sync_negative_button
-            title: onboarding_redesign_sync_title
+            primary-button-label: nova_onboarding_sync_button
+            secondary-button-label: nova_onboarding_negative_button
+            title: nova_onboarding_sync_title
           notification-permission:
-            body: juno_onboarding_enable_notifications_description_nimbus_2
+            body: nova_onboarding_notifications_subtitle
             card-type: notification-permission
             disqualifiers:
             - NEVER
@@ -359,9 +357,9 @@ features:
             ordering: 30
             prerequisites:
             - ALWAYS
-            primary-button-label: juno_onboarding_enable_notifications_positive_button
-            secondary-button-label: juno_onboarding_enable_notifications_negative_button
-            title: juno_onboarding_enable_notifications_title_nimbus_2
+            primary-button-label: nova_onboarding_notifications_button
+            secondary-button-label: nova_onboarding_negative_button
+            title: nova_onboarding_notifications_title
           theme-selection:
             body: onboarding_customize_theme_description
             card-type: theme-selection
@@ -395,10 +393,10 @@ features:
             extra-data:
               customization-toolbar-data:
               - toolbar-type: toolbar-top
-                label: onboarding_customize_toolbar_top_option
+                label: nova_onboarding_toolbar_selection_top_label
                 image-res: ic_onboarding_top_toolbar
               - toolbar-type: toolbar-bottom
-                label: onboarding_customize_toolbar_bottom_option
+                label: nova_onboarding_toolbar_selection_bottom_label
                 image-res: ic_onboarding_bottom_toolbar
             image-res: ic_onboarding_customize_toolbar
             ordering: 37
@@ -406,7 +404,7 @@ features:
             - ALWAYS
             primary-button-label: onboarding_redesign_continue_button
             secondary-button-label: ''
-            title: onboarding_redesign_customize_toolbar_title
+            title: nova_onboarding_toolbar_selection_title
           marketing:
             body: onboarding_marketing_body
             card-type: marketing-data
@@ -415,16 +413,16 @@ features:
             enabled: true
             extra-data:
               marketing-data:
-                body-line-one-text: onboarding_marketing_redesign_learn_more
-                body-line-one-link-text: onboarding_marketing_redesign_learn_more
-                body-line-two-text: onboarding_marketing_redesign_opt_out_checkbox
-            image-res: ic_onboarding_marketing_redesign
+                body-line-one-text: nova_onboarding_marketing_body
+                body-line-one-link-text: nova_onboarding_marketing_body_link_text
+                body-line-two-text: onboarding_marketing_opt_out_checkbox
+            image-res: nova_onboarding_marketing
             ordering: 40
             prerequisites:
             - ALWAYS
-            primary-button-label: onboarding_marketing_redesign_positive_button
+            primary-button-label: nova_onboarding_continue_button
             secondary-button-label: ''
-            title: onboarding_marketing_redesign_title
+            title: nova_onboarding_marketing_title
         string-alias: OnboardingCardKey
       conditions:
         description: |

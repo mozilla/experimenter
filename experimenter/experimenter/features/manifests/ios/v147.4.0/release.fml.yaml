@@ -161,6 +161,11 @@ features:
           If true, enables the search bar feature on homepage for users.
         type: Boolean
         default: false
+      stories-scroll-direction:
+        description: |
+          Controls the layout direction for stories on the homepage.
+        type: ScrollDirection
+        default: baseline
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
@@ -1288,6 +1293,15 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
+  ScrollDirection:
+    description: The layout direction for stories on the homepage.
+    variants:
+      baseline:
+        description: Uses the current default stories layout.
+      horizontal:
+        description: Shows stories in a horizontal layout.
+      vertical:
+        description: Shows stories in a vertical layout.
   StartAtHome:
     description: The option for what screen to open the app to
     variants:

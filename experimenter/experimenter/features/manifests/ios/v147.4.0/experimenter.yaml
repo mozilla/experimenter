@@ -160,6 +160,14 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the search bar feature on homepage for users.
+    stories-scroll-direction:
+      type: string
+      description: |
+        Controls the layout direction for stories on the homepage.
+      enum:
+      - baseline
+      - horizontal
+      - vertical
 hosted-summarizer-feature:
   description: |
     This feature enables the hosted summarizer feature.
