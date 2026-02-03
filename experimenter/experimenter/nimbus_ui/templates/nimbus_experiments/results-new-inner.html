@@ -194,14 +194,16 @@
   {% comment %} Metrics {% endcomment %}
   {% for area, metric_data_metadata in metric_area_data.items %}
     {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data.overall %}
-      {% if metric_data %}
+      {% if metric_data or area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
         <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
-          <button class="accordion-button bg-transparent shadow-none text-body d-flex {% if not area == NimbusUIConstants.NOTABLE_METRIC_AREA %}collapsed{% endif %}"
+          <button class="{% if metric_data %}accordion-button{% else %}border-0 py-3 px-4{% endif %} bg-transparent shadow-none text-body d-flex {% if not area == NimbusUIConstants.NOTABLE_METRIC_AREA %}collapsed{% endif %}"
                   type="button"
                   data-bs-toggle="collapse"
                   data-bs-target="#{{ experiment.slug }}-results-{{ area|slugify }}"
                   aria-expanded="{% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}true{% else %}false{% endif %}"
-                  aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}">
+                  aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}"
+                  style="{% if not metric_data %}cursor: default;
+                         {% endif %}">
             <div class="pe-3">
               <div class="d-flex align-items-center gap-3 mb-2">
                 <h4 class="mb-0">{{ area }}</h4>
@@ -211,7 +213,13 @@
               </div>
               <div class="d-inline-flex gap-3 flex-wrap row-gap-1">
                 {% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
-                  <small class="text-muted">All statistically significant changes that have occurred in the experiment</small>
+                  <small class="text-muted">
+                    {% if metric_data %}
+                      All statistically significant changes that have occurred in the experiment
+                    {% else %}
+                      <i class="fa-solid fa-triangle-exclamation me-2"></i>There are no notable changes in this experiment
+                    {% endif %}
+                  </small>
                 {% else %}
                   {% for metric in metric_metadata %}
                     <div>
@@ -229,91 +237,93 @@
               </div>
             </div>
           </button>
-          <div id="{{ experiment.slug }}-results-{{ area|slugify }}"
-               class="accordion-collapse collapse {% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}show{% endif %}">
-            <div class="accordion-body d-flex">
-              <div class="col-2">
-                <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
-                {% for metric in metric_metadata %}
-                  <button class="btn border-3 p-3 {% if forloop.last %}mb-4{% endif %} align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle nav-link-hover "
-                          type="button"
-                          data-bs-toggle="modal"
-                          data-bs-target="#{{ experiment.slug }}-{{ metric.slug }}-{{ area|slugify }}"
-                          style="height: 100px">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
-                    <p class=" metric-text mb-0">{{ metric.friendly_name }}</p>
-                  </button>
-                  {% for curr_metric_slug, metric_data in metric_data.items %}
-                    {% if curr_metric_slug == metric.slug %}
-                      {% for metric_ui_properties, ui_properties in relative_metric_changes.items %}
-                        {% if metric_ui_properties == curr_metric_slug %}
-                          {% include "common/metric_popout.html" with experiment_slug=experiment.slug metric_info=metric metric_data=metric_data branches=branch_data reference_branch=selected_reference_branch ui_properties=ui_properties display_type=metric.display_type %}
+          {% if metric_data %}
+            <div id="{{ experiment.slug }}-results-{{ area|slugify }}"
+                 class="accordion-collapse collapse {% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}show{% endif %}">
+              <div class="accordion-body d-flex">
+                <div class="col-2">
+                  <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
+                  {% for metric in metric_metadata %}
+                    <button class="btn border-3 p-3 {% if forloop.last %}mb-4{% endif %} align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle nav-link-hover "
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#{{ experiment.slug }}-{{ metric.slug }}-{{ area|slugify }}"
+                            style="height: 100px">
+                      <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
+                      <p class=" metric-text mb-0">{{ metric.friendly_name }}</p>
+                    </button>
+                    {% for curr_metric_slug, metric_data in metric_data.items %}
+                      {% if curr_metric_slug == metric.slug %}
+                        {% for metric_ui_properties, ui_properties in relative_metric_changes.items %}
+                          {% if metric_ui_properties == curr_metric_slug %}
+                            {% include "common/metric_popout.html" with experiment_slug=experiment.slug metric_info=metric metric_data=metric_data branches=branch_data reference_branch=selected_reference_branch ui_properties=ui_properties display_type=metric.display_type %}
 
-                        {% endif %}
-                      {% endfor %}
-                    {% endif %}
+                          {% endif %}
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
                   {% endfor %}
-                {% endfor %}
-              </div>
-              <div class="col position-relative w-25 d-flex flex-column">
-                {% if experiment.is_enrolling %}
-                  <div class="row flex-row flex-nowrap overflow-auto mx-2 {% if branch_data|length > 4 %}mx-4{% endif %}">
-                    {% for branch in branch_data %}
-                      <div class="{% if branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-                        <p class="fs-5">{{ branch.name }}</p>
-                      </div>
-                    {% endfor %}
-                  </div>
-                  <div class="ms-4 bg-body-tertiary rounded-3 flex-grow-1 overflow-auto d-flex align-items-center mb-4">
-                    <span class="text-muted mx-auto">Metrics are on their way! Enrollment is in progress!</span>
-                  </div>
-                {% else %}
-                  <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 4 %}mx-4{% endif %}">
-                    {% if branch_data|length > 4 %}
-                      <div class="branch-fade branch-fade-left"></div>
-                      <div class="branch-fade branch-fade-right"></div>
-                    {% endif %}
-                    {% for branch in branch_data %}
-                      <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-                        <p class="fs-5">{{ branch.name }}</p>
-                        <div class="d-flex flex-column gap-3 w-100">
-                          {% for metric in metric_metadata %}
-                            {% for curr_metric_slug, metric_branch_data in metric_data.items %}
-                              {% if curr_metric_slug == metric.slug %}
-                                {% if metric.has_errors %}
-                                  {% if forloop.parentloop.parentloop.first %}
-                                    <div class="d-flex align-items-center" style="height: 100px;">
-                                      <div class="position-absolute alert alert-warning d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
-                                        <i class="fa-solid fa-triangle-exclamation fs-5"></i>
-                                        <p class="mb-0 fw-semibold">Metric unavailable</p>
-                                        <p class="mb-0">Other metrics are unaffected.</p>
-                                        <button class="btn btn-secondary bg-secondary-subtle border-0 text-body fw-semibold">
-                                          Contact Experimenter Support
-                                        </button>
-                                      </div>
-                                    </div>
-                                  {% else %}
-                                    <div class="invisible" style="height: 100px;" aria-hidden="true"></div>
-                                  {% endif %}
-                                {% else %}
-                                  {% for curr_branch_slug, branch_metric_data in metric_branch_data.items %}
-                                    {% if curr_branch_slug == branch.slug %}
-                                      {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=branch_metric_data.absolute.0.lower absolute_upper=branch_metric_data.absolute.0.upper significance=branch_metric_data.relative.0.significance percentage=branch_metric_data.relative.0.avg_rel_change display_type=metric.display_type %}
-
-                                    {% endif %}
-                                  {% endfor %}
-                                {% endif %}
-                              {% endif %}
-                            {% endfor %}
-                          {% endfor %}
+                </div>
+                <div class="col position-relative w-25 d-flex flex-column">
+                  {% if experiment.is_enrolling %}
+                    <div class="row flex-row flex-nowrap overflow-auto mx-2 {% if branch_data|length > 4 %}mx-4{% endif %}">
+                      {% for branch in branch_data %}
+                        <div class="{% if branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                          <p class="fs-5">{{ branch.name }}</p>
                         </div>
-                      </div>
-                    {% endfor %}
-                  </div>
-                {% endif %}
+                      {% endfor %}
+                    </div>
+                    <div class="ms-4 bg-body-tertiary rounded-3 flex-grow-1 overflow-auto d-flex align-items-center mb-4">
+                      <span class="text-muted mx-auto">Metrics are on their way! Enrollment is in progress!</span>
+                    </div>
+                  {% else %}
+                    <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 4 %}mx-4{% endif %}">
+                      {% if branch_data|length > 4 %}
+                        <div class="branch-fade branch-fade-left"></div>
+                        <div class="branch-fade branch-fade-right"></div>
+                      {% endif %}
+                      {% for branch in branch_data %}
+                        <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                          <p class="fs-5">{{ branch.name }}</p>
+                          <div class="d-flex flex-column gap-3 w-100">
+                            {% for metric in metric_metadata %}
+                              {% for curr_metric_slug, metric_branch_data in metric_data.items %}
+                                {% if curr_metric_slug == metric.slug %}
+                                  {% if metric.has_errors %}
+                                    {% if forloop.parentloop.parentloop.first %}
+                                      <div class="d-flex align-items-center" style="height: 100px;">
+                                        <div class="position-absolute alert alert-warning d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
+                                          <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                                          <p class="mb-0 fw-semibold">Metric unavailable</p>
+                                          <p class="mb-0">Other metrics are unaffected.</p>
+                                          <button class="btn btn-secondary bg-secondary-subtle border-0 text-body fw-semibold">
+                                            Contact Experimenter Support
+                                          </button>
+                                        </div>
+                                      </div>
+                                    {% else %}
+                                      <div class="invisible" style="height: 100px;" aria-hidden="true"></div>
+                                    {% endif %}
+                                  {% else %}
+                                    {% for curr_branch_slug, branch_metric_data in metric_branch_data.items %}
+                                      {% if curr_branch_slug == branch.slug %}
+                                        {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=branch_metric_data.absolute.0.lower absolute_upper=branch_metric_data.absolute.0.upper significance=branch_metric_data.relative.0.significance percentage=branch_metric_data.relative.0.avg_rel_change display_type=metric.display_type %}
+
+                                      {% endif %}
+                                    {% endfor %}
+                                  {% endif %}
+                                {% endif %}
+                              {% endfor %}
+                            {% endfor %}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
               </div>
             </div>
-          </div>
+          {% endif %}
         </div>
       {% endif %}
     {% endwith %}
