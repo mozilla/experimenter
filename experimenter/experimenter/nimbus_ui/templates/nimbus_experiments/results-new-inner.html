@@ -217,7 +217,13 @@
               {% else %}
                 {% for metric in metric_metadata %}
                   <div>
-                    <small class="text-muted me-2">{{ metric.friendly_name }}</small>
+                    <small class="text-muted">{{ metric.friendly_name }}</small>
+                    <small>
+                      <i class="fa-solid ms-1 me-2 {% if metric.overall_change == 'positive' %}fa-up-long text-success{% elif metric.overall_change == 'negative' %}fa-down-long text-danger{% elif metric.overall_change == 'mixed' %}fa-up-down text-warning{% elif metric.overall_change == 'neutral' %}fa-left-long text-muted{% else %}fa-triangle-exclamation text-warning{% endif %}"
+                         data-bs-toggle="tooltip"
+                         title="{% if metric.overall_change == 'positive' %}Positive changes{% elif metric.overall_change == 'negative' %}Negative changes{% elif metric.overall_change == 'mixed' %}Mixed changes{% elif metric.overall_change == 'neutral' %}No notable change{% endif %}">
+                      </i>
+                    </small>
                     {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
                   </div>
                 {% endfor %}
