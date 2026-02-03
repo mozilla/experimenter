@@ -1,4 +1,4 @@
-<div class="d-flex flex-column gap-4 mt-3" id="experiment-results-page">
+<div class="d-flex flex-column gap-3 mt-4" id="experiment-results-page">
   {% if experiment.has_results_errors %}
     <div class="alert p-4 py-3 mb-0 rounded-4 alert-warning" role="alert">
       <div class="row align-items-center">
@@ -138,6 +138,11 @@
         class="d-flex gap-4">
     <div class="col">
       <span class="fw-medium">Analysis Basis</span>
+      <i class="fa-regular fa-circle-question ps-1"
+         data-bs-toggle="tooltip"
+         data-bs-html="true"
+         data-bs-delay='{"hide":1000}'
+         title="Select the <strong>analysis basis</strong> whose results you want to see. See <a href='https://experimenter.info/jetstream/configuration/#defining-exposure-signals'>defining exposure signals</a> in the docs for more info."></i>
       <select name="analysis_basis"
               class="form-select bg-secondary-subtle"
               aria-label="Analysis Basis">
@@ -153,6 +158,10 @@
     </div>
     <div class="col">
       <span class="fw-medium">Reference branch</span>
+      <i class="fa-regular fa-circle-question ps-1"
+         data-bs-toggle="tooltip"
+         data-bs-html="true"
+         title="Select the <strong>reference branch</strong> to set it as the baseline for comparison results. By default this is the experiment's configured reference branch (commonly named 'control')."></i>
       <select name="reference_branch"
               class="form-select bg-secondary-subtle"
               aria-label="Reference Branch">
@@ -164,6 +173,11 @@
     </div>
     <div class="col">
       <span class="fw-medium">Segment</span>
+      <i class="fa-regular fa-circle-question ps-1"
+         data-bs-toggle="tooltip"
+         data-bs-html="true"
+         data-bs-delay='{"hide":1000}'
+         title="Select the <strong>analysis segment</strong> whose results you want to see. See <a href='https://experimenter.info/jetstream/configuration/#defining-segments'>defining segments</a> in the docs for more info."></i>
       <select name="segment"
               class="form-select bg-secondary-subtle"
               aria-label="Segment">
