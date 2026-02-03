@@ -1,4 +1,5 @@
 from collections import defaultdict
+from enum import StrEnum
 from itertools import chain, zip_longest
 
 from experimenter.experiments.constants import (
@@ -7,6 +8,13 @@ from experimenter.experiments.constants import (
 from experimenter.metrics import MetricAreas
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
+
+
+class MetricSignificance(StrEnum):
+    POSITIVE = "positive"
+    NEGATIVE = "negative"
+    MIXED = "mixed"
+    NEUTRAL = "neutral"
 
 
 class ExperimentResultsManager:
@@ -127,7 +135,7 @@ class ExperimentResultsManager:
         for i, data_point in enumerate(absolute_data_list):
             lower = data_point.get("lower")
             upper = data_point.get("upper")
-            significance = significance_map.get(str(i + 1), "neutral")
+            significance = significance_map.get(str(i + 1), MetricSignificance.NEUTRAL)
             abs_entries.append(
                 {"lower": lower, "upper": upper, "significance": significance}
             )
@@ -148,7 +156,7 @@ class ExperimentResultsManager:
             avg_rel_change = (
                 abs(data_point.get("point")) if data_point.get("point") else None
             )
-            significance = significance_map.get(str(i + 1), "neutral")
+            significance = significance_map.get(str(i + 1), MetricSignificance.NEUTRAL)
             rel_entries.append(
                 {
                     "lower": lower,
@@ -236,10 +244,18 @@ class ExperimentResultsManager:
             if self.metric_has_errors(kpi["slug"], analysis_basis, segment):
                 kpi["has_errors"] = True
 
+            kpi["overall_change"] = self.get_overall_change(
+                kpi["group"],
+                kpi["slug"],
+                analysis_basis,
+                segment,
+                reference_branch,
+            )
+
         return kpi_metrics
 
     def get_remaining_metrics_metadata(
-        self, exclude_slugs=None, analysis_basis=None, segment=None
+        self, exclude_slugs=None, analysis_basis=None, segment=None, reference_branch=None
     ):
         analysis_data = (
             self.experiment.results_data.get("v3", {})
@@ -265,6 +281,13 @@ class ExperimentResultsManager:
                         "friendly_name": metric_friendly_name,
                         "has_errors": self.metric_has_errors(
                             slug, analysis_basis, segment
+                        ),
+                        "overall_change": self.get_overall_change(
+                            "other_metrics",
+                            slug,
+                            analysis_basis,
+                            segment,
+                            reference_branch,
                         ),
                     }
                 )
@@ -317,6 +340,13 @@ class ExperimentResultsManager:
                     "has_errors": self.metric_has_errors(
                         metric.slug, analysis_basis, segment
                     ),
+                    "overall_change": self.get_overall_change(
+                        "other_metrics",
+                        metric.slug,
+                        analysis_basis,
+                        segment,
+                        reference_branch,
+                    ),
                 }
                 if formatted_metric not in outcome_metrics:
                     outcome_metrics.append(formatted_metric)
@@ -326,8 +356,12 @@ class ExperimentResultsManager:
             metric_areas[outcome.friendly_name if outcome else slug] = outcome_metrics
 
         remaining_metrics = self.get_remaining_metrics_metadata(
-            exclude_slugs=all_outcome_metric_slugs
+            exclude_slugs=all_outcome_metric_slugs,
+            analysis_basis=analysis_basis,
+            segment=segment,
+            reference_branch=reference_branch,
         )
+
         grouped_metrics = []
         for metric in remaining_metrics:
             area = MetricAreas.get(self.experiment.application, metric["slug"])
@@ -344,15 +378,20 @@ class ExperimentResultsManager:
 
         def is_metric_notable(slug, group):
             for branch_data in window_results.values():
-                metric_data = (
-                    branch_data.get("branch_data", {}).get(group, {}).get(slug, {})
+                significance_data = (
+                    branch_data.get("branch_data", {})
+                    .get(group, {})
+                    .get(slug, {})
+                    .get("significance", {})
+                    .get(reference_branch, {})
+                    .get(window, {})
                 )
-                for branch_significance in metric_data.get("significance", {}).values():
-                    if (
-                        "positive" in branch_significance.get(window, {}).values()
-                        or "negative" in branch_significance.get(window, {}).values()
-                    ):
-                        return True
+
+                if (
+                    MetricSignificance.POSITIVE in significance_data.values()
+                    or MetricSignificance.NEGATIVE in significance_data.values()
+                ):
+                    return True
             return False
 
         for metrics in metric_areas.values():
@@ -366,6 +405,7 @@ class ExperimentResultsManager:
         metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA].sort(
             key=lambda m: m["friendly_name"]
         )
+
         return metric_areas
 
     def get_metric_area_data(self, metrics, analysis_basis, segment, reference_branch):
@@ -427,3 +467,37 @@ class ExperimentResultsManager:
             if self.experiment.results_data
             else {}
         )
+
+    def get_overall_change(
+        self, group, metric_slug, analysis_basis, segment, reference_branch
+    ):
+        branch_results = self.get_window_results(analysis_basis, segment, "overall")
+        overall_change = MetricSignificance.NEUTRAL
+
+        for branch_slug, branch_data in branch_results.items():
+            if branch_slug == reference_branch:
+                continue
+
+            metric_significance = (
+                branch_data.get("branch_data", {})
+                .get(group, {})
+                .get(metric_slug, {})
+                .get("significance", {})
+                .get(reference_branch, {})
+                .get("overall", {})
+                .get("1", MetricSignificance.NEUTRAL)
+            )
+
+            significances = {metric_significance, overall_change}
+
+            if significances == {
+                MetricSignificance.POSITIVE,
+                MetricSignificance.NEGATIVE,
+            }:
+                overall_change = MetricSignificance.MIXED
+            elif significances.intersection({MetricSignificance.POSITIVE}):
+                overall_change = MetricSignificance.POSITIVE
+            elif significances.intersection({MetricSignificance.NEGATIVE}):
+                overall_change = MetricSignificance.NEGATIVE
+
+        return overall_change
