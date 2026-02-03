@@ -242,6 +242,15 @@ homescreen:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
+homescreen-edge-to-edge-background:
+  description: |
+    Feature that sets an edge to edge background on the Home Screen if the user hasn't selected a custom wallpaper
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: Enables the feature
 isolated-content-processes:
   description: Feature that controls content process isolation.
   hasExposure: true
@@ -374,6 +383,14 @@ minimal-addressbar:
       type: boolean
       description: |
         Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
+mozilla-ads-client:
+  description: Feature to enable the Mozilla Ads Client for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Mozilla Ads Client is enabled.
 native-share-sheet:
   description: Feature to enable the Native Share Sheet for users on Firefox on Android.
   hasExposure: true

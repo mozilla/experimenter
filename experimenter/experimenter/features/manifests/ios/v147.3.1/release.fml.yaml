@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- developer
+- release
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -10,7 +10,7 @@ features:
       status:
         description: If true, we will allow user to edit the address
         type: Boolean
-        default: true
+        default: false
   address-bar-menu-feature:
     description: |
       This property determines if we show the new address bar menu entry or the toolbar menu in settings
@@ -81,7 +81,7 @@ features:
         description: |
           If true, the download live activities feature is enabled
         type: Boolean
-        default: true
+        default: false
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
@@ -101,7 +101,7 @@ features:
         description: |
           Enables the feature.
         type: Boolean
-        default: true
+        default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -117,7 +117,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: true
+        default: false
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -125,7 +125,7 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: true
+          status: false
   hnt-sponsored-shortcuts-feature:
     description: This feature manages the visibility of sponsored shortcuts on the homepage
     variables:
@@ -161,11 +161,6 @@ features:
           If true, enables the search bar feature on homepage for users.
         type: Boolean
         default: false
-      stories-scroll-direction:
-        description: |
-          Controls the layout direction for stories on the homepage.
-        type: ScrollDirection
-        default: baseline
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
@@ -174,17 +169,17 @@ features:
         description: |
           Enables the hosted summarizer feature.
         type: Boolean
-        default: true
+        default: false
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
   menu-refactor-feature:
     description: |
       Controls the menu refactor feature
@@ -256,35 +251,7 @@ features:
         description: |
           A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
         type: Map<MessageKey, MessageData>
-        default:
-          homepage-microsurvey-message:
-            surface: microsurvey
-            style: MICROSURVEY
-            trigger-if-all:
-            - SECOND_HOMEPAGE_VIEW
-            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
-            text: How satisfied are you with your Firefox homepage?
-            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
-            microsurveyConfig:
-              utm-content: homepage
-              icon: homeLarge
-              options:
-              - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
-              - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
-          survey-surface-message:
-            surface: survey
-            style: SURVEY
-            trigger-if-all:
-            - NEVER
-            text: ResearchSurface/Body.Text.v112
-            button-label: ResearchSurface/PrimaryButton.Label.v112
-            action: OPEN_URL
-            action-params:
-              url: https://www.macrumors.com
+        default: {}
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -367,7 +334,7 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: true
+        default: false
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
@@ -376,12 +343,12 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: true
+        default: false
       no_internet_connection_error:
         description: |
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
-        default: true
+        default: false
       other-error-pages:
         description: |
           This feature is for managing the roll out of other native error pages
@@ -818,7 +785,7 @@ features:
       enabled:
         description: Setting 'enabled' to true will allow the privacy notice homepage card to be presented under certain conditions
         type: Boolean
-        default: true
+        default: false
   recent-searches-feature:
     description: |
       Enables recent searches.
@@ -863,19 +830,12 @@ features:
         description: |
           Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.
         type: Boolean
-        default: true
+        default: false
       isTreatmentA:
         description: |
           If true, shares the treatment A text. If false, shares the treatment B text.
         type: Boolean
         default: true
-  snapkit-removal-refactor:
-    description: This property defines if SnapKit removal refactor is enbaled
-    variables:
-      enabled:
-        description: If true the SnapKit removal refactor version will be used
-        type: Boolean
-        default: false
   splash-screen:
     description: |
       A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
@@ -889,19 +849,19 @@ features:
         description: |
           The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
         type: Int
-        default: 6000
+        default: 0
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
         type: Boolean
-        default: true
+        default: false
       icon-type:
         description: |
           The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
         type: Option<IconType>
-        default: screenshot
+        default: letter
       keep-for-days:
         description: |
           Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
@@ -941,7 +901,7 @@ features:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
         type: Boolean
-        default: true
+        default: false
   toolbar-refactor-feature:
     description: |
       This feature is for managing the roll out of the Toolbar refactor feature
@@ -1065,6 +1025,14 @@ features:
         description: The number of maximum suggestions.
         type: Int
         default: 5
+  updated-password-manager-feature:
+    description: |
+      This property determines if we use the updated password manager or the legacy one.
+    variables:
+      status:
+        description: If true, firefox will use the  the updated password manager.
+        type: Boolean
+        default: false
   voice-search-feature:
     description: |
       The feature flag to manage the roll out of the voice search feature.
@@ -1313,15 +1281,6 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
-  ScrollDirection:
-    description: The layout direction for stories on the homepage.
-    variants:
-      baseline:
-        description: Uses the current default stories layout.
-      horizontal:
-        description: Shows stories in a horizontal layout.
-      vertical:
-        description: Shows stories in a vertical layout.
   StartAtHome:
     description: The option for what screen to open the app to
     variants:
