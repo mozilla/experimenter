@@ -244,6 +244,13 @@ features:
           Whether or not to hide frecent top sites on the homepage.
         type: Boolean
         default: false
+  homepage-opening-screen-default:
+    description: Configure the default option for the homepage opening screen.
+    variables:
+      default-option:
+        description: The default option for the homepage opening screen.
+        type: OpeningScreenOption
+        default: homepage-four-hours
   homepage-search-bar:
     description: Enables the homepage search bar.
     variables:
@@ -1170,6 +1177,15 @@ enums:
         description: The themes onboarding panel where users pick themes
       toolbar-placement:
         description: The onboarding panel where users choose their toolbar placement (bottom or top)
+  OpeningScreenOption:
+    description: The types of different experiment branches for the opening screen.
+    variants:
+      homepage:
+        description: Uses the homepage as the opening screen.
+      homepage-four-hours:
+        description: Uses the homepage after four hours of inactivity as the opening screen.
+      last-tab:
+        description: Uses the last tab as the opening screen.
   QueryParameterStrippingSection:
     description: The identifiers for the options for the Query Parameter Stripping feature.
     variants:
