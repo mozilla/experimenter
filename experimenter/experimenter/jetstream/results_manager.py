@@ -283,7 +283,7 @@ class ExperimentResultsManager:
                             slug, analysis_basis, segment
                         ),
                         "overall_change": self.get_overall_change(
-                            "other_metrics",
+                            group,
                             slug,
                             analysis_basis,
                             segment,

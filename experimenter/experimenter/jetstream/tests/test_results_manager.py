@@ -532,7 +532,76 @@ class TestExperimentResultsManager(TestCase):
 
         self.assertListEqual(kpi_metrics, expected_kpi_metrics)
 
-    def test_get_defaults_metrics_with_exclusions(self):
+    def test_get_default_metrics_overall_change(self):
+        self.experiment.results_data = {
+            "v3": {
+                "metadata": {
+                    "metrics": {
+                        "metricA": {
+                            "search_count": "Search Count",
+                        }
+                    },
+                },
+                "other_metrics": {
+                    "search_metrics": {
+                        "search_count": "Search Count",
+                    }
+                },
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "search_metrics": {
+                                        "search_count": {
+                                            "significance": {
+                                                "branch-a": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "branch-b": {
+                                                    "overall": {"1": "positive"},
+                                                    "weekly": {},
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "search_metrics": {
+                                        "search_count": {
+                                            "significance": {
+                                                "branch-a": {
+                                                    "overall": {"1": "positive"},
+                                                    "weekly": {},
+                                                },
+                                                "branch-b": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                },
+            }
+        }
+        self.experiment.save()
+        remaining_metrics = self.results_manager.get_remaining_metrics_metadata(
+            analysis_basis="enrollments", segment="all", reference_branch="branch-a"
+        )
+
+        self.assertEqual(
+            remaining_metrics[0].get("overall_change"),
+            "positive",
+        )
+
+    def test_get_default_metrics_with_exclusions(self):
         self.experiment.results_data = {
             "v3": {
                 "metadata": {
