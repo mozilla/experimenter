@@ -225,6 +225,18 @@ homepage-hide-frecent-top-sites:
       type: boolean
       description: |
         Whether or not to hide frecent top sites on the homepage.
+homepage-opening-screen-default:
+  description: Configure the default option for the homepage opening screen.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    default-option:
+      type: string
+      description: The default option for the homepage opening screen.
+      enum:
+      - homepage
+      - homepage-four-hours
+      - last-tab
 homepage-search-bar:
   description: Enables the homepage search bar.
   hasExposure: true
