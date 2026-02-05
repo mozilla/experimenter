@@ -234,9 +234,9 @@
                     <div>
                       <small class="text-muted">{{ metric.friendly_name }}</small>
                       <small>
-                        <i class="fa-solid ms-1 me-2 {% if metric.overall_change == 'positive' %}fa-up-long text-success{% elif metric.overall_change == 'negative' %}fa-down-long text-danger{% elif metric.overall_change == 'mixed' %}fa-up-down text-warning{% elif metric.overall_change == 'neutral' %}fa-left-long text-muted{% else %}fa-triangle-exclamation text-warning{% endif %}"
+                        <i class="fa-solid ms-1 me-2 {% if metric.has_errors or not metric.has_data %}fa-triangle-exclamation text-warning{% elif metric.overall_change == 'positive' %}fa-up-long text-success{% elif metric.overall_change == 'negative' %}fa-down-long text-danger{% elif metric.overall_change == 'mixed' %}fa-up-down text-warning{% elif metric.overall_change == 'neutral' %}fa-left-long text-muted{% endif %}"
                            data-bs-toggle="tooltip"
-                           title="{% if metric.overall_change == 'positive' %}Positive changes{% elif metric.overall_change == 'negative' %}Negative changes{% elif metric.overall_change == 'mixed' %}Mixed changes{% elif metric.overall_change == 'neutral' %}No notable change{% endif %}">
+                           title="{% if metric.has_errors or not metric.has_data %}No data available{% elif metric.overall_change == 'positive' %}Positive changes{% elif metric.overall_change == 'negative' %}Negative changes{% elif metric.overall_change == 'mixed' %}Mixed changes{% elif metric.overall_change == 'neutral' %}No notable change{% endif %}">
                         </i>
                       </small>
                       {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
@@ -253,12 +253,15 @@
                 <div class="col-2">
                   <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
                   {% for metric in metric_metadata %}
-                    <button class="btn border-3 p-3 {% if forloop.last %}mb-4{% endif %} align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle nav-link-hover "
+                    <button class="btn border-3 p-3 {% if forloop.last %}mb-4{% endif %} align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle                   {% if metric.has_data %}nav-link-hover{% else %}bg-body-tertiary{% endif %}  text-break"
                             type="button"
                             data-bs-toggle="modal"
                             data-bs-target="#{{ experiment.slug }}-{{ metric.slug }}-{{ area|slugify }}"
-                            style="height: 100px">
-                      <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
+                            style="height: 100px;
+                                   {% if not metric.has_data %}cursor: default;{% endif %}">
+                      {% if metric.has_data %}
+                        <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
+                      {% endif %}
                       <p class=" metric-text mb-0">{{ metric.friendly_name }}</p>
                     </button>
                     {% for curr_metric_slug, metric_data in metric_data.items %}
@@ -298,13 +301,13 @@
                             {% for metric in metric_metadata %}
                               {% for curr_metric_slug, metric_branch_data in metric_data.items %}
                                 {% if curr_metric_slug == metric.slug %}
-                                  {% if metric.has_errors %}
+                                  {% if metric.has_errors or not metric.has_data %}
                                     {% if forloop.parentloop.parentloop.first %}
                                       <div class="d-flex align-items-center" style="height: 100px;">
                                         <div class="position-absolute alert alert-warning d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
                                           <i class="fa-solid fa-triangle-exclamation fs-5"></i>
                                           <p class="mb-0 fw-semibold">Metric unavailable</p>
-                                          <p class="mb-0">Other metrics are unaffected.</p>
+                                          <p class="mb-0">Other metrics may not be affected.</p>
                                           <a class="btn btn-secondary bg-secondary-subtle border-0 text-body fw-semibold"
                                              target="_blank"
                                              href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
