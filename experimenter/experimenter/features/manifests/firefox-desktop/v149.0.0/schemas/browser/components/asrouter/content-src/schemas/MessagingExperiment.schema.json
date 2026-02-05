@@ -585,7 +585,7 @@
                               "properties": {
                                 "where": {
                                   "type": "string",
-                                  "description": "Where to open—e.g. 'tab', 'window', etc."
+                                  "description": "Where to open - e.g. 'tab', 'window', etc."
                                 }
                               },
                               "additionalProperties": false
@@ -779,7 +779,7 @@
                   },
                   "dismiss": {
                     "type": "boolean",
-                    "description": "If true, dismiss the infobar after handling this link’s action. Defaults to false."
+                    "description": "If true, dismiss the infobar after handling this link's action. Defaults to false."
                   }
                 },
                 "required": [
@@ -1326,6 +1326,10 @@
             "disableEscClose": {
               "type": "boolean",
               "description": "Don't allow the message to be dismissed using the ESC key - for limited use in Spotlight modals only when the message content clearly informs the user that a decision is required to proceed"
+            },
+            "write_in_microsurvey": {
+              "type": "boolean",
+              "description": "Set to true to apply the write-in microsurvey data policy. This is required for write-in microsurveys. Messages using the textarea tile should always set this to true. It prevents client_id from being recorded with any telemetry events for the message, recording a unique impression_id instead. It also sends the events on the more restrictive microsurvey ping instead of the messaging-system ping."
             },
             "disableHistoryUpdates": {
               "type": "boolean",
