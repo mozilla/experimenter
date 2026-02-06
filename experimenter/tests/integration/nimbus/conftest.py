@@ -96,9 +96,21 @@ def firefox_options(firefox_options):
 
 @pytest.fixture
 def selenium(selenium, experiment_slug, kinto_client):
-    script = """Services.fog.testResetFOG();"""
     with selenium.context(selenium.CONTEXT_CHROME):
-        selenium.execute_script(script)
+        selenium.execute_script("""Services.fog.testResetFOG();""")
+
+        # Firefox 147+ enforces stricter Remote Settings signature validation
+        # that is incompatible with the local Kinto+Autograph test setup.
+        # Disable signature verification on the nimbus RS client for testing.
+        selenium.execute_script(
+            """
+            const { RemoteSettings } = ChromeUtils.importESModule(
+                "resource://services-settings/remote-settings.sys.mjs"
+            );
+            RemoteSettings("nimbus-desktop-experiments").verifySignature = false;
+            RemoteSettings("nimbus-secure-experiments").verifySignature = false;
+            """
+        )
 
     yield selenium
 
