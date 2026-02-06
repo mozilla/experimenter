@@ -197,9 +197,9 @@ def get_other_metrics_names_and_map(
 
 def get_experiment_data(experiment: NimbusExperiment):
     recipe_slug = experiment.slug.replace("-", "_")
-    # we don't use DAILY results in Experimenter, so only get WEEKLY/OVERALL
-    windows = [AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
+    windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
     raw_data = {
+        AnalysisWindow.DAILY: {},
         AnalysisWindow.WEEKLY: {},
         AnalysisWindow.OVERALL: {},
     }
@@ -278,6 +278,12 @@ def get_experiment_data(experiment: NimbusExperiment):
                     experiment_data["other_metrics"] = other_metrics
             elif data and window == AnalysisWindow.WEEKLY:
                 # Create the output object (weekly data)
+                ResultsObjectModel = create_results_object_model(data)
+
+                data = ResultsObjectModel(result_metrics, data, experiment, window)
+            elif data and window == AnalysisWindow.DAILY:
+                # Create the output object (daily data)
+
                 ResultsObjectModel = create_results_object_model(data)
 
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
