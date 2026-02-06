@@ -119,14 +119,14 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
         return self.root[0].segment or Segment.ALL
 
     def append_population_percentages(self):
-        total_population = 0
+        total_population = 0  # total enrolled population
         branches = {}
 
         for jetstream_data_point in self:
             if jetstream_data_point.metric == Metric.USER_COUNT:
-                if jetstream_data_point.point is not None:
-                    total_population += jetstream_data_point.point
                 branches[jetstream_data_point.branch] = jetstream_data_point.point
+        
+        total_population = sum(branches.values())
 
         for branch_name, branch_user_count in sorted(branches.items()):
             point = 0
