@@ -454,7 +454,7 @@ features:
           terms-of-service-redesign:
             card-type: terms-of-service
             enabled: false
-            title: nova_onboarding_tou_title
+            title: onboarding_welcome_to_firefox
             ordering: 0
             image-res: nova_onboarding_tou
             primary-button-label: nova_onboarding_continue_button
