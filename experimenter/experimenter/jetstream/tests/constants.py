@@ -205,6 +205,27 @@ class JetstreamTestData:
         DATA_POINT_A_COVARIATE,
         DATA_POINT_F_COVARIATE,
     ):
+        DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_CONTROL = cls.get_difference_metric_data(
+            DATA_POINT_D,
+            SignificanceData(
+                daily={"1": Significance.NEUTRAL.value}, weekly={}, overall={}
+            ),
+            comparison_to_branch="control",
+        )
+        DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_CONTROL = cls.get_difference_metric_data(
+            DATA_POINT_F_COVARIATE,
+            SignificanceData(
+                daily={"1": Significance.POSITIVE.value}, weekly={}, overall={}
+            ),
+            comparison_to_branch="control",
+        )
+        DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL = cls.get_difference_metric_data(
+            DATA_POINT_D,
+            SignificanceData(
+                daily={"1": Significance.NEGATIVE.value}, weekly={}, overall={}
+            ),
+            comparison_to_branch="control",
+        )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_B,
             SignificanceData(weekly={"1": Significance.NEUTRAL.value}, overall={}),
@@ -235,6 +256,27 @@ class JetstreamTestData:
             SignificanceData(weekly={}, overall={"1": Significance.NEGATIVE.value}),
             is_retention=True,
             comparison_to_branch="control",
+        )
+        DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
+            DATA_POINT_E,
+            SignificanceData(
+                daily={"1": Significance.NEUTRAL.value}, weekly={}, overall={}
+            ),
+            comparison_to_branch="variant",
+        )
+        DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_VARIANT = cls.get_difference_metric_data(
+            DATA_POINT_F,
+            SignificanceData(
+                daily={"1": Significance.POSITIVE.value}, weekly={}, overall={}
+            ),
+            comparison_to_branch="variant",
+        )
+        DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_VARIANT = cls.get_difference_metric_data(
+            DATA_POINT_D,
+            SignificanceData(
+                daily={"1": Significance.NEGATIVE.value}, weekly={}, overall={}
+            ),
+            comparison_to_branch="variant",
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_B,
@@ -269,6 +311,12 @@ class JetstreamTestData:
         )
 
         return (
+            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_CONTROL,
+            DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_CONTROL,
+            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL,
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL,
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT,
             DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL,
@@ -296,6 +344,7 @@ class JetstreamTestData:
     def add_outcome_data(
         cls,
         data,
+        formatted_daily_data,
         overall_data,
         weekly_data,
         primary_outcome,
@@ -310,6 +359,8 @@ class JetstreamTestData:
                     overall_data[branch]["branch_data"][Group.OTHER.value] = {}
                 if Group.OTHER not in weekly_data[branch]["branch_data"]:
                     weekly_data[branch]["branch_data"][Group.OTHER.value] = {}
+                if Group.OTHER not in formatted_daily_data[branch]["branch_data"]:
+                    formatted_daily_data[branch]["branch_data"][Group.OTHER.value] = {}
 
                 data_point_overall = range_data.model_copy()
                 data_point_overall.count = 48.0
@@ -322,6 +373,11 @@ class JetstreamTestData:
                 weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_weekly)
                 )
+
+                data_point_daily = range_data.model_copy()
+                formatted_daily_data[branch]["branch_data"][Group.OTHER.value][
+                    primary_metric
+                ] = cls.get_metric_data(data_point_daily)
 
                 data.append(
                     JetstreamDataPoint(
@@ -339,6 +395,7 @@ class JetstreamTestData:
     def add_outcome_data_mean(
         cls,
         data,
+        formatted_daily_data,
         overall_data,
         weekly_data,
         primary_outcome,
@@ -353,6 +410,8 @@ class JetstreamTestData:
                     overall_data[branch]["branch_data"][Group.OTHER.value] = {}
                 if Group.OTHER not in weekly_data[branch]["branch_data"]:
                     weekly_data[branch]["branch_data"][Group.OTHER.value] = {}
+                if Group.OTHER not in formatted_daily_data[branch]["branch_data"]:
+                    formatted_daily_data[branch]["branch_data"][Group.OTHER.value] = {}
 
                 data_point_overall = range_data.model_copy()
                 data_point_overall.count = 0.0
@@ -365,6 +424,11 @@ class JetstreamTestData:
                 weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_weekly)
                 )
+
+                data_point_daily = range_data.model_copy()
+                formatted_daily_data[branch]["branch_data"][Group.OTHER.value][
+                    primary_metric
+                ] = cls.get_metric_data(data_point_daily)
 
                 data.append(
                     JetstreamDataPoint(
@@ -382,6 +446,7 @@ class JetstreamTestData:
     def add_all_outcome_data(
         cls,
         data,
+        formatted_daily_data,
         overall_data,
         weekly_data,
         primary_outcomes,
@@ -390,13 +455,16 @@ class JetstreamTestData:
         for primary_outcome in primary_outcomes:
             cls.add_outcome_data(
                 data,
+                formatted_daily_data,
                 overall_data,
                 weekly_data,
                 primary_outcome,
                 analysis_basis,
             )
+
             cls.add_outcome_data_mean(
                 data,
+                formatted_daily_data,
                 overall_data,
                 weekly_data,
                 primary_outcome,
@@ -662,6 +730,12 @@ class JetstreamTestData:
         ) = cls.get_data_points()
 
         (
+            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_CONTROL,
+            DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_CONTROL,
+            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL,
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL,
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT,
             DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL,
@@ -694,6 +768,67 @@ class JetstreamTestData:
             relative_uplift=PairwiseBranchComparisonData(),
             significance=PairwiseSignificanceData(),
         )
+
+        FORMATTED_DAILY_DATA = {
+            "control": {
+                "is_control": True,
+                "branch_data": {
+                    Group.SEARCH.value: {
+                        "search_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                    },
+                    Group.USAGE.value: {},
+                    Group.OTHER.value: {
+                        "identity": ABSOLUTE_METRIC_DATA_F.model_dump(exclude_none=True),
+                        "some_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "some_ratio": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "some_dau_impact": EMPTY_METRIC_DATA.model_dump(
+                            exclude_none=True
+                        ),
+                        "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT.model_dump(
+                                exclude_none=True
+                            )
+                        ),
+                        "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                    },
+                },
+            },
+            "variant": {
+                "is_control": False,
+                "branch_data": {
+                    Group.SEARCH.value: {
+                        "search_count": (
+                            DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_CONTROL.model_dump(
+                                exclude_none=True
+                            )
+                        ),
+                    },
+                    Group.USAGE.value: {},
+                    Group.OTHER.value: {
+                        "identity": ABSOLUTE_METRIC_DATA_F.model_dump(exclude_none=True),
+                        "some_count": ABSOLUTE_METRIC_DATA_F_COVARIATE.model_dump(
+                            exclude_none=True
+                        ),
+                        "some_ratio": ABSOLUTE_METRIC_DATA_F.model_dump(
+                            exclude_none=True
+                        ),
+                        "some_dau_impact": ABSOLUTE_METRIC_DATA_F.model_dump(
+                            exclude_none=True
+                        ),
+                        "another_count": ABSOLUTE_METRIC_DATA_F.model_dump(
+                            exclude_none=True
+                        ),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL.model_dump(
+                                exclude_none=True
+                            )
+                        ),
+                        "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                    },
+                },
+            },
+        }
 
         WEEKLY_DATA = {
             "control": {
@@ -905,6 +1040,7 @@ class JetstreamTestData:
 
         cls.add_all_outcome_data(
             DAILY_DATA,
+            FORMATTED_DAILY_DATA,
             OVERALL_DATA,
             WEEKLY_DATA,
             primary_outcomes,
@@ -912,6 +1048,7 @@ class JetstreamTestData:
         )
         cls.add_all_outcome_data(
             DAILY_EXPOSURES_DATA,
+            FORMATTED_DAILY_DATA,
             OVERALL_DATA,
             WEEKLY_DATA,
             primary_outcomes,
@@ -920,6 +1057,7 @@ class JetstreamTestData:
 
         return (
             DAILY_DATA,
+            FORMATTED_DAILY_DATA,
             WEEKLY_DATA,
             OVERALL_DATA,
             ERRORS,
@@ -1031,6 +1169,12 @@ class JetstreamTestData:
         ) = cls.get_data_points()
 
         (
+            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_CONTROL,
+            DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_CONTROL,
+            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL,
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL,
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT,
             DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL,
@@ -1063,6 +1207,108 @@ class JetstreamTestData:
             relative_uplift=PairwiseBranchComparisonData(),
             significance=PairwiseSignificanceData(),
         )
+
+        FORMATTED_DAILY_BASE = {
+            "control": {
+                "is_control": True,
+                "branch_data": {
+                    Group.SEARCH.value: {
+                        "search_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                    },
+                    Group.USAGE.value: {},
+                    Group.OTHER.value: {
+                        "identity": ABSOLUTE_METRIC_DATA_F.model_dump(exclude_none=True),
+                        "some_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT.model_dump(
+                                exclude_none=True
+                            )
+                        ),
+                    },
+                },
+            },
+            "variant": {
+                "is_control": False,
+                "branch_data": {
+                    Group.SEARCH.value: {
+                        "search_count": (
+                            DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_CONTROL.model_dump(
+                                exclude_none=True
+                            )
+                        ),
+                    },
+                    Group.USAGE.value: {},
+                    Group.OTHER.value: {
+                        "identity": ABSOLUTE_METRIC_DATA_F.model_dump(exclude_none=True),
+                        "some_count": ABSOLUTE_METRIC_DATA_F.model_dump(
+                            exclude_none=True
+                        ),
+                        "another_count": ABSOLUTE_METRIC_DATA_F.model_dump(
+                            exclude_none=True
+                        ),
+                        "retained": (
+                            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL.model_dump(
+                                exclude_none=True
+                            )
+                        ),
+                    },
+                },
+            },
+        }
+
+        FORMATTED_DAILY_EXPOSURES_DATA = deepcopy(FORMATTED_DAILY_BASE)
+        del FORMATTED_DAILY_EXPOSURES_DATA["control"]["branch_data"][Group.OTHER][
+            "retained"
+        ]
+        del FORMATTED_DAILY_EXPOSURES_DATA["variant"]["branch_data"][Group.OTHER][
+            "retained"
+        ]
+        del FORMATTED_DAILY_EXPOSURES_DATA["control"]["branch_data"][Group.SEARCH][
+            "search_count"
+        ]
+        del FORMATTED_DAILY_EXPOSURES_DATA["variant"]["branch_data"][Group.SEARCH][
+            "search_count"
+        ]
+
+        FORMATTED_DAILY_SEGMENT_DATA = deepcopy(FORMATTED_DAILY_EXPOSURES_DATA)
+        del FORMATTED_DAILY_SEGMENT_DATA["control"]["branch_data"][Group.OTHER][
+            "another_count"
+        ]
+        del FORMATTED_DAILY_SEGMENT_DATA["variant"]["branch_data"][Group.OTHER][
+            "another_count"
+        ]
+        del FORMATTED_DAILY_SEGMENT_DATA["control"]["branch_data"][Group.OTHER][
+            "some_count"
+        ]
+        del FORMATTED_DAILY_SEGMENT_DATA["variant"]["branch_data"][Group.OTHER][
+            "some_count"
+        ]
+
+        FORMATTED_DAILY_ENROLLMENTS_DATA = deepcopy(FORMATTED_DAILY_BASE)
+        del FORMATTED_DAILY_ENROLLMENTS_DATA["control"]["branch_data"][Group.OTHER][
+            "another_count"
+        ]
+        del FORMATTED_DAILY_ENROLLMENTS_DATA["variant"]["branch_data"][Group.OTHER][
+            "another_count"
+        ]
+        del FORMATTED_DAILY_ENROLLMENTS_DATA["control"]["branch_data"][Group.OTHER][
+            "some_count"
+        ]
+        del FORMATTED_DAILY_ENROLLMENTS_DATA["variant"]["branch_data"][Group.OTHER][
+            "some_count"
+        ]
+
+        FORMATTED_DAILY_DATA = {
+            "enrollments": {
+                "all": FORMATTED_DAILY_ENROLLMENTS_DATA,
+                "some_segment": FORMATTED_DAILY_SEGMENT_DATA,
+            },
+            "exposures": {
+                "all": FORMATTED_DAILY_EXPOSURES_DATA,
+                "some_segment": FORMATTED_DAILY_SEGMENT_DATA,
+            },
+        }
 
         WEEKLY_BASE = {
             "control": {
@@ -1238,6 +1484,7 @@ class JetstreamTestData:
 
         cls.add_all_outcome_data(
             DAILY_DATA,
+            FORMATTED_DAILY_DATA,
             OVERALL_DATA,
             WEEKLY_DATA,
             primary_outcomes,
@@ -1245,6 +1492,7 @@ class JetstreamTestData:
         )
         cls.add_all_outcome_data(
             DAILY_EXPOSURES_DATA,
+            FORMATTED_DAILY_DATA,
             OVERALL_DATA,
             WEEKLY_DATA,
             primary_outcomes,
@@ -1253,6 +1501,7 @@ class JetstreamTestData:
 
         return (
             DAILY_DATA,
+            FORMATTED_DAILY_DATA,
             WEEKLY_DATA,
             OVERALL_DATA,
             ERRORS,
@@ -1348,6 +1597,21 @@ class ZeroJetstreamTestData(JetstreamTestData):
         DATA_POINT_A_COVARIATE,
         DATA_POINT_F_COVARIATE,
     ):
+        DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_CONTROL = cls.get_difference_metric_data(
+            DATA_POINT_D,
+            SignificanceData(daily={}, weekly={}, overall={}),
+            comparison_to_branch="control",
+        )
+        DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_CONTROL = cls.get_difference_metric_data(
+            DATA_POINT_F,
+            SignificanceData(daily={}, weekly={}, overall={}),
+            comparison_to_branch="control",
+        )
+        DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL = cls.get_difference_metric_data(
+            DATA_POINT_D,
+            SignificanceData(daily={}, weekly={}, overall={}),
+            comparison_to_branch="control",
+        )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL = cls.get_difference_metric_data(
             DATA_POINT_B,
             SignificanceData(weekly={}, overall={}),
@@ -1378,6 +1642,21 @@ class ZeroJetstreamTestData(JetstreamTestData):
             SignificanceData(weekly={}, overall={}),
             is_retention=True,
             comparison_to_branch="control",
+        )
+        DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
+            DATA_POINT_E,
+            SignificanceData(daily={}, weekly={}, overall={}),
+            comparison_to_branch="variant",
+        )
+        DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_VARIANT = cls.get_difference_metric_data(
+            DATA_POINT_F,
+            SignificanceData(daily={}, weekly={}, overall={}),
+            comparison_to_branch="variant",
+        )
+        DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_VARIANT = cls.get_difference_metric_data(
+            DATA_POINT_D,
+            SignificanceData(daily={}, weekly={}, overall={}),
+            comparison_to_branch="variant",
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
             DATA_POINT_B,
@@ -1412,6 +1691,12 @@ class ZeroJetstreamTestData(JetstreamTestData):
         )
 
         return (
+            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_CONTROL,
+            DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_POSITIVE_CONTROL,
+            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_VARIANT,
+            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL,
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_CONTROL,
             DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT,
             DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_CONTROL,
@@ -1430,6 +1715,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
     def add_outcome_data(
         cls,
         data,
+        formatted_daily_data,
         overall_data,
         weekly_data,
         primary_outcome,
@@ -1444,6 +1730,8 @@ class ZeroJetstreamTestData(JetstreamTestData):
                     overall_data[branch]["branch_data"][Group.OTHER.value] = {}
                 if Group.OTHER not in weekly_data[branch]["branch_data"]:
                     weekly_data[branch]["branch_data"][Group.OTHER.value] = {}
+                if Group.OTHER not in formatted_daily_data[branch]["branch_data"]:
+                    formatted_daily_data[branch]["branch_data"][Group.OTHER.value] = {}
 
                 data_point_overall = range_data.model_copy()
                 data_point_overall.count = 0.0
@@ -1456,6 +1744,11 @@ class ZeroJetstreamTestData(JetstreamTestData):
                 weekly_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_weekly)
                 )
+
+                data_point_daily = range_data.model_copy()
+                formatted_daily_data[branch]["branch_data"][Group.OTHER.value][
+                    primary_metric
+                ] = cls.get_metric_data(data_point_daily)
 
                 data.append(
                     JetstreamDataPoint(
