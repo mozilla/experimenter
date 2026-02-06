@@ -1,11 +1,16 @@
 from django.test import TestCase
 
-from experimenter.jetstream.models import JetstreamData, JetstreamDataPoint, Metric, Segment, Statistic
+from experimenter.jetstream.models import (
+    JetstreamData,
+    JetstreamDataPoint,
+    Metric,
+    Segment,
+    Statistic,
+)
 from experimenter.jetstream.tests.constants import JetstreamTestData
 
 
 class TestJetstreamData(TestCase):
-
     def test_append_population_percentages(self):
         # setup JetstreamData with duplicate identity points
         identity = JetstreamTestData.get_identity_row()
@@ -15,7 +20,9 @@ class TestJetstreamData(TestCase):
         variant_identity = identity.model_copy()
         variant_identity.branch = "variant"
 
-        data = JetstreamData([control_identity, variant_identity, control_identity, variant_identity])
+        data = JetstreamData(
+            [control_identity, variant_identity, control_identity, variant_identity]
+        )
 
         # append population percentages
         data.append_population_percentages()

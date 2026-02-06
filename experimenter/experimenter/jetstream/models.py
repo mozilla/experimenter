@@ -125,7 +125,7 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
         for jetstream_data_point in self:
             if jetstream_data_point.metric == Metric.USER_COUNT:
                 branches[jetstream_data_point.branch] = jetstream_data_point.point
-        
+
         total_population = sum(branches.values())
 
         for branch_name, branch_user_count in sorted(branches.items()):
