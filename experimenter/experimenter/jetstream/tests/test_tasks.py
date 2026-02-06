@@ -65,6 +65,16 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "daily": {
+                    "enrollments": {
+                        "all": DAILY_DATA,
+                        "some_segment": SEGMENT_DATA,
+                    },
+                    "exposures": {
+                        "all": DAILY_EXPOSURES_DATA,
+                        "some_segment": SEGMENT_EXPOSURES_DATA,
+                    },
+                },
                 "weekly": {
                     "enrollments": {
                         "all": WEEKLY_DATA,
@@ -790,6 +800,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "daily": {},
                 "weekly": {},
                 "overall": {},
                 "metadata": {
@@ -931,6 +942,16 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "daily": {
+                    "enrollments": {
+                        "all": DAILY_DATA,
+                        "some_segment": SEGMENT_DATA,
+                    },
+                    "exposures": {
+                        "all": DAILY_EXPOSURES_DATA,
+                        "some_segment": SEGMENT_EXPOSURES_DATA,
+                    },
+                },
                 "weekly": WEEKLY_DATA,
                 "overall": OVERALL_DATA,
                 "other_metrics": {
@@ -1011,6 +1032,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "daily": {
+                    "enrollments": {
+                        "all": DAILY_DATA,
+                        "some_segment": SEGMENT_DATA,
+                    },
+                },
                 "weekly": {
                     "enrollments": {
                         "all": WEEKLY_DATA,
@@ -1544,6 +1571,216 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "daily": {
+                    "enrollments": {
+                        "all": [
+                            {
+                                "lower": -0.2,
+                                "point": -0.1,
+                                "upper": -0.01,
+                                "branch": "treatment-b",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "relative_uplift",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "treatment-a",
+                            },
+                            {
+                                "lower": 2.2,
+                                "point": 0.1,
+                                "upper": 0.02,
+                                "branch": "treatment-b",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "relative_uplift",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "control",
+                            },
+                            {
+                                "lower": -0.9,
+                                "point": -0.8,
+                                "upper": -0.5,
+                                "branch": "treatment-b",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "difference",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "treatment-a",
+                            },
+                            {
+                                "lower": 1.0,
+                                "point": 0.0,
+                                "upper": 0.5,
+                                "branch": "treatment-b",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "difference",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "control",
+                            },
+                            {
+                                "lower": 0.856,
+                                "point": 0.857,
+                                "upper": 0.8589,
+                                "branch": "treatment-b",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                            },
+                            {
+                                "lower": 3.141592653589793,
+                                "point": 0.1111111111111111,
+                                "upper": 0.2222222222222222,
+                                "branch": "treatment-a",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "relative_uplift",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "treatment-b",
+                            },
+                            {
+                                "lower": 0.1,
+                                "point": 0.2,
+                                "upper": 0.3,
+                                "branch": "treatment-a",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "relative_uplift",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "control",
+                            },
+                            {
+                                "lower": 2.5,
+                                "point": 0.1,
+                                "upper": 1.0,
+                                "branch": "treatment-a",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "difference",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "treatment-b",
+                            },
+                            {
+                                "lower": -10.0,
+                                "point": 0.1,
+                                "upper": 10.2,
+                                "branch": "treatment-a",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "difference",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "control",
+                            },
+                            {
+                                "lower": 0.857,
+                                "point": 0.858,
+                                "upper": 0.8596,
+                                "branch": "treatment-a",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                            },
+                            {
+                                "lower": -2.2,
+                                "point": -2.1,
+                                "upper": -2.01,
+                                "branch": "control",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "relative_uplift",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "treatment-b",
+                            },
+                            {
+                                "lower": -0.3,
+                                "point": -0.2,
+                                "upper": -0.1,
+                                "branch": "control",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "relative_uplift",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "treatment-a",
+                            },
+                            {
+                                "lower": -1.2,
+                                "point": -1.1,
+                                "upper": -1.01,
+                                "branch": "control",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "difference",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "treatment-b",
+                            },
+                            {
+                                "lower": -10.2,
+                                "point": -0.1,
+                                "upper": -0.01,
+                                "branch": "control",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "comparison": "difference",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                                "comparison_to_branch": "treatment-a",
+                            },
+                            {
+                                "lower": 0.855,
+                                "point": 0.856,
+                                "upper": 0.8575,
+                                "branch": "control",
+                                "metric": "test",
+                                "segment": "all",
+                                "ci_width": 0.95,
+                                "statistic": "binomial",
+                                "window_index": "1",
+                                "analysis_basis": "enrollments",
+                            },
+                        ]
+                    }
+                },
                 "weekly": {
                     "enrollments": {
                         "all": {
@@ -2341,6 +2578,24 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "filename": "experimenter/jetstream/client.py",
                     "func_name": "load_data_from_gcs",
                     "log_level": "WARNING",
+                    "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_daily.json",  # noqa: E501
+                    "metric": None,
+                    "segment": None,
+                    "statistic": None,
+                    "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                        "+00:00"
+                    )
+                    + "Z",
+                },
+                {
+                    "analysis_basis": None,
+                    "source": None,
+                    "exception": None,
+                    "exception_type": None,
+                    "experiment": experiment.slug,
+                    "filename": "experimenter/jetstream/client.py",
+                    "func_name": "load_data_from_gcs",
+                    "log_level": "WARNING",
                     "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_weekly.json",  # noqa: E501
                     "metric": None,
                     "segment": None,
@@ -2385,6 +2640,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         "metadata": None,
                         "overall": {},
                         "show_analysis": False,
+                        "daily": {},
                         "weekly": {},
                         "errors": {
                             "experiment": experiment_errors,

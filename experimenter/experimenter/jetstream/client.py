@@ -197,9 +197,9 @@ def get_other_metrics_names_and_map(
 
 def get_experiment_data(experiment: NimbusExperiment):
     recipe_slug = experiment.slug.replace("-", "_")
-    # we don't use DAILY results in Experimenter, so only get WEEKLY/OVERALL
-    windows = [AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
+    windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
     raw_data = {
+        AnalysisWindow.DAILY: {},
         AnalysisWindow.WEEKLY: {},
         AnalysisWindow.OVERALL: {},
     }
