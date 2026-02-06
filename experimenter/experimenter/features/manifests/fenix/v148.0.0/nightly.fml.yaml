@@ -310,7 +310,7 @@ features:
             - ALWAYS
             primary-button-label: nova_onboarding_continue_button
             secondary-button-label: ''
-            title: nova_onboarding_tou_title
+            title: onboarding_welcome_to_firefox
           default-browser:
             body: nova_onboarding_set_to_default_subtitle
             card-type: default-browser
