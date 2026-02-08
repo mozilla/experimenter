@@ -74,6 +74,14 @@ custom-review-prompt:
     enabled:
       type: boolean
       description: Whether or not to enable the new trigger criteria.
+custom-review-prompt-ui:
+  description: Feature that controls the custom UI for review prompt.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: When enabled we show the custom review prompt UI. Otherwise we try to directly show the Play Store in-app review prompt.
 default-browser-prompt:
   description: Feature that controls when the default browser prompt is shown.
   hasExposure: true
