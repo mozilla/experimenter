@@ -2360,10 +2360,10 @@ LAPSED_USER = NimbusTargetingConfig(
         "[userMonthlyActivity|mapToProperty('1')|length - 1] "
         "<= currentDate|date - (86400000 * 28)) || "
         "(currentDate|regExpMatch(userMonthlyActivity|mapToProperty('1')"
-        "[userMonthlyActivity|mapToProperty('1')|length - 1] && "
+        "[userMonthlyActivity|mapToProperty('1')|length - 1]) && "
         "(userMonthlyActivity|mapToProperty('1')"
         "[userMonthlyActivity|mapToProperty('1')|length - 2] "
-        "<= currentDate|date - (86400000 * 28)))))"
+        "<= currentDate|date - (86400000 * 28))))"
     ),
     desktop_telemetry="",
     sticky_required=True,
