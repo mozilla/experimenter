@@ -2344,6 +2344,33 @@ TEST_MOBILE_FIRST_RUN_TARGETING_CRITERIA_IOS = NimbusTargetingConfig(
     ),
 )
 
+LAPSED_USER = NimbusTargetingConfig(
+    name="Lapsed users (No activity in the past 28 days)",
+    slug="lapsed_user_28_days",
+    description=(
+        "Users with a profile age of 28 days and 0 days of activity in their past 28 days"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} &&"
+        "((userMonthlyActivity|length == 0) || "
+        "(userMonthlyActivity|length == 1 && "
+        "currentDate|regExpMatch(userMonthlyActivity|mapToProperty("1")"
+        "[userMonthlyActivity|mapToProperty("1")|length - 1])) || "
+        "(userMonthlyActivity|mapToProperty("1")"
+        "[userMonthlyActivity|mapToProperty("1")|length - 1] "
+        "<= currentDate|date - (86400000 * 28)) || "
+        "(currentDate|regExpMatch(userMonthlyActivity|mapToProperty("1")"
+        "[userMonthlyActivity|mapToProperty("1")|length - 1] && "
+        "(userMonthlyActivity|mapToProperty("1")"
+        "[userMonthlyActivity|mapToProperty("1")|length - 2] "
+        "<= currentDate|date - (86400000 * 28)))))"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 CORE_USER_FULLY_ACTIVE = NimbusTargetingConfig(
     name="Core user (Active Every Day)",
     slug="core_user_active_every_day",
