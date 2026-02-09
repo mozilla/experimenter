@@ -15,6 +15,14 @@ address-bar-menu-feature:
     status:
       type: boolean
       description: If true, we will show the new address bar menu entry
+ads-client:
+  description: This property defines if the rust ads client is enabled
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    status:
+      type: boolean
+      description: If true, we will enable the rust ads client
 app-icon-selection-feature:
   description: |
     Controls which app icons users can select as their default app icon from the App Icon Selection screen in Settings.
@@ -295,14 +303,6 @@ onboarding-framework-feature:
       type: boolean
       description: |
         Toggle between standard (false) and Japan-specific (true) assets and content.
-privacy-notice-feature:
-  description: This feature manages the prviacy notice homepage card
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: Setting 'enabled' to true will allow the privacy notice homepage card to be presented under certain conditions
 recent-searches-feature:
   description: |
     Enables recent searches.

@@ -619,6 +619,23 @@ search-extra-params:
     search-engine:
       type: string
       description: The search engine name.
+search-optimization-option:
+  description: Feature to enable the Search Optimization cards for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Search Optimization is enabled.
+    show-flights-card:
+      type: boolean
+      description: If true, Search Optimization Flights cards are enabled.
+    show-sports-card:
+      type: boolean
+      description: If true, Search Optimization Sports cards are enabled.
+    show-stocks-card:
+      type: boolean
+      description: If true, Search Optimization Stock cards are enabled.
 search-suggestions-on-homepage:
   description: Enables search suggestions on homepage.
   hasExposure: true
