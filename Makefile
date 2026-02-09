@@ -13,6 +13,10 @@ COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml $$(
 COMPOSE_INTEGRATION_RUN = ${COMPOSE_INTEGRATION} run --name experimenter_integration
 DOCKER_BUILD = docker buildx build
 
+# Extra flags for docker buildx build, per target. Override to add caching, --load, etc.
+MEGAZORD_BUILD_FLAGS ?=
+EXPERIMENTER_BUILD_FLAGS ?=
+
 WORKFLOW := build
 EPOCH_TIME := $(shell date +"%s")
 TEST_RESULTS_DIR ?= $(if $(CIRCLECI),dashboard/test-results,.)
@@ -111,7 +115,7 @@ compose_build:  ## Build containers
 	$(COMPOSE) build
 
 build_megazords:
-	$(DOCKER_BUILD) -f application-services/Dockerfile -t experimenter:megazords application-services/
+	$(DOCKER_BUILD) $(MEGAZORD_BUILD_FLAGS) -f application-services/Dockerfile -t experimenter:megazords application-services/
 
 update_application_services: build_megazords
 	docker run \
@@ -126,7 +130,7 @@ build_integration_test: ssl build_megazords
 	$(DOCKER_BUILD) -f experimenter/tests/integration/Dockerfile -t experimenter:integration-tests experimenter/
 
 build_test: ssl build_megazords
-	$(DOCKER_BUILD) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
+	$(DOCKER_BUILD) $(EXPERIMENTER_BUILD_FLAGS) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
 
 build_ui: ssl
 	$(DOCKER_BUILD) --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
