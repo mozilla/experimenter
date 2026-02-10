@@ -31,7 +31,7 @@ def validate_jexl_expr(expression, application):
         )
 
         client = nimbus_rust.NimbusClient(
-            app_context, None, [], str(Path.cwd()), mock.Mock(), None, None, ""
+            app_context, None, [], str(Path.cwd()), mock.Mock(), None, None
         )
 
         custom_targeting_attributes = json.dumps(
