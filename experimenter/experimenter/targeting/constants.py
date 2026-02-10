@@ -2351,7 +2351,7 @@ LAPSED_USER = NimbusTargetingConfig(
         "Users with a profile age of 28 days and 0 days of activity in their past 28 days"
     ),
     targeting=(
-        f"{PROFILE28DAYS} &&"
+        f"{PROFILE28DAYS} && "
         "((userMonthlyActivity|length == 0) || "
         "(userMonthlyActivity|length == 1 && "
         "currentDate|regExpMatch(userMonthlyActivity|mapToProperty('1')"
