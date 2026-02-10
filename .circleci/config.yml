@@ -173,7 +173,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/"
+          paths: "experimenter/|application-services/"
       - run:
           name: Run tests and linting
           command: |
@@ -280,7 +280,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/"
+          paths: "experimenter/experimenter/|application-services/"
       - create_test_result_workspace
       - run:
           name: Run integration tests
@@ -309,7 +309,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/"
+          paths: "experimenter/experimenter/|application-services/"
       - create_test_result_workspace
       - run:
           name: Run integration tests
@@ -339,7 +339,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/"
+          paths: "experimenter/experimenter/|application-services/"
       - create_test_result_workspace
       - run:
           name: Run integration tests
@@ -374,7 +374,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+          paths: "experimenter/experimenter/|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
       - create_test_result_workspace
       - run:
           name: Run integration tests
@@ -405,7 +405,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
       - create_test_result_workspace
       - run:
           name: Run integration tests
@@ -435,7 +435,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
       - create_test_result_workspace
       - run:
           name: Run integration tests
@@ -464,7 +464,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
       - create_test_result_workspace
       - run:
           name: Run integration tests
@@ -490,7 +490,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_fenix_beta_build.env|experimenter/tests/firefox_fenix_release_build.env"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_fenix_beta_build.env|experimenter/tests/firefox_fenix_release_build.env|application-services/"
       - create_test_result_workspace
       - attach_workspace:
           at: /tmp/experimenter
@@ -541,7 +541,7 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|<< parameters.file_path >>"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|<< parameters.file_path >>|application-services/"
       - create_test_result_workspace
       - macos/preboot-simulator:
           version: << parameters.ios_version >>
