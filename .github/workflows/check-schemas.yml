@@ -1,0 +1,26 @@
+name: Schema Tests
+
+on:
+  pull_request:
+    paths:
+      - "schemas/**"
+      - ".github/workflows/check-schemas.yml"
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  check:
+    name: "Check Schemas"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-cached-build
+        with:
+          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - name: Run schemas tests and linting
+        run: make schemas_check
