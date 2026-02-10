@@ -213,11 +213,11 @@
                   aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}"
                   style="{% if not metric_data %}cursor: default;
                          {% endif %}">
-            <div class="pe-3">
+            <div class="pe-3 d-flex flex-column align-items-start">
               <div class="d-flex align-items-center gap-3 mb-2">
                 <h4 class="mb-0">{{ area }}</h4>
                 {% if experiment.is_observation %}
-                  <span class="badge rounded-pill bg-primary-subtle border border-1 border-secondary-subtle"><span class="text-black">In progress &middot; <span class="text-muted fw-medium">results still forming</span></span></span>
+                  <span class="badge rounded-pill bg-primary-subtle border border-1 border-secondary-subtle"><span class="text-body">In progress &middot; <span class="text-muted fw-medium">results still forming</span></span></span>
                 {% endif %}
               </div>
               <div class="d-inline-flex gap-3 flex-wrap row-gap-1">
