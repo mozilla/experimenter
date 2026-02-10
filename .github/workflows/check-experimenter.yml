@@ -1,0 +1,47 @@
+name: Experimenter Tests
+
+on:
+  push:
+    branches:
+      - main
+      - update_firefox_versions
+      - update-application-services
+    paths:
+      - "experimenter/**"
+      - "application-services/**"
+      - ".github/workflows/check-experimenter.yml"
+  pull_request:
+    paths:
+      - "experimenter/**"
+      - "application-services/**"
+      - ".github/workflows/check-experimenter.yml"
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    name: "${{ matrix.arch }}"
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-cached-build
+        with:
+          arch: ${{ matrix.arch }}
+          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - name: Run tests and linting
+        run: |
+          cp .env.sample .env
+          make check
