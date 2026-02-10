@@ -5,7 +5,8 @@ import markus
 from celery import shared_task
 from django.utils import timezone
 
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.slack.notification import send_slack_notification
 
 logger = logging.getLogger(__name__)
@@ -92,13 +93,64 @@ def check_single_experiment_alerts(experiment_id):
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         logger.debug(f"Checking alerts for experiment: {experiment.slug}")
 
-        # TODO: Implement in next ticket
-        # Check for analysis errors in experiment
-        # # Check if results became available in experiment
-        # Send notifications as needed
+        # Check if results became available
+        _check_results_ready(experiment)
+
+        # TODO: Future implementation - Check for analysis error
+        # to detect and send alerts for daily, weekly, overall errors
 
     except NimbusExperiment.DoesNotExist:
         logger.error(f"Experiment {experiment_id} not found")
     except Exception as e:
         logger.exception(f"Error checking alerts for experiment {experiment_id}: {e}")
+        raise
+
+
+def _check_results_ready(experiment):
+    windows = [
+        NimbusConstants.AnalysisWindow.WEEKLY,
+        NimbusConstants.AnalysisWindow.OVERALL,
+    ]
+
+    for window in windows:
+        alert_type = (
+            NimbusConstants.AlertType.ANALYSIS_READY_WEEKLY
+            if window == NimbusConstants.AnalysisWindow.WEEKLY
+            else NimbusConstants.AlertType.ANALYSIS_READY_OVERALL
+        )
+
+        # Skip if we already sent this alert
+        if NimbusAlert.objects.filter(
+            experiment=experiment, alert_type=alert_type
+        ).exists():
+            continue
+
+        # Check if results exist for this window
+        if experiment.has_results_for_window(window):
+            _send_results_ready_alert(experiment, window, alert_type)
+
+
+def _send_results_ready_alert(experiment, window, alert_type):
+    try:
+        email_addresses = [experiment.owner.email] if experiment.owner else []
+        message = f"{window.capitalize()} analysis results are now available"
+        send_slack_notification(
+            experiment_id=experiment.id,
+            email_addresses=email_addresses,
+            action_text=message,
+        )
+
+        # Create alert record to prevent duplicates
+        NimbusAlert.objects.create(
+            experiment=experiment, alert_type=alert_type, message=message
+        )
+
+        logger.info(f"Sent {window} results ready alert for experiment {experiment.slug}")
+        metrics.incr(f"results_ready_alert.{window}.sent")
+
+    except Exception as e:
+        logger.error(
+            f"Failed to send {window} results alert for experiment {experiment.slug}: {e}"
+        )
+        metrics.incr(f"results_ready_alert.{window}.failed")
         raise
