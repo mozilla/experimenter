@@ -1,0 +1,37 @@
+name: Feature Manifest Tests
+
+on:
+  pull_request:
+    paths:
+      - "experimenter/experimenter/features/manifests/**"
+      - "experimenter/manifesttool/**"
+      - "application-services/**"
+      - ".github/workflows/check-feature-manifests.yml"
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  check:
+    name: "Check Local Feature Manifests"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-cached-build
+        with:
+          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - name: Check local feature manifests
+        run: |
+          cp .env.sample .env
+          make feature_manifests FETCH_ARGS="--local-apps"
+          if ! git diff --quiet experimenter/experimenter/features/manifests/; then
+            echo 'Please commit generated updates to local feature manifests:'
+            echo
+            echo '    make feature_manifests FETCH_ARGS="--local-apps"'
+            echo
+            exit 1
+          fi
