@@ -82,12 +82,18 @@ const setupHTMXLoadingOverlay = () => {
     }
   });
 
-  document.addEventListener("htmx:afterRequest", function () {
+  const hideOverlay = () => {
     const loadingOverlay = document.querySelector("#htmx-loading-overlay");
     if (loadingOverlay) {
       loadingOverlay.style.opacity = "0";
       loadingOverlay.style.pointerEvents = "none";
     }
+  };
+
+  document.addEventListener("htmx:afterRequest", hideOverlay);
+
+  window.addEventListener("popstate", function () {
+    setTimeout(hideOverlay, 10);
   });
 };
 
