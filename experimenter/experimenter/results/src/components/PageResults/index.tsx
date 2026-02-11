@@ -235,11 +235,11 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
       ? (Object.keys(analysis?.overall || {}).sort() as AnalysisBases[])
       : (Object.keys(analysis?.weekly || {}).sort() as AnalysisBases[]);
   const analysisBasisHelpMarkdown =
-    "Select the **analysis basis** whose results you want to see. See [defining exposure signals](https://experimenter.info/jetstream/configuration/#defining-exposure-signals) in the docs for more info.";
+    "Select the **analysis basis** whose results you want to see. See [defining exposure signals](https://experimenter.info/data-analysis/jetstream/configuration#defining-exposure-signals) in the docs for more info.";
 
   const allSegments = Object.keys(analysis?.overall?.enrollments || {}).sort();
   const segmentHelpMarkdown =
-    "Select the **analysis segment** whose results you want to see. See [defining segments](https://experimenter.info/jetstream/configuration/#defining-segments) in the docs for more info.";
+    "Select the **analysis segment** whose results you want to see. See [defining segments](https://experimenter.info/data-analysis/jetstream/configuration#defining-segments) in the docs for more info.";
 
   const filterErrors = (
     errors: AnalysisError[],
@@ -323,7 +323,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     );
   };
 
-  const exposureEventsInfoUrl = "https://experimenter.info/missing-exposure";
+  const exposureEventsInfoUrl =
+    "https://experimenter.info/data-analysis/data-topics/missing_exposures";
 
   return (
     <ResultsContext.Provider value={resultsContextValue}>

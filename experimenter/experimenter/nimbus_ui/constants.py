@@ -28,7 +28,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
-    REVIEW_URL = "https://experimenter.info/access"
+    REVIEW_URL = "https://experimenter.info/getting-started/for-reviewers"
 
     EXCLUDING_EXPERIMENTS_WARNING = """The following experiments are being excluded by
     your experiment and may reduce the eligible population for your experiment which
@@ -57,9 +57,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     behaviour.  Running an experiment on multiple channels can create misleading or
     inaccurate results.  It is recommended to run experiments only on a single channel."""
 
-    AUDIENCE_OVERLAP_WARNING = "https://experimenter.info/faq/warnings/#audience-overlap"
+    AUDIENCE_OVERLAP_WARNING = (
+        "https://experimenter.info/advanced/warnings#audience-overlap"
+    )
     ROLLOUT_BUCKET_WARNING = (
-        "https://experimenter.info/faq/warnings/#rollout-bucketing-warning"
+        "https://experimenter.info/advanced/warnings#rollout-bucketing-warning"
     )
     TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
     targeting list - file a new targeting request with this link, and share the created
@@ -96,16 +98,16 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "welcome_learn_more_url": "https://experimenter.info/workflow/overview/"
     }
     AUDIENCE_PAGE_LINKS = {
-        "custom_audiences_url": "https://experimenter.info/workflow/implementing/custom-audiences#how-to-add-a-new-custom-audience",
+        "custom_audiences_url": "https://experimenter.info/advanced/custom-audiences#how-to-add-new-advanced-targeting",
         "targeting_criteria_request_url": "https://github.com/mozilla/experimenter/issues/new?template=targeting_request_template.yml&title=Targeting%20criteria%20request",
-        "sticky_targeting_url": "https://experimenter.info/workflow/implementing/custom-audiences#sticky-targeting",
+        "sticky_targeting_url": "https://experimenter.info/advanced/custom-audiences#sticky-targeting",
         "experimentation_office_hours_url": "https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849684/Experimentation+Office+Hours",
     }
     OVERVIEW_PAGE_LINKS = {
         "risk_link": "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
         "message_consult_link": "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation",
-        "revenue_risk_link": "https://experimenter.info/vp-sign-off",
-        "partner_related_risk_link": "https://experimenter.info/legal-sign-off",
+        "revenue_risk_link": "https://experimenter.info/workflow/risk-mitigation#vp-sign-off",
+        "partner_related_risk_link": "https://experimenter.info/workflow/risk-mitigation#legal-sign-off",
     }
     METRICS_PAGE_LINKS = {
         "metrics_hub_url": "https://mozilla.github.io/metric-hub/metrics/firefox_desktop/",
@@ -124,7 +126,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "my_deliveries": """
             Shows all deliveries (experiments, rollouts, etc) that you are the owner of,
             subscribed to or where you are a collaborator.
-            <a href="https://experimenter.info/for-product">Learn</a> how to get started.
+            <a href="https://experimenter.info/getting-started/for-experiment-owners">Learn</a>
+            how to get started.
         """,
     }
     SIDEBAR_COMMON_LINKS = {
@@ -148,7 +151,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     OTHER_METRICS_AREA = "Other Metrics"
     NOTABLE_METRIC_AREA = "Notable Changes"
     FEATURE_PAGE_LINKS = {
-        "feature_learn_more_url": "https://experimenter.info/for-product#track-your-feature-health",
+        "feature_learn_more_url": "https://experimenter.info/getting-started/for-experiment-owners",
         "deliveries_table_tooltip": """This shows all Nimbus experiments, rollouts, Labs
         experiences, etc. associated with your selected feature.""",
     }

@@ -38,38 +38,45 @@ export const SERVER_ERRORS = {
 };
 
 export const EXTERNAL_URLS = {
-  TRAINING_AND_PLANNING_DOC: "https://experimenter.info/for-product",
+  TRAINING_AND_PLANNING_DOC:
+    "https://experimenter.info/getting-started/for-experiment-owners",
   NIMBUS_MANA_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
   WORKFLOW_MANA_DOC:
-    "https://experimenter.info/data-scientists/#sample-size-recommendations",
-  BRANCHES_EXPERIMENTER_DOC: "https://experimenter.info/feature-definition/",
+    "https://experimenter.info/getting-started/for-data-scientists#sample-size-recommendations",
+  BRANCHES_EXPERIMENTER_DOC:
+    "https://experimenter.info/technical-reference/feature-definition",
   METRICS_EXPERIMENTER_DOC:
-    "https://experimenter.info/deep-dives/jetstream/metrics",
+    "https://experimenter.info/data-analysis/jetstream/metrics",
   // EXP-866 TBD URL
-  PREVIEW_LAUNCH_DOC: "https://experimenter.info/previewing-experiments",
-  RISK_BRAND: "https://experimenter.info/comms-sign-off",
+  PREVIEW_LAUNCH_DOC:
+    "https://experimenter.info/platform-guides/desktop/preview",
+  RISK_BRAND:
+    "https://experimenter.info/workflow/risk-mitigation#comms--messaging-sign-off",
   RISK_MESSAGE:
     "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation",
-  RISK_PARTNER: "https://experimenter.info/legal-sign-off",
-  RISK_REVENUE: "https://experimenter.info/vp-sign-off",
-  SIGNOFF_QA: "https://experimenter.info/qa-sign-off",
-  SIGNOFF_VP: "https://experimenter.info/vp-sign-off",
-  SIGNOFF_LEGAL: "https://experimenter.info/legal-sign-off",
-  REVIEW_PRIVILIGES: "https://experimenter.info/access",
+  RISK_PARTNER:
+    "https://experimenter.info/workflow/risk-mitigation#legal-sign-off",
+  RISK_REVENUE:
+    "https://experimenter.info/workflow/risk-mitigation#vp-sign-off",
+  SIGNOFF_QA: "https://experimenter.info/workflow/risk-mitigation#qa-sign-off",
+  SIGNOFF_VP: "https://experimenter.info/workflow/risk-mitigation#vp-sign-off",
+  SIGNOFF_LEGAL:
+    "https://experimenter.info/workflow/risk-mitigation#legal-sign-off",
+  REVIEW_PRIVILIGES: "https://experimenter.info/getting-started/for-reviewers",
   ROLLOUT_SETPREF_REENROLL_EXPLANATION:
-    "https://experimenter.info/faq/warnings#rollouts-and-setpref-interaction-desktop",
+    "https://experimenter.info/advanced/warnings#rollouts-and-setpref-interaction-desktop",
   EXPERIMENTER_DOCUMENTATION: "https://experimenter.info",
   ASK_EXPERIMENTER_SLACK: "https://slack.com/app_redirect?channel=CF94YGE03",
   FEEDBACK: "https://bit.ly/38dgkqR",
   GITHUB_TICKET: "https://github.com/mozilla/experimenter/issues/new",
   LAUNCH_DOCUMENTATION:
-    "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
+    "https://experimenter.info/getting-started/for-reviewers#onboarding-for-new-reviewers-l3",
   BUCKET_WARNING_EXPLANATION:
-    "https://experimenter.info/faq/warnings#rollout-bucketing-warning",
+    "https://experimenter.info/advanced/warnings#rollout-bucketing-warning",
   AUDIENCE_OVERLAP_WARNING:
-    "https://experimenter.info/faq/warnings/#audience-overlap",
+    "https://experimenter.info/advanced/warnings#audience-overlap",
   CUSTOM_AUDIENCES_EXPLANATION:
-    "https://experimenter.info/workflow/implementing/custom-audiences",
+    "https://experimenter.info/advanced/custom-audiences",
   WHAT_TRAIN_IS_IT: "https://whattrainisitnow.com",
   QA_PI_DOC:
     "https://mozilla-hub.atlassian.net/jira/software/c/projects/QA/boards/261",
