@@ -403,6 +403,16 @@ start-at-home-feature:
       - afterFourHours
       - always
       - disabled
+summarizer-app-attest-auth-feature:
+  description: |
+    This feature enables app attest authentication for the summarizer.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables app attest authentication for the summarizer.
 tab-scroll-refactor-feature:
   description: |
     The feature flag to manage the rollout of tab scroll refactor feature.
