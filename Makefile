@@ -16,6 +16,7 @@ DOCKER_BUILD = docker buildx build
 # Extra flags for docker buildx build, per target. Override to add caching, --load, etc.
 MEGAZORD_BUILD_FLAGS ?=
 EXPERIMENTER_BUILD_FLAGS ?=
+DEV_BUILD_FLAGS ?=
 SCHEMAS_BUILD_FLAGS ?=
 
 # Interactive flags for docker run. Set to empty for non-TTY environments (CI).
@@ -128,7 +129,7 @@ update_application_services: build_megazords
 		/application-services/update-application-services.sh
 
 build_dev: ssl build_megazords
-	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
+	$(DOCKER_BUILD) $(DEV_BUILD_FLAGS) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
 build_integration_test: ssl build_megazords
 	$(DOCKER_BUILD) -f experimenter/tests/integration/Dockerfile -t experimenter:integration-tests experimenter/
