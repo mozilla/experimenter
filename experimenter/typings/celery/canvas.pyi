@@ -28,6 +28,7 @@ def maybe_unroll_group(group):
     ...
 
 def task_name_from(task): ...
+
 @abstract.CallableSignature.register
 class Signature(dict):
     """Task Signature.
