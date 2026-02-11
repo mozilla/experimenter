@@ -8,7 +8,8 @@
     "experimenter/results"
   ],
   "devDependencies": {
-    "@types/react-select": "^5.0.1"
+    "@types/react-select": "^5.0.1",
+    "eslint-config-react-app": "^6.0.0"
   },
   "resolutions": {
     "ansi-regex": "^5.0.1",
