@@ -1561,6 +1561,16 @@ newtabSponsoredContent:
         pref: browser.newtabpage.activity-stream.discoverystream.placements.tiles.counts
       description: CSV string of tiles placement counts on newtab tiles section. The count tells the ad server how many ads to return for this position and placement.
 
+adsBackend:
+  description: Flags to affect ads backend behavior
+  owner: efixler@mozilla.com
+  hasExposure: false
+  allowCoenrollment: true
+  variables:
+    flags:
+      type: json
+      description: JSON object of flag names and values to send to the ads backend
+
 newtabTrainhop:
   description: Experiment feature for the train-hopping newtab extension.
   owner: mconley@mozilla.com
