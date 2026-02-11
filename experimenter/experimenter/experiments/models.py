@@ -1703,6 +1703,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return False
 
+    def has_results_for_window(self, window):
+        if not self.results_data or "v3" not in self.results_data:
+            return False
+
+        window_data = self.results_data["v3"].get(window)
+        if not window_data:
+            return False
+
+        for base in ["enrollments", "exposures"]:
+            base_results = window_data.get(base, {}).get("all")
+            if base_results is not None and len(base_results) > 0:
+                return True
+
+        return False
+
     @property
     def has_exposures(self):
         # Returns the enum corresponding to exposures state:
