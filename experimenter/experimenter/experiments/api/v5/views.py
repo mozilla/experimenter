@@ -26,9 +26,9 @@ class NimbusExperimentCsvListView(ListAPIView):
         return sorted(
             super().get_queryset(),
             key=lambda experiment: (
-                experiment.start_date and experiment.start_date.strftime("%Y-%m-%d")
-            )
-            or "",
+                (experiment.start_date and experiment.start_date.strftime("%Y-%m-%d"))
+                or ""
+            ),
             reverse=True,
         )
 

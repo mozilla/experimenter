@@ -38,6 +38,7 @@ if notPYTEST:
         def test_setup(self, count, *a): ...
 
 def custom_naming_func(custom_tag): ...
+
 @mock.patch("os.getpid")
 class TestParameterizedExpandWithMockPatchForClass(TestCase):
     @parameterized.expand([(42,), "foo0", param("foo1")])
@@ -174,6 +175,7 @@ cases_over_10 = ...
 
 @parameterized(cases_over_10)
 def test_cases_over_10(input, expected): ...
+
 @parameterized_class(("a", "b", "c"), [("foo", 1, 2), (0, 1, 2)])
 class TestParameterizedClass(TestCase):
     def test_method_a(self): ...
@@ -183,8 +185,9 @@ class TestParameterizedClass(TestCase):
 @parameterized_class(
     ("a",),
     [(1,), (2,)],
-    class_name_func=lambda cls, idx, attrs: "%s_custom_func_%s"
-    % (cls.__name__, attrs["a"]),
+    class_name_func=lambda cls, idx, attrs: (
+        "%s_custom_func_%s" % (cls.__name__, attrs["a"])
+    ),
 )
 class TestNamedParameterizedClass(TestCase):
     def test_method(self): ...
