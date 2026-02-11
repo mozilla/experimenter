@@ -919,6 +919,15 @@ features:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
         default: afterFourHours
+  summarizer-app-attest-auth-feature:
+    description: |
+      This feature enables app attest authentication for the summarizer.
+    variables:
+      enabled:
+        description: |
+          Enables app attest authentication for the summarizer.
+        type: Boolean
+        default: false
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.
