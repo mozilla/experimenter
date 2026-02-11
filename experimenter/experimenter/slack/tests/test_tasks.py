@@ -4,8 +4,12 @@ from unittest import mock
 from django.test import TestCase
 from django.utils import timezone
 
+from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusAlert
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.slack import tasks
+
+AnalysisWindow = NimbusConstants.AnalysisWindow
 
 
 class TestNimbusSendSlackNotification(TestCase):
@@ -165,3 +169,214 @@ class TestCheckSingleExperimentAlerts(TestCase):
             mock_logger.exception.assert_called_once()
             call_args = mock_logger.exception.call_args[0][0]
             self.assertIn(str(experiment.id), call_args)
+
+
+class TestCheckResultsReady(TestCase):
+    def test_sends_alert_for_weekly_results(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "weekly": {
+                        "enrollments": {"all": [{"point": 1, "upper": 2, "lower": 0}]}
+                    }
+                }
+            },
+        )
+
+        expected_message = (
+            f"{AnalysisWindow.WEEKLY.label} analysis results are now available"
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+
+            mock_send_slack.assert_called_once()
+            call_args = mock_send_slack.call_args
+            self.assertEqual(call_args[1]["experiment_id"], experiment.id)
+            self.assertEqual(call_args[1]["action_text"], expected_message)
+            self.assertEqual(call_args[1]["email_addresses"], [experiment.owner.email])
+
+        alert = NimbusAlert.objects.get(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_READY_WEEKLY,
+        )
+        self.assertEqual(alert.message, expected_message)
+
+    def test_sends_alert_for_overall_results(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "overall": {
+                        "exposures": {"all": [{"point": 1, "upper": 2, "lower": 0}]}
+                    }
+                }
+            },
+        )
+
+        expected_message = (
+            f"{AnalysisWindow.OVERALL.label} analysis results are now available"
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+
+            mock_send_slack.assert_called_once()
+            call_args = mock_send_slack.call_args
+            self.assertEqual(call_args[1]["action_text"], expected_message)
+
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_READY_OVERALL,
+            ).exists()
+        )
+
+    def test_sends_alerts_for_both_weekly_and_overall(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "weekly": {
+                        "enrollments": {"all": [{"point": 1, "upper": 2, "lower": 0}]}
+                    },
+                    "overall": {
+                        "enrollments": {"all": [{"point": 1, "upper": 2, "lower": 0}]}
+                    },
+                }
+            },
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+
+            self.assertEqual(mock_send_slack.call_count, 2)
+
+        self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 2)
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_READY_WEEKLY,
+            ).exists()
+        )
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_READY_OVERALL,
+            ).exists()
+        )
+
+    def test_does_not_send_duplicate_alerts(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "weekly": {
+                        "enrollments": {"all": [{"point": 1, "upper": 2, "lower": 0}]}
+                    }
+                }
+            },
+        )
+
+        message = f"{AnalysisWindow.WEEKLY.label} analysis results are now available"
+
+        NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_READY_WEEKLY,
+            message=message,
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_READY_WEEKLY,
+            ).count(),
+            1,
+        )
+
+    def test_no_alert_when_no_results_data(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, results_data=None
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 0)
+
+    def test_no_alert_when_results_empty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={"v3": {"weekly": {}, "overall": {}}},
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 0)
+
+    def test_no_alert_when_results_array_empty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={"v3": {"weekly": {"enrollments": {"all": []}}}},
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 0)
+
+    def test_handles_slack_notification_failure(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "weekly": {
+                        "enrollments": {"all": [{"point": 1, "upper": 2, "lower": 0}]}
+                    }
+                }
+            },
+        )
+
+        with (
+            mock.patch(
+                "experimenter.slack.tasks.send_slack_notification",
+                side_effect=Exception("Slack API error"),
+            ),
+            mock.patch("experimenter.slack.tasks.logger") as mock_logger,
+            mock.patch("experimenter.slack.tasks.metrics") as mock_metrics,
+        ):
+            with self.assertRaises(Exception) as context:
+                tasks.check_single_experiment_alerts(experiment.id)
+
+            self.assertIn("Slack API error", str(context.exception))
+            mock_logger.error.assert_called_once()
+            mock_metrics.incr.assert_called_with("results_ready_alert.weekly.failed")
+
+        self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 0)

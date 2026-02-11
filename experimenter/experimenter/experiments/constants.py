@@ -813,6 +813,10 @@ class NimbusConstants:
         EXPERIMENT_LAUNCHED = "experiment_launched", "Experiment Launched"
         ENROLLMENT_HEALTHY = "enrollment_healthy", "Enrollment Healthy"
 
+    class AnalysisWindow(models.TextChoices):
+        WEEKLY = "weekly", "Weekly"
+        OVERALL = "overall", "Overall"
+
     class FirefoxLabsGroups(models.TextChoices):
         CUSTOMIZE_BROWSING = "experimental-features-group-customize-browsing"
         WEBPAGE_DISPLAY = "experimental-features-group-webpage-display"
