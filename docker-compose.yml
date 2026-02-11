@@ -21,6 +21,7 @@ services:
       - /experimenter/experimenter/glean/generated/
       - /experimenter/experimenter/legacy/legacy-ui/core/.cache/
       - /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
+      - /experimenter/experimenter/results/node_modules/
       - /experimenter/experimenter/nimbus_ui/static/node_modules/
       - /experimenter/experimenter/served/
       - /experimenter/node_modules/
