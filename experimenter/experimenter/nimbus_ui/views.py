@@ -738,12 +738,12 @@ class BranchLeadingScreenshotView(
         return response
 
 
-class NewResultsView(NimbusExperimentViewMixin, DetailView):
-    template_name = "nimbus_experiments/results-new.html"
+class ResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results.html"
 
     def get_template_names(self):
         if self.request.headers.get("HX-Request"):
-            return ["nimbus_experiments/results-new-fragment.html"]
+            return ["nimbus_experiments/results-fragment.html"]
         return [self.template_name]
 
     def get_context_data(self, **kwargs):
@@ -855,8 +855,8 @@ class NewResultsView(NimbusExperimentViewMixin, DetailView):
         return context
 
 
-class ResultsView(NimbusExperimentViewMixin, DetailView):
-    template_name = "nimbus_experiments/results.html"
+class OldResultsView(NimbusExperimentViewMixin, DetailView):
+    template_name = "nimbus_experiments/results-old.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

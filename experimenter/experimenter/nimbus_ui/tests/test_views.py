@@ -3271,7 +3271,7 @@ class TestResultsView(AuthTestCase):
         experiment.save()
 
         response = self.client.get(
-            reverse("nimbus-ui-new-results", kwargs={"slug": experiment.slug}),
+            reverse("nimbus-ui-results", kwargs={"slug": experiment.slug}),
         )
 
         self.assertEqual(response.status_code, 200)
@@ -3300,7 +3300,7 @@ class TestResultsView(AuthTestCase):
 
         response = self.client.get(
             reverse(
-                "nimbus-ui-new-results",
+                "nimbus-ui-results",
                 kwargs={"slug": experiment.slug},
                 query={
                     "reference_branch": "treatment-a",
@@ -3321,11 +3321,11 @@ class TestResultsView(AuthTestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-ui-new-results", kwargs={"slug": experiment.slug}),
+            reverse("nimbus-ui-results", kwargs={"slug": experiment.slug}),
             headers={"Hx-Request": "true"},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/results-new-fragment.html")
+        self.assertTemplateUsed(response, "nimbus_experiments/results-fragment.html")
 
     def test_results_view_relative_ui_properties(self):
         application = NimbusExperiment.Application.DESKTOP
@@ -3452,7 +3452,7 @@ class TestResultsView(AuthTestCase):
 
         response = self.client.get(
             reverse(
-                "nimbus-ui-new-results",
+                "nimbus-ui-results",
                 kwargs={"slug": experiment.slug},
                 query={"reference_branch": "branch-a"},
             ),
@@ -3522,12 +3522,32 @@ class TestResultsView(AuthTestCase):
         )
 
         response = self.client.get(
-            reverse("nimbus-ui-new-results", kwargs={"slug": experiment.slug}),
+            reverse("nimbus-ui-results", kwargs={"slug": experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
 
         self.assertIn("primary_outcome_links", response.context["experiment_context"])
         self.assertIn("secondary_outcome_links", response.context["experiment_context"])
+
+
+@mock_valid_outcomes
+class TestOldResultsView(AuthTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Outcomes.clear_cache()
+
+    def test_render_to_response(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-results-old", kwargs={"slug": experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["experiment"], experiment)
+        self.assertTemplateUsed(response, "nimbus_experiments/results-old.html")
 
 
 class TestBranchScreenshotCreateView(AuthTestCase):
