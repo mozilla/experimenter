@@ -4,8 +4,9 @@
   {% if slug == reference_branch %}
     <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center flex-wrap rounded-3"
          style="height: 100px">
+      <span class="fw-medium w-100">Baseline</span>
       {% if absolute_lower %}
-        {% if display_type == "percentage" %}
+        {% if absolute_lower and display_type == "percentage" %}
           <span class="mb-0 me-1"
                 data-bs-toggle="tooltip"
                 data-bs-title="{{ absolute_lower|to_percentage }}">({{ absolute_lower|to_percentage:1 }}</span>
@@ -18,14 +19,10 @@
                 data-bs-toggle="tooltip"
                 data-bs-title="{{ absolute_lower }}">({{ absolute_lower|floatformat:2 }}</span>
           to
-          <p class="mb-0 ms-1"
-             data-bs-toggle="tooltip"
-             data-bs-title="{{ absolute_upper }}">
-            {{ absolute_upper|floatformat:2 }})
-          </span>
+          <span class="mb-0 ms-1"
+                data-bs-toggle="tooltip"
+                data-bs-title="{{ absolute_upper }}">{{ absolute_upper|floatformat:2 }})</span>
         {% endif %}
-      {% else %}
-        Baseline
       {% endif %}
     </div>
   {% else %}
