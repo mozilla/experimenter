@@ -871,14 +871,6 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
         return context
 
 
-class OldResultsView(NimbusExperimentViewMixin, DetailView):
-    template_name = "nimbus_experiments/results-old.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-
 class NimbusFeaturesView(TemplateView):
     template_name = "nimbus_experiments/features.html"
     form_class = FeaturesForm
