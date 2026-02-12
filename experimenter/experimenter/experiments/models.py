@@ -597,9 +597,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_results_url(self):
         return reverse("nimbus-ui-results", kwargs={"slug": self.slug})
 
-    def get_new_results_url(self):
-        return reverse("nimbus-ui-new-results", kwargs={"slug": self.slug})
-
     @property
     def experiment_url(self):
         return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
@@ -1251,7 +1248,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "icon": "fa-solid fa-chart-column",
                 "active": current_path == self.get_results_url(),
                 "disabled": self.disable_results_link,
-                "new_results_url": self.get_new_results_url(),
+                "results_url": self.get_results_url(),
                 "subsections": self.results_sidebar_sections(),
             },
             {"title": "Edit", "is_header": True},
