@@ -202,7 +202,7 @@
   </div>
   {% comment %} Metrics {% endcomment %}
   {% for area, metric_data_metadata in metric_area_data.items %}
-    {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data.overall %}
+    {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data|dict_get:displayed_window %}
       {% if metric_data or area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
         <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
           <button class="{% if metric_data %}accordion-button{% else %}border-0 py-3 px-4{% endif %} bg-transparent shadow-none text-body d-flex {% if not area == NimbusUIConstants.NOTABLE_METRIC_AREA %}collapsed{% endif %}"
@@ -319,8 +319,12 @@
                                   {% else %}
                                     {% for curr_branch_slug, branch_metric_data in metric_branch_data.items %}
                                       {% if curr_branch_slug == branch.slug %}
-                                        {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=branch_metric_data.absolute.0.lower absolute_upper=branch_metric_data.absolute.0.upper significance=branch_metric_data.relative.0.significance percentage=branch_metric_data.relative.0.avg_rel_change display_type=metric.display_type %}
+                                        {% with abs_last=branch_metric_data.absolute|last %}
+                                          {% with rel_last=branch_metric_data.relative|last %}
+                                            {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=abs_last.lower absolute_upper=abs_last.upper significance=rel_last.significance percentage=rel_last.avg_rel_change display_type=metric.display_type %}
 
+                                          {% endwith %}
+                                        {% endwith %}
                                       {% endif %}
                                     {% endfor %}
                                   {% endif %}
