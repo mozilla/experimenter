@@ -614,31 +614,6 @@ jobs:
           destination: gs://ecosystem-test-eng-metrics/experimenter/junit
           extension: xml
 
-  integration_nimbus_sdk_targeting:
-    machine:
-      image: ubuntu-2204:2024.11.1
-      docker_layer_caching: true
-    resource_class: medium
-    working_directory: ~/experimenter
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|application-services/"
-      - create_test_result_workspace
-      - run:
-          name: Run rust integration tests
-          command: |
-            cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_sdk integration_test_and_report
-      - store_artifacts:
-          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-      - store_test_results:
-          path: workspace/test-results/experimenter_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
-
   create_mobile_recipes:
     working_directory: ~/experimenter
     machine:
@@ -1056,12 +1031,6 @@ workflows:
               only:
                 - update_firefox_versions
                 - fix-13658
-      - integration_nimbus_sdk_targeting:
-          name: Test SDK Targeting (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
       - deploy_experimenter:
           name: Deploy Experimenter
           context:
