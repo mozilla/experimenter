@@ -204,6 +204,43 @@ class ExperimentResultsManager:
                     return True
         return False
 
+    def metric_has_data(
+        self, metric_slug, group, analysis_basis, segment, reference_branch=None
+    ):
+        if self.experiment.results_data:
+            window_results = (
+                self.get_window_results(analysis_basis, segment, "overall")
+                or self.get_window_results(analysis_basis, segment, "weekly")
+                or self.get_window_results(analysis_basis, segment, "daily")
+            )
+
+            for branch in self.experiment.get_sorted_branches():
+                if branch.slug == reference_branch:
+                    continue
+
+                metric_data = (
+                    window_results.get(branch.slug, {})
+                    .get("branch_data", {})
+                    .get(group, {})
+                    .get(metric_slug, {})
+                )
+
+                abs_point_data = metric_data.get("absolute", {}).get("first", {})
+                rel_point_data = (
+                    metric_data.get("relative_uplift", {})
+                    .get(reference_branch, {})
+                    .get("first", {})
+                )
+
+                def check_valid_point(point):
+                    return any(value != 0 for value in point.values())
+
+                if (not abs_point_data or not check_valid_point(abs_point_data)) and (
+                    not rel_point_data or not check_valid_point(rel_point_data)
+                ):
+                    return False
+        return True
+
     def get_kpi_metrics(
         self, analysis_basis, segment, reference_branch, window="overall"
     ):
@@ -252,6 +289,10 @@ class ExperimentResultsManager:
                 reference_branch,
             )
 
+            kpi["has_data"] = self.metric_has_data(
+                kpi["slug"], kpi["group"], analysis_basis, segment, reference_branch
+            )
+
         return kpi_metrics
 
     def get_remaining_metrics_metadata(
@@ -288,6 +329,9 @@ class ExperimentResultsManager:
                             analysis_basis,
                             segment,
                             reference_branch,
+                        ),
+                        "has_data": self.metric_has_data(
+                            slug, group, analysis_basis, segment
                         ),
                     }
                 )
@@ -343,6 +387,13 @@ class ExperimentResultsManager:
                     "overall_change": self.get_overall_change(
                         "other_metrics",
                         metric.slug,
+                        analysis_basis,
+                        segment,
+                        reference_branch,
+                    ),
+                    "has_data": self.metric_has_data(
+                        metric.slug,
+                        "other_metrics",
                         analysis_basis,
                         segment,
                         reference_branch,

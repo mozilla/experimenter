@@ -420,6 +420,7 @@ class TestExperimentResultsManager(TestCase):
                         "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
                         "display_type": "percentage",
                         "overall_change": "neutral",
+                        "has_data": False,
                     },
                     {
                         "group": "search_metrics",
@@ -427,6 +428,7 @@ class TestExperimentResultsManager(TestCase):
                         "slug": "search_count",
                         "description": "Daily mean number of searches per user.",
                         "overall_change": "neutral",
+                        "has_data": False,
                     },
                     {
                         "group": "other_metrics",
@@ -434,6 +436,7 @@ class TestExperimentResultsManager(TestCase):
                         "slug": "client_level_daily_active_users_v2",
                         "description": "Average number of client that sent a main ping per day.",  # noqa E501
                         "overall_change": "neutral",
+                        "has_data": False,
                     },
                 ],
             ),
@@ -447,6 +450,7 @@ class TestExperimentResultsManager(TestCase):
                         "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
                         "display_type": "percentage",
                         "overall_change": "neutral",
+                        "has_data": False,
                     },
                     {
                         "group": "search_metrics",
@@ -454,6 +458,7 @@ class TestExperimentResultsManager(TestCase):
                         "slug": "search_count",
                         "description": "Daily mean number of searches per user.",
                         "overall_change": "neutral",
+                        "has_data": False,
                     },
                     {
                         "group": "other_metrics",
@@ -461,6 +466,7 @@ class TestExperimentResultsManager(TestCase):
                         "slug": "days_of_use",
                         "description": "Average number of days each client sent a main ping.",  # noqa E501
                         "overall_change": "neutral",
+                        "has_data": False,
                     },
                 ],
             ),
@@ -469,6 +475,7 @@ class TestExperimentResultsManager(TestCase):
     def test_get_kpi_metrics_returns_correct_metrics(
         self, kpi_slug, expected_kpi_metrics
     ):
+        self.maxDiff = None
         self.experiment.results_data = {
             "v3": {
                 "overall": {
@@ -840,6 +847,7 @@ class TestExperimentResultsManager(TestCase):
                 "description": "Average number of client that sent a main ping per day.",
                 "has_errors": True,
                 "overall_change": "neutral",
+                "has_data": False,
             },
             kpi_metrics,
         )
@@ -1404,6 +1412,278 @@ class TestExperimentResultsManager(TestCase):
                 "enrollments",
                 "all",
                 "branch-a",
+            ),
+            expected,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                "urlbar_amazon_search_count",
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 140,
+                                                            "upper": 160,
+                                                            "point": 150,
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                True,
+            ),
+            (
+                "urlbar_amazon_search_count",
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 0,
+                                                            "upper": 0,
+                                                            "point": 0,
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                False,
+            ),
+            (
+                "client_level_daily_active_users_v2",
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "client_level_daily_active_users_v2": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {"first": {}},
+                                                        "branch-b": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "client_level_daily_active_users_v2": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                        "branch-b": {"first": {}},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                True,
+            ),
+            (
+                "client_level_daily_active_users_v2",
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "client_level_daily_active_users_v2": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                        "branch-b": {
+                                                            "first": {
+                                                                "lower": 0,
+                                                                "upper": 0,
+                                                                "point": 0,
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "client_level_daily_active_users_v2": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": 0,
+                                                                "upper": 0,
+                                                                "point": 0,
+                                                            }
+                                                        },
+                                                        "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                False,
+            ),
+        ]
+    )
+    def test_metrics_have_data(self, metric_slug, results_data, expected):
+        self.experiment.results_data = results_data
+        self.experiment.delete_branches()
+
+        self.experiment.reference_branch = NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch A", slug="branch-a"
+        )
+        NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch B", slug="branch-b"
+        )
+        self.experiment.save()
+
+        self.assertEqual(
+            self.results_manager.metric_has_data(
+                metric_slug,
+                "other_metrics",
+                "enrollments",
+                "all",
+                reference_branch="branch-a",
+            ),
+            expected,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "overall": {},
+                        "daily": {},
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 140,
+                                                            "upper": 160,
+                                                            "point": 150,
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                True,
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {},
+                        "weekly": {},
+                        "daily": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 0.5,
+                                                            "upper": 1.5,
+                                                            "point": 1.0,
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                True,
+            ),
+        ]
+    )
+    def test_metrics_have_data_different_windows(self, results_data, expected):
+        self.experiment.results_data = results_data
+        self.experiment.delete_branches()
+
+        self.experiment.reference_branch = NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch A", slug="branch-a"
+        )
+        NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch B", slug="branch-b"
+        )
+        self.experiment.save()
+
+        self.assertEqual(
+            self.results_manager.metric_has_data(
+                "urlbar_amazon_search_count",
+                "other_metrics",
+                "enrollments",
+                "all",
+                reference_branch="branch-a",
             ),
             expected,
         )
