@@ -34,7 +34,8 @@
             <div class="col">
               <label for="id_feature_configs" class="form-label">
                 You must select at least one feature configuration for your experiment.
-                <a target="_blank" href="https://experimenter.info/feature-definition/">Learn more</a>
+                <a target="_blank"
+                   href="https://experimenter.info/technical-reference/feature-definition">Learn more</a>
               </label>
               {{ form.feature_configs }}
               {% for error in validation_errors.feature_configs %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
@@ -45,8 +46,7 @@
               <div class="form-check">
                 {{ form.is_rollout }}
                 <label class="form-check-label" for="id_is_rollout">This is a rollout (single branch)</label>
-                <a target="_blank"
-                   href="https://experimenter.info/deep-dives/experimenter/rollouts">Learn more</a>
+                <a target="_blank" href="https://experimenter.info/advanced/rollouts">Learn more</a>
               </div>
               {% for error in validation_errors.is_rollout %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             </div>
