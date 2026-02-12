@@ -16,6 +16,11 @@ DOCKER_BUILD = docker buildx build
 # Extra flags for docker buildx build, per target. Override to add caching, --load, etc.
 MEGAZORD_BUILD_FLAGS ?=
 EXPERIMENTER_BUILD_FLAGS ?=
+DEV_BUILD_FLAGS ?=
+SCHEMAS_BUILD_FLAGS ?=
+
+# Interactive flags for docker run. Set to empty for non-TTY environments (CI).
+DOCKER_RUN_INTERACTIVE ?= -ti
 
 WORKFLOW := build
 EPOCH_TIME := $(shell date +"%s")
@@ -124,7 +129,7 @@ update_application_services: build_megazords
 		/application-services/update-application-services.sh
 
 build_dev: ssl build_megazords
-	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
+	$(DOCKER_BUILD) $(DEV_BUILD_FLAGS) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
 build_integration_test: ssl build_megazords
 	$(DOCKER_BUILD) -f experimenter/tests/integration/Dockerfile -t experimenter:integration-tests experimenter/
@@ -327,7 +332,7 @@ build_demo_app:
 # nimbus schemas package
 SCHEMAS_ENV ?=  # This is empty by default
 SCHEMAS_VERSION = \$$(cat VERSION)
-SCHEMAS_RUN = docker run --rm -ti $(SCHEMAS_ENV) -v ./schemas:/schemas -v /schemas/node_modules schemas:dev sh -c
+SCHEMAS_RUN = docker run --rm $(DOCKER_RUN_INTERACTIVE) $(SCHEMAS_ENV) -v ./schemas:/schemas -v /schemas/node_modules schemas:dev sh -c
 SCHEMAS_BLACK = black --check --diff .
 SCHEMAS_RUFF = ruff check .
 SCHEMAS_DIFF_PYDANTIC = \
@@ -344,7 +349,7 @@ SCHEMAS_VERSION_PYPI = poetry version ${SCHEMAS_VERSION};
 SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
 
 schemas_docker_build:  ## Build schemas docker image
-	$(DOCKER_BUILD) --target dev -f schemas/Dockerfile -t schemas:dev schemas/
+	$(DOCKER_BUILD) $(SCHEMAS_BUILD_FLAGS) --target dev -f schemas/Dockerfile -t schemas:dev schemas/
 
 schemas_build: schemas_docker_build  ## Build the mozilla_nimbus_schemas packages.
 	$(SCHEMAS_RUN) "$(SCHEMAS_GENERATE) && $(SCHEMAS_DIST_PYPI)"
