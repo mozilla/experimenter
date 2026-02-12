@@ -20,7 +20,7 @@ This ADR is deciding what to do— in the case of messaging— about the attribu
 
 ### Current status: no coenrollments
 
-Currently, for [experimenting with mobile `messaging`](https://experimenter.info/mobile-messaging/#experimenting-with-messages), the message sender (the user) must identify which message or messages are under experiment, then the system works out the experiment. For example, the feature JSON for annotating a message as being under experiment is:
+Currently, for [experimenting with mobile `messaging`](https://experimenter.info/messaging/desktop/mobile-messaging#experimenting-with-messages), the message sender (the user) must identify which message or messages are under experiment, then the system works out the experiment. For example, the feature JSON for annotating a message as being under experiment is:
 
 ```json
 {
@@ -36,7 +36,7 @@ This works because:
 1. the key `message-under-experiment` comes from exactly zero or one experiments
 2. if the message being displayed is named as being under experiment, then the feature is in an experiment, and the system can deduce _which_ experiment.
 
-The [`is-control` message property](https://experimenter.info/mobile-messaging/#control-messages) is used to label messages that are control messages.
+The [`is-control` message property](https://experimenter.info/messaging/desktop/mobile-messaging#control-messages) is used to label messages that are control messages.
 
 ```json
 {
@@ -138,5 +138,5 @@ When the message is displayed, the `experiment` property is the experiment slug;
 
 ## Links
 
-* [Experimenting with mobile messaging](https://experimenter.info/mobile-messaging/#experimenting-with-messages)
+* [Experimenting with mobile messaging](https://experimenter.info/messaging/desktop/mobile-messaging#experimenting-with-messages)
 * [EXP-3602 Support for coenrollment features](https://mozilla-hub.atlassian.net/browse/EXP-3602) epic
