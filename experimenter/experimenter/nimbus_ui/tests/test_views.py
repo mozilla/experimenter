@@ -3530,26 +3530,6 @@ class TestResultsView(AuthTestCase):
         self.assertIn("secondary_outcome_links", response.context["experiment_context"])
 
 
-@mock_valid_outcomes
-class TestOldResultsView(AuthTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        Outcomes.clear_cache()
-
-    def test_render_to_response(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-        )
-
-        response = self.client.get(
-            reverse("nimbus-ui-results-old", kwargs={"slug": experiment.slug}),
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["experiment"], experiment)
-        self.assertTemplateUsed(response, "nimbus_experiments/results-old.html")
-
-
 class TestBranchScreenshotCreateView(AuthTestCase):
     def test_post_creates_screenshot(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
