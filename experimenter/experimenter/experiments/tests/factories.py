@@ -459,33 +459,39 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     firefox_min_version = NimbusExperiment.Version.FIREFOX_100
     application = NimbusExperiment.Application.DESKTOP
     channel = factory.LazyAttribute(
-        lambda o: random.choice(
-            list(
-                NimbusExperiment.APPLICATION_CONFIGS[o.application].channel_app_id.keys()
-            )
-        ).value
-        if o.application != NimbusExperiment.Application.DESKTOP
-        else NimbusExperiment.Channel.NO_CHANNEL
+        lambda o: (
+            random.choice(
+                list(
+                    NimbusExperiment.APPLICATION_CONFIGS[
+                        o.application
+                    ].channel_app_id.keys()
+                )
+            ).value
+            if o.application != NimbusExperiment.Application.DESKTOP
+            else NimbusExperiment.Channel.NO_CHANNEL
+        )
     )
     channels = factory.LazyAttribute(
-        lambda o: [
-            str(c)
-            for c in set(
-                random.choices(
-                    list(
-                        set(
-                            NimbusExperiment.APPLICATION_CONFIGS[
-                                o.application
-                            ].channel_app_id.keys()
-                        )
-                        - {NimbusExperiment.Channel.NO_CHANNEL}
-                    ),
-                    k=2,
+        lambda o: (
+            [
+                str(c)
+                for c in set(
+                    random.choices(
+                        list(
+                            set(
+                                NimbusExperiment.APPLICATION_CONFIGS[
+                                    o.application
+                                ].channel_app_id.keys()
+                            )
+                            - {NimbusExperiment.Channel.NO_CHANNEL}
+                        ),
+                        k=2,
+                    )
                 )
-            )
-        ]
-        if o.application == NimbusExperiment.Application.DESKTOP
-        else []
+            ]
+            if o.application == NimbusExperiment.Application.DESKTOP
+            else []
+        )
     )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
     targeting_config_slug = NimbusExperiment.TargetingConfig.NO_TARGETING
@@ -511,7 +517,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     is_firefox_labs_opt_in = factory.LazyAttribute(lambda o: False)
     firefox_labs_description_links = factory.LazyAttribute(lambda o: "null")
     requires_restart = factory.LazyAttribute(
-        lambda o: (random.choice([True, False]) if o.is_firefox_labs_opt_in else False)
+        lambda o: random.choice([True, False]) if o.is_firefox_labs_opt_in else False
     )
     results_data = {"v3": {"overall": {"enrollments": {"all": {}}}}}
 

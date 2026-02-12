@@ -3894,6 +3894,46 @@ FX_148_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_149_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx149 Feb-09 Trainhop",
+    slug="newtab-149-0209-trainhop",
+    description=(
+        "Desktop users having the New Tab 149.1.20260121.51415 train hop, "
+        "which includes users of Fx147"
+    ),
+    targeting="newtabAddonVersion|versionCompare('149.1.20260121.51415') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025_AND_FX_149_TRAINHOP = NimbusTargetingConfig(
+    name="TOU accepted after Dec 9 2025, non-Linux, Fx149 trainhop",
+    slug="tou_accepted_and_fx149_trainhop",
+    description=(
+        "Users who have accepted TOU on or after Dec 9 2025, are not on Linux, "
+        "and have the New Tab 149.1.20260121.51415 train hop"
+    ),
+    targeting=f"""
+    (
+        (
+            !os.isLinux
+            &&
+            {HAS_TOU_ACCEPTED_DATE}
+            &&
+            ({TOU_ACCEPTED_DATE}  >= {DEC_9_2025})
+        )
+        &&
+        newtabAddonVersion|versionCompare('149.1.20260121.51415') >= 0
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",

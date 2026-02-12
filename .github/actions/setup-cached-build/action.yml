@@ -1,0 +1,66 @@
+name: "Setup Cached Docker Build"
+description: "Authenticate to GAR, set up Buildx, and build megazords with registry cache"
+
+inputs:
+  gar-cache:
+    description: "GAR cache path prefix"
+    default: "us-docker.pkg.dev/moz-fx-experimenter-prod-6cd5/experimenter-prod/cache"
+  arch:
+    description: "Architecture tag for cache (e.g. x86_64, aarch64)"
+    default: "x86_64"
+  gcp-project-number:
+    description: "GCP project number for workload identity"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: projects/${{ inputs.gcp-project-number }}/locations/global/workloadIdentityPools/github-actions/providers/github-actions
+        service_account: artifact-writer@moz-fx-experimenter-prod-6cd5.iam.gserviceaccount.com
+
+    - name: Login to Artifact Registry
+      shell: bash
+      run: gcloud auth configure-docker us-docker.pkg.dev --quiet
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build megazords with cache
+      shell: bash
+      env:
+        MEGAZORD_BUILD_FLAGS: >-
+          --cache-from type=registry,ref=${{ inputs.gar-cache }}/megazords-cache:${{ inputs.arch }}
+          --cache-to type=registry,ref=${{ inputs.gar-cache }}/megazords-cache:${{ inputs.arch }},mode=max
+          --load
+          -t ${{ inputs.gar-cache }}/megazords:${{ inputs.arch }}
+      run: make build_megazords
+
+    - name: Push megazords to registry
+      shell: bash
+      run: docker push ${{ inputs.gar-cache }}/megazords:${{ inputs.arch }}
+
+    - name: Build schemas with cache
+      uses: docker/build-push-action@v6
+      with:
+        context: schemas/
+        file: schemas/Dockerfile
+        target: dev
+        tags: schemas:dev
+        load: true
+        cache-from: type=registry,ref=${{ inputs.gar-cache }}/schemas-cache:${{ inputs.arch }}
+        cache-to: type=registry,ref=${{ inputs.gar-cache }}/schemas-cache:${{ inputs.arch }},mode=max
+
+    - name: Export build flags
+      shell: bash
+      env:
+        GAR_CACHE: ${{ inputs.gar-cache }}
+        ARCH: ${{ inputs.arch }}
+      run: |
+        echo "MEGAZORD_BUILD_FLAGS=--load" >> "$GITHUB_ENV"
+        echo "EXPERIMENTER_BUILD_FLAGS=--build-context experimenter:megazords=docker-image://${GAR_CACHE}/megazords:${ARCH} --cache-from type=registry,ref=${GAR_CACHE}/test-cache:${ARCH} --cache-to type=registry,ref=${GAR_CACHE}/test-cache:${ARCH},mode=max --load" >> "$GITHUB_ENV"
+        echo "DEV_BUILD_FLAGS=--build-context experimenter:megazords=docker-image://${GAR_CACHE}/megazords:${ARCH} --cache-from type=registry,ref=${GAR_CACHE}/dev-cache:${ARCH} --cache-to type=registry,ref=${GAR_CACHE}/dev-cache:${ARCH},mode=max --load" >> "$GITHUB_ENV"
+        echo 'SCHEMAS_BUILD_FLAGS=--load' >> "$GITHUB_ENV"
+        echo 'DOCKER_RUN_INTERACTIVE=' >> "$GITHUB_ENV"

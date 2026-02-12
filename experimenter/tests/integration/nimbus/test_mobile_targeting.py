@@ -28,10 +28,10 @@ class MockMetricsHandler(nimbus_rust.MetricsHandler):
         pass
 
 
-def client_info_list():
+def load_app_context_data():
     path = Path(__file__).parent / "app_contexts.json"
     with path.open() as file:
-        return [r["app_context"] for r in json.load(file)["query_result"]["data"]["rows"]]
+        return json.load(file)
 
 
 @pytest.fixture(params=helpers.load_targeting_configs(app="MOBILE"))
@@ -63,7 +63,7 @@ def load_app_context():
 def fixture_sdk_client():
     def _client_helper(app_context):
         return nimbus_rust.NimbusClient(
-            app_context, None, [], str(Path.cwd()), MockMetricsHandler(), None, None, ""
+            app_context, None, [], str(Path.cwd()), MockMetricsHandler(), None, None
         )
 
     return _client_helper
@@ -71,14 +71,13 @@ def fixture_sdk_client():
 
 @pytest.mark.run_targeting
 @pytest.mark.parametrize("targeting", helpers.load_targeting_configs("MOBILE"))
-@pytest.mark.parametrize("context", client_info_list())
 def test_check_mobile_targeting(
     sdk_client,
     load_app_context,
-    context,
     targeting,
     experiment_slug,
 ):
+    context = load_app_context_data()
     # The context fixtures can only contain strings or null
     context["language"] = context["language"][:2]  # strip region
     # This context dictionary supports non string values

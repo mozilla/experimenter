@@ -19,6 +19,13 @@ features:
         description: If true, we will show the new address bar menu entry
         type: Boolean
         default: true
+  ads-client:
+    description: This property defines if the rust ads client is enabled
+    variables:
+      status:
+        description: If true, we will enable the rust ads client
+        type: Boolean
+        default: false
   app-icon-selection-feature:
     description: |
       Controls which app icons users can select as their default app icon from the App Icon Selection screen in Settings.
@@ -784,13 +791,6 @@ features:
           Toggle between standard (false) and Japan-specific (true) assets and content.
         type: Boolean
         default: false
-  privacy-notice-feature:
-    description: This feature manages the prviacy notice homepage card
-    variables:
-      enabled:
-        description: Setting 'enabled' to true will allow the privacy notice homepage card to be presented under certain conditions
-        type: Boolean
-        default: false
   recent-searches-feature:
     description: |
       Enables recent searches.
@@ -891,6 +891,15 @@ features:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
         default: afterFourHours
+  summarizer-app-attest-auth-feature:
+    description: |
+      This feature enables app attest authentication for the summarizer.
+    variables:
+      enabled:
+        description: |
+          Enables app attest authentication for the summarizer.
+        type: Boolean
+        default: false
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.
