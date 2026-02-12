@@ -6015,13 +6015,13 @@ class TestNimbusAlert(TestCase):
         experiment = NimbusExperimentFactory.create()
         NimbusAlert.objects.create(
             experiment=experiment,
-            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
             message="Recent error",
         )
         self.assertTrue(
             NimbusAlert.was_sent_recently(
                 experiment,
-                NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+                NimbusConstants.AlertType.ANALYSIS_ERROR,
                 within_hours=24,
             )
         )
@@ -6030,7 +6030,7 @@ class TestNimbusAlert(TestCase):
         experiment = NimbusExperimentFactory.create()
         alert = NimbusAlert.objects.create(
             experiment=experiment,
-            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
             message="Old error",
         )
         NimbusAlert.objects.filter(id=alert.id).update(
@@ -6039,7 +6039,7 @@ class TestNimbusAlert(TestCase):
         self.assertFalse(
             NimbusAlert.was_sent_recently(
                 experiment,
-                NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY,
+                NimbusConstants.AlertType.ANALYSIS_ERROR,
                 within_hours=24,
             )
         )
@@ -6049,6 +6049,6 @@ class TestNimbusAlert(TestCase):
 
         self.assertFalse(
             NimbusAlert.was_sent_recently(
-                experiment, NimbusConstants.AlertType.ANALYSIS_ERROR_DAILY
+                experiment, NimbusConstants.AlertType.ANALYSIS_ERROR
             )
         )
