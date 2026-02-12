@@ -380,3 +380,328 @@ class TestCheckResultsReady(TestCase):
             mock_metrics.incr.assert_called_with("results_ready_alert.weekly.failed")
 
         self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 0)
+
+
+class TestCheckAnalysisErrors(TestCase):
+    def test_sends_alert_for_analysis_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "errors": {
+                        "experiment": [
+                            {
+                                "exception_type": "NoEnrollmentPeriodException",
+                                "message": "No enrollment period",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ],
+                        "default_browser_action": [
+                            {
+                                "exception_type": "StatisticComputationException",
+                                "message": "Error computing statistic",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ],
+                    }
+                }
+            },
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+
+            mock_send_slack.assert_called_once()
+            call_args = mock_send_slack.call_args
+            self.assertEqual(call_args[1]["experiment_id"], experiment.id)
+            self.assertIn("Analysis errors detected", call_args[1]["action_text"])
+            self.assertIn(
+                "experiment: NoEnrollmentPeriodException", call_args[1]["action_text"]
+            )
+            self.assertIn(
+                "default_browser_action: StatisticComputationException",
+                call_args[1]["action_text"],
+            )
+            self.assertEqual(call_args[1]["email_addresses"], [experiment.owner.email])
+
+        alert = NimbusAlert.objects.get(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+        )
+        self.assertIn("Analysis errors detected", alert.message)
+
+    def test_does_not_resend_same_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "errors": {
+                        "experiment": [
+                            {
+                                "exception_type": "NoEnrollmentPeriodException",
+                                "message": "No enrollment period",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ]
+                    }
+                }
+            },
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            self.assertEqual(mock_send_slack.call_count, 1)
+
+        # Second run with same errors - should not send alert
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            ).count(),
+            1,
+        )
+
+    def test_sends_new_alert_for_different_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "errors": {
+                        "experiment": [
+                            {
+                                "exception_type": "NoEnrollmentPeriodException",
+                                "message": "No enrollment period",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ]
+                    }
+                }
+            },
+        )
+
+        # First alert
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            self.assertEqual(mock_send_slack.call_count, 1)
+
+        # Update experiment with different error
+        experiment.results_data = {
+            "v3": {
+                "errors": {
+                    "experiment": [
+                        {
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "message": "No enrollment period",
+                            "analysis_basis": "enrollments",
+                            "segment": "all",
+                        }
+                    ],
+                    "default_browser_action": [
+                        {
+                            "exception_type": "StatisticComputationException",
+                            "message": "Error computing statistic",
+                            "analysis_basis": "enrollments",
+                            "segment": "all",
+                        }
+                    ],
+                }
+            }
+        }
+        experiment.save()
+
+        # Second run with additional error - should send new alert
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            self.assertEqual(mock_send_slack.call_count, 1)
+
+        self.assertEqual(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            ).count(),
+            1,
+        )
+
+    def test_no_alert_when_no_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={"v3": {}},
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            ).count(),
+            0,
+        )
+
+    def test_no_alert_when_errors_empty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={"v3": {"errors": {}}},
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            ).count(),
+            0,
+        )
+
+    def test_no_alert_when_no_results_data(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, results_data=None
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            ).count(),
+            0,
+        )
+
+    def test_no_alert_when_error_missing_exception_type(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "errors": {
+                        "experiment": [
+                            {
+                                "message": "No enrollment period",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ]
+                    }
+                }
+            },
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            ).count(),
+            0,
+        )
+
+    def test_skips_empty_error_lists(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "errors": {
+                        "experiment": [],
+                        "default_browser_action": [
+                            {
+                                "exception_type": "StatisticComputationException",
+                                "message": "Error computing statistic",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ],
+                    }
+                }
+            },
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            mock_send_slack.assert_called_once()
+            call_args = mock_send_slack.call_args
+            self.assertIn("Analysis errors detected", call_args[1]["action_text"])
+            self.assertNotIn("experiment:", call_args[1]["action_text"])
+            self.assertIn(
+                "default_browser_action: StatisticComputationException",
+                call_args[1]["action_text"],
+            )
+
+    def test_handles_error_alert_slack_failure(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "errors": {
+                        "experiment": [
+                            {
+                                "exception_type": "NoEnrollmentPeriodException",
+                                "message": "No enrollment period",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ]
+                    }
+                }
+            },
+        )
+
+        with (
+            mock.patch(
+                "experimenter.slack.tasks.send_slack_notification",
+                side_effect=Exception("Slack API error"),
+            ),
+            mock.patch("experimenter.slack.tasks.logger") as mock_logger,
+            mock.patch("experimenter.slack.tasks.metrics") as mock_metrics,
+        ):
+            with self.assertRaises(Exception) as context:
+                tasks.check_single_experiment_alerts(experiment.id)
+
+            self.assertIn("Slack API error", str(context.exception))
+            mock_logger.error.assert_called_once()
+            mock_metrics.incr.assert_called_with("analysis_error_alert.failed")
+
+        self.assertEqual(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            ).count(),
+            0,
+        )

@@ -96,8 +96,8 @@ def check_single_experiment_alerts(experiment_id):
         # Check if results became available
         _check_results_ready(experiment)
 
-        # TODO: Future implementation - Check for analysis error
-        # to detect and send alerts for daily, weekly, overall errors
+        # Check for analysis errors
+        _check_analysis_errors(experiment)
 
     except NimbusExperiment.DoesNotExist:
         logger.error(f"Experiment {experiment_id} not found")
@@ -153,4 +153,93 @@ def _send_results_ready_alert(experiment, window, alert_type):
             f"Failed to send {window} results alert for experiment {experiment.slug}: {e}"
         )
         metrics.incr(f"results_ready_alert.{window}.failed")
+        raise
+
+
+def _extract_error_keys_from_message(message):
+    return {
+        line.lstrip("- ").replace(": ", "|")
+        for line in message.split("\n")
+        if ": " in line
+    }
+
+
+def _check_analysis_errors(experiment):
+    if not experiment.results_data:
+        return
+
+    errors = experiment.results_data.get("v3", {}).get("errors", {})
+    if not errors:
+        return
+
+    # Build list of current errors with unique keys
+    error_items = []
+    current_error_keys = set()
+
+    for error_source, error_list in errors.items():
+        if not error_list:
+            continue
+
+        first_error = error_list[0]
+        exception_type = first_error.get("exception_type")
+        if not exception_type:
+            continue
+
+        error_key = f"{error_source}|{exception_type}"
+        current_error_keys.add(error_key)
+        error_items.append(
+            {
+                "source": error_source,
+                "type": exception_type,
+                "message": first_error.get("message"),
+            }
+        )
+
+    if not error_items:
+        return
+
+    # Get previous alert (if exists)
+    previous_alert = NimbusAlert.objects.filter(
+        experiment=experiment,
+        alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+    ).first()
+
+    # Skip if errors haven't changed
+    if previous_alert:
+        previous_error_keys = _extract_error_keys_from_message(previous_alert.message)
+        if current_error_keys == previous_error_keys:
+            return
+
+    # New/different errors detected! Send alert
+    _send_error_alert(experiment, error_items)
+
+
+def _send_error_alert(experiment, error_items):
+    try:
+        email_addresses = [experiment.owner.email] if experiment.owner else []
+
+        error_lines = "\n".join(
+            [f"- {item['source']}: {item['type']}" for item in error_items]
+        )
+        message = f"Analysis errors detected:\n{error_lines}"
+
+        send_slack_notification(
+            experiment_id=experiment.id,
+            email_addresses=email_addresses,
+            action_text=message,
+        )
+
+        # Update or create alert record - keeps only one alert per experiment
+        NimbusAlert.objects.update_or_create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            defaults={"message": message},
+        )
+
+        logger.info(f"Sent analysis error alert for {experiment.slug}")
+        metrics.incr("analysis_error_alert.sent")
+
+    except Exception as e:
+        logger.error(f"Failed to send error alert for {experiment.slug}: {e}")
+        metrics.incr("analysis_error_alert.failed")
         raise
