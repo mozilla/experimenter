@@ -1509,6 +1509,18 @@ data_source = "clients_daily"
 friendly_name = "Retained"
 description = "Records whether a client submitted any pings (i.e. used Firefox)."
 
+[metrics.active_in_last_3_days]
+select_expression = "COALESCE(MIN(days_since_desktop_active), 30) < 3"
+data_source = "firefox_desktop_baseline_active_users_view"
+friendly_name = "3 Days Retention"
+description = "Records whether a client submitted any pings (i.e. used Firefox) on any of the last 3 days."
+
+[metrics.active_in_last_3_days_legacy]
+select_expression = "COALESCE(MIN(mozfun.bits28.days_since_seen(days_active_bits)), 30) < 3"
+data_source = "firefox_desktop_active_users_view"
+friendly_name = "3 Days Retention"
+description = "Records whether a client submitted any pings (i.e. used Firefox) on any of the last 3 days. Uses legacy telemetry."
+
 [metrics.non_ssl_loads_v1]
 select_expression = """SUM(
     mozfun.map.get_key(mozfun.hist.extract(payload.histograms.http_pageload_is_ssl).values, 0)
@@ -2204,7 +2216,7 @@ submission_date_column = "submission_date"
 client_id_column = "client_id"
 glean_client_id_column = "client_id"
 legacy_client_id_column = "legacy_telemetry_client_id"
-experiments_column_type = "none"
+experiments_column_type = "native"
 deprecated = false
 
 [data_sources.site_breakage_events]
