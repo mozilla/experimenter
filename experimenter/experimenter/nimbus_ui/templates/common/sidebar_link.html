@@ -8,7 +8,7 @@
     <i class="{{ icon }} pe-2"></i>
     <span>{{ title }}</span>
   </a>
-  {% if request.path == new_results_url %}
+  {% if request.path == results_url %}
     <div class="accordion ms-2" id="{{ title|lower|cut:" " }}-accordion">
       {% for item in subsection %}
         <div class="accordion-item ms-4 text-secondary bg-transparent border-0 {% if forloop.last %}mb-3{% endif %}">
