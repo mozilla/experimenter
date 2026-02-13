@@ -1125,6 +1125,210 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
         return f"{obj.experiment_url}results" if obj.results_ready else ""
 
 
+class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
+    owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
+    hypothesis = serializers.SerializerMethodField()
+    qa_status = serializers.SerializerMethodField()
+    feature_configs = serializers.SerializerMethodField()
+    branches = serializers.SerializerMethodField()
+    documentation_links = serializers.SerializerMethodField()
+    projects = serializers.SerializerMethodField()
+    locales = serializers.SerializerMethodField()
+    countries = serializers.SerializerMethodField()
+    languages = serializers.SerializerMethodField()
+    targeting = serializers.SerializerMethodField()
+    channels = serializers.SerializerMethodField()
+    conclusion_recommendation_labels = serializers.SerializerMethodField()
+    experiment_url = serializers.CharField(read_only=True)
+    risk_flags = serializers.SerializerMethodField()
+    tags = serializers.SerializerMethodField()
+    required_experiments = serializers.SerializerMethodField()
+    excluded_experiments = serializers.SerializerMethodField()
+    application_display = serializers.SerializerMethodField()
+    parent_experiment = serializers.SerializerMethodField()
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "name",
+            "slug",
+            "status",
+            "public_description",
+            "hypothesis",
+            "is_rollout",
+            "owner",
+            "application_display",
+            "channels",
+            "feature_configs",
+            "branches",
+            "targeting",
+            "firefox_min_version",
+            "firefox_max_version",
+            "population_percent",
+            "is_sticky",
+            "is_first_run",
+            "locales",
+            "countries",
+            "languages",
+            "projects",
+            "proposed_duration",
+            "proposed_enrollment",
+            "total_enrolled_clients",
+            "_start_date",
+            "_enrollment_end_date",
+            "_end_date",
+            "published_date",
+            "primary_outcomes",
+            "secondary_outcomes",
+            "segments",
+            "risk_flags",
+            "documentation_links",
+            "qa_status",
+            "qa_comment",
+            "is_firefox_labs_opt_in",
+            "firefox_labs_title",
+            "firefox_labs_description",
+            "conclusion_recommendation_labels",
+            "takeaways_summary",
+            "takeaways_metric_gain",
+            "takeaways_gain_amount",
+            "takeaways_qbr_learning",
+            "project_impact",
+            "next_steps",
+            "experiment_url",
+            "tags",
+            "required_experiments",
+            "excluded_experiments",
+            "parent_experiment",
+        ]
+
+    def get_hypothesis(self, obj):
+        hypothesis = (obj.hypothesis or "").strip()
+        if hypothesis and not hypothesis.startswith("If we <do this"):
+            return hypothesis
+        return None
+
+    def get_qa_status(self, obj):
+        if obj.qa_status and obj.qa_status != NimbusExperiment.QAStatus.NOT_SET:
+            return obj.qa_status
+        return None
+
+    def get_feature_configs(self, obj):
+        return [
+            {"slug": fc.slug, "name": fc.name}
+            for fc in sorted(obj.feature_configs.all(), key=lambda f: f.name)
+        ]
+
+    def get_branches(self, obj):
+        ref_id = obj.reference_branch_id
+        result = []
+        for branch in sorted(obj.branches.all(), key=lambda b: b.slug):
+            fv_slugs = sorted(
+                fv.feature_config.slug
+                for fv in branch.feature_values.all()
+                if fv.feature_config
+            )
+            result.append(
+                {
+                    "name": branch.name,
+                    "slug": branch.slug,
+                    "description": branch.description,
+                    "ratio": branch.ratio,
+                    "is_control": branch.id == ref_id if ref_id else False,
+                    "feature_config_slugs": fv_slugs,
+                }
+            )
+        return result
+
+    def get_documentation_links(self, obj):
+        return [
+            {"title": link.get_title_display(), "link": link.link}
+            for link in obj.documentation_links.all()
+        ]
+
+    def get_projects(self, obj):
+        return [p.name for p in obj.projects.all()]
+
+    def get_locales(self, obj):
+        locales = list(obj.locales.all())
+        if not locales:
+            return None
+        return {
+            "exclude": obj.exclude_locales,
+            "codes": [loc.code for loc in locales],
+        }
+
+    def get_countries(self, obj):
+        countries = list(obj.countries.all())
+        if not countries:
+            return None
+        return {
+            "exclude": obj.exclude_countries,
+            "codes": [c.code for c in countries],
+        }
+
+    def get_languages(self, obj):
+        languages = list(obj.languages.all())
+        if not languages:
+            return None
+        return {
+            "exclude": obj.exclude_languages,
+            "codes": [lang.code for lang in languages],
+        }
+
+    def get_targeting(self, obj):
+        tc = obj.targeting_config
+        if tc:
+            return {"name": tc.name, "description": tc.description}
+        if obj.targeting_config_slug:
+            return {"name": obj.targeting_config_slug, "description": ""}
+        return None
+
+    def get_channels(self, obj):
+        result = []
+        if obj.channels:
+            result.extend(obj.channels)
+        elif obj.channel:
+            result.append(obj.channel)
+        return [c for c in result if c]
+
+    def get_tags(self, obj):
+        return sorted(t.name for t in obj.tags.all())
+
+    def get_required_experiments(self, obj):
+        return sorted(f"{e.name} ({e.slug})" for e in obj.required_experiments.all())
+
+    def get_excluded_experiments(self, obj):
+        return sorted(f"{e.name} ({e.slug})" for e in obj.excluded_experiments.all())
+
+    def get_conclusion_recommendation_labels(self, obj):
+        if obj.conclusion_recommendations:
+            return obj.conclusion_recommendation_labels
+        return []
+
+    def get_risk_flags(self, obj):
+        flags = []
+        if obj.risk_partner_related:
+            flags.append("Partner Related")
+        if obj.risk_revenue:
+            flags.append("Revenue")
+        if obj.risk_brand:
+            flags.append("Brand")
+        if obj.risk_message:
+            flags.append("Message")
+        if obj.risk_ai:
+            flags.append("AI")
+        return flags
+
+    def get_application_display(self, obj):
+        return obj.get_application_display()
+
+    def get_parent_experiment(self, obj):
+        if obj.parent:
+            return f"{obj.parent.name} ({obj.parent.slug})"
+        return None
+
+
 class NimbusBranchScreenshotReviewSerializer(NimbusBranchScreenshotSerializer):
     # Round-trip serialization & validation for review can use a string path
     image = serializers.CharField(required=True)
