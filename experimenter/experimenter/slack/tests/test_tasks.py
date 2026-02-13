@@ -419,9 +419,7 @@ class TestCheckAnalysisErrors(TestCase):
             call_args = mock_send_slack.call_args
             self.assertEqual(call_args[1]["experiment_id"], experiment.id)
             self.assertIn("Analysis errors detected", call_args[1]["action_text"])
-            self.assertIn(
-                "experiment: UnexpectedException", call_args[1]["action_text"]
-            )
+            self.assertIn("experiment: UnexpectedException", call_args[1]["action_text"])
             self.assertIn(
                 "default_browser_action: StatisticComputationException",
                 call_args[1]["action_text"],
