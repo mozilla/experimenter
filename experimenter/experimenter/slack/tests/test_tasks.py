@@ -664,7 +664,7 @@ class TestCheckAnalysisErrors(TestCase):
                 call_args[1]["action_text"],
             )
 
-    def test_handles_error_alert_slack_failure(self):
+    def test_ignores_expected_error_types(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             results_data={
@@ -674,6 +674,86 @@ class TestCheckAnalysisErrors(TestCase):
                             {
                                 "exception_type": "NoEnrollmentPeriodException",
                                 "message": "No enrollment period",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ],
+                        "default_browser_action": [
+                            {
+                                "exception_type": "RolloutSkipException",
+                                "message": "Rollout skipped",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ],
+                    }
+                }
+            },
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            # Neither error should trigger an alert since both are ignorable
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            ).count(),
+            0,
+        )
+
+    def test_alerts_on_non_ignorable_error_types(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "errors": {
+                        "experiment": [
+                            {
+                                "exception_type": "NoEnrollmentPeriodException",
+                                "message": "No enrollment period",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ],
+                        "default_browser_action": [
+                            {
+                                "exception_type": "UnexpectedException",
+                                "message": "Unexpected error occurred",
+                                "analysis_basis": "enrollments",
+                                "segment": "all",
+                            }
+                        ],
+                    }
+                }
+            },
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks.check_single_experiment_alerts(experiment.id)
+            # Only UnexpectedException should trigger an alert
+            mock_send_slack.assert_called_once()
+            call_args = mock_send_slack.call_args
+            self.assertIn("Analysis errors detected", call_args[1]["action_text"])
+            self.assertNotIn("NoEnrollmentPeriodException", call_args[1]["action_text"])
+            self.assertIn("UnexpectedException", call_args[1]["action_text"])
+
+    def test_handles_error_alert_slack_failure(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data={
+                "v3": {
+                    "errors": {
+                        "experiment": [
+                            {
+                                "exception_type": "StatisticComputationException",
+                                "message": "Error computing statistic",
                                 "analysis_basis": "enrollments",
                                 "segment": "all",
                             }

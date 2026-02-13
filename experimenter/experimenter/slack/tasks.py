@@ -185,6 +185,10 @@ def _check_analysis_errors(experiment):
         if not exception_type:
             continue
 
+        # Skip ignorable error types
+        if exception_type in NimbusConstants.IGNORABLE_ANALYSIS_ERROR_TYPES:
+            continue
+
         error_key = f"{error_source}|{exception_type}"
         current_error_keys.add(error_key)
         error_items.append(
