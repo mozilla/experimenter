@@ -760,10 +760,8 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
         )
         context["selected_reference_branch"] = selected_reference_branch
 
-        segments = list(analysis_data.get("overall", {}).get("enrollments", {}).keys())
         selected_segment = self.request.GET.get("segment", "all")
         context["selected_segment"] = selected_segment
-        context["segments"] = segments
 
         analysis_basis = self.request.GET.get(
             "analysis_basis",
@@ -775,8 +773,22 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
 
         context["invalid_exposure_status"] = NimbusUIConstants.ExposuresStatus.INVALID
 
+        displayed_window = "overall"
+        for window in ("overall", "weekly", "daily"):
+            if results_manager.get_window_results(
+                analysis_basis, selected_segment, window
+            ):
+                displayed_window = window
+                break
+
+        context["displayed_window"] = displayed_window
+        segments = list(
+            analysis_data.get(displayed_window, {}).get("enrollments", {}).keys()
+        )
+        context["segments"] = segments
+
         context["branch_data"] = results_manager.get_branch_data(
-            analysis_basis, selected_segment
+            analysis_basis, selected_segment, window=displayed_window
         )
 
         context["edit_outcome_summary_form"] = EditOutcomeSummaryForm(instance=experiment)
@@ -788,7 +800,10 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
         context["branch_leading_screenshot_forms"] = branch_leading_screenshot_forms
 
         all_metrics = results_manager.get_metric_data(
-            analysis_basis, selected_segment, selected_reference_branch
+            analysis_basis,
+            selected_segment,
+            selected_reference_branch,
+            window=displayed_window,
         )
         context["metric_area_data"] = all_metrics
 
@@ -803,7 +818,7 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
             for metric_metadata in metadata:
                 data = (
                     metric_data.get("data", {})
-                    .get("overall", {})
+                    .get(displayed_window, {})
                     .get(metric_metadata["slug"], {})
                 )
                 metric_ui_properties = {}
@@ -813,6 +828,7 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
                     selected_reference_branch,
                     metric_metadata["group"],
                     metric_metadata["slug"],
+                    window=displayed_window,
                 )
 
                 for branch_slug, branch_data in data.items():
