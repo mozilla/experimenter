@@ -7,7 +7,7 @@ from parameterized import parameterized
 
 from experimenter.base.tests.factories import LocaleFactory
 from experimenter.experiments.api.v7.serializers import NimbusExperimentSerializer
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusBranchScreenshot, NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
@@ -271,3 +271,17 @@ class TestNimbusExperimentSerializer(TestCase):
 
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["localizations"], None)
+
+    def test_serializer_screenshot_without_image(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+        branch = experiment.branches.first()
+        valid_screenshot = branch.screenshots.first()
+        NimbusBranchScreenshot.objects.create(branch=branch, image="", description="")
+
+        serializer = NimbusExperimentSerializer(experiment)
+        branch_data = next(
+            b for b in serializer.data["branches"] if b["slug"] == branch.slug
+        )
+        self.assertEqual(branch_data["screenshots"], [valid_screenshot.image.url])
