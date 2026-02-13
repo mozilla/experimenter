@@ -28,7 +28,7 @@ const App = () => {
     <>
       <Router basepath={BASE_PATH}>
         <ExperimentRoot path=":slug">
-          <PageResults path="results" />
+          <PageResults path="results-old" />
         </ExperimentRoot>
       </Router>
     </>

@@ -12,7 +12,15 @@
   </div>
   {% comment %} Overview {% endcomment %}
   <div class="px-5 pt-4 pb-5 shadow-sm rounded-4 bg-body border border-1">
-    <h4 class="mt-2">Overview</h4>
+    <div class="d-flex mt-2 align-items-center justify-content-between">
+      <h4 class="m-0">Overview</h4>
+      <div>
+        Results last calculated:
+        <span class="fw-bold">{{ experiment.results_data.v3.metadata.analysis_start_time|parse_date|date:"N j, Y g:i A"|default:"N/A" }}
+          {% if experiment.results_data.v3.metadata.analysis_start_time %}UTC{% endif %}
+        </span>
+      </div>
+    </div>
     <div id="{{ experiment.slug }}-results-overview">
       <div class="d-flex flex-column gap-4">
         <hr>

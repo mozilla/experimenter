@@ -3,6 +3,7 @@ from datetime import date
 
 import humanize
 from django import template
+from django.utils.dateparse import parse_datetime
 from django.utils.safestring import mark_safe
 
 from experimenter.experiments.constants import NimbusConstants
@@ -351,3 +352,10 @@ def dict_get(d, key):
     if isinstance(d, dict):
         return d.get(key)
     return None
+
+
+@register.filter
+def parse_date(value):
+    if isinstance(value, str):
+        return parse_datetime(value)
+    return value
