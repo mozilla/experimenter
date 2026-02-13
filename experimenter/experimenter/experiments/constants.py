@@ -811,7 +811,7 @@ class NimbusConstants:
         EXPERIMENT_LAUNCHED = "experiment_launched", "Experiment Launched"
         ENROLLMENT_HEALTHY = "enrollment_healthy", "Enrollment Healthy"
 
-    # Error types from Jetstream that are expected and don't want alerting
+    # Error types from Jetstream that are expected for non-analysis reasons and don't want alerting
     IGNORABLE_ANALYSIS_ERROR_TYPES = {
         "EndedException",
         "NoEnrollmentPeriodException",
