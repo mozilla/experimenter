@@ -58,8 +58,9 @@ class ExperimentResultsManager:
         reference_branch,
         outcome_group,
         outcome_slug,
+        window="overall",
     ):
-        overall_results = self.get_window_results(analysis_basis, segment, "overall")
+        overall_results = self.get_window_results(analysis_basis, segment, window)
         max_value = 0
 
         for branch in self.experiment.get_sorted_branches():
@@ -287,6 +288,7 @@ class ExperimentResultsManager:
                 analysis_basis,
                 segment,
                 reference_branch,
+                window=window,
             )
 
             kpi["has_data"] = self.metric_has_data(
@@ -390,6 +392,7 @@ class ExperimentResultsManager:
                         analysis_basis,
                         segment,
                         reference_branch,
+                        window=window,
                     ),
                     "has_data": self.metric_has_data(
                         metric.slug,
@@ -520,23 +523,32 @@ class ExperimentResultsManager:
         )
 
     def get_overall_change(
-        self, group, metric_slug, analysis_basis, segment, reference_branch
+        self,
+        group,
+        metric_slug,
+        analysis_basis,
+        segment,
+        reference_branch,
+        window="overall",
     ):
-        branch_results = self.get_window_results(analysis_basis, segment, "overall")
+        branch_results = self.get_window_results(analysis_basis, segment, window)
         overall_change = MetricSignificance.NEUTRAL
 
         for branch_slug, branch_data in branch_results.items():
             if branch_slug == reference_branch:
                 continue
 
-            metric_significance = (
+            metric_significance_list = (
                 branch_data.get("branch_data", {})
                 .get(group, {})
                 .get(metric_slug, {})
                 .get("significance", {})
                 .get(reference_branch, {})
-                .get("overall", {})
-                .get("1", MetricSignificance.NEUTRAL)
+                .get(window, {})
+            )
+
+            metric_significance = metric_significance_list.get(
+                str(len(metric_significance_list.keys())), MetricSignificance.NEUTRAL
             )
 
             significances = {metric_significance, overall_change}

@@ -3529,6 +3529,180 @@ class TestResultsView(AuthTestCase):
         self.assertIn("primary_outcome_links", response.context["experiment_context"])
         self.assertIn("secondary_outcome_links", response.context["experiment_context"])
 
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "exposures": {"all": {}},
+                            "enrollments": {
+                                "all": {
+                                    "control": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 210,
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        },
+                        "weekly": {
+                            "exposures": {"all": {}},
+                            "enrollments": {
+                                "all": {
+                                    "control": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 210,
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        },
+                        "daily": {
+                            "exposures": {"all": {}},
+                            "enrollments": {
+                                "all": {
+                                    "control": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 210,
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        },
+                    }
+                },
+                "overall",
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {},
+                        "weekly": {
+                            "exposures": {"all": {}},
+                            "enrollments": {
+                                "all": {
+                                    "control": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 210,
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        },
+                        "daily": {
+                            "exposures": {"all": {}},
+                            "enrollments": {
+                                "all": {
+                                    "control": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 210,
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        },
+                    }
+                },
+                "weekly",
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {},
+                        "weekly": {},
+                        "daily": {
+                            "exposures": {"all": {}},
+                            "enrollments": {
+                                "all": {
+                                    "control": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 210,
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        },
+                    }
+                },
+                "daily",
+            ),
+        ]
+    )
+    def test_correct_experiment_displayed_window(self, results_data, expected_window):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        experiment.results_data = results_data
+        experiment.save()
+
+        response = self.client.get(
+            reverse("nimbus-ui-results", kwargs={"slug": experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["displayed_window"], expected_window)
+
 
 @mock_valid_outcomes
 class TestOldResultsView(AuthTestCase):
