@@ -189,6 +189,7 @@ class BranchComparisonData(BaseModel):
 class SignificanceData(BaseModel):
     overall: dict[str, Any] = Field(default_factory=dict)
     weekly: dict[str, Any] = Field(default_factory=dict)
+    daily: dict[str, Any] = Field(default_factory=dict)
 
 
 class MetricData(BaseModel):
