@@ -391,8 +391,8 @@ class TestCheckAnalysisErrors(TestCase):
                     "errors": {
                         "experiment": [
                             {
-                                "exception_type": "NoEnrollmentPeriodException",
-                                "message": "No enrollment period",
+                                "exception_type": "UnexpectedException",
+                                "message": "Unexpected error occurred",
                                 "analysis_basis": "enrollments",
                                 "segment": "all",
                             }
@@ -420,7 +420,7 @@ class TestCheckAnalysisErrors(TestCase):
             self.assertEqual(call_args[1]["experiment_id"], experiment.id)
             self.assertIn("Analysis errors detected", call_args[1]["action_text"])
             self.assertIn(
-                "experiment: NoEnrollmentPeriodException", call_args[1]["action_text"]
+                "experiment: UnexpectedException", call_args[1]["action_text"]
             )
             self.assertIn(
                 "default_browser_action: StatisticComputationException",
@@ -442,8 +442,8 @@ class TestCheckAnalysisErrors(TestCase):
                     "errors": {
                         "experiment": [
                             {
-                                "exception_type": "NoEnrollmentPeriodException",
-                                "message": "No enrollment period",
+                                "exception_type": "UnexpectedException",
+                                "message": "Unexpected error occurred",
                                 "analysis_basis": "enrollments",
                                 "segment": "all",
                             }
@@ -482,8 +482,8 @@ class TestCheckAnalysisErrors(TestCase):
                     "errors": {
                         "experiment": [
                             {
-                                "exception_type": "NoEnrollmentPeriodException",
-                                "message": "No enrollment period",
+                                "exception_type": "UnexpectedException",
+                                "message": "Unexpected error occurred",
                                 "analysis_basis": "enrollments",
                                 "segment": "all",
                             }
@@ -506,8 +506,8 @@ class TestCheckAnalysisErrors(TestCase):
                 "errors": {
                     "experiment": [
                         {
-                            "exception_type": "NoEnrollmentPeriodException",
-                            "message": "No enrollment period",
+                            "exception_type": "UnexpectedException",
+                            "message": "Unexpected error occurred",
                             "analysis_basis": "enrollments",
                             "segment": "all",
                         }
