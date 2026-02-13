@@ -42,7 +42,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         return features
 
     def get_screenshots(self, obj):
-        return [s.image.url for s in obj.screenshots.all()]
+        return [s.image.url for s in obj.screenshots.all() if s.image and s.image.name]
 
 
 class NimbusExperimentSerializer(serializers.ModelSerializer):
