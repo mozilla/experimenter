@@ -9,7 +9,9 @@ from kinto_http import KintoException
 from parameterized import parameterized
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
+    NimbusAlert,
     NimbusChangeLog,
     NimbusEmail,
     NimbusExperiment,
@@ -1021,6 +1023,77 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertEqual(
             launching_experiment.computed_end_date, launching_experiment.proposed_end_date
         )
+
+    @mock.patch("experimenter.kinto.tasks.send_experiment_launch_success_message")
+    def test_launching_experiment_live_handles_slack_notification_error(
+        self, mock_send_message
+    ):
+        mock_send_message.side_effect = Exception("Slack API error")
+
+        feature_config = create_desktop_feature("test-feature")
+        launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+
+        NimbusAlert.objects.create(
+            experiment=launching_experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="🚀 Requests launch",
+            slack_thread_id="1234567890.123456",
+        )
+
+        self.setup_kinto_get_main_records([launching_experiment.slug])
+        self.setup_kinto_no_pending_review()
+
+        self._assert_check_collection_unchanged(settings.KINTO_COLLECTION_NIMBUS_DESKTOP)
+
+        launching_experiment.refresh_from_db()
+        self.assertEqual(launching_experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            launching_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+    @mock.patch("experimenter.kinto.tasks.send_experiment_launch_success_message")
+    def test_updating_experiment_handles_slack_notification_error(
+        self, mock_send_message
+    ):
+        mock_send_message.side_effect = Exception("Slack API error")
+
+        feature_config = create_desktop_feature("test-feature")
+        updating_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+
+        NimbusAlert.objects.create(
+            experiment=updating_experiment,
+            alert_type=NimbusConstants.AlertType.UPDATE_REQUEST,
+            message="🔄 Requests update",
+            slack_thread_id="1234567890.123456",
+        )
+
+        old_published_dto = NimbusExperimentSerializer(updating_experiment).data
+        updating_experiment.published_dto = old_published_dto.copy()
+        updating_experiment.save()
+
+        new_published_record = old_published_dto.copy()
+        new_published_record["updated_field"] = "new_value"
+        new_published_record["last_modified"] = 123456789
+
+        self.mock_kinto_client.get_records.return_value = [new_published_record]
+        self.setup_kinto_no_pending_review()
+
+        self._assert_check_collection_unchanged(settings.KINTO_COLLECTION_NIMBUS_DESKTOP)
+
+        updating_experiment.refresh_from_db()
+        self.assertEqual(
+            updating_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+        self.assertIn("updated_field", updating_experiment.published_dto)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_ending_experiment_completed_when_record_is_not_in_main(

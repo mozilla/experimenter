@@ -18,6 +18,7 @@ from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
+    NimbusAlert,
     NimbusBranch,
     NimbusBranchFeatureValue,
     NimbusBranchScreenshot,
@@ -1342,12 +1343,42 @@ class SlackNotificationMixin:
         experiment = super().save(commit=commit)
         if self.slack_action:
             if experiment.enable_review_slack_notifications:
-                nimbus_send_slack_notification.delay(
-                    experiment_id=experiment.id,
-                    email_addresses=experiment.notification_emails,
-                    action_text=NimbusConstants.SLACK_FORM_ACTIONS[self.slack_action],
-                    requesting_user_email=self.request.user.email,
-                )
+                action_text = NimbusConstants.SLACK_FORM_ACTIONS[self.slack_action]
+
+                if self.slack_action in (
+                    NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST,
+                    NimbusConstants.SLACK_ACTION_UPDATE_REQUEST,
+                ):
+                    # Call synchronously to get message timestamp
+                    message_ts = nimbus_send_slack_notification(
+                        experiment_id=experiment.id,
+                        email_addresses=experiment.notification_emails,
+                        action_text=action_text,
+                        requesting_user_email=self.request.user.email,
+                    )
+                    if message_ts:
+                        alert_type_map = {
+                            NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST: (
+                                NimbusConstants.AlertType.LAUNCH_REQUEST
+                            ),
+                            NimbusConstants.SLACK_ACTION_UPDATE_REQUEST: (
+                                NimbusConstants.AlertType.UPDATE_REQUEST
+                            ),
+                        }
+                        NimbusAlert.objects.create(
+                            experiment=experiment,
+                            alert_type=alert_type_map[self.slack_action],
+                            message=action_text,
+                            slack_thread_id=message_ts,
+                        )
+                else:
+                    # Other actions can stay async
+                    nimbus_send_slack_notification.delay(
+                        experiment_id=experiment.id,
+                        email_addresses=experiment.notification_emails,
+                        action_text=action_text,
+                        requesting_user_email=self.request.user.email,
+                    )
         return experiment
 
 

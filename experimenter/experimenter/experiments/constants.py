@@ -810,6 +810,8 @@ class NimbusConstants:
         ANALYSIS_READY_OVERALL = "analysis_ready_overall", "Overall Analysis Ready"
         EXPERIMENT_LAUNCHED = "experiment_launched", "Experiment Launched"
         ENROLLMENT_HEALTHY = "enrollment_healthy", "Enrollment Healthy"
+        LAUNCH_REQUEST = "launch_request", "Launch Request"
+        UPDATE_REQUEST = "update_request", "Update Request"
 
     # Error types from Jetstream that are expected for non-analysis reasons and
     # don't want alerting
