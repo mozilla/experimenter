@@ -38,6 +38,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     format_not_set,
     format_string,
     home_status_display,
+    parse_date,
     qa_icon_info,
     remove_underscores,
     render_channel_icons,
@@ -170,6 +171,28 @@ class FilterTests(TestCase):
         self.assertEqual(dict_get(sample_dict, "key2"), "value2")
         self.assertIsNone(dict_get(sample_dict, "key3"))
         self.assertIsNone(dict_get("not_a_dict", "key1"))
+
+    def test_parse_date_valid_datetime_string(self):
+        result = parse_date("2025-12-17 13:32:04.516902+00:00")
+        self.assertIsNotNone(result)
+        self.assertEqual(result.year, 2025)
+        self.assertEqual(result.month, 12)
+        self.assertEqual(result.day, 17)
+        self.assertEqual(result.hour, 13)
+        self.assertEqual(result.minute, 32)
+
+    def test_parse_date_none_returns_none(self):
+        self.assertIsNone(parse_date(None))
+
+    def test_parse_date_empty_string_returns_none(self):
+        self.assertIsNone(parse_date(""))
+
+    def test_parse_date_invalid_string_returns_none(self):
+        self.assertIsNone(parse_date("not-a-date"))
+
+    def test_parse_date_already_datetime_returns_as_is(self):
+        dt = datetime.datetime(2025, 1, 1, 12, 0, 0)
+        self.assertEqual(parse_date(dt), dt)
 
 
 class TestHomeFilters(AuthTestCase):
