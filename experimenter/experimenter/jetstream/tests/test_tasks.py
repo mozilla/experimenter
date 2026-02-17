@@ -55,6 +55,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         (
             DAILY_DATA,
+            FORMATTED_DAILY_DATA,
             WEEKLY_DATA,
             OVERALL_DATA,
             ERRORS,
@@ -65,6 +66,198 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "daily": {
+                    "enrollments": {
+                        "all": FORMATTED_DAILY_DATA,
+                        "some_segment": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "variant": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    },
+                    "exposures": {
+                        "all": FORMATTED_DAILY_DATA,
+                        "some_segment": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "variant": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 10.0,
+                                                        "point": 12.0,
+                                                        "upper": 13.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    },
+                },
                 "weekly": {
                     "enrollments": {
                         "all": WEEKLY_DATA,
@@ -101,10 +294,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -146,10 +341,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -196,10 +393,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -241,10 +440,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -291,10 +492,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                             "percent": 50.0,
@@ -335,10 +538,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                             "percent": 50.0,
@@ -384,10 +589,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                             "percent": 50.0,
@@ -428,10 +635,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                             "percent": 50.0,
@@ -711,6 +920,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         (
             _,
+            _,
             WEEKLY_DATA,
             OVERALL_DATA,
             ERRORS,
@@ -782,6 +992,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             _,
             _,
             _,
+            _,
             ERRORS,
             _,
             _,
@@ -790,6 +1001,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "daily": {},
                 "weekly": {},
                 "overall": {},
                 "metadata": {
@@ -917,6 +1129,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         (
             DAILY_DATA,
+            FORMATTED_DAILY_DATA,
             WEEKLY_DATA,
             OVERALL_DATA,
             ERRORS,
@@ -931,6 +1144,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "daily": FORMATTED_DAILY_DATA,
                 "weekly": WEEKLY_DATA,
                 "overall": OVERALL_DATA,
                 "other_metrics": {
@@ -1001,6 +1215,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         (
             DAILY_DATA,
+            FORMATTED_DAILY_DATA,
             WEEKLY_DATA,
             OVERALL_DATA,
             _,
@@ -1011,6 +1226,103 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "daily": {
+                    "enrollments": {
+                        "all": FORMATTED_DAILY_DATA,
+                        "some_segment": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.0,
+                                                    "point": 0.0,
+                                                    "upper": 0.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": True,
+                            },
+                            "variant": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.0,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.0,
+                                                    "point": 0.0,
+                                                    "upper": 0.0,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "variant": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                                "variant": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                    "daily": {},
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "search_metrics": {},
+                                    "usage_metrics": {},
+                                },
+                                "is_control": False,
+                            },
+                        },
+                    },
+                },
                 "weekly": {
                     "enrollments": {
                         "all": WEEKLY_DATA,
@@ -1047,10 +1359,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -1092,10 +1406,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -1142,10 +1458,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                             "percent": 0.0,
@@ -1186,10 +1504,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "variant": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                             "percent": 0.0,
@@ -1271,6 +1591,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         (
             DAILY_DATA,
+            _,
             _,
             _,
             _,
@@ -1544,6 +1865,324 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "daily": {
+                    "enrollments": {
+                        "all": {
+                            "control": {
+                                "is_control": True,
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "test": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.855,
+                                                        "point": 0.856,
+                                                        "upper": 0.8575,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.855,
+                                                    "point": 0.856,
+                                                    "upper": 0.8575,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {"all": [], "first": {}},
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -10.2,
+                                                            "point": -0.1,
+                                                            "upper": -0.01,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": -10.2,
+                                                        "point": -0.1,
+                                                        "upper": -0.01,
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -1.2,
+                                                            "point": -1.1,
+                                                            "upper": -1.01,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": -1.2,
+                                                        "point": -1.1,
+                                                        "upper": -1.01,
+                                                    },
+                                                },
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "daily": {},
+                                                    "weekly": {},
+                                                    "overall": {},
+                                                },
+                                                "treatment-a": {
+                                                    "daily": {"1": "negative"},
+                                                    "weekly": {},
+                                                    "overall": {},
+                                                },
+                                                "treatment-b": {
+                                                    "daily": {"1": "negative"},
+                                                    "weekly": {},
+                                                    "overall": {},
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "control": {"all": [], "first": {}},
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.3,
+                                                            "point": -0.2,
+                                                            "upper": -0.1,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.3,
+                                                        "point": -0.2,
+                                                        "upper": -0.1,
+                                                    },
+                                                },
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -2.2,
+                                                            "point": -2.1,
+                                                            "upper": -2.01,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": -2.2,
+                                                        "point": -2.1,
+                                                        "upper": -2.01,
+                                                    },
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "usage_metrics": {},
+                                    "search_metrics": {},
+                                },
+                            },
+                            "treatment-a": {
+                                "is_control": False,
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "test": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.857,
+                                                        "point": 0.858,
+                                                        "upper": 0.8596,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.857,
+                                                    "point": 0.858,
+                                                    "upper": 0.8596,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -10.0,
+                                                            "point": 0.1,
+                                                            "upper": 10.2,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": -10.0,
+                                                        "point": 0.1,
+                                                        "upper": 10.2,
+                                                    },
+                                                },
+                                                "treatment-a": {"all": [], "first": {}},
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 2.5,
+                                                            "point": 0.1,
+                                                            "upper": 1.0,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": 2.5,
+                                                        "point": 0.1,
+                                                        "upper": 1.0,
+                                                    },
+                                                },
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "daily": {"1": "neutral"},
+                                                    "weekly": {},
+                                                    "overall": {},
+                                                },
+                                                "treatment-a": {
+                                                    "daily": {},
+                                                    "weekly": {},
+                                                    "overall": {},
+                                                },
+                                                "treatment-b": {
+                                                    "daily": {"1": "positive"},
+                                                    "weekly": {},
+                                                    "overall": {},
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.1,
+                                                            "point": 0.2,
+                                                            "upper": 0.3,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": 0.1,
+                                                        "point": 0.2,
+                                                        "upper": 0.3,
+                                                    },
+                                                },
+                                                "treatment-a": {"all": [], "first": {}},
+                                                "treatment-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 3.141592653589793,
+                                                            "point": 0.1111111111111111,
+                                                            "upper": 0.2222222222222222,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": 3.141592653589793,
+                                                        "point": 0.1111111111111111,
+                                                        "upper": 0.2222222222222222,
+                                                    },
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "usage_metrics": {},
+                                    "search_metrics": {},
+                                },
+                            },
+                            "treatment-b": {
+                                "is_control": False,
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "test": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 0.856,
+                                                        "point": 0.857,
+                                                        "upper": 0.8589,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 0.856,
+                                                    "point": 0.857,
+                                                    "upper": 0.8589,
+                                                },
+                                            },
+                                            "difference": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 1.0,
+                                                            "point": 0.0,
+                                                            "upper": 0.5,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": 1.0,
+                                                        "point": 0.0,
+                                                        "upper": 0.5,
+                                                    },
+                                                },
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.9,
+                                                            "point": -0.8,
+                                                            "upper": -0.5,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.9,
+                                                        "point": -0.8,
+                                                        "upper": -0.5,
+                                                    },
+                                                },
+                                                "treatment-b": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "control": {
+                                                    "daily": {"1": "positive"},
+                                                    "weekly": {},
+                                                    "overall": {},
+                                                },
+                                                "treatment-a": {
+                                                    "daily": {"1": "negative"},
+                                                    "weekly": {},
+                                                    "overall": {},
+                                                },
+                                                "treatment-b": {
+                                                    "daily": {},
+                                                    "weekly": {},
+                                                    "overall": {},
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "control": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 2.2,
+                                                            "point": 0.1,
+                                                            "upper": 0.02,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": 2.2,
+                                                        "point": 0.1,
+                                                        "upper": 0.02,
+                                                    },
+                                                },
+                                                "treatment-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.2,
+                                                            "point": -0.1,
+                                                            "upper": -0.01,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.2,
+                                                        "point": -0.1,
+                                                        "upper": -0.01,
+                                                    },
+                                                },
+                                                "treatment-b": {"all": [], "first": {}},
+                                            },
+                                        }
+                                    },
+                                    "usage_metrics": {},
+                                    "search_metrics": {},
+                                },
+                            },
+                        }
+                    }
+                },
                 "weekly": {
                     "enrollments": {
                         "all": {
@@ -1647,14 +2286,17 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "treatment-a": {
                                                     "overall": {},
                                                     "weekly": {"1": "negative"},
+                                                    "daily": {},
                                                 },
                                                 "treatment-b": {
                                                     "overall": {},
                                                     "weekly": {"1": "negative"},
+                                                    "daily": {},
                                                 },
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -1764,14 +2406,17 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {"1": "neutral"},
+                                                    "daily": {},
                                                 },
                                                 "treatment-b": {
                                                     "overall": {},
                                                     "weekly": {"1": "positive"},
+                                                    "daily": {},
                                                 },
                                                 "treatment-a": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -1881,14 +2526,17 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {"1": "positive"},
+                                                    "daily": {},
                                                 },
                                                 "treatment-a": {
                                                     "overall": {},
                                                     "weekly": {"1": "negative"},
+                                                    "daily": {},
                                                 },
                                                 "treatment-b": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -1994,14 +2642,17 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "treatment-a": {
                                                     "overall": {"1": "negative"},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "treatment-b": {
                                                     "overall": {"1": "negative"},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "control": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -2101,14 +2752,17 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {"1": "neutral"},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "treatment-b": {
                                                     "overall": {"1": "positive"},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "treatment-a": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -2208,14 +2862,17 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                 "control": {
                                                     "overall": {"1": "positive"},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "treatment-a": {
                                                     "overall": {"1": "negative"},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                                 "treatment-b": {
                                                     "overall": {},
                                                     "weekly": {},
+                                                    "daily": {},
                                                 },
                                             },
                                         }
@@ -2341,6 +2998,24 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "filename": "experimenter/jetstream/client.py",
                     "func_name": "load_data_from_gcs",
                     "log_level": "WARNING",
+                    "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_daily.json",  # noqa: E501
+                    "metric": None,
+                    "segment": None,
+                    "statistic": None,
+                    "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                        "+00:00"
+                    )
+                    + "Z",
+                },
+                {
+                    "analysis_basis": None,
+                    "source": None,
+                    "exception": None,
+                    "exception_type": None,
+                    "experiment": experiment.slug,
+                    "filename": "experimenter/jetstream/client.py",
+                    "func_name": "load_data_from_gcs",
+                    "log_level": "WARNING",
                     "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_weekly.json",  # noqa: E501
                     "metric": None,
                     "segment": None,
@@ -2385,6 +3060,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         "metadata": None,
                         "overall": {},
                         "show_analysis": False,
+                        "daily": {},
                         "weekly": {},
                         "errors": {
                             "experiment": experiment_errors,
