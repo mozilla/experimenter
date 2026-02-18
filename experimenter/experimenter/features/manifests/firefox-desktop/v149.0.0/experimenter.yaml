@@ -388,6 +388,12 @@ urlbar:
         characters long, it will be shown as a top pick. When this variable is
         set, full keywords will also show AMP suggestions as top picks even if
         they have fewer characters than this threshold.
+    quickSuggestAmpTopPickUseNovaIconSize:
+      type: boolean
+      fallbackPref: browser.urlbar.quicksuggest.ampTopPickUseNovaIconSize
+      description: >-
+        Whether or not use the Nova icon size for AMP suggestion.
+        Otherwise, use standard rich-suggestion size.
     quickSuggestContextualOptInEnabled:
       type: boolean
       setPref:
