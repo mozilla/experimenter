@@ -17,6 +17,7 @@ DOCKER_BUILD = docker buildx build
 MEGAZORD_BUILD_FLAGS ?=
 EXPERIMENTER_BUILD_FLAGS ?=
 DEV_BUILD_FLAGS ?=
+CIRRUS_BUILD_FLAGS ?=
 SCHEMAS_BUILD_FLAGS ?=
 
 # Interactive flags for docker run. Set to empty for non-TTY environments (CI).
@@ -286,7 +287,7 @@ cirrus_build_dev: build_megazords
 	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target dev -f cirrus/server/Dockerfile -t cirrus:dev --build-context=fml=experimenter/experimenter/features/manifests/ cirrus/server/
 
 cirrus_build_test: build_megazords
-	$(CIRRUS_ENABLE) $(COMPOSE_TEST) build cirrus
+	$(CIRRUS_ENABLE) $(DOCKER_BUILD) $(CIRRUS_BUILD_FLAGS) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-context fml=experimenter/experimenter/features/manifests/ cirrus/server/
 
 cirrus_bash: cirrus_build_dev
 	docker run --rm -ti -v ./cirrus/server:/cirrus -v /cirrus/cirrus/glean cirrus:dev bash
