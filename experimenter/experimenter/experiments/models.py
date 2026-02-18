@@ -1367,17 +1367,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return timeline_entries
 
-    def get_weekly_dates(self):
-        weekly_dates = []
-        if not self.is_rollout:
-            if self._enrollment_end_date:
-                date = self._enrollment_end_date
-                while (date + datetime.timedelta(days=6)) <= self.computed_end_date:
-                    weekly_dates.append((date, date + datetime.timedelta(days=6)))
-                    date += datetime.timedelta(days=7)
-
-        return weekly_dates
-
     def get_sorted_branches(self):
         return (
             [
