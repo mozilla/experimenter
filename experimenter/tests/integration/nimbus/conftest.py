@@ -324,9 +324,9 @@ def create_experiment(base_url, default_data, mobile_apps, application):
             branches.feature_config = "no feature"
             branches.reference_branch_value = "{}"
         elif "fenix" in application.lower():
-            branches.feature_config = "nimbus-validation"
-            branches.reference_branch_value = '{"settings-icon": "icon"}'
-            branches.treatment_branch_value = '{"settings-icon": "icon"}'
+            branches.feature_config = "nimbus-is-ready"
+            branches.reference_branch_value = '{"event-count": 1}'
+            branches.treatment_branch_value = '{"event-count": 1}'
         elif "ios" in application.lower():
             branches.feature_config = "toolbar-refactor-feature"
             branches.treatment_branch_value = '{"enabled": true}'
