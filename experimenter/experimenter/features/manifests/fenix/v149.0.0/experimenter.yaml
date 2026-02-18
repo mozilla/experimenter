@@ -195,6 +195,14 @@ fx-suggest:
       type: boolean
       description: |
         Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
+gecko-nimbus-validation:
+  description: Feature for validating Nimbus Gecko functionality
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    test-preference:
+      type: string
+      description: A test gecko preference
 glean:
   description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
   hasExposure: true

@@ -208,6 +208,16 @@ features:
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
         default: false
+  gecko-nimbus-validation:
+    description: Feature for validating Nimbus Gecko functionality
+    variables:
+      test-preference:
+        description: A test gecko preference
+        type: String
+        default: ''
+        gecko-pref:
+          pref: gecko.nimbus.test
+          branch: default
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -1069,7 +1079,7 @@ features:
         description: |
           Whether or not the simple/expanded toolbar customization option is visible to the user.
         type: Boolean
-        default: false
+        default: true
       show-options:
         description: |
           Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.
