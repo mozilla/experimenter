@@ -53,6 +53,20 @@ runs:
         cache-from: type=registry,ref=${{ inputs.gar-cache }}/schemas-cache:${{ inputs.arch }}
         cache-to: type=registry,ref=${{ inputs.gar-cache }}/schemas-cache:${{ inputs.arch }},mode=max
 
+    - name: Build cirrus with cache
+      uses: docker/build-push-action@v6
+      with:
+        context: cirrus/server/
+        file: cirrus/server/Dockerfile
+        target: deploy
+        tags: cirrus:deploy
+        load: true
+        build-contexts: |
+          experimenter:megazords=docker-image://${{ inputs.gar-cache }}/megazords:${{ inputs.arch }}
+          fml=experimenter/experimenter/features/manifests/
+        cache-from: type=registry,ref=${{ inputs.gar-cache }}/cirrus-cache:${{ inputs.arch }}
+        cache-to: type=registry,ref=${{ inputs.gar-cache }}/cirrus-cache:${{ inputs.arch }},mode=max
+
     - name: Export build flags
       shell: bash
       env:
@@ -62,5 +76,6 @@ runs:
         echo "MEGAZORD_BUILD_FLAGS=--load" >> "$GITHUB_ENV"
         echo "EXPERIMENTER_BUILD_FLAGS=--build-context experimenter:megazords=docker-image://${GAR_CACHE}/megazords:${ARCH} --cache-from type=registry,ref=${GAR_CACHE}/test-cache:${ARCH} --cache-to type=registry,ref=${GAR_CACHE}/test-cache:${ARCH},mode=max --load" >> "$GITHUB_ENV"
         echo "DEV_BUILD_FLAGS=--build-context experimenter:megazords=docker-image://${GAR_CACHE}/megazords:${ARCH} --cache-from type=registry,ref=${GAR_CACHE}/dev-cache:${ARCH} --cache-to type=registry,ref=${GAR_CACHE}/dev-cache:${ARCH},mode=max --load" >> "$GITHUB_ENV"
+        echo "CIRRUS_BUILD_FLAGS=--build-context experimenter:megazords=docker-image://${GAR_CACHE}/megazords:${ARCH} --load" >> "$GITHUB_ENV"
         echo 'SCHEMAS_BUILD_FLAGS=--load' >> "$GITHUB_ENV"
         echo 'DOCKER_RUN_INTERACTIVE=' >> "$GITHUB_ENV"

@@ -20,10 +20,6 @@ services:
       POSTGRES_PASSWORD: postgres
 
   cirrus:
+    image: cirrus:deploy
     env_file: .env.test
-    build:
-      additional_contexts:
-        - fml=experimenter/experimenter/features/manifests/
-      context: cirrus/server/
-      dockerfile: Dockerfile
     working_dir: /cirrus
