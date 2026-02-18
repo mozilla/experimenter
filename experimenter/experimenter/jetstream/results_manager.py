@@ -205,25 +205,47 @@ class ExperimentResultsManager:
                     return True
         return False
 
+    def _is_3day_retention_metric(self, metric_slug):
+        return metric_slug in (
+            NimbusConstants.ACTIVE_IN_LAST_3_DAYS,
+            NimbusConstants.ACTIVE_IN_LAST_3_DAYS_LEGACY,
+        )
+
+    def _get_metric_data_from_branch(self, branch_group_data, metric_slug):
+
+        if self._is_3day_retention_metric(metric_slug):
+            return branch_group_data.get(
+                NimbusConstants.ACTIVE_IN_LAST_3_DAYS, {}
+            ) or branch_group_data.get(NimbusConstants.ACTIVE_IN_LAST_3_DAYS_LEGACY, {})
+        else:
+            return branch_group_data.get(metric_slug, {})
+
     def metric_has_data(
         self, metric_slug, group, analysis_basis, segment, reference_branch=None
     ):
         if self.experiment.results_data:
-            window_results = (
-                self.get_window_results(analysis_basis, segment, "overall")
-                or self.get_window_results(analysis_basis, segment, "weekly")
-                or self.get_window_results(analysis_basis, segment, "daily")
-            )
+            # 3-day retention only exists in DAILY window
+            if self._is_3day_retention_metric(metric_slug):
+                window_results = self.get_window_results(analysis_basis, segment, "daily")
+            else:
+                window_results = (
+                    self.get_window_results(analysis_basis, segment, "overall")
+                    or self.get_window_results(analysis_basis, segment, "weekly")
+                    or self.get_window_results(analysis_basis, segment, "daily")
+                )
 
             for branch in self.experiment.get_sorted_branches():
                 if branch.slug == reference_branch:
                     continue
 
-                metric_data = (
+                branch_group_data = (
                     window_results.get(branch.slug, {})
                     .get("branch_data", {})
                     .get(group, {})
-                    .get(metric_slug, {})
+                )
+
+                metric_data = self._get_metric_data_from_branch(
+                    branch_group_data, metric_slug
                 )
 
                 abs_point_data = metric_data.get("absolute", {}).get("first", {})

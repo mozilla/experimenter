@@ -1576,6 +1576,38 @@ class TestExperimentResultsManager(TestCase):
                 },
                 False,
             ),
+            (
+                "active_in_last_3_days_legacy",
+                {
+                    "v3": {
+                        "overall": {},
+                        "weekly": {},
+                        "daily": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "active_in_last_3_days_legacy": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 0.60,
+                                                            "upper": 0.75,
+                                                            "point": 0.72,
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "errors": {},
+                    }
+                },
+                True,
+            ),
         ]
     )
     def test_metrics_have_data(self, metric_slug, results_data, expected):
