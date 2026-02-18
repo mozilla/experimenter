@@ -4,8 +4,10 @@ from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from experimenter.experiments.api.cache import get_api_cache_key
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.tasks import warm_api_caches
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -304,3 +306,72 @@ class TestNimbusExperimentFirstRunViewSet(NimbusExperimentFilterMixin, CachedVie
 
         response = self.client.get(reverse(self.LIST_VIEW))
         self.assert_returned_slugs(response, expected_slugs)
+
+
+class TestCachedListBehavior(CachedViewSetTest):
+    """Tests for the CachedListMixin serving responses from the warm cache."""
+
+    def test_list_serves_from_warmed_cache(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="cached-experiment",
+        )
+
+        warm_api_caches()
+
+        # Delete the experiment so the cache is the only source of data
+        experiment.delete()
+
+        response = self.client.get(reverse("nimbus-experiment-rest-v6-list"))
+        self.assertEqual(response.status_code, 200)
+
+        recipes = json.loads(response.content)
+        slugs = [recipe["slug"] for recipe in recipes]
+        self.assertIn("cached-experiment", slugs)
+
+    def test_list_populates_cache_on_miss(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="fresh-experiment",
+        )
+
+        cache_key = get_api_cache_key("v6:experiments")
+        self.assertIsNone(cache.get(cache_key))
+
+        response = self.client.get(reverse("nimbus-experiment-rest-v6-list"))
+        self.assertEqual(response.status_code, 200)
+
+        cached = cache.get(cache_key)
+        self.assertIsNotNone(cached)
+        data = json.loads(cached)
+        slugs = [exp["slug"] for exp in data]
+        self.assertIn("fresh-experiment", slugs)
+
+    def test_list_caches_filtered_requests_separately(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="desktop-exp",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="fenix-exp",
+            application=NimbusExperiment.Application.FENIX,
+        )
+
+        # Request with filter — should cache separately
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-v6-list"),
+            {"application": NimbusExperiment.Application.DESKTOP},
+        )
+        self.assertEqual(response.status_code, 200)
+        recipes = json.loads(response.content)
+        self.assertEqual(len(recipes), 1)
+        self.assertEqual(recipes[0]["slug"], "desktop-exp")
+
+        # Unfiltered request — should get all experiments
+        response = self.client.get(reverse("nimbus-experiment-rest-v6-list"))
+        self.assertEqual(response.status_code, 200)
+        recipes = json.loads(response.content)
+        slugs = sorted(recipe["slug"] for recipe in recipes)
+        self.assertEqual(slugs, ["desktop-exp", "fenix-exp"])
