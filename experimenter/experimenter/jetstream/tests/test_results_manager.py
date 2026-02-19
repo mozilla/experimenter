@@ -188,6 +188,10 @@ class TestExperimentResultsManager(TestCase):
                 "data": {},
                 "has_weekly_data": False,
             },
+            "active_in_last_3_days_legacy": {
+                "data": {},
+                "has_weekly_data": False,
+            },
             "client_level_daily_active_users_v2": {
                 "data": {},
                 "has_weekly_data": False,
