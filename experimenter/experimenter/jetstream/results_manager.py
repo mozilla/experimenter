@@ -205,7 +205,6 @@ class ExperimentResultsManager:
                     return True
         return False
 
-
     def metric_has_data(
         self, metric_slug, group, analysis_basis, segment, reference_branch=None
     ):
