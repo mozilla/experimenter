@@ -28,8 +28,7 @@ class BranchComparison(StrEnum):
 
 class Metric(StrEnum):
     RETENTION = "retained"
-    ACTIVE_IN_LAST_3_DAYS_legacy = "active_in_last_3_days_legacy"
-    ACTIVE_IN_LAST_3_DAYS = "active_in_last_3_days"
+    DAYS_3_RETENTION = "active_in_last_3_days_legacy"
     SEARCH = "search_count"
     DAYS_OF_USE = "days_of_use"
     USER_COUNT = "identity"
@@ -163,26 +162,15 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
 
         self.extend(retention_data)
 
-    def append_active_in_last_3_days(self, daily_data):
+    def append_days_3_retention(self, daily_data):
         daily_data = daily_data or []
-        # Extract active_in_last_3_days metric from daily data
         retention_data = [
             jetstream_data_point
             for jetstream_data_point in daily_data
-            if jetstream_data_point.metric == Metric.ACTIVE_IN_LAST_3_DAYS
+            if jetstream_data_point.metric == Metric.DAYS_3_RETENTION
         ]
 
-        # Fall back to legacy version if non-legacy not available
-        if not retention_data:
-            retention_data = [
-                jetstream_data_point
-                for jetstream_data_point in daily_data
-                if jetstream_data_point.metric == Metric.ACTIVE_IN_LAST_3_DAYS_legacy
-            ]
-
-        # Only extend if we have data - early experiments may not have 3 days yet
-        if len(retention_data) > 0:
-            self.extend(retention_data)
+        self.extend(retention_data)
 
 
 class DataPoint(BaseModel):

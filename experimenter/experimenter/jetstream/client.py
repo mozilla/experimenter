@@ -105,8 +105,7 @@ def get_results_metrics_map(
     # used to see which statistic will be used for each metric.
     results_metrics_map: dict[str, set[Statistic]] = {
         Metric.RETENTION: {Statistic.BINOMIAL},
-        Metric.ACTIVE_IN_LAST_3_DAYS_legacy: {Statistic.BINOMIAL},
-        Metric.ACTIVE_IN_LAST_3_DAYS: {Statistic.BINOMIAL},
+        Metric.DAYS_3_RETENTION: {Statistic.BINOMIAL},
         Metric.SEARCH: {Statistic.LINEAR_MODEL_MEAN, Statistic.MEAN},
         Metric.DAYS_OF_USE: {Statistic.LINEAR_MODEL_MEAN, Statistic.MEAN},
         Metric.USER_COUNT: {Statistic.COUNT, Statistic.PERCENT},
@@ -271,7 +270,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                     raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
                 )
                 # Append 3-day retention from daily data
-                data.append_active_in_last_3_days(
+                data.append_days_3_retention(
                     raw_data[AnalysisWindow.DAILY][AnalysisBasis.ENROLLMENTS][segment]
                 )
                 # Create the output object (overall data)
@@ -314,7 +313,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                     raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.EXPOSURES][segment]
                 )
                 # Append 3-day retention from daily data
-                data.append_active_in_last_3_days(
+                data.append_days_3_retention(
                     raw_data[AnalysisWindow.DAILY][AnalysisBasis.EXPOSURES][segment]
                 )
 
