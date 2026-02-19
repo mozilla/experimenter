@@ -6,7 +6,10 @@ from slack_sdk.errors import SlackApiError
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.slack.notification import send_slack_notification
+from experimenter.slack.notification import (
+    send_experiment_launch_success_message,
+    send_slack_notification,
+)
 
 
 class TestSlackNotifications(TestCase):
@@ -34,11 +37,13 @@ class TestSlackNotifications(TestCase):
         action_text = NimbusConstants.SLACK_EMAIL_ACTIONS[
             NimbusExperiment.EmailType.EXPERIMENT_END
         ]
-        send_slack_notification(
+        message_ts = send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
             action_text=action_text,
         )
+
+        self.assertEqual(message_ts, "1234567890.123456")
 
         mock_client.users_lookupByEmail.assert_called_once_with(email="test@example.com")
         # Should be called once for channel message and once for DM
@@ -521,3 +526,79 @@ class TestSlackNotifications(TestCase):
         # (DM is sent when we can't determine membership)
         self.assertEqual(mock_client.chat_postMessage.call_count, 2)
         mock_client.conversations_open.assert_called_once()
+
+    @override_settings(
+        SLACK_AUTH_TOKEN="test-token",
+        SLACK_NIMBUS_CHANNEL="C123456",
+    )
+    @patch("experimenter.slack.notification.WebClient")
+    def test_send_experiment_launch_success_message(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.chat_postMessage.return_value = {"ok": True}
+        mock_client.reactions_add.return_value = {"ok": True}
+
+        thread_ts = "1234567890.123456"
+        result = send_experiment_launch_success_message(
+            experiment_id=self.experiment.id,
+            thread_ts=thread_ts,
+        )
+
+        self.assertTrue(result)
+        # Verify threaded message was posted
+        mock_client.chat_postMessage.assert_called_once()
+        call_args = mock_client.chat_postMessage.call_args
+        self.assertIn("✅", call_args.kwargs["text"])
+        self.assertIn("is now LIVE", call_args.kwargs["text"])
+        self.assertIn(self.experiment.name, call_args.kwargs["text"])
+        self.assertIn(self.experiment.slug, call_args.kwargs["text"])
+        self.assertEqual(call_args.kwargs["thread_ts"], thread_ts)
+
+        # Verify reaction emoji was added
+        mock_client.reactions_add.assert_called_once()
+        reaction_call = mock_client.reactions_add.call_args
+        self.assertEqual(reaction_call.kwargs["name"], "white_check_mark")
+        self.assertEqual(reaction_call.kwargs["timestamp"], thread_ts)
+
+    @override_settings(
+        SLACK_AUTH_TOKEN="test-token",
+        SLACK_NIMBUS_CHANNEL="C123456",
+    )
+    @patch("experimenter.slack.notification.WebClient")
+    def test_send_experiment_launch_success_message_slack_error(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.chat_postMessage.side_effect = SlackApiError(
+            message="Slack error", response={"error": "channel_not_found"}
+        )
+
+        thread_ts = "1234567890.123456"
+        result = send_experiment_launch_success_message(
+            experiment_id=self.experiment.id,
+            thread_ts=thread_ts,
+        )
+
+        self.assertFalse(result)
+        mock_client.chat_postMessage.assert_called_once()
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_send_experiment_launch_success_message_not_found(self, mock_webclient):
+        thread_ts = "1234567890.123456"
+        result = send_experiment_launch_success_message(
+            experiment_id=999999,
+            thread_ts=thread_ts,
+        )
+
+        self.assertFalse(result)
+        mock_webclient.assert_called_once()
+
+    @override_settings(SLACK_AUTH_TOKEN=None)
+    def test_send_experiment_launch_success_message_no_token(self):
+        thread_ts = "1234567890.123456"
+        result = send_experiment_launch_success_message(
+            experiment_id=self.experiment.id,
+            thread_ts=thread_ts,
+        )
+
+        self.assertFalse(result)
