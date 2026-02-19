@@ -3634,6 +3634,44 @@ googleSafeBrowsingV5:
         branch: default
         pref: "browser.safebrowsing.provider.google5.enabled"
 
+safeBrowsingRealTime:
+  description: Control Safe Browsing real-time lookup and simulation
+  owner: tihuang@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: Whether to enable Safe Browsing real-time lookup.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "browser.safebrowsing.realTime.enabled"
+    globalCacheEnabled:
+      description: Whether to enable the Global Cache for real-time lookup.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "browser.safebrowsing.globalCache.enabled"
+    simulationEnabled:
+      description: Whether to enable the real-time request simulator.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "browser.safebrowsing.realTime.simulation.enabled"
+    simulationCacheTTLSec:
+      description: Cache TTL in seconds for the real-time request simulator.
+      type: int
+      setPref:
+        branch: default
+        pref: "browser.safebrowsing.realTime.simulation.cacheTTLSec"
+    simulationHitProbability:
+      description: >
+        Hit probability for the real-time request simulator, expressed as
+        parts per million. 1000000 = 100%, 1 = 0.0001%, 0 = never hit.
+      type: int
+      setPref:
+        branch: default
+        pref: "browser.safebrowsing.realTime.simulation.hitProbability"
+
 fxaButtonVisibility:
   description: Prefs to control the visibility of the Firefox Accounts toolbar button when not signed in.
   owner: mconley@mozilla.com
