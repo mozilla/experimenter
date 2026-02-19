@@ -16,7 +16,9 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
+    NimbusAlert,
     NimbusBranchFeatureValue,
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
@@ -1005,7 +1007,10 @@ class TestDraftToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
 
         self.mock_slack_task.assert_not_called()
 
-    def test_sends_slack_when_enabled(self):
+    @patch("experimenter.nimbus_ui.forms.nimbus_send_slack_notification")
+    def test_sends_slack_when_enabled(self, mock_send_slack):
+        mock_send_slack.return_value = "1234567890.123456"
+
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             status_next=None,
@@ -1017,7 +1022,13 @@ class TestDraftToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
 
         form.save()
 
-        self.mock_slack_task.assert_called_once()
+        mock_send_slack.assert_called_once()
+
+        alert = NimbusAlert.objects.get(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+        )
+        self.assertEqual(alert.slack_thread_id, "1234567890.123456")
 
 
 class TestPreviewToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
@@ -1098,7 +1109,10 @@ class TestPreviewToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
 
         self.mock_slack_task.assert_not_called()
 
-    def test_sends_slack_when_enabled(self):
+    @patch("experimenter.nimbus_ui.forms.nimbus_send_slack_notification")
+    def test_sends_slack_when_enabled(self, mock_send_slack):
+        mock_send_slack.return_value = "1234567890.123456"
+
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
             status_next=None,
@@ -1113,7 +1127,15 @@ class TestPreviewToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
 
         form.save()
 
-        self.mock_slack_task.assert_called_once()
+        # For launch requests, the function is called synchronously (not .delay())
+        mock_send_slack.assert_called_once()
+
+        # Verify NimbusAlert was created with thread ID
+        alert = NimbusAlert.objects.get(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+        )
+        self.assertEqual(alert.slack_thread_id, "1234567890.123456")
 
 
 class TestPreviewToDraftForm(KintoPreviewMockMixin, RequestFormTestCase):
@@ -2077,7 +2099,10 @@ class TestLiveToUpdateRolloutForm(SlackNotificationMockMixin, RequestFormTestCas
 
         self.mock_slack_task.assert_not_called()
 
-    def test_sends_slack_when_enabled(self):
+    @patch("experimenter.nimbus_ui.forms.nimbus_send_slack_notification")
+    def test_sends_slack_when_enabled(self, mock_send_slack):
+        mock_send_slack.return_value = "1234567890.123456"
+
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=None,
@@ -2090,7 +2115,13 @@ class TestLiveToUpdateRolloutForm(SlackNotificationMockMixin, RequestFormTestCas
 
         form.save()
 
-        self.mock_slack_task.assert_called_once()
+        mock_send_slack.assert_called_once()
+
+        alert = NimbusAlert.objects.get(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.UPDATE_REQUEST,
+        )
+        self.assertEqual(alert.slack_thread_id, "1234567890.123456")
 
 
 class TestCancelUpdateRolloutForm(RequestFormTestCase):

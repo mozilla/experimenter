@@ -67,13 +67,13 @@ def send_slack_notification(
 ):
     if not (client := _get_slack_client()):
         logger.info("Slack not configured, skipping notification")
-        return
+        return None
 
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
     except NimbusExperiment.DoesNotExist:
         logger.error(f"Experiment {experiment_id} not found")
-        return
+        return None
 
     channel = settings.SLACK_NIMBUS_CHANNEL
 
@@ -109,13 +109,14 @@ def send_slack_notification(
         response = client.chat_postMessage(
             channel=channel, text=message, unfurl_links=False, unfurl_media=False
         )
+        message_ts = response["ts"]
         logger.info(f"Slack notification sent for experiment {experiment.name}")
 
         # Get the permalink to the channel message
         channel_message_link = None
         try:
             permalink_response = client.chat_getPermalink(
-                channel=channel, message_ts=response["ts"]
+                channel=channel, message_ts=message_ts
             )
             channel_message_link = permalink_response["permalink"]
         except SlackApiError as e:
@@ -129,6 +130,49 @@ def send_slack_notification(
                     f"Skipping DM to user {user_id} - already in channel {channel}"
                 )
 
+        return message_ts
+
     except SlackApiError as e:
         logger.error(f"Failed to send Slack notification for {experiment.name}: {e}")
         raise
+
+
+def send_experiment_launch_success_message(experiment_id, thread_ts):
+    if not (client := _get_slack_client()):
+        logger.info("Slack not configured, skipping launch success notification")
+        return False
+
+    try:
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+    except NimbusExperiment.DoesNotExist:
+        logger.error(f"Experiment {experiment_id} not found")
+        return False
+
+    channel = settings.SLACK_NIMBUS_CHANNEL
+
+    message = (
+        f"✅ *{experiment.name}* is now LIVE!\n"
+        f"View experiment: <{experiment.experiment_url}|{experiment.slug}>"
+    )
+
+    try:
+        # Send threaded reply to the original launch request
+        client.chat_postMessage(
+            channel=channel,
+            text=message,
+            thread_ts=thread_ts,
+        )
+
+        # Add reaction emoji to original message
+        client.reactions_add(
+            channel=channel,
+            name="white_check_mark",
+            timestamp=thread_ts,
+        )
+
+        logger.info(f"Sent launch success message for {experiment.slug}")
+        return True
+
+    except SlackApiError as e:
+        logger.error(f"Failed to send launch success message for {experiment.slug}: {e}")
+        return False
