@@ -112,7 +112,6 @@ def check_single_experiment_alerts(experiment_id):
 
 def _check_results_ready(experiment):
     for window, alert_type in NimbusConstants.ANALYSIS_WINDOW_TO_ALERT_TYPE.items():
-
         # Skip if we already sent this alert
         if NimbusAlert.objects.filter(
             experiment=experiment, alert_type=alert_type
