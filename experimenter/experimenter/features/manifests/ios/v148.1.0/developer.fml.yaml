@@ -706,7 +706,7 @@ features:
           welcome-brand-refresh:
             card-type: basic
             order: 10
-            title: Onboarding/Onboarding.Modern.BrandRefresh.Welcome.Title.v148.v2
+            title: Onboarding/Onboarding.Modern.BrandRefresh.Welcome.TitleV3.v149
             body: Onboarding/Onboarding.Modern.BrandRefresh.Welcome.Description.v148
             image: trackers-brand-refresh
             buttons:
@@ -927,7 +927,36 @@ features:
         description: |
           Enables app attest authentication for the summarizer.
         type: Boolean
+        default: true
+  summarizer-language-expansion-feature:
+    description: |
+      The feature flag to manage the rollout of the summarizer language expansion.
+    variables:
+      enabled:
+        description: |
+          Whether the feature is enabled or not.
+        type: Boolean
         default: false
+      supportDeviceLanguage:
+        description: |
+          Whether to support the device language for summarization.
+        type: Boolean
+        default: false
+      supportWebsiteLanguage:
+        description: |
+          Whether to support the website language for summarization.
+        type: Boolean
+        default: false
+      supportedLocales:
+        description: |
+          The list of supported locale identifiers for the summarizer language expansion according to BCP47 standard. i.e "en-US" for English (United States).
+        type: List<String>
+        default:
+        - en
+        - fr
+        - es
+        - de
+        - pt
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.

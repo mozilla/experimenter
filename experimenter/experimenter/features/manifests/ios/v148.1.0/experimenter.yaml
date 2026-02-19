@@ -413,6 +413,28 @@ summarizer-app-attest-auth-feature:
       type: boolean
       description: |
         Enables app attest authentication for the summarizer.
+summarizer-language-expansion-feature:
+  description: |
+    The feature flag to manage the rollout of the summarizer language expansion.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether the feature is enabled or not.
+    supportDeviceLanguage:
+      type: boolean
+      description: |
+        Whether to support the device language for summarization.
+    supportWebsiteLanguage:
+      type: boolean
+      description: |
+        Whether to support the website language for summarization.
+    supportedLocales:
+      type: json
+      description: |
+        The list of supported locale identifiers for the summarizer language expansion according to BCP47 standard. i.e "en-US" for English (United States).
 tab-scroll-refactor-feature:
   description: |
     The feature flag to manage the rollout of tab scroll refactor feature.
