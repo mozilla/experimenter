@@ -1357,17 +1357,11 @@ class SlackNotificationMixin:
                         requesting_user_email=self.request.user.email,
                     )
                     if message_ts:
-                        alert_type_map = {
-                            NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST: (
-                                NimbusConstants.AlertType.LAUNCH_REQUEST
-                            ),
-                            NimbusConstants.SLACK_ACTION_UPDATE_REQUEST: (
-                                NimbusConstants.AlertType.UPDATE_REQUEST
-                            ),
-                        }
                         NimbusAlert.objects.create(
                             experiment=experiment,
-                            alert_type=alert_type_map[self.slack_action],
+                            alert_type=NimbusConstants.SLACK_ACTION_TO_ALERT_TYPE[
+                                self.slack_action
+                            ],
                             message=action_text,
                             slack_thread_id=message_ts,
                         )

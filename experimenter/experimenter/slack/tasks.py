@@ -111,17 +111,7 @@ def check_single_experiment_alerts(experiment_id):
 
 
 def _check_results_ready(experiment):
-    window_alert_type_map = {
-        NimbusConstants.AnalysisWindow.WEEKLY: (
-            NimbusConstants.AlertType.ANALYSIS_READY_WEEKLY
-        ),
-        NimbusConstants.AnalysisWindow.OVERALL: (
-            NimbusConstants.AlertType.ANALYSIS_READY_OVERALL
-        ),
-    }
-
-    for window in window_alert_type_map:
-        alert_type = window_alert_type_map[window]
+    for window, alert_type in NimbusConstants.ANALYSIS_WINDOW_TO_ALERT_TYPE.items():
 
         # Skip if we already sent this alert
         if NimbusAlert.objects.filter(

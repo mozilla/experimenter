@@ -1049,6 +1049,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
 
         self._assert_check_collection_unchanged(settings.KINTO_COLLECTION_NIMBUS_DESKTOP)
 
+        # Verify the notification was attempted despite the error
+        mock_send_message.assert_called_once_with(
+            launching_experiment.id,
+            "1234567890.123456",
+        )
+
         launching_experiment.refresh_from_db()
         self.assertEqual(launching_experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(
@@ -1088,6 +1094,12 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.setup_kinto_no_pending_review()
 
         self._assert_check_collection_unchanged(settings.KINTO_COLLECTION_NIMBUS_DESKTOP)
+
+        # Verify the notification was attempted despite the error
+        mock_send_message.assert_called_once_with(
+            updating_experiment.id,
+            "1234567890.123456",
+        )
 
         updating_experiment.refresh_from_db()
         self.assertEqual(
