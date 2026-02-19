@@ -453,6 +453,15 @@ class TestExperimentResultsManager(TestCase):
                         "has_data": False,
                     },
                     {
+                        "group": "other_metrics",
+                        "friendly_name": "3-Day Retention",
+                        "slug": "active_in_last_3_days_legacy",
+                        "description": "Users who returned to Firefox in the first 3 days.",
+                        "display_type": "percentage",
+                        "overall_change": "neutral",
+                        "has_data": False,
+                    },
+                    {
                         "group": "search_metrics",
                         "friendly_name": "Search Count",
                         "slug": "search_count",
@@ -465,6 +474,37 @@ class TestExperimentResultsManager(TestCase):
                         "friendly_name": "Days of Use",
                         "slug": "days_of_use",
                         "description": "Average number of days each client sent a main ping.",  # noqa E501
+                        "overall_change": "neutral",
+                        "has_data": False,
+                    },
+                ],
+            ),
+            (
+                "active_in_last_3_days_legacy",
+                [
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Retention",
+                        "slug": "retained",
+                        "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
+                        "display_type": "percentage",
+                        "overall_change": "neutral",
+                        "has_data": False,
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "3-Day Retention",
+                        "slug": "active_in_last_3_days_legacy",
+                        "description": "Users who returned to Firefox in the first 3 days.",
+                        "display_type": "percentage",
+                        "overall_change": "neutral",
+                        "has_data": False,
+                    },
+                    {
+                        "group": "search_metrics",
+                        "friendly_name": "Search Count",
+                        "slug": "search_count",
+                        "description": "Daily mean number of searches per user.",
                         "overall_change": "neutral",
                         "has_data": False,
                     },

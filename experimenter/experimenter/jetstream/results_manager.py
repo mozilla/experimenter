@@ -17,6 +17,12 @@ class MetricSignificance(StrEnum):
     NEUTRAL = "neutral"
 
 
+# Metrics that exist in daily+overall windows (as opposed to weekly+overall)
+DAILY_FIRST_METRICS = {
+    NimbusConstants.DAYS_3_RETENTION,
+}
+
+
 class ExperimentResultsManager:
     def __init__(self, experiment):
         self.experiment = experiment
@@ -209,11 +215,20 @@ class ExperimentResultsManager:
         self, metric_slug, group, analysis_basis, segment, reference_branch=None
     ):
         if self.experiment.results_data:
-            window_results = (
-                self.get_window_results(analysis_basis, segment, "overall")
-                or self.get_window_results(analysis_basis, segment, "weekly")
-                or self.get_window_results(analysis_basis, segment, "daily")
-            )
+            # Some metrics exist in daily+overall (e.g. 3-day retention),
+            # check daily window first for those
+            if metric_slug in DAILY_FIRST_METRICS:
+                window_results = (
+                    self.get_window_results(analysis_basis, segment, "daily")
+                    or self.get_window_results(analysis_basis, segment, "overall")
+                    or self.get_window_results(analysis_basis, segment, "weekly")
+                )
+            else:
+                window_results = (
+                    self.get_window_results(analysis_basis, segment, "overall")
+                    or self.get_window_results(analysis_basis, segment, "weekly")
+                    or self.get_window_results(analysis_basis, segment, "daily")
+                )
 
             for branch in self.experiment.get_sorted_branches():
                 if branch.slug == reference_branch:

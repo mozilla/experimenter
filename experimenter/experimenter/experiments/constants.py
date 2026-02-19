@@ -930,6 +930,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "display_type": "percentage",
         },
         {
+            "group": "other_metrics",
+            "friendly_name": "3-Day Retention",
+            "slug": DAYS_3_RETENTION,
+            "description": "Users who returned to Firefox in the first 3 days.",
+            "display_type": "percentage",
+        },
+        {
             "group": "search_metrics",
             "friendly_name": "Search Count",
             "slug": SEARCH_COUNT,
