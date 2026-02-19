@@ -810,6 +810,8 @@ class NimbusConstants:
         ANALYSIS_READY_OVERALL = "analysis_ready_overall", "Overall Analysis Ready"
         EXPERIMENT_LAUNCHED = "experiment_launched", "Experiment Launched"
         ENROLLMENT_HEALTHY = "enrollment_healthy", "Enrollment Healthy"
+        LAUNCH_REQUEST = "launch_request", "Launch Request"
+        UPDATE_REQUEST = "update_request", "Update Request"
 
     # Error types from Jetstream that are expected for non-analysis reasons and
     # don't want alerting
@@ -1167,6 +1169,18 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     SLACK_EMAIL_ACTIONS = {
         EmailType.EXPERIMENT_END: "🛑 Is ready to end",
         EmailType.ENROLLMENT_END: "⏸️ Is ready to end enrollment",
+    }
+
+    # Slack action to alert type mappings
+    SLACK_ACTION_TO_ALERT_TYPE = {
+        SLACK_ACTION_LAUNCH_REQUEST: AlertType.LAUNCH_REQUEST,
+        SLACK_ACTION_UPDATE_REQUEST: AlertType.UPDATE_REQUEST,
+    }
+
+    # Analysis window to alert type mappings
+    ANALYSIS_WINDOW_TO_ALERT_TYPE = {
+        AnalysisWindow.WEEKLY: AlertType.ANALYSIS_READY_WEEKLY,
+        AnalysisWindow.OVERALL: AlertType.ANALYSIS_READY_OVERALL,
     }
 
     EXPOSURE_CLIENT_CUTOFF = 10

@@ -28,11 +28,14 @@ def nimbus_send_slack_notification(
 ):
     """
     An invoked task that sends a Slack notification for an experiment action.
+
+    Returns:
+        Message timestamp for threading, or None if not sent.
     """
     metrics.incr("send_slack_notification.started")
 
     try:
-        send_slack_notification(
+        message_ts = send_slack_notification(
             experiment_id=experiment_id,
             email_addresses=email_addresses,
             action_text=action_text,
@@ -41,6 +44,7 @@ def nimbus_send_slack_notification(
 
         logger.info(f"Slack notification sent for experiment {experiment_id}")
         metrics.incr("send_slack_notification.completed")
+        return message_ts
     except Exception as e:
         metrics.incr("send_slack_notification.failed")
         logger.error(
@@ -107,18 +111,7 @@ def check_single_experiment_alerts(experiment_id):
 
 
 def _check_results_ready(experiment):
-    windows = [
-        NimbusConstants.AnalysisWindow.WEEKLY,
-        NimbusConstants.AnalysisWindow.OVERALL,
-    ]
-
-    for window in windows:
-        alert_type = (
-            NimbusConstants.AlertType.ANALYSIS_READY_WEEKLY
-            if window == NimbusConstants.AnalysisWindow.WEEKLY
-            else NimbusConstants.AlertType.ANALYSIS_READY_OVERALL
-        )
-
+    for window, alert_type in NimbusConstants.ANALYSIS_WINDOW_TO_ALERT_TYPE.items():
         # Skip if we already sent this alert
         if NimbusAlert.objects.filter(
             experiment=experiment, alert_type=alert_type
