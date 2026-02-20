@@ -1,7 +1,7 @@
 import json
 
 from pyjexl.jexl import JEXLConfig
-from pyjexl.operators import default_binary_operators, default_unary_operators
+from pyjexl.operators import Operator, default_binary_operators, default_unary_operators
 from pyjexl.parser import (
     ArrayLiteral,
     BinaryExpression,
@@ -13,6 +13,22 @@ from pyjexl.parser import (
     UnaryExpression,
     jexl_grammar,
 )
+
+JEXL_CONFIG = JEXLConfig(
+    {},
+    default_unary_operators,
+    {
+        **default_binary_operators,
+        "intersect": Operator("intersect", 40, lambda x, y: set(x).intersection(y)),
+    },
+)
+
+
+class JEXLParser(Parser):
+    grammar = jexl_grammar(JEXL_CONFIG)
+
+    def __init__(self):
+        super().__init__(JEXL_CONFIG)
 
 
 def format_jexl(expression):
@@ -78,13 +94,5 @@ def format_jexl(expression):
             right = node_to_str(node.right) or format_node(node.right, False, indent)
             return f"{node.operator.symbol}({right})"
         return node_to_str(node) or str(node)
-
-    jexl_config = JEXLConfig({}, default_unary_operators, default_binary_operators)
-
-    class JEXLParser(Parser):
-        grammar = jexl_grammar(jexl_config)
-
-        def __init__(self):
-            super().__init__(jexl_config)
 
     return format_node(JEXLParser().parse(expression))
