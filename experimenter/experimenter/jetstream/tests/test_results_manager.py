@@ -495,45 +495,6 @@ class TestExperimentResultsManager(TestCase):
                     },
                 ],
             ),
-            (
-                "active_in_last_3_days_legacy",
-                [
-                    {
-                        "group": "other_metrics",
-                        "friendly_name": "Retention",
-                        "slug": "retained",
-                        "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
-                        "display_type": "percentage",
-                        "overall_change": MetricSignificance.NEUTRAL,
-                        "has_data": False,
-                    },
-                    {
-                        "group": "other_metrics",
-                        "friendly_name": "3-Day Retention",
-                        "slug": "active_in_last_3_days_legacy",
-                        "description": "Users who returned in first 3 days.",
-                        "display_type": "percentage",
-                        "overall_change": MetricSignificance.NEUTRAL,
-                        "has_data": False,
-                    },
-                    {
-                        "group": "search_metrics",
-                        "friendly_name": "Search Count",
-                        "slug": "search_count",
-                        "description": "Daily mean number of searches per user.",
-                        "overall_change": MetricSignificance.NEUTRAL,
-                        "has_data": False,
-                    },
-                    {
-                        "group": "other_metrics",
-                        "friendly_name": "Daily Active Users",
-                        "slug": "client_level_daily_active_users_v2",
-                        "description": "Average number of client that sent a main ping per day.",  # noqa E501
-                        "overall_change": MetricSignificance.NEUTRAL,
-                        "has_data": False,
-                    },
-                ],
-            ),
         ]
     )
     def test_get_kpi_metrics_returns_correct_metrics(
@@ -1639,38 +1600,6 @@ class TestExperimentResultsManager(TestCase):
                     }
                 },
                 False,
-            ),
-            (
-                "active_in_last_3_days_legacy",
-                {
-                    "v3": {
-                        "overall": {},
-                        "weekly": {},
-                        "daily": {
-                            "enrollments": {
-                                "all": {
-                                    "branch-b": {
-                                        "branch_data": {
-                                            "other_metrics": {
-                                                "active_in_last_3_days_legacy": {
-                                                    "absolute": {
-                                                        "first": {
-                                                            "lower": 0.60,
-                                                            "upper": 0.75,
-                                                            "point": 0.72,
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "errors": {},
-                    }
-                },
-                True,
             ),
         ]
     )
