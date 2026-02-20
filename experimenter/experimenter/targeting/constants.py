@@ -788,6 +788,17 @@ LINUX_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_ONLY = NimbusTargetingConfig(
+    name="Windows users only",
+    slug="windows_only",
+    description="All users with Windows",
+    targeting="os.isWindows",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 MAC_LINUX_ONLY = NimbusTargetingConfig(
     name="Mac and Linux users only",
     slug="mac_linux_only",
