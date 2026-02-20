@@ -5,7 +5,7 @@ from unittest import mock
 from nimbus_megazord import nimbus as nimbus_rust
 
 from experimenter.experiments.constants import Application
-from experimenter.experiments.tests import JEXLParser
+from experimenter.experiments.jexl_utils import JEXLParser
 
 
 def validate_jexl_expr(expression, application):
