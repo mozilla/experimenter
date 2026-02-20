@@ -864,8 +864,11 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
                     )
 
         context["relative_metric_changes"] = relative_metric_changes
-        context["all_weekly_metric_data"] = results_manager.get_weekly_metric_data(
-            analysis_basis, selected_segment, selected_reference_branch
+        context["all_weekly_metric_data"] = results_manager.build_window_metric_breakdown(
+            analysis_basis, selected_segment, selected_reference_branch, "weekly"
+        )
+        context["all_daily_metric_data"] = results_manager.build_window_metric_breakdown(
+            analysis_basis, selected_segment, selected_reference_branch, "daily"
         )
 
         return context

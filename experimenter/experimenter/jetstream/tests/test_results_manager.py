@@ -36,168 +36,385 @@ class TestExperimentResultsManager(TestCase):
         )
         self.results_manager = ExperimentResultsManager(self.experiment)
 
-    def test_get_weekly_metric_data(self):
-        self.experiment.results_data = {
-            "v3": {
-                "weekly": {
-                    "enrollments": {
-                        "all": {
-                            "branch-a": {
-                                "branch_data": {
-                                    "other_metrics": {
-                                        "urlbar_amazon_search_count": {
-                                            "absolute": {
-                                                "all": [
-                                                    {
-                                                        "lower": 140,
-                                                        "upper": 160,
-                                                        "point": 150,
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                            },
+                                                        ]
                                                     },
-                                                    {
-                                                        "lower": 130,
-                                                        "upper": 150,
-                                                        "point": 140,
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
                                                     },
-                                                    {
-                                                        "lower": 120,
-                                                        "upper": 140,
-                                                        "point": 130,
+                                                }
+                                            }
+                                        },
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                            },
+                                                        ]
                                                     },
-                                                ]
-                                            },
-                                            "relative_uplift": {
-                                                "branch-a": {"all": []},
-                                            },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": 10,
+                                                                    "upper": 20,
+                                                                    "point": 15,
+                                                                },
+                                                                {
+                                                                    "lower": 5,
+                                                                    "upper": 15,
+                                                                    "point": 10,
+                                                                },
+                                                                {
+                                                                    "lower": 0,
+                                                                    "upper": 10,
+                                                                    "point": 5,
+                                                                },
+                                                            ]
+                                                        },
+                                                        "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
                                         }
-                                    }
-                                },
-                            },
-                            "branch-b": {
-                                "branch_data": {
-                                    "other_metrics": {
-                                        "urlbar_amazon_search_count": {
-                                            "absolute": {
-                                                "all": [
-                                                    {
-                                                        "lower": 140,
-                                                        "upper": 160,
-                                                        "point": 150,
-                                                    },
-                                                    {
-                                                        "lower": 130,
-                                                        "upper": 150,
-                                                        "point": 140,
-                                                    },
-                                                    {
-                                                        "lower": 120,
-                                                        "upper": 140,
-                                                        "point": 130,
-                                                    },
-                                                ]
-                                            },
-                                            "relative_uplift": {
-                                                "branch-a": {
-                                                    "all": [
-                                                        {
-                                                            "lower": 10,
-                                                            "upper": 20,
-                                                            "point": 15,
-                                                        },
-                                                        {
-                                                            "lower": 5,
-                                                            "upper": 15,
-                                                            "point": 10,
-                                                        },
-                                                        {
-                                                            "lower": 0,
-                                                            "upper": 10,
-                                                            "point": 5,
-                                                        },
-                                                    ]
-                                                },
-                                                "branch-b": {"all": []},
-                                            },
-                                        }
-                                    }
+                                    },
                                 }
-                            },
+                            }
                         }
                     }
-                }
-            }
-        }
+                },
+                "weekly",
+                {
+                    "urlbar_amazon_search_count": {
+                        "data": {
+                            "branch-a": [
+                                (
+                                    {
+                                        "lower": 140,
+                                        "upper": 160,
+                                        "significance": "neutral",
+                                    },
+                                    None,
+                                ),
+                                (
+                                    {
+                                        "lower": 130,
+                                        "upper": 150,
+                                        "significance": "neutral",
+                                    },
+                                    None,
+                                ),
+                                (
+                                    {
+                                        "lower": 120,
+                                        "upper": 140,
+                                        "significance": "neutral",
+                                    },
+                                    None,
+                                ),
+                            ],
+                            "branch-b": [
+                                (
+                                    {
+                                        "lower": 140,
+                                        "upper": 160,
+                                        "significance": "neutral",
+                                    },
+                                    {
+                                        "avg_rel_change": 15,
+                                        "lower": 10,
+                                        "upper": 20,
+                                        "significance": "neutral",
+                                    },
+                                ),
+                                (
+                                    {
+                                        "lower": 130,
+                                        "upper": 150,
+                                        "significance": "neutral",
+                                    },
+                                    {
+                                        "avg_rel_change": 10,
+                                        "lower": 5,
+                                        "upper": 15,
+                                        "significance": "neutral",
+                                    },
+                                ),
+                                (
+                                    {
+                                        "lower": 120,
+                                        "upper": 140,
+                                        "significance": "neutral",
+                                    },
+                                    {
+                                        "avg_rel_change": 5,
+                                        "lower": 0,
+                                        "upper": 10,
+                                        "significance": "neutral",
+                                    },
+                                ),
+                            ],
+                        },
+                        "has_weekly_data": True,
+                    },
+                    "total_amazon_search_count": {
+                        "data": {},
+                        "has_weekly_data": False,
+                    },
+                    "retained": {
+                        "data": {},
+                        "has_weekly_data": False,
+                    },
+                    "client_level_daily_active_users_v2": {
+                        "data": {},
+                        "has_weekly_data": False,
+                    },
+                    "search_count": {
+                        "data": {},
+                        "has_weekly_data": False,
+                    },
+                },
+            ),
+            (
+                {
+                    "v3": {
+                        "daily": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                            },
+                                                        ]
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        },
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                            },
+                                                        ]
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": 10,
+                                                                    "upper": 20,
+                                                                    "point": 15,
+                                                                },
+                                                                {
+                                                                    "lower": 5,
+                                                                    "upper": 15,
+                                                                    "point": 10,
+                                                                },
+                                                                {
+                                                                    "lower": 0,
+                                                                    "upper": 10,
+                                                                    "point": 5,
+                                                                },
+                                                            ]
+                                                        },
+                                                        "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                },
+                "daily",
+                {
+                    "urlbar_amazon_search_count": {
+                        "data": {
+                            "branch-a": [
+                                (
+                                    {
+                                        "lower": 140,
+                                        "upper": 160,
+                                        "significance": "neutral",
+                                    },
+                                    None,
+                                ),
+                                (
+                                    {
+                                        "lower": 130,
+                                        "upper": 150,
+                                        "significance": "neutral",
+                                    },
+                                    None,
+                                ),
+                                (
+                                    {
+                                        "lower": 120,
+                                        "upper": 140,
+                                        "significance": "neutral",
+                                    },
+                                    None,
+                                ),
+                            ],
+                            "branch-b": [
+                                (
+                                    {
+                                        "lower": 140,
+                                        "upper": 160,
+                                        "significance": "neutral",
+                                    },
+                                    {
+                                        "avg_rel_change": 15,
+                                        "lower": 10,
+                                        "upper": 20,
+                                        "significance": "neutral",
+                                    },
+                                ),
+                                (
+                                    {
+                                        "lower": 130,
+                                        "upper": 150,
+                                        "significance": "neutral",
+                                    },
+                                    {
+                                        "avg_rel_change": 10,
+                                        "lower": 5,
+                                        "upper": 15,
+                                        "significance": "neutral",
+                                    },
+                                ),
+                                (
+                                    {
+                                        "lower": 120,
+                                        "upper": 140,
+                                        "significance": "neutral",
+                                    },
+                                    {
+                                        "avg_rel_change": 5,
+                                        "lower": 0,
+                                        "upper": 10,
+                                        "significance": "neutral",
+                                    },
+                                ),
+                            ],
+                        },
+                        "has_daily_data": True,
+                    },
+                    "total_amazon_search_count": {
+                        "data": {},
+                        "has_daily_data": False,
+                    },
+                    "retained": {
+                        "data": {},
+                        "has_daily_data": False,
+                    },
+                    "client_level_daily_active_users_v2": {
+                        "data": {},
+                        "has_daily_data": False,
+                    },
+                    "search_count": {
+                        "data": {},
+                        "has_daily_data": False,
+                    },
+                },
+            ),
+        ]
+    )
+    def test_build_window_metric_breakdown_data(
+        self, results_data, window, expected_data
+    ):
+        self.experiment.results_data = results_data
         self.experiment.save()
 
-        expected_weekly_data = {
-            "urlbar_amazon_search_count": {
-                "data": {
-                    "branch-a": [
-                        (
-                            {"lower": 140, "upper": 160, "significance": "neutral"},
-                            None,
-                        ),
-                        (
-                            {"lower": 130, "upper": 150, "significance": "neutral"},
-                            None,
-                        ),
-                        (
-                            {"lower": 120, "upper": 140, "significance": "neutral"},
-                            None,
-                        ),
-                    ],
-                    "branch-b": [
-                        (
-                            {"lower": 140, "upper": 160, "significance": "neutral"},
-                            {
-                                "avg_rel_change": 15,
-                                "lower": 10,
-                                "upper": 20,
-                                "significance": "neutral",
-                            },
-                        ),
-                        (
-                            {"lower": 130, "upper": 150, "significance": "neutral"},
-                            {
-                                "avg_rel_change": 10,
-                                "lower": 5,
-                                "upper": 15,
-                                "significance": "neutral",
-                            },
-                        ),
-                        (
-                            {"lower": 120, "upper": 140, "significance": "neutral"},
-                            {
-                                "avg_rel_change": 5,
-                                "lower": 0,
-                                "upper": 10,
-                                "significance": "neutral",
-                            },
-                        ),
-                    ],
-                },
-                "has_weekly_data": True,
-            },
-            "total_amazon_search_count": {
-                "data": {},
-                "has_weekly_data": False,
-            },
-            "retained": {
-                "data": {},
-                "has_weekly_data": False,
-            },
-            "client_level_daily_active_users_v2": {
-                "data": {},
-                "has_weekly_data": False,
-            },
-            "search_count": {
-                "data": {},
-                "has_weekly_data": False,
-            },
-        }
-
         self.assertEqual(
-            self.results_manager.get_weekly_metric_data("enrollments", "all", "branch-a"),
-            expected_weekly_data,
+            self.results_manager.build_window_metric_breakdown(
+                "enrollments", "all", "branch-a", window
+            ),
+            expected_data,
         )
 
     def test_get_metric_data_returns_correct_data(self):
