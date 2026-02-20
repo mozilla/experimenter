@@ -4,8 +4,7 @@
   "private": true,
   "workspaces": [
     "experimenter/legacy/legacy-ui/core",
-    "experimenter/nimbus_ui/static",
-    "experimenter/results"
+    "experimenter/nimbus_ui/static"
   ],
   "devDependencies": {
     "@types/react-select": "^5.0.1",
