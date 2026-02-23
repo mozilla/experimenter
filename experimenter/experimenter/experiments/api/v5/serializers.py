@@ -32,6 +32,7 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
+from experimenter.experiments.jexl_utils import JEXLParser
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -2187,6 +2188,18 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_targeting_parses(self, data):
+        expression = self.instance.targeting
+
+        try:
+            JEXLParser().parse(expression)
+        except Exception as e:
+            raise serializers.ValidationError(
+                NimbusConstants.ERROR_CANNOT_PARSE_TARGETING
+            ) from e
+
+        return data
+
     def _validate_sticky_enrollment(self, data):
         targeting_config_slug = data.get("targeting_config_slug")
         targeting_config = NimbusExperiment.TARGETING_CONFIGS[targeting_config_slug]
@@ -2612,6 +2625,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_localizations(data)
         data = self._validate_feature_configs(data)
         data = self._validate_enrollment_targeting(data)
+        data = self._validate_targeting_parses(data)
         data = self._validate_sticky_enrollment(data)
         data = self._validate_bucket_duplicates(data)
         data = self._validate_proposed_release_date(data)

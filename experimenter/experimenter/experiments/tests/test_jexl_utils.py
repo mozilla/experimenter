@@ -165,3 +165,6 @@ e"""
         result = format_jexl("a || b || c")
         expected = "a ||\nb ||\nc"
         self.assertEqual(result, expected)
+
+    def test_invalid_operator(self):
+        self.assertEqual(format_jexl(")))))"), ")))))")

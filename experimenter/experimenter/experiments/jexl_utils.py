@@ -1,5 +1,7 @@
 import json
+import logging
 
+import sentry_sdk
 from pyjexl.jexl import JEXLConfig
 from pyjexl.operators import Operator, default_binary_operators, default_unary_operators
 from pyjexl.parser import (
@@ -13,6 +15,9 @@ from pyjexl.parser import (
     UnaryExpression,
     jexl_grammar,
 )
+
+logger = logging.getLogger(__name__)
+
 
 JEXL_CONFIG = JEXLConfig(
     {},
@@ -95,4 +100,10 @@ def format_jexl(expression):
             return f"{node.operator.symbol}({right})"
         return node_to_str(node) or str(node)
 
-    return format_node(JEXLParser().parse(expression))
+    try:
+        return format_node(JEXLParser().parse(expression))
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        logging.exception(f"Failed to parse JEXL expression `{expression}'")
+
+        return expression
