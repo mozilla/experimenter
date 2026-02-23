@@ -880,7 +880,7 @@ features:
         description: |
           Overrides the loadType when it is a same document navigation
         type: Boolean
-        default: true
+        default: false
       force-disable-uri:
         description: |
           Disable overriding the loadType during same document navigation on the domain specified by this URI.
