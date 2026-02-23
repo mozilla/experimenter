@@ -157,15 +157,17 @@ def send_experiment_launch_success_message(experiment_id, thread_ts):
 
     try:
         # Send threaded reply to the original launch request
-        client.chat_postMessage(
+        post_response = client.chat_postMessage(
             channel=channel,
             text=message,
             thread_ts=thread_ts,
         )
 
+        channel_id = post_response["channel"]
+
         # Add reaction emoji to original message
         client.reactions_add(
-            channel=channel,
+            channel=channel_id,
             name="white_check_mark",
             timestamp=thread_ts,
         )
