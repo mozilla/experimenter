@@ -20,10 +20,17 @@ def get_api_cache_key(view_name, query_params=None):
     return f"nimbus:api:{view_name}"
 
 
-def warm_api_cache(key_prefix, queryset, serializer_class):
-    """Query the DB, serialize, and store the rendered JSON in the cache."""
-    data = serializer_class(queryset.all(), many=True).data
-    rendered = JSONRenderer().render(data)
+def warm_api_cache(key_prefix, queryset, serializer_class, renderer=None, sort_key=None):
+    """Query the DB, serialize, and store the rendered response in the cache."""
+    if renderer is None:
+        renderer = JSONRenderer()
+    qs = queryset.all()
+    if sort_key is not None:
+        qs = sorted(qs, key=sort_key, reverse=True)
+    data = serializer_class(qs, many=True).data
+    rendered = renderer.render(data)
+    if isinstance(rendered, str):
+        rendered = rendered.encode("utf-8")
     cache_key = get_api_cache_key(key_prefix)
     cache.set(cache_key, rendered, timeout=settings.API_CACHE_WARMING_TTL)
     logger.info("Warmed cache for %s (%d bytes)", key_prefix, len(rendered))
@@ -38,14 +45,18 @@ class CachedListMixin:
     """
 
     cache_key_prefix = ""
+    cache_content_type = "application/json"
 
     def list(self, request, *args, **kwargs):
         cache_key = get_api_cache_key(self.cache_key_prefix, request.query_params)
         cached = cache.get(cache_key)
         if cached is not None:
-            return HttpResponse(cached, content_type="application/json")
+            return HttpResponse(cached, content_type=self.cache_content_type)
 
         response = super().list(request, *args, **kwargs)
-        rendered = JSONRenderer().render(response.data)
+        renderer = self.renderer_classes[0]()
+        rendered = renderer.render(response.data)
+        if isinstance(rendered, str):
+            rendered = rendered.encode("utf-8")
         cache.set(cache_key, rendered, timeout=settings.API_CACHE_WARMING_TTL)
         return response
