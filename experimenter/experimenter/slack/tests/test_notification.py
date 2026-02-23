@@ -535,7 +535,7 @@ class TestSlackNotifications(TestCase):
     def test_send_experiment_launch_success_message(self, mock_webclient):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
-        mock_client.chat_postMessage.return_value = {"ok": True}
+        mock_client.chat_postMessage.return_value = {"ok": True, "channel": "C123456"}
         mock_client.reactions_add.return_value = {"ok": True}
 
         thread_ts = "1234567890.123456"
@@ -554,9 +554,10 @@ class TestSlackNotifications(TestCase):
         self.assertIn(self.experiment.slug, call_args.kwargs["text"])
         self.assertEqual(call_args.kwargs["thread_ts"], thread_ts)
 
-        # Verify reaction emoji was added
+        # Verify reaction emoji was added with the correct channel ID
         mock_client.reactions_add.assert_called_once()
         reaction_call = mock_client.reactions_add.call_args
+        self.assertEqual(reaction_call.kwargs["channel"], "C123456")
         self.assertEqual(reaction_call.kwargs["name"], "white_check_mark")
         self.assertEqual(reaction_call.kwargs["timestamp"], thread_ts)
 
