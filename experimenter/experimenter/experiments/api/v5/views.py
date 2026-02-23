@@ -3,6 +3,7 @@ from rest_framework.generics import ListAPIView, UpdateAPIView
 from rest_framework.renderers import BaseRenderer
 from rest_framework_csv.renderers import CSVRenderer
 
+from experimenter.experiments.api.cache import CachedListMixin
 from experimenter.experiments.api.v5.serializers import (
     FmlFeatureValueSerializer,
     NimbusExperimentCsvSerializer,
@@ -16,7 +17,9 @@ class NimbusExperimentCsvRenderer(CSVRenderer):
     labels = {field: field.replace("_", " ").title() for field in header}
 
 
-class NimbusExperimentCsvListView(ListAPIView):
+class NimbusExperimentCsvListView(CachedListMixin, ListAPIView):
+    cache_key_prefix = "v5:csv"
+    cache_content_type = "text/csv; charset=utf-8"
     queryset = (
         NimbusExperiment.objects.select_related("owner")
         .prefetch_related("feature_configs")
@@ -62,7 +65,9 @@ class NimbusExperimentYamlRenderer(BaseRenderer):
         )
 
 
-class NimbusExperimentYamlListView(ListAPIView):
+class NimbusExperimentYamlListView(CachedListMixin, ListAPIView):
+    cache_key_prefix = "v5:yaml"
+    cache_content_type = "text/yaml; charset=utf-8"
     queryset = (
         NimbusExperiment.objects.select_related("owner", "reference_branch", "parent")
         .prefetch_related(

@@ -3,7 +3,8 @@ import json
 
 import yaml
 from django.conf import settings
-from django.test import TestCase
+from django.core.cache import cache
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from experimenter.base.models import Country, Language, Locale
@@ -20,7 +21,18 @@ from experimenter.experiments.tests.factories import (
 )
 
 
+@override_settings(
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
+)
 class TestNimbusExperimentCsvListView(TestCase):
+    def setUp(self):
+        super().setUp()
+        cache.clear()
+
     def test_get_returns_csv_info_sorted_by_start_date(self):
         user_email = "user@example.com"
         application = NimbusExperiment.Application.DESKTOP
@@ -104,7 +116,18 @@ class TestNimbusExperimentCsvListView(TestCase):
         self.assertEqual(csv_data, expected_csv_data)
 
 
+@override_settings(
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
+)
 class TestNimbusExperimentYamlListView(TestCase):
+    def setUp(self):
+        super().setUp()
+        cache.clear()
+
     def _get_yaml(self):
         response = self.client.get(
             reverse("nimbus-experiments-yaml"),
