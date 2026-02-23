@@ -33,12 +33,10 @@ class TestWarmApiCaches(TestCase):
 
         warm_api_caches()
 
-        for key_prefix, _, _ in _get_warm_cache_endpoints():
+        for key_prefix, _, _, _ in _get_warm_cache_endpoints():
             cache_key = get_api_cache_key(key_prefix)
             cached = cache.get(cache_key)
             self.assertIsNotNone(cached, f"Cache for {key_prefix} should be populated")
-            data = json.loads(cached)
-            self.assertIsInstance(data, list)
 
     def test_warm_api_caches_contains_correct_experiments(self):
         NimbusExperimentFactory.create_with_lifecycle(
@@ -91,12 +89,10 @@ class TestWarmApiCaches(TestCase):
     def test_warm_api_caches_empty_db(self):
         warm_api_caches()
 
-        for key_prefix, _, _ in _get_warm_cache_endpoints():
+        for key_prefix, _, _, _ in _get_warm_cache_endpoints():
             cache_key = get_api_cache_key(key_prefix)
             cached = cache.get(cache_key)
             self.assertIsNotNone(cached)
-            data = json.loads(cached)
-            self.assertEqual(data, [])
 
     def test_warm_api_caches_first_run_endpoint(self):
         NimbusExperimentFactory.create_with_lifecycle(
@@ -117,7 +113,7 @@ class TestWarmApiCaches(TestCase):
         self.assertIn("first-run-exp", slugs)
         self.assertNotIn("not-first-run-exp", slugs)
 
-    def test_all_api_versions_produce_valid_json(self):
+    def test_warm_api_caches_json_endpoints_produce_valid_json(self):
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             slug="test-experiment",
@@ -125,13 +121,42 @@ class TestWarmApiCaches(TestCase):
 
         warm_api_caches()
 
-        for key_prefix, _, _ in _get_warm_cache_endpoints():
+        json_prefixes = [
+            p for p, _, _, _ in _get_warm_cache_endpoints() if not p.startswith("v5:")
+        ]
+        for key_prefix in json_prefixes:
             cache_key = get_api_cache_key(key_prefix)
             cached = cache.get(cache_key)
             data = json.loads(cached)
             for exp in data:
                 self.assertIn("slug", exp)
                 self.assertIn("branches", exp)
+
+    def test_warm_api_caches_v5_yaml_endpoint(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="complete-experiment",
+        )
+
+        warm_api_caches()
+
+        cached = cache.get(get_api_cache_key("v5:yaml"))
+        self.assertIsNotNone(cached)
+        content = cached.decode("utf-8") if isinstance(cached, bytes) else cached
+        self.assertIn("complete-experiment", content)
+
+    def test_warm_api_caches_v5_csv_endpoint(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="csv-experiment",
+        )
+
+        warm_api_caches()
+
+        cached = cache.get(get_api_cache_key("v5:csv"))
+        self.assertIsNotNone(cached)
+        content = cached.decode("utf-8") if isinstance(cached, bytes) else cached
+        self.assertIn("csv-experiment", content)
 
     def test_warm_api_caches_raises_on_error(self):
         with (
