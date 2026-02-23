@@ -1151,6 +1151,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ERROR_CANNOT_PAUSE_INVALID = "Cannot end enrollment at this time"
 
+    ERROR_CANNOT_PARSE_TARGETING = "Cannot parse targeting expression"
+
     # Slack action constants
     SLACK_ACTION_LAUNCH_REQUEST = "launch_request"
     SLACK_ACTION_UPDATE_REQUEST = "update_request"
