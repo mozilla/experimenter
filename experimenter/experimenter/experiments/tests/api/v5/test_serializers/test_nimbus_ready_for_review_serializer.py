@@ -3344,6 +3344,32 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 expected_error,
             )
 
+    def test_invalid_targeting_expr(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_137,
+            is_rollout=False,
+        )
+
+        experiment.published_dto = {
+            "targeting": "))))))",
+        }
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "non_field_errors": [NimbusConstants.ERROR_CANNOT_PARSE_TARGETING],
+            },
+        )
+
 
 class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
     maxDiff = None
