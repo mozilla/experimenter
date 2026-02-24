@@ -66,7 +66,7 @@ pyyaml = "^6.0.1"
 PyYAML = "^6.0"
 redis = "4.6.0"
 requests = { version = "2.32.4", extras = ["security"] }
-responses = "0.25.0"
+responses = "0.26.0"
 ruff = "^0.15.0"
 sentry-sdk = "^2.53.0"
 slack-sdk = "^3.40.0"
