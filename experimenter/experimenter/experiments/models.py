@@ -2967,6 +2967,12 @@ class NimbusAlert(models.Model):
         blank=True,
         help_text="Slack message timestamp for threading",
     )
+    slack_channel_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Slack channel ID where the message was posted",
+    )
 
     def __str__(self):
         return f"{self.experiment.slug} - {self.alert_type} - {self.sent_on}"

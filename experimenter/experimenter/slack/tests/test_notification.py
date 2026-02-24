@@ -4,9 +4,10 @@ from django.test import TestCase, override_settings
 from slack_sdk.errors import SlackApiError
 
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.slack.notification import (
+    add_eyes_emoji_to_launch_message,
     send_experiment_launch_success_message,
     send_slack_notification,
 )
@@ -25,6 +26,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.return_value = {
             "ok": True,
@@ -37,13 +39,13 @@ class TestSlackNotifications(TestCase):
         action_text = NimbusConstants.SLACK_EMAIL_ACTIONS[
             NimbusExperiment.EmailType.EXPERIMENT_END
         ]
-        message_ts = send_slack_notification(
+        result = send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
             action_text=action_text,
         )
 
-        self.assertEqual(message_ts, "1234567890.123456")
+        self.assertEqual(result, ("1234567890.123456", "C123456"))
 
         mock_client.users_lookupByEmail.assert_called_once_with(email="test@example.com")
         # Should be called once for channel message and once for DM
@@ -83,6 +85,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.return_value = {
             "ok": True,
@@ -155,6 +158,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.return_value = {
             "ok": True,
@@ -214,6 +218,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.return_value = {
             "ok": True,
@@ -254,6 +259,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.return_value = {
             "ok": True,
@@ -304,6 +310,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.return_value = {
             "ok": True,
@@ -340,6 +347,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.return_value = {
             "ok": True,
@@ -370,7 +378,7 @@ class TestSlackNotifications(TestCase):
         mock_webclient.return_value = mock_client
         mock_client.users_lookupByEmail.return_value = {"user": {"id": "U123456"}}
         mock_client.chat_postMessage.side_effect = [
-            {"ok": True, "ts": "1234567890.123456"},  # Channel message succeeds
+            {"ok": True, "ts": "1234567890.123456", "channel": "C123456"},
             SlackApiError(
                 message="DM failed", response={"error": "channel_not_found"}
             ),  # DM fails
@@ -404,6 +412,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.side_effect = SlackApiError(
             message="Permalink failed", response={"error": "not_found"}
@@ -433,6 +442,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.return_value = {
             "ok": True,
@@ -468,6 +478,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.return_value = {
             "ok": True,
@@ -504,6 +515,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {
             "ok": True,
             "ts": "1234567890.123456",
+            "channel": "C123456",
         }
         mock_client.chat_getPermalink.return_value = {
             "ok": True,
@@ -603,3 +615,113 @@ class TestSlackNotifications(TestCase):
         )
 
         self.assertFalse(result)
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_add_eyes_emoji_to_launch_message_success(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.reactions_add.return_value = {"ok": True}
+
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Test launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
+
+        result = add_eyes_emoji_to_launch_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        )
+
+        self.assertTrue(result)
+        mock_client.reactions_add.assert_called_once()
+        call_args = mock_client.reactions_add.call_args
+        self.assertEqual(call_args.kwargs["channel"], "C123456")
+        self.assertEqual(call_args.kwargs["name"], "eyes")
+        self.assertEqual(call_args.kwargs["timestamp"], "1234567890.123456")
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_add_eyes_emoji_to_launch_message_no_alert(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+
+        # Don't create any alert
+        result = add_eyes_emoji_to_launch_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        )
+
+        self.assertFalse(result)
+        # Should not call Slack API
+        mock_client.reactions_add.assert_not_called()
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_add_eyes_emoji_to_launch_message_no_thread_id(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+
+        # Create alert without slack_thread_id
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Test launch request",
+            slack_thread_id=None,
+        )
+
+        result = add_eyes_emoji_to_launch_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        )
+
+        self.assertFalse(result)
+        # Should not call Slack API
+        mock_client.reactions_add.assert_not_called()
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_add_eyes_emoji_to_launch_message_no_channel_id(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+
+        # Create alert without slack_channel_id
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Test launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id=None,
+        )
+
+        result = add_eyes_emoji_to_launch_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        )
+
+        self.assertFalse(result)
+        # Should not call Slack API
+        mock_client.reactions_add.assert_not_called()
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_add_eyes_emoji_to_launch_message_slack_error(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.reactions_add.side_effect = SlackApiError(
+            message="Slack error", response={"error": "channel_not_found"}
+        )
+
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Test launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
+
+        result = add_eyes_emoji_to_launch_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        )
+
+        self.assertFalse(result)
+        mock_client.reactions_add.assert_called_once()

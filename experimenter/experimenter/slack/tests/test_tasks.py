@@ -189,7 +189,8 @@ class TestCheckResultsReady(TestCase):
         )
 
         with mock.patch(
-            "experimenter.slack.tasks.send_slack_notification"
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
         ) as mock_send_slack:
             tasks.check_single_experiment_alerts(experiment.id)
 
@@ -222,7 +223,8 @@ class TestCheckResultsReady(TestCase):
         )
 
         with mock.patch(
-            "experimenter.slack.tasks.send_slack_notification"
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
         ) as mock_send_slack:
             tasks.check_single_experiment_alerts(experiment.id)
 
@@ -253,7 +255,8 @@ class TestCheckResultsReady(TestCase):
         )
 
         with mock.patch(
-            "experimenter.slack.tasks.send_slack_notification"
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
         ) as mock_send_slack:
             tasks.check_single_experiment_alerts(experiment.id)
 
@@ -411,7 +414,8 @@ class TestCheckAnalysisErrors(TestCase):
         )
 
         with mock.patch(
-            "experimenter.slack.tasks.send_slack_notification"
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
         ) as mock_send_slack:
             tasks.check_single_experiment_alerts(experiment.id)
 
@@ -452,14 +456,16 @@ class TestCheckAnalysisErrors(TestCase):
         )
 
         with mock.patch(
-            "experimenter.slack.tasks.send_slack_notification"
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
         ) as mock_send_slack:
             tasks.check_single_experiment_alerts(experiment.id)
             self.assertEqual(mock_send_slack.call_count, 1)
 
         # Second run with same errors - should not send alert
         with mock.patch(
-            "experimenter.slack.tasks.send_slack_notification"
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
         ) as mock_send_slack:
             tasks.check_single_experiment_alerts(experiment.id)
             mock_send_slack.assert_not_called()
@@ -493,7 +499,8 @@ class TestCheckAnalysisErrors(TestCase):
 
         # First alert
         with mock.patch(
-            "experimenter.slack.tasks.send_slack_notification"
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
         ) as mock_send_slack:
             tasks.check_single_experiment_alerts(experiment.id)
             self.assertEqual(mock_send_slack.call_count, 1)
@@ -525,7 +532,8 @@ class TestCheckAnalysisErrors(TestCase):
 
         # Second run with additional error - should send new alert
         with mock.patch(
-            "experimenter.slack.tasks.send_slack_notification"
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
         ) as mock_send_slack:
             tasks.check_single_experiment_alerts(experiment.id)
             self.assertEqual(mock_send_slack.call_count, 1)
@@ -650,7 +658,8 @@ class TestCheckAnalysisErrors(TestCase):
         )
 
         with mock.patch(
-            "experimenter.slack.tasks.send_slack_notification"
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
         ) as mock_send_slack:
             tasks.check_single_experiment_alerts(experiment.id)
             mock_send_slack.assert_called_once()
@@ -732,7 +741,8 @@ class TestCheckAnalysisErrors(TestCase):
         )
 
         with mock.patch(
-            "experimenter.slack.tasks.send_slack_notification"
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
         ) as mock_send_slack:
             tasks.check_single_experiment_alerts(experiment.id)
             # Only UnexpectedException should trigger an alert

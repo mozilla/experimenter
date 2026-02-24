@@ -1009,7 +1009,7 @@ class TestDraftToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
 
     @patch("experimenter.nimbus_ui.forms.nimbus_send_slack_notification")
     def test_sends_slack_when_enabled(self, mock_send_slack):
-        mock_send_slack.return_value = "1234567890.123456"
+        mock_send_slack.return_value = ("1234567890.123456", "C123456")
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
@@ -1029,6 +1029,7 @@ class TestDraftToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
             alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
         )
         self.assertEqual(alert.slack_thread_id, "1234567890.123456")
+        self.assertEqual(alert.slack_channel_id, "C123456")
 
 
 class TestPreviewToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
@@ -1111,7 +1112,7 @@ class TestPreviewToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
 
     @patch("experimenter.nimbus_ui.forms.nimbus_send_slack_notification")
     def test_sends_slack_when_enabled(self, mock_send_slack):
-        mock_send_slack.return_value = "1234567890.123456"
+        mock_send_slack.return_value = ("1234567890.123456", "C123456")
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
@@ -1136,6 +1137,7 @@ class TestPreviewToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
             alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
         )
         self.assertEqual(alert.slack_thread_id, "1234567890.123456")
+        self.assertEqual(alert.slack_channel_id, "C123456")
 
 
 class TestPreviewToDraftForm(KintoPreviewMockMixin, RequestFormTestCase):
@@ -2101,7 +2103,7 @@ class TestLiveToUpdateRolloutForm(SlackNotificationMockMixin, RequestFormTestCas
 
     @patch("experimenter.nimbus_ui.forms.nimbus_send_slack_notification")
     def test_sends_slack_when_enabled(self, mock_send_slack):
-        mock_send_slack.return_value = "1234567890.123456"
+        mock_send_slack.return_value = ("1234567890.123456", "C123456")
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -2122,6 +2124,7 @@ class TestLiveToUpdateRolloutForm(SlackNotificationMockMixin, RequestFormTestCas
             alert_type=NimbusConstants.AlertType.UPDATE_REQUEST,
         )
         self.assertEqual(alert.slack_thread_id, "1234567890.123456")
+        self.assertEqual(alert.slack_channel_id, "C123456")
 
 
 class TestCancelUpdateRolloutForm(RequestFormTestCase):
