@@ -48,11 +48,12 @@ class TestJetstreamData(TestCase):
 
     def test_append_days_3_retention_extracts_data(self):
         retention = JetstreamDataPoint(
-            metric=Metric.DAYS_3_RETENTION,
+            metric=Metric.RETENTION_3_DAYS,
             statistic=Statistic.BINOMIAL,
             branch="control",
             point=0.65,
             segment=Segment.ALL,
+            window_index="4",
         )
 
         data = JetstreamData([])

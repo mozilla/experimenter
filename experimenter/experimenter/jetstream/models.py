@@ -28,7 +28,7 @@ class BranchComparison(StrEnum):
 
 class Metric(StrEnum):
     RETENTION = "retained"
-    DAYS_3_RETENTION = "active_in_last_3_days_legacy"
+    RETENTION_3_DAYS = "active_in_last_3_days_legacy"
     SEARCH = "search_count"
     DAYS_OF_USE = "days_of_use"
     USER_COUNT = "identity"
@@ -144,31 +144,32 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
                 )
             )
 
-    def get_week_x_retention(self, week_index, weekly_data):
-        weekly_data = weekly_data or []
+    def get_retention_by_window(self, window_index, data, metric):
+        data = data or []
         return [
             jetstream_data_point
-            for jetstream_data_point in weekly_data
-            if jetstream_data_point.window_index == str(week_index)
-            and jetstream_data_point.metric == Metric.RETENTION
+            for jetstream_data_point in data
+            if jetstream_data_point.window_index == str(window_index)
+            and jetstream_data_point.metric == metric
         ]
 
     def append_retention_data(self, weekly_data):
         # Try to get the two-week retention data. If it doesn't
         # exist (experiment was too short), settle for 1 week.
-        retention_data = self.get_week_x_retention(2, weekly_data)
+        retention_data = self.get_retention_by_window(2, weekly_data, Metric.RETENTION)
         if len(retention_data) == 0:
-            retention_data = self.get_week_x_retention(1, weekly_data)
+            retention_data = self.get_retention_by_window(
+                1, weekly_data, Metric.RETENTION
+            )
 
         self.extend(retention_data)
 
     def append_days_3_retention(self, daily_data):
-        daily_data = daily_data or []
-        retention_data = [
-            jetstream_data_point
-            for jetstream_data_point in daily_data
-            if jetstream_data_point.metric == Metric.DAYS_3_RETENTION
-        ]
+        # Extract the 3-day retention data (window index 4)
+        # without falling back to earlier windows
+        retention_data = self.get_retention_by_window(
+            4, daily_data, Metric.RETENTION_3_DAYS
+        )
 
         self.extend(retention_data)
 

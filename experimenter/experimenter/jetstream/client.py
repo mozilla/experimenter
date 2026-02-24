@@ -105,7 +105,7 @@ def get_results_metrics_map(
     # used to see which statistic will be used for each metric.
     results_metrics_map: dict[str, set[Statistic]] = {
         Metric.RETENTION: {Statistic.BINOMIAL},
-        Metric.DAYS_3_RETENTION: {Statistic.BINOMIAL},
+        Metric.RETENTION_3_DAYS: {Statistic.BINOMIAL},
         Metric.SEARCH: {Statistic.LINEAR_MODEL_MEAN, Statistic.MEAN},
         Metric.DAYS_OF_USE: {Statistic.LINEAR_MODEL_MEAN, Statistic.MEAN},
         Metric.USER_COUNT: {Statistic.COUNT, Statistic.PERCENT},

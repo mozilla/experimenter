@@ -80,8 +80,6 @@ kpi = [
   "client_level_daily_active_users_v2",
   "days_of_use",
   "retained",
-  "active_in_last_3_days",
-  "active_in_last_3_days_legacy",
   "search_count"
 ]
 
