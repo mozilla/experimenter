@@ -423,14 +423,6 @@ summarizer-language-expansion-feature:
       type: boolean
       description: |
         Whether the feature is enabled or not.
-    supportDeviceLanguage:
-      type: boolean
-      description: |
-        Whether to support the device language for summarization.
-    supportWebsiteLanguage:
-      type: boolean
-      description: |
-        Whether to support the website language for summarization.
     supportedLocales:
       type: json
       description: |
