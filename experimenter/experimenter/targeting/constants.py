@@ -4056,6 +4056,17 @@ VPN_EARLY_ACCESS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TELEMETRY_ENABLED = NimbusTargetingConfig(
+    name="Telemetry Enabled",
+    slug="telemetry_enabled",
+    description="Users with telemetry (data reporting) enabled",
+    targeting="'datareporting.healthreport.uploadEnabled'|preferenceValue",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
