@@ -1,11 +1,27 @@
 import json
 from pathlib import Path
-from unittest import mock
 
 from nimbus_megazord import nimbus as nimbus_rust
 
 from experimenter.experiments.constants import Application
 from experimenter.experiments.jexl_utils import JEXLParser
+
+
+class MockMetricsHandler(nimbus_rust.MetricsHandler):
+    def __init__(self):
+        pass
+
+    def record_enrollment_statuses(self, *args, **kwargs):
+        pass
+
+    def record_feature_activation(self, *args, **kwargs):
+        pass
+
+    def record_feature_exposure(self, *args, **kwargs):
+        pass
+
+    def record_malformed_feature_config(self, *args, **kwargs):
+        pass
 
 
 def validate_jexl_expr(expression, application):
@@ -31,7 +47,7 @@ def validate_jexl_expr(expression, application):
         )
 
         client = nimbus_rust.NimbusClient(
-            app_context, None, [], str(Path.cwd()), mock.Mock(), None, None
+            app_context, None, [], str(Path.cwd()), MockMetricsHandler(), None, None
         )
 
         custom_targeting_attributes = json.dumps(
