@@ -35,7 +35,7 @@ def nimbus_send_slack_notification(
     metrics.incr("send_slack_notification.started")
 
     try:
-        message_ts = send_slack_notification(
+        result = send_slack_notification(
             experiment_id=experiment_id,
             email_addresses=email_addresses,
             action_text=action_text,
@@ -44,7 +44,7 @@ def nimbus_send_slack_notification(
 
         logger.info(f"Slack notification sent for experiment {experiment_id}")
         metrics.incr("send_slack_notification.completed")
-        return message_ts
+        return result
     except Exception as e:
         metrics.incr("send_slack_notification.failed")
         logger.error(
@@ -127,16 +127,24 @@ def _send_results_ready_alert(experiment, window, alert_type):
     try:
         email_addresses = [experiment.owner.email] if experiment.owner else []
         message = f"{window.capitalize()} analysis results are now available"
-        send_slack_notification(
+        result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
         )
 
         # Create alert record to prevent duplicates
-        NimbusAlert.objects.create(
-            experiment=experiment, alert_type=alert_type, message=message
-        )
+        alert_kwargs = {
+            "experiment": experiment,
+            "alert_type": alert_type,
+            "message": message,
+        }
+        if result:
+            message_ts, channel_id = result
+            alert_kwargs["slack_thread_id"] = message_ts
+            alert_kwargs["slack_channel_id"] = channel_id
+
+        NimbusAlert.objects.create(**alert_kwargs)
 
         logger.info(f"Sent {window} results ready alert for experiment {experiment.slug}")
         metrics.incr(f"results_ready_alert.{window}.sent")
@@ -220,17 +228,23 @@ def _send_error_alert(experiment, error_items):
         )
         message = f"Analysis errors detected:\n{error_lines}"
 
-        send_slack_notification(
+        result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
         )
 
         # Update or create alert record - keeps only one alert per experiment
+        alert_defaults = {"message": message}
+        if result:
+            message_ts, channel_id = result
+            alert_defaults["slack_thread_id"] = message_ts
+            alert_defaults["slack_channel_id"] = channel_id
+
         NimbusAlert.objects.update_or_create(
             experiment=experiment,
             alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
-            defaults={"message": message},
+            defaults=alert_defaults,
         )
 
         logger.info(f"Sent analysis error alert for {experiment.slug}")
