@@ -4,7 +4,7 @@ from django.conf import settings
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +110,7 @@ def send_slack_notification(
             channel=channel, text=message, unfurl_links=False, unfurl_media=False
         )
         message_ts = response["ts"]
+        channel_id = response["channel"]
         logger.info(f"Slack notification sent for experiment {experiment.name}")
 
         # Get the permalink to the channel message
@@ -130,7 +131,7 @@ def send_slack_notification(
                     f"Skipping DM to user {user_id} - already in channel {channel}"
                 )
 
-        return message_ts
+        return (message_ts, channel_id)
 
     except SlackApiError as e:
         logger.error(f"Failed to send Slack notification for {experiment.name}: {e}")
@@ -177,4 +178,44 @@ def send_experiment_launch_success_message(experiment_id, thread_ts):
 
     except SlackApiError as e:
         logger.error(f"Failed to send launch success message for {experiment.slug}: {e}")
+        return False
+
+
+def add_eyes_emoji_to_launch_message(experiment, alert_type):
+    if not (client := _get_slack_client()):
+        logger.info("Slack not configured, skipping eyes emoji notification")
+        return False
+
+    try:
+        alert = NimbusAlert.objects.filter(
+            experiment=experiment,
+            alert_type=alert_type,
+            slack_thread_id__isnull=False,
+        ).first()
+
+        if not alert or not alert.slack_thread_id:
+            logger.info(f"No Slack thread found for {experiment.slug}")
+            return False
+
+        thread_ts = alert.slack_thread_id
+        channel_id = alert.slack_channel_id
+
+        if not channel_id:
+            logger.error(f"No channel ID found for alert {alert.id}")
+            return False
+
+        # Add eyes emoji reaction to the message
+        client.reactions_add(
+            channel=channel_id,
+            name="eyes",
+            timestamp=thread_ts,
+        )
+
+        logger.info(f"Added eyes emoji to launch message for {experiment.slug}")
+        return True
+
+    except SlackApiError as e:
+        logger.error(
+            f"Failed to add eyes emoji to launch message for {experiment.slug}: {e}"
+        )
         return False
