@@ -194,6 +194,16 @@ hosted-summarizer-feature:
       type: boolean
       description: |
         Enables the toolbar entrypoint for the summarizer feature.
+improved-app-store-review-trigger-feature:
+  description: |
+    The feature flag to manage the App Store review request trigger.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
 menu-refactor-feature:
   description: |
     Controls the menu refactor feature
