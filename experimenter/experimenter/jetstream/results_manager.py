@@ -84,10 +84,12 @@ class ExperimentResultsManager:
 
         return max_value
 
-    def get_weekly_metric_data(self, analysis_basis, segment, reference_branch):
+    def build_window_metric_breakdown(
+        self, analysis_basis, segment, reference_branch, window
+    ):
         all_metrics = self.get_metric_data(analysis_basis, segment, reference_branch)
 
-        weekly_metric_data = {}
+        window_metric_data = {}
 
         for metric_data in all_metrics.values():
             metadata = metric_data.get("metrics", {})
@@ -95,14 +97,14 @@ class ExperimentResultsManager:
             for metric_metadata in metadata:
                 data = (
                     metric_data.get("data", {})
-                    .get("weekly", {})
+                    .get(window, {})
                     .get(metric_metadata["slug"], {})
                 )
-                weekly_data = {}
+                window_data = {}
 
                 for branch_slug, branch_data in data.items():
 
-                    def append_missing_weeks(entries):
+                    def append_missing_window_points(entries):
                         if entries:
                             last_week = int(entries[-1].get("window_index", 0))
                             for missing_week in range(1, last_week + 1):
@@ -124,26 +126,32 @@ class ExperimentResultsManager:
                     # Always produce a list of pairs by zipping absolute and relative
                     # When one side is missing or shorter, pad it with None so templates
                     # can iterate without complex conditionals.
-                    abs_list = append_missing_weeks(branch_data.get("absolute") or [])
-                    rel_list = append_missing_weeks(branch_data.get("relative") or [])
+                    abs_list = append_missing_window_points(
+                        branch_data.get("absolute") or []
+                    )
+                    rel_list = append_missing_window_points(
+                        branch_data.get("relative") or []
+                    )
 
                     if abs_list or rel_list:
-                        weekly_data[branch_slug] = list(
+                        window_data[branch_slug] = list(
                             zip_longest(abs_list, rel_list, fillvalue=None)
                         )
 
-                if weekly_data:
-                    weekly_metric_data[metric_metadata["slug"]] = {
-                        "has_weekly_data": True,
-                        "data": weekly_data,
+                has_window_data_key = f"has_{window}_data"
+
+                if window_data:
+                    window_metric_data[metric_metadata["slug"]] = {
+                        has_window_data_key: True,
+                        "data": window_data,
                     }
                 else:
-                    weekly_metric_data[metric_metadata["slug"]] = {
-                        "has_weekly_data": False,
+                    window_metric_data[metric_metadata["slug"]] = {
+                        has_window_data_key: False,
                         "data": {},
                     }
 
-        return weekly_metric_data
+        return window_metric_data
 
     def window_index_for_sort(self, point):
         wi = point.get("window_index")
@@ -516,6 +524,11 @@ class ExperimentResultsManager:
                 reference_branch,
                 self.get_window_results(analysis_basis, segment, "weekly"),
                 "weekly",
+            ),
+            "daily": get_window_metric_data(
+                reference_branch,
+                self.get_window_results(analysis_basis, segment, "daily"),
+                "daily",
             ),
         }
 
