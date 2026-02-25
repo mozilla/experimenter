@@ -8,7 +8,10 @@ from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
 )
-from experimenter.jetstream.results_manager import ExperimentResultsManager
+from experimenter.jetstream.results_manager import (
+    ExperimentResultsManager,
+    MetricSignificance,
+)
 from experimenter.metrics import MetricAreas
 from experimenter.metrics.tests import mock_valid_metrics
 from experimenter.outcomes import Outcomes
@@ -182,6 +185,10 @@ class TestExperimentResultsManager(TestCase):
                 "has_weekly_data": False,
             },
             "retained": {
+                "data": {},
+                "has_weekly_data": False,
+            },
+            "active_in_last_3_days_legacy": {
                 "data": {},
                 "has_weekly_data": False,
             },
@@ -419,7 +426,16 @@ class TestExperimentResultsManager(TestCase):
                         "slug": "retained",
                         "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
                         "display_type": "percentage",
-                        "overall_change": "neutral",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "3-Day Retention",
+                        "slug": "active_in_last_3_days_legacy",
+                        "description": "Users who returned to Firefox within 3 days after enrollment.",  # noqa
+                        "display_type": "percentage",
+                        "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
                     },
                     {
@@ -427,7 +443,7 @@ class TestExperimentResultsManager(TestCase):
                         "friendly_name": "Search Count",
                         "slug": "search_count",
                         "description": "Daily mean number of searches per user.",
-                        "overall_change": "neutral",
+                        "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
                     },
                     {
@@ -435,7 +451,7 @@ class TestExperimentResultsManager(TestCase):
                         "friendly_name": "Daily Active Users",
                         "slug": "client_level_daily_active_users_v2",
                         "description": "Average number of client that sent a main ping per day.",  # noqa E501
-                        "overall_change": "neutral",
+                        "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
                     },
                 ],
@@ -449,7 +465,16 @@ class TestExperimentResultsManager(TestCase):
                         "slug": "retained",
                         "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
                         "display_type": "percentage",
-                        "overall_change": "neutral",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "3-Day Retention",
+                        "slug": "active_in_last_3_days_legacy",
+                        "description": "Users who returned to Firefox within 3 days after enrollment.",  # noqa
+                        "display_type": "percentage",
+                        "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
                     },
                     {
@@ -457,7 +482,7 @@ class TestExperimentResultsManager(TestCase):
                         "friendly_name": "Search Count",
                         "slug": "search_count",
                         "description": "Daily mean number of searches per user.",
-                        "overall_change": "neutral",
+                        "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
                     },
                     {
@@ -465,7 +490,7 @@ class TestExperimentResultsManager(TestCase):
                         "friendly_name": "Days of Use",
                         "slug": "days_of_use",
                         "description": "Average number of days each client sent a main ping.",  # noqa E501
-                        "overall_change": "neutral",
+                        "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
                     },
                 ],

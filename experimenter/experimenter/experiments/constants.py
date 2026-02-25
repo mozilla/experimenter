@@ -906,6 +906,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     DAILY_ACTIVE_USERS = "client_level_daily_active_users_v2"
     DAYS_OF_USE = "days_of_use"
     RETENTION = "retained"
+    RETENTION_3_DAYS = "active_in_last_3_days_legacy"
     SEARCH_COUNT = "search_count"
 
     DAU_METRIC = {
@@ -928,6 +929,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "friendly_name": "Retention",
             "slug": RETENTION,
             "description": "Percentage of users who returned to Firefox two weeks later.",
+            "display_type": "percentage",
+        },
+        {
+            "group": "other_metrics",
+            "friendly_name": "3-Day Retention",
+            "slug": RETENTION_3_DAYS,
+            "description": "Users who returned to Firefox within 3 days after enrollment.",  # noqa
             "display_type": "percentage",
         },
         {
