@@ -101,11 +101,31 @@ class ExperimentResultsManager:
                 weekly_data = {}
 
                 for branch_slug, branch_data in data.items():
+
+                    def append_missing_weeks(entries):
+                        if entries:
+                            last_week = int(entries[-1].get("window_index", 0))
+                            for missing_week in range(1, last_week + 1):
+                                if not any(
+                                    int(e.get("window_index")) == missing_week
+                                    for e in entries
+                                ):
+                                    entries.insert(
+                                        missing_week - 1,
+                                        {
+                                            "lower": None,
+                                            "upper": None,
+                                            "significance": MetricSignificance.NEUTRAL,
+                                            "window_index": str(missing_week),
+                                        },
+                                    )
+                        return entries
+
                     # Always produce a list of pairs by zipping absolute and relative
                     # When one side is missing or shorter, pad it with None so templates
                     # can iterate without complex conditionals.
-                    abs_list = branch_data.get("absolute") or []
-                    rel_list = branch_data.get("relative") or []
+                    abs_list = append_missing_weeks(branch_data.get("absolute") or [])
+                    rel_list = append_missing_weeks(branch_data.get("relative") or [])
 
                     if abs_list or rel_list:
                         weekly_data[branch_slug] = list(
@@ -136,9 +156,15 @@ class ExperimentResultsManager:
         for i, data_point in enumerate(absolute_data_list):
             lower = data_point.get("lower")
             upper = data_point.get("upper")
+            window_index = data_point.get("window_index", None)
             significance = significance_map.get(str(i + 1), MetricSignificance.NEUTRAL)
             abs_entries.append(
-                {"lower": lower, "upper": upper, "significance": significance}
+                {
+                    "lower": lower,
+                    "upper": upper,
+                    "significance": significance,
+                    "window_index": window_index,
+                }
             )
         return abs_entries
 
@@ -157,6 +183,7 @@ class ExperimentResultsManager:
             avg_rel_change = (
                 abs(data_point.get("point")) if data_point.get("point") else None
             )
+            window_index = data_point.get("window_index", None)
             significance = significance_map.get(str(i + 1), MetricSignificance.NEUTRAL)
             rel_entries.append(
                 {
@@ -164,6 +191,7 @@ class ExperimentResultsManager:
                     "upper": upper,
                     "significance": significance,
                     "avg_rel_change": avg_rel_change,
+                    "window_index": window_index,
                 }
             )
         return rel_entries

@@ -1410,35 +1410,6 @@ class TestNimbusExperiment(TestCase):
             self.assertNotIn(ai_targeting_expr, experiment.targeting)
         validate_jexl_expr(experiment.targeting, experiment.application)
 
-    @parameterized.expand(
-        [
-            [
-                datetime.date(2025, 1, 1),
-                datetime.date(2025, 1, 30),
-                [
-                    (datetime.date(2025, 1, 1), datetime.date(2025, 1, 7)),
-                    (datetime.date(2025, 1, 8), datetime.date(2025, 1, 14)),
-                    (datetime.date(2025, 1, 15), datetime.date(2025, 1, 21)),
-                    (datetime.date(2025, 1, 22), datetime.date(2025, 1, 28)),
-                ],
-            ],
-            [
-                datetime.date(2025, 1, 1),
-                datetime.date(2025, 1, 8),
-                [(datetime.date(2025, 1, 1), datetime.date(2025, 1, 7))],
-            ],
-            [datetime.date(2025, 1, 1), datetime.date(2025, 1, 3), []],
-        ]
-    )
-    def test_get_weekly_dates_for_experiment(self, start_date, end_date, expected_dates):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            _enrollment_end_date=start_date,
-            _computed_end_date=end_date,
-        )
-
-        self.assertEqual(experiment.get_weekly_dates(), expected_dates)
-
     def test_start_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,

@@ -75,12 +75,15 @@
                 <div class="col-2">
                   <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
                   {% with reference_branch_weekly=weekly_metric_data.data|dict_get:reference_branch %}
-                    {% for week in experiment.get_weekly_dates %}
-                      <div class="{% if forloop.last %}mb-4{% endif %} mb-3 d-flex text-center rounded-4 w-100 text-start position-relative d-flex flex-column align-items-center justify-content-center"
-                           style="height: 100px">
-                        <small class="text-muted">Week {{ forloop.counter }}</small>
-                        <p class="mb-0">{{ week.0|date:"M j" }} - {{ week.1|date:"M j" }}</p>
-                      </div>
+                    {% for branch_slug, branch_weekly_metric_data in weekly_metric_data.data.items %}
+                      {% if forloop.first %}
+                        {% for week in branch_weekly_metric_data %}
+                          <div class="{% if forloop.last %}mb-4{% endif %} mb-3 d-flex text-center rounded-4 w-100 text-start position-relative d-flex flex-column align-items-center justify-content-center"
+                               style="height: 100px">
+                            <small class="text-muted">Week {{ forloop.counter }}</small>
+                          </div>
+                        {% endfor %}
+                      {% endif %}
                     {% endfor %}
                   {% endwith %}
                 </div>
@@ -93,14 +96,28 @@
                     {% for branch in branch_data %}
                       <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 3 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
                         <p class="fs-5">{{ branch.name }}</p>
-                        <div class="d-flex flex-column gap-3 w-100">
-                          {% for curr_branch_slug, branch_weekly_metric_data in weekly_metric_data.data.items %}
-                            {% if curr_branch_slug == branch.slug %}
-                              {% for weekly_data_point in branch_weekly_metric_data %}
-                                {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=weekly_data_point.0.lower absolute_upper=weekly_data_point.0.upper significance=weekly_data_point.1.significance percentage=weekly_data_point.1.avg_rel_change %}
+                        <div class="d-flex flex-column gap-3 w-100 h-100">
+                          {% for weekly_data_point in weekly_metric_data.data|dict_get:branch.slug %}
+                            {% if not weekly_data_point.0.lower and not weekly_data_point.1.lower %}
+                              <div class="d-flex align-items-center" style="height: 100px;">
+                                <div class="position-absolute alert alert-warning d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
+                                  <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                                  <p class="mb-0 fw-semibold">Week unavailable</p>
+                                  <p class="mb-0">Other weeks may not be affected.</p>
+                                  <a class="btn btn-secondary bg-secondary-subtle border-0 text-body fw-semibold"
+                                     target="_blank"
+                                     href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
+                                </div>
+                              </div>
+                            {% else %}
+                              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=weekly_data_point.0.lower absolute_upper=weekly_data_point.0.upper significance=weekly_data_point.1.significance percentage=weekly_data_point.1.avg_rel_change %}
 
-                              {% endfor %}
                             {% endif %}
+                          {% empty %}
+                            {% comment %} DAU edge case: reference branch lacks both absolute and relative weekly data, so render a standalone baseline column. {% endcomment %}
+                            <div class="text-center text-muted w-100 py-4 h-100 d-flex flex-column align-items-center justify-content-center rounded-3 bg-body-tertiary">
+                              <div>Baseline</div>
+                            </div>
                           {% endfor %}
                         </div>
                       </div>
