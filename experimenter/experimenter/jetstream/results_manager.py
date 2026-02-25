@@ -219,13 +219,12 @@ class ExperimentResultsManager:
                 if branch.slug == reference_branch:
                     continue
 
-                branch_group_data = (
+                metric_data = (
                     window_results.get(branch.slug, {})
                     .get("branch_data", {})
                     .get(group, {})
+                    .get(metric_slug, {})
                 )
-
-                metric_data = branch_group_data.get(metric_slug, {})
 
                 abs_point_data = metric_data.get("absolute", {}).get("first", {})
                 rel_point_data = (

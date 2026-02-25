@@ -933,7 +933,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "group": "other_metrics",
             "friendly_name": "3-Day Retention",
             "slug": RETENTION_3_DAYS,
-            "description": "Users who returned in first 3 days.",
+            "description": "Users who returned to Firefox within 3 days after enrollment.",  # noqa
             "display_type": "percentage",
         },
         {

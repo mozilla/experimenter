@@ -46,7 +46,7 @@ class TestJetstreamData(TestCase):
         self.assertIn(expected_control, data)
         self.assertIn(expected_variant, data)
 
-    def test_append_days_3_retention_extracts_data(self):
+    def test_append_retention_3_days_extracts_data(self):
         retention = JetstreamDataPoint(
             metric=Metric.RETENTION_3_DAYS,
             statistic=Statistic.BINOMIAL,
@@ -57,6 +57,6 @@ class TestJetstreamData(TestCase):
         )
 
         data = JetstreamData([])
-        data.append_days_3_retention([retention])
+        data.append_retention_3_days([retention])
 
         self.assertIn(retention, data)

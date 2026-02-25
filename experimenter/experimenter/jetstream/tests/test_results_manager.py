@@ -433,7 +433,7 @@ class TestExperimentResultsManager(TestCase):
                         "group": "other_metrics",
                         "friendly_name": "3-Day Retention",
                         "slug": "active_in_last_3_days_legacy",
-                        "description": "Users who returned in first 3 days.",
+                        "description": "Users who returned to Firefox within 3 days after enrollment.",  # noqa
                         "display_type": "percentage",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
@@ -472,7 +472,7 @@ class TestExperimentResultsManager(TestCase):
                         "group": "other_metrics",
                         "friendly_name": "3-Day Retention",
                         "slug": "active_in_last_3_days_legacy",
-                        "description": "Users who returned in first 3 days.",
+                        "description": "Users who returned to Firefox within 3 days after enrollment.",  # noqa
                         "display_type": "percentage",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,

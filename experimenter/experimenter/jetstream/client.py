@@ -270,7 +270,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                     raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
                 )
                 # Append 3-day retention from daily data
-                data.append_days_3_retention(
+                data.append_retention_3_days(
                     raw_data[AnalysisWindow.DAILY][AnalysisBasis.ENROLLMENTS][segment]
                 )
                 # Create the output object (overall data)
@@ -313,7 +313,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                     raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.EXPOSURES][segment]
                 )
                 # Append 3-day retention from daily data
-                data.append_days_3_retention(
+                data.append_retention_3_days(
                     raw_data[AnalysisWindow.DAILY][AnalysisBasis.EXPOSURES][segment]
                 )
 

@@ -164,7 +164,7 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
 
         self.extend(retention_data)
 
-    def append_days_3_retention(self, daily_data):
+    def append_retention_3_days(self, daily_data):
         # Extract the 3-day retention data (window index 4)
         # without falling back to earlier windows
         retention_data = self.get_retention_by_window(
