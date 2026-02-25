@@ -4101,6 +4101,7 @@ FX_149_TRAINHOP_2_ACTIVATION_WINDOW = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+
 class TargetingConstants:
     TARGETING_CONFIGS = {
         targeting.slug: targeting for targeting in NimbusTargetingConfig.targeting_configs
