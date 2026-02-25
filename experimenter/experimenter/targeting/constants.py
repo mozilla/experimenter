@@ -33,6 +33,7 @@ PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
 PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 < 28"
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
+NEW_NON_SELECTABLE_PROFILE = "{NEW_PROFILE} && profileGroupProfileCount == 0"
 WIN1903 = "os.windowsBuildNumber >= 18362"
 WIN22H2 = "os.windowsBuildNumber >= 19045"
 CORE_ACTIVE_USERS_TARGETING = "'{event}'|eventCountNonZero('Days', 28, 0) >= 21"
@@ -4067,6 +4068,38 @@ TELEMETRY_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_149_TRAINHOP_2 = NimbusTargetingConfig(
+    name="New Tab Fx149.2 Feb-26 Trainhop",
+    slug="newtab-1492-0226-trainhop",
+    description=(
+        "Desktop users having the New Tab 149.2.20260220.204414 train hop, "
+        "which includes users of Fx148"
+    ),
+    targeting="newtabAddonVersion|versionCompare('149.2.20260220.204414') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_149_TRAINHOP_2_ACTIVATION_WINDOW = NimbusTargetingConfig(
+    name="New first run Windows profiles with New Tab Fx149.2 Feb-26 Trainhop",
+    slug="new-first-run-windows-profiles-newtab-1492-0226-trainhop",
+    description=(
+        "Desktop Windows first run users with new non-selectable profiles "
+        "having the New Tab 149.2.20260220.204414 train hop, "
+        "which includes users of Fx148"
+    ),
+    targeting=(
+        f"isFirstStartup && os.isWindows && "
+        f"{FIRST_RUN_NEW_PROFILE.targeting} && "
+        f"{FX_149_TRAINHOP_2.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
