@@ -306,7 +306,7 @@ class ResultsObjectModelBase(BaseModel):
                             significance
                         )
 
-                if window == AnalysisWindow.WEEKLY:
+                if window == AnalysisWindow.WEEKLY or window == AnalysisWindow.DAILY:
                     data_point.window_index = window_index
 
                 comparison_data = getattr(metric_data, branch_comparison)
