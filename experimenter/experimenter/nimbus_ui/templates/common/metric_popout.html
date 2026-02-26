@@ -110,7 +110,7 @@
                                 </div>
                               </div>
                             {% else %}
-                              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=weekly_data_point.0.lower absolute_upper=weekly_data_point.0.upper significance=weekly_data_point.1.significance percentage=weekly_data_point.1.avg_rel_change %}
+                              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=weekly_data_point.0.lower absolute_upper=weekly_data_point.0.upper significance=weekly_data_point.1.significance percentage=weekly_data_point.1.avg_rel_change lower_percent=weekly_data_point.1.lower upper_percent=weekly_data_point.1.upper %}
 
                             {% endif %}
                           {% empty %}
@@ -165,7 +165,7 @@
                                 </div>
                               </div>
                             {% else %}
-                              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=daily_data_point.0.lower absolute_upper=daily_data_point.0.upper significance=daily_data_point.1.significance percentage=daily_data_point.1.avg_rel_change %}
+                              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=daily_data_point.0.lower absolute_upper=daily_data_point.0.upper significance=daily_data_point.1.significance percentage=daily_data_point.1.avg_rel_change lower_percent=daily_data_point.1.lower upper_percent=daily_data_point.1.upper %}
 
                             {% endif %}
                           {% empty %}
