@@ -10,7 +10,7 @@
       <div class="modal-header align-items-baseline border-0">
         <div>
           <h1 class="modal-title fs-4" id="exampleModalLabel">{{ metric_info.friendly_name }}</h1>
-          <p class="text-muted mt-2">{{ metric_info.description }}</p>
+          <p class="text-muted mt-2">{{ metric_info.description|render_markdown }}</p>
         </div>
         <button type="button"
                 class="btn-close"

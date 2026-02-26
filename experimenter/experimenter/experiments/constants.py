@@ -911,24 +911,18 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     DAU_METRIC = {
         "group": "other_metrics",
-        "friendly_name": "Daily Active Users",
         "slug": DAILY_ACTIVE_USERS,
-        "description": "Average number of client that sent a main ping per day.",
     }
 
     DOU_METRIC = {
         "group": "other_metrics",
-        "friendly_name": "Days of Use",
         "slug": DAYS_OF_USE,
-        "description": "Average number of days each client sent a main ping.",
     }
 
     KPI_METRICS = [
         {
             "group": "other_metrics",
-            "friendly_name": "Retention",
             "slug": RETENTION,
-            "description": "Percentage of users who returned to Firefox two weeks later.",
             "display_type": "percentage",
         },
         {
@@ -940,9 +934,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         },
         {
             "group": "search_metrics",
-            "friendly_name": "Search Count",
             "slug": SEARCH_COUNT,
-            "description": "Daily mean number of searches per user.",
         },
     ]
 

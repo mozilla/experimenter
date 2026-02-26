@@ -822,7 +822,7 @@ class TestExperimentResultsManager(TestCase):
                         "group": "other_metrics",
                         "friendly_name": "Retention",
                         "slug": "retained",
-                        "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
+                        "description": "Retention description",
                         "display_type": "percentage",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
@@ -831,7 +831,7 @@ class TestExperimentResultsManager(TestCase):
                         "group": "other_metrics",
                         "friendly_name": "3-Day Retention",
                         "slug": "active_in_last_3_days_legacy",
-                        "description": "Users who returned to Firefox within 3 days after enrollment.",  # noqa
+                        "description": "3-Day Retention description",
                         "display_type": "percentage",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
@@ -840,7 +840,7 @@ class TestExperimentResultsManager(TestCase):
                         "group": "search_metrics",
                         "friendly_name": "Search Count",
                         "slug": "search_count",
-                        "description": "Daily mean number of searches per user.",
+                        "description": "Search Count description",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
                     },
@@ -848,7 +848,7 @@ class TestExperimentResultsManager(TestCase):
                         "group": "other_metrics",
                         "friendly_name": "Daily Active Users",
                         "slug": "client_level_daily_active_users_v2",
-                        "description": "Average number of client that sent a main ping per day.",  # noqa E501
+                        "description": "DAU description",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
                     },
@@ -861,7 +861,7 @@ class TestExperimentResultsManager(TestCase):
                         "group": "other_metrics",
                         "friendly_name": "Retention",
                         "slug": "retained",
-                        "description": "Percentage of users who returned to Firefox two weeks later.",  # noqa E501
+                        "description": "Retention description",
                         "display_type": "percentage",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
@@ -870,7 +870,7 @@ class TestExperimentResultsManager(TestCase):
                         "group": "other_metrics",
                         "friendly_name": "3-Day Retention",
                         "slug": "active_in_last_3_days_legacy",
-                        "description": "Users who returned to Firefox within 3 days after enrollment.",  # noqa
+                        "description": "3-Day Retention description",
                         "display_type": "percentage",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
@@ -879,7 +879,7 @@ class TestExperimentResultsManager(TestCase):
                         "group": "search_metrics",
                         "friendly_name": "Search Count",
                         "slug": "search_count",
-                        "description": "Daily mean number of searches per user.",
+                        "description": "Search Count description",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
                     },
@@ -887,7 +887,7 @@ class TestExperimentResultsManager(TestCase):
                         "group": "other_metrics",
                         "friendly_name": "Days of Use",
                         "slug": "days_of_use",
-                        "description": "Average number of days each client sent a main ping.",  # noqa E501
+                        "description": "DOU description",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
                     },
@@ -901,6 +901,30 @@ class TestExperimentResultsManager(TestCase):
         self.maxDiff = None
         self.experiment.results_data = {
             "v3": {
+                "metadata": {
+                    "metrics": {
+                        "client_level_daily_active_users_v2": {
+                            "friendly_name": "Daily Active Users",
+                            "description": "DAU description",
+                        },
+                        "days_of_use": {
+                            "friendly_name": "Days of Use",
+                            "description": "DOU description",
+                        },
+                        "search_count": {
+                            "friendly_name": "Search Count",
+                            "description": "Search Count description",
+                        },
+                        "retained": {
+                            "friendly_name": "Retention",
+                            "description": "Retention description",
+                        },
+                        "active_in_last_3_days_legacy": {
+                            "friendly_name": "3-Day Retention",
+                            "description": "3-Day Retention description",
+                        },
+                    }
+                },
                 "overall": {
                     "enrollments": {
                         "all": {
@@ -951,7 +975,7 @@ class TestExperimentResultsManager(TestCase):
                             },
                         }
                     }
-                }
+                },
             }
         }
 
@@ -1230,6 +1254,14 @@ class TestExperimentResultsManager(TestCase):
     def test_experiment_kpi_metrics_have_errors(self):
         self.experiment.results_data = {
             "v3": {
+                "metadata": {
+                    "metrics": {
+                        "client_level_daily_active_users_v2": {
+                            "friendly_name": "Daily Active Users",
+                            "description": "DAU description",
+                        },
+                    }
+                },
                 "errors": {
                     "client_level_daily_active_users_v2": [
                         {"analysis_basis": "enrollments", "segment": "all"}
@@ -1267,7 +1299,7 @@ class TestExperimentResultsManager(TestCase):
                 "group": "other_metrics",
                 "friendly_name": "Daily Active Users",
                 "slug": "client_level_daily_active_users_v2",
-                "description": "Average number of client that sent a main ping per day.",
+                "description": "DAU description",
                 "has_errors": True,
                 "overall_change": "neutral",
                 "has_data": False,
