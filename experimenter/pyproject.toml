@@ -82,6 +82,7 @@ pyjwt = { extras = ["crypto"], version = "^2.11.0" }
 humanize = "^4.15.0"
 deepdiff = "^8.6.1"
 django-summernote = "^0.8.20.0"
+markdown = "^3.10.2"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"

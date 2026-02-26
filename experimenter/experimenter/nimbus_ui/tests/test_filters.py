@@ -42,6 +42,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     qa_icon_info,
     remove_underscores,
     render_channel_icons,
+    render_markdown,
     short_number,
     status_icon_info,
     to_percentage,
@@ -193,6 +194,19 @@ class FilterTests(TestCase):
     def test_parse_date_already_datetime_returns_as_is(self):
         dt = datetime.datetime(2025, 1, 1, 12, 0, 0)
         self.assertEqual(parse_date(dt), dt)
+
+    @parameterized.expand(
+        [
+            (
+                "This is **bold** and this is *italic*.",
+                "<p>This is <strong>bold</strong> and this is <em>italic</em>.</p>",
+            ),
+            ("", ""),
+            ("Plain text", "<p>Plain text</p>"),
+        ]
+    )
+    def test_render_markdown(self, markdown_text, expected_html):
+        self.assertEqual(render_markdown(markdown_text), expected_html)
 
 
 class TestHomeFilters(AuthTestCase):
