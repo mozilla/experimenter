@@ -167,11 +167,6 @@ e"""
         self.assertEqual(result, expected)
 
     def test_arithmetic_parens_preserved(self):
-        """Parentheses around arithmetic sub-expressions must be preserved.
-
-        Regression test for https://github.com/mozilla/experimenter/issues/14763
-        """
-        # The exact case from the bug report
         result = format_jexl(
             "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
         )
@@ -181,19 +176,15 @@ e"""
         )
 
     def test_arithmetic_parens_simple(self):
-        # Lower-precedence left child needs parens: (a + b) * c
         self.assertEqual(format_jexl("(a + b) * c"), "(a + b) * c")
 
     def test_arithmetic_parens_right_child(self):
-        # Lower-precedence right child needs parens: a * (b + c)
         self.assertEqual(format_jexl("a * (b + c)"), "a * (b + c)")
 
     def test_arithmetic_no_unnecessary_parens(self):
-        # Higher-precedence child does NOT need parens: a + b * c
         self.assertEqual(format_jexl("a + b * c"), "a + b * c")
 
     def test_arithmetic_right_associativity_override(self):
-        # Same-precedence right child needs parens: a - (b - c)
         self.assertEqual(format_jexl("a - (b - c)"), "a - (b - c)")
 
     def test_invalid_operator(self):
