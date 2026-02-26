@@ -94,6 +94,18 @@ def format_jexl(expression):
                 return result
             left = node_to_str(node.left) or format_node(node.left, False, indent)
             right = node_to_str(node.right) or format_node(node.right, False, indent)
+
+            if (
+                isinstance(node.left, BinaryExpression)
+                and node.left.operator.precedence < node.operator.precedence
+            ):
+                left = f"({left})"
+            if (
+                isinstance(node.right, BinaryExpression)
+                and node.right.operator.precedence <= node.operator.precedence
+            ):
+                right = f"({right})"
+
             return f"{left} {node.operator.symbol} {right}"
         if isinstance(node, UnaryExpression):
             right = node_to_str(node.right) or format_node(node.right, False, indent)
