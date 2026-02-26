@@ -166,5 +166,26 @@ e"""
         expected = "a ||\nb ||\nc"
         self.assertEqual(result, expected)
 
+    def test_arithmetic_parens_preserved(self):
+        result = format_jexl(
+            "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
+        )
+        self.assertEqual(
+            result,
+            "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24",
+        )
+
+    def test_arithmetic_parens_simple(self):
+        self.assertEqual(format_jexl("(a + b) * c"), "(a + b) * c")
+
+    def test_arithmetic_parens_right_child(self):
+        self.assertEqual(format_jexl("a * (b + c)"), "a * (b + c)")
+
+    def test_arithmetic_no_unnecessary_parens(self):
+        self.assertEqual(format_jexl("a + b * c"), "a + b * c")
+
+    def test_arithmetic_right_associativity_override(self):
+        self.assertEqual(format_jexl("a - (b - c)"), "a - (b - c)")
+
     def test_invalid_operator(self):
         self.assertEqual(format_jexl(")))))"), ")))))")
