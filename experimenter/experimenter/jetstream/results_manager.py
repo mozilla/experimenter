@@ -314,7 +314,31 @@ class ExperimentResultsManager:
         else:
             kpi_metrics.append(NimbusConstants.DAU_METRIC.copy())
 
+        self.append_kpi_metric_fields(
+            kpi_metrics, analysis_basis, segment, reference_branch, window
+        )
+
+        return kpi_metrics
+
+    def append_kpi_metric_fields(
+        self, kpi_metrics, analysis_basis, segment, reference_branch, window
+    ):
+        analysis_data = (
+            self.experiment.results_data.get("v3", {})
+            if self.experiment.results_data
+            else {}
+        )
+        metadata = analysis_data.get("metadata", {})
+        metrics_metadata = metadata.get("metrics", {}) if metadata else {}
+
         for kpi in kpi_metrics:
+            kpi["friendly_name"] = (
+                metrics_metadata.get(kpi["slug"], {}).get("friendly_name")
+            ) or kpi.get("friendly_name", kpi["slug"])
+            kpi["description"] = (
+                metrics_metadata.get(kpi["slug"], {}).get("description", "")
+            ) or kpi.get("description", "")
+
             if self.metric_has_errors(kpi["slug"], analysis_basis, segment):
                 kpi["has_errors"] = True
 
@@ -330,8 +354,6 @@ class ExperimentResultsManager:
             kpi["has_data"] = self.metric_has_data(
                 kpi["slug"], kpi["group"], analysis_basis, segment, reference_branch
             )
-
-        return kpi_metrics
 
     def get_remaining_metrics_metadata(
         self, exclude_slugs=None, analysis_basis=None, segment=None, reference_branch=None
