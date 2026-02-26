@@ -33,7 +33,7 @@ PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
 PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 < 28"
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
-NEW_NON_SELECTABLE_PROFILE = "{NEW_PROFILE} && profileGroupProfileCount == 0"
+NEW_NON_SELECTABLE_PROFILE = f"({NEW_PROFILE}) && profileGroupProfileCount == 0"
 WIN1903 = "os.windowsBuildNumber >= 18362"
 WIN22H2 = "os.windowsBuildNumber >= 19045"
 CORE_ACTIVE_USERS_TARGETING = "'{event}'|eventCountNonZero('Days', 28, 0) >= 21"
@@ -4092,7 +4092,7 @@ FX_149_TRAINHOP_2_ACTIVATION_WINDOW = NimbusTargetingConfig(
     ),
     targeting=(
         f"isFirstStartup && os.isWindows && "
-        f"{FIRST_RUN_NEW_PROFILE.targeting} && "
+        f"{NEW_NON_SELECTABLE_PROFILE} && "
         f"{FX_149_TRAINHOP_2.targeting}"
     ),
     desktop_telemetry="",
