@@ -5,6 +5,7 @@ import humanize
 from django import template
 from django.utils.dateparse import parse_datetime
 from django.utils.safestring import mark_safe
+from markdown import markdown
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.nimbus_ui.constants import (
@@ -359,3 +360,10 @@ def parse_date(value):
     if isinstance(value, str):
         return parse_datetime(value)
     return value
+
+
+@register.filter
+def render_markdown(value):
+    if not value:
+        return ""
+    return mark_safe(markdown(value))
