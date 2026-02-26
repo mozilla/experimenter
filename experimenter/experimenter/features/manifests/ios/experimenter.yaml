@@ -140,16 +140,6 @@ hnt-sponsored-shortcuts-feature:
     enabled:
       type: boolean
       description: Setting 'enabled' to false will hide sponsored shortcuts on the homepage and disable the respective toggle in the homepage settings
-homepage-rebuild-feature:
-  description: |
-    This feature is for managing the roll out of the Homepage rebuild feature
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        If true, enables the feature
 homepage-redesign-feature:
   description: |
     This feature is for managing the roll out of the Homepage New Tab Redesign feature.
@@ -160,6 +150,10 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the bookmarks homepage section by default
+    categories-enabled:
+      type: boolean
+      description: |
+        If true, enables the categories flow in the stories
     jbi-section-default:
       type: boolean
       description: |
