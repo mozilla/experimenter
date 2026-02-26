@@ -9,6 +9,12 @@ class MockMetricsHandler(nimbus.MetricsHandler):
     def __init__(self, *args, **kwargs):
         pass
 
+    def record_database_load(self, *args, **kwargs):
+        pass
+
+    def record_database_migration(self, *args, **kwargs):
+        pass
+
     def record_enrollment_statuses(self, *args, **kwargs):
         pass
 
