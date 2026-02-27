@@ -123,6 +123,13 @@ features:
           When `true`, include DoH settings in the settings UI.
         type: Boolean
         default: true
+  downloads-custom-location:
+    description: Feature to enable the custom download location for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, custom download location is enabled.
+        type: Boolean
+        default: false
   email-masks:
     description: Feature to enable Email Mask for users on Firefox on Android.
     variables:

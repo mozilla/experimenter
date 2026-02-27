@@ -112,6 +112,14 @@ doh:
       type: boolean
       description: |
         When `true`, include DoH settings in the settings UI.
+downloads-custom-location:
+  description: Feature to enable the custom download location for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, custom download location is enabled.
 email-masks:
   description: Feature to enable Email Mask for users on Firefox on Android.
   hasExposure: true

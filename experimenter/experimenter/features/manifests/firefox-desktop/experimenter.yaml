@@ -360,6 +360,13 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.merino.timeoutMs
       description: Timeout for Merino fetches (ms)
+    novaFeatureGate:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.urlbar.nova.featureGate
+      description: >-
+        Feature gate that enables Nova UI.
     exposureResults:
       type: string
       setPref:
