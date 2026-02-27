@@ -34,7 +34,6 @@ from experimenter.nimbus_ui.views import (
     NimbusExperimentsPromoteToRolloutView,
     NimbusExperimentsSidebarCloneView,
     NimbusFeaturesView,
-    OldResultsView,
     OverviewUpdateView,
     PreviewToDraftView,
     PreviewToReviewView,
@@ -279,11 +278,6 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/approve-update-rollout/$",
         ApproveUpdateRolloutView.as_view(),
         name="nimbus-ui-approve-update-rollout",
-    ),
-    re_path(
-        r"^(?P<slug>[\w-]+)/results-old/.*",
-        OldResultsView.as_view(),
-        name="nimbus-ui-results-old",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/results/$",

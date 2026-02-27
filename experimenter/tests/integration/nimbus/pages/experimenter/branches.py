@@ -58,11 +58,10 @@ class BranchesPage(ExperimenterBase):
 
     @property
     def reference_branch_value(self):
-        return self._get_feature_value(
-            self.wait_for_and_find_element(
-                *self._reference_branch_value_locator, "reference branch value"
-            )
+        element = self.wait_for_and_find_elements(
+            *self._branch_value_locator, "reference branch value"
         )
+        return self._get_feature_value(element[0])
 
     @reference_branch_value.setter
     def reference_branch_value(self, text):
@@ -101,11 +100,10 @@ class BranchesPage(ExperimenterBase):
 
     @property
     def treatment_branch_value(self):
-        return self._get_feature_value(
-            self.wait_for_and_find_element(
-                *self._treatment_branch_value_locator, "treatment branch value"
-            )
+        element = self.wait_for_and_find_elements(
+            *self._branch_value_locator, "treatment branch value"
         )
+        return self._get_feature_value(element[-1])
 
     @treatment_branch_value.setter
     def treatment_branch_value(self, text):
