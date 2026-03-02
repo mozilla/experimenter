@@ -281,7 +281,14 @@ class ExperimentResultsManager:
     def get_kpi_metrics(
         self, analysis_basis, segment, reference_branch, window="overall"
     ):
+        from experimenter.experiments.models import NimbusExperiment
+
         kpi_metrics = NimbusConstants.KPI_METRICS.copy()
+
+        # 3-day retention is only available for Desktop experiments
+        if self.experiment.application == NimbusExperiment.Application.DESKTOP:
+            kpi_metrics.insert(1, NimbusConstants.DAYS_3_RETENTION_METRIC.copy())
+
         window_results = self.get_window_results(analysis_basis, segment, window)
         other_metrics = (
             (
