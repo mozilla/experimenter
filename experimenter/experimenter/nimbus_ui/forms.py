@@ -799,9 +799,6 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         self.was_labs_opt_in = self.instance.is_firefox_labs_opt_in
 
-        if self.instance.is_rollout:
-            self.fields["prevent_pref_conflicts"].disabled = True
-
     @property
     def errors(self):
         errors = super().errors
@@ -823,9 +820,6 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             cleaned_data["firefox_labs_description_links"] = "null"
             cleaned_data["firefox_labs_group"] = ""
             cleaned_data["requires_restart"] = False
-
-        if cleaned_data["is_rollout"]:
-            cleaned_data["prevent_pref_conflicts"] = True
 
         return cleaned_data
 
