@@ -1,3 +1,11 @@
+free-trial-feature:
+  description: Control whether free trials are enabled for payments-next
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If the feature is enabled.
 welcome-feature:
   description: Display a welcome banner on the new Sub Manage page
   hasExposure: true
