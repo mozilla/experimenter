@@ -389,6 +389,15 @@ features:
           This feature is for managing the roll out of other native error pages
         type: Boolean
         default: false
+  needs-reload-refactor:
+    description: |
+      This is a technical refactor which cleans up the reloading of the webview
+    variables:
+      enabled:
+        description: |
+          Whether or not this refactor is enabled
+        type: Boolean
+        default: false
   onboarding-framework-feature:
     description: |
       The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
