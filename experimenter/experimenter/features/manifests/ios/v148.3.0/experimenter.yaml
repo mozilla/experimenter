@@ -277,6 +277,16 @@ native-error-page-feature:
       type: boolean
       description: |
         This feature is for managing the roll out of other native error pages
+needs-reload-refactor:
+  description: |
+    This is a technical refactor which cleans up the reloading of the webview
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this refactor is enabled
 onboarding-framework-feature:
   description: |
     The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
