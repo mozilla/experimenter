@@ -3376,6 +3376,7 @@ class TestNimbusExperiment(TestCase):
         [
             ({"v3": {"overall": {"enrollments": {"all": {}}}}},),
             ({"v3": {"weekly": {"enrollments": {"all": {}}}}},),
+            ({"v3": {"daily": {"enrollments": {"all": {}}}}},),
         ]
     )
     def test_has_displayable_results_true(self, results_data):
@@ -3491,11 +3492,15 @@ class TestNimbusExperiment(TestCase):
             ({"v3": {}},),
             ({"v3": {"overall": {}}},),
             ({"v3": {"weekly": {}}},),
+            ({"v3": {"daily": {}}},),
             ({"v3": {"overall": {"enrollments": {}}}},),
             ({"v3": {"weekly": {"enrollments": {}}}},),
+            ({"v3": {"daily": {"enrollments": {}}}},),
             ({"v3": {"overall": {"enrollments": {"all": None}}}},),
             ({"v3": {"weekly": {"enrollments": {"all": None}}}},),
+            ({"v3": {"daily": {"enrollments": {"all": None}}}},),
             ({"v3": {"overall": None}},),
+            ({"v3": {"daily": None}},),
         ]
     )
     def test_has_displayable_results_false(self, results_data):
