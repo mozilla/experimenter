@@ -1680,7 +1680,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         # True if self.results_data has weekly or overall results
         if self.results_data and "v3" in self.results_data:
             results_data = self.results_data["v3"]
-            for window in ["overall", "weekly"]:
+            for window in ["overall", "weekly", "daily"]:
                 if results_data.get(window):
                     for base in ["enrollments", "exposures"]:
                         base_results = results_data[window].get(base, {}).get("all")
