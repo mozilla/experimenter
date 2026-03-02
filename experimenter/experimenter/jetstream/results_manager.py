@@ -106,19 +106,19 @@ class ExperimentResultsManager:
 
                     def append_missing_window_points(entries):
                         if entries:
-                            last_week = int(entries[-1].get("window_index", 0))
-                            for missing_week in range(1, last_week + 1):
+                            last_point = int(entries[-1].get("window_index") or 0)
+                            for missing_point in range(1, last_point + 1):
                                 if not any(
-                                    int(e.get("window_index")) == missing_week
+                                    int(e.get("window_index")) == missing_point
                                     for e in entries
                                 ):
                                     entries.insert(
-                                        missing_week - 1,
+                                        missing_point - 1,
                                         {
                                             "lower": None,
                                             "upper": None,
                                             "significance": MetricSignificance.NEUTRAL,
-                                            "window_index": str(missing_week),
+                                            "window_index": str(missing_point),
                                         },
                                     )
                         return entries
