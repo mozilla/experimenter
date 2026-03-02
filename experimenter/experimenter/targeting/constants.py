@@ -4039,14 +4039,8 @@ AI_TAB_GROUPING_ENABLED = NimbusTargetingConfig(
 VPN_EARLY_ACCESS = NimbusTargetingConfig(
     name="VPN Early Access",
     slug="vpn_early_access",
-    description=(
-        "Users who have FxA enabled, "
-        "and do not have enterprise policies set"
-    ),
-    targeting=(
-        "isFxAEnabled && "
-        f"{NO_ENTERPRISE.targeting}"
-    ),
+    description=("Users who have FxA enabled, and do not have enterprise policies set"),
+    targeting=(f"isFxAEnabled && {NO_ENTERPRISE.targeting}"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
