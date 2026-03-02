@@ -1,3 +1,5 @@
+{% load nimbus_extras %}
+
 <div class="d-flex flex-column gap-3 mt-4" id="experiment-results-page">
   {% if experiment.has_results_errors %}
     <div class="alert p-4 py-3 mb-0 rounded-4 alert-warning" role="alert">
@@ -134,6 +136,49 @@
   {% if experiment.is_enrolling or experiment.is_observation %}
     {% include "nimbus_experiments/launch_controls_v2.html" %}
 
+  {% endif %}
+  {% if experiment.results_data.v3.metadata.external_config %}
+    {% with external_config=experiment.results_data.v3.metadata.external_config %}
+      <div class="alert p-4 mb-0 rounded-4 alert-info" role="alert">
+        <div class="d-flex flex-column gap-2 align-items-start">
+          <div class="d-flex align-items-center mb-2 gap-2">
+            <i class="fa-solid fa-circle-exclamation fs-5"></i>
+            <h5 class="mb-0">Analysis has manual overrides in Jetstream</h5>
+          </div>
+          <p class="text-muted">
+            The results shown on this page are from an analysis ran with at least one experiment override that affects only the analysis. The original <b>experiment details and description on the Summary page will not reflect this.</b>
+          </p>
+          <p class="mb-0">
+            Overrides (<a href={{ external_config.url }}>click here</a> to view the config file):
+          </p>
+          <ul>
+            {% if external_config.start_date %}
+              <li>
+                Start date → <b>{{ external_config.start_date|parse_date|date:"M d, Y" }}</b>
+              </li>
+            {% endif %}
+            {% if external_config.end_date %}
+              <li>
+                End date → <b>{{ external_config.end_date|parse_date|date:"M d, Y" }}</b>
+              </li>
+            {% endif %}
+            {% if external_config.enrollment_period %}
+              <li>
+                Enrollment period → <b>{{ external_config.enrollment_period }}</b>
+              </li>
+            {% endif %}
+            {% if external_config.reference_branch %}
+              <li>
+                Baseline branch → <b>{{ external_config.reference_branch }}</b>
+              </li>
+            {% endif %}
+          </ul>
+          <p class="mb-0">
+            If you have questions about this, please ask data science in <a target="_blank" href="{{ ask_experimenter_slack_link }}">#ask-experimenter</a>.
+          </p>
+        </div>
+      </div>
+    {% endwith %}
   {% endif %}
   <form hx-get="{{ request.path }}"
         hx-push-url="true"
