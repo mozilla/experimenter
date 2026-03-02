@@ -919,18 +919,17 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "slug": DAYS_OF_USE,
     }
 
-    DAYS_3_RETENTION_METRIC = {
-        "group": "other_metrics",
-        "friendly_name": "3-Day Retention",
-        "slug": RETENTION_3_DAYS,
-        "description": "Users who returned to Firefox within 3 days after enrollment.",
-        "display_type": "percentage",
-    }
-
     KPI_METRICS = [
         {
             "group": "other_metrics",
             "slug": RETENTION,
+            "display_type": "percentage",
+        },
+        {
+            "group": "other_metrics",
+            "friendly_name": "3-Day Retention",
+            "slug": RETENTION_3_DAYS,
+            "description": "Users who returned to Firefox within 3 days after enrollment.",  # noqa
             "display_type": "percentage",
         },
         {

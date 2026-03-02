@@ -286,8 +286,12 @@ class ExperimentResultsManager:
         kpi_metrics = NimbusConstants.KPI_METRICS.copy()
 
         # 3-day retention is only available for Desktop experiments
-        if self.experiment.application == NimbusExperiment.Application.DESKTOP:
-            kpi_metrics.insert(1, NimbusConstants.DAYS_3_RETENTION_METRIC.copy())
+        if self.experiment.application != NimbusExperiment.Application.DESKTOP:
+            kpi_metrics = [
+                m
+                for m in kpi_metrics
+                if m.get("slug") != NimbusConstants.RETENTION_3_DAYS
+            ]
 
         window_results = self.get_window_results(analysis_basis, segment, window)
         other_metrics = (
