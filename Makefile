@@ -251,7 +251,7 @@ integration_sdk_shell: build_prod build_integration_test
 
 integration_vnc_shell: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox
-	docker exec -it $$(docker ps -qf "name=experimenter-firefox-1") bash
+	$(COMPOSE_INTEGRATION) exec firefox bash
 
 # Run a specific integration test locally via VNC.
 # Usage: make integration_test_vnc TEST="test_archive_experiment[FIREFOX_DESKTOP]"
@@ -270,7 +270,7 @@ integration_test_vnc: build_prod
 	PYTEST_ARGS="-k $(TEST) --reruns 0 --base-url $(PYTEST_BASE_URL)" \
 	PYTEST_BASE_URL="$(PYTEST_BASE_URL)" \
 	$(COMPOSE_INTEGRATION) up -d firefox
-	docker exec -it $$(docker ps -qf "name=experimenter-firefox-1") bash
+	$(COMPOSE_INTEGRATION) exec firefox bash
 
 integration_test_nimbus_desktop: build_prod integration_clean
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "FIREFOX_CHANNEL=$(FIREFOX_CHANNEL) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
