@@ -438,30 +438,19 @@ The integration tests run Selenium against a full Experimenter stack (app server
 
 The easiest way to run and debug integration tests is via VNC, which lets you watch Firefox execute the test in real time.
 
-1. Set the env vars for the test you want to run:
+1. Run a single make command with the test you want to run:
 
 ```bash
-export PYTEST_ARGS="-k test_archive_experiment[FIREFOX_DESKTOP] --reruns 0 --base-url https://nginx/nimbus/"
-export PYTEST_BASE_URL="https://nginx/nimbus/"
+make integration_test_vnc TEST="test_archive_experiment[FIREFOX_DESKTOP]"
 ```
 
-2. Use `.env.integration-tests` (not `.env.sample`) — it has shorter Kinto polling intervals needed for tests that launch experiments:
+This automatically handles environment setup (copies `.env.integration-tests`, sets `SKIP_DUMMY=1`, configures `PYTEST_ARGS` with `--reruns 0` and `--base-url`), rebuilds containers, and drops you into a shell inside the Firefox/Selenium container.
 
-```bash
-cp .env.integration-tests .env
-```
-
-3. Build, start the stack, and open a shell in the Firefox/Selenium container:
-
-```bash
-make refresh SKIP_DUMMY=1 up_prod_detached integration_vnc_shell
-```
-
-4. Connect a VNC viewer to watch the test:
+2. Connect a VNC viewer to watch the test:
    - **VNC client** (e.g. Safari on macOS, [VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/)): `vnc://localhost:5900`, password `secret`
    - **noVNC** (browser-based): `http://localhost:7902`, password `secret`
 
-5. From the shell inside the container, run the test script:
+3. From the shell inside the container, run the test script:
 
 ```bash
 ./experimenter/tests/nimbus_integration_tests.sh
@@ -473,7 +462,8 @@ This installs Firefox, Poetry dependencies, and runs pytest with your `PYTEST_AR
 
 | Target | Description |
 |--------|-------------|
-| `make integration_vnc_shell` | Opens a bash shell in the Firefox/Selenium container with VNC enabled (see above) |
+| `make integration_test_vnc TEST="..."` | One-command setup: copies `.env`, rebuilds, starts stack, drops into VNC shell with `PYTEST_ARGS` pre-configured |
+| `make integration_vnc_shell` | Opens a bash shell in the Firefox/Selenium container with VNC enabled (manual env setup required) |
 | `make FIREFOX_CHANNEL=release integration_test_nimbus_desktop` | Runs the full desktop test suite (`release`, `beta`, or `nightly`) |
 | `make integration_test_nimbus_sdk` | Runs Nimbus SDK targeting integration tests |
 | `make integration_test_legacy` | Runs legacy experimenter integration tests |

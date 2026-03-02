@@ -12,6 +12,7 @@ COMPOSE_PROD = docker compose -f docker-compose-prod.yml $$(${COMPOSE_CIRRUS})
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml $$(${COMPOSE_CIRRUS})
 COMPOSE_INTEGRATION_RUN = ${COMPOSE_INTEGRATION} run --name experimenter_integration
 DOCKER_BUILD = docker buildx build
+PYTEST_BASE_URL ?= https://nginx/nimbus/
 
 # Extra flags for docker buildx build, per target. Override to add caching, --load, etc.
 MEGAZORD_BUILD_FLAGS ?=
@@ -249,6 +250,25 @@ integration_sdk_shell: build_prod build_integration_test
 	$(COMPOSE_INTEGRATION_RUN) rust-sdk bash
 
 integration_vnc_shell: build_prod
+	$(COMPOSE_INTEGRATION) up -d firefox
+	docker exec -it $$(docker ps -qf "name=experimenter-firefox-1") bash
+
+# Run a specific integration test locally via VNC.
+# Usage: make integration_test_vnc TEST="test_archive_experiment[FIREFOX_DESKTOP]"
+integration_test_vnc: build_prod
+	cp .env.integration-tests .env
+	SKIP_DUMMY=1 $(MAKE) refresh up_prod_detached
+	@echo ""
+	@echo "=========================================="
+	@echo "Connect VNC to watch the test:"
+	@echo "  VNC:   vnc://localhost:5900 (password: secret)"
+	@echo "  noVNC: http://localhost:7902 (password: secret)"
+	@echo ""
+	@echo "Then run: ./experimenter/tests/nimbus_integration_tests.sh"
+	@echo "=========================================="
+	@echo ""
+	PYTEST_ARGS="-k $(TEST) --reruns 0 --base-url $(PYTEST_BASE_URL)" \
+	PYTEST_BASE_URL="$(PYTEST_BASE_URL)" \
 	$(COMPOSE_INTEGRATION) up -d firefox
 	docker exec -it $$(docker ps -qf "name=experimenter-firefox-1") bash
 
