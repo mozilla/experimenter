@@ -2028,24 +2028,6 @@ password-autocomplete:
       type: boolean
       description: Enable direct migration?
 
-# Experiment for different Relay UI treatments. Variations at:
-# https://www.figma.com/design/gnyElr1Wtce3RdQT54y8kS/Relay-%26-Firefox-Integration?node-id=316-2024&node-type=canvas&t=A3iAuevSTtwXeFxb-0
-email-autocomplete-relay:
-  description: Relay UI for email fields.
-  exposureDescription: Exposure is sent each time a user sees the Relay autocomplete dropdown item
-  hasExposure: true
-  owner: lcrouch@mozilla.com
-  variables:
-    firstOfferVersion:
-      type: string
-      description: Which Relay UI treatment to show
-      fallbackPref: signon.firefoxRelay.firstOfferVersionFallback
-    showToAllBrowsers:
-      type: boolean
-      setPref:
-        branch: user
-        pref: signon.firefoxRelay.showToAllBrowsers
-      description: Whether to show Relay to Firefox users who are NOT signed into FXA.
 
 # This feature flag mirrors the one used for ios
 # https://github.com/mozilla-mobile/firefox-ios/blob/main/nimbus-features/addressAutofillFeature.yaml
@@ -2181,6 +2163,47 @@ featureCallout:
     uri: "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json"
     path: "browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json"
   variables: {}
+
+privacySecurityMessaging:
+  description: Supports experimental messaging related to privacy and security.
+  owner: omc-core@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Exposure is sent when a milestone doorhanger message is seen or when the
+    milestone section of the protections popup is seen.
+  variables:
+    blockingMilestoneMessagingEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref:  browser.contentblocking.cfr-milestone.enabled
+      description: >-
+        Enable messaging related to content blocking milestones. Setting to
+        false disables both the milestone doorhanger and the milestone section
+        of the protections popup.
+    blockingMilestones:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.contentblocking.cfr-milestone.milestones
+      description: >-
+        A JSON array of milestones to trigger messaging for. Milestones are
+        defined as the number of times a user has had tracking content blocked,
+        e.g., [1000, 5000, 10000...]. See the pref for default values. The list
+        should typically have 7 entries, because the built-in milestone messages
+        are allowed to show 7 times. If you want more or fewer milestones, you
+        should override the milestone messages by also including a messaging
+        feature in your experiment, so you can include a replacement message
+        with a frequency cap matching the number of milestones. Use a feature
+        like fxms-message-* to do that.
+    blockingMilestoneUpdateInterval:
+      type: int
+      setPref:
+        branch: user
+        pref: browser.contentblocking.cfr-milestone.update-interval
+      description: >-
+        How often (in milliseconds) we check if the user is eligible for seeing
+        a milestone doorhanger. 24 hours by default.
 
 fullPageTranslation:
   description: This feature opens a popup panel to offer to translate a page.
