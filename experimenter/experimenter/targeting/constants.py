@@ -4039,18 +4039,8 @@ AI_TAB_GROUPING_ENABLED = NimbusTargetingConfig(
 VPN_EARLY_ACCESS = NimbusTargetingConfig(
     name="VPN Early Access",
     slug="vpn_early_access",
-    description=(
-        "Users who are signed out, are not using new profile, "
-        "are not enterprise, are not using a proxy, and "
-        "are not Mozilla VPN subscribers"
-    ),
-    targeting=(
-        "isFxAEnabled && !isFxASignedIn && "
-        f"{NOT_NEW_PROFILE_CREATED.targeting} && "
-        f"{NO_ENTERPRISE.targeting} && "
-        "'network.proxy.type'|preferenceValue != 1 && "
-        '!("e6eb0d1e856335fc" in attachedFxAOAuthClients|mapToProperty("id"))'
-    ),
+    description=("Users who have FxA enabled, and do not have enterprise policies set"),
+    targeting=(f"isFxAEnabled && {NO_ENTERPRISE.targeting}"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
