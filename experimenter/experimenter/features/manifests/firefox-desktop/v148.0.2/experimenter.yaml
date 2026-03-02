@@ -360,13 +360,6 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.merino.timeoutMs
       description: Timeout for Merino fetches (ms)
-    novaFeatureGate:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.nova.featureGate
-      description: >-
-        Feature gate that enables Nova UI.
     exposureResults:
       type: string
       setPref:
@@ -395,12 +388,6 @@ urlbar:
         characters long, it will be shown as a top pick. When this variable is
         set, full keywords will also show AMP suggestions as top picks even if
         they have fewer characters than this threshold.
-    quickSuggestAmpTopPickUseNovaIconSize:
-      type: boolean
-      fallbackPref: browser.urlbar.quicksuggest.ampTopPickUseNovaIconSize
-      description: >-
-        Whether or not use the Nova icon size for AMP suggestion.
-        Otherwise, use standard rich-suggestion size.
     quickSuggestContextualOptInEnabled:
       type: boolean
       setPref:
@@ -1299,6 +1286,18 @@ newtabPublisherFavicons:
         pref: browser.newtabpage.activity-stream.discoverystream.publisherFavicon.enabled
       description: Enables publisher favicons on cards in newtab
 
+newtabRefinedCardsLayout:
+  description: Enable layout and styling refinements for content and ad cards across different card sizes
+  owner: rhamoui@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.refinedCardsLayout.enabled
+      description: Enables the refined cards layout for newtab
+
 newTabSectionsExperiment:
   description: about:newtab section UI update
   owner: nbarrett@mozilla.com, mcrawford@mozilla.com
@@ -1573,16 +1572,6 @@ newtabSponsoredContent:
         branch: user
         pref: browser.newtabpage.activity-stream.discoverystream.placements.tiles.counts
       description: CSV string of tiles placement counts on newtab tiles section. The count tells the ad server how many ads to return for this position and placement.
-
-adsBackend:
-  description: Flags to affect ads backend behavior
-  owner: efixler@mozilla.com
-  hasExposure: false
-  allowCoenrollment: true
-  variables:
-    flags:
-      type: json
-      description: JSON object of flag names and values to send to the ads backend
 
 newtabTrainhop:
   description: Experiment feature for the train-hopping newtab extension.
@@ -1900,6 +1889,18 @@ pocketNewtab:
         pref: browser.newtabpage.activity-stream.weather.locationSearchEnabled
       description: >-
         Turns on and off location search for newtab weather widget
+    recsPersonalized:
+      type: boolean
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.recs.personalized
+      description: >-
+        Enables Pocket stories personalization.
+    spocsPersonalized:
+      type: boolean
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.spocs.personalized
+      description: >-
+        Enables Pocket sponsored content personalization.
     discoveryStreamConfig:
       description: A JSON blob of discovery stream configuration.
       type: string
@@ -2028,6 +2029,24 @@ password-autocomplete:
       type: boolean
       description: Enable direct migration?
 
+# Experiment for different Relay UI treatments. Variations at:
+# https://www.figma.com/design/gnyElr1Wtce3RdQT54y8kS/Relay-%26-Firefox-Integration?node-id=316-2024&node-type=canvas&t=A3iAuevSTtwXeFxb-0
+email-autocomplete-relay:
+  description: Relay UI for email fields.
+  exposureDescription: Exposure is sent each time a user sees the Relay autocomplete dropdown item
+  hasExposure: true
+  owner: lcrouch@mozilla.com
+  variables:
+    firstOfferVersion:
+      type: string
+      description: Which Relay UI treatment to show
+      fallbackPref: signon.firefoxRelay.firstOfferVersionFallback
+    showToAllBrowsers:
+      type: boolean
+      setPref:
+        branch: user
+        pref: signon.firefoxRelay.showToAllBrowsers
+      description: Whether to show Relay to Firefox users who are NOT signed into FXA.
 
 # This feature flag mirrors the one used for ios
 # https://github.com/mozilla-mobile/firefox-ios/blob/main/nimbus-features/addressAutofillFeature.yaml
@@ -2163,47 +2182,6 @@ featureCallout:
     uri: "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json"
     path: "browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json"
   variables: {}
-
-privacySecurityMessaging:
-  description: Supports experimental messaging related to privacy and security.
-  owner: omc-core@mozilla.com
-  hasExposure: true
-  exposureDescription: >-
-    Exposure is sent when a milestone doorhanger message is seen or when the
-    milestone section of the protections popup is seen.
-  variables:
-    blockingMilestoneMessagingEnabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref:  browser.contentblocking.cfr-milestone.enabled
-      description: >-
-        Enable messaging related to content blocking milestones. Setting to
-        false disables both the milestone doorhanger and the milestone section
-        of the protections popup.
-    blockingMilestones:
-      type: string
-      setPref:
-        branch: user
-        pref: browser.contentblocking.cfr-milestone.milestones
-      description: >-
-        A JSON array of milestones to trigger messaging for. Milestones are
-        defined as the number of times a user has had tracking content blocked,
-        e.g., [1000, 5000, 10000...]. See the pref for default values. The list
-        should typically have 7 entries, because the built-in milestone messages
-        are allowed to show 7 times. If you want more or fewer milestones, you
-        should override the milestone messages by also including a messaging
-        feature in your experiment, so you can include a replacement message
-        with a frequency cap matching the number of milestones. Use a feature
-        like fxms-message-* to do that.
-    blockingMilestoneUpdateInterval:
-      type: int
-      setPref:
-        branch: user
-        pref: browser.contentblocking.cfr-milestone.update-interval
-      description: >-
-        How often (in milliseconds) we check if the user is eligible for seeing
-        a milestone doorhanger. 24 hours by default.
 
 fullPageTranslation:
   description: This feature opens a popup panel to offer to translate a page.
@@ -3664,44 +3642,6 @@ googleSafeBrowsingV5:
         branch: default
         pref: "browser.safebrowsing.provider.google5.enabled"
 
-safeBrowsingRealTime:
-  description: Control Safe Browsing real-time lookup and simulation
-  owner: tihuang@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      description: Whether to enable Safe Browsing real-time lookup.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "browser.safebrowsing.realTime.enabled"
-    globalCacheEnabled:
-      description: Whether to enable the Global Cache for real-time lookup.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "browser.safebrowsing.globalCache.enabled"
-    simulationEnabled:
-      description: Whether to enable the real-time request simulator.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "browser.safebrowsing.realTime.simulation.enabled"
-    simulationCacheTTLSec:
-      description: Cache TTL in seconds for the real-time request simulator.
-      type: int
-      setPref:
-        branch: default
-        pref: "browser.safebrowsing.realTime.simulation.cacheTTLSec"
-    simulationHitProbability:
-      description: >
-        Hit probability for the real-time request simulator, expressed as
-        parts per million. 1000000 = 100%, 1 = 0.0001%, 0 = never hit.
-      type: int
-      setPref:
-        branch: default
-        pref: "browser.safebrowsing.realTime.simulation.hitProbability"
-
 fxaButtonVisibility:
   description: Prefs to control the visibility of the Firefox Accounts toolbar button when not signed in.
   owner: mconley@mozilla.com
@@ -5139,21 +5079,6 @@ setToDefaultPrompt:
       description: Message to show instead of the default prompt
       type: json
 
-tabNotes:
-  description: >-
-    Associate short text notes with specific web pages and surface those notes later
-    when the user returns to that web page in a tab.
-  owner: sthompson@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      description: >-
-        Controls whether tab notes storage, code, and UI elements are turned on.
-      setPref:
-        branch: default
-        pref: browser.tabs.notes.enabled
-
 tabGroups:
   description: Prefs to control Tab Groups
   owner: dao@mozilla.com
@@ -5478,6 +5403,13 @@ ipProtection:
         pref: browser.ipProtection.enabled
       description: >-
         Enables the IP Protection feature.
+    variant:
+      type: string
+      setPref:
+        branch: default
+        pref: browser.ipProtection.variant
+      description: >-
+        What variant of the feature to use.
 
 webApps:
   description: Enables or disables web apps.
