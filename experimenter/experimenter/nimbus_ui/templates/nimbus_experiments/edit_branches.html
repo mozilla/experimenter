@@ -80,9 +80,6 @@
                 <label class="form-check-label" for="id_prevent_pref_conflicts">
                   Prevent enrollment if users have changed any prefs set by this experiment
                 </label>
-                {% if form.prevent_pref_conflicts.field.disabled %}
-                  <div class="form-text">This option is required for rollouts to prevent re-enrollment after pref changes.</div>
-                {% endif %}
               </div>
               {% for error in validation_errors.prevent_pref_conflicts %}
                 <div class="form-text text-danger">{{ error }}</div>
