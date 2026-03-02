@@ -4,6 +4,13 @@ about:
 channels:
 - developer
 features:
+  free-trial-feature:
+    description: Control whether free trials are enabled for payments-next
+    variables:
+      enabled:
+        description: If the feature is enabled.
+        type: Boolean
+        default: true
   welcome-feature:
     description: Display a welcome banner on the new Sub Manage page
     variables:
