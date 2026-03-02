@@ -281,7 +281,6 @@ class ExperimentResultsManager:
     def get_kpi_metrics(
         self, analysis_basis, segment, reference_branch, window="overall"
     ):
-        from experimenter.experiments.models import NimbusExperiment
 
         kpi_metrics = NimbusConstants.KPI_METRICS.copy()
 
