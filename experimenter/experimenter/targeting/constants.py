@@ -31,6 +31,7 @@ HAS_PIN = "!doesAppNeedPin"
 NEED_DEFAULT = "!isDefaultBrowser"
 PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
 PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 < 28"
+PROFILELESSTHAN1HOUR = "(currentDate|date - profileAgeCreated|date) / 3600000 < 1"
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
 NEW_NON_SELECTABLE_PROFILE = f"({NEW_PROFILE}) && profileGroupProfileCount == 0"
@@ -4081,7 +4082,7 @@ FX_149_TRAINHOP_2_ACTIVATION_WINDOW = NimbusTargetingConfig(
         "which includes users of Fx148"
     ),
     targeting=(
-        f"isFirstStartup && os.isWindows && "
+        f"{PROFILELESSTHAN1HOUR} && os.isWindows && "
         f"{NEW_NON_SELECTABLE_PROFILE} && "
         f"{FX_149_TRAINHOP_2.targeting}"
     ),
