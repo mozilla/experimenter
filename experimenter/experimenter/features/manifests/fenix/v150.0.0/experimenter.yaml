@@ -701,6 +701,14 @@ setup-checklist:
       enum:
       - collection-1
       - collection-2
+shake-to-summarize:
+  description: A feature that can summarize the content of a page when you shake the screen.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, shake to summarize will be enabled
 ship:
   description: The feature that controls Session History in Parent (SHIP) in Gecko.
   hasExposure: true
@@ -741,6 +749,15 @@ suppress-sponsored-top-sites:
     enabled:
       type: boolean
       description: If true, new users won’t see sponsored tiles for 14 days.
+tab-groups:
+  description: Control the visibility of the tab groups feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable the tab groups feature.
 tab-management-enhancements:
   description: Control the visibility of the tab management enhancements.
   hasExposure: true

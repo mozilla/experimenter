@@ -999,6 +999,13 @@ features:
         description: The collection used for the setup checklist.
         type: SetupChecklistType
         default: collection-1
+  shake-to-summarize:
+    description: A feature that can summarize the content of a page when you shake the screen.
+    variables:
+      enabled:
+        description: If true, shake to summarize will be enabled
+        type: Boolean
+        default: false
   ship:
     description: The feature that controls Session History in Parent (SHIP) in Gecko.
     variables:
@@ -1035,6 +1042,14 @@ features:
     variables:
       enabled:
         description: If true, new users won’t see sponsored tiles for 14 days.
+        type: Boolean
+        default: false
+  tab-groups:
+    description: Control the visibility of the tab groups feature.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable the tab groups feature.
         type: Boolean
         default: false
   tab-management-enhancements:
