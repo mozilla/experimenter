@@ -21,7 +21,6 @@ services:
       - /experimenter/experimenter/glean/generated/
       - /experimenter/experimenter/legacy/legacy-ui/core/.cache/
       - /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
-      - /experimenter/experimenter/results/node_modules/
       - /experimenter/experimenter/nimbus_ui/static/node_modules/
       - /experimenter/experimenter/served/
       - /experimenter/node_modules/
@@ -46,25 +45,6 @@ services:
       - /experimenter/node_modules/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus_ui watch | cat"
-
-  yarn-results:
-    image: experimenter:dev
-    env_file: .env
-    tty: true
-    ports:
-      - "3001:3000"
-    volumes:
-      - ./experimenter:/experimenter
-      - media_volume:/experimenter/experimenter/media
-      - /experimenter/experimenter/glean/generated/
-      - /experimenter/experimenter/legacy/legacy-ui/core/.cache/
-      - /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
-      - /experimenter/experimenter/results/node_modules/
-      - /experimenter/experimenter/nimbus_ui/static/node_modules/
-      - /experimenter/experimenter/served/
-      - /experimenter/node_modules/
-      - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
-    command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/results start | cat"
 
   worker:
     image: experimenter:dev

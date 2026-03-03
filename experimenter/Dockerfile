@@ -54,12 +54,10 @@ WORKDIR /experimenter
 COPY ./package.json /experimenter/package.json
 COPY ./yarn.lock /experimenter/yarn.lock
 COPY ./experimenter/legacy/legacy-ui/core/package.json /experimenter/experimenter/legacy/legacy-ui/core/package.json
-COPY ./experimenter/results/package.json /experimenter/experimenter/results/package.json
 COPY ./experimenter/nimbus_ui/static/package.json /experimenter/experimenter/nimbus_ui/static/package.json
 RUN python3 -m pip install setuptools
 RUN yarn install --frozen-lockfile
 COPY ./experimenter/legacy/legacy-ui/core/ /experimenter/experimenter/legacy/legacy-ui/core/
-COPY ./experimenter/results/ /experimenter/experimenter/results/
 COPY ./experimenter/nimbus_ui/ /experimenter/experimenter/nimbus_ui/
 
 
@@ -79,7 +77,6 @@ COPY --from=python-builder /experimenter/experimenter/glean/generated/ /experime
 
 # Node packages
 COPY --from=node-builder /experimenter/experimenter/legacy/legacy-ui/core/node_modules/ /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
-COPY --from=node-builder /experimenter/experimenter/results/node_modules/ /experimenter/experimenter/results/node_modules/
 COPY --from=node-builder /experimenter/experimenter/nimbus_ui/static/node_modules/ /experimenter/experimenter/nimbus_ui/static/node_modules/
 COPY --from=node-builder /experimenter/node_modules/ /experimenter/node_modules/
 
@@ -106,10 +103,6 @@ FROM test AS ui
 # Build legacy assets
 COPY ./experimenter/legacy/legacy-ui/core/ /experimenter/experimenter/legacy/legacy-ui/core/
 RUN yarn workspace @experimenter/core build
-
-# Build results assets
-COPY ./experimenter/results/ /experimenter/experimenter/results/
-RUN yarn workspace @experimenter/results build
 
 # Build nimbus_ui assets
 COPY ./experimenter/nimbus_ui/ /experimenter/experimenter/nimbus_ui/
@@ -144,7 +137,6 @@ COPY ./manage.py /experimenter/manage.py
 COPY ./experimenter/ /experimenter/experimenter/
 COPY ./manifesttool/ /experimenter/manifesttool/
 COPY --from=ui /experimenter/experimenter/legacy/legacy-ui/assets/ /experimenter/experimenter/legacy/legacy-ui/assets/
-COPY --from=ui /experimenter/experimenter/results/build/ /experimenter/experimenter/results/build/
 COPY --from=ui /experimenter/experimenter/nimbus_ui/static/dist/ /experimenter/experimenter/nimbus_ui/static/dist/
 
 ENV PYTHONPATH=$PYTHONPATH:/application-services/
