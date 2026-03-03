@@ -5337,6 +5337,12 @@ partitioned-cookie-attribute:
       setPref:
         branch: default
         pref: "network.cookie.chips.partitionLimitByteCapacity"
+    chipsAffectsTCP:
+      description: Whether CHIPS cookies also appear as TCP cookies when both jars are queried
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.cookie.CHIPS.affectsTCP"
 
 auto-pip:
   description: "Automatic Picture-in-Picture"
