@@ -4,8 +4,7 @@
   "private": true,
   "workspaces": [
     "experimenter/legacy/legacy-ui/core",
-    "experimenter/nimbus_ui/static",
-    "experimenter/results"
+    "experimenter/nimbus_ui/static"
   ],
   "devDependencies": {
     "@types/react-select": "^5.0.1",
@@ -31,7 +30,8 @@
     "trim-newlines": "^3.0.1",
     "trim": "^0.0.3",
     "ws": "^7.4.6",
-    "yargs-parser": "^13.1.2"
+    "yargs-parser": "^13.1.2",
+    "@lezer/common": "^1.2.0"
   },
   "repository": {
     "type": "git",
