@@ -270,11 +270,14 @@ class ExperimentResultsManager:
                 )
 
                 def check_valid_point(point):
-                    return any(value != 0 for value in point.values())
+                    return (
+                        point.get("lower") and point.get("upper") and point.get("point")
+                    )
 
-                if (not abs_point_data or not check_valid_point(abs_point_data)) and (
-                    not rel_point_data or not check_valid_point(rel_point_data)
-                ):
+                if (
+                    (not abs_point_data or not check_valid_point(abs_point_data))
+                    and metric_slug != NimbusConstants.DAILY_ACTIVE_USERS
+                ) or (not rel_point_data or not check_valid_point(rel_point_data)):
                     return False
         return True
 
@@ -401,7 +404,7 @@ class ExperimentResultsManager:
                             reference_branch,
                         ),
                         "has_data": self.metric_has_data(
-                            slug, group, analysis_basis, segment
+                            slug, group, analysis_basis, segment, reference_branch
                         ),
                     }
                 )
@@ -521,6 +524,7 @@ class ExperimentResultsManager:
                 if (
                     is_metric_notable(metric["slug"], metric["group"])
                     and metric not in metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA]
+                    and metric.get("has_data")
                 ):
                     metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA].append(metric)
 
