@@ -2,6 +2,7 @@ import json
 import os
 import time
 from functools import cache
+from pathlib import Path
 
 import requests
 
@@ -11,6 +12,9 @@ from nimbus.models.base_dataclass import (
 
 LOAD_DATA_RETRIES = 60
 LOAD_DATA_RETRY_DELAY = 1.0
+TARGETING_CONFIGS_PATH = (
+    Path(__file__).resolve().parents[2] / "fixtures" / "targeting_configs.json"
+)
 
 
 def load_graphql_data(query):
@@ -142,10 +146,10 @@ def load_config_data():
 
 
 def load_targeting_configs(app=BaseExperimentApplications.FIREFOX_DESKTOP.value):
-    config_data = load_config_data()
+    targeting_configs = json.loads(TARGETING_CONFIGS_PATH.read_text())
     return [
         item["value"]
-        for item in config_data["targetingConfigs"]
+        for item in targeting_configs
         if (
             BaseExperimentApplications.FIREFOX_DESKTOP.value in app
             and BaseExperimentApplications.FIREFOX_DESKTOP.value
