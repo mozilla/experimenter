@@ -430,97 +430,119 @@ yarn workspace @experimenter/nimbus-ui test:cov
 
 For a full reference of all the common commands that can be run inside the container, refer to [this section of the Makefile](https://github.com/mozilla/experimenter/blob/main/Makefile#L16-L38)
 
-#### make integration_test_legacy
+### Integration Tests
 
-Run the integration test suite for experimenter inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
+The integration tests run Selenium against a full Experimenter stack (app server, nginx, kinto, Firefox) inside Docker containers. They are defined in `experimenter/tests/integration/nimbus/` and configured in `.circleci/config.yml`.
 
-#### make FIREFOX_CHANNEL integration_test_nimbus_desktop
+#### Running a specific test locally (recommended)
 
-Run the integration test suite for nimbus inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
+The easiest way to run and debug integration tests is via VNC, which lets you watch Firefox execute the test in real time.
 
-FIREFOX_CHANNEL should either be `release`, `nightly` or `beta`, and include it in the make command.
-
-#### make integration_test_nimbus_sdk
-
-Run the Nimbus SDK integration tests, which tests the advanced targeting configurations against the Nimbus SDK.
-
-#### make integration_vnc_shell
-
-First start a prod instance of Experimenter with:
+1. Run a single make command with the test you want to run:
 
 ```bash
-make refresh&&make up_prod_detached
+make integration_test_vnc TEST="test_archive_experiment[FIREFOX_DESKTOP]"
 ```
 
-Then start the VNC service:
+This automatically handles environment setup (copies `.env.integration-tests`, sets `SKIP_DUMMY=1`, configures `PYTEST_ARGS` with `--reruns 0` and `--base-url`), rebuilds containers, and drops you into a shell inside the Firefox/Selenium container.
+
+2. Connect a VNC viewer to watch the test:
+   - **VNC client** (e.g. Safari on macOS, [VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/)): `vnc://localhost:5900`, password `secret`
+   - **noVNC** (browser-based): `http://localhost:7902`, password `secret`
+
+3. From the shell inside the container, run the test script:
 
 ```bash
-make integration_vnc_shell
+./experimenter/tests/nimbus_integration_tests.sh
 ```
 
-Then open your VNC client (Safari does this on OSX or just use [VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/)) and open `vnc://localhost:5900` with password `secret`.
+This installs Firefox, Poetry dependencies, and runs pytest with your `PYTEST_ARGS`. You can watch the test execute in the VNC window.
 
-To use NoVNC, navgate to this url `http://localhost:7902` with the password `secret`. Then you can follow the same steps as above.
+#### Make targets
 
-When the command executes successfully, you will have terminal access to the running Firefox container. After you follow the above steps to connect via VNC, run `firefox` and confirm that a Firefox browser loads.
+| Target | Description |
+|--------|-------------|
+| `make integration_test_vnc TEST="..."` | One-command setup: copies `.env`, rebuilds, starts stack, drops into VNC shell with `PYTEST_ARGS` pre-configured |
+| `make integration_vnc_shell` | Opens a bash shell in the Firefox/Selenium container with VNC enabled (manual env setup required) |
+| `make FIREFOX_CHANNEL=release integration_test_nimbus_desktop` | Runs the full desktop test suite (`release`, `beta`, or `nightly`) |
+| `make integration_test_nimbus_sdk` | Runs Nimbus SDK targeting integration tests |
+| `make integration_test_legacy` | Runs legacy experimenter integration tests |
+| `make integration_sdk_shell` | Opens a shell with the mobile SDK set up for testing |
 
-To then run the tests, set `PYTEST_ARGS` with the tests you want to run, i.e.: `export PYTEST_ARGS=-k test_archive[FIREFOX_DESKTOP]`. You will need to include the nimbus client you want to test against as well. You can also set the Firefox Channel you want to run against via the `FIREFOX_CHANNEL` environment variable. Then execute the test script. The following is an example using the above environment variables: 
-```sh
-PYTEST_ARGS="-k test_archive_experiment[FIREFOX_DESKTOP]" FIREFOX_CHANNEL="nightly" ./experimenter/tests/nimbus_integration_tests.sh
+#### Environment variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `PYTEST_ARGS` | [Pytest CLI options](https://docs.pytest.org/en/stable/reference/reference.html#command-line-flags). Use `-k` to select tests, `-m` to select markers, `--reruns 0` to disable retries when debugging. | `-k test_archive_experiment[FIREFOX_DESKTOP] --reruns 0 --base-url https://nginx/nimbus/` |
+| `PYTEST_BASE_URL` | Base URL for the Experimenter instance under test. | `https://nginx/nimbus/` |
+| `FIREFOX_CHANNEL` | Firefox channel to test against. Defaults to `release`. | `release`, `beta`, `nightly` |
+
+#### Test markers
+
+Tests are organized with pytest markers. Use `-m <marker>` in `PYTEST_ARGS` to run a specific group:
+
+| Marker | Description |
+|--------|-------------|
+| `nimbus_ui` | UI-only tests (no external service integration) |
+| `desktop_enrollment` | Tests that integrate with Nimbus and external services |
+| `cirrus_enrollment` | Tests that integrate with the demo app and Cirrus |
+| `remote_settings_launch` | A single test for launching to Remote Settings |
+| `remote_settings_experiments` | Remote Settings tests for experiments |
+| `remote_settings_rollouts` | Remote Settings tests for rollouts (basic flows) |
+| `remote_settings_live_updates` | Remote Settings tests for rollout live updates |
+| `run_targeting` | JEXL targeting tests in Firefox |
+
+#### Running without Docker (native Firefox)
+
+If you prefer to run tests against a local Firefox install instead of the Docker container:
+
+1. Install [geckodriver](https://github.com/mozilla/geckodriver/releases) (`brew install geckodriver` on macOS) and confirm it works:
+   ```bash
+   geckodriver --version
+   ```
+
+2. Make sure `firefox` is in your PATH. On macOS, add to your `~/.zshrc`:
+   ```bash
+   alias firefox="/Applications/Firefox.app/Contents/MacOS/firefox"
+   ```
+
+3. Start Experimenter:
+   ```bash
+   cp .env.integration-tests .env
+   make refresh build_integration_test SKIP_DUMMY=1 up_prod_detached
+   ```
+   Confirm it's running at `https://localhost/nimbus`.
+
+4. Run the tests:
+   ```bash
+   PYTEST_ARGS="-k test_archive_experiment[FIREFOX_DESKTOP] --reruns 0" ./experimenter/tests/nimbus_integration_tests.sh
+   ```
+
+Firefox will launch and run the test. To use a different Firefox binary, set it in the `firefox_options` fixture in `experimenter/tests/integration/nimbus/conftest.py`:
+
+```python
+firefox_options.binary = "/path/to/firefox-bin"
 ```
 
-### Running Integration tests locally
+#### Key files
 
-1. Install [geckodriver](https://github.com/mozilla/geckodriver/releases) and have it available in your path. You should be able to run `geckodriver --version` from your command line. On MacOS you can do `brew install geckodriver` if you have homebrew installed.
-2. Add your Firefox install to your path. You should be able to run `firefox --version` from your command line. 
-```sh
-alias firefox="path-to/firefox"
-```
-Example for macos add this to your `~/.zshrc` file: 
-```sh
-alias firefox="/Applications/Firefox.app/Contents/MacOS/firefox"
-```
-3. Setup experimenter:
-```sh
-make refresh build_integration_test SKIP_DUMMY=1 up_prod_detached
-```
-Navigate with your browser to `https://localhost/nimbus` to confirm everything is working.
-4. To then run the tests, set `PYTEST_ARGS` with the tests you want to run, i.e.: `PYTEST_ARGS=-k test_archive_experiment[FIREFOX_DESKTOP]`. You will need to include the nimbus client you want to test against as well. You can also set the Firefox Channel you want to run against via the `FIREFOX_CHANNEL` environment variable. Then execute the test script. The following is an example using the above environment variables: 
-```sh
-PYTEST_ARGS="-k test_archive_experiment[FIREFOX_DESKTOP]" FIREFOX_CHANNEL="nightly" ./experimenter/tests/nimbus_integration_tests.sh
-```
+| Path | Description |
+|------|-------------|
+| `experimenter/tests/integration/nimbus/conftest.py` | Pytest fixtures including `create_experiment` and Selenium setup |
+| `experimenter/tests/integration/nimbus/pages/` | Page objects for UI interactions (Summary, Branches, Audience, etc.) |
+| `experimenter/tests/integration/nimbus/models/` | Data models for test experiments |
+| `experimenter/tests/nimbus_integration_tests.sh` | Entry point that installs Firefox and runs pytest |
+| `experimenter/tests/pytest.ini` | Pytest configuration and marker definitions |
+| `docker-compose-integration-test.yml` | Firefox/Selenium container config |
+| `.env.integration-tests` | Env file with short Kinto polling intervals for tests |
+| `.circleci/config.yml` | CI job definitions and `PYTEST_ARGS` used in CI |
 
-Firefox should pop up and start running through your test! You can change the firefox version the tests run on by copying the path of the `firefox-bin` and adding it to the `firefox_options` fixture in the `tests/integration/nimbus/conftest.py` file:
+#### Troubleshooting
 
-```sh
-firefox_options.binary = "path/to/firefox-bin"
-```
-
-#### Integration Test options
-
-- `PYTEST_ARGS`: [Pytest](https://docs.pytest.org/en/6.2.x/usage.html#) commandline variables.
-
-An example using PYTEST_ARGS to run one test.
-
-```bash
-make integration_test_legacy PYTEST_ARGS="-k test_addon_rollout_experiment_e2e"
-```
-
-Note: You need the following firefox version flag when running integration tests
-
-```sh
-FIREFOX_CHANNEL=release
-```
-
-An example for above:
-
-```sh
-make FIREFOX_CHANNEL=release integration_test_nimbus_desktop PYTEST_ARGS=ktest_rollout_create_and_update
-```
-
-#### make integration_sdk_shell
-
-This builds and sets up the mobile sdk for use in testing.
+- **502 from nginx**: The experimenter container IP may have changed after a restart. Run `docker restart <nginx-container>` to re-resolve it.
+- **Port conflicts**: Only run one Experimenter stack at a time — they share host ports (3001, 5432, 7001, 8000, 8888). Kill existing containers first with `docker compose kill` in the other directory.
+- **Feature dropdown selects wrong feature**: The feature search is substring-based and selects the first alphabetical match. Use a feature name that won't substring-match other features.
+- **Flaky button clicks**: Some tests may intermittently fail due to Selenium timing. Use `--reruns 1` in CI or re-run locally. When debugging, use `--reruns 0` to see the actual failure.
 
 ### Testing Tools
 
