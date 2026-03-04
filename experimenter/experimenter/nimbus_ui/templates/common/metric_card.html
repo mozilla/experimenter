@@ -9,19 +9,19 @@
         {% if absolute_lower and display_type == "percentage" %}
           <span class="mb-0 me-1"
                 data-bs-toggle="tooltip"
-                data-bs-title="{{ absolute_lower|to_percentage }}">({{ absolute_lower|to_percentage:1 }}</span>
+                data-bs-title="{{ absolute_lower|to_percentage:6 }}">({{ absolute_lower|to_percentage:1 }}</span>
           -
           <span class="mb-0 ms-1"
                 data-bs-toggle="tooltip"
-                data-bs-title="{{ absolute_upper|to_percentage }}">{{ absolute_upper|to_percentage:1 }})</span>
+                data-bs-title="{{ absolute_upper|to_percentage:6 }}">{{ absolute_upper|to_percentage:1 }})</span>
         {% else %}
           <span class="mb-0 me-1"
                 data-bs-toggle="tooltip"
-                data-bs-title="{{ absolute_lower }}">({{ absolute_lower|floatformat:2 }}</span>
+                data-bs-title="{{ absolute_lower|floatformat:6 }}">({{ absolute_lower|floatformat:2 }}</span>
           -
           <span class="mb-0 ms-1"
                 data-bs-toggle="tooltip"
-                data-bs-title="{{ absolute_upper }}">{{ absolute_upper|floatformat:2 }})</span>
+                data-bs-title="{{ absolute_upper|floatformat:6 }}">{{ absolute_upper|floatformat:2 }})</span>
         {% endif %}
       {% endif %}
     </div>
@@ -46,21 +46,19 @@
             {% if display_type == "percentage" %}
               <span class="mb-0 me-1"
                     data-bs-toggle="tooltip"
-                    data-bs-title="{{ absolute_lower|to_percentage }}">({{ absolute_lower|to_percentage:1 }}</span>
+                    data-bs-title="{{ absolute_lower|to_percentage:6 }}">({{ absolute_lower|to_percentage:1 }}</span>
               -
               <span class="mb-0 ms-1"
                     data-bs-toggle="tooltip"
-                    data-bs-title="{{ absolute_upper|to_percentage }}">{{ absolute_upper|to_percentage:1 }})</span>
+                    data-bs-title="{{ absolute_upper|to_percentage:6 }}">{{ absolute_upper|to_percentage:1 }})</span>
             {% else %}
               <span class="mb-0 me-1"
                     data-bs-toggle="tooltip"
-                    data-bs-title="{{ absolute_lower }}">({{ absolute_lower|floatformat:2 }}</span>
+                    data-bs-title="{{ absolute_lower|floatformat:6 }}">({{ absolute_lower|floatformat:2 }}</span>
               -
-              <p class="mb-0 ms-1"
-                 data-bs-toggle="tooltip"
-                 data-bs-title="{{ absolute_upper }}">
-                {{ absolute_upper|floatformat:2 }})
-              </span>
+              <span class="mb-0 ms-1"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="{{ absolute_upper|floatformat:6 }}">{{ absolute_upper|floatformat:2 }})</span>
             {% endif %}
           {% endif %}
         </span>
