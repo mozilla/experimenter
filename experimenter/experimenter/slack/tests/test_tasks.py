@@ -8,6 +8,7 @@ from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.slack import tasks
+from experimenter.slack.constants import SlackConstants
 
 AnalysisWindow = NimbusConstants.AnalysisWindow
 
@@ -184,7 +185,7 @@ class TestCheckResultsReady(TestCase):
             },
         )
 
-        expected_message = NimbusConstants.SLACK_RESULTS_READY_MESSAGE.format(
+        expected_message = SlackConstants.SLACK_RESULTS_READY_MESSAGE.format(
             window=AnalysisWindow.WEEKLY.label
         )
 
@@ -218,7 +219,7 @@ class TestCheckResultsReady(TestCase):
             },
         )
 
-        expected_message = NimbusConstants.SLACK_RESULTS_READY_MESSAGE.format(
+        expected_message = SlackConstants.SLACK_RESULTS_READY_MESSAGE.format(
             window=AnalysisWindow.OVERALL.label
         )
 
@@ -288,7 +289,7 @@ class TestCheckResultsReady(TestCase):
             },
         )
 
-        message = NimbusConstants.SLACK_RESULTS_READY_MESSAGE.format(
+        message = SlackConstants.SLACK_RESULTS_READY_MESSAGE.format(
             window=AnalysisWindow.WEEKLY.label
         )
 

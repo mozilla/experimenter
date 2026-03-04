@@ -2,8 +2,8 @@ from django.conf import settings
 from django.core.mail.message import EmailMessage
 from django.template.loader import render_to_string
 
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusEmail, NimbusExperiment
+from experimenter.slack.constants import SlackConstants
 
 
 def nimbus_send_experiment_ending_email(experiment):
@@ -52,7 +52,7 @@ def nimbus_format_and_send_html_email(
 
     from experimenter.slack.tasks import nimbus_send_slack_notification
 
-    action_text = NimbusConstants.SLACK_EMAIL_ACTIONS.get(email_type, "has updates")
+    action_text = SlackConstants.SLACK_EMAIL_ACTIONS.get(email_type, "has updates")
     nimbus_send_slack_notification.delay(
         experiment_id=experiment.id,
         email_addresses=experiment.notification_emails,

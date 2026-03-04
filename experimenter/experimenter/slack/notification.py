@@ -4,8 +4,8 @@ from django.conf import settings
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert, NimbusExperiment
+from experimenter.slack.constants import SlackConstants
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def _lookup_users(client, emails):
             user_id = response["user"]["id"]
             user_ids.append(user_id)
         except SlackApiError as e:
-            msg = NimbusConstants.SLACK_LOG_COULD_NOT_FIND_USER.format(email=email)
+            msg = SlackConstants.SLACK_LOG_COULD_NOT_FIND_USER.format(email=email)
             logger.warning(f"{msg}: {e}")
             continue
     return user_ids
@@ -37,7 +37,7 @@ def _is_user_in_channel(client, user_id, channel):
         response = client.conversations_members(channel=channel)
         return user_id in response.get("members", [])
     except SlackApiError as e:
-        msg = NimbusConstants.SLACK_LOG_FAILED_CHECK_USER_IN_CHANNEL.format(
+        msg = SlackConstants.SLACK_LOG_FAILED_CHECK_USER_IN_CHANNEL.format(
             user_id=user_id, channel=channel
         )
         logger.warning(f"{msg}: {e}")
@@ -50,11 +50,11 @@ def _send_dm_to_user(client, user_id, message, channel_message_link=None):
         channel_id = conversation["channel"]["id"]
 
         # Add prefix message and channel message link if provided
-        dm_message = NimbusConstants.SLACK_DM_PREFIX.format(
+        dm_message = SlackConstants.SLACK_DM_PREFIX.format(
             channel=settings.SLACK_NIMBUS_CHANNEL, message=message
         )
         if channel_message_link:
-            link_suffix = NimbusConstants.SLACK_DM_CHANNEL_LINK_SUFFIX.format(
+            link_suffix = SlackConstants.SLACK_DM_CHANNEL_LINK_SUFFIX.format(
                 channel_message_link=channel_message_link
             )
             dm_message = f"{dm_message}{link_suffix}"
@@ -62,10 +62,10 @@ def _send_dm_to_user(client, user_id, message, channel_message_link=None):
         client.chat_postMessage(
             channel=channel_id, text=dm_message, unfurl_links=False, unfurl_media=False
         )
-        logger.info(NimbusConstants.SLACK_LOG_DM_SENT.format(user_id=user_id))
+        logger.info(SlackConstants.SLACK_LOG_DM_SENT.format(user_id=user_id))
     except SlackApiError as e:
         logger.warning(
-            f"{NimbusConstants.SLACK_LOG_FAILED_SEND_DM.format(user_id=user_id)}: {e}"
+            f"{SlackConstants.SLACK_LOG_FAILED_SEND_DM.format(user_id=user_id)}: {e}"
         )
 
 
@@ -77,7 +77,7 @@ def send_slack_notification(
 ):
     if not (client := _get_slack_client()):
         logger.info(
-            NimbusConstants.SLACK_LOG_NOT_CONFIGURED.format(operation="notification")
+            SlackConstants.SLACK_LOG_NOT_CONFIGURED.format(operation="notification")
         )
         return None
 
@@ -85,7 +85,7 @@ def send_slack_notification(
         experiment = NimbusExperiment.objects.get(id=experiment_id)
     except NimbusExperiment.DoesNotExist:
         logger.error(
-            NimbusConstants.SLACK_LOG_EXPERIMENT_NOT_FOUND.format(
+            SlackConstants.SLACK_LOG_EXPERIMENT_NOT_FOUND.format(
                 experiment_id=experiment_id
             )
         )
@@ -122,7 +122,7 @@ def send_slack_notification(
         message_ts = response["ts"]
         channel_id = response["channel"]
         logger.info(
-            NimbusConstants.SLACK_LOG_NOTIFICATION_SENT.format(experiment=experiment.name)
+            SlackConstants.SLACK_LOG_NOTIFICATION_SENT.format(experiment=experiment.name)
         )
 
         # Get the permalink to the channel message
@@ -133,14 +133,14 @@ def send_slack_notification(
             )
             channel_message_link = permalink_response["permalink"]
         except SlackApiError as e:
-            logger.warning(f"{NimbusConstants.SLACK_LOG_COULD_NOT_GET_PERMALINK}: {e}")
+            logger.warning(f"{SlackConstants.SLACK_LOG_COULD_NOT_GET_PERMALINK}: {e}")
 
         for user_id in all_user_ids:
             if not _is_user_in_channel(client, user_id, channel):
                 _send_dm_to_user(client, user_id, message, channel_message_link)
             else:
                 logger.info(
-                    NimbusConstants.SLACK_LOG_USER_IN_CHANNEL.format(
+                    SlackConstants.SLACK_LOG_USER_IN_CHANNEL.format(
                         user_id=user_id, channel=channel
                     )
                 )
@@ -148,7 +148,7 @@ def send_slack_notification(
         return (message_ts, channel_id)
 
     except SlackApiError as e:
-        msg = NimbusConstants.SLACK_LOG_FAILED_SEND_NOTIFICATION.format(
+        msg = SlackConstants.SLACK_LOG_FAILED_SEND_NOTIFICATION.format(
             experiment=experiment.name
         )
         logger.error(f"{msg}: {e}")
@@ -158,7 +158,7 @@ def send_slack_notification(
 def send_experiment_launch_success_message(experiment_id, thread_ts):
     if not (client := _get_slack_client()):
         logger.info(
-            NimbusConstants.SLACK_LOG_NOT_CONFIGURED.format(
+            SlackConstants.SLACK_LOG_NOT_CONFIGURED.format(
                 operation="launch success notification"
             )
         )
@@ -168,7 +168,7 @@ def send_experiment_launch_success_message(experiment_id, thread_ts):
         experiment = NimbusExperiment.objects.get(id=experiment_id)
     except NimbusExperiment.DoesNotExist:
         logger.error(
-            NimbusConstants.SLACK_LOG_EXPERIMENT_NOT_FOUND.format(
+            SlackConstants.SLACK_LOG_EXPERIMENT_NOT_FOUND.format(
                 experiment_id=experiment_id
             )
         )
@@ -176,7 +176,7 @@ def send_experiment_launch_success_message(experiment_id, thread_ts):
 
     channel = settings.SLACK_NIMBUS_CHANNEL
 
-    message = NimbusConstants.SLACK_LAUNCH_SUCCESS_MESSAGE.format(
+    message = SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE.format(
         name=experiment.name,
         url=experiment.experiment_url,
         slug=experiment.slug,
@@ -200,14 +200,14 @@ def send_experiment_launch_success_message(experiment_id, thread_ts):
         )
 
         logger.info(
-            NimbusConstants.SLACK_LOG_LAUNCH_SUCCESS_SENT.format(
+            SlackConstants.SLACK_LOG_LAUNCH_SUCCESS_SENT.format(
                 experiment=experiment.slug
             )
         )
         return True
 
     except SlackApiError as e:
-        msg = NimbusConstants.SLACK_LOG_FAILED_SEND_LAUNCH_SUCCESS.format(
+        msg = SlackConstants.SLACK_LOG_FAILED_SEND_LAUNCH_SUCCESS.format(
             experiment=experiment.slug
         )
         logger.error(f"{msg}: {e}")
@@ -217,7 +217,7 @@ def send_experiment_launch_success_message(experiment_id, thread_ts):
 def add_eyes_emoji_to_launch_message(experiment, alert_type):
     if not (client := _get_slack_client()):
         logger.info(
-            NimbusConstants.SLACK_LOG_NOT_CONFIGURED.format(
+            SlackConstants.SLACK_LOG_NOT_CONFIGURED.format(
                 operation="eyes emoji notification"
             )
         )
@@ -232,7 +232,7 @@ def add_eyes_emoji_to_launch_message(experiment, alert_type):
 
         if not alert or not alert.slack_thread_id:
             logger.info(
-                NimbusConstants.SLACK_LOG_NO_SLACK_THREAD.format(
+                SlackConstants.SLACK_LOG_NO_SLACK_THREAD.format(
                     experiment=experiment.slug
                 )
             )
@@ -242,9 +242,7 @@ def add_eyes_emoji_to_launch_message(experiment, alert_type):
         channel_id = alert.slack_channel_id
 
         if not channel_id:
-            logger.error(
-                NimbusConstants.SLACK_LOG_NO_CHANNEL_ID.format(alert_id=alert.id)
-            )
+            logger.error(SlackConstants.SLACK_LOG_NO_CHANNEL_ID.format(alert_id=alert.id))
             return False
 
         # Add eyes emoji reaction to the message
@@ -255,12 +253,12 @@ def add_eyes_emoji_to_launch_message(experiment, alert_type):
         )
 
         logger.info(
-            NimbusConstants.SLACK_LOG_EYES_EMOJI_ADDED.format(experiment=experiment.slug)
+            SlackConstants.SLACK_LOG_EYES_EMOJI_ADDED.format(experiment=experiment.slug)
         )
         return True
 
     except SlackApiError as e:
-        msg = NimbusConstants.SLACK_LOG_FAILED_ADD_EYES_EMOJI.format(
+        msg = SlackConstants.SLACK_LOG_FAILED_ADD_EYES_EMOJI.format(
             experiment=experiment.slug
         )
         logger.error(f"{msg}: {e}")
