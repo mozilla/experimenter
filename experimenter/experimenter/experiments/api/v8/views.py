@@ -54,7 +54,12 @@ class NimbusExperimentViewSet(
     lookup_field = "slug"
     queryset = (
         NimbusExperiment.objects.with_related()
-        .exclude(status__in=[NimbusExperiment.Status.DRAFT])
+        .exclude(
+            status__in=[
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.PREVIEW,
+            ]
+        )
         .order_by("slug")
     )
     serializer_class = NimbusExperimentSerializer
@@ -69,7 +74,12 @@ class NimbusExperimentDraftViewSet(NimbusExperimentViewSet):
 
     queryset = (
         NimbusExperiment.objects.with_related()
-        .filter(status=NimbusExperiment.Status.DRAFT)
+        .filter(
+            status__in=[
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.PREVIEW,
+            ]
+        )
         .order_by("slug")
     )
 
