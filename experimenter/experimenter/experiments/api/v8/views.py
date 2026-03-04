@@ -74,7 +74,12 @@ class NimbusExperimentDraftViewSet(NimbusExperimentViewSet):
 
     queryset = (
         NimbusExperiment.objects.with_related()
-        .filter(status=NimbusExperiment.Status.DRAFT)
+        .filter(
+            status__in=[
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.PREVIEW,
+            ]
+        )
         .order_by("slug")
     )
 
