@@ -184,8 +184,8 @@ class TestCheckResultsReady(TestCase):
             },
         )
 
-        expected_message = (
-            f"{AnalysisWindow.WEEKLY.label} analysis results are now available"
+        expected_message = NimbusConstants.SLACK_RESULTS_READY_MESSAGE.format(
+            window=AnalysisWindow.WEEKLY.label
         )
 
         with mock.patch(
@@ -218,8 +218,8 @@ class TestCheckResultsReady(TestCase):
             },
         )
 
-        expected_message = (
-            f"{AnalysisWindow.OVERALL.label} analysis results are now available"
+        expected_message = NimbusConstants.SLACK_RESULTS_READY_MESSAGE.format(
+            window=AnalysisWindow.OVERALL.label
         )
 
         with mock.patch(
@@ -288,7 +288,9 @@ class TestCheckResultsReady(TestCase):
             },
         )
 
-        message = f"{AnalysisWindow.WEEKLY.label} analysis results are now available"
+        message = NimbusConstants.SLACK_RESULTS_READY_MESSAGE.format(
+            window=AnalysisWindow.WEEKLY.label
+        )
 
         NimbusAlert.objects.create(
             experiment=experiment,
