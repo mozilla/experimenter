@@ -13,7 +13,7 @@ from nimbus.models.base_dataclass import (
 LOAD_DATA_RETRIES = 60
 LOAD_DATA_RETRY_DELAY = 1.0
 TARGETING_CONFIGS_PATH = (
-    Path(__file__).resolve().parents[2] / "fixtures" / "targeting_configs.json"
+    Path(__file__).resolve().parents[1] / "fixtures" / "targeting_configs.json"
 )
 
 
