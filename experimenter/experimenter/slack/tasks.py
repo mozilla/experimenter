@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert, NimbusExperiment
+from experimenter.slack.constants import SlackConstants
 from experimenter.slack.notification import send_slack_notification
 
 logger = logging.getLogger(__name__)
@@ -42,14 +43,19 @@ def nimbus_send_slack_notification(
             requesting_user_email=requesting_user_email,
         )
 
-        logger.info(f"Slack notification sent for experiment {experiment_id}")
+        logger.info(
+            SlackConstants.SLACK_LOG_NOTIFICATION_TASK_SENT.format(
+                experiment_id=experiment_id
+            )
+        )
         metrics.incr("send_slack_notification.completed")
         return result
     except Exception as e:
         metrics.incr("send_slack_notification.failed")
-        logger.error(
-            f"Sending Slack notification for experiment {experiment_id} failed: {e}"
+        msg = SlackConstants.SLACK_LOG_NOTIFICATION_TASK_FAILED.format(
+            experiment_id=experiment_id
         )
+        logger.error(f"{msg}: {e}")
         raise e
 
 
@@ -71,17 +77,21 @@ def check_experiment_alerts():
         experiments = live_experiments | recent_complete_experiments
 
         experiment_count = experiments.count()
-        logger.info(f"Checking {experiment_count} experiments for alerts")
+        logger.info(
+            SlackConstants.SLACK_LOG_CHECKING_ALERTS.format(count=experiment_count)
+        )
 
         for experiment in experiments:
             check_single_experiment_alerts.delay(experiment.id)
 
         metrics.incr("check_experiment_alerts.completed")
-        logger.info(f"Spawned {experiment_count} alert check tasks")
+        logger.info(
+            SlackConstants.SLACK_LOG_ALERTS_SPAWNED.format(count=experiment_count)
+        )
 
     except Exception as e:
         metrics.incr("check_experiment_alerts.failed")
-        logger.error(f"Error in check_experiment_alerts: {e}")
+        logger.error(f"{SlackConstants.SLACK_LOG_ERROR_CHECKING_ALERTS}: {e}")
         raise
 
 
@@ -95,7 +105,11 @@ def check_experiment_alerts():
 def check_single_experiment_alerts(experiment_id):
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.debug(f"Checking alerts for experiment: {experiment.slug}")
+        logger.debug(
+            SlackConstants.SLACK_LOG_CHECKING_EXPERIMENT.format(
+                experiment=experiment.slug
+            )
+        )
 
         # Check if results became available
         _check_results_ready(experiment)
@@ -104,9 +118,16 @@ def check_single_experiment_alerts(experiment_id):
         _check_analysis_errors(experiment)
 
     except NimbusExperiment.DoesNotExist:
-        logger.error(f"Experiment {experiment_id} not found")
+        logger.error(
+            SlackConstants.SLACK_LOG_EXPERIMENT_NOT_FOUND.format(
+                experiment_id=experiment_id
+            )
+        )
     except Exception as e:
-        logger.exception(f"Error checking alerts for experiment {experiment_id}: {e}")
+        msg = SlackConstants.SLACK_LOG_ERROR_CHECKING_EXPERIMENT.format(
+            experiment_id=experiment_id
+        )
+        logger.exception(f"{msg}: {e}")
         raise
 
 
@@ -126,7 +147,9 @@ def _check_results_ready(experiment):
 def _send_results_ready_alert(experiment, window, alert_type):
     try:
         email_addresses = [experiment.owner.email] if experiment.owner else []
-        message = f"{window.capitalize()} analysis results are now available"
+        message = SlackConstants.SLACK_RESULTS_READY_MESSAGE.format(
+            window=window.capitalize()
+        )
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
@@ -146,13 +169,18 @@ def _send_results_ready_alert(experiment, window, alert_type):
 
         NimbusAlert.objects.create(**alert_kwargs)
 
-        logger.info(f"Sent {window} results ready alert for experiment {experiment.slug}")
+        logger.info(
+            SlackConstants.SLACK_LOG_RESULTS_READY_SENT.format(
+                window=window, experiment=experiment.slug
+            )
+        )
         metrics.incr(f"results_ready_alert.{window}.sent")
 
     except Exception as e:
-        logger.error(
-            f"Failed to send {window} results alert for experiment {experiment.slug}: {e}"
+        msg = SlackConstants.SLACK_LOG_FAILED_SEND_RESULTS_ALERT.format(
+            window=window, experiment=experiment.slug
         )
+        logger.error(f"{msg}: {e}")
         metrics.incr(f"results_ready_alert.{window}.failed")
         raise
 
@@ -226,7 +254,9 @@ def _send_error_alert(experiment, error_items):
         error_lines = "\n".join(
             [f"- {item['source']}: {item['type']}" for item in error_items]
         )
-        message = f"Analysis errors detected:\n{error_lines}"
+        message = SlackConstants.SLACK_ANALYSIS_ERRORS_MESSAGE.format(
+            error_lines=error_lines
+        )
 
         result = send_slack_notification(
             experiment_id=experiment.id,
@@ -247,10 +277,17 @@ def _send_error_alert(experiment, error_items):
             defaults=alert_defaults,
         )
 
-        logger.info(f"Sent analysis error alert for {experiment.slug}")
+        logger.info(
+            SlackConstants.SLACK_LOG_ANALYSIS_ERROR_SENT.format(
+                experiment=experiment.slug
+            )
+        )
         metrics.incr("analysis_error_alert.sent")
 
     except Exception as e:
-        logger.error(f"Failed to send error alert for {experiment.slug}: {e}")
+        msg = SlackConstants.SLACK_LOG_FAILED_SEND_ERROR_ALERT.format(
+            experiment=experiment.slug
+        )
+        logger.error(f"{msg}: {e}")
         metrics.incr("analysis_error_alert.failed")
         raise

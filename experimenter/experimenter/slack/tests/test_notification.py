@@ -6,6 +6,7 @@ from slack_sdk.errors import SlackApiError
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.slack.constants import SlackConstants
 from experimenter.slack.notification import (
     add_eyes_emoji_to_launch_message,
     send_experiment_launch_success_message,
@@ -36,7 +37,7 @@ class TestSlackNotifications(TestCase):
         # User is not in channel, so DM should be sent
         mock_client.conversations_members.return_value = {"members": []}
 
-        action_text = NimbusConstants.SLACK_EMAIL_ACTIONS[
+        action_text = SlackConstants.SLACK_EMAIL_ACTIONS[
             NimbusExperiment.EmailType.EXPERIMENT_END
         ]
         result = send_slack_notification(
@@ -67,7 +68,7 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+            action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
         )
@@ -95,7 +96,7 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["nonexistent@example.com"],
-            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+            action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
         )
@@ -122,7 +123,7 @@ class TestSlackNotifications(TestCase):
             send_slack_notification(
                 experiment_id=self.experiment.id,
                 email_addresses=["test@example.com"],
-                action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+                action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                     NimbusExperiment.EmailType.EXPERIMENT_END
                 ],
             )
@@ -138,7 +139,7 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=999999,  # Non-existent ID
             email_addresses=["test@example.com"],
-            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+            action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
         )
@@ -171,8 +172,8 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text=NimbusConstants.SLACK_FORM_ACTIONS[
-                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+            action_text=SlackConstants.SLACK_FORM_ACTIONS[
+                SlackConstants.SLACK_ACTION_LAUNCH_REQUEST
             ],
             requesting_user_email="requester@example.com",
         )
@@ -189,9 +190,7 @@ class TestSlackNotifications(TestCase):
         # format: @user action: Experiment Name @mentions
         self.assertIn("<@U123456>", message)  # requesting user
         self.assertIn(
-            NimbusConstants.SLACK_FORM_ACTIONS[
-                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
-            ],
+            SlackConstants.SLACK_FORM_ACTIONS[SlackConstants.SLACK_ACTION_LAUNCH_REQUEST],
             message,
         )
         self.assertIn("<@U789012>", message)  # mentioned user
@@ -231,8 +230,8 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text=NimbusConstants.SLACK_FORM_ACTIONS[
-                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+            action_text=SlackConstants.SLACK_FORM_ACTIONS[
+                SlackConstants.SLACK_ACTION_LAUNCH_REQUEST
             ],
             requesting_user_email="nonexistent@example.com",
         )
@@ -272,8 +271,8 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=[requesting_email, "other@example.com"],
-            action_text=NimbusConstants.SLACK_FORM_ACTIONS[
-                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+            action_text=SlackConstants.SLACK_FORM_ACTIONS[
+                SlackConstants.SLACK_ACTION_LAUNCH_REQUEST
             ],
             requesting_user_email=requesting_email,
         )
@@ -293,9 +292,7 @@ class TestSlackNotifications(TestCase):
         self.assertIn("<@U123456>", message)
         self.assertIn("<@U789012>", message)
         self.assertIn(
-            NimbusConstants.SLACK_FORM_ACTIONS[
-                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
-            ],
+            SlackConstants.SLACK_FORM_ACTIONS[SlackConstants.SLACK_ACTION_LAUNCH_REQUEST],
             message,
         )
 
@@ -323,7 +320,7 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+            action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
         )
@@ -360,7 +357,7 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["", None, "test@example.com"],
-            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+            action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
         )
@@ -394,7 +391,7 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+            action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
         )
@@ -424,7 +421,7 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+            action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
         )
@@ -454,7 +451,7 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+            action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
         )
@@ -493,8 +490,8 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text=NimbusConstants.SLACK_FORM_ACTIONS[
-                NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+            action_text=SlackConstants.SLACK_FORM_ACTIONS[
+                SlackConstants.SLACK_ACTION_LAUNCH_REQUEST
             ],
             requesting_user_email="requester@example.com",
         )
@@ -529,7 +526,7 @@ class TestSlackNotifications(TestCase):
         send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text=NimbusConstants.SLACK_EMAIL_ACTIONS[
+            action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
         )
