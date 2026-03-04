@@ -224,6 +224,7 @@ class TestNimbusExperimentViewSet(
 
             if experiment.status not in [
                 NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.PREVIEW,
             ]:
                 expected_slugs.append(experiment.slug)
 
