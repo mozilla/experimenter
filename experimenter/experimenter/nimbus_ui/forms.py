@@ -37,6 +37,7 @@ from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.segments import Segments
+from experimenter.slack.constants import SlackConstants
 from experimenter.slack.notification import add_eyes_emoji_to_launch_message
 from experimenter.slack.tasks import nimbus_send_slack_notification
 from experimenter.targeting.constants import NimbusTargetingConfig
@@ -1338,11 +1339,11 @@ class SlackNotificationMixin:
         experiment = super().save(commit=commit)
         if self.slack_action:
             if experiment.enable_review_slack_notifications:
-                action_text = NimbusConstants.SLACK_FORM_ACTIONS[self.slack_action]
+                action_text = SlackConstants.SLACK_FORM_ACTIONS[self.slack_action]
 
                 if self.slack_action in (
-                    NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST,
-                    NimbusConstants.SLACK_ACTION_UPDATE_REQUEST,
+                    SlackConstants.SLACK_ACTION_LAUNCH_REQUEST,
+                    SlackConstants.SLACK_ACTION_UPDATE_REQUEST,
                 ):
                     # Call synchronously to get message timestamp and channel ID
                     result = nimbus_send_slack_notification(
@@ -1355,7 +1356,7 @@ class SlackNotificationMixin:
                         message_ts, channel_id = result
                         NimbusAlert.objects.create(
                             experiment=experiment,
-                            alert_type=NimbusConstants.SLACK_ACTION_TO_ALERT_TYPE[
+                            alert_type=SlackConstants.SLACK_ACTION_TO_ALERT_TYPE[
                                 self.slack_action
                             ],
                             message=action_text,
@@ -1486,7 +1487,7 @@ class DraftToReviewForm(SlackNotificationMixin, UpdateStatusForm):
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
 
-    slack_action = NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+    slack_action = SlackConstants.SLACK_ACTION_LAUNCH_REQUEST
 
     def get_changelog_message(self):
         return f"{self.request.user} requested launch without Preview"
@@ -1502,7 +1503,7 @@ class PreviewToReviewForm(SlackNotificationMixin, UpdateStatusForm):
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
 
-    slack_action = NimbusConstants.SLACK_ACTION_LAUNCH_REQUEST
+    slack_action = SlackConstants.SLACK_ACTION_LAUNCH_REQUEST
 
     def get_changelog_message(self):
         return f"{self.request.user} requested launch from Preview"
@@ -1594,7 +1595,7 @@ class LiveToEndEnrollmentForm(SlackNotificationMixin, UpdateStatusForm):
     publish_status = NimbusExperiment.PublishStatus.REVIEW
     is_paused = True
 
-    slack_action = NimbusConstants.SLACK_ACTION_END_ENROLLMENT_REQUEST
+    slack_action = SlackConstants.SLACK_ACTION_END_ENROLLMENT_REQUEST
 
     def clean(self):
         cleaned_data = super().clean()
@@ -1643,7 +1644,7 @@ class LiveToCompleteForm(SlackNotificationMixin, UpdateStatusForm):
     status_next = NimbusExperiment.Status.COMPLETE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
 
-    slack_action = NimbusConstants.SLACK_ACTION_END_EXPERIMENT_REQUEST
+    slack_action = SlackConstants.SLACK_ACTION_END_EXPERIMENT_REQUEST
 
     def get_changelog_message(self):
         return f"{self.request.user} requested review to end experiment"
@@ -1740,7 +1741,7 @@ class LiveToUpdateRolloutForm(SlackNotificationMixin, UpdateStatusForm):
     status_next = NimbusExperiment.Status.LIVE
     publish_status = NimbusExperiment.PublishStatus.REVIEW
 
-    slack_action = NimbusConstants.SLACK_ACTION_UPDATE_REQUEST
+    slack_action = SlackConstants.SLACK_ACTION_UPDATE_REQUEST
 
     def get_changelog_message(self):
         return f"{self.request.user} requested review to update Audience"
