@@ -601,6 +601,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def experiment_url(self):
         return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
 
+    @property
+    def results_url(self):
+        return urljoin(f"https://{settings.HOSTNAME}", self.get_results_url())
+
     def _get_targeting_min_version(self):
         expressions = []
 
