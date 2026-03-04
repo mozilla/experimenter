@@ -13,6 +13,7 @@ module.exports = {
     experiment_detail: "./js/experiment_detail.js",
     branch_detail: "./js/branch_detail.js",
     features_page: "./js/features_page.js",
+    results_data_actions: "./js/results_data_actions.js",
   },
   output: {
     filename: "[name].bundle.js",
