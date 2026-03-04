@@ -74,6 +74,7 @@ def send_slack_notification(
     email_addresses,
     action_text,
     requesting_user_email=None,
+    results_url=None,
 ):
     if not (client := _get_slack_client()):
         logger.info(
@@ -111,7 +112,9 @@ def send_slack_notification(
     if mentioned_user_ids:
         all_mentions.extend(f"<@{user_id}>" for user_id in mentioned_user_ids)
 
-    message = f"{action_text}: <{experiment.experiment_url}|{experiment.name}>"
+    # Use results_url if provided, otherwise use experiment_url
+    url = results_url if results_url else experiment.experiment_url
+    message = f"{action_text}: <{url}|{experiment.name}>"
     if all_mentions:
         message = f"{message} @ {' '.join(all_mentions)}"
 

@@ -154,6 +154,7 @@ def _send_results_ready_alert(experiment, window, alert_type):
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
+            results_url=experiment.results_url,
         )
 
         # Create alert record to prevent duplicates
@@ -262,6 +263,7 @@ def _send_error_alert(experiment, error_items):
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
+            results_url=experiment.results_url,
         )
 
         # Update or create alert record - keeps only one alert per experiment
