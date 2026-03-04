@@ -224,6 +224,7 @@ class TestNimbusExperimentViewSet(
 
             if experiment.status not in [
                 NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.PREVIEW,
             ]:
                 expected_slugs.append(experiment.slug)
 
@@ -264,7 +265,10 @@ class TestNimbusExperimentDraftViewSet(
                 slug=lifecycle.name,
             )
 
-            if experiment.status == NimbusExperiment.Status.DRAFT:
+            if experiment.status in [
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.PREVIEW,
+            ]:
                 draft_slugs.append(experiment.slug)
             else:
                 non_draft_slugs.append(experiment.slug)
@@ -286,7 +290,10 @@ class TestNimbusExperimentDraftViewSet(
                 slug=lifecycle.name,
             )
 
-            if experiment.status == NimbusExperiment.Status.DRAFT:
+            if experiment.status in [
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.PREVIEW,
+            ]:
                 expected_slugs.append(experiment.slug)
 
         response = self.client.get(reverse(self.LIST_VIEW))
