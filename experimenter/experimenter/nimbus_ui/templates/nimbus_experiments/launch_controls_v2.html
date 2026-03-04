@@ -48,7 +48,7 @@
     </form>
   {% endif %}
   {% if experiment.is_enrolling %}
-    <div class="card bg-info-subtle p-4 mb-0 rounded-4">
+    <div class="bg-info-subtle p-4 mb-0 rounded-4 border border-1 border-secondary-subtle">
       <div class="row align-items-stretch">
         <div class="col-5 py-4 mt-0">
           <h5>Enrollment in progress — don't forget to close it</h5>
@@ -125,7 +125,7 @@
       </div>
     </div>
   {% elif experiment.is_observation %}
-    <div class="card bg-primary-subtle p-4 mb-0 rounded-4">
+    <div class="bg-primary-subtle p-4 mb-0 rounded-4 border border-1 border-secondary-subtle">
       <div class="row align-items-center">
         <div class="col-5 py-4 mt-0">
           <h5>Observing — results still forming</h5>
@@ -169,8 +169,10 @@
         </div>
       </div>
       <div class="col">
-        <div class="card p-2 bg-body-secondary bg-opacity-50 py-5 px-4 rounded-4">
-          <h6>{{ experiment.days_since_observation_start }}/{{ experiment.computed_observations_days }} days monitored</h6>
+        <div class="p-2 bg-body-secondary bg-opacity-50 py-5 px-4 rounded-4 border border-1 border-secondary-subtle">
+          <h6>
+            {{ experiment.days_since_observation_start }}/{{ experiment.computed_observations_days }} expected days monitored
+          </h6>
           <div class="progress mb-2 bg-secondary-subtle"
                role="progressbar"
                aria-label="{{ experiment.name }} enrollment progress"
@@ -183,7 +185,7 @@
           </div>
           <div class="text-muted d-flex gap-2 align-items-center mb-1">
             <i class="fa-solid fa-chart-line"></i>
-            <small>Results become reliable after {{ experiment.computed_observations_days }} days</small>
+            <small>Results become reliable after experiment ends <span class="fst-italic">(expected on {{ experiment.proposed_end_date }})</span></small>
           </div>
           <div class="text-muted d-flex gap-2 align-items-center">
             {% comment %} TODO(gh-13723): check if there are any metric errors and show them here {% endcomment %}
