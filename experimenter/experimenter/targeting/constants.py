@@ -1767,6 +1767,48 @@ WINDOWS_10_BACKGROUND_TASK_2_TO_4_DAYS_LAPSED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_BACKGROUND_TASK_5_TO_7_DAYS_LAPSED = NimbusTargetingConfig(
+    name="Lapsed users background task notification, 5 to 7 days old",
+    slug="background_task_notification_5_to_7_days",
+    description=(
+        "Windows 10+ users with no activity in the past four days, "
+        "with profiles 5 to 7 days old, "
+        "who are running a background task, no enterprise"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            (currentDate|date - defaultProfile.profileAgeCreated|date) / 86400000 > 5 &&
+            (currentDate|date - defaultProfile.profileAgeCreated|date) / 86400000 < 7
+        )
+        &&
+        (
+            (
+                ((defaultProfile|keys)|length == 0)
+            )
+            ||
+            (
+                (currentDate|date - defaultProfile.currentDate|date) / 86400000 >= 4
+            )
+        )
+        &&
+        isBackgroundTaskMode
+        &&
+        !defaultProfile.hasActiveEnterprisePolicies
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_NEW_NON_DEFAULT_USER = NimbusTargetingConfig(
     name="New non-default user background task notification",
     slug="background_task_notification_new_non_default_user",
