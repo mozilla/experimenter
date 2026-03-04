@@ -1285,6 +1285,17 @@ NEW_USER_WITH_7_28_DAY_PROFILE_AGE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NEW_USER_WITH_7_DAY_PROFILE_AGE = NimbusTargetingConfig(
+    name="New user with 7 day profile age",
+    slug="new_user_with_7_day_profile_age",
+    description="Users with a profile that is at least 7 days old",
+    targeting=f"{PROFILEMORETHAN7DAYS}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEW_USER_WITH_INFREQUENT_USE = NimbusTargetingConfig(
     name="New user with infrequent use",
     slug="new_user_with_infrequent_use",
