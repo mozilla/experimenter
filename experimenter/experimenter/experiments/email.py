@@ -57,6 +57,7 @@ def nimbus_format_and_send_html_email(
         experiment_id=experiment.id,
         email_addresses=experiment.notification_emails,
         action_text=action_text,
+        link_url=experiment.experiment_url,
     )
 
     NimbusEmail.objects.create(experiment=experiment, type=email_type)

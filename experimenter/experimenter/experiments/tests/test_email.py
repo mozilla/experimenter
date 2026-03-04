@@ -57,6 +57,7 @@ class TestNimbusEmail(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
+            link_url=experiment.experiment_url,
         )
 
     @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
@@ -129,6 +130,7 @@ class TestNimbusEmail(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.ENROLLMENT_END
             ],
+            link_url=experiment.experiment_url,
         )
 
     @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")

@@ -1351,6 +1351,7 @@ class SlackNotificationMixin:
                         email_addresses=experiment.notification_emails,
                         action_text=action_text,
                         requesting_user_email=self.request.user.email,
+                        link_url=experiment.experiment_url,
                     )
                     if result:
                         message_ts, channel_id = result
@@ -1370,6 +1371,7 @@ class SlackNotificationMixin:
                         email_addresses=experiment.notification_emails,
                         action_text=action_text,
                         requesting_user_email=self.request.user.email,
+                        link_url=experiment.experiment_url,
                     )
         return experiment
 

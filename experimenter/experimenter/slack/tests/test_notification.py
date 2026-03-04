@@ -44,6 +44,7 @@ class TestSlackNotifications(TestCase):
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
             action_text=action_text,
+            link_url=self.experiment.experiment_url,
         )
 
         self.assertEqual(result, ("1234567890.123456", "C123456"))
@@ -71,6 +72,7 @@ class TestSlackNotifications(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
+            link_url=self.experiment.experiment_url,
         )
 
         mock_webclient.assert_not_called()
@@ -99,6 +101,7 @@ class TestSlackNotifications(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
+            link_url=self.experiment.experiment_url,
         )
 
         mock_client.chat_postMessage.assert_called_once()
@@ -126,6 +129,7 @@ class TestSlackNotifications(TestCase):
                 action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                     NimbusExperiment.EmailType.EXPERIMENT_END
                 ],
+                link_url=self.experiment.experiment_url,
             )
 
         mock_client.chat_postMessage.assert_called_once()
@@ -142,6 +146,7 @@ class TestSlackNotifications(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
+            link_url=self.experiment.experiment_url,
         )
 
         # Should not call Slack API when experiment doesn't exist
@@ -323,6 +328,7 @@ class TestSlackNotifications(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
+            link_url=self.experiment.experiment_url,
         )
 
         call_args = mock_client.chat_postMessage.call_args_list[0]
@@ -360,6 +366,7 @@ class TestSlackNotifications(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
+            link_url=self.experiment.experiment_url,
         )
 
         mock_client.users_lookupByEmail.assert_called_once_with(email="test@example.com")
@@ -394,6 +401,7 @@ class TestSlackNotifications(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
+            link_url=self.experiment.experiment_url,
         )
 
         # Should call chat_postMessage twice (channel + DM attempt)
@@ -424,6 +432,7 @@ class TestSlackNotifications(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
+            link_url=self.experiment.experiment_url,
         )
 
         # Should still send DM even if permalink fails
@@ -454,6 +463,7 @@ class TestSlackNotifications(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
+            link_url=self.experiment.experiment_url,
         )
 
         mock_client.users_lookupByEmail.assert_called_once_with(email="test@example.com")
@@ -529,6 +539,7 @@ class TestSlackNotifications(TestCase):
             action_text=SlackConstants.SLACK_EMAIL_ACTIONS[
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
+            link_url=self.experiment.experiment_url,
         )
 
         # Should be called once for channel message and once for DM
