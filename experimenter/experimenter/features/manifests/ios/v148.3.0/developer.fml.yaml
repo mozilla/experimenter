@@ -159,6 +159,11 @@ features:
           If true, enables the jump back in homepage section by default
         type: Boolean
         default: false
+      news-transition:
+        description: |
+          If true, enables the news transition for stories on the homepage
+        type: Boolean
+        default: false
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
@@ -889,7 +894,7 @@ features:
       enabled:
         description: If true the SnapKit removal refactor version will be used
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: |
       A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.

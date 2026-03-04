@@ -158,6 +158,10 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the jump back in homepage section by default
+    news-transition:
+      type: boolean
+      description: |
+        If true, enables the news transition for stories on the homepage
     search-bar:
       type: boolean
       description: |
