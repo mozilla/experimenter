@@ -26,6 +26,7 @@ def nimbus_send_slack_notification(
     email_addresses,
     action_text,
     requesting_user_email=None,
+    link_url=None,
 ):
     """
     An invoked task that sends a Slack notification for an experiment action.
@@ -41,6 +42,7 @@ def nimbus_send_slack_notification(
             email_addresses=email_addresses,
             action_text=action_text,
             requesting_user_email=requesting_user_email,
+            link_url=link_url,
         )
 
         logger.info(
@@ -154,7 +156,7 @@ def _send_results_ready_alert(experiment, window, alert_type):
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
-            results_url=experiment.results_url,
+            link_url=experiment.results_url,
         )
 
         # Create alert record to prevent duplicates
@@ -263,7 +265,7 @@ def _send_error_alert(experiment, error_items):
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
-            results_url=experiment.results_url,
+            link_url=experiment.results_url,
         )
 
         # Update or create alert record - keeps only one alert per experiment
