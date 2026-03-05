@@ -50,50 +50,7 @@ commands:
           name: Create Workspace
           command: |
             mkdir -p workspace/test-results
-            mkdir -p dashboard/test-results
 
-  upload-to-gcs:
-    parameters:
-      source:
-        type: string
-      destination:
-        type: string
-      extension:
-        type: enum
-        enum: ["xml", "json"]
-    steps:
-      - run:
-          name: Check branch and files
-          when: always
-          command: |
-            allowed_branches=("update_firefox_versions" "update-application-services")
-
-            for branch in "${allowed_branches[@]}"; do
-              if [[ "$CIRCLE_BRANCH" == "$branch" || "$CIRCLE_BRANCH" == gh-readonly-queue/$branch/* ]]; then
-                FILES=$(ls -1 << parameters.source >>/*.<< parameters.extension >> 2>/dev/null)
-                if [ -z "$FILES" ]; then
-                  echo "No << parameters.extension >> files found in << parameters.source >>/"
-                  circleci-agent step halt
-                fi
-                echo "Uploading..."
-                break
-              else
-                echo "Skipping artifact upload; not on an allowed or merge queue branch."
-                circleci-agent step halt
-              fi
-            done
-      - run:
-          name: Change gcloud folder permissions
-          command: sudo chown -R $USER /home/circleci/.config/gcloud/ || true
-      - gcp-cli/setup:
-          gcloud_service_key: ETE_GCLOUD_SERVICE_KEY
-          google_project_id: ETE_GOOGLE_PROJECT_ID
-      - run:
-          name: Upload << parameters.source >> << parameters.extension >> Files to GCS
-          when: always
-          command: |
-            FILES=$(ls -1 << parameters.source >>/*.<< parameters.extension >> 2>/dev/null)
-            gsutil cp -n $FILES << parameters.destination >>
   setup-github-bot:
     steps:
       - run:
@@ -134,36 +91,6 @@ jobs:
             cp .env.sample .env
             make check
 
-  check_experimenter_and_report:
-    machine:
-      image: ubuntu-2204:2024.11.1
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: ~/experimenter
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/|application-services/"
-      - create_test_result_workspace
-      - run:
-          name: Run coverage
-          no_output_timeout: 20m
-          command: |
-            cp .env.sample .env
-            make check_and_report || true
-      - store_test_results:
-          path: workspace/test-results/experimenter_tests.xml
-      - store_test_results:
-          path: workspace/test-results/junit.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
-          extension: json
-
   check_experimenter_aarch64:
     machine:
       image: ubuntu-2204:2024.11.1
@@ -190,21 +117,10 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "cirrus/|application-services/"
-      - create_test_result_workspace
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make cirrus_check_and_report
-      - store_test_results:
-          path: workspace/test-results/cirrus_pytest.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
-          extension: json
+            make cirrus_check
 
   check_cirrus_aarch64:
     machine:
@@ -216,21 +132,10 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "cirrus/|application-services/"
-      - create_test_result_workspace
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make cirrus_check_and_report
-      - store_test_results:
-          path: workspace/test-results/cirrus_pytest.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/coverage
-          extension: json
+            make cirrus_check
 
   check_local_feature_manifests:
     machine:
@@ -281,20 +186,13 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/|application-services/"
-      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-      - store_test_results:
-          path: workspace/test-results/experimenter_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
 
   integration_nimbus_remote_settings_launch:
     machine:
@@ -310,20 +208,13 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/|application-services/"
-      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-      - store_test_results:
-          path: workspace/test-results/experimenter_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
 
   integration_nimbus_remote_settings_all:
     parallelism: 3
@@ -340,7 +231,6 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/|application-services/"
-      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
@@ -351,15 +241,9 @@ jobs:
               1) export PYTEST_ARGS="$PYTEST_ARGS -m remote_settings_rollouts" ;;
               2) export PYTEST_ARGS="$PYTEST_ARGS -m remote_settings_live_updates" ;;
             esac
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-      - store_test_results:
-          path: workspace/test-results/experimenter_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
 
   integration_nimbus_desktop_enrollment:
     machine:
@@ -375,21 +259,14 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
-      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
           no_output_timeout: 30m
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-      - store_test_results:
-          path: workspace/test-results/experimenter_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
 
   integration_nimbus_desktop_release_targeting:
     machine:
@@ -406,20 +283,13 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
-      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-      - store_test_results:
-          path: workspace/test-results/experimenter_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
 
   integration_nimbus_desktop_beta_targeting:
     machine:
@@ -436,20 +306,13 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
-      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-      - store_test_results:
-          path: workspace/test-results/experimenter_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
@@ -465,20 +328,13 @@ jobs:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
-      - create_test_result_workspace
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS" integration_test_and_report
+            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-      - store_test_results:
-          path: workspace/test-results/experimenter_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
 
   integration_nimbus_fenix_enrollment:
     executor:
@@ -517,12 +373,6 @@ jobs:
           cache-prefix: v1a
       - store_artifacts:
           path: workspace/test-results/report.htm
-      - store_test_results:
-          path: workspace/test-results/experimenter_fenix_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
 
   integration_nimbus_ios_enrollment:
     macos:
@@ -585,12 +435,6 @@ jobs:
             poetry add pydantic==2.10.3
             poetry install
             poetry run pytest --junitxml=/Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml -k test_ios_integration.py --feature ios_enrollment
-            cp /Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml /Users/distiller/project/dashboard/test-results/${CIRCLE_BUILD_NUM}__$(date +"%s")__${CIRCLE_PROJECT_REPONAME}__build__integration__results.xml
-      - run:
-          name: Change python version for GCP CLI  # circleci/macos with xcode 16.2 has python 3.13 and gcp-cli doesn't support this yet.
-          command: |
-            pyenv install 3.12.5
-            pyenv global 3.12.5
       - run:
           name: Collect XCTest Results
           command: |
@@ -607,12 +451,6 @@ jobs:
           path: ~/project/xcodebuild.log
       - store_artifacts:
           path: ~/project/results.zip
-      - store_test_results:
-          path: /Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml
-      - upload-to-gcs:
-          source: dashboard/test-results
-          destination: gs://ecosystem-test-eng-metrics/experimenter/junit
-          extension: xml
 
   create_mobile_recipes:
     working_directory: ~/experimenter
@@ -931,14 +769,6 @@ workflows:
           name: Check Experimenter x86_64
       - check_experimenter_aarch64:
           name: Check Experimenter aarch64
-      - check_experimenter_and_report:
-          name: Check Experimenter and report
-          filters:
-            branches:
-              only:
-                - main
-                - update_firefox_versions
-                - update-application-services
       - check_cirrus_x86_64:
           name: Check Cirrus x86_64
       - check_cirrus_aarch64:
