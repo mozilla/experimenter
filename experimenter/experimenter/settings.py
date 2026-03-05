@@ -117,13 +117,15 @@ INSTALLED_APPS = [
 ]
 
 
+CSRF_MIDDLEWARE = "django.middleware.csrf.CsrfViewMiddleware"
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    CSRF_MIDDLEWARE,
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "dockerflow.django.middleware.DockerflowMiddleware",
@@ -131,6 +133,9 @@ MIDDLEWARE = [
     "experimenter.cirrus.middleware.CirrusMiddleware",
     "experimenter.glean.middleware.GleanMiddleware",
 ]
+
+if config("DISABLE_CSRF", default=False, cast=bool):  # pragma: no cover
+    MIDDLEWARE = [m for m in MIDDLEWARE if m != CSRF_MIDDLEWARE]
 
 ROOT_URLCONF = "experimenter.urls"
 

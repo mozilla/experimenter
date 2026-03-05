@@ -67,15 +67,11 @@ def test_check_telemetry_enrollment_unenrollment(
     telemetry_event_check,
     experiment_slug,
     experiment_url,
-    default_data_api,
     use_group_id,
 ):
-    data = default_data_api.copy()
-    data["useGroupId"] = use_group_id
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        data,
     )
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -115,30 +111,16 @@ def test_check_telemetry_enrollment_unenrollment(
 def test_check_telemetry_pref_flip(
     selenium,
     kinto_client,
-    default_data_api,
     telemetry_event_check,
     trigger_experiment_loader,
     experiment_slug,
     experiment_url,
 ):
     about_config = AboutConfig(selenium)
-    default_data_api["featureConfigIds"] = [9]
-    default_data_api["referenceBranch"] = {
-        "description": "reference branch",
-        "name": "Branch 1",
-        "ratio": 100,
-        "featureValues": [
-            {
-                "featureConfig": "9",
-                "value": '{"value": "test_string_automation"}',
-            },
-        ],
-    }
-    default_data_api["treatmentBranches"] = []
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        default_data_api,
+        {"feature_config_ids": [9]},
     )
     about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip(
@@ -186,7 +168,6 @@ def test_check_telemetry_pref_flip(
 def test_check_telemetry_sticky_targeting(
     selenium,
     kinto_client,
-    default_data_api,
     telemetry_event_check,
     trigger_experiment_loader,
     experiment_slug,
@@ -195,26 +176,10 @@ def test_check_telemetry_sticky_targeting(
     about_config = AboutConfig(selenium)
     pref_name = "sticky.targeting.test.pref"
 
-    targeting_config_slug = "no_targeting"
-    default_data_api["targetingConfigSlug"] = targeting_config_slug
-    default_data_api["referenceBranch"] = {
-        "description": "reference branch",
-        "name": "Branch 1",
-        "ratio": 100,
-        "featureValues": [
-            {
-                "featureConfig": "1",
-                "value": "{}",
-            },
-        ],
-    }
-    default_data_api["treatmentBranches"] = []
-    default_data_api["isSticky"] = True
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        default_data_api,
-        targeting=targeting_config_slug,
+        {"is_sticky": True},
     )
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
