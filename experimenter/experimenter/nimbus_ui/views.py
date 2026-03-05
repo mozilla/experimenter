@@ -816,6 +816,9 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
 
             # Prepare relative metric changes for UI rendering
             for metric_metadata in metadata:
+                if not metric_metadata.get("has_data"):
+                    continue
+
                 data = (
                     metric_data.get("data", {})
                     .get(displayed_window, {})
