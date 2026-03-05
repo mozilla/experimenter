@@ -8,9 +8,7 @@ from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.slack.constants import SlackConstants
 from experimenter.slack.notification import (
-    add_cancel_emoji_to_request,
     add_emoji_to_slack_message,
-    add_eyes_emoji_to_launch_message,
     send_experiment_launch_success_message,
     send_slack_notification,
 )
@@ -641,8 +639,8 @@ class TestSlackNotifications(TestCase):
             slack_channel_id="C123456",
         )
 
-        result = add_eyes_emoji_to_launch_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        result = add_emoji_to_slack_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
         )
 
         self.assertTrue(result)
@@ -659,8 +657,8 @@ class TestSlackNotifications(TestCase):
         mock_webclient.return_value = mock_client
 
         # Don't create any alert
-        result = add_eyes_emoji_to_launch_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        result = add_emoji_to_slack_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
         )
 
         self.assertFalse(result)
@@ -681,8 +679,8 @@ class TestSlackNotifications(TestCase):
             slack_thread_id=None,
         )
 
-        result = add_eyes_emoji_to_launch_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        result = add_emoji_to_slack_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
         )
 
         self.assertFalse(result)
@@ -704,8 +702,8 @@ class TestSlackNotifications(TestCase):
             slack_channel_id=None,
         )
 
-        result = add_eyes_emoji_to_launch_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        result = add_emoji_to_slack_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
         )
 
         self.assertFalse(result)
@@ -729,8 +727,8 @@ class TestSlackNotifications(TestCase):
             slack_channel_id="C123456",
         )
 
-        result = add_eyes_emoji_to_launch_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        result = add_emoji_to_slack_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
         )
 
         self.assertFalse(result)
@@ -751,8 +749,8 @@ class TestSlackNotifications(TestCase):
             slack_channel_id="C123456",
         )
 
-        result = add_cancel_emoji_to_request(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        result = add_emoji_to_slack_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "x"
         )
 
         self.assertTrue(result)
@@ -768,8 +766,8 @@ class TestSlackNotifications(TestCase):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
 
-        result = add_cancel_emoji_to_request(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        result = add_emoji_to_slack_message(
+            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "x"
         )
 
         self.assertFalse(result)

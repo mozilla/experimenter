@@ -266,11 +266,3 @@ def add_emoji_to_slack_message(experiment, alert_type, emoji_name):
         )
         logger.error(f"{msg}: {e}")
         return False
-
-
-def add_eyes_emoji_to_launch_message(experiment, alert_type):
-    return add_emoji_to_slack_message(experiment, alert_type, "eyes")
-
-
-def add_cancel_emoji_to_request(experiment, alert_type):
-    return add_emoji_to_slack_message(experiment, alert_type, "x")

@@ -38,10 +38,7 @@ from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.segments import Segments
 from experimenter.slack.constants import SlackConstants
-from experimenter.slack.notification import (
-    add_cancel_emoji_to_request,
-    add_eyes_emoji_to_launch_message,
-)
+from experimenter.slack.notification import add_emoji_to_slack_message
 from experimenter.slack.tasks import nimbus_send_slack_notification
 from experimenter.targeting.constants import NimbusTargetingConfig
 
@@ -1386,7 +1383,7 @@ class CancelRequestMixin:
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         if self.cancel_request_alert_type:
-            add_cancel_emoji_to_request(experiment, self.cancel_request_alert_type)
+            add_emoji_to_slack_message(experiment, self.cancel_request_alert_type, "x")
         return experiment
 
 
@@ -1594,8 +1591,8 @@ class ReviewToApproveForm(UpdateStatusForm):
             countdown=5, args=[experiment.kinto_collection]
         )
 
-        add_eyes_emoji_to_launch_message(
-            experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        add_emoji_to_slack_message(
+            experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
         )
 
         return experiment
@@ -1813,8 +1810,8 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
-        add_eyes_emoji_to_launch_message(
-            experiment, NimbusConstants.AlertType.UPDATE_REQUEST
+        add_emoji_to_slack_message(
+            experiment, NimbusConstants.AlertType.UPDATE_REQUEST, "eyes"
         )
         return experiment
 
