@@ -3337,13 +3337,14 @@ class TestResultsView(AuthTestCase):
             primary_outcomes=[desktop_outcome_1.slug],
             secondary_outcomes=[],
         )
-        branch_a = NimbusBranchFactory.create(
+        experiment.delete_branches()
+        experiment.reference_branch = NimbusBranchFactory.create(
             experiment=experiment, name="Branch A", slug="branch-a"
         )
-        branch_b = NimbusBranchFactory.create(
+        NimbusBranchFactory.create(
             experiment=experiment, name="Branch B", slug="branch-b"
         )
-        branch_c = NimbusBranchFactory.create(
+        NimbusBranchFactory.create(
             experiment=experiment, name="Branch C", slug="branch-c"
         )
 
@@ -3356,8 +3357,22 @@ class TestResultsView(AuthTestCase):
                                 "branch_data": {
                                     "other_metrics": {
                                         "urlbar_amazon_search_count": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "point": 100,
+                                                        "lower": 90,
+                                                        "upper": 110,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "point": 100,
+                                                    "lower": 90,
+                                                    "upper": 110,
+                                                },
+                                            },
                                             "relative_uplift": {
-                                                "branch-a": {"all": []},
+                                                "branch-a": {"first": {}},
                                                 "branch-b": {
                                                     "all": [
                                                         {
@@ -3365,7 +3380,12 @@ class TestResultsView(AuthTestCase):
                                                             "upper": 0.15,
                                                             "point": 0.02,
                                                         }
-                                                    ]
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.12,
+                                                        "upper": 0.15,
+                                                        "point": 0.02,
+                                                    },
                                                 },
                                                 "branch-c": {
                                                     "all": [
@@ -3374,7 +3394,12 @@ class TestResultsView(AuthTestCase):
                                                             "upper": 0.2,
                                                             "point": 0.03,
                                                         }
-                                                    ]
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.1,
+                                                        "upper": 0.2,
+                                                        "point": 0.03,
+                                                    },
                                                 },
                                             },
                                         }
@@ -3385,6 +3410,20 @@ class TestResultsView(AuthTestCase):
                                 "branch_data": {
                                     "other_metrics": {
                                         "urlbar_amazon_search_count": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "point": 100,
+                                                        "lower": 80,
+                                                        "upper": 120,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "point": 100,
+                                                    "lower": 80,
+                                                    "upper": 120,
+                                                },
+                                            },
                                             "relative_uplift": {
                                                 "branch-a": {
                                                     "all": [
@@ -3393,9 +3432,14 @@ class TestResultsView(AuthTestCase):
                                                             "upper": 2,
                                                             "point": 1.5,
                                                         }
-                                                    ]
+                                                    ],
+                                                    "first": {
+                                                        "lower": 1,
+                                                        "upper": 2,
+                                                        "point": 1.5,
+                                                    },
                                                 },
-                                                "branch-b": {"all": []},
+                                                "branch-b": {"first": {}},
                                                 "branch-c": {
                                                     "all": [
                                                         {
@@ -3403,9 +3447,14 @@ class TestResultsView(AuthTestCase):
                                                             "upper": 0.45,
                                                             "point": 0.1,
                                                         }
-                                                    ]
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.25,
+                                                        "upper": 0.45,
+                                                        "point": 0.1,
+                                                    },
                                                 },
-                                            }
+                                            },
                                         }
                                     }
                                 }
@@ -3414,6 +3463,20 @@ class TestResultsView(AuthTestCase):
                                 "branch_data": {
                                     "other_metrics": {
                                         "urlbar_amazon_search_count": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "point": 100,
+                                                        "lower": 80,
+                                                        "upper": 120,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "point": 100,
+                                                    "lower": 80,
+                                                    "upper": 120,
+                                                },
+                                            },
                                             "relative_uplift": {
                                                 "branch-a": {
                                                     "all": [
@@ -3422,7 +3485,12 @@ class TestResultsView(AuthTestCase):
                                                             "upper": 20,
                                                             "point": 15,
                                                         }
-                                                    ]
+                                                    ],
+                                                    "first": {
+                                                        "lower": 10,
+                                                        "upper": 20,
+                                                        "point": 15,
+                                                    },
                                                 },
                                                 "branch-b": {
                                                     "all": [
@@ -3431,9 +3499,14 @@ class TestResultsView(AuthTestCase):
                                                             "upper": 0.45,
                                                             "point": 0.1,
                                                         }
-                                                    ]
+                                                    ],
+                                                    "first": {
+                                                        "lower": -0.25,
+                                                        "upper": 0.45,
+                                                        "point": 0.1,
+                                                    },
                                                 },
-                                                "branch-c": {"all": []},
+                                                "branch-c": {"all": [], "first": {}},
                                             },
                                         }
                                     }
@@ -3445,9 +3518,6 @@ class TestResultsView(AuthTestCase):
             }
         }
 
-        branch_a.save()
-        branch_b.save()
-        branch_c.save()
         experiment.save()
 
         response = self.client.get(

@@ -31,7 +31,8 @@ class TestExperimentResultsManager(TestCase):
             primary_outcomes=[self.desktop_outcome_1.slug],
             secondary_outcomes=[],
         )
-        NimbusBranchFactory.create(
+        self.experiment.delete_branches()
+        self.experiment.reference_branch = NimbusBranchFactory.create(
             experiment=self.experiment, name="Branch A", slug="branch-a"
         )
         NimbusBranchFactory.create(
@@ -920,6 +921,102 @@ class TestExperimentResultsManager(TestCase):
                         "custom_metric": "Custom Metric Name",
                     }
                 },
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 1.19,
+                                                    "upper": 1.74,
+                                                    "point": 1.62,
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "branch-a": {"all": [], "first": {}},
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.1,
+                                                            "upper": 0.42,
+                                                            "point": 0.2,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    },
+                                                },
+                                            },
+                                            "significance": {
+                                                "branch-a": {"overall": {}},
+                                                "branch-b": {
+                                                    "overall": {"1": "negative"}
+                                                },
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 1.19,
+                                                    "upper": 1.74,
+                                                    "point": 1.62,
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.1,
+                                                            "upper": 0.42,
+                                                            "point": 0.2,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    },
+                                                },
+                                                "branch-b": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "branch-a": {
+                                                    "overall": {"1": "positive"}
+                                                },
+                                                "branch-b": {"overall": {}},
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                },
             }
         }
         self.experiment.save()
@@ -927,7 +1024,13 @@ class TestExperimentResultsManager(TestCase):
         MetricAreas.clear_cache()
         metric_areas = self.results_manager.get_metric_areas(
             "enrollments", "all", "branch-a"
-        ).keys()
+        )
+
+        self.assertIn("Notable Changes", metric_areas)
+        self.assertIn(
+            "retained",
+            [metric["slug"] for metric in metric_areas["Notable Changes"]],
+        )
 
         self.assertIn("KPI Metrics", metric_areas)
         self.assertIn("Engagement", metric_areas)
@@ -968,7 +1071,7 @@ class TestExperimentResultsManager(TestCase):
 
         result = self.results_manager.get_branch_data("enrollments", "all")
 
-        self.assertEqual(len(result), 4)
+        self.assertEqual(len(result), 2)
 
         index_map = {item.get("slug"): i for i, item in enumerate(result)}
         first = result[index_map.get("branch-a")]
@@ -2053,6 +2156,31 @@ class TestExperimentResultsManager(TestCase):
                         "overall": {
                             "enrollments": {
                                 "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 140,
+                                                            "upper": 160,
+                                                            "point": 150,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"first": {}},
+                                                        "branch-b": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
                                     "branch-b": {
                                         "branch_data": {
                                             "other_metrics": {
@@ -2063,6 +2191,16 @@ class TestExperimentResultsManager(TestCase):
                                                             "upper": 160,
                                                             "point": 150,
                                                         },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                        "branch-b": {"first": {}},
                                                     },
                                                 }
                                             }
@@ -2082,6 +2220,25 @@ class TestExperimentResultsManager(TestCase):
                         "overall": {
                             "enrollments": {
                                 "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 0,
+                                                            "upper": 0,
+                                                            "point": 0,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"first": {}},
+                                                        "branch-b": {"first": {}},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
                                     "branch-b": {
                                         "branch_data": {
                                             "other_metrics": {
@@ -2092,6 +2249,10 @@ class TestExperimentResultsManager(TestCase):
                                                             "upper": 0,
                                                             "point": 0,
                                                         },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"first": {}},
+                                                        "branch-b": {"first": {}},
                                                     },
                                                 }
                                             }
@@ -2115,6 +2276,7 @@ class TestExperimentResultsManager(TestCase):
                                         "branch_data": {
                                             "other_metrics": {
                                                 "client_level_daily_active_users_v2": {
+                                                    "absolute": {"first": {}},
                                                     "relative_uplift": {
                                                         "branch-a": {"first": {}},
                                                         "branch-b": {
@@ -2133,6 +2295,7 @@ class TestExperimentResultsManager(TestCase):
                                         "branch_data": {
                                             "other_metrics": {
                                                 "client_level_daily_active_users_v2": {
+                                                    "absolute": {"first": {}},
                                                     "relative_uplift": {
                                                         "branch-a": {
                                                             "first": {
@@ -2165,6 +2328,7 @@ class TestExperimentResultsManager(TestCase):
                                         "branch_data": {
                                             "other_metrics": {
                                                 "client_level_daily_active_users_v2": {
+                                                    "absolute": {"first": {}},
                                                     "relative_uplift": {
                                                         "branch-a": {"all": []},
                                                         "branch-b": {
@@ -2183,6 +2347,7 @@ class TestExperimentResultsManager(TestCase):
                                         "branch_data": {
                                             "other_metrics": {
                                                 "client_level_daily_active_users_v2": {
+                                                    "absolute": {"first": {}},
                                                     "relative_uplift": {
                                                         "branch-a": {
                                                             "first": {
@@ -2192,6 +2357,64 @@ class TestExperimentResultsManager(TestCase):
                                                             }
                                                         },
                                                         "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                False,
+            ),
+            (
+                "urlbar_amazon_search_count",
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "window_index": "1",
+                                                            }
+                                                        ],
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                        "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "client_level_daily_active_users_v2": {
+                                                    "relative_uplift": {
+                                                        "absolute": {
+                                                            "all": [
+                                                                {
+                                                                    "window_index": "1",
+                                                                }
+                                                            ],
+                                                        },
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                        "branch-b": {"first": {}},
                                                     },
                                                 }
                                             }
@@ -2239,6 +2462,31 @@ class TestExperimentResultsManager(TestCase):
                         "weekly": {
                             "enrollments": {
                                 "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 140,
+                                                            "upper": 160,
+                                                            "point": 150,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {},
+                                                        "branch-b": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
                                     "branch-b": {
                                         "branch_data": {
                                             "other_metrics": {
@@ -2249,6 +2497,16 @@ class TestExperimentResultsManager(TestCase):
                                                             "upper": 160,
                                                             "point": 150,
                                                         },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                        "branch-b": {},
                                                     },
                                                 }
                                             }
@@ -2269,6 +2527,31 @@ class TestExperimentResultsManager(TestCase):
                         "daily": {
                             "enrollments": {
                                 "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 0.5,
+                                                            "upper": 1.5,
+                                                            "point": 1.0,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {},
+                                                        "branch-b": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
                                     "branch-b": {
                                         "branch_data": {
                                             "other_metrics": {
@@ -2279,6 +2562,16 @@ class TestExperimentResultsManager(TestCase):
                                                             "upper": 1.5,
                                                             "point": 1.0,
                                                         },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                        "branch-b": {},
                                                     },
                                                 }
                                             }
