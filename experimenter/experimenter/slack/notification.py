@@ -215,11 +215,11 @@ def send_experiment_launch_success_message(experiment_id, thread_ts):
         return False
 
 
-def add_eyes_emoji_to_launch_message(experiment, alert_type):
+def add_emoji_to_slack_message(experiment, alert_type, emoji_name):
     if not (client := _get_slack_client()):
         logger.info(
             SlackConstants.SLACK_LOG_NOT_CONFIGURED.format(
-                operation="eyes emoji notification"
+                operation=f"{emoji_name} emoji notification"
             )
         )
         return False
@@ -229,7 +229,7 @@ def add_eyes_emoji_to_launch_message(experiment, alert_type):
             experiment=experiment,
             alert_type=alert_type,
             slack_thread_id__isnull=False,
-        ).first()
+        ).last()
 
         if not alert or not alert.slack_thread_id:
             logger.info(
@@ -246,21 +246,31 @@ def add_eyes_emoji_to_launch_message(experiment, alert_type):
             logger.error(SlackConstants.SLACK_LOG_NO_CHANNEL_ID.format(alert_id=alert.id))
             return False
 
-        # Add eyes emoji reaction to the message
+        # Add emoji reaction to the message
         client.reactions_add(
             channel=channel_id,
-            name="eyes",
+            name=emoji_name,
             timestamp=thread_ts,
         )
 
         logger.info(
-            SlackConstants.SLACK_LOG_EYES_EMOJI_ADDED.format(experiment=experiment.slug)
+            SlackConstants.SLACK_LOG_EMOJI_ADDED.format(
+                emoji_name=emoji_name, experiment=experiment.slug
+            )
         )
         return True
 
     except SlackApiError as e:
-        msg = SlackConstants.SLACK_LOG_FAILED_ADD_EYES_EMOJI.format(
-            experiment=experiment.slug
+        msg = SlackConstants.SLACK_LOG_FAILED_ADD_EMOJI.format(
+            emoji_name=emoji_name, experiment=experiment.slug
         )
         logger.error(f"{msg}: {e}")
         return False
+
+
+def add_eyes_emoji_to_launch_message(experiment, alert_type):
+    return add_emoji_to_slack_message(experiment, alert_type, "eyes")
+
+
+def add_cancel_emoji_to_request(experiment, alert_type):
+    return add_emoji_to_slack_message(experiment, alert_type, "x")

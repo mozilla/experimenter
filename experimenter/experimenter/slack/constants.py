@@ -68,6 +68,10 @@ class SlackConstants:
     SLACK_LOG_FAILED_ADD_EYES_EMOJI = (
         "Failed to add eyes emoji to launch message for {experiment}"
     )
+    SLACK_LOG_EMOJI_ADDED = "Added {emoji_name} emoji to message for {experiment}"
+    SLACK_LOG_FAILED_ADD_EMOJI = (
+        "Failed to add {emoji_name} emoji to message for {experiment}"
+    )
 
     # Slack task log messages
     SLACK_LOG_CHECKING_ALERTS = "Checking {count} experiments for alerts"
