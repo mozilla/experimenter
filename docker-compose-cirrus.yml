@@ -19,7 +19,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3002:3002'
-    restart: always
     depends_on:
       - cirrus
     environment:
@@ -31,7 +30,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - '8080:3000'
-    restart: always
     depends_on:
       - demo-app-server
     environment:
