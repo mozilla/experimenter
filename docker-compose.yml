@@ -79,7 +79,6 @@ services:
       - "443:443"
 
   db:
-    restart: always
     image: postgres:14.8
     environment:
       POSTGRES_PASSWORD: postgres
