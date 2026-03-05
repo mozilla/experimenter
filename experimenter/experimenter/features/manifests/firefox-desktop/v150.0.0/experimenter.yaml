@@ -2241,6 +2241,18 @@ selectTranslation:
         branch: user
         pref: browser.translations.select.enable
 
+translationsQuickAction:
+  description: This feature enables the translations quick action in the URL bar.
+  owner: enordin@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: Set to true to enable the translations quick action feature.
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.translations.quickAction.enabled
+
 pdfjs:
   description: The Firefox pdf reader.
   owner: pdfjs-team@mozilla.com
