@@ -1,5 +1,7 @@
 import yaml
+from django.db.models import F
 from rest_framework.generics import ListAPIView, UpdateAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import BaseRenderer
 from rest_framework_csv.renderers import CSVRenderer
 
@@ -57,12 +59,23 @@ class NimbusExperimentYamlRenderer(BaseRenderer):
         return obj
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
-        if not data:
-            return ""
-        cleaned = [self._strip_empty(exp) for exp in data]
+        experiments = [self._strip_empty(exp) for exp in data["results"]]
+        output = {
+            **{k: v for k, v in data.items() if k != "results"},
+            "experiments": experiments,
+        }
         return yaml.dump(
-            cleaned, default_flow_style=False, allow_unicode=True, sort_keys=False
+            output,
+            default_flow_style=False,
+            allow_unicode=True,
+            sort_keys=False,
         )
+
+
+class YamlExportPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = None
+    max_page_size = 100
 
 
 class NimbusExperimentYamlListView(CachedListMixin, ListAPIView):
@@ -84,20 +97,11 @@ class NimbusExperimentYamlListView(CachedListMixin, ListAPIView):
             "excluded_experiments",
         )
         .filter(is_archived=False, status=NimbusExperiment.Status.COMPLETE)
+        .order_by(F("_start_date").desc(nulls_last=True), "-id")
     )
     serializer_class = NimbusExperimentYamlSerializer
     renderer_classes = (NimbusExperimentYamlRenderer,)
-    pagination_class = None
-
-    def get_queryset(self):
-        return sorted(
-            super().get_queryset(),
-            key=lambda experiment: (
-                (experiment.start_date and experiment.start_date.strftime("%Y-%m-%d"))
-                or ""
-            ),
-            reverse=True,
-        )
+    pagination_class = YamlExportPagination
 
 
 class FmlErrorsView(UpdateAPIView):

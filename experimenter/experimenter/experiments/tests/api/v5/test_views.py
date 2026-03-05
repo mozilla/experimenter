@@ -128,22 +128,30 @@ class TestNimbusExperimentYamlListView(TestCase):
         super().setUp()
         cache.clear()
 
-    def _get_yaml(self):
+    def _get_yaml_response(self, page=None):
+        url = reverse("nimbus-experiments-yaml")
+        if page is not None:
+            url = f"{url}?page={page}"
         response = self.client.get(
-            reverse("nimbus-experiments-yaml"),
+            url,
             **{settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "text/yaml; charset=utf-8")
         return yaml.safe_load(response.content.decode("utf-8"))
 
+    def _get_yaml(self, page=None):
+        parsed = self._get_yaml_response(page=page)
+        if isinstance(parsed, dict) and "experiments" in parsed:
+            return parsed["experiments"]
+        return parsed
+
     def test_returns_empty_for_no_complete_experiments(self):
-        response = self.client.get(
-            reverse("nimbus-experiments-yaml"),
-            **{settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode("utf-8"), "")
+        parsed = self._get_yaml_response()
+        self.assertEqual(parsed["count"], 0)
+        self.assertEqual(parsed["experiments"], [])
+        self.assertIsNone(parsed["next"])
+        self.assertIsNone(parsed["previous"])
 
     def test_sorted_by_start_date_descending(self):
         application = NimbusExperiment.Application.DESKTOP
@@ -374,6 +382,66 @@ class TestNimbusExperimentYamlListView(TestCase):
         data = self._get_yaml()
         exp = next(e for e in data if e["slug"] == experiment.slug)
         self.assertNotIn("targeting", exp)
+
+    def test_pagination_returns_metadata(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=application,
+            feature_configs=[feature_config],
+        )
+
+        parsed = self._get_yaml_response()
+        self.assertEqual(parsed["count"], 1)
+        self.assertIsNone(parsed["next"])
+        self.assertIsNone(parsed["previous"])
+        self.assertEqual(len(parsed["experiments"]), 1)
+
+    @override_settings(
+        CACHES={
+            "default": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            }
+        }
+    )
+    def test_pagination_multiple_pages(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        # Create 3 experiments; use page_size=2 via override
+        for i in range(3):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+                start_date=datetime.date(2020 + i, 1, 1),
+                application=application,
+                feature_configs=[feature_config],
+            )
+
+        with self.settings(YAML_EXPORT_PAGE_SIZE=2):
+            from experimenter.experiments.api.v5.views import YamlExportPagination
+
+            original_page_size = YamlExportPagination.page_size
+            YamlExportPagination.page_size = 2
+            try:
+                cache.clear()
+                page1 = self._get_yaml_response(page=1)
+                self.assertEqual(page1["count"], 3)
+                self.assertEqual(len(page1["experiments"]), 2)
+                self.assertIsNotNone(page1["next"])
+                self.assertIsNone(page1["previous"])
+
+                page2 = self._get_yaml_response(page=2)
+                self.assertEqual(page2["count"], 3)
+                self.assertEqual(len(page2["experiments"]), 1)
+                self.assertIsNone(page2["next"])
+                self.assertIsNotNone(page2["previous"])
+
+                # Ensure no overlap between pages
+                page1_slugs = {e["slug"] for e in page1["experiments"]}
+                page2_slugs = {e["slug"] for e in page2["experiments"]}
+                self.assertEqual(len(page1_slugs & page2_slugs), 0)
+            finally:
+                YamlExportPagination.page_size = original_page_size
 
 
 class TestFmlErrorsView(MockFmlErrorMixin, TestCase):

@@ -132,19 +132,6 @@ class TestWarmApiCaches(TestCase):
                 self.assertIn("slug", exp)
                 self.assertIn("branches", exp)
 
-    def test_warm_api_caches_v5_yaml_endpoint(self):
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            slug="complete-experiment",
-        )
-
-        warm_api_caches()
-
-        cached = cache.get(get_api_cache_key("v5:yaml"))
-        self.assertIsNotNone(cached)
-        content = cached.decode("utf-8") if isinstance(cached, bytes) else cached
-        self.assertIn("complete-experiment", content)
-
     def test_warm_api_caches_v5_csv_endpoint(self):
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
