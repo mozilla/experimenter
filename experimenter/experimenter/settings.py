@@ -132,6 +132,11 @@ MIDDLEWARE = [
     "experimenter.glean.middleware.GleanMiddleware",
 ]
 
+if config("DISABLE_CSRF", default=False, cast=bool):  # pragma: no cover
+    MIDDLEWARE = [
+        m for m in MIDDLEWARE if m != "django.middleware.csrf.CsrfViewMiddleware"
+    ]
+
 ROOT_URLCONF = "experimenter.urls"
 
 TEMPLATES = [

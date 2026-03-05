@@ -60,6 +60,7 @@ LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countrie
 LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
 LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
+GENERATE_TARGETING_CONFIGS = python manage.py generate_targeting_configs
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_tags
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
@@ -226,7 +227,7 @@ bash: build_dev cirrus_build
 refresh: kill build_dev cirrus_build compose_build refresh_db  ## Rebuild all containers and the database
 
 refresh_db:  # Rebuild the database
-	$(COMPOSE_RUN) -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
+	$(COMPOSE_RUN) -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(GENERATE_TARGETING_CONFIGS)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 dependabot_approve:
 	echo "Install and configure the Github CLI https://github.com/cli/cli"
