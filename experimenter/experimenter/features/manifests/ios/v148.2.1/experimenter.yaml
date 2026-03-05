@@ -23,16 +23,6 @@ ads-client:
     status:
       type: boolean
       description: If true, we will enable the rust ads client
-ai-kill-switch-feature:
-  description: |
-    Configuration feature for AI features
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not this feature is enabled
 app-icon-selection-feature:
   description: |
     Controls which app icons users can select as their default app icon from the App Icon Selection screen in Settings.
@@ -168,10 +158,6 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the jump back in homepage section by default
-    news-transition:
-      type: boolean
-      description: |
-        If true, enables the news transition for stories on the homepage
     search-bar:
       type: boolean
       description: |
@@ -291,16 +277,6 @@ native-error-page-feature:
       type: boolean
       description: |
         This feature is for managing the roll out of other native error pages
-needs-reload-refactor:
-  description: |
-    This is a technical refactor which cleans up the reloading of the webview
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not this refactor is enabled
 onboarding-framework-feature:
   description: |
     The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.

@@ -23,6 +23,16 @@ ads-client:
     status:
       type: boolean
       description: If true, we will enable the rust ads client
+ai-kill-switch-feature:
+  description: |
+    Configuration feature for AI features
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 app-icon-selection-feature:
   description: |
     Controls which app icons users can select as their default app icon from the App Icon Selection screen in Settings.

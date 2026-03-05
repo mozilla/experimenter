@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- beta
+- developer
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -10,7 +10,7 @@ features:
       status:
         description: If true, we will allow user to edit the address
         type: Boolean
-        default: false
+        default: true
   address-bar-menu-feature:
     description: |
       This property determines if we show the new address bar menu entry or the toolbar menu in settings
@@ -25,16 +25,7 @@ features:
       status:
         description: If true, we will enable the rust ads client
         type: Boolean
-        default: false
-  ai-kill-switch-feature:
-    description: |
-      Configuration feature for AI features
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
-        type: Boolean
-        default: false
+        default: true
   app-icon-selection-feature:
     description: |
       Controls which app icons users can select as their default app icon from the App Icon Selection screen in Settings.
@@ -117,7 +108,7 @@ features:
         description: |
           Enables the feature.
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -133,7 +124,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -166,11 +157,6 @@ features:
       jbi-section-default:
         description: |
           If true, enables the jump back in homepage section by default
-        type: Boolean
-        default: false
-      news-transition:
-        description: |
-          If true, enables the news transition for stories on the homepage
         type: Boolean
         default: false
       search-bar:
@@ -301,6 +287,16 @@ features:
               - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+          survey-surface-message:
+            surface: survey
+            style: SURVEY
+            trigger-if-all:
+            - NEVER
+            text: ResearchSurface/Body.Text.v112
+            button-label: ResearchSurface/PrimaryButton.Label.v112
+            action: OPEN_URL
+            action-params:
+              url: https://www.macrumors.com
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -383,7 +379,7 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
@@ -392,24 +388,15 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
       no_internet_connection_error:
         description: |
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
-        default: false
+        default: true
       other-error-pages:
         description: |
           This feature is for managing the roll out of other native error pages
-        type: Boolean
-        default: false
-  needs-reload-refactor:
-    description: |
-      This is a technical refactor which cleans up the reloading of the webview
-    variables:
-      enabled:
-        description: |
-          Whether or not this refactor is enabled
         type: Boolean
         default: false
   onboarding-framework-feature:
@@ -881,7 +868,7 @@ features:
         description: |
           Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.
         type: Boolean
-        default: false
+        default: true
       isTreatmentA:
         description: |
           If true, shares the treatment A text. If false, shares the treatment B text.
@@ -907,19 +894,19 @@ features:
         description: |
           The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
         type: Int
-        default: 0
+        default: 6000
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
         type: Boolean
-        default: false
+        default: true
       icon-type:
         description: |
           The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
         type: Option<IconType>
-        default: letter
+        default: screenshot
       keep-for-days:
         description: |
           Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
@@ -987,7 +974,7 @@ features:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
         type: Boolean
-        default: false
+        default: true
   toolbar-refactor-feature:
     description: |
       This feature is for managing the roll out of the Toolbar refactor feature
