@@ -150,6 +150,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     KPI_AREA = "KPI Metrics"
     OTHER_METRICS_AREA = "Other Metrics"
     NOTABLE_METRIC_AREA = "Notable Changes"
+    NOTABLE_CHANGES_PRESENT_TEXT = (
+        "All statistically significant changes that have occurred in the experiment"
+    )
+    NOTABLE_CHANGES_ABSENT_TEXT = "There are no notable changes in this experiment"
     FEATURE_PAGE_LINKS = {
         "feature_learn_more_url": "https://experimenter.info/getting-started/for-experiment-owners",
         "deliveries_table_tooltip": """This shows all Nimbus experiments, rollouts, Labs
