@@ -38,15 +38,6 @@ def _get_warm_cache_endpoints():
             },
         ),
         (
-            "v5:yaml",
-            v5_views.NimbusExperimentYamlListView.queryset,
-            v5_ser.NimbusExperimentYamlSerializer,
-            {
-                "renderer": v5_views.NimbusExperimentYamlRenderer(),
-                "sort_key": _start_date_sort_key,
-            },
-        ),
-        (
             "v6:experiments",
             v6_views.NimbusExperimentViewSet.queryset,
             v6_ser.NimbusExperimentSerializer,
