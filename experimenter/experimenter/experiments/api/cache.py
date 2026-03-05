@@ -29,8 +29,6 @@ def warm_api_cache(key_prefix, queryset, serializer_class, renderer=None, sort_k
         qs = sorted(qs, key=sort_key, reverse=True)
     data = serializer_class(qs, many=True).data
     rendered = renderer.render(data)
-    if isinstance(rendered, str):
-        rendered = rendered.encode("utf-8")
     cache_key = get_api_cache_key(key_prefix)
     cache.set(cache_key, rendered, timeout=settings.API_CACHE_WARMING_TTL)
     logger.info("Warmed cache for %s (%d bytes)", key_prefix, len(rendered))
