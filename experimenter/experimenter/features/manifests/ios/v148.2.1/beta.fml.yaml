@@ -26,15 +26,6 @@ features:
         description: If true, we will enable the rust ads client
         type: Boolean
         default: false
-  ai-kill-switch-feature:
-    description: |
-      Configuration feature for AI features
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
-        type: Boolean
-        default: false
   app-icon-selection-feature:
     description: |
       Controls which app icons users can select as their default app icon from the App Icon Selection screen in Settings.
@@ -166,11 +157,6 @@ features:
       jbi-section-default:
         description: |
           If true, enables the jump back in homepage section by default
-        type: Boolean
-        default: false
-      news-transition:
-        description: |
-          If true, enables the news transition for stories on the homepage
         type: Boolean
         default: false
       search-bar:
@@ -401,15 +387,6 @@ features:
       other-error-pages:
         description: |
           This feature is for managing the roll out of other native error pages
-        type: Boolean
-        default: false
-  needs-reload-refactor:
-    description: |
-      This is a technical refactor which cleans up the reloading of the webview
-    variables:
-      enabled:
-        description: |
-          Whether or not this refactor is enabled
         type: Boolean
         default: false
   onboarding-framework-feature:
