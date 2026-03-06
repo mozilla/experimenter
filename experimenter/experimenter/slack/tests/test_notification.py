@@ -800,3 +800,25 @@ class TestSlackNotifications(TestCase):
         self.assertEqual(call_args.kwargs["channel"], "C123456")
         self.assertEqual(call_args.kwargs["name"], "tada")
         self.assertEqual(call_args.kwargs["timestamp"], "1234567890.123456")
+
+    @override_settings(SLACK_AUTH_TOKEN=None)
+    def test_add_emoji_to_slack_message_not_configured(self):
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Test launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
+
+        with patch("experimenter.slack.notification.logger") as mock_logger:
+            result = add_emoji_to_slack_message(
+                self.experiment,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+                "eyes",
+            )
+
+            self.assertFalse(result)
+            mock_logger.info.assert_called_once()
+            call_args = mock_logger.info.call_args[0][0]
+            self.assertIn("not configured", call_args)

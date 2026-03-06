@@ -38,8 +38,10 @@ from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.segments import Segments
 from experimenter.slack.constants import SlackConstants
-from experimenter.slack.notification import add_emoji_to_slack_message
-from experimenter.slack.tasks import nimbus_send_slack_notification
+from experimenter.slack.tasks import (
+    add_emoji_to_message_async,
+    nimbus_send_slack_notification,
+)
 from experimenter.targeting.constants import NimbusTargetingConfig
 
 metrics = markus.get_metrics("experimenter.nimbus_ui_forms")
@@ -1383,7 +1385,9 @@ class CancelRequestMixin:
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         if self.cancel_request_alert_type:
-            add_emoji_to_slack_message(experiment, self.cancel_request_alert_type, "x")
+            add_emoji_to_message_async.delay(
+                experiment.id, self.cancel_request_alert_type, "x"
+            )
         return experiment
 
 
@@ -1591,8 +1595,8 @@ class ReviewToApproveForm(UpdateStatusForm):
             countdown=5, args=[experiment.kinto_collection]
         )
 
-        add_emoji_to_slack_message(
-            experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
+        add_emoji_to_message_async.delay(
+            experiment.id, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
         )
 
         return experiment
@@ -1810,8 +1814,8 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
-        add_emoji_to_slack_message(
-            experiment, NimbusConstants.AlertType.UPDATE_REQUEST, "eyes"
+        add_emoji_to_message_async.delay(
+            experiment.id, NimbusConstants.AlertType.UPDATE_REQUEST, "eyes"
         )
         return experiment
 

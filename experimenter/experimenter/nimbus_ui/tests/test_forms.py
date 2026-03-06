@@ -105,6 +105,15 @@ class SlackNotificationMockMixin:
         self.addCleanup(self.mock_slack_task.stop)
 
 
+class SlackEmojiMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_emoji_task = patch(
+            "experimenter.slack.tasks.add_emoji_to_message_async.delay"
+        ).start()
+        self.addCleanup(self.mock_emoji_task.stop)
+
+
 class KintoPushQueueMockMixin:
     def setUp(self):
         super().setUp()
@@ -1238,7 +1247,7 @@ class TestPreviewToDraftForm(KintoPreviewMockMixin, RequestFormTestCase):
         )
 
 
-class TestReviewToDraftForm(RequestFormTestCase):
+class TestReviewToDraftForm(SlackEmojiMockMixin, RequestFormTestCase):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
@@ -1267,6 +1276,9 @@ class TestReviewToDraftForm(RequestFormTestCase):
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn(
             "rejected the review with reason: Needs further updates.", changelog.message
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id, NimbusConstants.AlertType.LAUNCH_REQUEST, "x"
         )
 
     @parameterized.expand(
@@ -1335,6 +1347,7 @@ class TestReviewToDraftForm(RequestFormTestCase):
 class TestReviewToApproveForm(
     KintoPushQueueMockMixin,
     AllocateBucketRangeMockMixin,
+    SlackEmojiMockMixin,
     MetricsMockMixin,
     RequestFormTestCase,
 ):
@@ -1363,6 +1376,9 @@ class TestReviewToApproveForm(
             countdown=5, args=[experiment.kinto_collection]
         )
         self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
+        )
 
     @parameterized.expand(
         [
@@ -2127,7 +2143,7 @@ class TestLiveToUpdateRolloutForm(SlackNotificationMockMixin, RequestFormTestCas
         self.assertEqual(alert.slack_channel_id, "C123456")
 
 
-class TestCancelUpdateRolloutForm(RequestFormTestCase):
+class TestCancelUpdateRolloutForm(SlackEmojiMockMixin, RequestFormTestCase):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -2154,6 +2170,9 @@ class TestCancelUpdateRolloutForm(RequestFormTestCase):
         self.assertIn(
             "rejected the update review with reason: Audience update not valid.",
             changelog.message,
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id, NimbusConstants.AlertType.UPDATE_REQUEST, "x"
         )
 
     @parameterized.expand(
@@ -2219,6 +2238,7 @@ class TestApproveUpdateRolloutForm(
     KintoPushQueueMockMixin,
     KintoPreviewMockMixin,
     AllocateBucketRangeMockMixin,
+    SlackEmojiMockMixin,
     RequestFormTestCase,
 ):
     def test_valid_transition(self):
@@ -2250,6 +2270,9 @@ class TestApproveUpdateRolloutForm(
         )
         self.mock_preview_task.assert_called_once_with(countdown=5)
         self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id, NimbusConstants.AlertType.UPDATE_REQUEST, "eyes"
+        )
 
     @parameterized.expand(
         [

@@ -95,3 +95,6 @@ class SlackConstants:
     SLACK_LOG_NOTIFICATION_TASK_FAILED = (
         "Sending Slack notification for experiment {experiment_id} failed"
     )
+    SLACK_LOG_ERROR_ADDING_EMOJI = (
+        "Error adding {emoji_name} emoji to message for experiment {experiment_id}"
+    )
