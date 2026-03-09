@@ -12,7 +12,7 @@ export const getThemeExtensions = () => (isDarkMode() ? [oneDark] : []);
 const viewRegistry = new Set();
 
 export const registerView = (view) => {
-  viewRegistry.add(view);
+  viewRegistry.add(new WeakRef(view));
 };
 
 export const updateViewTheme = (view) => {
@@ -22,7 +22,22 @@ export const updateViewTheme = (view) => {
 };
 
 export const updateAllViewThemes = () => {
-  viewRegistry.forEach(updateViewTheme);
+  const toRemove = [];
+
+  for (const ref of viewRegistry) {
+    const view = ref.deref();
+
+    if (typeof view === "undefined") {
+      toRemove.push(ref);
+      continue;
+    }
+
+    updateViewTheme(view);
+  }
+
+  for (const ref of toRemove) {
+    viewRegistry.delete(ref);
+  }
 };
 
 export const observeThemeChanges = (callback) => {
