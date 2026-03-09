@@ -979,6 +979,94 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertIsNone(waiting_experiment.computed_end_date)
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
+    def test_check_waiting_pausing_experiment_with_rs_record_not_paused_resets_is_paused(
+        self, feature_slug, target_collection, alternate_collection
+    ):
+        """When a pause publish fails and RS record has isEnrollmentPaused=false,
+        is_paused syncs to False. Uses published_dto=None so
+        handle_updating_experiments skips the experiment (it checks
+        published_dto first) and handle_waiting_experiments catches it."""
+        feature_config = create_desktop_feature(feature_slug)
+        waiting_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_dto=None,
+            feature_configs=[feature_config],
+        )
+        self.assertTrue(waiting_experiment.is_paused)
+
+        # RS record exists but isEnrollmentPaused is false (pause never landed)
+        self.mock_kinto_client.get_records.return_value = [
+            {
+                "id": waiting_experiment.slug,
+                "last_modified": "0",
+                "isEnrollmentPaused": False,
+            }
+        ]
+        self.setup_kinto_no_pending_review()
+
+        self._assert_check_collection_unchanged(alternate_collection)
+        self._assert_experiment_status_unchanged(waiting_experiment)
+
+        self._assert_check_collection_unchanged(target_collection)
+        self._assert_experiment_status_changed(
+            waiting_experiment,
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.LIVE,
+            old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+            new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            filter_kwargs={
+                "changed_by__email": settings.KINTO_DEFAULT_CHANGELOG_USER,
+                "message": NimbusChangeLog.Messages.REJECTED_FROM_KINTO,
+            },
+        )
+        self.assertIsNone(waiting_experiment.status_next)
+        self.assertFalse(waiting_experiment.is_paused)
+
+    @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
+    def test_check_waiting_ending_experiment_with_rs_record_paused_preserves_is_paused(
+        self, feature_slug, target_collection, alternate_collection
+    ):
+        """When an end-experiment publish fails but RS record has
+        isEnrollmentPaused=true, is_paused syncs to True (preserving
+        the previously published pause)."""
+        feature_config = create_desktop_feature(feature_slug)
+        waiting_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        self.assertTrue(waiting_experiment.is_paused)
+
+        # RS record still has isEnrollmentPaused=true from a previous pause
+        self.mock_kinto_client.get_records.return_value = [
+            {
+                "id": waiting_experiment.slug,
+                "last_modified": "0",
+                "isEnrollmentPaused": True,
+            }
+        ]
+        self.setup_kinto_no_pending_review()
+
+        self._assert_check_collection_unchanged(alternate_collection)
+        self._assert_experiment_status_unchanged(waiting_experiment)
+
+        self._assert_check_collection_unchanged(target_collection)
+        self._assert_experiment_status_changed(
+            waiting_experiment,
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.LIVE,
+            old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+            new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            filter_kwargs={
+                "changed_by__email": settings.KINTO_DEFAULT_CHANGELOG_USER,
+                "message": NimbusChangeLog.Messages.REJECTED_FROM_KINTO,
+            },
+        )
+        self.assertIsNone(waiting_experiment.status_next)
+        self.assertTrue(waiting_experiment.is_paused)
+
+    @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_launching_experiment_live_when_record_is_in_main(
         self, feature_slug, target_collection, alternate_collection
     ):
