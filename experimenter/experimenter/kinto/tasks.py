@@ -91,7 +91,7 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
     handle_launching_experiments(applications, records, collection)
     handle_updating_experiments(applications, records, collection)
     handle_ending_experiments(applications, records, collection)
-    handle_waiting_experiments(applications, collection)
+    handle_waiting_experiments(applications, records, collection)
 
     if queued_launch_experiment := next(
         NimbusExperiment.objects.launch_queue(applications, collection), None
@@ -290,13 +290,17 @@ def handle_ending_experiments(applications, records, collection):
             logger.info(f"{experiment.slug} ended")
 
 
-def handle_waiting_experiments(applications, collection):
+def handle_waiting_experiments(applications, records, collection):
     for experiment in NimbusExperiment.objects.waiting(applications, collection):
         with transaction.atomic():
             experiment.status_next = None
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
             if experiment.status == experiment.Status.DRAFT:
                 experiment.published_date = None
+
+            kinto_record = records.get(experiment.slug, {})
+            experiment.is_paused = kinto_record.get("isEnrollmentPaused", False)
+
             experiment.save()
 
             generate_nimbus_changelog(
