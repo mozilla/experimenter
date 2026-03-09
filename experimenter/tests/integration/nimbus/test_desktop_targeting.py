@@ -51,13 +51,13 @@ def test_check_advanced_targeting(
 @pytest.mark.parametrize(
     "audience_field",
     [
-        {"channel": "NIGHTLY"},
-        {"firefox_min_version": "FIREFOX_100"},
-        {"firefox_max_version": "FIREFOX_120"},
+        {"channel": "nightly"},
+        {"firefox_min_version": "100.!"},
+        {"firefox_max_version": "120.!"},
         {"locales": [37]},
         {"countries": [42]},
-        {"proposedEnrollment": "14"},
-        {"proposedDuration": "30"},
+        {"proposed_enrollment": "14"},
+        {"proposed_duration": "30"},
     ],
     ids=[
         "channel",

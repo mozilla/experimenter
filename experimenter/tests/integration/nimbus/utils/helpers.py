@@ -137,6 +137,8 @@ def _build_branches_form_data(
         data[f"{prefix}-id"] = branch_id
         for field in ("name", "description", "slug"):
             data[f"{prefix}-{field}"] = _parse_field_value(html, f"{prefix}-{field}")
+        if not data[f"{prefix}-description"]:
+            data[f"{prefix}-description"] = data[f"{prefix}-name"]
         data[f"{prefix}-ratio"] = "1"
 
         if form_idx_str == "0" and reference_branch:
@@ -182,7 +184,8 @@ def _coerce_form_values(data):
     form_data = {}
     for key, val in data.items():
         if isinstance(val, bool):
-            form_data[key] = "True" if val else "False"
+            if val:
+                form_data[key] = "on"
         elif isinstance(val, list):
             form_data[key] = val
         else:
@@ -251,17 +254,20 @@ def create_basic_experiment(name, app, targeting=None, languages=None, is_rollou
             f"Failed to extract slug from create response: {resp.text[:500]}"
         )
 
-    resp = _get_page(f"/nimbus/{slug}/update_overview/")
     _post_form(
         f"/nimbus/{slug}/update_overview/",
         {
-            "name": _parse_field_value(resp.text, "name"),
+            "name": name,
             "public_description": "Integration test experiment",
             "risk_brand": "False",
             "risk_message": "False",
             "risk_revenue": "False",
             "risk_partner_related": "False",
             "risk_ai": "False",
+            "documentation_links-TOTAL_FORMS": "0",
+            "documentation_links-INITIAL_FORMS": "0",
+            "documentation_links-MIN_NUM_FORMS": "0",
+            "documentation_links-MAX_NUM_FORMS": "1000",
         },
     )
 
@@ -269,12 +275,12 @@ def create_basic_experiment(name, app, targeting=None, languages=None, is_rollou
         "targeting_config_slug": targeting,
         "population_percent": "100",
         "total_enrolled_clients": "55",
-        "firefox_min_version": "FIREFOX_120",
+        "firefox_min_version": "120.!",
     }
     if "desktop" in app:
-        audience["channels"] = ["NIGHTLY", "BETA", "RELEASE"]
+        audience["channels"] = ["nightly", "beta", "release"]
     else:
-        audience["channel"] = "RELEASE"
+        audience["channel"] = "release"
     _post_form(f"/nimbus/{slug}/update_audience/", audience)
 
     branch_data = _build_branches_form_data(
@@ -296,6 +302,10 @@ def update_experiment(slug, data):
 
     resp = _get_page(f"/nimbus/{slug}/update_overview/")
     form_data["name"] = _parse_field_value(resp.text, "name")
+    form_data["documentation_links-TOTAL_FORMS"] = "0"
+    form_data["documentation_links-INITIAL_FORMS"] = "0"
+    form_data["documentation_links-MIN_NUM_FORMS"] = "0"
+    form_data["documentation_links-MAX_NUM_FORMS"] = "1000"
     _post_form(f"/nimbus/{slug}/update_overview/", form_data)
 
     branch_data = _build_branches_form_data(
