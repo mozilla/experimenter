@@ -336,20 +336,20 @@ features:
         type: Map<OnboardingCardKey, OnboardingCardData>
         default:
           terms-of-service:
-            body: onboarding_terms_of_service_sub_header_2
+            body: ''
             card-type: terms-of-service
             disqualifiers:
             - NEVER
             enabled: true
             extra-data:
               term-of-service-data:
+                subheader-one-text: nova_onboarding_tou_subtitle
                 line-one-text: nova_onboarding_tou_body_line_1
                 line-one-link-text: nova_onboarding_tou_body_line_1_link_text
                 line-two-text: nova_onboarding_tou_body_line_2
                 line-two-link-text: nova_onboarding_tou_body_line_2_link_text
                 line-three-text: nova_onboarding_tou_body_line_3
                 line-three-link-text: nova_onboarding_tou_body_line_3_link_text
-                subheader-one-text: nova_onboarding_tou_subtitle
             image-res: nova_onboarding_tou
             ordering: 1
             prerequisites:
@@ -379,7 +379,7 @@ features:
             enabled: true
             extra-data: null
             image-res: nova_onboarding_widget
-            ordering: 15
+            ordering: 20
             prerequisites:
             - ALWAYS
             primary-button-label: nova_onboarding_add_search_widget_button
@@ -393,7 +393,7 @@ features:
             enabled: true
             extra-data: null
             image-res: nova_onboarding_sync
-            ordering: 20
+            ordering: 30
             prerequisites:
             - ALWAYS
             primary-button-label: nova_onboarding_sync_button
@@ -407,38 +407,14 @@ features:
             enabled: true
             extra-data: null
             image-res: nova_onboarding_notifications
-            ordering: 30
+            ordering: 40
             prerequisites:
             - ALWAYS
             primary-button-label: nova_onboarding_notifications_button
             secondary-button-label: nova_onboarding_negative_button
             title: nova_onboarding_notifications_title
-          theme-selection:
-            body: onboarding_customize_theme_description
-            card-type: theme-selection
-            disqualifiers:
-            - NEVER
-            enabled: false
-            extra-data:
-              customization-theme-data:
-              - theme-type: theme-system
-                label: onboarding_customize_theme_system_option
-                image-res: ic_pick_a_theme_system_auto
-              - theme-type: theme-light
-                label: onboarding_customize_theme_light_option
-                image-res: ic_pick_a_theme_light
-              - theme-type: theme-dark
-                label: onboarding_customize_theme_dark_option
-                image-res: ic_pick_a_theme_dark
-            image-res: ic_pick_a_theme
-            ordering: 33
-            prerequisites:
-            - ALWAYS
-            primary-button-label: onboarding_save_and_continue_button
-            secondary-button-label: ''
-            title: onboarding_customize_theme_title
           toolbar-placement:
-            body: onboarding_customize_toolbar_description
+            body: ''
             card-type: toolbar-placement
             disqualifiers:
             - NEVER
@@ -449,15 +425,15 @@ features:
                 label: nova_onboarding_toolbar_selection_top_label
               - toolbar-type: toolbar-bottom
                 label: nova_onboarding_toolbar_selection_bottom_label
-            image-res: ic_onboarding_customize_toolbar
-            ordering: 37
+            image-res: ic_onboarding_welcome
+            ordering: 50
             prerequisites:
             - ALWAYS
             primary-button-label: nova_onboarding_continue_button
             secondary-button-label: ''
             title: nova_onboarding_toolbar_selection_title
           marketing:
-            body: onboarding_marketing_body
+            body: ''
             card-type: marketing-data
             disqualifiers:
             - NEVER
@@ -466,9 +442,8 @@ features:
               marketing-data:
                 body-line-one-text: nova_onboarding_marketing_body
                 body-line-one-link-text: nova_onboarding_marketing_body_link_text
-                body-line-two-text: onboarding_marketing_opt_out_checkbox
             image-res: nova_onboarding_marketing
-            ordering: 40
+            ordering: 60
             prerequisites:
             - ALWAYS
             primary-button-label: nova_onboarding_continue_button
@@ -729,7 +704,7 @@ features:
       enabled:
         description: If true, Mozilla Ads Client is enabled.
         type: Boolean
-        default: false
+        default: true
   native-share-sheet:
     description: Feature to enable the Native Share Sheet for users on Firefox on Android.
     variables:
@@ -863,17 +838,6 @@ features:
           Whether or not to enable private browsing mode lock.
         type: Boolean
         default: true
-  re-engagement-notification:
-    description: A feature that shows the re-engagement notification if the user is inactive.
-    variables:
-      enabled:
-        description: If true, the re-engagement notification is shown to the inactive user.
-        type: Boolean
-        default: false
-      type:
-        description: The type of re-engagement notification that is shown to the inactive user.
-        type: Int
-        default: 0
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
