@@ -14,6 +14,9 @@ import {
 import { setupReadonlyJsonEditors } from "./codemirror_utils.js";
 import $ from "jquery";
 
+const BRANCHES_FORM_ID = "branches-form";
+const CONTENT_WITH_SIDEBAR_ID = "content-with-sidebar";
+
 const setupCodemirror = (selector, textarea, extraExtensions) => {
   if (!textarea) {
     console.warn(`No textarea found for selector: ${selector}`);
@@ -107,7 +110,7 @@ const setupCodeMirrorLocalizations = () => {
 };
 
 const setupSchemaToggleButtons = () => {
-  const form = document.getElementById("branches-form");
+  const form = document.getElementById(BRANCHES_FORM_ID);
   if (!form || form.dataset.schemaToggleSetup) return;
   form.dataset.schemaToggleSetup = "true";
 
@@ -141,7 +144,10 @@ $(() => {
   observeThemeChanges(updateAllViewThemes);
 
   document.body.addEventListener("htmx:afterSwap", function (event) {
-    if (event.detail.target.id === "branches-form") {
+    if (
+      event.detail.target.id === BRANCHES_FORM_ID ||
+      event.detail.target.id === CONTENT_WITH_SIDEBAR_ID
+    ) {
       initializeAllEditors();
     }
   });
