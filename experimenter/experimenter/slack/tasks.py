@@ -8,7 +8,10 @@ from django.utils import timezone
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.slack.constants import SlackConstants
-from experimenter.slack.notification import send_slack_notification
+from experimenter.slack.notification import (
+    add_emoji_to_slack_message,
+    send_slack_notification,
+)
 
 logger = logging.getLogger(__name__)
 metrics = markus.get_metrics("slack.tasks")
@@ -294,4 +297,28 @@ def _send_error_alert(experiment, error_items):
         )
         logger.error(f"{msg}: {e}")
         metrics.incr("analysis_error_alert.failed")
+        raise
+
+
+@shared_task(
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 3},
+    retry_jitter=True,
+)
+def add_emoji_to_message_async(experiment_id, alert_type, emoji_name):
+    try:
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        add_emoji_to_slack_message(experiment, alert_type, emoji_name)
+    except NimbusExperiment.DoesNotExist:
+        logger.error(
+            SlackConstants.SLACK_LOG_EXPERIMENT_NOT_FOUND.format(
+                experiment_id=experiment_id
+            )
+        )
+    except Exception as e:
+        msg = SlackConstants.SLACK_LOG_ERROR_ADDING_EMOJI.format(
+            emoji_name=emoji_name, experiment_id=experiment_id
+        )
+        logger.error(f"{msg}: {e}")
         raise

@@ -800,3 +800,50 @@ class TestCheckAnalysisErrors(TestCase):
             ).count(),
             0,
         )
+
+
+class TestAddEmojiToMessageAsync(TestCase):
+    @mock.patch("experimenter.slack.tasks.add_emoji_to_slack_message")
+    def test_add_emoji_to_message_async_success(self, mock_add_emoji):
+        experiment = NimbusExperimentFactory.create()
+        alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
+        emoji_name = SlackConstants.EmojiReaction.APPROVE
+
+        tasks.add_emoji_to_message_async(experiment.id, alert_type, emoji_name)
+
+        mock_add_emoji.assert_called_once_with(experiment, alert_type, emoji_name)
+
+    @mock.patch("experimenter.slack.tasks.add_emoji_to_slack_message")
+    @mock.patch("experimenter.slack.tasks.logger")
+    def test_add_emoji_to_message_async_experiment_not_found(
+        self, mock_logger, mock_add_emoji
+    ):
+        non_existent_id = 99999
+        alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
+        emoji_name = SlackConstants.EmojiReaction.CANCEL
+
+        tasks.add_emoji_to_message_async(non_existent_id, alert_type, emoji_name)
+
+        mock_add_emoji.assert_not_called()
+        mock_logger.error.assert_called_once()
+        self.assertIn(
+            str(non_existent_id),
+            mock_logger.error.call_args[0][0],
+        )
+
+    @mock.patch("experimenter.slack.tasks.add_emoji_to_slack_message")
+    @mock.patch("experimenter.slack.tasks.logger")
+    def test_add_emoji_to_message_async_exception_raised(
+        self, mock_logger, mock_add_emoji
+    ):
+        experiment = NimbusExperimentFactory.create()
+        alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
+        emoji_name = SlackConstants.EmojiReaction.APPROVE
+
+        mock_add_emoji.side_effect = Exception("Test error")
+
+        with self.assertRaises(Exception):
+            tasks.add_emoji_to_message_async(experiment.id, alert_type, emoji_name)
+
+        mock_logger.error.assert_called_once()
+        self.assertIn("Error adding", mock_logger.error.call_args[0][0])
