@@ -25,18 +25,11 @@
             <div class="col">
               <p class="fw-bold text-center">Branches</p>
               {% for branch in branch_data %}
-                <div class="p-3 mb-3 d-flex justify-content-center text-start text-center"
+                <div class="p-3 mb-3 d-flex flex-column justify-content-center text-start text-center align-items-center"
                      style="height: 75px">
-                  <div class="d-flex flex-column align-items-center">
-                    <small class="text-muted mb-0">{{ branch.name }}</small>
-                    <p class="mb-0">
-                      {% if branch.slug == reference_branch %}
-                        Baseline
-                      {% else %}
-                        {{ branch.name }}
-                      {% endif %}
-                    </p>
-                  </div>
+                  {% if branch.slug == reference_branch %}<small class="text-muted">Baseline</small>{% endif %}
+                  <p class="mb-0 text-truncate w-100 text-center"
+                     title="{{ branch.name }}">{{ branch.name }}</p>
                 </div>
               {% endfor %}
             </div>
@@ -95,7 +88,8 @@
                     {% endif %}
                     {% for branch in branch_data %}
                       <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 3 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-                        <p class="fs-5">{{ branch.name }}</p>
+                        <p class="fs-5 text-truncate w-100 text-center"
+                           title="{{ branch.name }}">{{ branch.name }}</p>
                         <div class="d-flex flex-column gap-3 w-100 h-100">
                           {% for weekly_data_point in weekly_metric_data.data|dict_get:branch.slug %}
                             {% if not weekly_data_point.0.lower and not weekly_data_point.1.lower %}
@@ -150,7 +144,8 @@
                     {% endif %}
                     {% for branch in branch_data %}
                       <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 3 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-                        <p class="fs-5">{{ branch.name }}</p>
+                        <p class="fs-5 text-truncate w-100 text-center"
+                           title="{{ branch.name }}">{{ branch.name }}</p>
                         <div class="d-flex flex-column gap-3 w-100 h-100">
                           {% for daily_data_point in daily_metric_data.data|dict_get:branch.slug|slice:":7" %}
                             {% if not daily_data_point.0.lower and not daily_data_point.1.lower %}

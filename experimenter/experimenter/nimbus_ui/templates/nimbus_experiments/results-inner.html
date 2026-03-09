@@ -327,7 +327,8 @@
                     <div class="row flex-row flex-nowrap overflow-auto mx-2 {% if branch_data|length > 4 %}mx-4{% endif %}">
                       {% for branch in branch_data %}
                         <div class="{% if branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-                          <p class="fs-5">{{ branch.name }}</p>
+                          <p class="fs-5 text-truncate w-100 text-center"
+                             title="{{ branch.name }}">{{ branch.name }}</p>
                         </div>
                       {% endfor %}
                     </div>
@@ -342,7 +343,8 @@
                       {% endif %}
                       {% for branch in branch_data %}
                         <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
-                          <p class="fs-5">{{ branch.name }}</p>
+                          <p class="fs-5 text-truncate w-100 text-center"
+                             title="{{ branch.name }}">{{ branch.name }}</p>
                           <div class="d-flex flex-column gap-3 w-100">
                             {% for metric in metric_metadata %}
                               {% for curr_metric_slug, metric_branch_data in metric_data.items %}
