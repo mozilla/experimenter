@@ -38,8 +38,10 @@ from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.outcomes import Outcomes
 from experimenter.segments import Segments
 from experimenter.slack.constants import SlackConstants
-from experimenter.slack.notification import add_eyes_emoji_to_launch_message
-from experimenter.slack.tasks import nimbus_send_slack_notification
+from experimenter.slack.tasks import (
+    add_emoji_to_message_async,
+    nimbus_send_slack_notification,
+)
 from experimenter.targeting.constants import NimbusTargetingConfig
 
 metrics = markus.get_metrics("experimenter.nimbus_ui_forms")
@@ -1376,6 +1378,21 @@ class SlackNotificationMixin:
         return experiment
 
 
+class CancelRequestMixin:
+    cancel_request_alert_type = None
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        if self.cancel_request_alert_type:
+            add_emoji_to_message_async.delay(
+                experiment.id,
+                self.cancel_request_alert_type,
+                SlackConstants.EmojiReaction.CANCEL,
+            )
+        return experiment
+
+
 class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     status = None
     status_next = None
@@ -1531,7 +1548,7 @@ class PreviewToDraftForm(UpdateStatusForm):
         return experiment
 
 
-class ReviewToDraftForm(UpdateStatusForm):
+class ReviewToDraftForm(CancelRequestMixin, UpdateStatusForm):
     required_status = NimbusExperiment.Status.DRAFT
     required_status_next = NimbusExperiment.Status.LIVE
     required_publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -1540,6 +1557,7 @@ class ReviewToDraftForm(UpdateStatusForm):
     status = NimbusExperiment.Status.DRAFT
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    cancel_request_alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
 
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
@@ -1579,8 +1597,10 @@ class ReviewToApproveForm(UpdateStatusForm):
             countdown=5, args=[experiment.kinto_collection]
         )
 
-        add_eyes_emoji_to_launch_message(
-            experiment, NimbusConstants.AlertType.LAUNCH_REQUEST
+        add_emoji_to_message_async.delay(
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
         return experiment
@@ -1749,7 +1769,7 @@ class LiveToUpdateRolloutForm(SlackNotificationMixin, UpdateStatusForm):
         return f"{self.request.user} requested review to update Audience"
 
 
-class CancelUpdateRolloutForm(UpdateStatusForm):
+class CancelUpdateRolloutForm(CancelRequestMixin, UpdateStatusForm):
     required_status = NimbusExperiment.Status.LIVE
     required_status_next = NimbusExperiment.Status.LIVE
     required_publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -1758,6 +1778,7 @@ class CancelUpdateRolloutForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    cancel_request_alert_type = NimbusConstants.AlertType.UPDATE_REQUEST
 
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
@@ -1797,8 +1818,10 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
-        add_eyes_emoji_to_launch_message(
-            experiment, NimbusConstants.AlertType.UPDATE_REQUEST
+        add_emoji_to_message_async.delay(
+            experiment.id,
+            NimbusConstants.AlertType.UPDATE_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
         return experiment
 
