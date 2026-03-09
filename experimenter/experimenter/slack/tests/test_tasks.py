@@ -807,7 +807,7 @@ class TestAddEmojiToMessageAsync(TestCase):
     def test_add_emoji_to_message_async_success(self, mock_add_emoji):
         experiment = NimbusExperimentFactory.create()
         alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
-        emoji_name = "eyes"
+        emoji_name = SlackConstants.EmojiReaction.APPROVE
 
         tasks.add_emoji_to_message_async(experiment.id, alert_type, emoji_name)
 
@@ -820,7 +820,7 @@ class TestAddEmojiToMessageAsync(TestCase):
     ):
         non_existent_id = 99999
         alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
-        emoji_name = "x"
+        emoji_name = SlackConstants.EmojiReaction.CANCEL
 
         tasks.add_emoji_to_message_async(non_existent_id, alert_type, emoji_name)
 
@@ -838,7 +838,7 @@ class TestAddEmojiToMessageAsync(TestCase):
     ):
         experiment = NimbusExperimentFactory.create()
         alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
-        emoji_name = "eyes"
+        emoji_name = SlackConstants.EmojiReaction.APPROVE
 
         mock_add_emoji.side_effect = Exception("Test error")
 

@@ -32,6 +32,11 @@ class SlackConstants:
         SLACK_ACTION_UPDATE_REQUEST: NimbusConstants.AlertType.UPDATE_REQUEST,
     }
 
+    # Slack emoji reaction names
+    class EmojiReaction:
+        CANCEL = "x"
+        APPROVE = "eyes"
+
     # Slack message templates
     SLACK_DM_PREFIX = "🔔 Join {channel} to get slack notifications: {message}"
     SLACK_DM_CHANNEL_LINK_SUFFIX = "\n\n🔗 View in channel: {channel_message_link}"

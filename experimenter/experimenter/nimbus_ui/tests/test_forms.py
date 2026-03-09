@@ -84,6 +84,7 @@ from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.segments import Segments
 from experimenter.segments.tests.mock_segments import mock_get_segments
+from experimenter.slack.constants import SlackConstants
 from experimenter.targeting.constants import NimbusTargetingConfig
 
 
@@ -1278,7 +1279,9 @@ class TestReviewToDraftForm(SlackEmojiMockMixin, RequestFormTestCase):
             "rejected the review with reason: Needs further updates.", changelog.message
         )
         self.mock_emoji_task.assert_called_once_with(
-            experiment.id, NimbusConstants.AlertType.LAUNCH_REQUEST, "x"
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.CANCEL,
         )
 
     @parameterized.expand(
@@ -1377,7 +1380,9 @@ class TestReviewToApproveForm(
         )
         self.mock_allocate_bucket_range.assert_called_once()
         self.mock_emoji_task.assert_called_once_with(
-            experiment.id, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
     @parameterized.expand(
@@ -2172,7 +2177,9 @@ class TestCancelUpdateRolloutForm(SlackEmojiMockMixin, RequestFormTestCase):
             changelog.message,
         )
         self.mock_emoji_task.assert_called_once_with(
-            experiment.id, NimbusConstants.AlertType.UPDATE_REQUEST, "x"
+            experiment.id,
+            NimbusConstants.AlertType.UPDATE_REQUEST,
+            SlackConstants.EmojiReaction.CANCEL,
         )
 
     @parameterized.expand(
@@ -2271,7 +2278,9 @@ class TestApproveUpdateRolloutForm(
         self.mock_preview_task.assert_called_once_with(countdown=5)
         self.mock_allocate_bucket_range.assert_called_once()
         self.mock_emoji_task.assert_called_once_with(
-            experiment.id, NimbusConstants.AlertType.UPDATE_REQUEST, "eyes"
+            experiment.id,
+            NimbusConstants.AlertType.UPDATE_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
     @parameterized.expand(

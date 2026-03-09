@@ -640,14 +640,16 @@ class TestSlackNotifications(TestCase):
         )
 
         result = add_emoji_to_slack_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
+            self.experiment,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
         self.assertTrue(result)
         mock_client.reactions_add.assert_called_once()
         call_args = mock_client.reactions_add.call_args
         self.assertEqual(call_args.kwargs["channel"], "C123456")
-        self.assertEqual(call_args.kwargs["name"], "eyes")
+        self.assertEqual(call_args.kwargs["name"], SlackConstants.EmojiReaction.APPROVE)
         self.assertEqual(call_args.kwargs["timestamp"], "1234567890.123456")
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
@@ -658,7 +660,9 @@ class TestSlackNotifications(TestCase):
 
         # Don't create any alert
         result = add_emoji_to_slack_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
+            self.experiment,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
         self.assertFalse(result)
@@ -680,7 +684,9 @@ class TestSlackNotifications(TestCase):
         )
 
         result = add_emoji_to_slack_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
+            self.experiment,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
         self.assertFalse(result)
@@ -703,7 +709,9 @@ class TestSlackNotifications(TestCase):
         )
 
         result = add_emoji_to_slack_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
+            self.experiment,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
         self.assertFalse(result)
@@ -728,7 +736,9 @@ class TestSlackNotifications(TestCase):
         )
 
         result = add_emoji_to_slack_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
+            self.experiment,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
         self.assertFalse(result)
@@ -750,14 +760,16 @@ class TestSlackNotifications(TestCase):
         )
 
         result = add_emoji_to_slack_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "x"
+            self.experiment,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.CANCEL,
         )
 
         self.assertTrue(result)
         mock_client.reactions_add.assert_called_once()
         call_args = mock_client.reactions_add.call_args
         self.assertEqual(call_args.kwargs["channel"], "C123456")
-        self.assertEqual(call_args.kwargs["name"], "x")
+        self.assertEqual(call_args.kwargs["name"], SlackConstants.EmojiReaction.CANCEL)
         self.assertEqual(call_args.kwargs["timestamp"], "1234567890.123456")
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
@@ -767,7 +779,9 @@ class TestSlackNotifications(TestCase):
         mock_webclient.return_value = mock_client
 
         result = add_emoji_to_slack_message(
-            self.experiment, NimbusConstants.AlertType.LAUNCH_REQUEST, "x"
+            self.experiment,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.CANCEL,
         )
 
         self.assertFalse(result)

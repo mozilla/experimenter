@@ -1386,7 +1386,9 @@ class CancelRequestMixin:
         experiment = super().save(commit=commit)
         if self.cancel_request_alert_type:
             add_emoji_to_message_async.delay(
-                experiment.id, self.cancel_request_alert_type, "x"
+                experiment.id,
+                self.cancel_request_alert_type,
+                SlackConstants.EmojiReaction.CANCEL,
             )
         return experiment
 
@@ -1596,7 +1598,9 @@ class ReviewToApproveForm(UpdateStatusForm):
         )
 
         add_emoji_to_message_async.delay(
-            experiment.id, NimbusConstants.AlertType.LAUNCH_REQUEST, "eyes"
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
         return experiment
@@ -1815,7 +1819,9 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
             countdown=5, args=[experiment.kinto_collection]
         )
         add_emoji_to_message_async.delay(
-            experiment.id, NimbusConstants.AlertType.UPDATE_REQUEST, "eyes"
+            experiment.id,
+            NimbusConstants.AlertType.UPDATE_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
         return experiment
 
