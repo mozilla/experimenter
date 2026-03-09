@@ -36,7 +36,7 @@
   {% endwith %}
   <div class="w-50">
     <span class="badge rounded text-body-secondary bg-body-secondary border border-secondary-subtle d-inline-flex flex-column w-100 align-items-start gap-2 fs-6">
-      <div>{{ branch.name }}</div>
+      <div class="text-truncate w-100 text-start" title="{{ branch.name }}">{{ branch.name }}</div>
       <div class="d-inline-flex gap-1 fw-normal">
         {{ branch.percentage|floatformat:"0g" }}%
         <span>&middot;</span>
