@@ -564,17 +564,6 @@ private-browsing-lock:
       type: boolean
       description: |
         Whether or not to enable private browsing mode lock.
-re-engagement-notification:
-  description: A feature that shows the re-engagement notification if the user is inactive.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, the re-engagement notification is shown to the inactive user.
-    type:
-      type: int
-      description: The type of re-engagement notification that is shown to the inactive user.
 remote-search-configuration:
   description: Feature to use search configurations from remote servers.
   hasExposure: true
