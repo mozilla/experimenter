@@ -2338,6 +2338,9 @@ class TestLaunchViews(AuthTestCase):
         self.mock_slack_task = patch(
             "experimenter.slack.tasks.nimbus_send_slack_notification.delay"
         ).start()
+        self.mock_emoji_task = patch(
+            "experimenter.slack.tasks.add_emoji_to_message_async.delay"
+        ).start()
 
         self.addCleanup(patch.stopall)
 
