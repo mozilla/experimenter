@@ -1097,11 +1097,11 @@ A live experiment that is published in Remote Settings has passed its planned en
 
     Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the collection in <br/> to-sign with no record of the rejection
 
-
-    rect rgb(204,255,255) 
+    rect rgb(204,255,255)
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: to-sign
-        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_paused: False <br/> + changelog
-    end 
+        Note over Experimenter Worker: Worker syncs is_paused from <br/> RS record's isEnrollmentPaused
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_paused: {sync from RS record} <br/> + changelog
+    end
 ```
 
 ### End Enrollment (Approve/Timeout)
