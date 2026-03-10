@@ -134,8 +134,10 @@ MIDDLEWARE = [
     "experimenter.glean.middleware.GleanMiddleware",
 ]
 
-if config("DISABLE_CSRF", default=False, cast=bool):  # pragma: no cover
-    MIDDLEWARE = [m for m in MIDDLEWARE if m != CSRF_MIDDLEWARE]
+EXPERIMENTER_CI_TEST_RUN = config("EXPERIMENTER_CI_TEST_RUN", default=False, cast=bool)
+
+if EXPERIMENTER_CI_TEST_RUN:  # pragma: no cover
+    MIDDLEWARE.remove(CSRF_MIDDLEWARE)
 
 ROOT_URLCONF = "experimenter.urls"
 

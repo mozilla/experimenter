@@ -16,7 +16,7 @@ FIXTURES_DIR = (
 
 
 class Command(BaseCommand):
-    help = "Generate targeting configs and feature configs JSON for integration tests"
+    help = "Generate targeting and feature config JSON for integration tests"
 
     def handle(self, *args, **options):
         FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
@@ -35,7 +35,7 @@ class Command(BaseCommand):
             for config in NimbusTargetingConfig.targeting_configs
         ]
         targeting_path = FIXTURES_DIR / "targeting_configs.json"
-        targeting_path.write_text(json.dumps(targeting_configs, indent=2) + "\n")
+        targeting_path.write_text(f"{json.dumps(targeting_configs, indent=2)}\n")
         logger.info(
             f"Generated {len(targeting_configs)} targeting configs to {targeting_path}"
         )
@@ -49,5 +49,5 @@ class Command(BaseCommand):
             for fc in NimbusFeatureConfig.objects.all().order_by("application", "slug")
         ]
         feature_path = FIXTURES_DIR / "feature_configs.json"
-        feature_path.write_text(json.dumps(feature_configs, indent=2) + "\n")
+        feature_path.write_text(f"{json.dumps(feature_configs, indent=2)}\n")
         logger.info(f"Generated {len(feature_configs)} feature configs to {feature_path}")

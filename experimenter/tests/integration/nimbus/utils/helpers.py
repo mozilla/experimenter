@@ -1,8 +1,8 @@
 import json
 import os
-import re
 import time
 from pathlib import Path, PurePosixPath
+from urllib.parse import urljoin
 
 import requests
 
@@ -40,27 +40,12 @@ def _get_session():
 def _post_form(path, data=None):
     """POST form data to a nimbus view. Retries on connection errors."""
     session = _get_session()
-    url = f"{_get_nginx_url()}{path}"
+    url = urljoin(_get_nginx_url(), path)
     for retry in range(LOAD_DATA_RETRIES):
         try:
             resp = session.post(url, data=data or {}, allow_redirects=False)
             if resp.status_code not in (200, 301, 302):
-                import re as _re
-
-                error_detail = resp.text[:1000]
-                exc_match = _re.search(r"Exception Value:.*?</td>", resp.text, _re.DOTALL)
-                if exc_match:
-                    error_detail = _re.sub(r"<[^>]+>", "", exc_match.group()).strip()
-                tb_match = _re.search(
-                    r'<textarea[^>]*id="traceback_area"[^>]*>(.*?)</textarea>',
-                    resp.text,
-                    _re.DOTALL,
-                )
-                if tb_match:
-                    error_detail += "\n\n" + tb_match.group(1).strip()[:2000]
-                raise RuntimeError(
-                    f"POST {path} failed ({resp.status_code}):\n{error_detail}"
-                )
+                raise RuntimeError(f"POST {path} failed ({resp.status_code})")
             return resp
         except requests.ConnectionError:
             if retry + 1 >= LOAD_DATA_RETRIES:
@@ -71,7 +56,7 @@ def _post_form(path, data=None):
 def _get_page(path):
     """GET a page. Retries on connection errors."""
     session = _get_session()
-    url = f"{_get_nginx_url()}{path}"
+    url = urljoin(_get_nginx_url(), path)
     for retry in range(LOAD_DATA_RETRIES):
         try:
             return session.get(url, allow_redirects=True)
@@ -84,7 +69,7 @@ def _get_page(path):
 def _get_api(path):
     """GET a REST API endpoint, return parsed JSON."""
     session = _get_session()
-    url = f"{_get_nginx_url()}{path}"
+    url = urljoin(_get_nginx_url(), path)
     for retry in range(LOAD_DATA_RETRIES):
         try:
             resp = session.get(url)
@@ -102,15 +87,12 @@ def _extract_slug_from_hx_redirect(resp):
     return slug
 
 
-def _parse_field_value(html, field_name):
-    """Parse a single hidden/text input value from HTML."""
-    match = re.search(rf'name="{re.escape(field_name)}"[^>]*value="([^"]*)"', html)
-    return match.group(1) if match else ""
-
-
-def _parse_branch_ids(html):
-    """Parse branch form index and DB IDs from hidden inputs."""
-    return re.findall(r'name="branches-(\d+)-id"[^>]*value="(\d+)"', html)
+def _extract_branch_form_json(html):
+    tag = 'id="branch-form-data" type="application/json">'
+    parts = html.split(tag, 1)
+    if len(parts) < 2:
+        raise RuntimeError("Could not find branch-form-data JSON in page")
+    return json.loads(parts[1].split("</script>", 1)[0])
 
 
 def _build_branches_form_data(
@@ -119,63 +101,53 @@ def _build_branches_form_data(
     reference_branch=None,
     is_rollout=False,
 ):
-    """Build POST data for the branches update form by parsing the current page."""
+    """Build POST data for the branches update form."""
     resp = _get_page(f"/nimbus/{slug}/update_branches/")
-    html = resp.text
-    branch_ids = _parse_branch_ids(html)
+    branches = _extract_branch_form_json(resp.text)
 
     data = {
-        "branches-TOTAL_FORMS": str(len(branch_ids)),
-        "branches-INITIAL_FORMS": str(len(branch_ids)),
+        "branches-TOTAL_FORMS": str(len(branches)),
+        "branches-INITIAL_FORMS": str(len(branches)),
         "branches-MIN_NUM_FORMS": "0",
         "branches-MAX_NUM_FORMS": "1000",
     }
 
-    for form_idx_str, branch_id in branch_ids:
-        prefix = f"branches-{form_idx_str}"
+    for form_idx, branch in enumerate(branches):
+        prefix = f"branches-{form_idx}"
 
-        data[f"{prefix}-id"] = branch_id
-        for field in ("name", "description", "slug"):
-            data[f"{prefix}-{field}"] = _parse_field_value(html, f"{prefix}-{field}")
-        if not data[f"{prefix}-description"]:
-            data[f"{prefix}-description"] = data[f"{prefix}-name"]
+        data[f"{prefix}-id"] = str(branch["id"])
+        data[f"{prefix}-name"] = branch["name"]
+        data[f"{prefix}-description"] = branch["description"] or branch["name"]
+        data[f"{prefix}-slug"] = branch["slug"]
         data[f"{prefix}-ratio"] = "1"
 
-        if form_idx_str == "0" and reference_branch:
+        if form_idx == 0 and reference_branch:
             for key in ("name", "description"):
                 if key in reference_branch:
                     data[f"{prefix}-{key}"] = str(reference_branch[key])
 
-        if is_rollout and form_idx_str != "0":
+        if is_rollout and form_idx != 0:
             data[f"{prefix}-DELETE"] = "on"
 
-        feature_value_ids = re.findall(
-            rf'name="({prefix}-feature-value-(\d+)-id)"[^>]*value="(\d+)"', html
-        )
-        data[f"{prefix}-feature-value-TOTAL_FORMS"] = str(len(feature_value_ids))
-        data[f"{prefix}-feature-value-INITIAL_FORMS"] = str(len(feature_value_ids))
+        feature_values = branch.get("feature_values", [])
+        data[f"{prefix}-feature-value-TOTAL_FORMS"] = str(len(feature_values))
+        data[f"{prefix}-feature-value-INITIAL_FORMS"] = str(len(feature_values))
         data[f"{prefix}-feature-value-MIN_NUM_FORMS"] = "0"
         data[f"{prefix}-feature-value-MAX_NUM_FORMS"] = "1000"
-        for field_name, field_idx, field_id in feature_value_ids:
-            data[field_name] = field_id
-            if (
-                form_idx_str == "0"
-                and reference_branch
-                and "feature_value" in reference_branch
-            ):
-                data[f"{prefix}-feature-value-{field_idx}-value"] = reference_branch[
+        for fv_idx, feature_value in enumerate(feature_values):
+            data[f"{prefix}-feature-value-{fv_idx}-id"] = str(feature_value["id"])
+            if form_idx == 0 and reference_branch and "feature_value" in reference_branch:
+                data[f"{prefix}-feature-value-{fv_idx}-value"] = reference_branch[
                     "feature_value"
                 ]
             else:
-                data[f"{prefix}-feature-value-{field_idx}-value"] = _parse_field_value(
-                    html, f"{prefix}-feature-value-{field_idx}-value"
+                data[f"{prefix}-feature-value-{fv_idx}-value"] = feature_value.get(
+                    "value", "{}"
                 )
 
-        screenshot_ids = re.findall(
-            rf'name="({prefix}-screenshots-(\d+)-id)"[^>]*value="(\d+)"', html
-        )
-        data[f"{prefix}-screenshots-TOTAL_FORMS"] = str(len(screenshot_ids))
-        data[f"{prefix}-screenshots-INITIAL_FORMS"] = str(len(screenshot_ids))
+        screenshots = branch.get("screenshots", [])
+        data[f"{prefix}-screenshots-TOTAL_FORMS"] = str(len(screenshots))
+        data[f"{prefix}-screenshots-INITIAL_FORMS"] = str(len(screenshots))
         data[f"{prefix}-screenshots-MIN_NUM_FORMS"] = "0"
         data[f"{prefix}-screenshots-MAX_NUM_FORMS"] = "1000"
 
