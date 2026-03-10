@@ -158,9 +158,18 @@ def _build_branches_form_data(
         data[f"{prefix}-feature-value-MAX_NUM_FORMS"] = "1000"
         for field_name, field_idx, field_id in feature_value_ids:
             data[field_name] = field_id
-            data[f"{prefix}-feature-value-{field_idx}-value"] = _parse_field_value(
-                html, f"{prefix}-feature-value-{field_idx}-value"
-            )
+            if (
+                form_idx_str == "0"
+                and reference_branch
+                and "feature_value" in reference_branch
+            ):
+                data[f"{prefix}-feature-value-{field_idx}-value"] = reference_branch[
+                    "feature_value"
+                ]
+            else:
+                data[f"{prefix}-feature-value-{field_idx}-value"] = _parse_field_value(
+                    html, f"{prefix}-feature-value-{field_idx}-value"
+                )
 
         screenshot_ids = re.findall(
             rf'name="({prefix}-screenshots-(\d+)-id)"[^>]*value="(\d+)"', html
@@ -239,7 +248,15 @@ def load_experiment_data(slug):
     }
 
 
-def create_basic_experiment(name, app, targeting=None, languages=None, is_rollout=False):
+def create_basic_experiment(
+    name,
+    app,
+    targeting=None,
+    is_rollout=False,
+    audience_overrides=None,
+    feature_config_ids=None,
+    reference_branch=None,
+):
     """Create an experiment with sensible defaults for all forms."""
     if targeting is None:
         targeting = load_targeting_configs()[0]
@@ -281,52 +298,68 @@ def create_basic_experiment(name, app, targeting=None, languages=None, is_rollou
         audience["channels"] = ["nightly", "beta", "release"]
     else:
         audience["channel"] = "release"
+    if audience_overrides:
+        audience.update(audience_overrides)
     _post_form(f"/nimbus/{slug}/update_audience/", audience)
 
     branch_data = _build_branches_form_data(
         slug,
-        feature_config_ids=_default_feature_config_ids(app),
+        feature_config_ids=feature_config_ids or _default_feature_config_ids(app),
+        reference_branch=reference_branch,
         is_rollout=is_rollout,
     )
     _post_form(f"/nimbus/{slug}/update_branches/", branch_data)
+
+    if reference_branch and "feature_value" in reference_branch:
+        branch_data = _build_branches_form_data(
+            slug,
+            feature_config_ids=feature_config_ids or _default_feature_config_ids(app),
+            reference_branch=reference_branch,
+            is_rollout=is_rollout,
+        )
+        _post_form(f"/nimbus/{slug}/update_branches/", branch_data)
 
     return slug
 
 
-def update_experiment(slug, data):
-    """Apply overrides to an already-created experiment."""
-    if not data:
-        return
-
-    form_data = _coerce_form_values(data)
-
-    resp = _get_page(f"/nimbus/{slug}/update_overview/")
-    form_data["name"] = _parse_field_value(resp.text, "name")
-    form_data["documentation_links-TOTAL_FORMS"] = "0"
-    form_data["documentation_links-INITIAL_FORMS"] = "0"
-    form_data["documentation_links-MIN_NUM_FORMS"] = "0"
-    form_data["documentation_links-MAX_NUM_FORMS"] = "1000"
-    _post_form(f"/nimbus/{slug}/update_overview/", form_data)
-
-    branch_data = _build_branches_form_data(
-        slug,
-        feature_config_ids=data.get("feature_config_ids"),
-        reference_branch=data.get("reference_branch"),
-        is_rollout=data.get("is_rollout", False),
-    )
-    _post_form(f"/nimbus/{slug}/update_branches/", branch_data)
-
-    _post_form(f"/nimbus/{slug}/update_audience/", form_data)
+AUDIENCE_FIELDS = {
+    "channel",
+    "channels",
+    "countries",
+    "exclude_countries",
+    "exclude_languages",
+    "exclude_locales",
+    "excluded_experiments_branches",
+    "firefox_max_version",
+    "firefox_min_version",
+    "is_first_run",
+    "is_sticky",
+    "languages",
+    "locales",
+    "population_percent",
+    "proposed_duration",
+    "proposed_enrollment",
+    "proposed_release_date",
+    "required_experiments_branches",
+    "targeting_config_slug",
+    "total_enrolled_clients",
+}
 
 
 def create_experiment(slug, app, data=None, targeting=None, is_rollout=False):
+    data = data or {}
+    audience_overrides = _coerce_form_values(
+        {k: v for k, v in data.items() if k in AUDIENCE_FIELDS}
+    )
     create_basic_experiment(
         slug,
         app,
         targeting=targeting,
-        is_rollout=is_rollout,
+        is_rollout=is_rollout or data.get("is_rollout", False),
+        audience_overrides=audience_overrides or None,
+        feature_config_ids=data.get("feature_config_ids"),
+        reference_branch=data.get("reference_branch"),
     )
-    update_experiment(slug, data or {})
 
 
 def end_experiment(slug):

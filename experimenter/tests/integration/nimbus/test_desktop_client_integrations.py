@@ -124,7 +124,15 @@ def test_check_telemetry_pref_flip(
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        {"feature_config_ids": [9]},
+        {
+            "feature_config_ids": [9],
+            "reference_branch": {
+                "name": "Branch 1",
+                "description": "reference branch",
+                "feature_value": '{"value": "test_string_automation"}',
+            },
+            "is_rollout": True,
+        },
     )
     about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip(
