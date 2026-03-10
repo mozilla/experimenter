@@ -984,6 +984,67 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
     @parameterized.expand(
         [
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_complete_results_data_missing_weekly(self, lifecycle):
+        primary_outcomes = ["default-browser"]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            primary_outcomes=primary_outcomes,
+        )
+
+        def mock_jetstream_data_by_window(_, window):
+            if window == AnalysisWindow.DAILY:
+                return [
+                    {
+                        "metric": "identity",
+                        "statistic": "count",
+                        "branch": "control",
+                        "point": 10,
+                        "segment": "all",
+                        "analysis_basis": "enrollments",
+                        "window_index": "1",
+                    },
+                    {
+                        "metric": "identity",
+                        "statistic": "count",
+                        "branch": "control",
+                        "point": 20,
+                        "segment": "all",
+                        "analysis_basis": "enrollments",
+                        "window_index": "2",
+                    },
+                ]
+            elif window == AnalysisWindow.WEEKLY:
+                return []  # Simulate missing weekly data
+            elif window == AnalysisWindow.OVERALL:
+                return [
+                    {
+                        "metric": "identity",
+                        "statistic": "count",
+                        "branch": "control",
+                        "point": 40,
+                        "segment": "all",
+                        "analysis_basis": "enrollments",
+                        "window_index": "1",
+                    }
+                ]
+            return []
+
+        with (
+            patch("experimenter.jetstream.client.get_data") as mock_get_data,
+            patch("experimenter.jetstream.client.get_metadata") as mock_get_metadata,
+            patch("experimenter.jetstream.client.get_analysis_errors") as mock_get_errors,
+        ):
+            mock_get_data.side_effect = mock_jetstream_data_by_window
+            mock_get_metadata.return_value = None
+            mock_get_errors.return_value = None
+            tasks.fetch_experiment_data(experiment.id)
+
+    @parameterized.expand(
+        [
             (None, "2022-08-31T04:32:03"),
             ("", "2022-08-31 04:32:03+04:00"),
             ("2022-08-31T04:30:03+00:00", "2022-08-31T04:32:03+00:00"),
