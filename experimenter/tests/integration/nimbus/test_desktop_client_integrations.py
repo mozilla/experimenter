@@ -61,6 +61,7 @@ def firefox_options(firefox_options):
 
 @pytest.mark.desktop_enrollment
 @pytest.mark.xdist_group(name="group1")
+@pytest.mark.parametrize("application", ["firefox-desktop"], ids=["FIREFOX_DESKTOP"])
 def test_check_telemetry_enrollment_unenrollment(
     selenium,
     kinto_client,
@@ -68,6 +69,7 @@ def test_check_telemetry_enrollment_unenrollment(
     experiment_slug,
     experiment_url,
     use_group_id,
+    application,
 ):
     helpers.create_experiment(
         experiment_slug,
@@ -108,6 +110,7 @@ def test_check_telemetry_enrollment_unenrollment(
 
 @pytest.mark.desktop_enrollment
 @pytest.mark.xdist_group(name="group2")
+@pytest.mark.parametrize("application", ["firefox-desktop"], ids=["FIREFOX_DESKTOP"])
 def test_check_telemetry_pref_flip(
     selenium,
     kinto_client,
@@ -115,6 +118,7 @@ def test_check_telemetry_pref_flip(
     trigger_experiment_loader,
     experiment_slug,
     experiment_url,
+    application,
 ):
     about_config = AboutConfig(selenium)
     helpers.create_experiment(
@@ -165,6 +169,7 @@ def test_check_telemetry_pref_flip(
 
 @pytest.mark.desktop_enrollment
 @pytest.mark.xdist_group(name="group1")
+@pytest.mark.parametrize("application", ["firefox-desktop"], ids=["FIREFOX_DESKTOP"])
 def test_check_telemetry_sticky_targeting(
     selenium,
     kinto_client,
@@ -172,6 +177,7 @@ def test_check_telemetry_sticky_targeting(
     trigger_experiment_loader,
     experiment_slug,
     experiment_url,
+    application,
 ):
     about_config = AboutConfig(selenium)
     pref_name = "sticky.targeting.test.pref"
