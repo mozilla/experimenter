@@ -961,6 +961,7 @@ features:
         type: List<String>
         default:
         - en
+        - it
         - fr
         - es
         - de
@@ -1027,6 +1028,11 @@ features:
           Enables swipe gestures to switch between browser tabs.
         type: Boolean
         default: true
+      tab_tray_button_type:
+        description: |
+          The style of the tab tray button in the toolbar.
+        type: TabTrayButtonType
+        default: number
       toolbar_update_hint:
         description: |
           If true, enables the toolbar update contextual hint.
@@ -1386,6 +1392,13 @@ enums:
         description: A Firefox Suggestion specifically for mobile from adMarketplace.
       wikipedia:
         description: A Firefox Suggestion for a Wikipedia page.
+  TabTrayButtonType:
+    description: The style of the tab tray button in the toolbar.
+    variants:
+      number:
+        description: The original tab tray button style that show the icon with the number of tabs.
+      screenshot:
+        description: The new tab tray button style that shows two images stacked with the previous and next tab.
   TermsOfUsePromptContentOption:
     description: |
       Determines which predefined title and "learn more" strings are used for the Terms of Use prompt.
