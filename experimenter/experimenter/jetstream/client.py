@@ -267,11 +267,15 @@ def get_experiment_data(experiment: NimbusExperiment):
                 # Append some values onto the incoming Jetstream data
                 data.append_population_percentages()
                 data.append_retention_data(
-                    raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
+                    raw_data.get(AnalysisWindow.WEEKLY, {})
+                    .get(AnalysisBasis.ENROLLMENTS, {})
+                    .get(segment)
                 )
                 # Append 3-day retention from daily data
                 data.append_retention_3_days(
-                    raw_data[AnalysisWindow.DAILY][AnalysisBasis.ENROLLMENTS][segment]
+                    raw_data.get(AnalysisWindow.DAILY, {})
+                    .get(AnalysisBasis.ENROLLMENTS, {})
+                    .get(segment)
                 )
                 # Create the output object (overall data)
                 ResultsObjectModel = create_results_object_model(data)
@@ -310,11 +314,15 @@ def get_experiment_data(experiment: NimbusExperiment):
                 # Append some values onto Jetstream data
                 data.append_population_percentages()
                 data.append_retention_data(
-                    raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.EXPOSURES][segment]
+                    raw_data.get(AnalysisWindow.WEEKLY, {})
+                    .get(AnalysisBasis.EXPOSURES, {})
+                    .get(segment)
                 )
                 # Append 3-day retention from daily data
                 data.append_retention_3_days(
-                    raw_data[AnalysisWindow.DAILY][AnalysisBasis.EXPOSURES][segment]
+                    raw_data.get(AnalysisWindow.DAILY, {})
+                    .get(AnalysisBasis.EXPOSURES, {})
+                    .get(segment)
                 )
 
                 ResultsObjectModel = create_results_object_model(data)
