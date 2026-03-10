@@ -513,6 +513,13 @@ toolbar-refactor-feature:
       type: boolean
       description: |
         Enables swipe gestures to switch between browser tabs.
+    tab_tray_button_type:
+      type: string
+      description: |
+        The style of the tab tray button in the toolbar.
+      enum:
+      - number
+      - screenshot
     toolbar_update_hint:
       type: boolean
       description: |
