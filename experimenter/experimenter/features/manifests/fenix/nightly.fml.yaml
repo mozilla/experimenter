@@ -299,6 +299,7 @@ features:
           pocket-sponsored-stories: true
           synced-tabs: true
           collections: true
+          privacy-report: false
   homescreen-edge-to-edge-background:
     description: |
       Feature that sets an edge to edge background on the Home Screen if the user hasn't selected a custom wallpaper
@@ -1184,6 +1185,8 @@ enums:
         description: The pocket section. This should only be available in the US.
       pocket-sponsored-stories:
         description: Subsection of the Pocket homescreen section which shows sponsored stories.
+      privacy-report:
+        description: The privacy report section showing trackers blocked.
       recent-explorations:
         description: The tab groups
       synced-tabs:
