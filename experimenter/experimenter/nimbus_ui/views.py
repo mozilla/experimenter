@@ -79,6 +79,28 @@ from experimenter.nimbus_ui.forms import (
 )
 
 
+class IntegrationTestBranchDataMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if settings.EXPERIMENTER_CI_TEST_RUN:
+            branches = []
+            for branch in self.object.branches.all():
+                branches.append(
+                    {
+                        "id": branch.pk,
+                        "name": branch.name,
+                        "description": branch.description,
+                        "slug": branch.slug,
+                        "feature_values": list(
+                            branch.feature_values.values("id", "value")
+                        ),
+                        "screenshots": list(branch.screenshots.values("id")),
+                    }
+                )
+            context["branch_form_data"] = branches
+        return context
+
+
 class RequestFormMixin:
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -474,6 +496,7 @@ class DocumentationLinkDeleteView(RenderParentDBResponseMixin, OverviewUpdateVie
 
 
 class BranchesBaseView(
+    IntegrationTestBranchDataMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
     ValidationErrorsMixin,

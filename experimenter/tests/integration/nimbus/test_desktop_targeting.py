@@ -1,5 +1,4 @@
 import json
-import logging
 from functools import cache
 from pathlib import Path
 
@@ -28,22 +27,16 @@ def test_check_advanced_targeting(
     selenium,
     targeting_config_slug,
     experiment_slug,
-    default_data_api,
     targeting_script,
 ):
-    default_data_api["targetingConfigSlug"] = targeting_config_slug
-    experiment = helpers.create_experiment(
+    helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        default_data_api,
         targeting=targeting_config_slug,
     )
-    logging.info(f"GraphQL creation: {experiment}")
     experiment_data = helpers.load_experiment_data(experiment_slug)
-    targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
-    logging.info(f"Experiment Targeting: {targeting}")
-    recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
-    logging.info(f"Experiment Recipe: {recipe}")
+    targeting = experiment_data["targeting"]
+    recipe = experiment_data["recipe_json"]
 
     result = Browser.execute_async_script(
         selenium,
@@ -58,13 +51,13 @@ def test_check_advanced_targeting(
 @pytest.mark.parametrize(
     "audience_field",
     [
-        {"channel": "NIGHTLY"},
-        {"firefoxMinVersion": "FIREFOX_100"},
-        {"firefoxMaxVersion": "FIREFOX_120"},
+        {"channel": "nightly"},
+        {"firefox_min_version": "100.!"},
+        {"firefox_max_version": "120.!"},
         {"locales": [37]},
         {"countries": [42]},
-        {"proposedEnrollment": "14"},
-        {"proposedDuration": "30"},
+        {"proposed_enrollment": "14"},
+        {"proposed_duration": "30"},
     ],
     ids=[
         "channel",
@@ -81,22 +74,16 @@ def test_check_audience_targeting(
     selenium,
     audience_field,
     experiment_slug,
-    default_data_api,
     targeting_script,
 ):
-    default_data_api.update(audience_field)
-    experiment = helpers.create_experiment(
+    helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        default_data_api,
-        targeting="no_targeting",
+        audience_field,
     )
-    logging.info(f"GraphQL creation: {experiment}")
     experiment_data = helpers.load_experiment_data(experiment_slug)
-    targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
-    logging.info(f"Experiment Targeting: {targeting}")
-    recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
-    logging.info(f"Experiment Recipe: {recipe}")
+    targeting = experiment_data["targeting"]
+    recipe = experiment_data["recipe_json"]
 
     result = Browser.execute_async_script(
         selenium,

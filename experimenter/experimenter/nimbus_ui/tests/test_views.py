@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from parameterized import parameterized
 from PIL import Image
@@ -2127,6 +2127,37 @@ class TestBranchesUpdateViews(AuthTestCase):
         )
         changelog = experiment.changes.get()
         self.assertIn("updated branches", changelog.message)
+
+    @override_settings(EXPERIMENTER_CI_TEST_RUN=True)
+    def test_get_includes_branch_form_data(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        branch_data = response.context["branch_form_data"]
+        self.assertEqual(len(branch_data), experiment.branches.count())
+        for branch_json, branch_obj in zip(
+            branch_data, experiment.branches.all(), strict=True
+        ):
+            self.assertEqual(branch_json["id"], branch_obj.pk)
+            self.assertEqual(branch_json["name"], branch_obj.name)
+            self.assertEqual(branch_json["slug"], branch_obj.slug)
+            self.assertIn("feature_values", branch_json)
+            self.assertIn("screenshots", branch_json)
+
+    @override_settings(EXPERIMENTER_CI_TEST_RUN=False)
+    def test_get_excludes_branch_form_data_when_not_ci(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("branch_form_data", response.context)
 
 
 class TestBranchCreateView(AuthTestCase):

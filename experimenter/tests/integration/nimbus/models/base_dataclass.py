@@ -4,9 +4,9 @@ from typing import Optional
 
 
 class BaseExperimentApplications(Enum):
-    FIREFOX_DESKTOP = "DESKTOP"
-    FIREFOX_FENIX = "FENIX"
-    FIREFOX_IOS = "IOS"
+    FIREFOX_DESKTOP = "firefox-desktop"
+    FIREFOX_FENIX = "fenix"
+    FIREFOX_IOS = "ios"
 
 
 class BaseExperimentAudienceChannels(Enum):

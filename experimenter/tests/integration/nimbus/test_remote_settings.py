@@ -14,10 +14,9 @@ def test_create_new_experiment_approve_remote_settings(
     kinto_client,
     base_url,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -36,12 +35,9 @@ def test_create_new_rollout_approve_remote_settings(
     kinto_client,
     base_url,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -59,10 +55,9 @@ def test_create_new_experiment_reject_remote_settings(
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -78,12 +73,9 @@ def test_create_new_rollout_reject_remote_settings(
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -99,10 +91,9 @@ def test_end_experiment_and_approve_end_set_takeaways(
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -131,12 +122,9 @@ def test_end_rollout_and_approve_end_set_takeaways(
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -165,10 +153,9 @@ def test_end_experiment_and_reject_end(
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -190,12 +177,9 @@ def test_end_rollout_and_reject_end(
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -216,13 +200,10 @@ def test_rollout_live_update_approve(
     selenium,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
     experiment_url,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -246,13 +227,10 @@ def test_rollout_live_update_approve_and_reject(
     selenium,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
     experiment_url,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -279,13 +257,10 @@ def test_rollout_live_update_reject_on_experimenter(
     selenium,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
     experiment_url,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -313,11 +288,10 @@ def test_rollout_live_update_reject_on_experimenter(
 def test_create_new_experiment_timeout_remote_settings(
     selenium,
     application,
-    default_data_api,
     experiment_slug,
     experiment_url,
 ):
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
@@ -331,13 +305,12 @@ def test_create_new_experiment_publish_to_preview_and_unpublish(
     kinto_client,
     base_url,
     application,
-    default_data_api,
     experiment_slug,
 ):
     timeout = time.time() + 120
     records_before = len(kinto_client(collection="nimbus-preview").get_record_data())
 
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_to_preview()

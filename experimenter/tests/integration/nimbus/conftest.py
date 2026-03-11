@@ -48,12 +48,6 @@ APPLICATION_KINTO_COLLECTION = {
     BaseExperimentApplications.FIREFOX_IOS.value: KINTO_COLLECTION_MOBILE,
 }
 
-APPLICATION_SELECT_VALUE = {
-    BaseExperimentApplications.FIREFOX_DESKTOP.value: "firefox-desktop",
-    BaseExperimentApplications.FIREFOX_FENIX.value: "fenix",
-    BaseExperimentApplications.FIREFOX_IOS.value: "ios",
-}
-
 
 def slugify(name):
     return name.lower().replace(" ", "-").replace("[", "").replace("]", "")
@@ -295,7 +289,7 @@ def create_experiment(base_url, default_data, mobile_apps, application):
         home.create_new_button()
         home.public_name = default_data.public_name
         home.hypothesis = default_data.hypothesis
-        home.application = APPLICATION_SELECT_VALUE[default_data.application]
+        home.application = default_data.application
 
         # Fill Overview Page
         summary = home.save_and_continue()
@@ -398,46 +392,6 @@ def trigger_experiment_loader(selenium):
         time.sleep(5)
 
     return _trigger_experiment_loader
-
-
-@pytest.fixture()
-def default_data_api(application, application_feature_ids):
-    feature_config_id = application_feature_ids[application]
-    data = {
-        "hypothesis": "Test Hypothesis",
-        "application": application,
-        "changelogMessage": "test updates",
-        "targetingConfigSlug": "no_targeting",
-        "publicDescription": "Some sort of Fancy Words",
-        "riskAi": False,
-        "riskRevenue": False,
-        "riskPartnerRelated": False,
-        "riskBrand": False,
-        "riskMessage": False,
-        "featureConfigIds": [int(feature_config_id)],
-        "referenceBranch": {
-            "description": "reference branch",
-            "name": "Branch 1",
-            "ratio": 50,
-            "featureValues": [
-                {
-                    "featureConfig": str(feature_config_id),
-                    "value": "{}",
-                },
-            ],
-        },
-        "treatmentBranches": [],
-        "populationPercent": "100",
-        "totalEnrolledClients": 55,
-        "firefoxMinVersion": "FIREFOX_120",
-    }
-
-    if "desktop" in application.lower():
-        data["channels"] = ["NIGHTLY", "BETA", "RELEASE"]
-    else:
-        data["channel"] = "RELEASE"
-
-    return data
 
 
 @pytest.fixture(name="telemetry_event_check")
