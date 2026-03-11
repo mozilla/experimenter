@@ -757,14 +757,6 @@ features:
         description: If true, the one click search will be enabled.
         type: Boolean
         default: false
-  override-user-specified-homepage-sections:
-    description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
-    variables:
-      enabled:
-        description: |
-          When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.
-        type: Boolean
-        default: false
   pdfjs:
     description: PDF.js features
     variables:
