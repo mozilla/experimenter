@@ -131,7 +131,7 @@ def test_check_mobile_targeting(
         languages=context["language"],
     )
     data = helpers.load_experiment_data(experiment_slug)
-    expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
+    expression = data["targeting"]
 
     for sub_expr in collect_exprs(expression):
         # The evaluator will throw if it detects a syntax error, a comparison type

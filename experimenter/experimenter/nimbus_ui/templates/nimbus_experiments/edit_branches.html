@@ -414,6 +414,7 @@
   </div>
 {% endblock main_content %}
 {% block extrascripts %}
+  {% if branch_form_data %}{{ branch_form_data|json_script:"branch-form-data" }}{% endif %}
   {{ block.super }}
   <script src="{% static 'nimbus_ui/edit_branches.bundle.js' %}"></script>
 {% endblock extrascripts %}
