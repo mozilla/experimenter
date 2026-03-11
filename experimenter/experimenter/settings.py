@@ -89,7 +89,6 @@ INSTALLED_APPS = [
     "django.forms",
     # Libraries
     "import_export",
-    "graphene_django",
     "corsheaders",
     "django_markdown2",
     "rangefilter",
@@ -191,14 +190,6 @@ DATABASES = {
         "PORT": "5432",
     }
 }
-
-# Graphene Schema
-GRAPHENE = {"SCHEMA": "experimenter.experiments.api.v5.schema"}
-
-if DEBUG:  # pragma: no cover
-    GRAPHENE["MIDDLEWARE"] = [
-        "experimenter.base.graphene.GrapheneExceptionMiddleware",
-    ]
 
 
 # Password validation

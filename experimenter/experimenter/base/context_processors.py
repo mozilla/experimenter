@@ -2,7 +2,6 @@ import json
 import urllib
 
 from django.conf import settings
-from django.urls import reverse
 
 from experimenter.base import app_version
 
@@ -16,7 +15,6 @@ def features(request):
                 {
                     "sentry_dsn": settings.SENTRY_DSN_NIMBUS_UI,
                     "version": app_version(),
-                    "graphql_url": reverse("nimbus-api-graphql"),
                 }
             )
         ),
