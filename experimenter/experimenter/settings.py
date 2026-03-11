@@ -66,7 +66,6 @@ ALLOWED_HOSTS = [HOSTNAME]
 if DEBUG:
     ALLOWED_HOSTS += ["localhost", "nginx"]  # pragma: no cover
 
-USE_YARN_DEV = config("USE_YARN_DEV", default=DEBUG, cast=bool)
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -89,7 +88,6 @@ INSTALLED_APPS = [
     "django.forms",
     # Libraries
     "import_export",
-    "graphene_django",
     "corsheaders",
     "django_markdown2",
     "rangefilter",
@@ -155,8 +153,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "experimenter.base.context_processors.features",
-                "experimenter.base.context_processors.debug",
                 "experimenter.cirrus.context_processors.cirrus_features",
                 "experimenter.nimbus_ui.context_processors.nimbus_ui_constants",
             ],
@@ -191,14 +187,6 @@ DATABASES = {
         "PORT": "5432",
     }
 }
-
-# Graphene Schema
-GRAPHENE = {"SCHEMA": "experimenter.experiments.api.v5.schema"}
-
-if DEBUG:  # pragma: no cover
-    GRAPHENE["MIDDLEWARE"] = [
-        "experimenter.base.graphene.GrapheneExceptionMiddleware",
-    ]
 
 
 # Password validation
@@ -310,8 +298,6 @@ LOGGING = {
 # Sentry configuration
 SENTRY_DSN = config("SENTRY_DSN", default=None)
 SENTRY_ENV = config("SENTRY_ENV", default=None)
-SENTRY_DSN_NIMBUS_UI = SENTRY_DSN
-
 
 # Django Rest Framework Configuration
 REST_FRAMEWORK = {
@@ -500,7 +486,6 @@ SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="origin")
 SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004", "models.W042"]
 
 # Feature Flags
-FEATURE_MESSAGE_TYPE = config("FEATURE_MESSAGE_TYPE", default=False, cast=bool)
 FEATURE_ANALYSIS = config("FEATURE_ANALYSIS", default=False, cast=bool)
 
 # Kinto settings
