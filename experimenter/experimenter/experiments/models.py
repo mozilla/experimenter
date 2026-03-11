@@ -66,15 +66,6 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
     def latest_changed(self):
         return super().get_queryset().order_by("-_updated_date_time")
 
-    def with_owner_features(self):
-        return (
-            self.get_queryset()
-            .prefetch_related(
-                "owner", "feature_configs", "feature_configs__schemas", "projects"
-            )
-            .order_by("-_updated_date_time")
-        )
-
     def for_collection(self, query, collection):
         return (e for e in query if e.kinto_collection == collection)
 

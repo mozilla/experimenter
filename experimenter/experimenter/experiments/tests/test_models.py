@@ -2576,6 +2576,32 @@ class TestNimbusExperiment(TestCase):
                 "http://kinto/v1/admin/#/buckets/main-workspace/collections/nimbus-secure-experiments/simple-review",
             )
 
+    def test_review_url_returns_none_for_multiple_kinto_collections(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        with mock.patch.object(
+            type(experiment),
+            "kinto_collection",
+            new_callable=mock.PropertyMock,
+            side_effect=TargetingMultipleKintoCollectionsError({"col-a", "col-b"}),
+        ):
+            self.assertIsNone(experiment.review_url)
+
+    def test_can_publish_to_preview_returns_false_for_multiple_kinto_collections(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        with mock.patch.object(
+            type(experiment),
+            "kinto_collection",
+            new_callable=mock.PropertyMock,
+            side_effect=TargetingMultipleKintoCollectionsError({"col-a", "col-b"}),
+        ):
+            self.assertFalse(experiment.can_publish_to_preview)
+
     def test_audience_url(self):
         language1 = LanguageFactory.create(code="a")
         language2 = LanguageFactory.create(code="b")
