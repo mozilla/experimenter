@@ -16,31 +16,22 @@ def experiment_slug(application):
 
 
 def test_create_mobile_experiment_for_integration_test(
-    selenium, experiment_url, kinto_client, default_data_api, experiment_slug, application
+    selenium, experiment_url, kinto_client, experiment_slug, application
 ):
     """Create a mobile experiment for device integration tests"""
-    apps = ["IOS", "FENIX"]
+    apps = ["ios", "fenix"]
 
     if str(application) not in apps:
         pytest.skip()
     feature_config_id = helpers.get_feature_id_as_string("messaging", application)
-    test_data = {
-        "featureConfigIds": [int(feature_config_id)],
-        "referenceBranch": {
-            "description": "control",
-            "name": "control",
-            "ratio": 50,
-            "featureValues": [
-                {
-                    "featureConfig": str(feature_config_id),
-                    "value": "{}",
-                },
-            ],
+    helpers.create_experiment(
+        experiment_slug,
+        application,
+        {
+            "feature_config_ids": [int(feature_config_id)],
+            "reference_branch": {"description": "control", "name": "control"},
         },
-    }
-    default_data_api.update(test_data)
-
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    )
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
