@@ -4043,13 +4043,13 @@ ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025_AND_FX_149_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_150_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx150 Mar-03 Trainhop",
-    slug="newtab-150-0309-trainhop",
+    name="New Tab Fx150 Mar-04 Trainhop",
+    slug="newtab-150-0304-trainhop",
     description=(
-        "Desktop users having the New Tab 150.0.20260303.170544 train hop, "
+        "Desktop users having the New Tab 150.1.20260304.231049 train hop, "
         "which includes users of Fx148"
     ),
-    targeting="newtabAddonVersion|versionCompare('150.0.20260303.170544') >= 0",
+    targeting="newtabAddonVersion|versionCompare('150.1.20260304.231049') >= 0",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
