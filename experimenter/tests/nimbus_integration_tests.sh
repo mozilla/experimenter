@@ -45,7 +45,8 @@ case "$FIREFOX_CHANNEL" in
 esac
 
 curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
-sudo chmod -R a+rwx /code/experimenter/tests/integration/
+sudo chmod -R a+rw /code/experimenter/tests/integration/
+sudo chmod -R a+X /code/experimenter/tests/integration/
 mkdir -m a+rwx -p /code/experimenter/tests/integration/test-reports
 sudo chown -R seluser /opt/venv/
 
