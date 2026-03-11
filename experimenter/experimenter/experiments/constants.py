@@ -812,6 +812,8 @@ class NimbusConstants:
         ENROLLMENT_HEALTHY = "enrollment_healthy", "Enrollment Healthy"
         LAUNCH_REQUEST = "launch_request", "Launch Request"
         UPDATE_REQUEST = "update_request", "Update Request"
+        END_ENROLLMENT_REQUEST = "end_enrollment_request", "End Enrollment Request"
+        END_EXPERIMENT_REQUEST = "end_experiment_request", "End Experiment Request"
 
     # Error types from Jetstream that are expected for non-analysis reasons and
     # don't want alerting

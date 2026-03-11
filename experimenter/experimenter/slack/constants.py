@@ -12,6 +12,12 @@ class SlackConstants:
     SLACK_ACTION_END_ENROLLMENT_REQUEST = "end_enrollment_request"
     SLACK_ACTION_END_EXPERIMENT_REQUEST = "end_experiment_request"
 
+    # Slack operation names for logging
+    SLACK_OPERATION_LAUNCH_SUCCESS = "launch success notification"
+    SLACK_OPERATION_UPDATE_SUCCESS = "update success notification"
+    SLACK_OPERATION_ENROLLMENT_ENDING = "enrollment ending notification"
+    SLACK_OPERATION_EXPERIMENT_ENDING = "experiment ending notification"
+
     # Slack form action text mappings
     SLACK_FORM_ACTIONS = {
         SLACK_ACTION_LAUNCH_REQUEST: "🚀 Requests launch",
@@ -30,6 +36,12 @@ class SlackConstants:
     SLACK_ACTION_TO_ALERT_TYPE = {
         SLACK_ACTION_LAUNCH_REQUEST: NimbusConstants.AlertType.LAUNCH_REQUEST,
         SLACK_ACTION_UPDATE_REQUEST: NimbusConstants.AlertType.UPDATE_REQUEST,
+        SLACK_ACTION_END_ENROLLMENT_REQUEST: (
+            NimbusConstants.AlertType.END_ENROLLMENT_REQUEST
+        ),
+        SLACK_ACTION_END_EXPERIMENT_REQUEST: (
+            NimbusConstants.AlertType.END_EXPERIMENT_REQUEST
+        ),
     }
 
     # Slack emoji reaction names
@@ -43,6 +55,15 @@ class SlackConstants:
     SLACK_LAUNCH_SUCCESS_MESSAGE = (
         "🎉 ✅ *{name}* is now LIVE!\n📊 View experiment: <{url}|{slug}>"
     )
+    SLACK_UPDATE_SUCCESS_MESSAGE = (
+        "🔄 ✅ *{name}* update has been published\n📊 View experiment: <{url}|{slug}>"
+    )
+    SLACK_ENROLLMENT_ENDED_MESSAGE = (
+        "⏹️ ✅ Enrollment for *{name}* has ended\n📊 View experiment: <{url}|{slug}>"
+    )
+    SLACK_EXPERIMENT_ENDED_MESSAGE = (
+        "🛑 ✅ *{name}* has ended\n📊 View experiment: <{url}|{slug}>"
+    )
     SLACK_RESULTS_READY_MESSAGE = "📈 {window} analysis results are now available"
     SLACK_ANALYSIS_ERRORS_MESSAGE = "⚠️ Analysis errors detected:\n{error_lines}"
 
@@ -50,6 +71,13 @@ class SlackConstants:
     SLACK_LOG_NOT_CONFIGURED = "Slack not configured, skipping {operation}"
     SLACK_LOG_NOTIFICATION_SENT = "Slack notification sent for experiment {experiment}"
     SLACK_LOG_LAUNCH_SUCCESS_SENT = "Sent launch success message for {experiment}"
+    SLACK_LOG_UPDATE_SUCCESS_SENT = "Sent update success message for {experiment}"
+    SLACK_LOG_ENROLLMENT_ENDING_SENT = (
+        "Sent enrollment ending notification for {experiment}"
+    )
+    SLACK_LOG_EXPERIMENT_ENDING_SENT = (
+        "Sent experiment ending notification for {experiment}"
+    )
     SLACK_LOG_EYES_EMOJI_ADDED = "Added eyes emoji to launch message for {experiment}"
     SLACK_LOG_DM_SENT = "DM sent to user {user_id}"
     SLACK_LOG_USER_IN_CHANNEL = (

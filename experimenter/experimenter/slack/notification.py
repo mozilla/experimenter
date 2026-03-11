@@ -156,12 +156,12 @@ def send_slack_notification(
         raise
 
 
-def send_experiment_launch_success_message(experiment_id, thread_ts):
+def send_threaded_success_message(
+    experiment_id, thread_ts, message_template, log_operation, success_log_message
+):
     if not (client := _get_slack_client()):
         logger.info(
-            SlackConstants.SLACK_LOG_NOT_CONFIGURED.format(
-                operation="launch success notification"
-            )
+            SlackConstants.SLACK_LOG_NOT_CONFIGURED.format(operation=log_operation)
         )
         return False
 
@@ -176,8 +176,7 @@ def send_experiment_launch_success_message(experiment_id, thread_ts):
         return False
 
     channel = settings.SLACK_NIMBUS_CHANNEL
-
-    message = SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE.format(
+    message = message_template.format(
         name=experiment.name,
         url=experiment.experiment_url,
         slug=experiment.slug,
@@ -200,18 +199,11 @@ def send_experiment_launch_success_message(experiment_id, thread_ts):
             timestamp=thread_ts,
         )
 
-        logger.info(
-            SlackConstants.SLACK_LOG_LAUNCH_SUCCESS_SENT.format(
-                experiment=experiment.slug
-            )
-        )
+        logger.info(success_log_message(experiment.slug))
         return True
 
     except SlackApiError as e:
-        msg = SlackConstants.SLACK_LOG_FAILED_SEND_LAUNCH_SUCCESS.format(
-            experiment=experiment.slug
-        )
-        logger.error(f"{msg}: {e}")
+        logger.error(f"{log_operation} failed: {e}")
         return False
 
 

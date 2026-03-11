@@ -1343,37 +1343,24 @@ class SlackNotificationMixin:
             if experiment.enable_review_slack_notifications:
                 action_text = SlackConstants.SLACK_FORM_ACTIONS[self.slack_action]
 
-                if self.slack_action in (
-                    SlackConstants.SLACK_ACTION_LAUNCH_REQUEST,
-                    SlackConstants.SLACK_ACTION_UPDATE_REQUEST,
-                ):
-                    # Call synchronously to get message timestamp and channel ID
-                    result = nimbus_send_slack_notification(
-                        experiment_id=experiment.id,
-                        email_addresses=experiment.notification_emails,
-                        action_text=action_text,
-                        requesting_user_email=self.request.user.email,
-                        link_url=experiment.experiment_url,
-                    )
-                    if result:
-                        message_ts, channel_id = result
-                        NimbusAlert.objects.create(
-                            experiment=experiment,
-                            alert_type=SlackConstants.SLACK_ACTION_TO_ALERT_TYPE[
-                                self.slack_action
-                            ],
-                            message=action_text,
-                            slack_thread_id=message_ts,
-                            slack_channel_id=channel_id,
-                        )
-                else:
-                    # Other actions can stay async
-                    nimbus_send_slack_notification.delay(
-                        experiment_id=experiment.id,
-                        email_addresses=experiment.notification_emails,
-                        action_text=action_text,
-                        requesting_user_email=self.request.user.email,
-                        link_url=experiment.experiment_url,
+                # Call synchronously to get message timestamp and channel ID
+                result = nimbus_send_slack_notification(
+                    experiment_id=experiment.id,
+                    email_addresses=experiment.notification_emails,
+                    action_text=action_text,
+                    requesting_user_email=self.request.user.email,
+                    link_url=experiment.experiment_url,
+                )
+                if result:
+                    message_ts, channel_id = result
+                    NimbusAlert.objects.create(
+                        experiment=experiment,
+                        alert_type=SlackConstants.SLACK_ACTION_TO_ALERT_TYPE[
+                            self.slack_action
+                        ],
+                        message=action_text,
+                        slack_thread_id=message_ts,
+                        slack_channel_id=channel_id,
                     )
         return experiment
 
@@ -1653,6 +1640,11 @@ class ApproveEndEnrollmentForm(UpdateStatusForm):
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
+        add_emoji_to_message_async.delay(
+            experiment.id,
+            NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
+        )
         return experiment
 
 
@@ -1691,10 +1683,15 @@ class ApproveEndExperimentForm(UpdateStatusForm):
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
+        add_emoji_to_message_async.delay(
+            experiment.id,
+            NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
+        )
         return experiment
 
 
-class CancelEndEnrollmentForm(UpdateStatusForm):
+class CancelEndEnrollmentForm(CancelRequestMixin, UpdateStatusForm):
     required_status = NimbusExperiment.Status.LIVE
     required_status_next = NimbusExperiment.Status.LIVE
     required_publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -1704,6 +1701,7 @@ class CancelEndEnrollmentForm(UpdateStatusForm):
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
     is_paused = False
+    cancel_request_alert_type = NimbusConstants.AlertType.END_ENROLLMENT_REQUEST
 
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000
@@ -1722,7 +1720,7 @@ class CancelEndEnrollmentForm(UpdateStatusForm):
         return f"{self.request.user} {self.cleaned_data['cancel_message']}"
 
 
-class CancelEndExperimentForm(UpdateStatusForm):
+class CancelEndExperimentForm(CancelRequestMixin, UpdateStatusForm):
     required_status = NimbusExperiment.Status.LIVE
     required_status_next = NimbusExperiment.Status.COMPLETE
     required_publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -1731,6 +1729,7 @@ class CancelEndExperimentForm(UpdateStatusForm):
     status = NimbusExperiment.Status.LIVE
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
+    cancel_request_alert_type = NimbusConstants.AlertType.END_EXPERIMENT_REQUEST
 
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000

@@ -101,8 +101,9 @@ class SlackNotificationMockMixin:
     def setUp(self):
         super().setUp()
         self.mock_slack_task = patch(
-            "experimenter.slack.tasks.nimbus_send_slack_notification.delay"
+            "experimenter.nimbus_ui.forms.nimbus_send_slack_notification"
         ).start()
+        self.mock_slack_task.return_value = ("1234567890.123456", "C123456")
         self.addCleanup(self.mock_slack_task.stop)
 
 
@@ -1571,7 +1572,9 @@ class TestLiveToEndEnrollmentForm(SlackNotificationMockMixin, RequestFormTestCas
         self.mock_slack_task.assert_called_once()
 
 
-class TestApproveEndEnrollmentForm(KintoPushQueueMockMixin, RequestFormTestCase):
+class TestApproveEndEnrollmentForm(
+    KintoPushQueueMockMixin, SlackEmojiMockMixin, RequestFormTestCase
+):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -1597,6 +1600,11 @@ class TestApproveEndEnrollmentForm(KintoPushQueueMockMixin, RequestFormTestCase)
         self.assertIn("approved the end enrollment request", changelog.message)
         self.mock_push_task.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
     @parameterized.expand(
@@ -1744,7 +1752,9 @@ class TestLiveToCompleteForm(SlackNotificationMockMixin, RequestFormTestCase):
         self.mock_slack_task.assert_called_once()
 
 
-class TestApproveEndExperimentForm(KintoPushQueueMockMixin, RequestFormTestCase):
+class TestApproveEndExperimentForm(
+    KintoPushQueueMockMixin, SlackEmojiMockMixin, RequestFormTestCase
+):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -1770,6 +1780,11 @@ class TestApproveEndExperimentForm(KintoPushQueueMockMixin, RequestFormTestCase)
         self.assertIn("approved the end experiment request", changelog.message)
         self.mock_push_task.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
     def test_valid_transition_not_paused(self):
@@ -1797,6 +1812,11 @@ class TestApproveEndExperimentForm(KintoPushQueueMockMixin, RequestFormTestCase)
         self.assertIn("approved the end experiment request", changelog.message)
         self.mock_push_task.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
     @parameterized.expand(

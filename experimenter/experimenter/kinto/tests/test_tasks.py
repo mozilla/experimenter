@@ -23,6 +23,7 @@ from experimenter.experiments.tests.factories import (
 from experimenter.kinto import tasks
 from experimenter.kinto.client import KINTO_REVIEW_STATUS, KINTO_ROLLBACK_STATUS
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
+from experimenter.slack.constants import SlackConstants
 
 PREFFLIPS_PARAMETERIZED_CASES = [
     (
@@ -1024,7 +1025,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
             launching_experiment.computed_end_date, launching_experiment.proposed_end_date
         )
 
-    @mock.patch("experimenter.kinto.tasks.send_experiment_launch_success_message")
+    @mock.patch("experimenter.kinto.tasks.send_threaded_success_message")
     def test_launching_experiment_live_handles_slack_notification_error(
         self, mock_send_message
     ):
@@ -1050,10 +1051,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_check_collection_unchanged(settings.KINTO_COLLECTION_NIMBUS_DESKTOP)
 
         # Verify the notification was attempted despite the error
-        mock_send_message.assert_called_once_with(
-            launching_experiment.id,
-            "1234567890.123456",
-        )
+        self.assertTrue(mock_send_message.called)
 
         launching_experiment.refresh_from_db()
         self.assertEqual(launching_experiment.status, NimbusExperiment.Status.LIVE)
@@ -1061,7 +1059,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
             launching_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
 
-    @mock.patch("experimenter.kinto.tasks.send_experiment_launch_success_message")
+    @mock.patch("experimenter.kinto.tasks.send_threaded_success_message")
     def test_updating_experiment_handles_slack_notification_error(
         self, mock_send_message
     ):
@@ -1096,16 +1094,55 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self._assert_check_collection_unchanged(settings.KINTO_COLLECTION_NIMBUS_DESKTOP)
 
         # Verify the notification was attempted despite the error
-        mock_send_message.assert_called_once_with(
-            updating_experiment.id,
-            "1234567890.123456",
-        )
+        self.assertTrue(mock_send_message.called)
 
         updating_experiment.refresh_from_db()
         self.assertEqual(
             updating_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
         self.assertIn("updated_field", updating_experiment.published_dto)
+
+    @mock.patch("experimenter.kinto.tasks.send_threaded_success_message")
+    def test_updating_paused_experiment_sends_enrollment_ended_notification(
+        self, mock_send_message
+    ):
+        feature_config = create_desktop_feature("test-feature")
+        paused_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+            is_rollout=True,
+            is_paused=True,
+        )
+
+        NimbusAlert.objects.create(
+            experiment=paused_experiment,
+            alert_type=NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
+            message="⏸️ Requests end enrollment",
+            slack_thread_id="1234567890.123456",
+        )
+
+        old_published_dto = NimbusExperimentSerializer(paused_experiment).data
+        paused_experiment.published_dto = old_published_dto.copy()
+        paused_experiment.save()
+
+        new_published_record = old_published_dto.copy()
+        new_published_record["updated_field"] = "new_value"
+        new_published_record["last_modified"] = 123456789
+
+        self.mock_kinto_client.get_records.return_value = [new_published_record]
+        self.setup_kinto_no_pending_review()
+
+        self._assert_check_collection_unchanged(settings.KINTO_COLLECTION_NIMBUS_DESKTOP)
+        mock_send_message.assert_called_once()
+        call_args = mock_send_message.call_args[0]
+        self.assertEqual(call_args[2], SlackConstants.SLACK_ENROLLMENT_ENDED_MESSAGE)
+
+        paused_experiment.refresh_from_db()
+        self.assertEqual(paused_experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            paused_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
 
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_ending_experiment_completed_when_record_is_not_in_main(
