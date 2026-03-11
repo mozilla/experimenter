@@ -3,8 +3,8 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from itertools import chain
 from pathlib import Path
+from typing import Any
 
-from django.conf import settings
 from django.core.files.storage import storages
 from django.utils import timezone
 from mozilla_nimbus_schemas.jetstream import (
@@ -222,8 +222,7 @@ def get_experiment_data(experiment: NimbusExperiment):
     except RuntimeError as e:
         runtime_errors.append(str(e))
 
-    experiment_data = {
-        "show_analysis": settings.FEATURE_ANALYSIS,
+    experiment_data: dict[str, Any] = {
         "metadata": experiment_metadata,
     }
 

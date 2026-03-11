@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.core.cache import cache
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
 from mozilla_nimbus_schemas.jetstream import SampleSizes, SampleSizesFactory
 from parameterized import parameterized
@@ -25,7 +25,6 @@ from experimenter.outcomes import Outcomes
 
 
 @mock_valid_outcomes
-@override_settings(FEATURE_ANALYSIS=False)
 class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
     maxDiff = None
 
@@ -688,7 +687,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "analysis_start_time": "2022-08-31T04:30:03+00:00",
                     "metrics": {},
                 },
-                "show_analysis": False,
                 "errors": ERRORS,
             },
         }
@@ -861,7 +859,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 "weekly": {},
                 "overall": {},
                 "metadata": None,
-                "show_analysis": False,
             }
         }
 
@@ -880,7 +877,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 "weekly": {},
                 "overall": {},
                 "metadata": None,
-                "show_analysis": False,
             }
         }
 
@@ -955,7 +951,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     },
                 },
                 "metadata": {},
-                "show_analysis": False,
                 "errors": ERRORS,
             },
         }
@@ -1091,7 +1086,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "analysis_start_time": analysis_start_time,
                     "metrics": {},
                 },
-                "show_analysis": False,
                 "errors": {
                     "experiment": [
                         {
@@ -1223,7 +1217,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     },
                 },
                 "metadata": {},
-                "show_analysis": False,
                 "errors": ERRORS,
             },
         }
@@ -1605,7 +1598,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     },
                 },
                 "metadata": {},
-                "show_analysis": False,
                 "errors": {"experiment": []},
             },
         }
@@ -2995,7 +2987,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     }
                 },
                 "other_metrics": {"other_metrics": {"test": "Test"}},
-                "show_analysis": False,
             },
         }
 
@@ -3162,7 +3153,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     "v3": {
                         "metadata": None,
                         "overall": {},
-                        "show_analysis": False,
                         "daily": {},
                         "weekly": {},
                         "errors": {
@@ -3227,7 +3217,6 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             "v3": {
                 "metadata": None,
                 "overall": None,
-                "show_analysis": False,
                 "weekly": None,
             },
         }
