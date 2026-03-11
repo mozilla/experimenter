@@ -9,8 +9,8 @@ from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.slack.constants import SlackConstants
 from experimenter.slack.notification import (
     add_emoji_to_slack_message,
-    send_experiment_launch_success_message,
     send_slack_notification,
+    send_threaded_success_message,
 )
 
 
@@ -559,9 +559,12 @@ class TestSlackNotifications(TestCase):
         mock_client.reactions_add.return_value = {"ok": True}
 
         thread_ts = "1234567890.123456"
-        result = send_experiment_launch_success_message(
+        result = send_threaded_success_message(
             experiment_id=self.experiment.id,
             thread_ts=thread_ts,
+            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
+            success_log_message=lambda slug: f"Sent launch success message for {slug}",
         )
 
         self.assertTrue(result)
@@ -569,7 +572,7 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.assert_called_once()
         call_args = mock_client.chat_postMessage.call_args
         self.assertIn("✅", call_args.kwargs["text"])
-        self.assertIn("is now LIVE", call_args.kwargs["text"])
+        self.assertIn("LIVE", call_args.kwargs["text"])
         self.assertIn(self.experiment.name, call_args.kwargs["text"])
         self.assertIn(self.experiment.slug, call_args.kwargs["text"])
         self.assertEqual(call_args.kwargs["thread_ts"], thread_ts)
@@ -594,9 +597,12 @@ class TestSlackNotifications(TestCase):
         )
 
         thread_ts = "1234567890.123456"
-        result = send_experiment_launch_success_message(
+        result = send_threaded_success_message(
             experiment_id=self.experiment.id,
             thread_ts=thread_ts,
+            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
+            success_log_message=lambda slug: f"Sent launch success message for {slug}",
         )
 
         self.assertFalse(result)
@@ -606,9 +612,12 @@ class TestSlackNotifications(TestCase):
     @patch("experimenter.slack.notification.WebClient")
     def test_send_experiment_launch_success_message_not_found(self, mock_webclient):
         thread_ts = "1234567890.123456"
-        result = send_experiment_launch_success_message(
+        result = send_threaded_success_message(
             experiment_id=999999,
             thread_ts=thread_ts,
+            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
+            success_log_message=lambda slug: f"Sent launch success message for {slug}",
         )
 
         self.assertFalse(result)
@@ -617,9 +626,12 @@ class TestSlackNotifications(TestCase):
     @override_settings(SLACK_AUTH_TOKEN=None)
     def test_send_experiment_launch_success_message_no_token(self):
         thread_ts = "1234567890.123456"
-        result = send_experiment_launch_success_message(
+        result = send_threaded_success_message(
             experiment_id=self.experiment.id,
             thread_ts=thread_ts,
+            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
+            success_log_message=lambda slug: f"Sent launch success message for {slug}",
         )
 
         self.assertFalse(result)

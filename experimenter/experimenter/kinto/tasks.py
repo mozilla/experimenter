@@ -16,7 +16,8 @@ from experimenter.experiments.email import (
 )
 from experimenter.experiments.models import NimbusAlert, NimbusChangeLog, NimbusExperiment
 from experimenter.kinto.client import KintoClient
-from experimenter.slack.notification import send_experiment_launch_success_message
+from experimenter.slack.constants import SlackConstants
+from experimenter.slack.notification import send_threaded_success_message
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("kinto.nimbus_tasks")
@@ -165,21 +166,26 @@ def handle_rejection(applications, kinto_client):
         logger.info(f"{experiment.slug} rejected")
 
 
-def _send_slack_alert_success_message(experiment, alert_type, error_message_suffix):
+def _send_slack_alert_success_message(
+    experiment, alert_type, message_template, operation_name, log_message_func
+):
     try:
         alert = NimbusAlert.objects.filter(
             experiment=experiment,
             alert_type=alert_type,
             slack_thread_id__isnull=False,
-        ).first()
+        ).last()
 
         if alert and alert.slack_thread_id:
-            send_experiment_launch_success_message(
+            send_threaded_success_message(
                 experiment.id,
                 alert.slack_thread_id,
+                message_template,
+                operation_name,
+                log_message_func,
             )
     except Exception as e:
-        logger.error(f"Failed to send {error_message_suffix}: {e}")
+        logger.error(f"Failed to send {operation_name}: {e}")
 
 
 def handle_launching_experiments(applications, records, collection):
@@ -211,11 +217,14 @@ def handle_launching_experiments(applications, records, collection):
 
                 experiment.update_computed_end_date()
 
-            # Send threaded Slack notification if launch request alert exists
             _send_slack_alert_success_message(
                 experiment,
                 NimbusConstants.AlertType.LAUNCH_REQUEST,
-                "launch success notification",
+                SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+                SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
+                lambda slug: SlackConstants.SLACK_LOG_LAUNCH_SUCCESS_SENT.format(
+                    experiment=slug
+                ),
             )
 
             logger.info(f"{experiment.slug} launched")
@@ -251,12 +260,26 @@ def handle_updating_experiments(applications, records, collection):
 
                 experiment.update_computed_end_date()
 
-            # Send threaded Slack notification if update request alert exists
-            _send_slack_alert_success_message(
-                experiment,
-                NimbusConstants.AlertType.UPDATE_REQUEST,
-                "update success notification",
-            )
+            if experiment.is_paused:
+                _send_slack_alert_success_message(
+                    experiment,
+                    NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
+                    SlackConstants.SLACK_ENROLLMENT_ENDED_MESSAGE,
+                    SlackConstants.SLACK_OPERATION_ENROLLMENT_ENDING,
+                    lambda slug: SlackConstants.SLACK_LOG_ENROLLMENT_ENDING_SENT.format(
+                        experiment=slug
+                    ),
+                )
+            else:
+                _send_slack_alert_success_message(
+                    experiment,
+                    NimbusConstants.AlertType.UPDATE_REQUEST,
+                    SlackConstants.SLACK_UPDATE_SUCCESS_MESSAGE,
+                    SlackConstants.SLACK_OPERATION_UPDATE_SUCCESS,
+                    lambda slug: SlackConstants.SLACK_LOG_UPDATE_SUCCESS_SENT.format(
+                        experiment=slug
+                    ),
+                )
 
             logger.info(f"{experiment.slug} updated")
 
@@ -286,6 +309,16 @@ def handle_ending_experiments(applications, records, collection):
                 )
 
                 experiment.update_computed_end_date()
+
+            _send_slack_alert_success_message(
+                experiment,
+                NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+                SlackConstants.SLACK_EXPERIMENT_ENDED_MESSAGE,
+                SlackConstants.SLACK_OPERATION_EXPERIMENT_ENDING,
+                lambda slug: SlackConstants.SLACK_LOG_EXPERIMENT_ENDING_SENT.format(
+                    experiment=slug
+                ),
+            )
 
             logger.info(f"{experiment.slug} ended")
 
