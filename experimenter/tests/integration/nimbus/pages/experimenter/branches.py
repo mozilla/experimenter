@@ -1,6 +1,5 @@
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.metrics import MetricsPage
@@ -26,6 +25,7 @@ class BranchesPage(ExperimenterBase):
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
     _feature_select_locator = (By.CSS_SELECTOR, "#branches-form .dropdown")
+    _feature_search_locator = (By.CSS_SELECTOR, ".bs-searchbox > input:nth-child(1)")
     _add_screenshot_buttons_locator = (By.CSS_SELECTOR, "#add-screenshot-button")
     _rollout_checkbox_locator = (By.CSS_SELECTOR, '[data-testid="is-rollout-checkbox"]')
     _feature_config_id_locator = (By.CSS_SELECTOR, "#id_feature_configs > option")
@@ -33,95 +33,53 @@ class BranchesPage(ExperimenterBase):
     PAGE_TITLE = "Edit Branches Page"
 
     @property
-    def reference_branch_name(self):
-        return self.wait_for_and_find_element(
-            self._reference_branch_name_locator, "reference branch name"
-        ).text
-
-    @reference_branch_name.setter
-    def reference_branch_name(self, text=None):
-        self.wait_for_and_find_element(
-            self._reference_branch_name_locator, "reference branch name"
-        ).send_keys(f"{text}")
-
-    @property
     def reference_branch_description(self):
-        return self.wait_for_and_find_element(
-            *self._reference_branch_description_locator, "reference branch description"
-        ).text
+        return self.get_input(self._reference_branch_description_locator).text
 
     @reference_branch_description.setter
     def reference_branch_description(self, text=None):
-        self.wait_for_and_find_element(
-            *self._reference_branch_description_locator, "reference_branch description"
-        ).send_keys(f"{text}")
+        el = self.get_input(self._reference_branch_description_locator)
+        el.send_keys(f"{text}")
 
     @property
     def reference_branch_value(self):
-        return self._get_feature_value(
-            self.wait_for_and_find_element(
-                *self._reference_branch_value_locator, "reference branch value"
-            )
+        elements = self.wait_for_and_find_elements(
+            *self._branch_value_locator, "reference branch value"
         )
+        return self._get_feature_value(elements[0])
 
     @reference_branch_value.setter
     def reference_branch_value(self, text):
-        element = self.wait_for_and_find_elements(
+        elements = self.wait_for_and_find_elements(
             *self._branch_value_locator, "reference branch value"
         )
-
-        self._set_feature_value(
-            element[0],
-            text,
-        )
-
-    @property
-    def treatment_branch_name(self):
-        return self.wait_for_and_find_element(
-            *self._treatment_branch_name_locator, "treatment branch name"
-        ).text
-
-    @treatment_branch_name.setter
-    def treatment_branch_name(self, text=None):
-        self.wait_for_and_find_element(
-            *self._treatment_branch_name_locator, "treatment branch name"
-        ).send_keys(f"{text}")
+        self._set_feature_value(elements[0], text)
 
     @property
     def treatment_branch_description(self):
-        return self.wait_for_and_find_element(
-            *self._treatment_branch_description_locator, "treatment branch description"
-        ).text
+        return self.get_input(self._treatment_branch_description_locator).text
 
     @treatment_branch_description.setter
     def treatment_branch_description(self, text=None):
-        self.wait_for_and_find_element(
-            *self._treatment_branch_description_locator, "treatment branch description"
-        ).send_keys(f"{text}")
+        el = self.get_input(self._treatment_branch_description_locator)
+        el.send_keys(f"{text}")
 
     @property
     def treatment_branch_value(self):
-        return self._get_feature_value(
-            self.wait_for_and_find_element(
-                *self._treatment_branch_value_locator, "treatment branch value"
-            )
+        elements = self.wait_for_and_find_elements(
+            *self._branch_value_locator, "treatment branch value"
         )
+        return self._get_feature_value(elements[-1])
 
     @treatment_branch_value.setter
     def treatment_branch_value(self, text):
-        element = self.wait_for_and_find_elements(
+        elements = self.wait_for_and_find_elements(
             *self._branch_value_locator, "treatment branch value"
         )
-
-        self._set_feature_value(
-            element[-1],
-            text,
-        )
+        self._set_feature_value(elements[-1], text)
 
     def remove_branch(self):
-        self.wait_for_and_find_element(
-            *self._remove_branch_locator, "remove branch button"
-        ).click()
+        self.click_element(self._remove_branch_locator)
 
     @property
     def feature_config(self):
@@ -131,17 +89,11 @@ class BranchesPage(ExperimenterBase):
 
     @feature_config.setter
     def feature_config(self, feature_config_id):
-        el = self.wait_for_and_find_element(
-            *self._feature_select_locator, "feature configs"
+        self.set_bootstrap_select(
+            self._feature_select_locator,
+            self._feature_search_locator,
+            [feature_config_id],
         )
-
-        el.click()  # Open the drop-down
-        search_box = self.wait_for_and_find_element(
-            By.CSS_SELECTOR, ".bs-searchbox > input:nth-child(1)"
-        )
-        search_box.click()
-        search_box.send_keys(feature_config_id)
-        search_box.send_keys(Keys.ENTER)
 
     @property
     def is_rollout(self):
@@ -150,9 +102,7 @@ class BranchesPage(ExperimenterBase):
         )
 
     def make_rollout(self):
-        self.wait_for_and_find_element(
-            *self._rollout_checkbox_locator, "is_rollout"
-        ).click()
+        self.click_element(self._rollout_checkbox_locator)
 
     @property
     def add_screenshot_buttons(self):
@@ -184,8 +134,7 @@ class BranchesPage(ExperimenterBase):
         return self.wait_for_and_find_element(
             By.CSS_SELECTOR,
             selector,
-            f"screenshot description field for \
-            {screenshot_idx} screenshot {screenshot_idx}",
+            f"screenshot description field for {screenshot_idx}",
         )
 
     def screenshot_image_field(self, branch="referenceBranch", screenshot_idx=0):
@@ -193,5 +142,5 @@ class BranchesPage(ExperimenterBase):
         return self.wait_for_and_find_element(
             By.CSS_SELECTOR,
             selector,
-            f"screenshot image field for {screenshot_idx} screenshot {screenshot_idx}",
+            f"screenshot image field for {screenshot_idx}",
         )
