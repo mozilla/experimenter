@@ -21,7 +21,7 @@
     "htmx.org": "^1.9.12",
     "jquery": "^3.7.1",
     "json-to-ast": "^2.1.0",
-    "pdfmake": "^0.3.5",
+    "pdfmake": "^0.3.6",
     "react-app": "^1.1.2",
     "zod": "^3.24.1"
   },
