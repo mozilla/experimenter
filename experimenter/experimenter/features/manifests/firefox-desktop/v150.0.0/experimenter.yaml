@@ -271,6 +271,14 @@ urlbar:
     autoFillAdaptiveHistoryUseCountThreshold:
       type: string
       description: This value assumes float expression like "0.47". Threshold for use count of input history that we handle as adaptive history autofill. If the use count is this value or more, it will be a candidate.
+    autoFillAdaptiveHistoryBackspaceBlockDurationMs:
+      type: int
+      fallbackPref: browser.urlbar.autoFill.adaptiveHistory.backspaceBlockDurationMs
+      description: Duration in ms to temporarily block autofill after backspace penalty.
+    autoFillAdaptiveHistoryDismissalBlockDurationMs:
+      type: int
+      fallbackPref: browser.urlbar.autoFill.adaptiveHistory.dismissalBlockDurationMs
+      description: Duration in ms to block an origin or URL after user dismissal.
     deduplicationEnabled:
       type: boolean
       setPref:

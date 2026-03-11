@@ -888,14 +888,6 @@ features:
         description: If true, the one click search will be enabled.
         type: Boolean
         default: false
-  override-user-specified-homepage-sections:
-    description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
-    variables:
-      enabled:
-        description: |
-          When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.
-        type: Boolean
-        default: false
   pdfjs:
     description: PDF.js features
     variables:
@@ -1013,19 +1005,19 @@ features:
       enabled:
         description: If true, Search Optimization is enabled.
         type: Boolean
-        default: false
+        default: true
       show-flights-card:
         description: If true, Search Optimization Flights cards are enabled.
         type: Boolean
-        default: false
+        default: true
       show-sports-card:
         description: If true, Search Optimization Sports cards are enabled.
         type: Boolean
-        default: false
+        default: true
       show-stocks-card:
         description: If true, Search Optimization Stock cards are enabled.
         type: Boolean
-        default: false
+        default: true
   search-suggestions-on-homepage:
     description: Enables search suggestions on homepage.
     variables:
