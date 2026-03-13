@@ -485,9 +485,6 @@ SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="origin")
 # Silenced ssl_redirect, sts, django primary key checks
 SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004", "models.W042"]
 
-# Feature Flags
-FEATURE_ANALYSIS = config("FEATURE_ANALYSIS", default=False, cast=bool)
-
 # Kinto settings
 KINTO_HOST = config("KINTO_HOST")
 KINTO_USER = config("KINTO_USER")
