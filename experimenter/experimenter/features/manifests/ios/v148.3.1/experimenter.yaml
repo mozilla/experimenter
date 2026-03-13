@@ -513,13 +513,6 @@ toolbar-refactor-feature:
       type: boolean
       description: |
         Enables swipe gestures to switch between browser tabs.
-    tab_tray_button_type:
-      type: string
-      description: |
-        The style of the tab tray button in the toolbar.
-      enum:
-      - number
-      - screenshot
     toolbar_update_hint:
       type: boolean
       description: |
@@ -592,10 +585,6 @@ translations-feature:
       type: boolean
       description: |
         Whether or not to enable translations feature.
-    languagePickerEnabled:
-      type: boolean
-      description: |
-        Whether or not to enable the translations language picker (Phase 2).
 trending-searches-feature:
   description: |
     Enables trending searches.

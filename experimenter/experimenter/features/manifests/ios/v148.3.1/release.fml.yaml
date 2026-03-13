@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- beta
+- release
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -97,7 +97,7 @@ features:
         description: |
           If true, the download live activities feature is enabled
         type: Boolean
-        default: true
+        default: false
   felt-privacy-feature:
     description: The feature that enhances private browsing mode
     variables:
@@ -141,7 +141,7 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: true
+          status: false
   hnt-sponsored-shortcuts-feature:
     description: This feature manages the visibility of sponsored shortcuts on the homepage
     variables:
@@ -191,17 +191,17 @@ features:
         description: |
           Enables the hosted summarizer feature.
         type: Boolean
-        default: true
+        default: false
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
   improved-app-store-review-trigger-feature:
     description: |
       The feature flag to manage the App Store review request trigger.
@@ -282,25 +282,7 @@ features:
         description: |
           A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
         type: Map<MessageKey, MessageData>
-        default:
-          homepage-microsurvey-message:
-            surface: microsurvey
-            style: MICROSURVEY
-            trigger-if-all:
-            - SECOND_HOMEPAGE_VIEW
-            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
-            text: How satisfied are you with your Firefox homepage?
-            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
-            microsurveyConfig:
-              utm-content: homepage
-              icon: homeLarge
-              options:
-              - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
-              - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+        default: {}
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -945,7 +927,7 @@ features:
         description: |
           Enables app attest authentication for the summarizer.
         type: Boolean
-        default: true
+        default: false
   summarizer-language-expansion-feature:
     description: |
       The feature flag to manage the rollout of the summarizer language expansion.
@@ -961,7 +943,6 @@ features:
         type: List<String>
         default:
         - en
-        - it
         - fr
         - es
         - de
@@ -1028,11 +1009,6 @@ features:
           Enables swipe gestures to switch between browser tabs.
         type: Boolean
         default: true
-      tab_tray_button_type:
-        description: |
-          The style of the tab tray button in the toolbar.
-        type: TabTrayButtonType
-        default: number
       toolbar_update_hint:
         description: |
           If true, enables the toolbar update contextual hint.
@@ -1102,11 +1078,6 @@ features:
       enabled:
         description: |
           Whether or not to enable translations feature.
-        type: Boolean
-        default: false
-      languagePickerEnabled:
-        description: |
-          Whether or not to enable the translations language picker (Phase 2).
         type: Boolean
         default: false
   trending-searches-feature:
@@ -1397,13 +1368,6 @@ enums:
         description: A Firefox Suggestion specifically for mobile from adMarketplace.
       wikipedia:
         description: A Firefox Suggestion for a Wikipedia page.
-  TabTrayButtonType:
-    description: The style of the tab tray button in the toolbar.
-    variants:
-      number:
-        description: The original tab tray button style that show the icon with the number of tabs.
-      screenshot:
-        description: The new tab tray button style that shows two images stacked with the previous and next tab.
   TermsOfUsePromptContentOption:
     description: |
       Determines which predefined title and "learn more" strings are used for the Terms of Use prompt.
