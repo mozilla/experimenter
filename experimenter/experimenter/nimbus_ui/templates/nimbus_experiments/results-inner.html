@@ -211,7 +211,7 @@
   </div>
   {% comment %} Metrics {% endcomment %}
   {% for area, metric_data_metadata in metric_area_data.items %}
-    {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data|dict_get:displayed_window %}
+    {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data|dict_get:displayed_window label_details=metric_data_metadata.label_details %}
       {% if metric_data or area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
         <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
           <h2 class="accordion-header d-flex justify-content-between align-items-center">
@@ -226,8 +226,13 @@
               <div class="pe-3 d-flex flex-column align-items-start">
                 <div class="d-flex align-items-center gap-3 mb-2">
                   <h4 class="mb-0">{{ area }}</h4>
+                  {% if label_details %}
+                    <span class="badge rounded-pill {{ label_details.badge }} border border-1 border-secondary-subtle"
+                          data-bs-toggle="tooltip"
+                          data-bs-title="{{ label_details.tooltip }}">{{ label_details.label }}</span>
+                  {% endif %}
                   {% if experiment.is_observation %}
-                    <span class="badge rounded-pill bg-primary-subtle border border-1 border-secondary-subtle"><span class="text-body">In progress &middot; <span class="text-muted fw-medium">results still forming</span></span></span>
+                    <span class="badge rounded-pill bg-info-subtle border border-1 border-secondary-subtle"><span class="text-body">In progress &middot; <span class="text-muted fw-medium">results still forming</span></span></span>
                   {% endif %}
                 </div>
                 <div class="d-inline-flex gap-3 flex-wrap row-gap-1">

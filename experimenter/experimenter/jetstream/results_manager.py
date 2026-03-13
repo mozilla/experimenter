@@ -1,6 +1,7 @@
 from collections import defaultdict
 from enum import StrEnum
-from itertools import chain, zip_longest
+from itertools import zip_longest
+from typing import Any
 
 from experimenter.experiments.constants import (
     NimbusConstants,
@@ -416,11 +417,19 @@ class ExperimentResultsManager:
     def get_metric_areas(
         self, analysis_basis, segment, reference_branch, window="overall"
     ):
-        metric_areas = defaultdict(list)
-        metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA] = []
-        metric_areas[NimbusUIConstants.KPI_AREA] = self.get_kpi_metrics(
-            analysis_basis, segment, reference_branch, window
+        metric_areas: defaultdict[str, Any] = defaultdict(
+            lambda: {"label_details": None, "metrics": []}
         )
+        metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA] = {
+            "label_details": None,
+            "metrics": [],
+        }
+        metric_areas[NimbusUIConstants.KPI_AREA] = {
+            "label_details": NimbusUIConstants.MetricAreaType.GUARDRAIL,
+            "metrics": self.get_kpi_metrics(
+                analysis_basis, segment, reference_branch, window
+            ),
+        }
 
         metrics_metadata = {}
         if self.experiment.results_data:
@@ -429,16 +438,11 @@ class ExperimentResultsManager:
             metrics_metadata = metadata.get("metrics") or {}
 
         all_outcome_metric_slugs = []
-        for slug in chain(
-            self.experiment.primary_outcomes, self.experiment.secondary_outcomes
-        ):
-            outcome = Outcomes.get_by_slug_and_application(
-                slug, self.experiment.application
-            )
-            metrics = outcome.metrics if outcome else []
-            outcome_metrics = []
 
-            for metric in metrics:
+        def get_outcome_metrics(outcome_metrics):
+            formatted_metrics = []
+
+            for metric in outcome_metrics:
                 formatted_metric = {
                     "slug": metric.slug,
                     "description": (
@@ -473,12 +477,30 @@ class ExperimentResultsManager:
                         reference_branch,
                     ),
                 }
-                if formatted_metric not in outcome_metrics:
-                    outcome_metrics.append(formatted_metric)
+                if formatted_metric not in formatted_metrics:
+                    formatted_metrics.append(formatted_metric)
                     all_outcome_metric_slugs.append(metric.slug)
 
-            outcome_metrics.sort(key=lambda m: m["friendly_name"])
-            metric_areas[outcome.friendly_name if outcome else slug] = outcome_metrics
+            formatted_metrics.sort(key=lambda m: m["friendly_name"])
+            return formatted_metrics
+
+        for slug in self.experiment.primary_outcomes:
+            outcome = Outcomes.get_by_slug_and_application(
+                slug, self.experiment.application
+            )
+            metric_areas[outcome.friendly_name if outcome else slug] = {
+                "label_details": NimbusUIConstants.MetricAreaType.PRIMARY,
+                "metrics": get_outcome_metrics(outcome.metrics if outcome else []),
+            }
+
+        for slug in self.experiment.secondary_outcomes:
+            outcome = Outcomes.get_by_slug_and_application(
+                slug, self.experiment.application
+            )
+            metric_areas[outcome.friendly_name if outcome else slug] = {
+                "label_details": NimbusUIConstants.MetricAreaType.USER_SELECTED_SECONDARY,
+                "metrics": get_outcome_metrics(outcome.metrics if outcome else []),
+            }
 
         remaining_metrics = self.get_remaining_metrics_metadata(
             exclude_slugs=all_outcome_metric_slugs,
@@ -488,16 +510,21 @@ class ExperimentResultsManager:
         )
 
         grouped_metrics = []
+
         for metric in remaining_metrics:
             area = MetricAreas.get(self.experiment.application, metric["slug"])
 
             if area:
-                metric_areas[area].append(metric)
+                metric_areas[area]["metrics"].append(metric)
+                metric_areas[area]["label_details"] = (
+                    NimbusUIConstants.MetricAreaType.DEFAULT_SECONDARY
+                )
                 grouped_metrics.append(metric)
 
-        metric_areas[NimbusUIConstants.OTHER_METRICS_AREA] = [
-            m for m in remaining_metrics if m not in grouped_metrics
-        ]
+        metric_areas[NimbusUIConstants.OTHER_METRICS_AREA] = {
+            "label_details": None,
+            "metrics": [m for m in remaining_metrics if m not in grouped_metrics],
+        }
 
         window_results = self.get_window_results(analysis_basis, segment, window)
 
@@ -519,22 +546,27 @@ class ExperimentResultsManager:
                     return True
             return False
 
-        for metrics in metric_areas.values():
-            for metric in metrics:
+        for area_details in metric_areas.values():
+            for metric in area_details["metrics"]:
                 if (
                     is_metric_notable(metric["slug"], metric["group"])
-                    and metric not in metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA]
+                    and metric
+                    not in metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA]["metrics"]
                     and metric.get("has_data")
                 ):
-                    metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA].append(metric)
+                    metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA]["metrics"].append(
+                        metric
+                    )
 
-        metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA].sort(
+        metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA]["metrics"].sort(
             key=lambda m: m["friendly_name"]
         )
 
         return metric_areas
 
-    def get_metric_area_data(self, metrics, analysis_basis, segment, reference_branch):
+    def get_metric_area_data(
+        self, metrics, analysis_basis, segment, reference_branch, label_details
+    ):
         def get_window_metric_data(reference_branch, window_results, window):
             window_metric_data = {}
 
@@ -568,7 +600,11 @@ class ExperimentResultsManager:
             ),
         }
 
-        metric_area_data = {"metrics": metrics, "data": metric_data}
+        metric_area_data = {
+            "metrics": metrics,
+            "data": metric_data,
+            "label_details": label_details,
+        }
 
         return metric_area_data
 
@@ -580,12 +616,13 @@ class ExperimentResultsManager:
         )
         metric_data = {}
 
-        for area, metrics in metric_areas.items():
+        for area, area_details in metric_areas.items():
             metric_data[area] = self.get_metric_area_data(
-                metrics,
+                area_details["metrics"],
                 analysis_basis,
                 segment,
                 reference_branch,
+                area_details["label_details"],
             )
 
         return metric_data

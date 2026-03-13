@@ -1294,7 +1294,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "title": area,
                     "subitems": [
                         {"title": metric["friendly_name"], "slug": metric["slug"]}
-                        for metric in metrics
+                        for metric in metrics["metrics"]
                     ],
                 }
                 for area, metrics in ExperimentResultsManager(self)
