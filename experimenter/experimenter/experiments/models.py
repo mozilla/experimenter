@@ -2360,6 +2360,9 @@ class NimbusBranchScreenshot(models.Model):
             self.image.storage.delete(old_image_name)
 
     def clone(self, to_branch):
+        if not self.image:
+            return None
+
         image_copy = ContentFile(self.image.read())
         image_copy.name = self.image.name
 
