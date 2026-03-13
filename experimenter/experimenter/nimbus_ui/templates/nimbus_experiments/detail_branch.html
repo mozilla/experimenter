@@ -38,7 +38,7 @@
               </th>
               <td colspan="3"
                   class="{% if forloop.last and not branch.screenshots.all.exists %}border-bottom-0{% endif %}">
-                {% include "common/readonly_json.html" with json_content=feature_value.value %}
+                {% include "nimbus_experiments/readonly_feature_value.html" with feature_id=feature_value.feature_config.slug json_content=feature_value.value %}
 
               </td>
             </tr>

@@ -68,26 +68,38 @@
       </form>
     </div>
   </div>
-  <div id="slug-toast"
-       class="toast hide text-bg-primary position-fixed top-0 end-0 m-3 w-auto z-3"
-       role="alert"
-       aria-live="assertive"
-       aria-atomic="true">
-    <div class="toast-body">
-      <i class="fa-regular fa-circle-check"></i>
-      Slug copied to clipboard!
+  <div class="position-fixed top-0 end-0 m-3 w-auto z-3">
+    <div id="toasts-container" class="d-flex flex-column">
+      <div id="slug-toast"
+           class="toast hide text-bg-primary mb-1"
+           role="alert"
+           aria-live="assertive"
+           aria-atomic="true">
+        <div class="toast-body">
+          <i class="fa-regular fa-circle-check"></i>
+          Slug copied to clipboard!
+        </div>
+      </div>
+      <div id="json-copy-toast"
+           class="toast hide text-bg-primary mb-1"
+           role="alert"
+           aria-live="assertive"
+           aria-atomic="true">
+        <div class="toast-body">
+          <i class="fa-regular fa-circle-check"></i>
+          JSON copied to clipboard!
+        </div>
+      </div>
     </div>
   </div>
-  <div id="json-copy-toast"
-       class="toast hide text-bg-primary position-fixed top-0 end-0 m-3 w-auto z-3"
-       role="alert"
-       aria-live="assertive"
-       aria-atomic="true">
-    <div class="toast-body">
-      <i class="fa-regular fa-circle-check"></i>
-      JSON copied to clipboard!
+  <template id="template-toast">
+    <div class="toast hide text-bg-primary mb-1"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true">
+      <div class="toast-body"></div>
     </div>
-  </div>
+  </template>
   <div class="modal fade"
        id="cloneModal"
        tabindex="-1"
