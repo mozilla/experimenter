@@ -1,0 +1,33 @@
+{% extends "common/readonly_json.html" %}
+
+{% block json %}
+  <textarea class="readonly-json"
+            data-nimbus-devtools-feature-value
+            data-feature-id="{{ feature_id }}">{{ json_content }}</textarea>
+{% endblock %}
+{% block json_controls_collapsed %}
+  <button class="btn btn-sm btn-outline-secondary ms-1 d-none"
+          type="button"
+          title="Preview with about:messagepreview"
+          data-nimbus-devtools-preview-button>
+    <span class="fa fa-eye"></span>
+  </button>
+  <div class="btn btn-sm btn-outline-danger ms-1 d-none"
+       type="button"
+       data-nimbus-devtools-cannot-preview-notice>
+    <span class="fa fa-eye"></span>
+  </div>
+{% endblock %}
+{% block json_controls_expanded %}
+  <button class="btn btn-sm btn-outline-secondary ms-1 d-none"
+          type="button"
+          title="Preview with about:messagepreview"
+          data-nimbus-devtools-preview-button>
+    <span class="fa fa-eye"></span>
+  </button>
+  <div class="btn btn-sm btn-outline-danger ms-1 d-none"
+       type="button"
+       data-nimbus-devtools-cannot-preview-notice>
+    <span class="fa fa-eye"></span>
+  </div>
+{% endblock %}

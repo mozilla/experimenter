@@ -36,6 +36,7 @@ export const createReadonlyJsonEditor = (textarea, maxLines = null) => {
   });
 
   view.dom.style.border = "1px solid #ccc";
+  view.dom.style.minHeight = "3em";
 
   textarea.parentNode.insertBefore(view.dom, textarea);
   textarea.style.display = "none";
