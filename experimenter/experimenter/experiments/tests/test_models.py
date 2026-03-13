@@ -5590,6 +5590,24 @@ class TestNimbusBranchScreenshot(TestCase):
             self.screenshot.delete()
             mock_delete.assert_called_with(expected_filename)
 
+    def test_clone_screenshot_with_missing_image_skips(self):
+        self.screenshot.save()
+        # Simulate a screenshot record whose image field has no file associated
+        # (e.g., file was removed from storage or field was cleared)
+        NimbusBranchScreenshot.objects.filter(id=self.screenshot.id).update(image="")
+        self.screenshot.refresh_from_db()
+
+        target_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        target_branch = target_experiment.branches.first()
+        initial_count = target_branch.screenshots.count()
+
+        # Should not raise ValueError — just skip the broken screenshot
+        result = self.screenshot.clone(target_branch)
+        self.assertIsNone(result)
+        self.assertEqual(target_branch.screenshots.count(), initial_count)
+
 
 class NimbusFeatureConfigTests(TestCase):
     def test_schemas_between_versions(self):
