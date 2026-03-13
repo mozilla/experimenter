@@ -1,13 +1,14 @@
 {% extends "nimbus_experiments/experiment_base.html" %}
 
 {% load static %}
-{% load nimbus_extras %}
+{% load nimbus_devtools nimbus_extras %}
 {% load django_bootstrap5 %}
 {% load widget_tweaks %}
 {% load error_helpers %}
 
 {% block title %}{{ experiment.name }} - Branches{% endblock %}
 {% block main_content %}
+  {% devtools_metadata experiment %}
   <div class="position-relative">
     <!-- Full form overlay -->
     <div id="htmx-loading-overlay"
@@ -144,7 +145,19 @@
                             <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
                           {% endif %}
                         </label>
-                        <div class="feature-value-editor">{{ branch_feature_values_form.value|add_error_class:"is-invalid" }}</div>
+                        <div class="feature-value-editor position-relative"
+                             data-nimbus-devtools-feature-editor
+                             data-feature-id="{{ branch_feature_values_form.instance.feature_config.slug }}">
+                          {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
+                          <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
+                            <button class="btn btn-sm btn-outline-secondary ms-1 d-none"
+                                    type="button"
+                                    title="Preview with about:messagepreview"
+                                    data-nimbus-devtools-try-preview-button>
+                              <span class="fa fa-eye"></span>
+                            </button>
+                          </div>
+                        </div>
                         {% for error in branch_feature_values_form.value.errors %}
                           <div class="invalid-feedback d-block">{{ error }}</div>
                         {% endfor %}

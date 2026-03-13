@@ -1,10 +1,11 @@
 {% extends "nimbus_experiments/experiment_base.html" %}
 
 {% load static %}
-{% load nimbus_extras %}
+{% load nimbus_extras nimbus_devtools %}
 
 {% block title %}{{ experiment.name }}{% endblock %}
 {% block main_content %}
+  {% devtools_metadata experiment %}
   <div id="PageSummary" class="mt-3">
     {% include "nimbus_experiments/invalid_pages_warning.html" %}
     {% include "nimbus_experiments/audience_overlap_warnings.html" %}

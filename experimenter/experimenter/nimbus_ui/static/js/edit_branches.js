@@ -46,6 +46,7 @@ const setupCodemirror = (selector, textarea, extraExtensions) => {
   });
 
   view.dom.style.border = "1px solid #ccc";
+  view.dom.style.minHeight = "3em";
 
   textarea.parentNode.insertBefore(view.dom, textarea);
   textarea.style.display = "none";
