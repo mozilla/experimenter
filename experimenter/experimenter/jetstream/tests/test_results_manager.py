@@ -1056,14 +1056,38 @@ class TestExperimentResultsManager(TestCase):
                                 "branch_data": {
                                     "other_metrics": {
                                         "identity": {
-                                            "absolute": {"first": {"point": 75}},
-                                            "percent": 88,
+                                            "absolute": {"first": {"point": 0}},
+                                            "percent": 0,
                                         }
                                     }
                                 }
                             },
                         }
-                    }
+                    },
+                    "exposures": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 75}},
+                                            "percent": 12,
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 0}},
+                                            "percent": 0,
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    },
                 }
             }
         }
@@ -1081,13 +1105,17 @@ class TestExperimentResultsManager(TestCase):
         self.assertEqual(first["slug"], "branch-a")
         self.assertEqual(first["name"], "Branch A")
         self.assertEqual(first["percentage"], 12)
-        self.assertEqual(first["num_participants"], 150)
+        self.assertEqual(first["num_enrolled_clients"], 150)
+        self.assertEqual(first["num_exposed_clients"], 75)
+        self.assertEqual(first["exposure_rate"], 0.5)
 
         # Validate second branch
         self.assertEqual(second["slug"], "branch-b")
         self.assertEqual(second["name"], "Branch B")
-        self.assertEqual(second["percentage"], 88)
-        self.assertEqual(second["num_participants"], 75)
+        self.assertEqual(second["percentage"], 0)
+        self.assertEqual(second["num_enrolled_clients"], 0)
+        self.assertEqual(second["num_exposed_clients"], 0)
+        self.assertEqual(second["exposure_rate"], 0)
 
     @parameterized.expand(
         [
@@ -2636,3 +2664,109 @@ class TestExperimentResultsManager(TestCase):
         # Verify base KPI metrics are still present
         self.assertIn("retained", slugs)
         self.assertIn("search_count", slugs)
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 150}},
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 80}},
+                                                    "percent": 88,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                            "exposures": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 75}},
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 20}},
+                                                    "percent": 88,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        }
+                    }
+                },
+                (75 + 20) / (150 + 80),
+            ),
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 0}},
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                            "exposures": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 0}},
+                                                    "percent": 0,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        }
+                    }
+                },
+                0,
+            ),
+        ]
+    )
+    def test_get_overall_exposure_rate(self, results_data, expected_exposure_rate):
+        self.experiment.results_data = results_data
+        self.experiment.save()
+
+        self.assertAlmostEqual(
+            self.results_manager.exposure_rate("all"), expected_exposure_rate
+        )

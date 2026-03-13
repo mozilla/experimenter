@@ -794,6 +794,7 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
         )
         context["selected_analysis_basis"] = analysis_basis
 
+        context["valid_exposure_status"] = NimbusUIConstants.ExposuresStatus.VALID
         context["invalid_exposure_status"] = NimbusUIConstants.ExposuresStatus.INVALID
 
         displayed_window = "overall"
@@ -833,6 +834,8 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
         context["ask_experimenter_slack_link"] = settings.ASK_EXPERIMENTER_SLACK_LINK
 
         relative_metric_changes = {}
+
+        context["overall_exposure_rate"] = results_manager.exposure_rate(selected_segment)
 
         for metric_data in all_metrics.values():
             metadata = metric_data.get("metrics", {})

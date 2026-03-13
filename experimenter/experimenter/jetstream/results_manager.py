@@ -22,20 +22,36 @@ class ExperimentResultsManager:
         self.experiment = experiment
 
     def get_branch_data(self, analysis_basis, selected_segment, window="overall"):
-        window_results = self.get_window_results(analysis_basis, selected_segment, window)
+        enrollment_results = self.get_window_results(
+            "enrollments", selected_segment, window
+        )
+        exposure_results = self.get_window_results("exposures", selected_segment, window)
 
         branch_data = []
 
         for branch in self.experiment.get_sorted_branches():
             slug = branch.slug
-            participant_metrics = (
-                window_results.get(slug, {})
+            enrolled_client_metrics = (
+                enrollment_results.get(slug, {})
                 .get("branch_data", {})
                 .get("other_metrics", {})
                 .get("identity", {})
             )
-            num_participants = (
-                participant_metrics.get("absolute", {}).get("first", {}).get("point", 0)
+            exposed_client_metrics = (
+                exposure_results.get(slug, {})
+                .get("branch_data", {})
+                .get("other_metrics", {})
+                .get("identity", {})
+            )
+            num_enrolled_clients = (
+                enrolled_client_metrics.get("absolute", {})
+                .get("first", {})
+                .get("point", 0)
+            )
+            num_exposed_clients = (
+                exposed_client_metrics.get("absolute", {})
+                .get("first", {})
+                .get("point", 0)
             )
 
             branch_data.append(
@@ -44,8 +60,10 @@ class ExperimentResultsManager:
                     "name": branch.name,
                     "screenshots": branch.screenshots.all,
                     "description": branch.description,
-                    "percentage": participant_metrics.get("percent"),
-                    "num_participants": num_participants,
+                    "percentage": enrolled_client_metrics.get("percent"),
+                    "num_enrolled_clients": num_enrolled_clients,
+                    "num_exposed_clients": num_exposed_clients,
+                    "exposure_rate": self.exposure_rate(selected_segment, slug),
                 },
             )
 
@@ -641,3 +659,58 @@ class ExperimentResultsManager:
                 overall_change = MetricSignificance.NEGATIVE
 
         return overall_change
+
+    def exposure_rate(self, segment, branch_slug=None):
+        for window in ["overall", "weekly", "daily"]:
+            enrollments_data = self.get_window_results("enrollments", segment, window)
+            exposures_data = self.get_window_results("exposures", segment, window)
+
+            if not enrollments_data or not exposures_data:
+                continue
+
+            if branch_slug:
+                enrollments_client_count = (
+                    enrollments_data.get(branch_slug, {})
+                    .get("branch_data", {})
+                    .get("other_metrics", {})
+                    .get("identity", {})
+                    .get("absolute", {})
+                    .get("first", {})
+                    .get("point", 0)
+                )
+                exposures_client_count = (
+                    exposures_data.get(branch_slug, {})
+                    .get("branch_data", {})
+                    .get("other_metrics", {})
+                    .get("identity", {})
+                    .get("absolute", {})
+                    .get("first", {})
+                    .get("point", 0)
+                )
+            else:
+                # If branch_slug is not provided, calculate the overall exposure rate
+                # across all branches for the segment
+                enrollments_client_count = 0
+                exposures_client_count = 0
+                for branch_data in enrollments_data.values():
+                    enrollments_client_count += (
+                        branch_data.get("branch_data", {})
+                        .get("other_metrics", {})
+                        .get("identity", {})
+                        .get("absolute", {})
+                        .get("first", {})
+                        .get("point", 0)
+                    )
+                for branch_data in exposures_data.values():
+                    exposures_client_count += (
+                        branch_data.get("branch_data", {})
+                        .get("other_metrics", {})
+                        .get("identity", {})
+                        .get("absolute", {})
+                        .get("first", {})
+                        .get("point", 0)
+                    )
+
+            if enrollments_client_count:
+                return exposures_client_count / enrollments_client_count
+            return 0

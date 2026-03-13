@@ -101,6 +101,17 @@
         </div>
         <hr>
         <div>
+          <h5 class="mb-3">Branches</h5>
+          {% if experiment.has_exposures == valid_exposure_status or experiment.has_exposures == invalid_exposure_status %}
+            <p class="text-muted">
+              Overall Exposure Rate: <strong>{{ overall_exposure_rate|to_percentage:2 }}</strong>
+              <i class="fa-regular fa-circle-question ps-1"
+                 data-bs-toggle="tooltip"
+                 data-bs-html="true"
+                 data-bs-delay='{"hide":1000}'
+                 data-bs-title="Percentage of the total enrolled population that was exposed to the experimental treatment (or would have been exposed, for control branches). <a href='https://experimenter.info/data-analysis/data-topics/sizing/#commentary-on-exposure-rates' target='_blank'>Learn more.</a>"></i>
+            </p>
+          {% endif %}
           <div class="row row-cols-2 row-cols-xxl-3 g-4">
             {% for branch in branch_data %}
               <div class="col">
