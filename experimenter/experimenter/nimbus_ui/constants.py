@@ -206,6 +206,30 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         ),
     }
 
+    class MetricAreaType:
+        PRIMARY = {
+            "label": "Primary Metric",
+            "badge": "bg-primary",
+            "tooltip": "Main metrics you are trying to impact in this experiment",
+        }
+        USER_SELECTED_SECONDARY = {
+            "label": "User-Selected Secondary Metric",
+            "badge": "bg-primary-subtle text-dark",
+            "tooltip": """Additional metrics chosen by experiment owner for context.
+            Not the main metric you are trying to impact in this experiment""",
+        }
+        DEFAULT_SECONDARY = {
+            "label": "Default Secondary Metric",
+            "badge": "bg-primary-subtle text-dark",
+            "tooltip": """Additional metrics processed by default for all experiments.
+            Not the main metric you are trying to impact in this experiment""",
+        }
+        GUARDRAIL = {
+            "label": "Guardrail Metric",
+            "badge": "bg-warning text-dark",
+            "tooltip": "Metrics that should not regress",
+        }
+
     class ReviewRequestMessages(Enum):
         END_EXPERIMENT = "end this experiment"
         END_ENROLLMENT = "end enrollment for this experiment"

@@ -1029,7 +1029,7 @@ class TestExperimentResultsManager(TestCase):
         self.assertIn("Notable Changes", metric_areas)
         self.assertIn(
             "retained",
-            [metric["slug"] for metric in metric_areas["Notable Changes"]],
+            [metric["slug"] for metric in metric_areas["Notable Changes"]["metrics"]],
         )
 
         self.assertIn("KPI Metrics", metric_areas)
