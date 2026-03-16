@@ -206,6 +206,22 @@ class GitHubApiTests(TestCase):
         self.assertEqual(contents, "hello, world\n")
 
     @responses.activate
+    def test_fetch_file_404_response(self):
+        responses.get(
+            f"{GITHUB_API_URL}/repos/repo/contents/file.txt",
+            status=404,
+            body="404",
+            match=[matchers.query_param_matcher({"ref": "ref"})],
+        )
+
+        with TemporaryDirectory() as tmp_dir:
+            tmp_filename = Path(tmp_dir, "file.txt")
+            result = github_api.fetch_file("repo", "file.txt", "ref", tmp_filename)
+
+            self.assertIsNone(result)
+            self.assertFalse(tmp_filename.exists())
+
+    @responses.activate
     def test_file_exists(self):
         """Testing github_api.file_exists."""
         responses.get(

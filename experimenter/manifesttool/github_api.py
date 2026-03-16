@@ -136,6 +136,9 @@ def fetch_file(
         params={"ref": rev},
     )
 
+    if rsp.status_code == 404:
+        return None
+
     rsp.raise_for_status()
 
     url = rsp.json()["download_url"]
