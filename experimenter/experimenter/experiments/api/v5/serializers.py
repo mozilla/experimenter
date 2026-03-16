@@ -329,6 +329,7 @@ class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
             "required_experiments",
             "excluded_experiments",
             "parent_experiment",
+            "results_data",
         ]
 
     def get_hypothesis(self, obj):
