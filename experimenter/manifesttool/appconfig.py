@@ -150,6 +150,7 @@ class AppConfig(BaseModel):
     fml_path: str | list[str] | None = None
     experimenter_yaml_path: str | None = None
     release_discovery: ReleaseDiscovery | None = None
+    targeting_files: list[str] | None = None
 
     @model_validator(mode="before")
     @classmethod

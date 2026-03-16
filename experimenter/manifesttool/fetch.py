@@ -35,6 +35,24 @@ class FetchResult:
         return as_str
 
 
+def fetch_targeting_files(
+    save_path: Path,
+    logging_msg: str,
+    app_config: AppConfig,
+    ref: Ref,
+) -> None:
+    targeting_files_path = app_config.targeting_files
+    if targeting_files_path:
+        print(logging_msg)
+
+        github_api.fetch_file(
+            app_config.repo.name,
+            targeting_files_path[0],
+            ref.target,
+            save_path / Path(targeting_files_path[0]).name,
+        )
+
+
 def fetch_fml_app(
     manifest_dir: Path,
     app_name: str,
@@ -107,6 +125,13 @@ def fetch_fml_app(
                 version,
             )
 
+        fetch_targeting_files(
+            manifest_dir / app_config.slug / f"v{version}",
+            f"fetch: {app_name} at {ref} version {version} downloading targeting files",
+            app_config,
+            ref,
+        )
+
         print(f"fetch: {app_name}: generate experimenter.yaml")
         # The single-file fml file for each channel will generate the same
         # experimenter.yaml, so we can pick any here.
@@ -167,6 +192,13 @@ def fetch_legacy_app(
             app_config.experimenter_yaml_path,
             ref.target,
             manifest_path,
+        )
+
+        fetch_targeting_files(
+            manifest_dir / app_config.slug / f"v{version}",
+            f"fetch: {app_name} at {ref} version {version} downloading targeting files",
+            app_config,
+            ref,
         )
 
         with manifest_path.open() as f:
@@ -252,6 +284,12 @@ def fetch_releases(
 
         results.append(result)
 
+    fetch_targeting_files(
+        manifest_dir / app_config.slug,
+        f"fetch: {app_name} at {ref.name} downloading targeting files ",
+        app_config,
+        ref,
+    )
     return results
 
 
