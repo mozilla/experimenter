@@ -1858,7 +1858,7 @@ class TestApproveEndExperimentForm(
         )
 
 
-class TestCancelEndEnrollmentForm(RequestFormTestCase):
+class TestCancelEndEnrollmentForm(SlackEmojiMockMixin, RequestFormTestCase):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -1950,7 +1950,7 @@ class TestCancelEndEnrollmentForm(RequestFormTestCase):
         self.assertIn("Cancelled end enrollment request.", changelog.message)
 
 
-class TestCancelEndExperimentForm(RequestFormTestCase):
+class TestCancelEndExperimentForm(SlackEmojiMockMixin, RequestFormTestCase):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
