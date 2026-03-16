@@ -67,7 +67,7 @@ requests = { version = "2.32.4", extras = ["security"] }
 responses = "0.26.0"
 ruff = "^0.15.0"
 sentry-sdk = "^2.54.0"
-slack-sdk = "^3.40.0"
+slack-sdk = "^3.41.0"
 sqlparse = "0.5.4"
 tblib = "1.7.0"
 toml = "^0.10.2"
