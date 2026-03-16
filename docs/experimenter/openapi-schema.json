@@ -1469,6 +1469,10 @@
           "parent_experiment": {
             "type": "string",
             "readOnly": true
+          },
+          "results_data": {
+            "type": "object",
+            "nullable": true
           }
         },
         "required": [
