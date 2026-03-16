@@ -107,6 +107,19 @@ def fetch_fml_app(
                 version,
             )
 
+        targeting_files_path = app_config.targeting_files
+        if targeting_files_path and version:
+            print(f"fetch: {app_name}: downloading targeting files for version {version}")
+            github_api.fetch_file(
+                app_config.repo.name,
+                targeting_files_path[0],
+                ref.target,
+                manifest_dir
+                / app_config.slug
+                / f"v{version}"
+                / Path(targeting_files_path[0]).name,
+            )
+
         print(f"fetch: {app_name}: generate experimenter.yaml")
         # The single-file fml file for each channel will generate the same
         # experimenter.yaml, so we can pick any here.
@@ -251,6 +264,17 @@ def fetch_releases(
             ref_cache.add(ref)
 
         results.append(result)
+
+    targeting_files_path = app_config.targeting_files
+    if targeting_files_path:
+        print(f"fetch: {app_name} at {ref.name} downloading targeting files ")
+
+        github_api.fetch_file(
+            app_config.repo.name,
+            targeting_files_path[0],
+            ref.target,
+            manifest_dir / app_config.slug / Path(targeting_files_path[0]).name,
+        )
 
     return results
 
