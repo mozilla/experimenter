@@ -1,4 +1,5 @@
 {% load static %}
+{% load nimbus_extras %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -120,7 +121,7 @@
           {% for message in request.user.notifications.get_unread %}
           <p>
             <span class="fas fa-info-circle"></span>
-            {{ message|safe }}
+            {{ message|sanitize_html }}
           </p>
           {% endfor %}
         </div>
