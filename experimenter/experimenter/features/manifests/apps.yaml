@@ -18,6 +18,8 @@ fenix:
           - "main"
           - "beta"
           - "release"
+  targeting_files:
+    - "mobile/android/fenix/app/src/main/java/org/mozilla/fenix/experiments/RecordedNimbusContext.kt"
 
 firefox_ios:
   slug: "ios"
@@ -42,6 +44,8 @@ firefox_ios:
         branch_re: 'release/v(?P<major>\d+)(?:\.(?P<minor>\d+))?'
         tag_re: 'firefox-v(?P<major>\d+)\.(?P<minor>\d+)'
       - type: "branched"
+  targeting_files:
+    - "firefox-ios/Client/Experiments/RecordedNimbusContext.swift"
 
 monitor_cirrus:
   slug: "monitor-web"
@@ -85,6 +89,8 @@ firefox_desktop:
           - "esr115"
           - "esr128"
           - "esr140"
+  targeting_files:
+    - "toolkit/components/nimbus/lib/TargetingContextRecorder.sys.mjs"
 
 experimenter_cirrus:
   slug: "experimenter"
