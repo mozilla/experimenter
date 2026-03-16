@@ -847,6 +847,15 @@ features:
           Toggle between standard (false) and Japan-specific (true) assets and content.
         type: Boolean
         default: false
+  quick-answers-feature:
+    description: |
+      The feature flag to manage the roll out of the quick answers feature.
+    variables:
+      enabled:
+        description: |
+          Enables the feature.
+        type: Boolean
+        default: false
   recent-searches-feature:
     description: |
       Enables recent searches.
@@ -1132,15 +1141,6 @@ features:
         description: The number of maximum suggestions.
         type: Int
         default: 5
-  voice-search-feature:
-    description: |
-      The feature flag to manage the roll out of the voice search feature.
-    variables:
-      enabled:
-        description: |
-          Enables the feature.
-        type: Boolean
-        default: false
   web-engine-integration-refactor:
     description: |
       The feature flag to manage the roll out of the integration of WebEngine into Firefox.
