@@ -55,11 +55,11 @@
                       <div class="row">
                         <div class="col border-end">
                           <h6>Old Value</h6>
-                          <pre style="white-space: pre-wrap;">{{ change.old_value|safe }}</pre>
+                          <pre style="white-space: pre-wrap;">{{ change.old_value|sanitize_html }}</pre>
                         </div>
                         <div class="col">
                           <h6>New Value</h6>
-                          <pre style="white-space: pre-wrap;">{{ change.new_value|safe }}</pre>
+                          <pre style="white-space: pre-wrap;">{{ change.new_value|sanitize_html }}</pre>
                         </div>
                       </div>
                     </div>
