@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Optional
 from unittest import TestCase
-from unittest.mock import call, patch
+from unittest.mock import MagicMock, call, patch
 
 import responses
 import yaml
@@ -101,6 +101,7 @@ def mock_download_single_file(
     version: Optional[Version],
 ):
     """A mock version of `nimbus fml -- single file`."""
+    (manifest_dir / app_config.slug).mkdir(exist_ok=True)
     filename = _get_fml_path(manifest_dir, app_config, channel, version)
     with filename.open("w") as f:
         yaml.dump(generate_fml(app_config, channel), f)
@@ -1081,6 +1082,78 @@ class FetchTests(TestCase):
                 }
             ),
         )
+
+    @patch.object(
+        manifesttool.fetch,
+        "discover_branched_releases",
+        lambda *args: {
+            Version(1): Ref("branch", "foo"),
+            Version(1, 2, 3): Ref("tag", "bar"),
+        },
+    )
+    @patch.object(manifesttool.fetch.github_api, "download")
+    @patch.object(manifesttool.fetch.github_api, "api_request")
+    @patch.object(
+        manifesttool.fetch.nimbus_cli,
+        "download_single_file",
+        side_effect=mock_download_single_file,
+    )
+    @patch.object(
+        manifesttool.fetch.nimbus_cli,
+        "get_channels",
+        side_effect=lambda *args: ["release", "beta"],
+    )
+    def test_fetch_releases_targeting_contexts(
+        self,
+        get_channels,
+        download_single_file,
+        api_request,
+        mock_download,
+    ):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[DiscoveryStrategy.create_branched()],
+            ),
+            targeting_files=["targeting-contexts.yaml"],
+        )
+
+        # Mock api_request to return a response with download_url
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "download_url": "https://raw.githubusercontent.com/fml-repo/targeting-contexts.yaml"
+        }
+        api_request.return_value = mock_response
+
+        cache = RefCache()
+
+        # Mock download.to_path to create files locally
+        def create_file(url, path):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# mock targeting contexts")
+
+        mock_download.to_path.side_effect = create_file
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+
+            fetch_releases(manifest_dir, "fml_app", app_config, cache)
+
+            self.assertTrue(
+                (manifest_dir / "fml-app" / "v1.0.0" / "targeting-contexts.yaml").exists()
+            )
+            self.assertTrue(
+                (manifest_dir / "fml-app" / "v1.2.3" / "targeting-contexts.yaml").exists()
+            )
+            self.assertTrue(
+                (manifest_dir / "fml-app" / "targeting-contexts.yaml").exists()
+            )
 
     def test_summarize_results(self):
         buffer = StringIO()
