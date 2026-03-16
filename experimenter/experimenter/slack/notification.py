@@ -200,7 +200,10 @@ def send_threaded_success_message(
                 timestamp=thread_ts,
             )
         except SlackApiError as emoji_error:
-            if emoji_error.response.get("error") != "already_reacted":
+            if (
+                emoji_error.response.get("error")
+                != SlackConstants.ErrorCode.ALREADY_REACTED
+            ):
                 raise
 
         logger.info(success_log_message(experiment.slug))

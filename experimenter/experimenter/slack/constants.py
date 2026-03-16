@@ -49,6 +49,10 @@ class SlackConstants:
         CANCEL = "x"
         APPROVE = "eyes"
 
+    # Slack API error codes
+    class ErrorCode:
+        ALREADY_REACTED = "already_reacted"
+
     # Slack message templates
     SLACK_DM_PREFIX = "🔔 Join {channel} to get slack notifications: {message}"
     SLACK_DM_CHANNEL_LINK_SUFFIX = "\n\n🔗 View in channel: {channel_message_link}"

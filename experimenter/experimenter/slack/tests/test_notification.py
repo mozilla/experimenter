@@ -621,7 +621,8 @@ class TestSlackNotifications(TestCase):
         mock_client.chat_postMessage.return_value = {"ok": True, "channel": "C123456"}
         # Simulate reaction already exists error
         mock_client.reactions_add.side_effect = SlackApiError(
-            message="Slack error", response={"ok": False, "error": "already_reacted"}
+            message="Slack error",
+            response={"ok": False, "error": SlackConstants.ErrorCode.ALREADY_REACTED},
         )
 
         thread_ts = "1234567890.123456"
