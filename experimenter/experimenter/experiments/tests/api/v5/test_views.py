@@ -255,6 +255,13 @@ class TestNimbusExperimentYamlListView(TestCase):
             risk_ai=True,
             qa_status=NimbusExperiment.QAStatus.GREEN,
             conclusion_recommendations=["RERUN", "GRADUATE"],
+            results_data={
+                "v3": {
+                    "overall": {
+                        "enrollments": {"all": {"percentage": 100.0, "population": 1000}}
+                    }
+                }
+            },
         )
         experiment.locales.add(locale)
         experiment.countries.add(country)
@@ -315,6 +322,12 @@ class TestNimbusExperimentYamlListView(TestCase):
         # Feature configs
         slugs = [fc["slug"] for fc in exp["feature_configs"]]
         self.assertIn("test-feature", slugs)
+
+        # Results data
+        self.assertEqual(
+            exp["results_data"]["v3"]["overall"]["enrollments"]["all"]["population"],
+            1000,
+        )
 
     def test_default_hypothesis_excluded(self):
         application = NimbusExperiment.Application.DESKTOP
