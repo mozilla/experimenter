@@ -483,7 +483,7 @@ features:
       report-site-issue:
         description: If true, report site issue menu item and preview is available.
         type: Boolean
-        default: false
+        default: true
   merino-client:
     description: Feature to enable the Merino Client for users on Firefox on Android.
     variables:

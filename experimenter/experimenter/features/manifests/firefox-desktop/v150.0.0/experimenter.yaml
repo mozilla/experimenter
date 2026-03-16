@@ -3721,6 +3721,23 @@ safeBrowsingRealTime:
       setPref:
         branch: default
         pref: "browser.safebrowsing.realTime.simulation.hitProbability"
+    simulationNegativeCacheEnabled:
+      description: >
+        Whether to enable the negative cache for the real-time request
+        simulator. When enabled, prefixes with no hits are cached to skip
+        subsequent requests.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "browser.safebrowsing.realTime.simulation.negativeCacheEnabled"
+    simulationNegativeCacheTTLSec:
+      description: >
+        TTL in seconds for negative cache entries in the real-time request
+        simulator.
+      type: int
+      setPref:
+        branch: default
+        pref: "browser.safebrowsing.realTime.simulation.negativeCacheTTLSec"
 
 fxaButtonVisibility:
   description: Prefs to control the visibility of the Firefox Accounts toolbar button when not signed in.

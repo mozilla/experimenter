@@ -331,6 +331,16 @@ onboarding-framework-feature:
       type: boolean
       description: |
         Toggle between standard (false) and Japan-specific (true) assets and content.
+quick-answers-feature:
+  description: |
+    The feature flag to manage the roll out of the quick answers feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
 recent-searches-feature:
   description: |
     Enables recent searches.
@@ -609,16 +619,6 @@ trending-searches-feature:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
-voice-search-feature:
-  description: |
-    The feature flag to manage the roll out of the voice search feature.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables the feature.
 web-engine-integration-refactor:
   description: |
     The feature flag to manage the roll out of the integration of WebEngine into Firefox.
