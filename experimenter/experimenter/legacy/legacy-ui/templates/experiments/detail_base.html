@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load nimbus_extras %}
 
 {% block header_content %}
   <h3>
@@ -187,7 +188,7 @@
                                     {% endfor %}
                                 </td>
                                 {% else %}
-                                  <th scope="row">{{value.display_name|safe}}</th>
+                                  <th scope="row">{{value.display_name|sanitize_html}}</th>
                                   <td>{{value.old_value|linebreaks}}</td>
                                   <td>{{value.new_value|linebreaks}}</td>
                                 {% endif %}

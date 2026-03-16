@@ -43,6 +43,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     remove_underscores,
     render_channel_icons,
     render_markdown,
+    sanitize_html,
     short_number,
     status_icon_info,
     to_percentage,
@@ -207,6 +208,32 @@ class FilterTests(TestCase):
     )
     def test_render_markdown(self, markdown_text, expected_html):
         self.assertEqual(render_markdown(markdown_text), expected_html)
+
+    @parameterized.expand(
+        [
+            (
+                "<p>Hello <strong>world</strong></p>",
+                "<p>Hello <strong>world</strong></p>",
+            ),
+            (
+                '<script>alert("xss")</script><p>Safe content</p>',
+                "<p>Safe content</p>",
+            ),
+            (
+                '<a href="javascript:alert(1)">click</a>',
+                '<a rel="noopener noreferrer">click</a>',
+            ),
+            (
+                '<p onclick="alert(1)">text</p>',
+                "<p>text</p>",
+            ),
+            ("", ""),
+            (None, ""),
+            ("Plain text", "Plain text"),
+        ]
+    )
+    def test_sanitize_html(self, input_html, expected_output):
+        self.assertEqual(sanitize_html(input_html), expected_output)
 
 
 class TestHomeFilters(AuthTestCase):

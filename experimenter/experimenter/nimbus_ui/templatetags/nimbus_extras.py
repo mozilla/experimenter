@@ -2,6 +2,7 @@ import json
 from datetime import date
 
 import humanize
+import nh3
 from django import template
 from django.utils.dateparse import parse_datetime
 from django.utils.safestring import mark_safe
@@ -367,3 +368,10 @@ def render_markdown(value):
     if not value:
         return ""
     return mark_safe(markdown(value))
+
+
+@register.filter
+def sanitize_html(value):
+    if not value:
+        return ""
+    return mark_safe(nh3.clean(str(value)))

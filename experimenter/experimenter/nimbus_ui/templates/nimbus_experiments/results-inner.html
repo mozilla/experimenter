@@ -121,7 +121,7 @@
               <div class="col">
                 <h5>Key takeaways</h5>
                 {% if experiment.takeaways_summary %}
-                  <div>{{ experiment.takeaways_summary|safe }}</div>
+                  <div>{{ experiment.takeaways_summary|sanitize_html }}</div>
                 {% else %}
                   <p class="text-muted">
                     {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.key_takeaways }}
@@ -132,7 +132,7 @@
                 <div>
                   <h5>Next steps</h5>
                   {% if experiment.next_steps %}
-                    <div>{{ experiment.next_steps|safe }}</div>
+                    <div>{{ experiment.next_steps|sanitize_html }}</div>
                   {% else %}
                     <p class="text-muted">
                       {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.next_steps }}
