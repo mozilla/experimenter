@@ -193,11 +193,15 @@ def send_threaded_success_message(
         channel_id = post_response["channel"]
 
         # Add reaction emoji to original message
-        client.reactions_add(
-            channel=channel_id,
-            name="white_check_mark",
-            timestamp=thread_ts,
-        )
+        try:
+            client.reactions_add(
+                channel=channel_id,
+                name="white_check_mark",
+                timestamp=thread_ts,
+            )
+        except SlackApiError as emoji_error:
+            if emoji_error.response.get("error") != "already_reacted":
+                raise
 
         logger.info(success_log_message(experiment.slug))
         return True
