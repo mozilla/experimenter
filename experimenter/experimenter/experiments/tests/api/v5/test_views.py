@@ -258,8 +258,33 @@ class TestNimbusExperimentYamlListView(TestCase):
             results_data={
                 "v3": {
                     "overall": {
-                        "enrollments": {"all": {"percentage": 100.0, "population": 1000}}
-                    }
+                        "enrollments": {
+                            "all": {
+                                "control": {
+                                    "branch_data": {
+                                        "search_metrics": {
+                                            "search_count": {
+                                                "absolute": {
+                                                    "all": [{"point": 10.0}],
+                                                    "first": {},
+                                                },
+                                                "difference": {},
+                                                "relative_uplift": {},
+                                                "significance": {
+                                                    "control": {"overall": {}},
+                                                    "treatment": {
+                                                        "overall": {"1": "positive"}
+                                                    },
+                                                },
+                                            }
+                                        }
+                                    },
+                                    "is_control": True,
+                                }
+                            }
+                        }
+                    },
+                    "weekly": {"enrollments": {"all": {"control": {"branch_data": {}}}}},
                 }
             },
         )
@@ -323,11 +348,14 @@ class TestNimbusExperimentYamlListView(TestCase):
         slugs = [fc["slug"] for fc in exp["feature_configs"]]
         self.assertIn("test-feature", slugs)
 
-        # Results data
-        self.assertEqual(
-            exp["results_data"]["v3"]["overall"]["enrollments"]["all"]["population"],
-            1000,
-        )
+        # Results data: only overall with significant metrics, weekly excluded
+        rd = exp["results_data"]
+        self.assertIn("overall", rd["v3"])
+        self.assertNotIn("weekly", rd["v3"])
+        search = rd["v3"]["overall"]["enrollments"]["all"]["control"]["branch_data"][
+            "search_metrics"
+        ]["search_count"]
+        self.assertEqual(search["significance"]["treatment"]["overall"]["1"], "positive")
 
     def test_default_hypothesis_excluded(self):
         application = NimbusExperiment.Application.DESKTOP
@@ -455,6 +483,229 @@ class TestNimbusExperimentYamlListView(TestCase):
                 self.assertEqual(len(page1_slugs & page2_slugs), 0)
             finally:
                 YamlExportPagination.page_size = original_page_size
+
+    def test_results_data_filters_to_overall_significant_only(self):
+        """Results data should only include overall window and significant metrics."""
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+
+        results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "control": {
+                                "branch_data": {
+                                    "search_metrics": {
+                                        "search_count": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "point": 10.0,
+                                                        "lower": 9.5,
+                                                        "upper": 10.5,
+                                                    }
+                                                ],
+                                                "first": {},
+                                            },
+                                            "difference": {
+                                                "treatment": {
+                                                    "all": [
+                                                        {
+                                                            "point": 0.5,
+                                                            "lower": 0.1,
+                                                            "upper": 0.9,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "relative_uplift": {
+                                                "treatment": {
+                                                    "all": [
+                                                        {
+                                                            "point": 0.05,
+                                                            "lower": 0.01,
+                                                            "upper": 0.09,
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "significance": {
+                                                "control": {"overall": {}},
+                                                "treatment": {
+                                                    "overall": {"1": "positive"}
+                                                },
+                                            },
+                                        }
+                                    },
+                                    "other_metrics": {
+                                        "neutral_metric": {
+                                            "absolute": {
+                                                "all": [{"point": 5.0}],
+                                                "first": {},
+                                            },
+                                            "difference": {},
+                                            "relative_uplift": {},
+                                            "significance": {
+                                                "control": {"overall": {}},
+                                                "treatment": {
+                                                    "overall": {"1": "neutral"}
+                                                },
+                                            },
+                                        },
+                                        "negative_metric": {
+                                            "absolute": {
+                                                "all": [{"point": 3.0}],
+                                                "first": {},
+                                            },
+                                            "difference": {},
+                                            "relative_uplift": {},
+                                            "significance": {
+                                                "control": {"overall": {}},
+                                                "treatment": {
+                                                    "overall": {"1": "negative"}
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                                "is_control": True,
+                            }
+                        }
+                    }
+                },
+                "weekly": {
+                    "enrollments": {
+                        "all": {
+                            "control": {
+                                "branch_data": {
+                                    "search_metrics": {
+                                        "search_count": {
+                                            "absolute": {
+                                                "all": [
+                                                    {"point": 1.0, "window_index": "1"},
+                                                    {"point": 2.0, "window_index": "2"},
+                                                ],
+                                                "first": {},
+                                            },
+                                            "significance": {},
+                                        }
+                                    }
+                                },
+                                "is_control": True,
+                            }
+                        }
+                    }
+                },
+                "daily": {"enrollments": {"all": {}}},
+                "other_metrics": {
+                    "other_metrics": {
+                        "neutral_metric": "Neutral",
+                        "negative_metric": "Negative",
+                    }
+                },
+            }
+        }
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            name="Results Filter Test",
+            slug="results-filter-test",
+            application=application,
+            feature_configs=[feature_config],
+            results_data=results_data,
+        )
+
+        data = self._get_yaml()
+        exp = next(e for e in data if e["slug"] == "results-filter-test")
+        rd = exp["results_data"]
+
+        # Only overall window is included
+        self.assertIn("overall", rd["v3"])
+        self.assertNotIn("weekly", rd["v3"])
+        self.assertNotIn("daily", rd["v3"])
+
+        branch = rd["v3"]["overall"]["enrollments"]["all"]["control"]
+
+        # Significant metrics are kept
+        self.assertIn("search_count", branch["branch_data"]["search_metrics"])
+        self.assertIn("negative_metric", branch["branch_data"]["other_metrics"])
+
+        # Neutral metrics are excluded
+        self.assertNotIn("neutral_metric", branch["branch_data"]["other_metrics"])
+
+        # other_metrics metadata is preserved
+        self.assertIn("other_metrics", rd["v3"])
+
+    def test_results_data_empty_or_missing_returns_none(self):
+        """Null, missing v3, or missing overall return no results_data."""
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+
+        for slug, rd in [
+            ("no-results", None),
+            ("no-v3", {"other_key": {}}),
+            ("no-overall", {"v3": {"weekly": {}}}),
+        ]:
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+                name=slug,
+                slug=slug,
+                application=application,
+                feature_configs=[feature_config],
+                results_data=rd,
+            )
+
+        data = self._get_yaml()
+        for slug in ["no-results", "no-v3", "no-overall"]:
+            exp = next(e for e in data if e["slug"] == slug)
+            self.assertNotIn("results_data", exp)
+
+    def test_results_data_all_neutral_returns_none(self):
+        """Experiments with only neutral results should return None for results_data."""
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            name="All Neutral Experiment",
+            slug="all-neutral-experiment",
+            application=application,
+            feature_configs=[feature_config],
+            results_data={
+                "v3": {
+                    "overall": {
+                        "enrollments": {
+                            "all": {
+                                "control": {
+                                    "branch_data": {
+                                        "other_metrics": {
+                                            "some_metric": {
+                                                "absolute": {
+                                                    "all": [{"point": 5.0}],
+                                                    "first": {},
+                                                },
+                                                "significance": {
+                                                    "control": {"overall": {}},
+                                                    "treatment": {
+                                                        "overall": {"1": "neutral"}
+                                                    },
+                                                },
+                                            }
+                                        }
+                                    },
+                                    "is_control": True,
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+        )
+
+        data = self._get_yaml()
+        exp = next(e for e in data if e["slug"] == "all-neutral-experiment")
+        # All metrics are neutral, so results_data stripped by _strip_empty
+        self.assertNotIn("results_data", exp)
 
 
 class TestFmlErrorsView(MockFmlErrorMixin, TestCase):
