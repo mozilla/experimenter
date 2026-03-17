@@ -4294,6 +4294,12 @@ scriptloader:
       setPref:
         branch: user
         pref: "dom.script_loader.bytecode_cache.strategy"
+    delazification_strategy:
+      description: Controls when functions are parsed. 0=on-demand (lazy), 255=eager parse all.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.script_loader.delazification.strategy"
     delazification_max_size:
       description: Maximum number of bytes supported for speculate OMT full parsing.
       type: int
@@ -5595,6 +5601,18 @@ layout:
       setPref:
         branch: user
         pref: "layout.throttled_frame_rate"
+    min_background_timeout_value_without_budget_throttling:
+      description: Minimum interval for background tabs when budget throttling is disabled, in milliseconds.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.min_background_timeout_value_without_budget_throttling"
+    timeout_throttling_delay:
+      description: Delay before throttling activates after tab goes background, in milliseconds.
+      type: int
+      setPref:
+        branch: user
+        pref: "dom.timeout.throttling_delay"
     initialpaint_delay:
       description: Reduces the time Firefox waits before starting to render a page.
       type: int
