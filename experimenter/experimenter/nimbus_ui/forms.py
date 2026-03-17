@@ -1177,7 +1177,6 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         branch_slugs = (
             NimbusBranch.objects.filter(
                 experiment__application=self.instance.application,
-                experiment__is_archived=False,
             )
             .exclude(experiment__id=self.instance.id)
             .values_list("experiment__slug", "experiment__name", "slug")
