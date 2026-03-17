@@ -168,11 +168,6 @@ features:
           If true, enables the jump back in homepage section by default
         type: Boolean
         default: false
-      news-transition:
-        description: |
-          If true, enables the news transition for stories on the homepage
-        type: Boolean
-        default: false
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
@@ -182,7 +177,7 @@ features:
         description: |
           Controls the layout direction for stories on the homepage.
         type: ScrollDirection
-        default: baseline
+        default: vertical
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
