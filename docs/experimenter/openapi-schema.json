@@ -1471,8 +1471,8 @@
             "readOnly": true
           },
           "results_data": {
-            "type": "object",
-            "nullable": true
+            "type": "string",
+            "readOnly": true
           }
         },
         "required": [
