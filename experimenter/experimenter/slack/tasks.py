@@ -10,6 +10,7 @@ from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.slack.constants import SlackConstants
 from experimenter.slack.notification import (
     add_emoji_to_slack_message,
+    remove_emoji_from_slack_message,
     send_slack_notification,
 )
 
@@ -310,6 +311,30 @@ def add_emoji_to_message_async(experiment_id, alert_type, emoji_name):
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         add_emoji_to_slack_message(experiment, alert_type, emoji_name)
+    except NimbusExperiment.DoesNotExist:
+        logger.error(
+            SlackConstants.SLACK_LOG_EXPERIMENT_NOT_FOUND.format(
+                experiment_id=experiment_id
+            )
+        )
+    except Exception as e:
+        msg = SlackConstants.SLACK_LOG_ERROR_ADDING_EMOJI.format(
+            emoji_name=emoji_name, experiment_id=experiment_id
+        )
+        logger.error(f"{msg}: {e}")
+        raise
+
+
+@shared_task(
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 3},
+    retry_jitter=True,
+)
+def remove_emoji_from_message_async(experiment_id, alert_type, emoji_name):
+    try:
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        remove_emoji_from_slack_message(experiment, alert_type, emoji_name)
     except NimbusExperiment.DoesNotExist:
         logger.error(
             SlackConstants.SLACK_LOG_EXPERIMENT_NOT_FOUND.format(

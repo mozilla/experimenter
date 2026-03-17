@@ -113,7 +113,11 @@ class SlackEmojiMockMixin:
         self.mock_emoji_task = patch(
             "experimenter.slack.tasks.add_emoji_to_message_async.delay"
         ).start()
+        self.mock_remove_emoji_task = patch(
+            "experimenter.slack.tasks.remove_emoji_from_message_async.delay"
+        ).start()
         self.addCleanup(self.mock_emoji_task.stop)
+        self.addCleanup(self.mock_remove_emoji_task.stop)
 
 
 class KintoPushQueueMockMixin:
@@ -947,7 +951,9 @@ class TestDraftToPreviewForm(
         )
 
 
-class TestDraftToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
+class TestDraftToReviewForm(
+    SlackEmojiMockMixin, SlackNotificationMockMixin, RequestFormTestCase
+):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
@@ -1042,8 +1048,32 @@ class TestDraftToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
         self.assertEqual(alert.slack_thread_id, "1234567890.123456")
         self.assertEqual(alert.slack_channel_id, "C123456")
 
+    @patch("experimenter.slack.tasks.add_emoji_to_message_async.delay")
+    @patch("experimenter.nimbus_ui.forms.nimbus_send_slack_notification")
+    def test_sends_slack_and_adds_pending_emoji(self, mock_send_slack, mock_emoji_task):
+        mock_send_slack.return_value = ("1234567890.123456", "C123456")
 
-class TestPreviewToReviewForm(SlackNotificationMockMixin, RequestFormTestCase):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=True,
+        )
+        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
+
+
+class TestPreviewToReviewForm(
+    SlackEmojiMockMixin, SlackNotificationMockMixin, RequestFormTestCase
+):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
@@ -1380,6 +1410,11 @@ class TestReviewToApproveForm(
             countdown=5, args=[experiment.kinto_collection]
         )
         self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
         self.mock_emoji_task.assert_called_once_with(
             experiment.id,
             NimbusConstants.AlertType.LAUNCH_REQUEST,
@@ -1435,7 +1470,9 @@ class TestReviewToApproveForm(
         self.mock_metrics.timing.assert_called_once()
 
 
-class TestLiveToEndEnrollmentForm(SlackNotificationMockMixin, RequestFormTestCase):
+class TestLiveToEndEnrollmentForm(
+    SlackEmojiMockMixin, SlackNotificationMockMixin, RequestFormTestCase
+):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -1601,6 +1638,11 @@ class TestApproveEndEnrollmentForm(
         self.mock_push_task.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
         )
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
         self.mock_emoji_task.assert_called_once_with(
             experiment.id,
             NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
@@ -1646,7 +1688,9 @@ class TestApproveEndEnrollmentForm(
         )
 
 
-class TestLiveToCompleteForm(SlackNotificationMockMixin, RequestFormTestCase):
+class TestLiveToCompleteForm(
+    SlackEmojiMockMixin, SlackNotificationMockMixin, RequestFormTestCase
+):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -1781,6 +1825,11 @@ class TestApproveEndExperimentForm(
         self.mock_push_task.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
         )
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
         self.mock_emoji_task.assert_called_once_with(
             experiment.id,
             NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
@@ -1812,6 +1861,11 @@ class TestApproveEndExperimentForm(
         self.assertIn("approved the end experiment request", changelog.message)
         self.mock_push_task.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
+        )
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
         )
         self.mock_emoji_task.assert_called_once_with(
             experiment.id,
@@ -2069,7 +2123,9 @@ class TestCancelEndExperimentForm(SlackEmojiMockMixin, RequestFormTestCase):
         self.assertIn("Cancelled end experiment request.", changelog.message)
 
 
-class TestLiveToUpdateRolloutForm(SlackNotificationMockMixin, RequestFormTestCase):
+class TestLiveToUpdateRolloutForm(
+    SlackEmojiMockMixin, SlackNotificationMockMixin, RequestFormTestCase
+):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -2297,6 +2353,11 @@ class TestApproveUpdateRolloutForm(
         )
         self.mock_preview_task.assert_called_once_with(countdown=5)
         self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.UPDATE_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
         self.mock_emoji_task.assert_called_once_with(
             experiment.id,
             NimbusConstants.AlertType.UPDATE_REQUEST,

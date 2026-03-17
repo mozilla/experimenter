@@ -2372,6 +2372,9 @@ class TestLaunchViews(AuthTestCase):
         self.mock_emoji_task = patch(
             "experimenter.slack.tasks.add_emoji_to_message_async.delay"
         ).start()
+        self.mock_remove_emoji_task = patch(
+            "experimenter.slack.tasks.remove_emoji_from_message_async.delay"
+        ).start()
 
         self.addCleanup(patch.stopall)
 

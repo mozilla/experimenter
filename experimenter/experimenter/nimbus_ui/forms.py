@@ -41,6 +41,7 @@ from experimenter.slack.constants import SlackConstants
 from experimenter.slack.tasks import (
     add_emoji_to_message_async,
     nimbus_send_slack_notification,
+    remove_emoji_from_message_async,
 )
 from experimenter.targeting.constants import NimbusTargetingConfig
 
@@ -1353,14 +1354,20 @@ class SlackNotificationMixin:
                 )
                 if result:
                     message_ts, channel_id = result
+                    alert_type = SlackConstants.SLACK_ACTION_TO_ALERT_TYPE[
+                        self.slack_action
+                    ]
                     NimbusAlert.objects.create(
                         experiment=experiment,
-                        alert_type=SlackConstants.SLACK_ACTION_TO_ALERT_TYPE[
-                            self.slack_action
-                        ],
+                        alert_type=alert_type,
                         message=action_text,
                         slack_thread_id=message_ts,
                         slack_channel_id=channel_id,
+                    )
+                    add_emoji_to_message_async.delay(
+                        experiment.id,
+                        alert_type,
+                        SlackConstants.EmojiReaction.PENDING,
                     )
         return experiment
 
@@ -1583,7 +1590,11 @@ class ReviewToApproveForm(UpdateStatusForm):
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
-
+        remove_emoji_from_message_async.delay(
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
         add_emoji_to_message_async.delay(
             experiment.id,
             NimbusConstants.AlertType.LAUNCH_REQUEST,
@@ -1640,6 +1651,11 @@ class ApproveEndEnrollmentForm(UpdateStatusForm):
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
         )
+        remove_emoji_from_message_async.delay(
+            experiment.id,
+            NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
         add_emoji_to_message_async.delay(
             experiment.id,
             NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
@@ -1682,6 +1698,11 @@ class ApproveEndExperimentForm(UpdateStatusForm):
         experiment = super().save(commit=commit)
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
+        )
+        remove_emoji_from_message_async.delay(
+            experiment.id,
+            NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
         )
         add_emoji_to_message_async.delay(
             experiment.id,
@@ -1816,6 +1837,11 @@ class ApproveUpdateRolloutForm(UpdateStatusForm):
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]
+        )
+        remove_emoji_from_message_async.delay(
+            experiment.id,
+            NimbusConstants.AlertType.UPDATE_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
         )
         add_emoji_to_message_async.delay(
             experiment.id,

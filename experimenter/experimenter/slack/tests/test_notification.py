@@ -9,6 +9,7 @@ from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.slack.constants import SlackConstants
 from experimenter.slack.notification import (
     add_emoji_to_slack_message,
+    remove_emoji_from_slack_message,
     send_slack_notification,
     send_threaded_success_message,
 )
@@ -848,3 +849,130 @@ class TestSlackNotifications(TestCase):
             mock_logger.info.assert_called_once()
             call_args = mock_logger.info.call_args[0][0]
             self.assertIn("not configured", call_args)
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_remove_emoji_from_slack_message_success(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.reactions_remove.return_value = {"ok": True}
+
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Test launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
+
+        result = remove_emoji_from_slack_message(
+            self.experiment,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            "question",
+        )
+
+        self.assertTrue(result)
+        mock_client.reactions_remove.assert_called_once()
+        call_args = mock_client.reactions_remove.call_args
+        self.assertEqual(call_args.kwargs["channel"], "C123456")
+        self.assertEqual(call_args.kwargs["name"], "question")
+        self.assertEqual(call_args.kwargs["timestamp"], "1234567890.123456")
+
+    @override_settings(SLACK_AUTH_TOKEN=None)
+    def test_remove_emoji_from_slack_message_not_configured(self):
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Test launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
+
+        with patch("experimenter.slack.notification.logger") as mock_logger:
+            result = remove_emoji_from_slack_message(
+                self.experiment,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+                "question",
+            )
+
+            self.assertFalse(result)
+            mock_logger.info.assert_called_once()
+            call_args = mock_logger.info.call_args[0][0]
+            self.assertIn("not configured", call_args)
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_remove_emoji_from_slack_message_no_alert(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+
+        with patch("experimenter.slack.notification.logger") as mock_logger:
+            result = remove_emoji_from_slack_message(
+                self.experiment,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+                "question",
+            )
+
+            self.assertFalse(result)
+            mock_logger.info.assert_called_once()
+            call_args = mock_logger.info.call_args[0][0]
+            self.assertIn("No Slack thread found", call_args)
+            mock_client.reactions_remove.assert_not_called()
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_remove_emoji_from_slack_message_api_error(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.reactions_remove.side_effect = SlackApiError(
+            message="Error removing reaction",
+            response={"error": "no_permission"},
+        )
+
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Test launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
+
+        with patch("experimenter.slack.notification.logger") as mock_logger:
+            result = remove_emoji_from_slack_message(
+                self.experiment,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+                "question",
+            )
+
+            self.assertFalse(result)
+            mock_logger.error.assert_called_once()
+            call_args = mock_logger.error.call_args[0][0]
+            self.assertIn("Failed to remove", call_args)
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_remove_emoji_from_slack_message_no_channel_id(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+
+        # Create alert without channel_id
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Test launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id=None,
+        )
+
+        with patch("experimenter.slack.notification.logger") as mock_logger:
+            result = remove_emoji_from_slack_message(
+                self.experiment,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+                "question",
+            )
+
+            self.assertFalse(result)
+            mock_logger.error.assert_called_once()
+            call_args = mock_logger.error.call_args[0][0]
+            self.assertIn("No channel ID found", call_args)
+            mock_client.reactions_remove.assert_not_called()

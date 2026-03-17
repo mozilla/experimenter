@@ -258,3 +258,56 @@ def add_emoji_to_slack_message(experiment, alert_type, emoji_name):
         )
         logger.error(f"{msg}: {e}")
         return False
+
+
+def remove_emoji_from_slack_message(experiment, alert_type, emoji_name):
+    if not (client := _get_slack_client()):
+        logger.info(
+            SlackConstants.SLACK_LOG_NOT_CONFIGURED.format(
+                operation=f"{emoji_name} emoji removal"
+            )
+        )
+        return False
+
+    try:
+        alert = NimbusAlert.objects.filter(
+            experiment=experiment,
+            alert_type=alert_type,
+            slack_thread_id__isnull=False,
+        ).last()
+
+        if not alert or not alert.slack_thread_id:
+            logger.info(
+                SlackConstants.SLACK_LOG_NO_SLACK_THREAD.format(
+                    experiment=experiment.slug
+                )
+            )
+            return False
+
+        thread_ts = alert.slack_thread_id
+        channel_id = alert.slack_channel_id
+
+        if not channel_id:
+            logger.error(SlackConstants.SLACK_LOG_NO_CHANNEL_ID.format(alert_id=alert.id))
+            return False
+
+        # Remove emoji reaction from the message
+        client.reactions_remove(
+            channel=channel_id,
+            name=emoji_name,
+            timestamp=thread_ts,
+        )
+
+        logger.info(
+            SlackConstants.SLACK_LOG_EMOJI_REMOVED.format(
+                emoji_name=emoji_name, experiment=experiment.slug
+            )
+        )
+        return True
+
+    except SlackApiError as e:
+        msg = SlackConstants.SLACK_LOG_FAILED_REMOVE_EMOJI.format(
+            emoji_name=emoji_name, experiment=experiment.slug
+        )
+        logger.error(f"{msg}: {e}")
+        return False

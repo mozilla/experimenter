@@ -847,3 +847,52 @@ class TestAddEmojiToMessageAsync(TestCase):
 
         mock_logger.error.assert_called_once()
         self.assertIn("Error adding", mock_logger.error.call_args[0][0])
+
+    @mock.patch("experimenter.slack.tasks.remove_emoji_from_slack_message")
+    def test_remove_emoji_from_message_async_success(self, mock_remove_emoji):
+        experiment = NimbusExperimentFactory.create()
+        alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
+        emoji_name = SlackConstants.EmojiReaction.PENDING
+
+        tasks.remove_emoji_from_message_async(experiment.id, alert_type, emoji_name)
+
+        mock_remove_emoji.assert_called_once()
+        call_args = mock_remove_emoji.call_args
+        self.assertEqual(call_args[0][0].id, experiment.id)
+        self.assertEqual(call_args[0][1], alert_type)
+        self.assertEqual(call_args[0][2], emoji_name)
+
+    @mock.patch("experimenter.slack.tasks.remove_emoji_from_slack_message")
+    @mock.patch("experimenter.slack.tasks.logger")
+    def test_remove_emoji_from_message_async_experiment_not_found(
+        self, mock_logger, mock_remove_emoji
+    ):
+        non_existent_id = 99999
+        alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
+        emoji_name = SlackConstants.EmojiReaction.PENDING
+
+        tasks.remove_emoji_from_message_async(non_existent_id, alert_type, emoji_name)
+
+        mock_remove_emoji.assert_not_called()
+        mock_logger.error.assert_called_once()
+        self.assertIn(
+            str(non_existent_id),
+            mock_logger.error.call_args[0][0],
+        )
+
+    @mock.patch("experimenter.slack.tasks.remove_emoji_from_slack_message")
+    @mock.patch("experimenter.slack.tasks.logger")
+    def test_remove_emoji_from_message_async_exception_raised(
+        self, mock_logger, mock_remove_emoji
+    ):
+        experiment = NimbusExperimentFactory.create()
+        alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
+        emoji_name = SlackConstants.EmojiReaction.PENDING
+
+        mock_remove_emoji.side_effect = Exception("Test error")
+
+        with self.assertRaises(Exception):
+            tasks.remove_emoji_from_message_async(experiment.id, alert_type, emoji_name)
+
+        mock_logger.error.assert_called_once()
+        self.assertIn("Error adding", mock_logger.error.call_args[0][0])

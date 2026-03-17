@@ -46,6 +46,7 @@ class SlackConstants:
 
     # Slack emoji reaction names
     class EmojiReaction:
+        PENDING = "question"
         CANCEL = "x"
         APPROVE = "eyes"
 
@@ -104,6 +105,10 @@ class SlackConstants:
     SLACK_LOG_EMOJI_ADDED = "Added {emoji_name} emoji to message for {experiment}"
     SLACK_LOG_FAILED_ADD_EMOJI = (
         "Failed to add {emoji_name} emoji to message for {experiment}"
+    )
+    SLACK_LOG_EMOJI_REMOVED = "Removed {emoji_name} emoji from message for {experiment}"
+    SLACK_LOG_FAILED_REMOVE_EMOJI = (
+        "Failed to remove {emoji_name} emoji from message for {experiment}"
     )
 
     # Slack task log messages
