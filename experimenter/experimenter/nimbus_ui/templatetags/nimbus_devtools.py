@@ -12,6 +12,8 @@ def devtools_metadata(experiment):
     return json_script(
         {
             "application": experiment.application,
+            "isLocalized": experiment.is_localized,
+            "localizations": experiment.localizations,
         },
         element_id="nimbus-devtools-experiment-metadata",
     )
