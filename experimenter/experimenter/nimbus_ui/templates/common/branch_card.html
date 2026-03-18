@@ -38,12 +38,30 @@
     <span class="badge rounded text-body-secondary bg-body-secondary border border-secondary-subtle d-inline-flex flex-column w-100 align-items-start gap-2 fs-6">
       <div class="text-truncate w-100 text-start" title="{{ branch.name }}">{{ branch.name }}</div>
       <div class="d-inline-flex gap-1 fw-normal">
-        {{ branch.percentage|floatformat:"0g" }}%
-        <span>&middot;</span>
+        {% if branch.percentage %}
+          {{ branch.percentage|floatformat:"0g" }}%
+          <span>&middot;</span>
+        {% endif %}
+        {% if experiment.has_exposures == valid_exposure_status or experiment.has_exposures == invalid_exposure_status %}
+          <span class="mb-0"
+                data-bs-toggle="tooltip"
+                data-bs-title="{{ branch.num_exposed_clients }}">{{ branch.num_exposed_clients|short_number }}</span>
+          /
+        {% endif %}
         <span class="mb-0"
               data-bs-toggle="tooltip"
-              data-bs-title="{{ branch.num_participants }}">{{ branch.num_participants|short_number }}</span>users
+              data-bs-title="{{ branch.num_enrolled_clients }}">{{ branch.num_enrolled_clients|short_number }}</span>users
       </div>
+      {% if experiment.has_exposures == valid_exposure_status or experiment.has_exposures == invalid_exposure_status %}
+        <div class="d-inline-flex gap-1 fw-normal text-secondary">
+          <small>Exposure Rate: {{ branch.exposure_rate|to_percentage:1 }}
+            <i class="fa-regular fa-circle-question ps-1"
+               data-bs-toggle="tooltip"
+               data-bs-html="true"
+               data-bs-delay='{"hide":1000}'
+               data-bs-title="Percentage of the enrolled population that was exposed to this branch's treatment (also shown above as exposed/enrolled). <a href='https://experimenter.info/data-analysis/data-topics/sizing/#commentary-on-exposure-rates' target='_blank'>Learn more.</a>"></i></small>
+        </div>
+      {% endif %}
     </span>
     <p class="mt-2 text-muted">{{ branch.description|truncatechars:100 }}</p>
   </div>
