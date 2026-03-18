@@ -4,7 +4,7 @@ services:
   experimenter:
     image: experimenter:dev
     env_file: .env
-    user: "${DOCKER_USER:-}"
+    user: "${DOCKER_USER:-root}"
     stdin_open: true
     tty: true
     depends_on:
@@ -31,7 +31,7 @@ services:
   yarn-nimbus_ui:
     image: experimenter:dev
     env_file: .env
-    user: "${DOCKER_USER:-}"
+    user: "${DOCKER_USER:-root}"
     stdin_open: true
     tty: true
     volumes:
@@ -51,7 +51,7 @@ services:
   worker:
     image: experimenter:dev
     env_file: .env
-    user: "${DOCKER_USER:-}"
+    user: "${DOCKER_USER:-root}"
     depends_on:
       - db
       - redis
@@ -64,7 +64,7 @@ services:
   beat:
     image: experimenter:dev
     env_file: .env
-    user: "${DOCKER_USER:-}"
+    user: "${DOCKER_USER:-root}"
     depends_on:
       - db
       - redis
