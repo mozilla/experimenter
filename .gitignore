@@ -73,9 +73,6 @@ target/
 .envrc
 .psql_history
 
-# Local Docker Compose overrides (e.g., user: for Linux/WSL2 file permissions)
-docker-compose.override.yml
-
 # VS Code
 **/.vscode/*
 **/.devcontainer/*
