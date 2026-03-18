@@ -1,0 +1,48 @@
+name: Remote Settings All Workflows Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "experimenter/**"
+      - "application-services/**"
+      - ".github/workflows/integration-remote-settings-all.yml"
+  pull_request:
+    paths:
+      - "experimenter/**"
+      - "application-services/**"
+      - ".github/workflows/integration-remote-settings-all.yml"
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  test:
+    name: "Remote Settings All Workflows (Release Firefox Desktop)"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -k FIREFOX_DESKTOP --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-cached-build
+        with:
+          arch: x86_64
+          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - name: Run integration tests
+        run: |
+          cp .env.integration-tests .env
+          make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: remote-settings-all-test-report
+          path: experimenter/tests/integration/test-reports/report.htm

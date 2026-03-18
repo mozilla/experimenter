@@ -127,7 +127,7 @@ build_ui: ssl
 	$(DOCKER_BUILD) --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
 
 build_prod: ssl build_megazords
-	$(DOCKER_BUILD) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
+	$(DOCKER_BUILD) $(EXPERIMENTER_BUILD_FLAGS) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
 
 compose_stop:
 	$(CIRRUS_ENABLE) $(COMPOSE) kill || true
@@ -265,7 +265,7 @@ CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
 cirrus_build: build_megazords
-	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-context=fml=experimenter/experimenter/features/manifests/ cirrus/server/
+	$(CIRRUS_ENABLE) $(DOCKER_BUILD) $(CIRRUS_BUILD_FLAGS) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-context=fml=experimenter/experimenter/features/manifests/ cirrus/server/
 
 cirrus_build_dev: build_megazords
 	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target dev -f cirrus/server/Dockerfile -t cirrus:dev --build-context=fml=experimenter/experimenter/features/manifests/ cirrus/server/
