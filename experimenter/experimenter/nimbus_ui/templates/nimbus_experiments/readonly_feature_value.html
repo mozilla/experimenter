@@ -17,6 +17,17 @@
        data-nimbus-devtools-cannot-preview-notice>
     <span class="fa fa-eye"></span>
   </div>
+  <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
+    <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
+            type="button"
+            title="Preview with about:messagepreview"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+      <span class="fa fa-eye"></span>
+    </button>
+    <ul class="dropdown-menu">
+    </ul>
+  </div>
 {% endblock %}
 {% block json_controls_expanded %}
   <button class="btn btn-sm btn-outline-secondary ms-1 d-none"
@@ -29,5 +40,17 @@
        type="button"
        data-nimbus-devtools-cannot-preview-notice>
     <span class="fa fa-eye"></span>
+  </div>
+  <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
+    <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
+            id="{{ feature_id }}-expanded-try-preview-dropdown"
+            type="button"
+            title="Preview with about:messagepreview"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+      <span class="fa fa-eye"></span>
+    </button>
+    <ul class="dropdown-menu">
+    </ul>
   </div>
 {% endblock %}

@@ -156,6 +156,17 @@
                                     data-nimbus-devtools-try-preview-button>
                               <span class="fa fa-eye"></span>
                             </button>
+                            <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
+                              <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
+                                      type="button"
+                                      title="Preview with about:messagepreview"
+                                      data-bs-toggle="dropdown"
+                                      aria-expanded="false">
+                                <span class="fa fa-eye"></span>
+                              </button>
+                              <ul class="dropdown-menu">
+                              </ul>
+                            </div>
                           </div>
                         </div>
                         {% for error in branch_feature_values_form.value.errors %}
