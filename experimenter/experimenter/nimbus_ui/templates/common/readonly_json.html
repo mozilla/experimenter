@@ -2,7 +2,7 @@
   <div class="collapsed-json">
     <div class="position-relative">
       <textarea class="readonly-json">{{ json_content }}</textarea>
-      <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
+      <div class="position-absolute top-0 end-0 m-1 py-1 px-1 d-flex">
         {% block json_controls_collapsed %}{% endblock %}
         <button type="button"
                 class="btn btn-sm btn-outline-secondary ms-1 codemirror-copy-btn"
@@ -18,7 +18,7 @@
   <div class="expanded-json d-none">
     <div class="position-relative">
       {% block json %}<textarea class="readonly-json">{{ json_content }}</textarea>{% endblock %}
-      <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
+      <div class="position-absolute top-0 end-0 m-1 py-1 px-1 d-flex">
         {% block json_controls_expanded %}{% endblock %}
         <button type="button"
                 class="btn btn-sm btn-outline-secondary ms-1 codemirror-copy-btn"
