@@ -2801,7 +2801,7 @@ class TestAudienceForm(RequestFormTestCase):
         self.assertTrue(experiment.is_first_run)
         self.assertEqual(experiment.proposed_release_date, datetime.date(2023, 1, 1))
 
-    def test_archived_required_or_excluded_is_invalid(self):
+    def test_archived_required_or_excluded_is_valid(self):
         country = CountryFactory.create()
         locale = LocaleFactory.create()
         language = LanguageFactory.create()
@@ -2854,9 +2854,71 @@ class TestAudienceForm(RequestFormTestCase):
             request=self.request,
         )
 
-        self.assertFalse(form.is_valid(), form.errors)
-        self.assertIn("excluded_experiments_branches", form.errors)
-        self.assertIn("required_experiments_branches", form.errors)
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        self.assertEqual(experiment.excluded_experiments.get(), excluded)
+        self.assertEqual(experiment.required_experiments.get(), required)
+
+    def test_launched_rollout_update_with_archived_required_excluded(self):
+        """A launched rollout with archived required/excluded experiments can
+        still be updated (e.g. population size change)."""
+        excluded = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        required = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            is_paused=False,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            population_percent=5,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.BETA],
+            excluded_experiments=[excluded],
+            required_experiments=[required],
+        )
+
+        # Archive the required/excluded experiments after launch
+        excluded.is_archived = True
+        excluded.save()
+        required.is_archived = True
+        required.save()
+
+        form = AudienceForm(
+            instance=experiment,
+            data={
+                "changelog_message": "updating population",
+                "channel": NimbusExperiment.Channel.BETA,
+                "countries": [],
+                "excluded_experiments_branches": [f"{excluded.slug}:None"],
+                "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+                "is_sticky": False,
+                "languages": [],
+                "locales": [],
+                "population_percent": 10,
+                "proposed_duration": 0,
+                "proposed_enrollment": 0,
+                "required_experiments_branches": [f"{required.slug}:None"],
+                "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
+                "total_enrolled_clients": 0,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        updated_experiment = form.save()
+        updated_experiment.refresh_from_db()
+
+        self.assertEqual(updated_experiment.population_percent, 10)
+        self.assertTrue(updated_experiment.is_rollout_dirty)
+        self.assertEqual(updated_experiment.excluded_experiments.get(), excluded)
+        self.assertEqual(updated_experiment.required_experiments.get(), required)
 
     def test_check_rollout_dirty_sets_flag(self):
         experiment = NimbusExperimentFactory.create(

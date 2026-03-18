@@ -609,6 +609,59 @@ class TestSlackNotifications(TestCase):
         self.assertFalse(result)
         mock_client.chat_postMessage.assert_called_once()
 
+    @override_settings(
+        SLACK_AUTH_TOKEN="test-token",
+        SLACK_NIMBUS_CHANNEL="C123456",
+    )
+    @patch("experimenter.slack.notification.WebClient")
+    def test_send_experiment_launch_success_message_reaction_already_exists(
+        self, mock_webclient
+    ):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.chat_postMessage.return_value = {"ok": True, "channel": "C123456"}
+        # Simulate reaction already exists error
+        mock_client.reactions_add.side_effect = SlackApiError(
+            message="Slack error",
+            response={"ok": False, "error": SlackConstants.ErrorCode.ALREADY_REACTED},
+        )
+
+        thread_ts = "1234567890.123456"
+        result = send_threaded_success_message(
+            experiment_id=self.experiment.id,
+            thread_ts=thread_ts,
+            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
+            success_log_message=lambda slug: f"Sent launch success message for {slug}",
+        )
+
+        self.assertTrue(result)
+        mock_client.chat_postMessage.assert_called_once()
+        mock_client.reactions_add.assert_called_once()
+
+    @override_settings(
+        SLACK_AUTH_TOKEN="test-token",
+        SLACK_NIMBUS_CHANNEL="C123456",
+    )
+    @patch("experimenter.slack.notification.WebClient")
+    def test_send_experiment_launch_success_message_reaction_error(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.chat_postMessage.return_value = {"ok": True, "channel": "C123456"}
+        mock_client.reactions_add.side_effect = SlackApiError(
+            message="Slack error", response={"ok": False, "error": "channel_not_found"}
+        )
+
+        thread_ts = "1234567890.123456"
+        result = send_threaded_success_message(
+            experiment_id=self.experiment.id,
+            thread_ts=thread_ts,
+            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
+            success_log_message=lambda slug: f"Sent launch success message for {slug}",
+        )
+        self.assertFalse(result)
+
     @override_settings(SLACK_AUTH_TOKEN="test-token")
     @patch("experimenter.slack.notification.WebClient")
     def test_send_experiment_launch_success_message_not_found(self, mock_webclient):

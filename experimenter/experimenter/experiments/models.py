@@ -334,6 +334,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     results_data = models.JSONField[dict[str, Any]](
         "Results Data", encoder=DjangoJSONEncoder, blank=True, null=True
     )
+    monitoring_data = models.JSONField[dict[str, Any]](
+        "Monitoring Data",
+        encoder=DjangoJSONEncoder,
+        blank=True,
+        null=True,
+        help_text=(
+            "JSON data from ETL for monitoring "
+            "(enrollment/unenrollment counts, reasons, branches)"
+        ),
+    )
     risk_partner_related = models.BooleanField(
         "Is a Partner Related Risk Flag", default=None, blank=True, null=True
     )
@@ -2185,14 +2195,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def recipe_json(self):
         from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 
-        return (
-            json.dumps(
-                self.published_dto or NimbusExperimentSerializer(self).data,
-                indent=2,
-                sort_keys=True,
-            )
-            .replace("&&", "\n&&")  # Add helpful newlines to targeting
-            .replace("\\n", "\n")  # Handle hard coded newlines in targeting
+        return json.dumps(
+            self.published_dto or NimbusExperimentSerializer(self).data,
+            indent=2,
+            sort_keys=True,
         )
 
     @property

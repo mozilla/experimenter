@@ -193,24 +193,38 @@
       </div>
       {% if experiment.is_desktop %}
         <div class="alert alert-light border my-3">
-          <h5 class="mb-2">Preview URL</h5>
-          <p class="mb-1">
-            <strong> Click the <code>about:studies</code> link below to copy</strong> then paste it in your browser. Ensure you enable <code>nimbus.debug</code> in <code>about:config</code> first.
-          </p>
-          <label for="branch-selector" class="form-label mt-2">Select Branch</label>
-          <select id="branch-selector"
-                  class="form-select mb-3"
-                  onchange="updatePreviewURL()">
-            {% for branch in experiment.branches.all %}
-              <option value="{{ branch.slug }}"
-                      {% if branch == experiment.reference_branch %}selected{% endif %}>{{ branch.name }}</option>
-            {% endfor %}
-          </select>
-          <button class="btn btn-sm" type="button">
-            <code id="preview-url" class="d-block text-danger user-select-all">
-              about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview
-            </code>
-          </button>
+          <div data-nimbus-devtools-preview-url-pane>
+            <h5 class="mb-2">Preview URL</h5>
+            <p class="mb-1">
+              <strong> Click the <code>about:studies</code> link below to copy</strong> then paste it in your browser. Ensure you enable <code>nimbus.debug</code> in <code>about:config</code> first.
+            </p>
+            <label for="branch-selector" class="form-label mt-2">Select Branch</label>
+            <select id="branch-selector"
+                    class="form-select mb-3"
+                    onchange="updatePreviewURL()">
+              {% for branch in experiment.branches.all %}
+                <option value="{{ branch.slug }}"
+                        {% if branch == experiment.reference_branch %}selected{% endif %}>{{ branch.name }}</option>
+              {% endfor %}
+            </select>
+            <button class="btn btn-sm" type="button">
+              <code id="preview-url" class="d-block text-danger user-select-all">
+                about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview
+              </code>
+            </button>
+          </div>
+          <div class="d-none" data-nimbus-devtools-opt-in-pane>
+            <h5 class="mb-2">Opt-In for Testing</h5>
+            <select class="form-select mb-3" name="branch">
+              {% for branch in experiment.branches.all %}
+                <option value="{{ branch.slug }}"
+                        {% if branch == experiment.reference_branch %}selected{% endif %}>{{ branch.name }}</option>
+              {% endfor %}
+            </select>
+            <button class="btn btn-primary"
+                    type="button"
+                    data-nimbus-devtools-enroll-button>Enroll</button>
+          </div>
         </div>
       {% endif %}
       <!-- Review Mode Controls -->

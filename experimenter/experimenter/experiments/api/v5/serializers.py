@@ -275,6 +275,7 @@ class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
     excluded_experiments = serializers.SerializerMethodField()
     application_display = serializers.SerializerMethodField()
     parent_experiment = serializers.SerializerMethodField()
+    results_data = serializers.SerializerMethodField()
 
     class Meta:
         model = NimbusExperiment
@@ -457,6 +458,65 @@ class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
         if obj.parent:
             return f"{obj.parent.name} ({obj.parent.slug})"
         return None
+
+    def get_results_data(self, obj):
+        if not obj.results_data:
+            return None
+
+        v3 = obj.results_data.get("v3")
+        if not v3:
+            return None
+
+        overall = v3.get("overall")
+        if not overall:
+            return None
+
+        filtered_overall = {}
+        for basis, segments in overall.items():
+            filtered_segments = {}
+            for segment, branches in segments.items():
+                filtered_branches = {}
+                for branch, branch_data_wrapper in branches.items():
+                    bd = branch_data_wrapper.get("branch_data", {})
+                    filtered_groups = {}
+                    for group, metrics in bd.items():
+                        filtered_metrics = {
+                            metric: metric_data
+                            for metric, metric_data in metrics.items()
+                            if self._metric_is_significant(metric_data)
+                        }
+                        if filtered_metrics:
+                            filtered_groups[group] = filtered_metrics
+
+                    if filtered_groups:
+                        filtered_branches[branch] = {
+                            "branch_data": filtered_groups,
+                            "is_control": branch_data_wrapper.get("is_control", False),
+                        }
+
+                if filtered_branches:
+                    filtered_segments[segment] = filtered_branches
+
+            if filtered_segments:
+                filtered_overall[basis] = filtered_segments
+
+        if not filtered_overall:
+            return None
+
+        result = {"v3": {"overall": filtered_overall}}
+        if "other_metrics" in v3:
+            result["v3"]["other_metrics"] = v3["other_metrics"]
+        return result
+
+    @staticmethod
+    def _metric_is_significant(metric_data):
+        significance = metric_data.get("significance", {})
+        for branch_sig in significance.values():
+            overall_sig = branch_sig.get("overall", {})
+            for value in overall_sig.values():
+                if value in ("positive", "negative"):
+                    return True
+        return False
 
 
 class NimbusBranchScreenshotReviewSerializer(NimbusBranchScreenshotSerializer):
