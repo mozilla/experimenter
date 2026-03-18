@@ -322,7 +322,7 @@ def add_emoji_to_message_async(experiment_id, alert_type, emoji_name):
             emoji_name=emoji_name, experiment_id=experiment_id
         )
         logger.error(f"{msg}: {e}")
-        raise
+        raise e
 
 
 @shared_task(
@@ -346,4 +346,4 @@ def remove_emoji_from_message_async(experiment_id, alert_type, emoji_name):
             emoji_name=emoji_name, experiment_id=experiment_id
         )
         logger.error(f"{msg}: {e}")
-        raise
+        raise e
