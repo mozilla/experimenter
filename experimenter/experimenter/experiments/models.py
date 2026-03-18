@@ -2185,14 +2185,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def recipe_json(self):
         from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 
-        return (
-            json.dumps(
-                self.published_dto or NimbusExperimentSerializer(self).data,
-                indent=2,
-                sort_keys=True,
-            )
-            .replace("&&", "\n&&")  # Add helpful newlines to targeting
-            .replace("\\n", "\n")  # Handle hard coded newlines in targeting
+        return json.dumps(
+            self.published_dto or NimbusExperimentSerializer(self).data,
+            indent=2,
+            sort_keys=True,
         )
 
     @property
