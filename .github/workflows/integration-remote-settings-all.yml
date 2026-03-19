@@ -18,14 +18,24 @@ on:
 
 jobs:
   test:
-    name: "Remote Settings All Workflows (Release Firefox Desktop)"
+    name: "Remote Settings All Workflows (${{ matrix.name }})"
     runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Experiments
+            marker: remote_settings_experiments
+          - name: Rollouts
+            marker: remote_settings_rollouts
+          - name: Live Updates
+            marker: remote_settings_live_updates
     env:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m ${{ matrix.marker }} --reruns 1 --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@v6
@@ -44,5 +54,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: remote-settings-all-test-report
+          name: remote-settings-all-${{ matrix.marker }}-test-report
           path: experimenter/tests/integration/test-reports/report.htm
