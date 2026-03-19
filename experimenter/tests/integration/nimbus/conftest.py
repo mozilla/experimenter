@@ -50,6 +50,7 @@ def pytest_collection_modifyitems(config, items):
     split = config.getoption("--split")
     splits = config.getoption("--splits")
     if split is not None and splits is not None:
+        items.sort(key=lambda item: item.nodeid)
         items[:] = [item for i, item in enumerate(items) if i % splits == split]
 
 
