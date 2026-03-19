@@ -9,6 +9,16 @@ from nimbus.pages.browser import Browser
 from nimbus.utils import helpers
 
 
+@pytest.fixture(scope="module")
+def base_experiment_slug():
+    """Create one experiment per module that gets reused for all targeting tests."""
+    slug = helpers.create_basic_experiment(
+        "targeting-test-base",
+        BaseExperimentApplications.FIREFOX_DESKTOP.value,
+    )
+    return slug
+
+
 @pytest.fixture(params=helpers.load_targeting_configs())
 def targeting_config_slug(request):
     return request.param
@@ -24,22 +34,21 @@ def targeting_script():
 
 @pytest.mark.run_targeting
 def test_check_advanced_targeting(
-    selenium,
+    driver,
+    base_experiment_slug,
     targeting_config_slug,
-    experiment_slug,
     targeting_script,
 ):
-    helpers.create_experiment(
-        experiment_slug,
-        BaseExperimentApplications.FIREFOX_DESKTOP.value,
-        targeting=targeting_config_slug,
+    helpers.update_experiment_audience(
+        base_experiment_slug,
+        {"targeting_config_slug": targeting_config_slug},
     )
-    experiment_data = helpers.load_experiment_data(experiment_slug)
+    experiment_data = helpers.load_experiment_data(base_experiment_slug)
     targeting = experiment_data["targeting"]
     recipe = experiment_data["recipe_json"]
 
     result = Browser.execute_async_script(
-        selenium,
+        driver,
         targeting,
         json.dumps({"experiment": recipe}),
         script=targeting_script,
