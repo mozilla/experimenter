@@ -45,14 +45,6 @@ jobs:
           arch: x86_64
           gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
 
-      - name: Run integration tests
-        run: |
-          cp .env.integration-tests .env
-          make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
-
-      - name: Upload test report
-        if: always()
-        uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/run-integration-test
         with:
-          name: remote-settings-all-${{ matrix.marker }}-test-report
-          path: experimenter/tests/integration/test-reports/report.htm
+          artifact-name: remote-settings-all-${{ matrix.marker }}-test-report
