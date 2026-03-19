@@ -7,11 +7,13 @@ on:
     paths:
       - "experimenter/**"
       - "application-services/**"
+      - ".github/actions/run-integration-test/**"
       - ".github/workflows/integration-remote-settings-all.yml"
   pull_request:
     paths:
       - "experimenter/**"
       - "application-services/**"
+      - ".github/actions/run-integration-test/**"
       - ".github/workflows/integration-remote-settings-all.yml"
   merge_group:
     types: [checks_requested]

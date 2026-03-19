@@ -7,11 +7,13 @@ on:
     paths:
       - "experimenter/**"
       - "application-services/**"
+      - ".github/actions/run-integration-test/**"
       - ".github/workflows/integration-desktop-targeting.yml"
   pull_request:
     paths:
       - "experimenter/**"
       - "application-services/**"
+      - ".github/actions/run-integration-test/**"
       - ".github/workflows/integration-desktop-targeting.yml"
   merge_group:
     types: [checks_requested]
