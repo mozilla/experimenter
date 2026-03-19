@@ -30,6 +30,7 @@ from nimbus.pages.demo_app.frontend import DemoAppPage
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
+
 def pytest_addoption(parser):
     parser.addoption(
         "--split",
