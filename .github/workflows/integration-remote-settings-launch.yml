@@ -19,7 +19,7 @@ on:
 jobs:
   test:
     name: "Remote Settings Launch (All Applications)"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-xl
     permissions:
       contents: read
       id-token: write

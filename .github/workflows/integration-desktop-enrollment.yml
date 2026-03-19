@@ -19,7 +19,7 @@ on:
 jobs:
   test:
     name: "Desktop Enrollment (Release Firefox)"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-xl
     permissions:
       contents: read
       id-token: write
