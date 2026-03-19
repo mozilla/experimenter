@@ -3467,6 +3467,51 @@ class TestNimbusExperiment(TestCase):
             experiment.has_exposures, NimbusUIConstants.ExposuresStatus.NO_EXPOSURES
         )
 
+    def test_has_exposures_daily_only(self):
+        results_data = {
+            "v3": {
+                "daily": {
+                    "exposures": {
+                        "all": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": 120,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "treatment": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": 120,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertEqual(
+            experiment.has_exposures, NimbusUIConstants.ExposuresStatus.VALID
+        )
+
     def test_has_exposures_missing_data(self):
         results_data = {
             "v3": {

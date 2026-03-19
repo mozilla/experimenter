@@ -1718,7 +1718,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if self.results_data and "v3" in self.results_data:
             results_data = self.results_data["v3"]
-            for window in ["overall", "weekly"]:
+            for window in ["overall", "weekly", "daily"]:
                 if results_data.get(window):
                     exposures_branch_data = (
                         results_data[window].get("exposures", {}).get("all", {})
