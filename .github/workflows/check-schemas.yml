@@ -20,7 +20,7 @@ jobs:
 
       - uses: ./.github/actions/setup-cached-build
         with:
-          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+          gcp-project-number: ${{ !github.event.pull_request.head.repo.fork && vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER || '' }}
 
       - name: Run schemas tests and linting
         run: make schemas_check
