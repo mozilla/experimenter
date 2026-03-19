@@ -334,6 +334,23 @@ def create_experiment(slug, app, data=None, targeting=None, is_rollout=False):
     )
 
 
+def update_experiment_audience(slug, audience_data):
+    """Update the audience form on an existing draft experiment.
+
+    Merges audience_data into the default desktop audience fields so Django
+    form validation passes even when only one field is being changed.
+    """
+    defaults = {
+        "targeting_config_slug": "",
+        "population_percent": "100",
+        "total_enrolled_clients": "55",
+        "firefox_min_version": "120.!",
+        "channels": ["nightly", "beta", "release"],
+    }
+    defaults.update(audience_data)
+    _post_form(f"/nimbus/{slug}/update_audience/", defaults)
+
+
 def end_experiment(slug):
     _post_form(f"/nimbus/{slug}/live-to-complete/")
     _post_form(f"/nimbus/{slug}/approve-end-experiment/")
