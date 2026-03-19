@@ -4160,10 +4160,13 @@ FX_149_TRAINHOP_2_ACTIVATION_WINDOW = NimbusTargetingConfig(
 )
 
 FX_NEW_NON_SELECTABLE_PROFILE_KIT_CAMPAIGN = NimbusTargetingConfig(
-    name="New non-selectable profiles (< 1 hour old) having been created with Kit campaign",
+    name=(
+        "New non-selectable profiles (< 1 hour old) having been created with Kit campaign"
+    ),
     slug="new-profiles-kit-campaign",
     description=(
-        "Desktop new non-selectable profiles (< 1 hour old) having been installed
+        "Desktop new non-selectable profiles "
+        "(< 1 hour old) having been installed "
         "via a Kit campaign page."
     ),
     targeting=(
@@ -4176,6 +4179,7 @@ FX_NEW_NON_SELECTABLE_PROFILE_KIT_CAMPAIGN = NimbusTargetingConfig(
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
