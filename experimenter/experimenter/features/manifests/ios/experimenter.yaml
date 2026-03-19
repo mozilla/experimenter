@@ -208,24 +208,6 @@ improved-app-store-review-trigger-feature:
       type: boolean
       description: |
         Enables the feature.
-menu-refactor-feature:
-  description: |
-    Controls the menu refactor feature
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Controls which menu users will see
-    menu-default-browser-banner:
-      type: boolean
-      description: |
-        If true, enables the menu Make Firefox your default banner, on top of the menu.
-    menu-redesign-hint:
-      type: boolean
-      description: |
-        If true, enables the menu contextual hint for menu redesign.
 messaging:
   description: |
     The in-app messaging system

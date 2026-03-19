@@ -206,25 +206,6 @@ features:
           Enables the feature.
         type: Boolean
         default: false
-  menu-refactor-feature:
-    description: |
-      Controls the menu refactor feature
-    variables:
-      enabled:
-        description: |
-          Controls which menu users will see
-        type: Boolean
-        default: true
-      menu-default-browser-banner:
-        description: |
-          If true, enables the menu Make Firefox your default banner, on top of the menu.
-        type: Boolean
-        default: true
-      menu-redesign-hint:
-        description: |
-          If true, enables the menu contextual hint for menu redesign.
-        type: Boolean
-        default: true
   messaging:
     description: |
       The in-app messaging system
