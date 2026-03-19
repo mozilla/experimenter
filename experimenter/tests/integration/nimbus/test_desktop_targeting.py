@@ -32,9 +32,11 @@ def targeting_script():
         return f.read()
 
 
+@pytest.mark.parametrize("application", ["firefox-desktop"], ids=["FIREFOX_DESKTOP"])
 @pytest.mark.run_targeting
 def test_check_advanced_targeting(
     driver,
+    application,
     base_experiment_slug,
     targeting_config_slug,
     targeting_script,
