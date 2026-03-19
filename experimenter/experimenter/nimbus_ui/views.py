@@ -1118,6 +1118,8 @@ class NimbusFeaturesView(TemplateView):
             "feature_changes_non_sortable_headers": feature_changes_non_sortable_headers,
         }
 
+        context["create_form"] = NimbusExperimentCreateForm()
+
         # Add subscribers form if a feature is selected
         if selected_feature_config:
             context["subscribers_form"] = FeatureSubscribersForm(

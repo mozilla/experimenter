@@ -4241,6 +4241,7 @@ class TestNimbusFeaturesView(AuthTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/features.html")
+        self.assertIn("create_form", response.context)
 
     def test_features_view_dropdown_loads_correct_default(self):
         response = self.client.get(reverse("nimbus-ui-features"))
