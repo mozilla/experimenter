@@ -84,6 +84,14 @@ features:
         description: When enabled we show the custom review prompt UI. Otherwise we try to directly show the Play Store in-app review prompt.
         type: Boolean
         default: true
+  default-bottom-toolbar:
+    description: Default toolbar position for new users.
+    variables:
+      enabled:
+        description: |
+          Whether to default the toolbar position to bottom.
+        type: Boolean
+        default: false
   default-browser-prompt:
     description: Feature that controls when the default browser prompt is shown.
     variables:
@@ -949,14 +957,6 @@ features:
         description: If true, shake to summarize will be enabled
         type: Boolean
         default: false
-  ship:
-    description: The feature that controls Session History in Parent (SHIP) in Gecko.
-    variables:
-      disabled:
-        description: |
-          Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.
-        type: Boolean
-        default: true
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
