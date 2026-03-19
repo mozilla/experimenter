@@ -17,6 +17,8 @@ runs:
   steps:
     - name: Run integration tests
       shell: bash
+      env:
+        BUILDKIT_PROGRESS: plain
       run: |
         cp .env.integration-tests .env
         attempts=$(( ${{ inputs.retries }} + 1 ))
