@@ -133,11 +133,13 @@ compose_stop:
 	$(CIRRUS_ENABLE) $(COMPOSE) kill || true
 	$(COMPOSE_INTEGRATION) kill || true
 	$(COMPOSE_PROD) kill || true
+	$(COMPOSE_TEST) kill || true
 
 compose_rm:
 	$(COMPOSE) rm -f -v || true
 	$(COMPOSE_INTEGRATION) rm -f -v || true
 	$(COMPOSE_PROD) rm -f -v || true
+	$(COMPOSE_TEST) rm -f -v || true
 
 docker_prune:
 	docker container prune -f
@@ -156,12 +158,18 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 	echo "All containers removed!"
 
 lint: build_test  ## Running linting on source code
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_RESULTS)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_RESULTS)" "$(RESULTS_SCHEMA_CHECK)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_RESULTS)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_RESULTS)" "$(RESULTS_SCHEMA_CHECK)") ${COLOR_CHECK}'; \
+	status=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$status
 
 check: lint
 
 test: build_test  ## Run tests
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) python manage.py test --parallel'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) python manage.py test --parallel'; \
+	status=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$status
 pytest: test
 
 start: build_dev cirrus_build  ## Start containers
