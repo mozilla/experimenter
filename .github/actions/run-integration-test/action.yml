@@ -19,6 +19,7 @@ runs:
       shell: bash
       env:
         BUILDKIT_PROGRESS: plain
+        COMPOSE_ANSI: never
       run: |
         cp .env.integration-tests .env
         attempts=$(( ${{ inputs.retries }} + 1 ))
