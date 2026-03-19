@@ -18,14 +18,18 @@ on:
 
 jobs:
   test:
-    name: "Desktop Enrollment (Release Firefox)"
+    strategy:
+      fail-fast: false
+      matrix:
+        split: [0, 1]
+    name: "Desktop Enrollment (${{ matrix.split }})"
     runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
     env:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@v6
@@ -37,4 +41,4 @@ jobs:
 
       - uses: ./.github/actions/run-integration-test
         with:
-          artifact-name: desktop-enrollment-test-report
+          artifact-name: desktop-enrollment-${{ matrix.split }}-test-report

@@ -21,21 +21,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - channel: release
-            name: Release
-          - channel: beta
-            name: Beta
-          - channel: nightly
-            name: Nightly
-    name: "Desktop Targeting (${{ matrix.name }} Firefox)"
+        channel: [release, beta, nightly]
+        split: [0, 1]
+    name: "Desktop Targeting (${{ matrix.channel }} ${{ matrix.split }})"
     runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
     env:
       FIREFOX_CHANNEL: ${{ matrix.channel }}
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@v6
@@ -48,4 +43,4 @@ jobs:
       - uses: ./.github/actions/run-integration-test
         with:
           make-args: FIREFOX_CHANNEL=${{ matrix.channel }}
-          artifact-name: desktop-targeting-${{ matrix.channel }}-test-report
+          artifact-name: desktop-targeting-${{ matrix.channel }}-${{ matrix.split }}-test-report
