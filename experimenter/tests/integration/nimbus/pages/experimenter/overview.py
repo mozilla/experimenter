@@ -1,6 +1,5 @@
 from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
 
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.branches import BranchesPage
@@ -15,11 +14,11 @@ class OverviewPage(ExperimenterBase):
     _additional_link_root_locator = (By.CSS_SELECTOR, "#documentation-links .form-group")
     _additional_link_input_locator = (
         By.CSS_SELECTOR,
-        "#documentation-links .form-group input",
+        "#id_documentation_links-0-link",
     )
     _additional_link_select_locator = (
         By.CSS_SELECTOR,
-        "#documentation-links .form-group select",
+        "#id_documentation_links-0-title",
     )
     _additional_links_button_locator = (
         By.CSS_SELECTOR,
@@ -38,32 +37,27 @@ class OverviewPage(ExperimenterBase):
 
     @property
     def public_description(self):
-        return self.wait_for_and_find_element(*self._public_description_locator).text
+        return self.get_input(self._public_description_locator).text
 
     @public_description.setter
     def public_description(self, text=None):
-        name = self.wait_for_and_find_element(*self._public_description_locator)
-        name.send_keys(text)
+        el = self.get_input(self._public_description_locator)
+        el.send_keys(text)
 
     def select_risk_ai_false(self):
-        el = self.wait_for_and_find_element(*self._risk_ai_locator)
-        el.click()
+        self.click_element(self._risk_ai_locator)
 
     def select_risk_brand_false(self):
-        el = self.wait_for_and_find_element(*self._risk_brand_locator)
-        el.click()
+        self.click_element(self._risk_brand_locator)
 
     def select_risk_message_false(self):
-        el = self.wait_for_and_find_element(*self._risk_message_locator)
-        el.click()
+        self.click_element(self._risk_message_locator)
 
     def select_risk_revenue_false(self):
-        el = self.wait_for_and_find_element(*self._risk_revenue_locator)
-        el.click()
+        self.click_element(self._risk_revenue_locator)
 
     def select_risk_partner_false(self):
-        el = self.wait_for_and_find_element(*self._risk_partner_locator)
-        el.click()
+        self.click_element(self._risk_partner_locator)
 
     @property
     def tags(self):
@@ -71,14 +65,13 @@ class OverviewPage(ExperimenterBase):
         return [cb.get_attribute("value") for cb in checkboxes if cb.is_selected()]
 
     def select_tag(self, tag_id):
-        self.wait_for_and_find_element(*self._tags_dropdown_locator).click()
+        self.click_element(self._tags_dropdown_locator)
         checkbox = self.wait_for_and_find_element(By.CSS_SELECTOR, f"#tag-{tag_id}")
         if not checkbox.is_selected():
             checkbox.click()
 
     def select_first_available_tag(self):
-        """Select the first available tag for testing."""
-        self.wait_for_and_find_element(*self._tags_dropdown_locator).click()
+        self.click_element(self._tags_dropdown_locator)
         checkboxes = self.find_elements(*self._tags_checkbox_locator)
         if checkboxes:
             first_checkbox = checkboxes[0]
@@ -87,27 +80,15 @@ class OverviewPage(ExperimenterBase):
             return first_checkbox.get_attribute("value")
         return None
 
-    @property
-    def additional_links(self):
-        el = self.wait_for_and_find_element(*self._additional_link_type_locator)
-        select = Select(el)
-        return select.first_selected_option
-
     def set_additional_links(self, value=None, url="http://www.nimbus-rocks.com"):
         els = self.wait_for_and_find_elements(*self._additional_link_root_locator)
         for _ in els:
             try:
-                self.wait_for_and_find_element(
-                    By.CSS_SELECTOR, "#id_documentation_links-0-link"
-                ).send_keys(url)
-                select = Select(
-                    self.wait_for_and_find_element(
-                        By.CSS_SELECTOR, "#id_documentation_links-0-title"
-                    )
-                )
-                select.select_by_value(value)
+                el = self.get_input(self._additional_link_input_locator)
+                el.send_keys(url)
+                self.set_select(self._additional_link_select_locator, value)
             except ElementNotInteractableException:
                 continue
 
     def add_additional_links(self):
-        self.wait_for_and_find_element(*self._additional_links_button_locator).click()
+        self.click_element(self._additional_links_button_locator)
