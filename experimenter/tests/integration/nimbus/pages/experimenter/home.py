@@ -1,6 +1,5 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.select import Select
 
 from nimbus.models.base_dataclass import (
     BaseExperimentApplications,
@@ -39,33 +38,30 @@ class HomePage(ExperimenterBase):
         )
 
     def create_new_button(self):
-        el = self.wait_for_and_find_element(*self._create_new_btn_locator)
-        el.click()
+        self.click_element(self._create_new_btn_locator)
 
     @property
     def public_name(self):
-        return self.wait_for_and_find_element(*self._public_name_locator).text
+        return self.get_input(self._public_name_locator).text
 
     @public_name.setter
     def public_name(self, text=None):
-        name = self.wait_for_and_find_element(*self._public_name_locator)
-        name.send_keys(f"{text}")
+        el = self.get_input(self._public_name_locator)
+        el.send_keys(f"{text}")
 
     @property
     def hypothesis(self):
-        return self.wait_for_and_find_element(*self._hypothesis_locator).text
+        return self.get_input(self._hypothesis_locator).text
 
     @hypothesis.setter
     def hypothesis(self, text=None):
-        name = self.wait_for_and_find_element(*self._hypothesis_locator)
-        name.send_keys(f" {text}")
+        el = self.get_input(self._hypothesis_locator)
+        el.send_keys(f" {text}")
 
     @property
     def application(self):
-        return self.wait_for_and_find_element(*self._application_select_locator).text
+        return self.get_select(self._application_select_locator).text
 
     @application.setter
     def application(self, app=BaseExperimentApplications.FIREFOX_DESKTOP.value):
-        el = self.wait_for_and_find_element(*self._application_select_locator)
-        select = Select(el)
-        select.select_by_value(app)
+        self.set_select(self._application_select_locator, app)
