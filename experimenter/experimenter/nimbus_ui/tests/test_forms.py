@@ -3313,6 +3313,18 @@ class TestNimbusBranchesForm(RequestFormTestCase):
 
         changelog = experiment.changes.get()
         self.assertIn("updated branches", changelog.message)
+        changelog_branches = changelog.experiment_data["branches"]
+        changelog_fv_values = [
+            fv["value"] for b in changelog_branches for fv in b["feature_values"]
+        ]
+        self.assertIn(
+            json.dumps({"control-feature1-key": "control-feature-1-value"}),
+            changelog_fv_values,
+        )
+        self.assertIn(
+            json.dumps({"treatment-feature-1-key": "treatment-feature-1-value"}),
+            changelog_fv_values,
+        )
 
     def test_branches_form_saves_added_feature_config(self):
         application = NimbusExperiment.Application.DESKTOP
