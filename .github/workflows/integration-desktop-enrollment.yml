@@ -1,0 +1,46 @@
+name: Desktop Enrollment Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "experimenter/**"
+      - "application-services/**"
+      - ".github/actions/run-integration-test/**"
+      - ".github/workflows/integration-desktop-enrollment.yml"
+  pull_request:
+    paths:
+      - "experimenter/**"
+      - "application-services/**"
+      - ".github/actions/run-integration-test/**"
+      - ".github/workflows/integration-desktop-enrollment.yml"
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        split: [0, 1]
+    name: "Desktop Enrollment (${{ matrix.split }})"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-cached-build
+        with:
+          arch: x86_64
+          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - uses: ./.github/actions/run-integration-test
+        with:
+          artifact-name: desktop-enrollment-${{ matrix.split }}-test-report

@@ -30,6 +30,30 @@ from nimbus.pages.demo_app.frontend import DemoAppPage
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
 
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--split",
+        type=int,
+        default=None,
+        help="This node's split index (0-based)",
+    )
+    parser.addoption(
+        "--splits",
+        type=int,
+        default=None,
+        help="Total number of split nodes",
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    split = config.getoption("--split")
+    splits = config.getoption("--splits")
+    if split is not None and splits is not None:
+        items.sort(key=lambda item: item.nodeid)
+        items[:] = [item for i, item in enumerate(items) if i % splits == split]
+
+
 APPLICATION_KINTO_REVIEW_PATH = {
     BaseExperimentApplications.FIREFOX_DESKTOP.value: (
         "#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"
