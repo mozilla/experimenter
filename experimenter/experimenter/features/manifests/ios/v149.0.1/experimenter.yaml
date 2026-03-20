@@ -70,16 +70,6 @@ apple-summarizer-feature:
       type: boolean
       description: |
         Enables the toolbar entrypoint for the summarizer feature.
-bookmarks-search-feature:
-  description: |
-    Configuration feature for the bookmarks search bar
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not this feature is enabled
 deeplink-optimization-refactor-feature:
   description: |
     The feature flag to manage the rollout of deeplink optimization feature.
@@ -178,6 +168,10 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the jump back in homepage section by default
+    news-transition:
+      type: boolean
+      description: |
+        If true, enables the news transition for stories on the homepage
     search-bar:
       type: boolean
       description: |
@@ -218,6 +212,24 @@ improved-app-store-review-trigger-feature:
       type: boolean
       description: |
         Enables the feature.
+menu-refactor-feature:
+  description: |
+    Controls the menu refactor feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Controls which menu users will see
+    menu-default-browser-banner:
+      type: boolean
+      description: |
+        If true, enables the menu Make Firefox your default banner, on top of the menu.
+    menu-redesign-hint:
+      type: boolean
+      description: |
+        If true, enables the menu contextual hint for menu redesign.
 messaging:
   description: |
     The in-app messaging system
@@ -319,16 +331,6 @@ onboarding-framework-feature:
       type: boolean
       description: |
         Toggle between standard (false) and Japan-specific (true) assets and content.
-quick-answers-feature:
-  description: |
-    The feature flag to manage the roll out of the quick answers feature.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables the feature.
 recent-searches-feature:
   description: |
     Enables recent searches.
@@ -453,16 +455,6 @@ summarizer-language-expansion-feature:
       type: json
       description: |
         The list of supported locale identifiers for the summarizer language expansion according to BCP47 standard. i.e "en-US" for English (United States).
-summarizer-permissive-guardrails-feature:
-  description: |
-    This feature enables permissive guardrails for the summarizer.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables permissive guardrails for the summarizer.
 tab-scroll-refactor-feature:
   description: |
     The feature flag to manage the rollout of tab scroll refactor feature.
@@ -600,10 +592,6 @@ translations-feature:
       type: boolean
       description: |
         Whether or not to enable translations feature.
-    languagePickerEnabled:
-      type: boolean
-      description: |
-        Whether or not to enable the translations language picker (Phase 2).
 trending-searches-feature:
   description: |
     Enables trending searches.
@@ -617,6 +605,16 @@ trending-searches-feature:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
+voice-search-feature:
+  description: |
+    The feature flag to manage the roll out of the voice search feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
 web-engine-integration-refactor:
   description: |
     The feature flag to manage the roll out of the integration of WebEngine into Firefox.

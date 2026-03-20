@@ -2966,6 +2966,12 @@ networking:
       setPref:
         branch: default
         pref: "network.http.http3.cc_algorithm"
+    http3SlowStartAlgorithm:
+      description: The slow start algorithm with which to configure neqo. Use 0 for Classic, 1 for HyStart++.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.http3.slow_start_algorithm"
     enableOffMainThreadStreamDecompression:
       description: Whether to enable decompression of network streams off-main-thread
       type: boolean

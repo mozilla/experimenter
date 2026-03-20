@@ -71,6 +71,15 @@ features:
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
         default: true
+  bookmarks-search-feature:
+    description: |
+      Configuration feature for the bookmarks search bar
+    variables:
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: true
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
@@ -961,6 +970,15 @@ features:
         - es
         - de
         - pt
+  summarizer-permissive-guardrails-feature:
+    description: |
+      This feature enables permissive guardrails for the summarizer.
+    variables:
+      enabled:
+        description: |
+          Enables permissive guardrails for the summarizer.
+        type: Boolean
+        default: true
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.
