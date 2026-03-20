@@ -2619,13 +2619,14 @@ class TestLaunchViews(AuthTestCase):
             is_paused=True,
         )
 
+        cancel_msg = NimbusUIConstants.CancelRequestMessages.END_ENROLLMENT.value
         response = self.client.post(
             reverse(
                 "nimbus-ui-cancel-end-enrollment",
                 kwargs={"slug": experiment.slug},
             ),
             data={
-                "cancel_message": "Cancelled end enrollment request.",
+                "cancel_message": cancel_msg,
                 "action_type": "end_enrollment",
             },
         )
@@ -2638,7 +2639,7 @@ class TestLaunchViews(AuthTestCase):
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
-        self.assertIn("Cancelled end enrollment request.", changelog.message)
+        self.assertIn(cancel_msg, changelog.message)
 
     @parameterized.expand(
         [
@@ -2694,13 +2695,14 @@ class TestLaunchViews(AuthTestCase):
             is_rollout=is_rollout,
         )
 
+        cancel_msg = NimbusUIConstants.CancelRequestMessages.END_EXPERIMENT.value
         response = self.client.post(
             reverse(
                 "nimbus-ui-cancel-end-experiment",
                 kwargs={"slug": experiment.slug},
             ),
             data={
-                "cancel_message": "Cancelled end experiment request.",
+                "cancel_message": cancel_msg,
                 "action_type": "end_experiment",
             },
         )
@@ -2713,7 +2715,7 @@ class TestLaunchViews(AuthTestCase):
 
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
-        self.assertIn("Cancelled end experiment request.", changelog.message)
+        self.assertIn(cancel_msg, changelog.message)
 
     def test_live_to_update_rollout_view(self):
         experiment = NimbusExperimentFactory.create(
@@ -2765,10 +2767,11 @@ class TestLaunchViews(AuthTestCase):
             is_rollout=True,
         )
 
+        cancel_msg = NimbusUIConstants.CancelRequestMessages.UPDATE_ROLLOUT.value
         response = self.client.post(
             reverse("nimbus-ui-cancel-update-rollout", kwargs={"slug": experiment.slug}),
             data={
-                "cancel_message": "Cancelled update rollout.",
+                "cancel_message": cancel_msg,
                 "action_type": "update_rollout",
             },
         )
@@ -2778,7 +2781,7 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
         changelog = experiment.changes.latest("changed_on")
-        self.assertIn("Cancelled update rollout.", changelog.message)
+        self.assertIn(cancel_msg, changelog.message)
 
     def test_approve_update_rollout_view(self):
         experiment = NimbusExperimentFactory.create(

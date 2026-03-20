@@ -120,6 +120,82 @@ class SlackEmojiMockMixin:
         self.addCleanup(self.mock_remove_emoji_task.stop)
 
 
+class CancelEmojiTestMixin:
+    @parameterized.expand(
+        [
+            (
+                "end_enrollment",
+                CancelEndEnrollmentForm,
+                NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                {
+                    "cancel_message": (
+                        NimbusUIConstants.CancelRequestMessages.END_ENROLLMENT.value
+                    )
+                },
+            ),
+            (
+                "end_experiment",
+                CancelEndExperimentForm,
+                NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                {
+                    "cancel_message": (
+                        NimbusUIConstants.CancelRequestMessages.END_EXPERIMENT.value
+                    )
+                },
+            ),
+            (
+                "update_rollout",
+                CancelUpdateRolloutForm,
+                NimbusConstants.AlertType.UPDATE_REQUEST,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                {
+                    "cancel_message": (
+                        NimbusUIConstants.CancelRequestMessages.UPDATE_ROLLOUT.value
+                    )
+                },
+            ),
+        ]
+    )
+    def test_cancel_removes_pending_emoji(
+        self, name, form_class, alert_type, status, status_next, data
+    ):
+        is_rollout = form_class == CancelUpdateRolloutForm
+        is_paused = alert_type != NimbusConstants.AlertType.UPDATE_REQUEST
+
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=is_paused,
+            is_rollout=is_rollout,
+        )
+
+        form = form_class(
+            data=data,
+            instance=experiment,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            alert_type,
+            SlackConstants.EmojiReaction.PENDING,
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            alert_type,
+            SlackConstants.EmojiReaction.CANCEL,
+        )
+
+
 class KintoPushQueueMockMixin:
     def setUp(self):
         super().setUp()
@@ -1912,7 +1988,9 @@ class TestApproveEndExperimentForm(
         )
 
 
-class TestCancelEndEnrollmentForm(SlackEmojiMockMixin, RequestFormTestCase):
+class TestCancelEndEnrollmentForm(
+    CancelEmojiTestMixin, SlackEmojiMockMixin, RequestFormTestCase
+):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -2004,7 +2082,9 @@ class TestCancelEndEnrollmentForm(SlackEmojiMockMixin, RequestFormTestCase):
         self.assertIn("Cancelled end enrollment request.", changelog.message)
 
 
-class TestCancelEndExperimentForm(SlackEmojiMockMixin, RequestFormTestCase):
+class TestCancelEndExperimentForm(
+    CancelEmojiTestMixin, SlackEmojiMockMixin, RequestFormTestCase
+):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -2224,7 +2304,9 @@ class TestLiveToUpdateRolloutForm(
         self.assertEqual(alert.slack_channel_id, "C123456")
 
 
-class TestCancelUpdateRolloutForm(SlackEmojiMockMixin, RequestFormTestCase):
+class TestCancelUpdateRolloutForm(
+    CancelEmojiTestMixin, SlackEmojiMockMixin, RequestFormTestCase
+):
     def test_valid_transition(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
@@ -2251,6 +2333,11 @@ class TestCancelUpdateRolloutForm(SlackEmojiMockMixin, RequestFormTestCase):
         self.assertIn(
             "rejected the update review with reason: Audience update not valid.",
             changelog.message,
+        )
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.UPDATE_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
         )
         self.mock_emoji_task.assert_called_once_with(
             experiment.id,

@@ -1378,6 +1378,11 @@ class CancelRequestMixin:
     def save(self, commit=True):
         experiment = super().save(commit=commit)
         if self.cancel_request_alert_type:
+            remove_emoji_from_message_async.delay(
+                experiment.id,
+                self.cancel_request_alert_type,
+                SlackConstants.EmojiReaction.PENDING,
+            )
             add_emoji_to_message_async.delay(
                 experiment.id,
                 self.cancel_request_alert_type,

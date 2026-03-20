@@ -238,6 +238,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         UPDATE_ROLLOUT = "update this rollout"
         END_ROLLOUT = "end this rollout"
 
+    class CancelRequestMessages(Enum):
+        END_ENROLLMENT = "Cancelled end enrollment request."
+        END_EXPERIMENT = "Cancelled end experiment request."
+        UPDATE_ROLLOUT = "Cancelled update rollout."
+
     class ExposuresStatus(IntEnum):
         NO_EXPOSURES = 0
         VALID = 1
