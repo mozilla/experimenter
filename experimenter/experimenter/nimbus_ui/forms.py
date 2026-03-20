@@ -829,8 +829,8 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     @transaction.atomic
     def save(self, *args, **kwargs):
-        experiment = super().save(*args, **kwargs)
         self.branches.save()
+        experiment = super().save(*args, **kwargs)
 
         if experiment.is_rollout:
             branches = experiment.branches.all()
