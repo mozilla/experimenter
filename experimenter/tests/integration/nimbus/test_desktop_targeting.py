@@ -1,4 +1,5 @@
 import json
+import uuid
 from functools import cache
 from pathlib import Path
 
@@ -12,8 +13,9 @@ from nimbus.utils import helpers
 @pytest.fixture(scope="module")
 def base_experiment_slug():
     """Create one experiment per module that gets reused for all targeting tests."""
+    name = f"targeting-test-base-{uuid.uuid4().hex[:8]}"
     slug = helpers.create_basic_experiment(
-        "targeting-test-base",
+        name,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
     )
     return slug
@@ -32,9 +34,11 @@ def targeting_script():
         return f.read()
 
 
+@pytest.mark.parametrize("application", ["firefox-desktop"], ids=["FIREFOX_DESKTOP"])
 @pytest.mark.run_targeting
 def test_check_advanced_targeting(
     driver,
+    application,
     base_experiment_slug,
     targeting_config_slug,
     targeting_script,
