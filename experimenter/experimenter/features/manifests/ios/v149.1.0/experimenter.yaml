@@ -70,6 +70,16 @@ apple-summarizer-feature:
       type: boolean
       description: |
         Enables the toolbar entrypoint for the summarizer feature.
+bookmarks-search-feature:
+  description: |
+    Configuration feature for the bookmarks search bar
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 deeplink-optimization-refactor-feature:
   description: |
     The feature flag to manage the rollout of deeplink optimization feature.
@@ -443,6 +453,16 @@ summarizer-language-expansion-feature:
       type: json
       description: |
         The list of supported locale identifiers for the summarizer language expansion according to BCP47 standard. i.e "en-US" for English (United States).
+summarizer-permissive-guardrails-feature:
+  description: |
+    This feature enables permissive guardrails for the summarizer.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables permissive guardrails for the summarizer.
 tab-scroll-refactor-feature:
   description: |
     The feature flag to manage the rollout of tab scroll refactor feature.
