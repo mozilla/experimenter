@@ -1,0 +1,42 @@
+name: Remote Settings Launch Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "experimenter/**"
+      - "application-services/**"
+      - ".github/actions/run-integration-test/**"
+      - ".github/workflows/integration-remote-settings-launch.yml"
+  pull_request:
+    paths:
+      - "experimenter/**"
+      - "application-services/**"
+      - ".github/actions/run-integration-test/**"
+      - ".github/workflows/integration-remote-settings-launch.yml"
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  test:
+    name: "Remote Settings Launch (All Applications)"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -m remote_settings_launch --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-cached-build
+        with:
+          arch: x86_64
+          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - uses: ./.github/actions/run-integration-test
+        with:
+          artifact-name: remote-settings-launch-test-report
