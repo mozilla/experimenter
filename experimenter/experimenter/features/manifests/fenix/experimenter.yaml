@@ -548,6 +548,14 @@ private-browsing-lock:
       type: boolean
       description: |
         Whether or not to enable private browsing mode lock.
+private-mode-and-stories-entry-point:
+  description: Feature to enable the Private Mode and Stories Entry Point Experiment.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Private Mode and Stories Entry Point Experiment is enabled.
 remote-search-configuration:
   description: Feature to use search configurations from remote servers.
   hasExposure: true
