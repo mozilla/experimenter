@@ -49,6 +49,7 @@ class SlackConstants:
         PENDING = "question"
         CANCEL = "x"
         APPROVE = "eyes"
+        COMPLETE = "white_check_mark"
 
     # Slack API error codes
     class ErrorCode:
