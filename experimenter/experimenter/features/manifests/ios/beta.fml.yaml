@@ -811,12 +811,12 @@ features:
         description: |
           Toggle between legacy (false) and modern (true) UI variants.
         type: Boolean
-        default: false
+        default: true
       should-use-brand-refresh-configuration:
         description: |
           Toggle between standard (false) and brand refresh (true) onboarding content.
         type: Boolean
-        default: false
+        default: true
       should-use-japan-configuration:
         description: |
           Toggle between standard (false) and Japan-specific (true) assets and content.
