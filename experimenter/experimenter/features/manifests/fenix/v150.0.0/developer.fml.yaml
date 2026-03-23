@@ -281,7 +281,6 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
         type: Map<HomeScreenSection, Boolean>
         default:
-          header: true
           top-sites: true
           jump-back-in: true
           bookmarks: true
@@ -825,6 +824,13 @@ features:
           Whether or not to enable private browsing mode lock.
         type: Boolean
         default: true
+  private-mode-and-stories-entry-point:
+    description: Feature to enable the Private Mode and Stories Entry Point Experiment.
+    variables:
+      enabled:
+        description: If true, Private Mode and Stories Entry Point Experiment is enabled.
+        type: Boolean
+        default: false
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -1155,8 +1161,6 @@ enums:
         description: The sites the user has bookmarked.
       collections:
         description: The collections section of the homepage.
-      header:
-        description: The header of the homescreen.
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
       pocket:
