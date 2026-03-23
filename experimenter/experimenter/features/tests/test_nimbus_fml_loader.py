@@ -2,7 +2,7 @@ import json
 from unittest.mock import patch
 
 from django.test import TestCase
-from nimbus_megazord.fml import FmlClient
+from nimbus_megazord.fml import FmlClient, FmlError
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
@@ -210,3 +210,36 @@ class TestNimbusFmlLoader(TestCase):
             self.assertEqual(loader.application, None)
             self.assertEqual(result, [])
             self.assertIn("Nimbus FML Loader: Invalid application", log.output[0])
+
+    @patch(
+        "nimbus_megazord.fml.FmlClient.__init__",
+        side_effect=FmlError("gecko-pref and default are mutually exclusive"),
+    )
+    @mock_fml_features
+    def test_fml_client_returns_none_when_manifest_fails_to_parse(self, _mock_client):
+        loader = self.create_loader()
+        with self.assertLogs(level="ERROR") as log:
+            result = loader.fml_client()
+            self.assertIsNone(result)
+            self.assertIn(
+                "Nimbus FML Loader: FmlClient failed to parse manifest",
+                log.output[0],
+            )
+
+    @patch(
+        "nimbus_megazord.fml.FmlClient.__init__",
+        side_effect=FmlError("gecko-pref and default are mutually exclusive"),
+    )
+    @mock_fml_features
+    def test_get_fml_errors_returns_empty_when_manifest_fails_to_parse(
+        self, _mock_client
+    ):
+        loader = self.create_loader()
+        test_blob = json.dumps({"enabled": True})
+        with self.assertLogs(level="ERROR") as log:
+            result = loader.get_fml_errors(test_blob, "cookie-banners")
+            self.assertEqual(result, [])
+            self.assertIn(
+                "Nimbus FML Loader: FmlClient failed to parse manifest",
+                log.output[0],
+            )
