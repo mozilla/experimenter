@@ -557,6 +557,7 @@ class TestSlackNotifications(TestCase):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
         mock_client.chat_postMessage.return_value = {"ok": True, "channel": "C123456"}
+        mock_client.reactions_remove.return_value = {"ok": True}
         mock_client.reactions_add.return_value = {"ok": True}
 
         thread_ts = "1234567890.123456"
@@ -578,11 +579,20 @@ class TestSlackNotifications(TestCase):
         self.assertIn(self.experiment.slug, call_args.kwargs["text"])
         self.assertEqual(call_args.kwargs["thread_ts"], thread_ts)
 
-        # Verify reaction emoji was added with the correct channel ID
+        # Verify eyes emoji was removed
+        mock_client.reactions_remove.assert_called_once()
+        remove_call = mock_client.reactions_remove.call_args
+        self.assertEqual(remove_call.kwargs["channel"], "C123456")
+        self.assertEqual(remove_call.kwargs["name"], SlackConstants.EmojiReaction.APPROVE)
+        self.assertEqual(remove_call.kwargs["timestamp"], thread_ts)
+
+        # Verify checkmark emoji was added with the correct channel ID
         mock_client.reactions_add.assert_called_once()
         reaction_call = mock_client.reactions_add.call_args
         self.assertEqual(reaction_call.kwargs["channel"], "C123456")
-        self.assertEqual(reaction_call.kwargs["name"], "white_check_mark")
+        self.assertEqual(
+            reaction_call.kwargs["name"], SlackConstants.EmojiReaction.COMPLETE
+        )
         self.assertEqual(reaction_call.kwargs["timestamp"], thread_ts)
 
     @override_settings(
@@ -620,6 +630,7 @@ class TestSlackNotifications(TestCase):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
         mock_client.chat_postMessage.return_value = {"ok": True, "channel": "C123456"}
+        mock_client.reactions_remove.return_value = {"ok": True}
         # Simulate reaction already exists error
         mock_client.reactions_add.side_effect = SlackApiError(
             message="Slack error",
@@ -637,6 +648,7 @@ class TestSlackNotifications(TestCase):
 
         self.assertTrue(result)
         mock_client.chat_postMessage.assert_called_once()
+        mock_client.reactions_remove.assert_called_once()
         mock_client.reactions_add.assert_called_once()
 
     @override_settings(
@@ -648,6 +660,7 @@ class TestSlackNotifications(TestCase):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
         mock_client.chat_postMessage.return_value = {"ok": True, "channel": "C123456"}
+        mock_client.reactions_remove.return_value = {"ok": True}
         mock_client.reactions_add.side_effect = SlackApiError(
             message="Slack error", response={"ok": False, "error": "channel_not_found"}
         )
