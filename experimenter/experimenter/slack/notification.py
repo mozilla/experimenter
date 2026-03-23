@@ -1,3 +1,4 @@
+import contextlib
 import logging
 
 from django.conf import settings
@@ -192,11 +193,20 @@ def send_threaded_success_message(
 
         channel_id = post_response["channel"]
 
-        # Add reaction emoji to original message
+        # Remove eyes emoji (review done) and add checkmark (action complete)
+        # Eyes emoji might not exist, so suppress any errors
+        with contextlib.suppress(SlackApiError):
+            client.reactions_remove(
+                channel=channel_id,
+                name=SlackConstants.EmojiReaction.APPROVE,
+                timestamp=thread_ts,
+            )
+
+        # Add checkmark emoji to original message
         try:
             client.reactions_add(
                 channel=channel_id,
-                name="white_check_mark",
+                name=SlackConstants.EmojiReaction.COMPLETE,
                 timestamp=thread_ts,
             )
         except SlackApiError as emoji_error:
