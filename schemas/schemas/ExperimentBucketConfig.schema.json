@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "ExperimentBucketConfig",
+  "type": "object",
+  "properties": {
+    "randomizationUnit": {
+      "$ref": "#/$defs/RandomizationUnit"
+    },
+    "namespace": {
+      "description": "Additional inputs to the hashing function.",
+      "type": "string"
+    },
+    "start": {
+      "description": "Index of the starting bucket of the range.",
+      "type": "integer"
+    },
+    "count": {
+      "description": "Number of buckets in the range.",
+      "type": "integer"
+    },
+    "total": {
+      "description": "The total number of buckets. You can assume this will always be 10000.",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "randomizationUnit",
+    "namespace",
+    "start",
+    "count",
+    "total"
+  ],
+  "$defs": {
+    "RandomizationUnit": {
+      "description": "A unique, stable identifier for the user used as an input to bucket hashing.",
+      "enum": [
+        "normandy_id",
+        "nimbus_id",
+        "user_id",
+        "group_id"
+      ],
+      "type": "string"
+    }
+  }
+}

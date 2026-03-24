@@ -1,24 +1,26 @@
----
 data-broker-removal-time-estimates:
   description: Show the data broker removal time estimates
   hasExposure: true
-  exposureDescription: ""
+  exposureDescription: ''
   variables:
     enabled:
       type: boolean
       description: If the feature is enabled
-data-privacy-petition-banner:
-  description: Show the data privacy petition banner to US users
+example-feature:
+  description: An example feature
   hasExposure: true
-  exposureDescription: ""
+  exposureDescription: ''
   variables:
     enabled:
       type: boolean
       description: If the feature is enabled
+    something:
+      type: string
+      description: Another variable
 landing-page-free-scan-cta:
   description: Landing page free scan CTA
   hasExposure: true
-  exposureDescription: ""
+  exposureDescription: ''
   variables:
     enabled:
       type: boolean
@@ -27,27 +29,13 @@ landing-page-free-scan-cta:
       type: string
       description: The CTA variant to show
       enum:
-        - ctaOnly
-        - ctaOnlyAlternativeLabel
-        - ctaWithEmail
-landing-page-redesign-plus-eligible-experiment:
-  description: Landing page redesign
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: If the feature is enabled
-    variant:
-      type: string
-      description: The landing page variant to show
-      enum:
-        - default
-        - redesign
+      - ctaOnly
+      - ctaOnlyAlternativeLabel
+      - ctaWithEmail
 last-scan-date:
-  description: "Show the date of the user's last scan in the top right-hand corner"
+  description: Show the date of the user's last scan in the top right-hand corner
   hasExposure: true
-  exposureDescription: ""
+  exposureDescription: ''
   variables:
     enabled:
       type: boolean
@@ -55,7 +43,7 @@ last-scan-date:
 welcome-scan-optional-info:
   description: Show additional optional input fields for the data broker scan
   hasExposure: true
-  exposureDescription: ""
+  exposureDescription: ''
   variables:
     enabled:
       type: boolean
@@ -64,7 +52,7 @@ welcome-scan-optional-info:
       type: string
       description: The optional fields to show
       enum:
-        - middleName
-        - none
-        - suffix
-        - suffixAndMiddleName
+      - middleName
+      - none
+      - suffix
+      - suffixAndMiddleName

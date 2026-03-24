@@ -4,7 +4,11 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.postgres import forms as pgforms
+from django.db import transaction
+from django.template.loader import render_to_string
 from django.utils.encoding import force_str
+from django.utils.safestring import mark_safe
+from django_summernote.admin import SummernoteModelAdmin
 from import_export import fields, resources
 from import_export.admin import ExportActionMixin, ImportMixin
 from import_export.widgets import DecimalWidget, ForeignKeyWidget
@@ -12,9 +16,11 @@ from import_export.widgets import DecimalWidget, ForeignKeyWidget
 from experimenter.experiments.changelog_utils import (
     NimbusBranchChangeLogSerializer,
     NimbusChangeLogSerializer,
+    generate_nimbus_changelog,
 )
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
+    NimbusAlert,
     NimbusBranch,
     NimbusBranchFeatureValue,
     NimbusBranchScreenshot,
@@ -26,6 +32,7 @@ from experimenter.experiments.models import (
     NimbusFeatureVersion,
     NimbusIsolationGroup,
     NimbusVersionedSchema,
+    Tag,
 )
 from experimenter.jetstream import tasks
 from experimenter.settings import DEV_USER_EMAIL
@@ -229,13 +236,6 @@ class NimbusDocumentationLinkInlineAdmin(
     extra = 1
 
 
-class NimbusExperimentChangeLogInlineAdmin(
-    NoDeleteAdminMixin, admin.StackedInline[NimbusChangeLog]
-):
-    model = NimbusChangeLog
-    extra = 1
-
-
 class NimbusExperimentBucketRangeInlineAdmin(
     ReadOnlyAdminMixin, admin.StackedInline[NimbusBucketRange]
 ):
@@ -278,7 +278,13 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     firefox_max_version = forms.ChoiceField(
         choices=NimbusExperiment.Version.choices, required=False
     )
+    _firefox_min_version_parsed = pgforms.SimpleArrayField(
+        forms.IntegerField(), required=False
+    )
     channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices, required=False)
+    channels = forms.MultipleChoiceField(
+        choices=NimbusExperiment.Channel.choices, required=False
+    )
     primary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
     secondary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
     segments = pgforms.SimpleArrayField(forms.CharField(), required=False)
@@ -311,16 +317,20 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     class Meta:
         model = NimbusExperiment
         exclude = ("id",)
+        readonly_fields = ("_firefox_min_version_parsed",)
 
 
 class NimbusExperimentAdmin(
-    NoDeleteAdminMixin, ImportMixin, ExportActionMixin, admin.ModelAdmin[NimbusExperiment]
+    NoDeleteAdminMixin,
+    ImportMixin,
+    ExportActionMixin,
+    SummernoteModelAdmin,
+    admin.ModelAdmin[NimbusExperiment],
 ):
     inlines = (
         NimbusDocumentationLinkInlineAdmin,
         NimbusBranchInlineAdmin,
         NimbusExperimentBucketRangeInlineAdmin,
-        NimbusExperimentChangeLogInlineAdmin,
     )
     list_display = (
         "name",
@@ -346,6 +356,30 @@ class NimbusExperimentAdmin(
     form = NimbusExperimentAdminForm
     actions = [force_fetch_jetstream_data]
     resource_class = NimbusExperimentResource
+    readonly_fields = ("_firefox_min_version_parsed", "changelog_display")
+    summernote_fields = ("takeaways_summary", "next_steps")
+
+    @admin.display(description="Change History")
+    def changelog_display(self, obj):
+        if obj.pk:
+            changes = obj.changes.all().order_by("-changed_on")
+            if not changes:
+                return "No change history"
+
+            html = render_to_string(
+                "admin/changelog_display.html",
+                {"changes": changes},
+            )
+            return mark_safe(html)
+        return "No change history"
+
+    @transaction.atomic
+    def save_form(self, request, form, change):
+        instance = super().save_form(request, form, change)
+        generate_nimbus_changelog(
+            instance, request.user, NimbusConstants.CHANGELOG_MESSAGE_ADMIN_EDIT
+        )
+        return instance
 
 
 class NimbusFeatureVersionAdmin(
@@ -429,6 +463,11 @@ class NimbusBranchAdmin(NoDeleteAdminMixin, admin.ModelAdmin[NimbusBranch]):
     prepopulated_fields = {"slug": ("name",)}
 
 
+class TagAdmin(admin.ModelAdmin[Tag]):
+    list_display = ("name", "color")
+    search_fields = ("name",)
+
+
 admin.site.register(NimbusIsolationGroup, NimbusIsolationGroupAdmin)
 admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
 admin.site.register(NimbusFeatureConfig, NimbusFeatureConfigAdmin)
@@ -436,3 +475,5 @@ admin.site.register(NimbusVersionedSchema, NimbusVersionedSchemaAdmin)
 admin.site.register(NimbusBranch, NimbusBranchAdmin)
 admin.site.register(NimbusFeatureVersion, NimbusFeatureVersionAdmin)
 admin.site.register(NimbusDocumentationLink)
+admin.site.register(NimbusAlert)
+admin.site.register(Tag, TagAdmin)

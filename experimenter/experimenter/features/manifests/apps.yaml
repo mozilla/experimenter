@@ -6,8 +6,7 @@ fenix:
   slug: "fenix"
   repo:
     type: "github"
-    name: "mozilla/gecko-dev"
-    default_branch: "master"
+    name: "mozilla-firefox/firefox"
   fml_path: "mobile/android/fenix/app/nimbus.fml.yaml"
   release_discovery:
     version_file:
@@ -16,7 +15,7 @@ fenix:
     strategies:
       - type: "branched"
         branches:
-          - "master"
+          - "main"
           - "beta"
           - "release"
 
@@ -30,52 +29,18 @@ firefox_ios:
     - "nimbus.fml.yaml"
   release_discovery:
     version_file:
-      type: "plist"
-      path:
-        - "firefox-ios/Client/Info.plist"
-        - "Client/Info.plist"
-      key: "CFBundleShortVersionString"
+      - type: "plaintext"
+        path: "version.txt"
+      - type: "plist"
+        path: "firefox-ios/Client/Info.plist"
+        key: "CFBundleShortVersionString"
+      - type: "plist"
+        path: "Client/Info.plist"
+        key: "CFBundleShortVersionString"
     strategies:
       - type: "tagged"
         branch_re: 'release/v(?P<major>\d+)(?:\.(?P<minor>\d+))?'
-        tag_re: 'v(?P<major>\d+)\.(?P<minor>\d+)'
-      - type: "branched"
-
-focus_android:
-  slug: "focus-android"
-  repo:
-    type: "github"
-    name: "mozilla-mobile/firefox-android"
-  fml_path: "focus-android/app/nimbus.fml.yaml"
-  release_discovery:
-    version_file:
-      type: "plaintext"
-      path: "version.txt"
-    strategies:
-      - type: "tagged"
-        branch_re: 'releases_v(?P<major>\d+)'
-        tag_re: 'focus-v(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?'
-      - type: "branched"
-
-focus_ios:
-  slug: "focus-ios"
-  repo:
-    type: "github"
-    name: "mozilla-mobile/firefox-ios"
-  fml_path:
-    - "focus-ios/nimbus.fml.yaml"
-  release_discovery:
-    version_file:
-      type: "plist"
-      path:
-        - "focus-ios/Blockzilla/Info.plist"
-        - "Blockzilla/Info.plist"
-      key: "CFBundleShortVersionString"
-    strategies:
-      - type: "tagged"
-        branch_re: 'release/v(?P<major>\d+)'
-        tag_re: 'focus/klar-v(?P<major>\d+)\.(?P<minor>\d+)'
-        minimum_version: "124.0.0"  # Pre v124 it used the focus-ios repo.
+        tag_re: 'firefox-v(?P<major>\d+)\.(?P<minor>\d+)'
       - type: "branched"
 
 monitor_cirrus:
@@ -84,13 +49,6 @@ monitor_cirrus:
     type: "github"
     name: "mozilla/blurts-server"
   fml_path: "config/nimbus.yaml"
-
-mozillavpn_backend_cirrus:
-  slug: "vpn-web"
-  repo:
-    type: "github"
-    name: "mozilla-services/guardian-website"
-  fml_path: "nimbus.yaml"
 
 firefox_accounts_cirrus:
   slug: "fxa-web"
@@ -102,9 +60,8 @@ firefox_accounts_cirrus:
 firefox_desktop:
   slug: "firefox-desktop"
   repo:
-    type: "hgmo"
-    name: "mozilla-unified"
-    default_branch: "central"
+    type: "github"
+    name: "mozilla-firefox/firefox"
   experimenter_yaml_path: "toolkit/components/nimbus/FeatureManifest.yaml"
   release_discovery:
     version_file:
@@ -122,8 +79,22 @@ firefox_desktop:
           # In this order, if two consecutive branches have the same version,
           # then the latter will take precedence. e.g., if both beta and release
           # report the same version, we will use the feature manifest from release.
-          - "central"
+          - "main"
           - "beta"
           - "release"
           - "esr115"
           - "esr128"
+          - "esr140"
+
+experimenter_cirrus:
+  slug: "experimenter"
+  repo:
+    type: "local"
+  fml_path: "experimenter/features/manifests/experimenter/nimbus.fml.yaml"
+
+subplat_cirrus:
+  slug: "subplat-web"
+  repo:
+    type: "github"
+    name: "mozilla/fxa"
+  fml_path: "configs/subplat-nimbus.fml.yaml"

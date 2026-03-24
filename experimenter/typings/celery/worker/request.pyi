@@ -56,7 +56,7 @@ class Request:
         utc=...,
         maybe_make_aware=...,
         maybe_iso8601=...,
-        **opts
+        **opts,
     ) -> None: ...
     @property
     def delivery_info(self): ...

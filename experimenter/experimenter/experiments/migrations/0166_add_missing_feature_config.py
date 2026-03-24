@@ -24,7 +24,6 @@ def set_feature_config(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0165_add_published_dto"),
     ]

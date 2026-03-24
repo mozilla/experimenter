@@ -2,7 +2,9 @@ import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.utils import timezone
+from kinto_http import KintoException
 
 from experimenter.celery import app
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -12,8 +14,10 @@ from experimenter.experiments.email import (
     nimbus_send_enrollment_ending_email,
     nimbus_send_experiment_ending_email,
 )
-from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
+from experimenter.experiments.models import NimbusAlert, NimbusChangeLog, NimbusExperiment
 from experimenter.kinto.client import KintoClient
+from experimenter.slack.constants import SlackConstants
+from experimenter.slack.notification import send_threaded_success_message
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("kinto.nimbus_tasks")
@@ -88,7 +92,7 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
     handle_launching_experiments(applications, records, collection)
     handle_updating_experiments(applications, records, collection)
     handle_ending_experiments(applications, records, collection)
-    handle_waiting_experiments(applications, collection)
+    handle_waiting_experiments(applications, records, collection)
 
     if queued_launch_experiment := next(
         NimbusExperiment.objects.launch_queue(applications, collection), None
@@ -111,16 +115,17 @@ def handle_pending_review(applications, collection):
         NimbusExperiment.objects.waiting(applications, collection), None
     ):
         if experiment.should_timeout:
-            experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-            if experiment.status == experiment.Status.DRAFT:
-                experiment.published_date = None
-            experiment.save()
+            with transaction.atomic():
+                experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+                if experiment.status == experiment.Status.DRAFT:
+                    experiment.published_date = None
+                experiment.save()
 
-            generate_nimbus_changelog(
-                experiment,
-                get_kinto_user(),
-                message=NimbusChangeLog.Messages.TIMED_OUT_IN_KINTO,
-            )
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.TIMED_OUT_IN_KINTO,
+                )
 
             logger.info(f"{experiment.slug} timed out")
         else:
@@ -133,31 +138,54 @@ def handle_rejection(applications, kinto_client):
     if experiment := next(
         NimbusExperiment.objects.waiting(applications, kinto_client.collection), None
     ):
-        if (
-            experiment.is_rollout is True
-            and experiment.status == NimbusExperiment.Status.LIVE
-            and (
-                experiment.status_next
-                in (NimbusExperiment.Status.LIVE, NimbusExperiment.Status.COMPLETE)
+        with transaction.atomic():
+            if (
+                experiment.is_rollout is True
+                and experiment.status == NimbusExperiment.Status.LIVE
+                and (
+                    experiment.status_next
+                    in (NimbusExperiment.Status.LIVE, NimbusExperiment.Status.COMPLETE)
+                )
+                and experiment.is_paused is False
+            ):
+                experiment.is_rollout_dirty = True
+
+            experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+            experiment.status_next = None
+            experiment.is_paused = False
+            if experiment.status == experiment.Status.DRAFT:
+                experiment.published_date = None
+            experiment.save()
+
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=collection_data["last_reviewer_comment"],
             )
-            and experiment.is_paused is False
-        ):
-            experiment.is_rollout_dirty = True
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        experiment.status_next = None
-        experiment.is_paused = False
-        if experiment.status == experiment.Status.DRAFT:
-            experiment.published_date = None
-        experiment.save()
-
-        generate_nimbus_changelog(
-            experiment,
-            get_kinto_user(),
-            message=collection_data["last_reviewer_comment"],
-        )
 
         logger.info(f"{experiment.slug} rejected")
+
+
+def _send_slack_alert_success_message(
+    experiment, alert_type, message_template, operation_name, log_message_func
+):
+    try:
+        alert = NimbusAlert.objects.filter(
+            experiment=experiment,
+            alert_type=alert_type,
+            slack_thread_id__isnull=False,
+        ).last()
+
+        if alert and alert.slack_thread_id:
+            send_threaded_success_message(
+                experiment.id,
+                alert.slack_thread_id,
+                message_template,
+                operation_name,
+                log_message_func,
+            )
+    except Exception as e:
+        logger.error(f"Failed to send {operation_name}: {e}")
 
 
 def handle_launching_experiments(applications, records, collection):
@@ -174,16 +202,29 @@ def handle_launching_experiments(applications, records, collection):
             published_record = records[experiment.slug].copy()
             published_record.pop("last_modified")
 
-            experiment.status = NimbusExperiment.Status.LIVE
-            experiment.status_next = None
-            experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-            experiment.published_dto = published_record
-            experiment.save()
+            with transaction.atomic():
+                experiment.status = NimbusExperiment.Status.LIVE
+                experiment.status_next = None
+                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+                experiment.published_dto = published_record
+                experiment.save()
 
-            generate_nimbus_changelog(
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.LIVE,
+                )
+
+                experiment.update_computed_end_date()
+
+            _send_slack_alert_success_message(
                 experiment,
-                get_kinto_user(),
-                message=NimbusChangeLog.Messages.LIVE,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+                SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+                SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
+                lambda slug: SlackConstants.SLACK_LOG_LAUNCH_SUCCESS_SENT.format(
+                    experiment=slug
+                ),
             )
 
             logger.info(f"{experiment.slug} launched")
@@ -204,17 +245,41 @@ def handle_updating_experiments(applications, records, collection):
 
         if published_record != stored_record:
             logger.info(f"{experiment} is updated in Kinto".format(experiment=experiment))
-            experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-            experiment.status_next = None
-            experiment.published_dto = published_record
-            experiment.is_rollout_dirty = False
-            experiment.save()
+            with transaction.atomic():
+                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+                experiment.status_next = None
+                experiment.published_dto = published_record
+                experiment.is_rollout_dirty = False
+                experiment.save()
 
-            generate_nimbus_changelog(
-                experiment,
-                get_kinto_user(),
-                message=NimbusChangeLog.Messages.UPDATED_IN_KINTO,
-            )
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.UPDATED_IN_KINTO,
+                )
+
+                experiment.update_computed_end_date()
+
+            if experiment.is_paused:
+                _send_slack_alert_success_message(
+                    experiment,
+                    NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
+                    SlackConstants.SLACK_ENROLLMENT_ENDED_MESSAGE,
+                    SlackConstants.SLACK_OPERATION_ENROLLMENT_ENDING,
+                    lambda slug: SlackConstants.SLACK_LOG_ENROLLMENT_ENDING_SENT.format(
+                        experiment=slug
+                    ),
+                )
+            else:
+                _send_slack_alert_success_message(
+                    experiment,
+                    NimbusConstants.AlertType.UPDATE_REQUEST,
+                    SlackConstants.SLACK_UPDATE_SUCCESS_MESSAGE,
+                    SlackConstants.SLACK_OPERATION_UPDATE_SUCCESS,
+                    lambda slug: SlackConstants.SLACK_LOG_UPDATE_SUCCESS_SENT.format(
+                        experiment=slug
+                    ),
+                )
 
             logger.info(f"{experiment.slug} updated")
 
@@ -230,34 +295,52 @@ def handle_ending_experiments(applications, records, collection):
                 )
             )
 
-            experiment.status = NimbusExperiment.Status.COMPLETE
-            experiment.status_next = None
-            experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-            experiment.is_rollout_dirty = False
-            experiment.save()
+            with transaction.atomic():
+                experiment.status = NimbusExperiment.Status.COMPLETE
+                experiment.status_next = None
+                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+                experiment.is_rollout_dirty = False
+                experiment.save()
 
-            generate_nimbus_changelog(
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.COMPLETED,
+                )
+
+                experiment.update_computed_end_date()
+
+            _send_slack_alert_success_message(
                 experiment,
-                get_kinto_user(),
-                message=NimbusChangeLog.Messages.COMPLETED,
+                NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+                SlackConstants.SLACK_EXPERIMENT_ENDED_MESSAGE,
+                SlackConstants.SLACK_OPERATION_EXPERIMENT_ENDING,
+                lambda slug: SlackConstants.SLACK_LOG_EXPERIMENT_ENDING_SENT.format(
+                    experiment=slug
+                ),
             )
 
             logger.info(f"{experiment.slug} ended")
 
 
-def handle_waiting_experiments(applications, collection):
+def handle_waiting_experiments(applications, records, collection):
     for experiment in NimbusExperiment.objects.waiting(applications, collection):
-        experiment.status_next = None
-        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        if experiment.status == experiment.Status.DRAFT:
-            experiment.published_date = None
-        experiment.save()
+        with transaction.atomic():
+            experiment.status_next = None
+            experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+            if experiment.status == experiment.Status.DRAFT:
+                experiment.published_date = None
 
-        generate_nimbus_changelog(
-            experiment,
-            get_kinto_user(),
-            message=NimbusChangeLog.Messages.REJECTED_FROM_KINTO,
-        )
+            kinto_record = records.get(experiment.slug, {})
+            experiment.is_paused = kinto_record.get("isEnrollmentPaused", False)
+
+            experiment.save()
+
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.REJECTED_FROM_KINTO,
+            )
 
         logger.info(f"{experiment.slug} rejected without reason(rollback)")
 
@@ -289,14 +372,15 @@ def nimbus_push_experiment_to_kinto(collection, experiment_id):
 
         kinto_client.create_record(data)
 
-        experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
-        experiment.save()
+        with transaction.atomic():
+            experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
+            experiment.save()
 
-        generate_nimbus_changelog(
-            experiment,
-            get_kinto_user(),
-            message=NimbusChangeLog.Messages.LAUNCHING_TO_KINTO,
-        )
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.LAUNCHING_TO_KINTO,
+            )
 
         logger.info(f"{experiment.slug} pushed to Kinto")
         metrics.incr("push_experiment_to_kinto.completed")
@@ -326,14 +410,15 @@ def nimbus_update_experiment_in_kinto(collection, experiment_id):
 
         kinto_client.update_record(data)
 
-        experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
-        experiment.save()
+        with transaction.atomic():
+            experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
+            experiment.save()
 
-        generate_nimbus_changelog(
-            experiment,
-            get_kinto_user(),
-            message=NimbusChangeLog.Messages.UPDATING_IN_KINTO,
-        )
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.UPDATING_IN_KINTO,
+            )
 
         logger.info(f"{experiment.slug} updated in Kinto")
 
@@ -359,16 +444,28 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
         logger.info(f"Deleting {experiment.slug} from Kinto")
 
         kinto_client = KintoClient(collection)
-        kinto_client.delete_record(experiment.slug)
 
-        experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
-        experiment.save()
+        try:
+            kinto_client.delete_record(experiment.slug)
+        except KintoException as e:
+            if (
+                hasattr(e, "response")
+                and e.response is not None
+                and e.response.status_code == 404
+            ):
+                logger.info(f"{experiment.slug} already deleted from Kinto")
+            else:
+                raise e
 
-        generate_nimbus_changelog(
-            experiment,
-            get_kinto_user(),
-            message=NimbusChangeLog.Messages.DELETING_FROM_KINTO,
-        )
+        with transaction.atomic():
+            experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
+            experiment.save()
+
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.DELETING_FROM_KINTO,
+            )
 
         logger.info(f"{experiment.slug} deleted from Kinto")
         metrics.incr("end_experiment_in_kinto.completed")
@@ -394,9 +491,9 @@ def nimbus_synchronize_preview_experiments_in_kinto():
     }
 
     try:
-        published_preview_slugs = []
+        published_preview_slugs = set()
         for client in kinto_clients.values():
-            published_preview_slugs.extend(client.get_main_records().keys())
+            published_preview_slugs.update(client.get_main_records().keys())
 
         should_publish_experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.PREVIEW
@@ -406,10 +503,38 @@ def nimbus_synchronize_preview_experiments_in_kinto():
             data = NimbusExperimentSerializer(experiment).data
             kinto_client = kinto_clients[experiment.application]
             kinto_client.create_record(data)
-            experiment.published_dto = data
-            experiment.published_date = timezone.now()
-            experiment.save()
-            logger.info(f"{experiment.slug} is being pushed to preview")
+
+            with transaction.atomic():
+                experiment.published_dto = data
+                experiment.published_date = timezone.now()
+                experiment.save()
+
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.PUSHED_TO_PREVIEW,
+                )
+
+                logger.info(f"{experiment.slug} is being pushed to preview")
+
+        thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+        expired_experiments = NimbusExperiment.objects.filter(
+            slug__in=published_preview_slugs,
+            _updated_date_time__lt=thirty_days_ago,
+        )
+
+        for experiment in expired_experiments:
+            with transaction.atomic():
+                experiment.status = NimbusExperiment.Status.DRAFT
+                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+                experiment.published_date = None
+                experiment.save()
+
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.EXPIRED_FROM_PREVIEW,
+                )
 
         should_unpublish_experiments = NimbusExperiment.objects.filter(
             slug__in=published_preview_slugs
@@ -418,8 +543,19 @@ def nimbus_synchronize_preview_experiments_in_kinto():
         for experiment in should_unpublish_experiments:
             kinto_client = kinto_clients[experiment.application]
             kinto_client.delete_record(experiment.slug)
-            experiment.published_date = None
-            experiment.save()
+
+            with transaction.atomic():
+                experiment.refresh_from_db()
+                if experiment.status == NimbusExperiment.Status.DRAFT:
+                    experiment.published_date = None
+                    experiment.published_dto = None
+                    experiment.save()
+
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.REMOVED_FROM_PREVIEW,
+                )
             logger.info(f"{experiment.slug} is being removed from preview")
 
         metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.completed")
@@ -440,28 +576,80 @@ def nimbus_send_emails():
     """
     metrics.incr("nimbus_send_emails.started")
 
-    experiments = NimbusExperiment.objects.filter(
-        status=NimbusExperiment.Status.LIVE,
+    experiments = list(
+        NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE
+        ).prefetch_related("emails")
     )
 
     for experiment in experiments:
         if (
             experiment.should_end_enrollment
             and not experiment.is_rollout
-            and not experiment.emails.filter(
-                type=NimbusExperiment.EmailType.ENROLLMENT_END
-            ).exists()
+            and not any(
+                True
+                for email in experiment.emails.all()
+                if email.type == NimbusExperiment.EmailType.ENROLLMENT_END
+            )
         ):
             nimbus_send_enrollment_ending_email(experiment)
             logger.info(f"{experiment} end enrollment email sent")
 
-        if (
-            experiment.should_end
-            and not experiment.emails.filter(
-                type=NimbusExperiment.EmailType.EXPERIMENT_END
-            ).exists()
+        if experiment.should_end and not any(
+            True
+            for email in experiment.emails.all()
+            if email.type == NimbusExperiment.EmailType.EXPERIMENT_END
         ):
             nimbus_send_experiment_ending_email(experiment)
             logger.info(f"{experiment} end email sent")
 
     metrics.incr("nimbus_send_emails.completed")
+
+
+@app.task
+@metrics.timer_decorator("nimbus_sync_published_dto")
+def nimbus_sync_published_dto():
+    """
+    A scheduled task that finds live experiments with published_dto=null,
+    reads their record from Kinto, and saves it to the published_dto field.
+    """
+    metrics.incr("nimbus_sync_published_dto.started")
+
+    kinto_clients = {
+        app_config.slug: KintoClient(app_config.preview_collection, review=False)
+        for app_config in NimbusConstants.APPLICATION_CONFIGS.values()
+    }
+
+    try:
+        experiments = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
+            published_dto__isnull=True,
+        )
+
+        for experiment in experiments:
+            logger.info(f"Syncing published_dto for {experiment.slug}")
+
+            kinto_client = kinto_clients[experiment.application]
+            records = kinto_client.get_main_records()
+
+            if experiment.slug in records:
+                published_record = records[experiment.slug].copy()
+                published_record.pop("last_modified", None)
+
+                experiment.published_dto = published_record
+                experiment.save()
+
+                logger.info(f"Synced published_dto for {experiment.slug}")
+                metrics.incr("nimbus_sync_published_dto.synced")
+            else:
+                logger.warning(
+                    f"Experiment {experiment.slug} not found in Kinto collection"
+                )
+                metrics.incr("nimbus_sync_published_dto.not_found")
+
+        metrics.incr("nimbus_sync_published_dto.completed")
+
+    except Exception as e:
+        metrics.incr("nimbus_sync_published_dto.failed")
+        logger.info(f"Syncing published_dto failed: {e}")
+        raise e

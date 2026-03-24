@@ -106,7 +106,7 @@ def weekday(name):  # -> int:
     """Return the position of a weekday: 0 - 7, where 0 is Sunday.
 
     Example:
-        >>> weekday('sunday'), weekday('sun'), weekday('mon')
+        >>> weekday("sunday"), weekday("sun"), weekday("mon")
         (0, 0, 1)
     """
     ...
@@ -162,7 +162,7 @@ class ffwd:
         minute=...,
         second=...,
         microsecond=...,
-        **kwargs
+        **kwargs,
     ) -> None: ...
     def __repr__(self): ...
     def __radd__(self, other): ...

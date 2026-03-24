@@ -1,0 +1,70 @@
+{% load nimbus_extras %}
+
+{% with sig=significance|default:"neutral" %}
+  {% if slug == reference_branch %}
+    <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center flex-wrap rounded-3"
+         style="height: 100px">
+      <span class="fw-medium w-100">Baseline</span>
+      {% if absolute_lower %}
+        {% if absolute_lower and display_type == "percentage" %}
+          <span class="mb-0 me-1"
+                data-bs-toggle="tooltip"
+                data-bs-title="{{ absolute_lower|to_percentage:6 }}">({{ absolute_lower|to_percentage:1 }}</span>
+          -
+          <span class="mb-0 ms-1"
+                data-bs-toggle="tooltip"
+                data-bs-title="{{ absolute_upper|to_percentage:6 }}">{{ absolute_upper|to_percentage:1 }})</span>
+        {% else %}
+          <span class="mb-0 me-1"
+                data-bs-toggle="tooltip"
+                data-bs-title="{{ absolute_lower|floatformat:6 }}">({{ absolute_lower|floatformat:2 }}</span>
+          -
+          <span class="mb-0 ms-1"
+                data-bs-toggle="tooltip"
+                data-bs-title="{{ absolute_upper|floatformat:6 }}">{{ absolute_upper|floatformat:2 }})</span>
+        {% endif %}
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="p-3 rounded-3 text-center {% if sig == "positive" %}bg-success-subtle text-success{% elif sig == "negative" %}bg-danger-subtle text-danger{% else %}bg-body-tertiary text-muted{% endif %} d-flex flex-row align-items-center gap-4 justify-content-center"
+         style="height: 100px">
+      <i class="fa-solid {% if sig == "positive" %}fa-arrow-up{% elif sig == "negative" %}fa-arrow-down{% else %}fa-arrow-left{% endif %}"></i>
+      <div class="d-flex flex-column align-items-center">
+        {% if sig == "positive" %}
+          <span class="fw-semibold"
+                data-bs-toggle="tooltip"
+                data-bs-title="Range: {{ lower_percent|to_percentage:2 }} to {{ upper_percent|to_percentage:2 }}">{{ percentage|to_percentage:1 }} average increase</span>
+        {% elif sig == "negative" %}
+          <span class="fw-semibold"
+                data-bs-toggle="tooltip"
+                data-bs-title="Range: {{ lower_percent|to_percentage:2 }} to {{ upper_percent|to_percentage:2 }}">{{ percentage|to_percentage:1 }} average decrease</span>
+        {% else %}
+          <span class="fw-semibold"
+                data-bs-toggle="tooltip"
+                data-bs-title="Range: {{ lower_percent|to_percentage:2 }} to {{ upper_percent|to_percentage:2 }}">No notable change</span>
+        {% endif %}
+        <span class="mb-0 d-flex">
+          {% if absolute_lower %}
+            {% if display_type == "percentage" %}
+              <span class="mb-0 me-1"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="{{ absolute_lower|to_percentage:6 }}">({{ absolute_lower|to_percentage:1 }}</span>
+              -
+              <span class="mb-0 ms-1"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="{{ absolute_upper|to_percentage:6 }}">{{ absolute_upper|to_percentage:1 }})</span>
+            {% else %}
+              <span class="mb-0 me-1"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="{{ absolute_lower|floatformat:6 }}">({{ absolute_lower|floatformat:2 }}</span>
+              -
+              <span class="mb-0 ms-1"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="{{ absolute_upper|floatformat:6 }}">{{ absolute_upper|floatformat:2 }})</span>
+            {% endif %}
+          {% endif %}
+        </span>
+      </div>
+    </div>
+  {% endif %}
+{% endwith %}

@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 from django.conf import settings
-from nimbus_megazord.fml import FmlClient
+from nimbus_megazord.fml import FmlClient, FmlError
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusFeatureVersion
@@ -55,10 +55,16 @@ class NimbusFmlLoader:
         """
         file_path = self.file_path(version)
         if file_path is not None:
-            return FmlClient(
-                str(file_path),
-                self.channel,
-            )
+            try:
+                return FmlClient(
+                    str(file_path),
+                    self.channel,
+                )
+            except FmlError:
+                logger.exception(
+                    f"Nimbus FML Loader: FmlClient failed to parse manifest: {file_path}"
+                )
+                return None
         else:
             logger.error("Nimbus FML Loader: Failed to get FmlClient.")
             return None

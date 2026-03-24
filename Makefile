@@ -1,4 +1,4 @@
-SHELL = /bin/bash
+SHELL = /usr/bin/env bash
 
 WAIT_FOR_DB = /experimenter/bin/wait-for-it.sh -t 30 db:5432 &&
 WAIT_FOR_RUNSERVER = /experimenter/bin/wait-for-it.sh -t 30 localhost:7001 &&
@@ -6,13 +6,23 @@ WAIT_FOR_RUNSERVER = /experimenter/bin/wait-for-it.sh -t 30 localhost:7001 &&
 COMPOSE_CIRRUS = [[ -n $$CIRRUS ]] && echo "-f docker-compose-cirrus.yml"
 COMPOSE = docker compose -f docker-compose.yml $$(${COMPOSE_CIRRUS})
 COMPOSE_RUN = ${COMPOSE} run --rm
-COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
 COMPOSE_TEST = docker compose -f docker-compose-test.yml
 COMPOSE_TEST_RUN = ${COMPOSE_TEST} run --rm
 COMPOSE_PROD = docker compose -f docker-compose-prod.yml $$(${COMPOSE_CIRRUS})
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml $$(${COMPOSE_CIRRUS})
 COMPOSE_INTEGRATION_RUN = ${COMPOSE_INTEGRATION} run --rm
 DOCKER_BUILD = docker buildx build
+PYTEST_BASE_URL ?= https://nginx/nimbus/
+
+# Extra flags for docker buildx build, per target. Override to add caching, --load, etc.
+MEGAZORD_BUILD_FLAGS ?=
+EXPERIMENTER_BUILD_FLAGS ?=
+DEV_BUILD_FLAGS ?=
+CIRRUS_BUILD_FLAGS ?=
+SCHEMAS_BUILD_FLAGS ?=
+
+# Interactive flags for docker run. Set to empty for non-TTY environments (CI).
+DOCKER_RUN_INTERACTIVE ?= -ti
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
@@ -25,31 +35,22 @@ PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_TYPECHECK = pyright experimenter/
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 PYTHON_MIGRATE = python manage.py migrate
-ESLINT_LEGACY = yarn workspace @experimenter/core lint
-ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
-ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint
-ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint-fix
-ESLINT_NIMBUS_UI_NEW = yarn workspace @experimenter/nimbus_ui_new lint
-ESLINT_FIX_NIMBUS_UI_NEW = yarn workspace @experimenter/nimbus_ui_new format
-TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
-DJLINT_CHECK = djlint --check experimenter/nimbus_ui_new/
-DJLINT_FIX = djlint --reformat experimenter/nimbus_ui_new/
-JS_TEST_LEGACY = yarn workspace @experimenter/core test
-JS_TEST_NIMBUS_UI = DEBUG_PRINT_LIMIT=999999 CI=yes yarn workspace @experimenter/nimbus-ui test:cov
-NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-ui/test_schema.graphql&&diff experimenter/nimbus-ui/test_schema.graphql experimenter/nimbus-ui/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
-NIMBUS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/nimbus-ui/schema.graphql&&yarn workspace @experimenter/nimbus-ui generate-types
-RUFF_CHECK = ruff check experimenter/ tests/
-RUFF_FIX = ruff check --fix experimenter/ tests/
-BLACK_CHECK = black -l 90 --check --diff . --exclude node_modules
-BLACK_FIX = black -l 90 . --exclude node_modules
+ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui lint
+ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui format
+DJLINT_CHECK = djlint --check experimenter/nimbus_ui/ experimenter/glean/
+DJLINT_FIX = djlint --reformat experimenter/nimbus_ui/ experimenter/glean/
+RUFF_CHECK = ruff check experimenter/ manifesttool/ tests/
+RUFF_FIX = ruff check --fix experimenter/ manifesttool/ tests/
+RUFF_FORMAT_CHECK = ruff format --check --diff .
+RUFF_FORMAT_FIX = ruff format .
 CHECK_DOCS = python manage.py generate_docs --check=true
 GENERATE_DOCS = python manage.py generate_docs
 LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
 LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
 LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
-LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_projects
-
+GENERATE_TARGETING_CONFIGS = python manage.py generate_targeting_configs
+LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_tags
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
 
@@ -88,7 +89,7 @@ jetstream_config:
 	rm -Rf experimenter/experimenter/segments/metric-hub-main/.script/
 
 feature_manifests: build_dev
-	$(COMPOSE_RUN) -e GITHUB_BEARER_TOKEN=$(GITHUB_BEARER_TOKEN) experimenter /experimenter/bin/manifest-tool.py fetch $(FETCH_ARGS)
+	$(COMPOSE_RUN) --no-deps -e GITHUB_BEARER_TOKEN=$(GITHUB_BEARER_TOKEN) experimenter /experimenter/bin/manifest-tool.py fetch $(FETCH_ARGS)
 
 install_nimbus_cli:  ## Install Nimbus client
 	mkdir -p $(CLI_DIR)
@@ -105,7 +106,7 @@ compose_build:  ## Build containers
 	$(COMPOSE) build
 
 build_megazords:
-	$(DOCKER_BUILD) -f application-services/Dockerfile -t experimenter:megazords application-services/
+	$(DOCKER_BUILD) $(MEGAZORD_BUILD_FLAGS) -f application-services/Dockerfile -t experimenter:megazords application-services/
 
 update_application_services: build_megazords
 	docker run \
@@ -114,29 +115,31 @@ update_application_services: build_megazords
 		/application-services/update-application-services.sh
 
 build_dev: ssl build_megazords
-	$(DOCKER_BUILD) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
+	$(DOCKER_BUILD) $(DEV_BUILD_FLAGS) --target dev -f experimenter/Dockerfile -t experimenter:dev experimenter/
 
 build_integration_test: ssl build_megazords
 	$(DOCKER_BUILD) -f experimenter/tests/integration/Dockerfile -t experimenter:integration-tests experimenter/
 
 build_test: ssl build_megazords
-	$(DOCKER_BUILD) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
+	$(DOCKER_BUILD) $(EXPERIMENTER_BUILD_FLAGS) --target test -f experimenter/Dockerfile -t experimenter:test experimenter/
 
 build_ui: ssl
 	$(DOCKER_BUILD) --target ui -f experimenter/Dockerfile -t experimenter:ui experimenter/
 
 build_prod: ssl build_megazords
-	$(DOCKER_BUILD) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
+	$(DOCKER_BUILD) $(EXPERIMENTER_BUILD_FLAGS) --target deploy -f experimenter/Dockerfile -t experimenter:deploy experimenter/
 
 compose_stop:
-	$(COMPOSE) kill || true
+	$(CIRRUS_ENABLE) $(COMPOSE) kill || true
 	$(COMPOSE_INTEGRATION) kill || true
 	$(COMPOSE_PROD) kill || true
+	$(COMPOSE_TEST) kill || true
 
 compose_rm:
 	$(COMPOSE) rm -f -v || true
 	$(COMPOSE_INTEGRATION) rm -f -v || true
 	$(COMPOSE_PROD) rm -f -v || true
+	$(COMPOSE_TEST) rm -f -v || true
 
 docker_prune:
 	docker container prune -f
@@ -155,25 +158,29 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 	echo "All containers removed!"
 
 lint: build_test  ## Running linting on source code
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_NIMBUS_UI_NEW)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_RESULTS)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_RESULTS)" "$(RESULTS_SCHEMA_CHECK)") ${COLOR_CHECK}'; \
+	status=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$status
+
 check: lint
 
 test: build_test  ## Run tests
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) python manage.py test --parallel'; \
+	status=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$status
 pytest: test
 
-start: build_dev  ## Start containers
+start: build_dev cirrus_build  ## Start containers
 	$(COMPOSE) up
 
 up: start
 
-up_legacy: build_dev
-	$(COMPOSE_LEGACY) up
-
-up_prod: build_prod
+up_prod: build_prod cirrus_build
 	$(COMPOSE_PROD) up
 
-up_prod_detached: build_prod
+up_prod_detached: build_prod cirrus_build
 	$(COMPOSE_PROD) up -d
 
 up_db: build_dev
@@ -182,32 +189,32 @@ up_db: build_dev
 up_django: build_dev
 	$(COMPOSE) up nginx experimenter worker beat db redis kinto autograph
 
-up_detached: build_dev
+up_detached: build_dev cirrus_build
 	$(COMPOSE) up -d
 
 generate_docs: build_dev
-	$(COMPOSE_RUN) experimenter sh -c "$(GENERATE_DOCS)"
+	$(COMPOSE_RUN) --no-deps experimenter sh -c "$(GENERATE_DOCS)"
 
 generate_types: build_dev
-	$(COMPOSE_RUN) experimenter sh -c "$(NIMBUS_TYPES_GENERATE)"
+	$(COMPOSE_RUN) --no-deps experimenter sh -c "$(RESULTS_TYPES_GENERATE)"
 
 format: build_dev  ## Format source tree
-	$(COMPOSE_RUN) experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)" "$(ESLINT_FIX_NIMBUS_UI_NEW)"'
+	$(COMPOSE_RUN) --no-deps experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_RESULTS)" "$(ESLINT_FIX_NIMBUS_UI)"'
 code_format: format
 
 makemigrations: build_dev
-	$(COMPOSE_RUN) experimenter python manage.py makemigrations
+	$(COMPOSE_RUN) --no-deps experimenter python manage.py makemigrations
 
-migrate: build_dev  ## Run database migrations
+migrate: build_dev cirrus_build  ## Run database migrations
 	$(COMPOSE_RUN) experimenter sh -c "$(WAIT_FOR_DB) $(PYTHON_MIGRATE)"
 
-bash: build_dev
+bash: build_dev cirrus_build
 	$(COMPOSE_RUN) experimenter bash
 
-refresh: kill build_dev compose_build refresh_db  ## Rebuild all containers and the database
+refresh: kill build_dev cirrus_build compose_build refresh_db  ## Rebuild all containers and the database
 
 refresh_db:  # Rebuild the database
-	$(COMPOSE_RUN) -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
+	$(COMPOSE_RUN) -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(GENERATE_TARGETING_CONFIGS)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 dependabot_approve:
 	echo "Install and configure the Github CLI https://github.com/cli/cli"
@@ -221,59 +228,81 @@ integration_shell:
 integration_sdk_shell: build_prod build_integration_test
 	$(COMPOSE_INTEGRATION_RUN) rust-sdk bash
 
-integration_vnc_up: build_prod
-	$(COMPOSE_INTEGRATION) up firefox
-
-integration_vnc_up_detached: build_prod
+integration_vnc_shell: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox
+	$(COMPOSE_INTEGRATION) exec firefox bash
 
-integration_test_legacy: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "./experimenter/tests/experimenter_legacy_tests.sh"
+# Run a specific integration test locally via VNC.
+# Usage: make integration_test_vnc TEST="test_archive_experiment[FIREFOX_DESKTOP]"
+integration_test_vnc: build_prod
+	cp .env.integration-tests .env
+	SKIP_DUMMY=1 $(MAKE) refresh up_prod_detached
+	@echo ""
+	@echo "=========================================="
+	@echo "Connect VNC to watch the test:"
+	@echo "  VNC:   vnc://localhost:5900 (password: secret)"
+	@echo "  noVNC: http://localhost:7902 (password: secret)"
+	@echo ""
+	@echo "Then run: ./experimenter/tests/nimbus_integration_tests.sh"
+	@echo "=========================================="
+	@echo ""
+	PYTEST_ARGS="-k $(TEST) --reruns 0 --base-url $(PYTEST_BASE_URL)" \
+	PYTEST_BASE_URL="$(PYTEST_BASE_URL)" \
+	$(COMPOSE_INTEGRATION) up -d firefox
+	$(COMPOSE_INTEGRATION) exec firefox bash
 
 integration_test_nimbus_desktop: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "UPDATE_FIREFOX_VERSION=$(UPDATE_FIREFOX_VERSION) FIREFOX_BETA=$(FIREFOX_BETA) FIREFOX_RELEASE=$(FIREFOX_RELEASE) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "FIREFOX_CHANNEL=$(FIREFOX_CHANNEL) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) CIRCLECI=$(CIRCLECI) ./experimenter/tests/nimbus_integration_tests.sh"
 
 integration_test_nimbus_sdk: build_integration_test build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) -it rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"
 
 integration_test_nimbus_fenix:
 	poetry -C experimenter/tests/integration/ -vvv install --no-root
-	poetry -C experimenter/tests/integration/ -vvv run pytest --html=experimenter/tests/integration/test-reports/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android -vvv
+	poetry -C experimenter/tests/integration/ -vvv run pytest --html=workspace/test-results/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android --junitxml=experimenter/tests/integration/test-reports/experimenter_fenix_integration_tests.xml -vvv
 
 # cirrus
 CIRRUS_ENABLE = export CIRRUS=1 &&
-CIRRUS_BLACK_CHECK = black -l 90 --check --diff .
-CIRRUS_BLACK_FIX = black -l 90 .
+CIRRUS_RUFF_FORMAT_CHECK = ruff format --check --diff .
+CIRRUS_RUFF_FORMAT_FIX = ruff format .
 CIRRUS_RUFF_CHECK = ruff check .
 CIRRUS_RUFF_FIX = ruff check --fix .
-CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus -v
+CIRRUS_PYTEST = pytest . --cov-config=.coveragerc --cov=cirrus --cov-branch --cov-report json:cirrus_coverage.json --junitxml=cirrus_pytest.xml -v
 CIRRUS_PYTHON_TYPECHECK = pyright -p .
 CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p . --createstub cirrus
 CIRRUS_GENERATE_DOCS = python cirrus/generate_docs.py
 
 cirrus_build: build_megazords
-	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy cirrus/server/
+	$(CIRRUS_ENABLE) $(DOCKER_BUILD) $(CIRRUS_BUILD_FLAGS) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-context=fml=experimenter/experimenter/features/manifests/ cirrus/server/
+
+cirrus_build_dev: build_megazords
+	$(CIRRUS_ENABLE) $(DOCKER_BUILD) --target dev -f cirrus/server/Dockerfile -t cirrus:dev --build-context=fml=experimenter/experimenter/features/manifests/ cirrus/server/
 
 cirrus_build_test: build_megazords
-	$(CIRRUS_ENABLE) $(COMPOSE_TEST) build cirrus
+	$(CIRRUS_ENABLE) $(DOCKER_BUILD) $(CIRRUS_BUILD_FLAGS) --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-context fml=experimenter/experimenter/features/manifests/ cirrus/server/
 
-cirrus_bash: cirrus_build
-	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus bash
+cirrus_bash: cirrus_build_dev
+	docker run --rm -ti -v ./cirrus/server:/cirrus -v /cirrus/cirrus/glean cirrus:dev bash
 
 cirrus_up: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE) up cirrus
 
-cirrus_down: cirrus_build
+cirrus_up_detached: cirrus_build
+	$(CIRRUS_ENABLE) $(COMPOSE) up -d cirrus
+
+cirrus_down:
 	$(CIRRUS_ENABLE) $(COMPOSE) down cirrus
 
 cirrus_test: cirrus_build_test
 	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c '$(CIRRUS_PYTEST)'
 
-cirrus_check: cirrus_build_test
-	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_BLACK_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
+cirrus_check: cirrus_lint
+
+cirrus_lint: cirrus_build_test
+	$(CIRRUS_ENABLE) $(COMPOSE_TEST_RUN) cirrus sh -c "$(CIRRUS_RUFF_FORMAT_CHECK) && $(CIRRUS_RUFF_CHECK) && $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_code_format: cirrus_build
-	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_RUFF_FIX) && $(CIRRUS_BLACK_FIX)'
+	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_RUFF_FORMAT_FIX) && $(CIRRUS_RUFF_FIX)'
 
 cirrus_typecheck_createstub: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
@@ -288,7 +317,7 @@ build_demo_app:
 # nimbus schemas package
 SCHEMAS_ENV ?=  # This is empty by default
 SCHEMAS_VERSION = \$$(cat VERSION)
-SCHEMAS_RUN = docker run --rm -ti $(SCHEMAS_ENV) -v ./schemas:/schemas -v /schemas/node_modules schemas:dev sh -c
+SCHEMAS_RUN = docker run --rm $(DOCKER_RUN_INTERACTIVE) $(SCHEMAS_ENV) -v ./schemas:/schemas -v /schemas/node_modules schemas:dev sh -c
 SCHEMAS_BLACK = black --check --diff .
 SCHEMAS_RUFF = ruff check .
 SCHEMAS_DIFF_PYDANTIC = \
@@ -305,7 +334,7 @@ SCHEMAS_VERSION_PYPI = poetry version ${SCHEMAS_VERSION};
 SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
 
 schemas_docker_build:  ## Build schemas docker image
-	$(DOCKER_BUILD) --target dev -f schemas/Dockerfile -t schemas:dev schemas/
+	$(DOCKER_BUILD) $(SCHEMAS_BUILD_FLAGS) --target dev -f schemas/Dockerfile -t schemas:dev schemas/
 
 schemas_build: schemas_docker_build  ## Build the mozilla_nimbus_schemas packages.
 	$(SCHEMAS_RUN) "$(SCHEMAS_GENERATE) && $(SCHEMAS_DIST_PYPI)"

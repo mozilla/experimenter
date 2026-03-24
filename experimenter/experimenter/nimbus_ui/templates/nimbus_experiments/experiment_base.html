@@ -1,0 +1,139 @@
+{% extends "common/with_sidebar.html" %}
+
+{% load nimbus_extras %}
+
+{% block sidebar %}
+  {% include "nimbus_experiments/sidebar.html" with experiment=experiment %}
+
+{% endblock %}
+{% block main_content_header %}
+  <div class="d-flex justify-content-between flex-column flex-xxl-row column-gap-3 mb-2">
+    <div>
+      <h4 class="mb-0">{{ experiment.name }}</h4>
+      <div class="d-flex align-items-center">
+        <button id="experiment-slug"
+                type="button"
+                class="btn text-secondary ps-0"
+                aria-label="Copy slug">
+          <span>{{ experiment.slug }}</span>
+          <i class="fa-solid fa-copy"></i>
+        </button>
+      </div>
+      {% if experiment.parent %}
+        <p class="text-secondary small mb-0">
+          Cloned from
+          <a href="{% url 'nimbus-ui-detail' experiment.parent.slug %}"
+             target="_blank"
+             data-testid="experiment-parent"
+             rel="noopener noreferrer">{{ experiment.parent.name }}</a>
+        </p>
+      {% endif %}
+    </div>
+    <div id="experiment-timeline">
+      {% include "nimbus_experiments/timeline.html" %}
+
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-lg-8 d-flex flex-wrap gap-1 align-items-center">
+      {% include "nimbus_experiments/experiment_tags.html" with show_status_badges=True %}
+
+    </div>
+    <div class="col-lg-4 d-flex align-items-start justify-content-lg-end">
+      <form method="post"
+            action="{% url 'nimbus-ui-toggle-review-slack-notifications' slug=experiment.slug %}"
+            class="d-flex align-items-center">
+        {% csrf_token %}
+        <input type="hidden" name="enable_review_slack_notifications" value="false">
+        <div class="form-check form-switch d-flex align-items-center"
+             {% if experiment.is_complete %}data-bs-toggle="tooltip" data-bs-placement="left" title="Disabled because experiment is complete"{% endif %}>
+          <label for="slack-notifications-toggle"
+                 class="form-check-label text-secondary small me-2 mb-0"
+                 style="cursor: {% if experiment.is_complete %}not-allowed{% else %}pointer{% endif %};
+                        {% if experiment.is_complete %}opacity: 0.5{% endif %}">
+            <i class="fa-solid fa-bell me-1"></i>
+            <span>Enable review Slack notifications</span>
+          </label>
+          <input type="checkbox"
+                 id="slack-notifications-toggle"
+                 name="enable_review_slack_notifications"
+                 value="true"
+                 {% if experiment.enable_review_slack_notifications %}checked{% endif %}
+                 {% if experiment.is_complete %}disabled{% endif %}
+                 onchange="this.form.submit()"
+                 class="form-check-input m-0"
+                 role="switch"
+                 style="cursor: {% if experiment.is_complete %}not-allowed{% else %}pointer{% endif %}">
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="position-fixed top-0 end-0 m-3 w-auto z-3">
+    <div id="toasts-container" class="d-flex flex-column">
+      <div id="slug-toast"
+           class="toast hide text-bg-primary mb-1"
+           role="alert"
+           aria-live="assertive"
+           aria-atomic="true">
+        <div class="toast-body">
+          <i class="fa-regular fa-circle-check"></i>
+          Slug copied to clipboard!
+        </div>
+      </div>
+      <div id="json-copy-toast"
+           class="toast hide text-bg-primary mb-1"
+           role="alert"
+           aria-live="assertive"
+           aria-atomic="true">
+        <div class="toast-body">
+          <i class="fa-regular fa-circle-check"></i>
+          JSON copied to clipboard!
+        </div>
+      </div>
+    </div>
+  </div>
+  <template id="template-toast">
+    <div class="toast hide text-bg-primary mb-1"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true">
+      <div class="toast-body"></div>
+    </div>
+  </template>
+  <div class="modal fade"
+       id="cloneModal"
+       tabindex="-1"
+       aria-labelledby="cloneModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="cloneModalLabel">
+            <i class="fa-regular fa-copy"></i>
+            Clone Experiment {{ experiment.name }}
+          </h1>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body bg-body-tertiary">
+          <form id="cloneForm"
+                hx-post="{% url 'nimbus-ui-clone' experiment.slug %}"
+                hx-target="#cloneForm">
+            {% csrf_token %}
+            {% include "nimbus_experiments/clone.html" with form=clone_form experiment=experiment form_id_prefix="clone" %}
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="tagsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content" id="tagsModalContent">
+        <!-- Content will be loaded via HTMX -->
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -31,6 +31,7 @@ from experimenter.experiments.constants import (
     TargetingMultipleKintoCollectionsError,
 )
 from experimenter.experiments.models import (
+    NimbusAlert,
     NimbusBranch,
     NimbusBranchScreenshot,
     NimbusBucketRange,
@@ -41,8 +42,8 @@ from experimenter.experiments.models import (
     NimbusFeatureVersion,
     NimbusIsolationGroup,
     NimbusVersionedSchema,
+    Tag,
 )
-from experimenter.experiments.tests import JEXLParser
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
@@ -53,11 +54,88 @@ from experimenter.experiments.tests.factories import (
     NimbusIsolationGroupFactory,
     NimbusVersionedSchemaFactory,
 )
+from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
-from experimenter.nimbus_ui_new.constants import NimbusUIConstants
+from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
+
+
+class TestNimbusBranchFeatureValue(TestCase):
+    @mock_valid_features
+    def setUp(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+    def test_feature_with_coenrollment(self):
+        feature = NimbusFeatureConfig.objects.get(slug="someFeature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+        )
+        self.assertTrue(
+            experiment.reference_branch.feature_values.get(
+                feature_config=feature
+            ).allow_coenrollment
+        )
+
+    def test_feature_without_coenrollment(self):
+        feature = NimbusFeatureConfig.objects.get(slug="missingVariables")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+        )
+        self.assertFalse(
+            experiment.reference_branch.feature_values.get(
+                feature_config=feature
+            ).allow_coenrollment
+        )
+
+    def test_feature_with_max_version(self):
+        feature = NimbusFeatureConfig.objects.get(slug="missingVariables")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_139,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_140,
+        )
+        self.assertFalse(
+            experiment.reference_branch.feature_values.get(
+                feature_config=feature
+            ).allow_coenrollment
+        )
+
+    def test_unversioned_schema_returns_schema_when_exists(self):
+        feature = NimbusFeatureConfig.objects.get(slug="someFeature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+        )
+        branch_feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature
+        )
+        unversioned_schema = feature.schemas.get(version=None)
+        self.assertEqual(
+            branch_feature_value.unversioned_schema, unversioned_schema.schema
+        )
+
+    def test_unversioned_schema_returns_none_when_not_exists(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="feature-without-schema",
+            name="Feature Without Schema",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[feature],
+        )
+        feature.schemas.filter(version=None).delete()
+
+        branch_feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature
+        )
+        self.assertIsNone(branch_feature_value.unversioned_schema)
 
 
 class TestNimbusExperimentManager(TestCase):
@@ -484,6 +562,7 @@ class TestNimbusExperiment(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[],
             countries=[],
             languages=[],
@@ -498,36 +577,28 @@ class TestNimbusExperiment(TestCase):
                 "&& (version|versionCompare('83.!') >= 0)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_empty_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[],
             countries=[],
             languages=[],
         )
 
         self.assertEqual(experiment.targeting, "true")
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_97),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_97,
-            ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_97),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_96,
-            ),
         ]
     )
     def test_targeting_omits_version_for_unsupported_clients(self, application, version):
@@ -536,8 +607,8 @@ class TestNimbusExperiment(TestCase):
             application=application,
             firefox_min_version=version,
             firefox_max_version=version,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[],
             countries=[],
             languages=[],
@@ -548,15 +619,7 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_98,
-            ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_97,
-            ),
         ]
     )
     def test_targeting_includes_min_version_for_supported_clients(
@@ -567,8 +630,8 @@ class TestNimbusExperiment(TestCase):
             application=application,
             firefox_min_version=version,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[],
             countries=[],
             languages=[],
@@ -577,7 +640,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, f"(app_version|versionCompare('{version}') >= 0)"
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_min_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -585,8 +648,8 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[],
             countries=[],
             languages=[],
@@ -595,7 +658,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, "(app_version|versionCompare('100.!') >= 0)"
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_max_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -603,8 +666,8 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_100,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[],
             countries=[],
             languages=[],
@@ -613,20 +676,12 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting, "(app_version|versionCompare('100.*') <= 0)"
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_98,
-            ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_97,
-            ),
         ]
     )
     def test_targeting_includes_max_version_for_supported_clients(
@@ -637,8 +692,8 @@ class TestNimbusExperiment(TestCase):
             application=application,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=version,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[],
             countries=[],
             languages=[],
@@ -648,20 +703,12 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             f"(app_version|versionCompare('{version.replace('!', '*')}') <= 0)",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_98,
-            ),
             (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_97,
-            ),
         ]
     )
     def test_targeting_includes_min_and_max_version_for_supported_clients(
@@ -672,8 +719,8 @@ class TestNimbusExperiment(TestCase):
             application=application,
             firefox_min_version=version,
             firefox_max_version=version,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[],
             countries=[],
             languages=[],
@@ -686,7 +733,54 @@ class TestNimbusExperiment(TestCase):
                 f"&& (app_version|versionCompare('{version}') >= 0)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    def test_targeting_desktop_single_channel(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug="",
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            locales=[],
+            countries=[],
+            languages=[],
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            ('(browserSettings.update.channel in ["nightly"])'),
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    def test_targeting_desktop_multiple_channels(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug="",
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[
+                NimbusExperiment.Channel.NIGHTLY,
+                NimbusExperiment.Channel.BETA,
+            ],
+            locales=[],
+            countries=[],
+            languages=[],
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            ('(browserSettings.update.channel in ["beta", "nightly"])'),
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_without_firefox_min_version(
         self,
@@ -697,7 +791,7 @@ class TestNimbusExperiment(TestCase):
             firefox_max_version=NimbusExperiment.Version.FIREFOX_95,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.NIGHTLY,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             locales=[],
             countries=[],
             languages=[],
@@ -706,12 +800,12 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                '(browserSettings.update.channel == "nightly") '
+                '(browserSettings.update.channel in ["nightly"]) '
                 "&& (version|versionCompare('95.*') <= 0) "
                 "&& (os.isMac)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_without_firefox_max_version(
         self,
@@ -722,7 +816,7 @@ class TestNimbusExperiment(TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.NIGHTLY,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             locales=[],
             countries=[],
             languages=[],
@@ -731,12 +825,12 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                '(browserSettings.update.channel == "nightly") '
+                '(browserSettings.update.channel in ["nightly"]) '
                 "&& (os.isMac) "
                 "&& (version|versionCompare('83.!') >= 0)"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_without_channel_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -746,6 +840,7 @@ class TestNimbusExperiment(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[],
             countries=[],
             languages=[],
@@ -754,7 +849,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             "(os.isMac)",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_locales(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -766,6 +861,7 @@ class TestNimbusExperiment(TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[locale_ca, locale_us],
             countries=[],
             languages=[],
@@ -774,7 +870,29 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(os.isMac) && (locale in ['en-CA', 'en-US'])"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    def test_targeting_with_exclude_locales(self):
+        locale_ca = LocaleFactory.create(code="en-CA")
+        locale_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[locale_ca, locale_us],
+            exclude_locales=True,
+            countries=[],
+            languages=[],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            ("(os.isMac) && ((locale in ['en-CA', 'en-US']) != true)"),
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_countries(self):
         country_ca = CountryFactory.create(code="CA")
@@ -786,6 +904,7 @@ class TestNimbusExperiment(TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[],
             countries=[country_ca, country_us],
             languages=[],
@@ -794,7 +913,29 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(os.isMac) && (region in ['CA', 'US'])"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    def test_targeting_with_exclude_countries(self):
+        country_ca = CountryFactory.create(code="CA")
+        country_us = CountryFactory.create(code="US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[country_ca, country_us],
+            exclude_countries=True,
+            languages=[],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            ("(os.isMac) && ((region in ['CA', 'US']) != true)"),
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_locales_and_countries_desktop(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -808,19 +949,16 @@ class TestNimbusExperiment(TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             locales=[locale_ca, locale_us],
             countries=[country_ca, country_us],
             languages=[],
         )
         self.assertEqual(
             experiment.targeting,
-            (
-                "(os.isMac) "
-                "&& (locale in ['en-CA', 'en-US']) "
-                "&& (region in ['CA', 'US'])"
-            ),
+            ("(os.isMac) && (locale in ['en-CA', 'en-US']) && (region in ['CA', 'US'])"),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_languages_mobile(self):
         language_en = LanguageFactory.create(code="en")
@@ -833,13 +971,35 @@ class TestNimbusExperiment(TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
             languages=[language_en, language_es, language_fr],
         )
         self.assertEqual(
             experiment.targeting,
             "(days_since_install < 7) && (language in ['en', 'es', 'fr'])",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    def test_targeting_with_exclude_languages_mobile(self):
+        language_en = LanguageFactory.create(code="en")
+        language_fr = LanguageFactory.create(code="fr")
+        language_es = LanguageFactory.create(code="es")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.FENIX,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            languages=[language_en, language_es, language_fr],
+            exclude_languages=True,
+        )
+        self.assertEqual(
+            experiment.targeting,
+            "(days_since_install < 7) && ((language in ['en', 'es', 'fr']) != true)",
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_projects(self):
         project_mdn = ProjectFactory.create(slug="mdn")
@@ -870,7 +1030,7 @@ class TestNimbusExperiment(TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_ENTERPRISE_USERS,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             languages=[],
             locales=[locale_en],
             countries=[country_ca],
@@ -894,12 +1054,12 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                '(browserSettings.update.channel == "release") '
+                '(browserSettings.update.channel in ["release"]) '
                 "&& (version|versionCompare('101.*') <= 0) "
                 f"&& {sticky_expression}"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_sticky_desktop_rollout(self):
         locale_en = LocaleFactory.create(code="en")
@@ -910,7 +1070,7 @@ class TestNimbusExperiment(TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_ENTERPRISE_USERS,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             languages=[],
             locales=[locale_en],
             countries=[country_ca],
@@ -934,12 +1094,12 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                '(browserSettings.update.channel == "release") '
+                '(browserSettings.update.channel in ["release"]) '
                 "&& (version|versionCompare('101.*') <= 0) "
                 f"&& {sticky_expression}"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_sticky_mobile(self):
         language_en = LanguageFactory.create(code="en")
@@ -951,6 +1111,7 @@ class TestNimbusExperiment(TestCase):
             firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
             languages=[language_en],
             locales=[],
             countries=[country_ca],
@@ -973,7 +1134,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             f"(app_version|versionCompare('101.*') <= 0) && {sticky_expression}",
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_with_sticky_and_no_advanced_targeting_omits_sticky_expression(
         self,
@@ -983,8 +1144,7 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             languages=[],
             locales=[],
             countries=[],
@@ -993,45 +1153,81 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(
             experiment.targeting,
-            '(browserSettings.update.channel == "release")',
+            '(browserSettings.update.channel in ["release"])',
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @mock_valid_features
-    def test_targeting_with_prevent_pref_conflicts_set_prefs(self):
+    def test_targeting_with_prevent_pref_conflicts_set_prefs_from_feature_values(self):
         Features.clear_cache()
         call_command("load_feature_configs")
 
+        feature = NimbusFeatureConfig.objects.get(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="setPrefFeature",
+        )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             languages=[],
             locales=[],
             countries=[],
             prevent_pref_conflicts=True,
-            feature_configs=[
-                NimbusFeatureConfig.objects.get(
-                    application=NimbusExperiment.Application.DESKTOP,
-                    slug="oldSetPrefFeature",
-                )
-            ],
+            feature_configs=[feature],
         )
+        for branch in experiment.branches.all():
+            branch.feature_values.all().delete()
+            branch.feature_values.create(
+                feature_config=feature,
+                value=json.dumps({"user": "something"}),
+            )
 
         self.assertEqual(
             experiment.targeting,
             (
-                '(browserSettings.update.channel == "release") && '
+                '(browserSettings.update.channel in ["release"]) && '
                 "((experiment.slug in activeExperiments) || ("
-                "(!('nimbus.test.boolean'|preferenceIsUserSet)) && "
-                "(!('nimbus.test.int'|preferenceIsUserSet)) && "
-                "(!('nimbus.test.string'|preferenceIsUserSet))))"
+                "(!('nimbus.user'|preferenceIsUserSet))))"
             ),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    @mock_valid_features
+    def test_targeting_with_prevent_pref_conflicts_invalid_json(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+        feature = NimbusFeatureConfig.objects.get(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="setPrefFeature",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            languages=[],
+            locales=[],
+            countries=[],
+            prevent_pref_conflicts=True,
+            feature_configs=[feature],
+        )
+        for branch in experiment.branches.all():
+            branch.feature_values.all().delete()
+            branch.feature_values.create(
+                feature_config=feature,
+                value="invalid json !@#$",
+            )
+
+        self.assertEqual(
+            experiment.targeting,
+            '(browserSettings.update.channel in ["release"])',
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @mock_valid_features
     def test_targeting_without_prevent_pref_conflicts_sets_prefs(self):
@@ -1043,8 +1239,7 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             languages=[],
             locales=[],
             countries=[],
@@ -1059,9 +1254,9 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(
             experiment.targeting,
-            ('(browserSettings.update.channel == "release")'),
+            ('(browserSettings.update.channel in ["release"])'),
         )
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     @parameterized.expand(
         [
@@ -1071,15 +1266,14 @@ class TestNimbusExperiment(TestCase):
                     list(NimbusExperiment.Application),
                     [
                         ([], [], "true"),
-                        ([("foo", None)], [], "('foo' in enrollments)"),
+                        ([("foo", None)], [], "((('foo' in enrollments)))"),
                         ([], [("bar", None)], "(('bar' in enrollments) == false)"),
                         (
                             [("foo", None), ("bar", None)],
                             [("baz", None)],
                             (
-                                "(('baz' in enrollments) == false) && "
-                                "('foo' in enrollments) && "
-                                "('bar' in enrollments)"
+                                "(('baz' in enrollments) == false) "
+                                "&& ((('foo' in enrollments) || ('bar' in enrollments)))"
                             ),
                         ),
                     ],
@@ -1090,7 +1284,7 @@ class TestNimbusExperiment(TestCase):
                         (
                             [("foo", "control")],
                             [],
-                            "(enrollmentsMap['foo'] == 'control')",
+                            "(((enrollmentsMap['foo'] == 'control')))",
                         ),
                     ),
                     (
@@ -1112,7 +1306,7 @@ class TestNimbusExperiment(TestCase):
                         (
                             [("foo", "control")],
                             [],
-                            "(enrollments_map['foo'] == 'control')",
+                            "(((enrollments_map['foo'] == 'control')))",
                         ),
                         (
                             [],
@@ -1133,7 +1327,6 @@ class TestNimbusExperiment(TestCase):
                 application=application,
                 slug=slug,
                 firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             )
             for slug in ("foo", "bar", "baz")
         }
@@ -1143,8 +1336,8 @@ class TestNimbusExperiment(TestCase):
             application=application,
             slug="slug",
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
         )
         for required_slug, required_branch_slug in require:
             NimbusExperimentBranchThroughRequired.objects.create(
@@ -1160,7 +1353,7 @@ class TestNimbusExperiment(TestCase):
             )
 
         self.assertEqual(experiment.targeting, expected_targeting)
-        JEXLParser().parse(experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_targeting_uses_published_targeting_string(self):
         published_targeting = "published targeting jexl"
@@ -1180,9 +1373,7 @@ class TestNimbusExperiment(TestCase):
         )
 
     def test_targeting_config_returns_config_with_valid_slug(self):
-        experiment = NimbusExperimentFactory.create(
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING
-        )
+        experiment = NimbusExperimentFactory.create()
         self.assertEqual(
             experiment.targeting_config,
             NimbusExperiment.TARGETING_CONFIGS[
@@ -1193,6 +1384,31 @@ class TestNimbusExperiment(TestCase):
     def test_targeting_config_returns_None_with_invalid_slug(self):
         experiment = NimbusExperimentFactory.create(targeting_config_slug="invalid slug")
         self.assertIsNone(experiment.targeting_config)
+
+    @parameterized.expand(
+        [
+            (True, NimbusExperiment.Application.DESKTOP, True),
+            (False, NimbusExperiment.Application.DESKTOP, False),
+            (None, NimbusExperiment.Application.DESKTOP, False),
+            (True, NimbusExperiment.Application.FENIX, False),
+        ]
+    )
+    def test_targeting_with_risk_ai(self, risk_ai, application, should_include_targeting):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_148,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            risk_ai=risk_ai,
+        )
+        ai_targeting_expr = "'browser.ai.control.default'|preferenceValue == 'available'"
+        if should_include_targeting:
+            self.assertIn(ai_targeting_expr, experiment.targeting)
+        else:
+            self.assertNotIn(ai_targeting_expr, experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_start_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1250,7 +1466,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.launch_month, experiment.release_date.strftime("%B"))
 
     @parameterized.expand(
-        [[NimbusExperiment.Status.LIVE], [NimbusExperiment.Status.COMPLETE]]
+        [
+            [NimbusExperiment.Status.LIVE],
+            [NimbusExperiment.Status.COMPLETE],
+        ]
     )
     def test_start_date_uses_most_recent_start_change_without_cache(self, status):
         experiment = NimbusExperimentFactory.create(status=status)
@@ -1269,7 +1488,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
     @parameterized.expand(
-        [[NimbusExperiment.Status.LIVE], [NimbusExperiment.Status.COMPLETE]]
+        [
+            [NimbusExperiment.Status.LIVE],
+            [NimbusExperiment.Status.COMPLETE],
+        ]
     )
     def test_start_date_uses_cached_start_date(self, status):
         cached_date = datetime.date(2022, 1, 1)
@@ -1324,6 +1546,36 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertEqual(experiment.end_date, cached_date)
+
+    def test_days_of_enrollment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date.today() - datetime.timedelta(days=2),
+        )
+        self.assertEqual(experiment.days_since_enrollment_start, 2)
+
+    def test_enrollment_completion_percent(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            _enrollment_end_date=datetime.date.today() + datetime.timedelta(days=8),
+            start_date=datetime.date.today() - datetime.timedelta(days=2),
+        )
+        self.assertEqual(experiment.enrollment_percent_completion, 20)
+
+    def test_days_of_observation(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            _enrollment_end_date=datetime.date.today() - datetime.timedelta(days=4),
+        )
+        self.assertEqual(experiment.days_since_observation_start, 4)
+
+    def test_observation_completion_percent(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            _computed_end_date=datetime.date.today() + datetime.timedelta(days=9),
+            _enrollment_end_date=datetime.date.today() - datetime.timedelta(days=1),
+        )
+        self.assertEqual(experiment.observation_percent_completion, 10)
 
     def test_enrollment_duration_for_ended_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1598,6 +1850,13 @@ class TestNimbusExperiment(TestCase):
             experiment.proposed_duration,
         )
 
+    def test_computed_end_date_returns_None_for_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        self.assertIsNone(experiment.computed_end_date)
+
     def test_computed_end_date_returns_proposed(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
@@ -1626,6 +1885,30 @@ class TestNimbusExperiment(TestCase):
             start_date=start_date,
             proposed_enrollment=2,
             _enrollment_end_date=enrollment_end_date,
+        )
+
+        self.assertEqual(experiment.actual_enrollment_end_date, enrollment_end_date)
+        additional_enrollment_days = (
+            experiment.actual_enrollment_end_date - experiment.start_date
+        ).days - experiment.proposed_enrollment
+
+        self.assertEqual(
+            experiment.computed_end_date,
+            experiment.start_date
+            + datetime.timedelta(
+                days=(experiment.proposed_duration + additional_enrollment_days)
+            ),
+        )
+
+    def test_computed_end_date_with_past_cached_date_recomputes(self):
+        start_date = datetime.date(2022, 1, 1)
+        enrollment_end_date = datetime.date(2022, 1, 5)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            start_date=start_date,
+            proposed_enrollment=2,
+            _enrollment_end_date=enrollment_end_date,
+            _computed_end_date=(start_date - datetime.timedelta(days=1)),
         )
 
         self.assertEqual(experiment.actual_enrollment_end_date, enrollment_end_date)
@@ -1823,6 +2106,114 @@ class TestNimbusExperiment(TestCase):
             self.assertEqual(timeline[i].get("days"), expected["days"])
             self.assertEqual(timeline[i].get("tooltip"), expected["tooltip"])
 
+    @parameterized.expand(
+        [
+            # Draft
+            (
+                {
+                    "status": NimbusConstants.Status.DRAFT,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.CREATED,
+                },
+                1,
+            ),
+            # Preview
+            (
+                {
+                    "status": NimbusConstants.Status.PREVIEW,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.PREVIEW,
+                },
+                2,
+            ),
+            # Review
+            (
+                {
+                    "status": NimbusConstants.Status.PREVIEW,
+                    "publish_status": NimbusConstants.PublishStatus.REVIEW,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,  # noqa E501
+                },
+                3,
+            ),
+            # Enrollment
+            (
+                {
+                    "status": NimbusConstants.Status.LIVE,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                },
+                4,
+            ),
+            # Observation
+            (
+                {
+                    "status": NimbusConstants.Status.LIVE,
+                    "published_dto": {"isEnrollmentPaused": True},
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                },
+                5,
+            ),
+            # Complete
+            (
+                {
+                    "status": NimbusConstants.Status.COMPLETE,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,  # noqa E501
+                },
+                6,
+            ),
+            # Rollout timeline items
+            # Draft
+            (
+                {
+                    "status": NimbusConstants.Status.DRAFT,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.CREATED,
+                    "is_rollout": True,
+                },
+                1,
+            ),
+            # Preview
+            (
+                {
+                    "status": NimbusConstants.Status.PREVIEW,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.PREVIEW,
+                    "is_rollout": True,
+                },
+                2,
+            ),
+            # Review
+            (
+                {
+                    "publish_status": NimbusConstants.PublishStatus.REVIEW,
+                    "status": NimbusConstants.Status.PREVIEW,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,  # noqa E501
+                    "is_rollout": True,
+                },
+                3,
+            ),
+            # Enrollment
+            (
+                {
+                    "status": NimbusConstants.Status.LIVE,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                    "is_rollout": True,
+                },
+                4,
+            ),
+            # Complete
+            (
+                {
+                    "status": NimbusConstants.Status.COMPLETE,
+                    "lifecycle": NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,  # noqa E501
+                    "is_rollout": True,
+                },
+                6,
+            ),
+        ]
+    )
+    def test_experiment_active_status_returns_correct_timeline_state(
+        self, experiment_kwargs, expected_step
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(**experiment_kwargs)
+
+        self.assertEqual(experiment.experiment_active_status, expected_step)
+
     def test_timeline_dates_complete_is_active_when_status_is_complete(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
@@ -1833,6 +2224,155 @@ class TestNimbusExperiment(TestCase):
             timeline[-1]["is_active"]
         )  # Check if the last status "Complete" is active
         self.assertEqual(timeline[-1]["date"], experiment.end_date)
+
+    def test_get_sidebar_results_sections_with_no_available_metadata(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment.results_data = {
+            "v3": {
+                "overall": {},
+                "metadata": None,
+            }
+        }
+        experiment.save()
+
+        sections = experiment.results_sidebar_sections()
+        base_expected_sections = {
+            "title": "Overview",
+            "subitems": [
+                {"title": "Hypothesis"},
+                {"title": "Branch overview"},
+                {"title": "Key takeaways"},
+                {"title": "Next steps"},
+                {"title": "Project Impact"},
+            ],
+        }
+
+        self.assertIn(base_expected_sections, sections)
+
+    @parameterized.expand(
+        [
+            (
+                "Draft",
+                {
+                    "status": NimbusExperiment.Status.DRAFT,
+                    "proposed_enrollment": 2,
+                    "_enrollment_end_date": None,
+                },
+                ["Overview", "Branches", "Metrics", "Audience"],
+            ),
+            (
+                "Live Rollout (enrolling)",
+                {
+                    "lifecycle": (
+                        NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE
+                    ),
+                    "proposed_enrollment": 2,
+                    "_enrollment_end_date": timezone.now().date()
+                    + datetime.timedelta(days=2),
+                    "is_rollout": True,
+                    "status": NimbusExperiment.Status.LIVE,
+                },
+                ["Audience"],
+            ),
+            (
+                "Preview",
+                {
+                    "status": NimbusExperiment.Status.PREVIEW,
+                    "proposed_enrollment": 2,
+                    "_enrollment_end_date": None,
+                },
+                [],
+            ),
+            (
+                "Complete",
+                {
+                    "lifecycle": (
+                        NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+                    ),
+                    "proposed_enrollment": 2,
+                    "_enrollment_end_date": datetime.date(2023, 12, 1),
+                },
+                [],
+            ),
+        ]
+    )
+    def test_sidebar_links_editable_states(
+        self, label, experiment_kwargs, enabled_titles
+    ):
+        if "lifecycle" in experiment_kwargs:
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                **experiment_kwargs
+            )
+        else:
+            experiment = NimbusExperimentFactory.create(**experiment_kwargs)
+
+        links = experiment.sidebar_links(current_path=experiment.get_detail_url())
+        editable_titles = ["Overview", "Branches", "Metrics", "Audience"]
+
+        for link in links:
+            if link.get("is_header"):
+                continue
+            if link["title"] in editable_titles:
+                if link["title"] in enabled_titles:
+                    self.assertFalse(
+                        link["disabled"], f"{label}: {link['title']} should be enabled"
+                    )
+                else:
+                    self.assertTrue(
+                        link["disabled"], f"{label}: {link['title']} should be disabled"
+                    )
+
+    def test_sidebar_links_sets_active_flag_correctly(self):
+        experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
+        all_paths = {
+            "Summary": experiment.get_detail_url(),
+            "History": experiment.get_history_url(),
+            "Overview": experiment.get_update_overview_url(),
+            "Branches": experiment.get_update_branches_url(),
+            "Metrics": experiment.get_update_metrics_url(),
+            "Audience": experiment.get_update_audience_url(),
+        }
+
+        for title, path in all_paths.items():
+            links = experiment.sidebar_links(current_path=path)
+            for link in links:
+                if link.get("is_header"):
+                    continue
+                if link["title"] == title:
+                    self.assertTrue(
+                        link["active"], f"{title} should be active for path {path}"
+                    )
+                else:
+                    self.assertFalse(
+                        link["active"],
+                        f"{link['title']} should not be active for path {path}",
+                    )
+
+    def test_conclusion_recommendation_labels(self):
+        recommendations = list(NimbusConstants.ConclusionRecommendation)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            end_date=datetime.date(2023, 7, 1),
+            conclusion_recommendations=recommendations,
+        )
+
+        expected_labels = [
+            "Rerun",
+            "Graduate",
+            "Change course",
+            "Stop",
+            "Run follow ups",
+            "None",
+        ]
+
+        self.assertEqual(experiment.conclusion_recommendation_labels, expected_labels)
+
+    def test_empty_conclusion_recommendations(self):
+        experiment = NimbusExperimentFactory.create(conclusion_recommendations=[])
+
+        self.assertEqual(experiment.conclusion_recommendation_labels, [])
 
     def test_monitoring_dashboard_url_is_valid_when_experiment_not_begun(self):
         experiment = NimbusExperimentFactory.create(
@@ -2036,6 +2576,32 @@ class TestNimbusExperiment(TestCase):
                 "http://kinto/v1/admin/#/buckets/main-workspace/collections/nimbus-secure-experiments/simple-review",
             )
 
+    def test_review_url_returns_none_for_multiple_kinto_collections(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        with mock.patch.object(
+            type(experiment),
+            "kinto_collection",
+            new_callable=mock.PropertyMock,
+            side_effect=TargetingMultipleKintoCollectionsError({"col-a", "col-b"}),
+        ):
+            self.assertIsNone(experiment.review_url)
+
+    def test_can_publish_to_preview_returns_false_for_multiple_kinto_collections(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        with mock.patch.object(
+            type(experiment),
+            "kinto_collection",
+            new_callable=mock.PropertyMock,
+            side_effect=TargetingMultipleKintoCollectionsError({"col-a", "col-b"}),
+        ):
+            self.assertFalse(experiment.can_publish_to_preview)
+
     def test_audience_url(self):
         language1 = LanguageFactory.create(code="a")
         language2 = LanguageFactory.create(code="b")
@@ -2045,7 +2611,7 @@ class TestNimbusExperiment(TestCase):
         country2 = CountryFactory.create(code="b")
         experiment = NimbusExperimentFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             languages=[language1, language2],
             locales=[locale1, locale2],
             countries=[country1, country2],
@@ -2054,7 +2620,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.audience_url,
             (
-                "/nimbus/?application=firefox-desktop&channel=release"
+                "/nimbus/?application=firefox-desktop"
                 f"&countries={country1.id}&countries={country2.id}"
                 f"&locales={locale1.id}&locales={locale2.id}"
                 f"&languages={language1.id}&languages={language2.id}"
@@ -2070,6 +2636,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2087,6 +2655,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2111,6 +2681,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            application=NimbusExperiment.Application.DESKTOP,
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2141,6 +2713,8 @@ class TestNimbusExperiment(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2155,6 +2729,112 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(warnings[1]["slugs"], ["experiment3"])
         self.assertEqual(warnings[2]["text"], NimbusUIConstants.LIVE_MULTIFEATURE_WARNING)
         self.assertEqual(warnings[2]["slugs"], ["experiment4"])
+
+    def test_rollout_conflict_warning(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[test_feature],
+        )
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[test_feature],
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        rollout_warning = next(
+            (
+                w
+                for w in warnings
+                if w["text"] == NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS
+            ),
+            None,
+        )
+
+        self.assertIsNotNone(rollout_warning)
+        self.assertEqual(rollout_warning["variant"], "danger")
+        self.assertEqual(rollout_warning["slugs"], [])
+        self.assertEqual(
+            rollout_warning["learn_more_link"], NimbusUIConstants.ROLLOUT_BUCKET_WARNING
+        )
+
+    def test_rollout_conflict_warning_returns_none_when_no_conflict(self):
+        test_feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[test_feature],
+        )
+
+        self.assertIsNone(experiment.rollout_conflict_warning)
+
+    @mock_valid_features
+    def test_pref_targeting_rollout_collision_warning(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+        feature = NimbusFeatureConfig.objects.get(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="setPrefFeature",
+        )
+
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            is_rollout=False,
+            prevent_pref_conflicts=True,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0]["text"], NimbusUIConstants.PREF_TARGETING_WARNING)
+        self.assertEqual(warnings[0]["slugs"], [rollout.slug])
+
+    def test_multichannel_experiments_warning(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
+            is_rollout=False,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(
+            warnings[0]["text"], NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING
+        )
+        self.assertEqual(warnings[0]["slugs"], [])
 
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -2171,13 +2851,93 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.branches.count(), 0)
         self.assertEqual(experiment.changes.count(), 1)
 
+    @parameterized.expand(
+        [
+            (
+                application,
+                NimbusExperiment.Version.parse(min_version),
+            )
+            for application, min_version in (
+                NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.items()
+            )
+        ]
+    )
+    def test_rollout_version_warning_below_min_supported(self, application, min_version):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+        )
+
+        warning = experiment.rollout_version_warning
+        self.assertIsNotNone(warning)
+        self.assertEqual(warning["variant"], "warning")
+        self.assertIn(str(min_version), warning["text"])
+        self.assertIn(NimbusExperiment.Application(application).label, warning["text"])
+
+    @parameterized.expand(
+        [
+            (
+                application,
+                min_version,
+            )
+            for application, min_version in (
+                NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.items()
+            )
+        ]
+    )
+    def test_rollout_version_warning_meets_min_supported(self, application, min_version):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            application=application,
+            firefox_min_version=min_version,
+        )
+
+        warning = experiment.rollout_version_warning
+        self.assertIsNone(warning)
+
+    @parameterized.expand(
+        [
+            (
+                application,
+                min_version,
+            )
+            for application, min_version in (
+                NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.items()
+            )
+        ]
+    )
+    def test_audience_overlap_warnings_includes_rollout_version(
+        self, application, min_version
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_12,
+        )
+
+        warnings = experiment.audience_overlap_warnings
+        version_warning = next(
+            (
+                w
+                for w in warnings
+                if NimbusExperiment.Application(application).label in w["text"]
+            ),
+            None,
+        )
+        self.assertIsNotNone(version_warning)
+        self.assertEqual(version_warning["variant"], "warning")
+
     def test_allocate_buckets_generates_bucket_range(self):
         feature = NimbusFeatureConfigFactory(slug="feature")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature],
             population_percent=Decimal("50.0"),
         )
@@ -2185,7 +2945,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(
             experiment.bucket_range.isolation_group.name,
-            "firefox-desktop-feature-release",
+            "firefox-desktop-feature-release-group_id",
         )
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
@@ -2206,7 +2966,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
             population_percent=Decimal("50.0"),
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature],
             is_rollout=True,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -2215,7 +2975,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(
             experiment.bucket_range.isolation_group.name,
-            "firefox-desktop-feature-release-mac_only-rollout",
+            "firefox-desktop-feature-release-mac_only-rollout-group_id",
         )
 
     def test_allocate_buckets_deletes_buckets_and_empty_isolation_group(self):
@@ -2224,7 +2984,7 @@ class TestNimbusExperiment(TestCase):
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature],
             population_percent=Decimal("50.0"),
         )
@@ -2233,7 +2993,7 @@ class TestNimbusExperiment(TestCase):
         experiment2 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature],
             population_percent=Decimal("100.0"),
         )
@@ -2255,7 +3015,7 @@ class TestNimbusExperiment(TestCase):
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature],
             population_percent=Decimal("50.0"),
         )
@@ -2264,7 +3024,7 @@ class TestNimbusExperiment(TestCase):
         experiment2 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature],
             population_percent=Decimal("25.0"),
         )
@@ -2285,7 +3045,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature],
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             population_percent=Decimal("50.0"),
@@ -2298,7 +3058,7 @@ class TestNimbusExperiment(TestCase):
         self.assertNotEqual(original_namespace, experiment.bucket_namespace)
         self.assertEqual(
             experiment.bucket_namespace,
-            "firefox-desktop-feature-release-mac_only-rollout",
+            "firefox-desktop-feature-release-mac_only-rollout-group_id",
         )
 
     def test_required_experiments_branches(self):
@@ -2341,7 +3101,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature],
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             population_percent=Decimal("50.0"),
@@ -2351,6 +3111,23 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.bucket_namespace,
             "firefox-desktop-feature-release-group_id",
+        )
+
+    def test_bucket_namespace_includes_channels_for_desktop_experiment(self):
+        feature = NimbusFeatureConfigFactory(slug="feature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.BETA, NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            population_percent=Decimal("50.0"),
+        )
+
+        self.assertEqual(
+            experiment.bucket_namespace,
+            "firefox-desktop-feature-beta-release-group_id",
         )
 
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
@@ -2419,6 +3196,192 @@ class TestNimbusExperiment(TestCase):
 
         self.assertTrue(experiment.can_review(UserFactory.create()))
 
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Status.DRAFT, NimbusExperiment.PublishStatus.IDLE, True),
+            (NimbusExperiment.Status.DRAFT, NimbusExperiment.PublishStatus.REVIEW, False),
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ),
+            (NimbusExperiment.Status.PREVIEW, NimbusExperiment.PublishStatus.IDLE, False),
+            (NimbusExperiment.Status.LIVE, NimbusExperiment.PublishStatus.IDLE, False),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_can_draft_to_preview_flag(self, status, publish_status, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status, publish_status=publish_status
+        )
+        self.assertEqual(
+            experiment.can_draft_to_preview,
+            expected,
+            f"Expected can_draft_to_preview={expected} for status={status},\
+            publish_status={publish_status}",
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Status.DRAFT, NimbusExperiment.PublishStatus.IDLE, True),
+            (NimbusExperiment.Status.DRAFT, NimbusExperiment.PublishStatus.REVIEW, False),
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ),
+            (NimbusExperiment.Status.PREVIEW, NimbusExperiment.PublishStatus.IDLE, False),
+            (NimbusExperiment.Status.LIVE, NimbusExperiment.PublishStatus.IDLE, False),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_can_draft_to_review_flag(self, status, publish_status, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status, publish_status=publish_status
+        )
+        self.assertEqual(
+            experiment.can_draft_to_review,
+            expected,
+            f"Expected can_draft_to_review={expected} for status={status},\
+            publish_status={publish_status}",
+        )
+
+    @parameterized.expand(
+        [
+            ("live_rollout", NimbusExperiment.Status.LIVE, True, True),
+            ("live_not_rollout", NimbusExperiment.Status.LIVE, False, False),
+            ("draft_rollout", NimbusExperiment.Status.DRAFT, True, False),
+            ("complete_rollout", NimbusExperiment.Status.COMPLETE, True, False),
+        ]
+    )
+    def test_should_show_rollout_request_update(self, _, status, is_rollout, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            is_rollout=is_rollout,
+        )
+        self.assertEqual(
+            experiment.should_show_rollout_request_update,
+            expected,
+            f"Expected should_show_rollout_request_update={expected} "
+            f"for status={status}, is_rollout={is_rollout}",
+        )
+
+    @parameterized.expand(
+        [
+            (
+                "live_to_complete_in_review",
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+            ),
+            (
+                "live_to_complete_idle",
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                "live_to_draft_in_review",
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+            ),
+            (
+                "complete_to_complete_in_review",
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+            ),
+        ]
+    )
+    def test_is_end_experiment_requested(
+        self, _, status, status_next, publish_status, expected
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+        )
+        self.assertEqual(
+            experiment.is_end_experiment_requested,
+            expected,
+            f"Expected is_end_experiment_requested={expected} for status={status}, "
+            f"status_next={status_next}, publish_status={publish_status}",
+        )
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+                True,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+                True,
+                False,
+            ),
+        ]
+    )
+    def test_is_rollout_update_requested(
+        self, status, status_next, publish_status, is_rollout, is_rollout_dirty, expected
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_rollout=is_rollout,
+            is_rollout_dirty=is_rollout_dirty,
+        )
+        self.assertEqual(
+            experiment.is_rollout_update_requested,
+            expected,
+            f"Expected is_rollout_update_requested={expected} for status={status}, "
+            f"status_next={status_next}, publish_status={publish_status}",
+        )
+
     def test_results_ready_true(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
@@ -2439,6 +3402,7 @@ class TestNimbusExperiment(TestCase):
         [
             ({"v3": {"overall": {"enrollments": {"all": {}}}}},),
             ({"v3": {"weekly": {"enrollments": {"all": {}}}}},),
+            ({"v3": {"daily": {"enrollments": {"all": {}}}}},),
         ]
     )
     def test_has_displayable_results_true(self, results_data):
@@ -2448,16 +3412,166 @@ class TestNimbusExperiment(TestCase):
 
         self.assertTrue(experiment.has_displayable_results)
 
+    def test_has_exposures_results_true(self):
+        results_data = {
+            "v3": {
+                "overall": {
+                    "exposures": {
+                        "all": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": 120,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "treatment": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": 120,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertEqual(
+            experiment.has_exposures, NimbusUIConstants.ExposuresStatus.VALID
+        )
+
+    def test_has_exposures_results_false(self):
+        results_data = {"v3": {"overall": {"exposures": {"all": {}}}}}
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertEqual(
+            experiment.has_exposures, NimbusUIConstants.ExposuresStatus.NO_EXPOSURES
+        )
+
+    def test_has_exposures_daily_only(self):
+        results_data = {
+            "v3": {
+                "daily": {
+                    "exposures": {
+                        "all": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": 120,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "treatment": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": 120,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertEqual(
+            experiment.has_exposures, NimbusUIConstants.ExposuresStatus.VALID
+        )
+
+    def test_has_exposures_missing_data(self):
+        results_data = {
+            "v3": {
+                "overall": {
+                    "exposures": {
+                        "all": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": 0,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "treatment": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": 120,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertEqual(
+            experiment.has_exposures, NimbusUIConstants.ExposuresStatus.INVALID
+        )
+
     @parameterized.expand(
         [
             ({},),
             ({"v3": {}},),
             ({"v3": {"overall": {}}},),
             ({"v3": {"weekly": {}}},),
+            ({"v3": {"daily": {}}},),
             ({"v3": {"overall": {"enrollments": {}}}},),
             ({"v3": {"weekly": {"enrollments": {}}}},),
+            ({"v3": {"daily": {"enrollments": {}}}},),
             ({"v3": {"overall": {"enrollments": {"all": None}}}},),
             ({"v3": {"weekly": {"enrollments": {"all": None}}}},),
+            ({"v3": {"daily": {"enrollments": {"all": None}}}},),
+            ({"v3": {"overall": None}},),
+            ({"v3": {"daily": None}},),
         ]
     )
     def test_has_displayable_results_false(self, results_data):
@@ -2467,12 +3581,24 @@ class TestNimbusExperiment(TestCase):
 
         self.assertFalse(experiment.has_displayable_results)
 
-    def test_show_results_url_true(self):
+    @parameterized.expand(
+        [
+            (
+                {"v3": {"overall": {"enrollments": {"all": {}}}}},
+                datetime.date.today(),
+            ),
+            (
+                {"v3": {"weekly": {"exposures": {"all": {}}}}},
+                datetime.date(2020, 1, 1),
+            ),
+        ]
+    )
+    def test_show_results_url_true(self, results_data, start_date):
         lifecycle = NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle, start_date=datetime.date(2020, 1, 1), proposed_enrollment=2
+            lifecycle, start_date=start_date, proposed_enrollment=2
         )
-        experiment.results_data = {"v3": {"overall": {"enrollments": {"all": {}}}}}
+        experiment.results_data = results_data
         experiment.is_rollout = False
         experiment.save()
 
@@ -2482,12 +3608,12 @@ class TestNimbusExperiment(TestCase):
         [
             ({}, datetime.date(2020, 1, 1), False),
             (
-                {"v3": {"overall": {"enrollments": {"all": {}}}}},
+                {"v3": {"weekly": {}}},
                 datetime.date.today(),
                 False,
             ),
             (
-                {"v3": {"overall": {"enrollments": {"all": {}}}}},
+                {"v3": {"overall": {"exposures": {"all": {}}}}},
                 datetime.date(2020, 1, 1),
                 True,
             ),
@@ -2651,6 +3777,15 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
         self.assertEqual(experiment.can_archive, expected_can_archive)
 
+    def test_tag_experiment_relationship(self):
+        tag = Tag.objects.create(name="TestTag", color="#123456")
+        experiment = NimbusExperimentFactory.create(tags=[])
+        experiment.tags.add(tag)
+        self.assertIn(tag, experiment.tags.all())
+        self.assertIn(experiment, tag.experiments.all())
+        self.assertEqual(experiment.tags.count(), 1)
+        self.assertEqual(str(tag), str(experiment.tags.first()))
+
     @parameterized.expand([(settings.DEV_USER_EMAIL, True), ("jdoe@mozilla.org", False)])
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
     def test_can_review_for_requesting_user_if_dev_user_and_setting_enabled(
@@ -2724,6 +3859,76 @@ class TestNimbusExperiment(TestCase):
             experiment.changes.latest_timeout(), experiment.changes.latest_change()
         )
 
+    def test_should_show_remote_settings_pending_true_for_reviewer(self):
+        reviewer = UserFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING
+        )
+
+        generate_nimbus_changelog(experiment, experiment.owner, "requested review")
+
+        self.assertTrue(experiment.can_review(reviewer))
+        self.assertTrue(experiment.should_show_remote_settings_pending(reviewer))
+
+    def test_should_show_remote_settings_pending_false_for_requesting_user(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING
+        )
+
+        generate_nimbus_changelog(experiment, experiment.owner, "requested review")
+
+        # Owner tries to review their own request
+        self.assertFalse(experiment.can_review(experiment.owner))
+        self.assertFalse(experiment.should_show_remote_settings_pending(experiment.owner))
+
+    def test_should_show_timeout_message_true_with_real_timeout_changelog(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE
+        )
+
+        experiment.apply_lifecycle_state(
+            NimbusExperimentFactory.LifecycleStates.DRAFT_WAITING
+        )
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner, "Waiting for review")
+
+        self.assertFalse(experiment.should_show_timeout_message)
+
+        experiment.apply_lifecycle_state(
+            NimbusExperimentFactory.LifecycleStates.DRAFT_REVIEW
+        )
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner, "Timed out")
+
+        self.assertTrue(experiment.should_show_timeout_message)
+
+    def test_should_show_timeout_message_false_if_no_timeout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE
+        )
+
+        generate_nimbus_changelog(experiment, experiment.owner, "normal change")
+
+        self.assertFalse(experiment.should_show_timeout_message)
+
+    def test_can_preview_to_draft_true_when_status_is_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW
+        )
+        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
+        self.assertTrue(experiment.is_preview)
+        self.assertTrue(experiment.can_preview_to_draft)
+        self.assertTrue(experiment.can_preview_to_review)
+
+    def test_can_preview_to_draft_false_when_status_is_not_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        self.assertNotEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
+        self.assertFalse(experiment.is_preview)
+        self.assertFalse(experiment.can_preview_to_draft)
+        self.assertFalse(experiment.can_preview_to_review)
+
     def test_has_state_true(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
@@ -2752,10 +3957,11 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            [False, False, False, False, False],
-            [True, False, False, True, False],
-            [False, True, False, True, True],
-            [False, False, True, True, True],
+            [False, False, False, False, False, False],
+            [True, False, False, False, True, False],
+            [False, True, False, False, True, True],
+            [False, False, True, False, True, True],
+            [False, False, False, True, True, True],
         ]
     )
     def test_signoff_recommendations(
@@ -2763,6 +3969,7 @@ class TestNimbusExperiment(TestCase):
         risk_brand,
         risk_revenue,
         risk_partner_related,
+        risk_ai,
         vp_recommended,
         legal_recommended,
     ):
@@ -2771,6 +3978,7 @@ class TestNimbusExperiment(TestCase):
             risk_brand=risk_brand,
             risk_revenue=risk_revenue,
             risk_partner_related=risk_partner_related,
+            risk_ai=risk_ai,
         )
         self.assertEqual(experiment.signoff_recommendations["qa_signoff"], True)
         self.assertEqual(experiment.signoff_recommendations["vp_signoff"], vp_recommended)
@@ -2812,6 +4020,21 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(experiment.qa_status_badge_class, expected_badge_class)
 
+    def test_qa_run_date_accepts_valid_date(self):
+        test_date = datetime.date(2024, 1, 15)
+        experiment = NimbusExperimentFactory.create(qa_run_date=test_date)
+        self.assertEqual(experiment.qa_run_date, test_date)
+
+    def test_qa_run_test_plan_url_accepts_valid_url(self):
+        test_url = "https://example.com/test-plan"
+        experiment = NimbusExperimentFactory.create(qa_run_test_plan_url=test_url)
+        self.assertEqual(experiment.qa_run_test_plan_url, test_url)
+
+    def test_qa_run_testrail_url_accepts_valid_url(self):
+        test_url = "https://testrail.example.com/index.php?/runs/view/12345"
+        experiment = NimbusExperimentFactory.create(qa_run_testrail_url=test_url)
+        self.assertEqual(experiment.qa_run_testrail_url, test_url)
+
     def test_clone_created_experiment(self):
         owner = UserFactory.create()
         required_experiment = NimbusExperimentFactory.create()
@@ -2852,6 +4075,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.firefox_max_version, NimbusExperiment.Version.NO_VERSION)
         self.assertEqual(child.application, NimbusExperiment.Application.DESKTOP)
         self.assertEqual(child.channel, NimbusExperiment.Channel.NO_CHANNEL)
+        self.assertEqual(child.channels, [])
         self.assertEqual(child.hypothesis, NimbusExperiment.HYPOTHESIS_DEFAULT)
         self.assertEqual(child.primary_outcomes, [])
         self.assertEqual(child.secondary_outcomes, [])
@@ -2861,9 +4085,11 @@ class TestNimbusExperiment(TestCase):
             child.targeting_config_slug, NimbusExperiment.TargetingConfig.NO_TARGETING
         )
 
-        self.assertFalse(child.risk_partner_related)
-        self.assertFalse(child.risk_revenue)
-        self.assertFalse(child.risk_brand)
+        self.assertIsNone(child.risk_ai)
+        self.assertIsNone(child.risk_brand)
+        self.assertIsNone(child.risk_message)
+        self.assertIsNone(child.risk_partner_related)
+        self.assertIsNone(child.risk_revenue)
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
         self.assertFalse(child.is_rollout_dirty)
         self.assertFalse(child.takeaways_metric_gain)
@@ -2914,6 +4140,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
             is_rollout=True,
             is_rollout_dirty=True,
+            use_group_id=False,
         )
         rollout_branch = parent.branches.first()
         child = self._clone_experiment_and_assert_common_expectations(
@@ -2921,6 +4148,15 @@ class TestNimbusExperiment(TestCase):
             rollout_branch.slug,
         )
         self.assertFalse(child.is_rollout_dirty)
+
+    def test_clone_klaatu_info(self):
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        parent.klaatu_status = True
+        parent.klaatu_recent_run_id = 1234
+        generate_nimbus_changelog(parent, parent.owner, "Archiving experiment")
+        self._clone_experiment_and_assert_common_expectations(parent)
 
     def _clone_experiment_and_assert_common_expectations(
         self, parent, rollout_branch_slug=None
@@ -2946,12 +4182,19 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.takeaways_metric_gain, False)
         self.assertEqual(child.takeaways_qbr_learning, False)
         self.assertEqual(child.takeaways_summary, None)
+        self.assertEqual(child.use_group_id, True)
         self.assertEqual(child.conclusion_recommendations, [])
         self.assertEqual(child.qa_status, NimbusExperiment.QAStatus.NOT_SET)
         self.assertEqual(child.qa_comment, None)
+        self.assertEqual(child.qa_run_date, None)
+        self.assertEqual(child.qa_run_test_plan_url, None)
+        self.assertEqual(child.qa_run_testrail_url, None)
         self.assertEqual(child._start_date, None)
         self.assertEqual(child._end_date, None)
         self.assertEqual(child._enrollment_end_date, None)
+        self.assertEqual(child._computed_end_date, None)
+        self.assertEqual(child.klaatu_status, False)
+        self.assertEqual(child.klaatu_recent_run_id, None)
 
         # Cloned fields
         self.assertEqual(child.name, "Child Experiment")
@@ -2959,6 +4202,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.public_description, parent.public_description)
         self.assertEqual(child.application, parent.application)
         self.assertEqual(child.channel, parent.channel)
+        self.assertEqual(child.channels, parent.channels)
         self.assertEqual(child.hypothesis, parent.hypothesis)
         self.assertEqual(child.firefox_min_version, parent.firefox_min_version)
         self.assertEqual(child.firefox_max_version, parent.firefox_max_version)
@@ -2967,9 +4211,11 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.secondary_outcomes, parent.secondary_outcomes)
         self.assertEqual(child.segments, parent.segments)
         self.assertEqual(child.targeting_config_slug, parent.targeting_config_slug)
-        self.assertEqual(child.risk_partner_related, parent.risk_partner_related)
-        self.assertEqual(child.risk_revenue, parent.risk_revenue)
-        self.assertEqual(child.risk_brand, parent.risk_brand)
+        self.assertIsNone(child.risk_ai)
+        self.assertIsNone(child.risk_brand)
+        self.assertIsNone(child.risk_message)
+        self.assertIsNone(child.risk_partner_related)
+        self.assertIsNone(child.risk_revenue)
 
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
 
@@ -3208,8 +4454,7 @@ class TestNimbusExperiment(TestCase):
                             "id": experiment_changelogs[0]["changes"][0]["id"],
                             "event": ChangeEventType.STATE.name,
                             "event_message": (
-                                f"{user} changed value of Status from "
-                                f"Draft to Preview"
+                                f"{user} changed value of Status from Draft to Preview"
                             ),
                             "changed_by": user,
                             "timestamp": formatted_timestamp_3,
@@ -3353,7 +4598,6 @@ class TestNimbusExperiment(TestCase):
             slug: NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
                 application=NimbusExperiment.Application.DESKTOP,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             )
             for slug in ("foo", "bar", "baz")
         }
@@ -3362,7 +4606,6 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             slug="slug",
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
 
@@ -3383,14 +4626,12 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
                 slug=slug,
                 application=NimbusExperiment.Application.DESKTOP,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             slug="slug",
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
 
@@ -3407,7 +4648,7 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
                 slug=slug,
                 application=NimbusExperiment.Application.DESKTOP,
-                channel=NimbusExperiment.Channel.RELEASE,
+                channels=[NimbusExperiment.Channel.RELEASE],
                 firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
                 firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
                 targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -3419,7 +4660,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -3445,7 +4686,7 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperimentFactory.Lifecycles.CREATED,
                 slug=slug,
                 application=NimbusExperiment.Application.DESKTOP,
-                channel=NimbusExperiment.Channel.RELEASE,
+                channels=[NimbusExperiment.Channel.RELEASE],
                 firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
                 firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
                 targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -3459,7 +4700,7 @@ class TestNimbusExperiment(TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature],
         )
 
@@ -3479,7 +4720,7 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
                 slug=slug,
                 application=NimbusExperiment.Application.DESKTOP,
-                channel=NimbusExperiment.Channel.RELEASE,
+                channels=[NimbusExperiment.Channel.RELEASE],
                 firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
                 firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
                 targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -3493,7 +4734,7 @@ class TestNimbusExperiment(TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature2],
         )
 
@@ -3508,12 +4749,42 @@ class TestNimbusExperiment(TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[NimbusFeatureConfigFactory.create()],
         )
 
         matching_experiments = experiment.live_experiments_in_namespace
         self.assertEqual(len(matching_experiments), 0)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Channel.NO_CHANNEL,
+                [NimbusExperiment.Channel.RELEASE],
+                "Release",
+            ),
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Channel.NO_CHANNEL,
+                [NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.BETA],
+                "Beta, Nightly",
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Channel.NIGHTLY,
+                [],
+                "Nightly",
+            ),
+        ]
+    )
+    def test_get_channel_display(self, application, channel, channels, expected):
+        experiment = NimbusExperimentFactory.create(
+            application=application,
+            channel=channel,
+            channels=channels,
+        )
+        self.assertEqual(experiment.get_channel_display, expected)
 
     def test_get_firefox_min_version_display(self):
         experiment = NimbusExperimentFactory.create(
@@ -3541,6 +4812,375 @@ class TestNimbusExperiment(TestCase):
         serialized_keys = sorted(NimbusExperimentSerializer(experiment).data.keys())
         recipe_json_keys = sorted(json.loads(experiment.recipe_json.replace("\n", "")))
         self.assertEqual(serialized_keys, recipe_json_keys)
+
+    def test_get_invalid_fields_errors(self):
+        experiment_1 = NimbusExperimentFactory.create(
+            name="test-experiment-1",
+            public_description="",
+        )
+        errors = experiment_1.get_invalid_fields_errors()
+        self.assertIn("This field may not be blank.", errors["public_description"])
+
+        experiment_2 = NimbusExperimentFactory.create(
+            name="test-experiment-2",
+            feature_configs=[],
+            population_percent=0,
+        )
+        errors = experiment_2.get_invalid_fields_errors()
+        self.assertIn(
+            "You must select a feature configuration from the drop down.",
+            errors["feature_configs"],
+        )
+        self.assertIn(
+            "Ensure this value is greater than or equal to 0.0001.",
+            errors["population_percent"],
+        )
+
+        experiment_3 = NimbusExperimentFactory.create(
+            name="test-experiment-3",
+            public_description="",
+            population_percent=0,
+        )
+        experiment_3.excluded_experiments.set([experiment_3])
+        experiment_3.required_experiments.set([experiment_3])
+
+        errors = experiment_3.get_invalid_fields_errors()
+        self.assertIn("This field may not be blank.", errors["public_description"])
+        self.assertIn(
+            "This experiment cannot be included "
+            "in the list of required or excluded experiments",
+            errors["excluded_experiments_branches"],
+        )
+        self.assertIn(
+            "This experiment cannot be included in the list of required or "
+            "excluded experiments",
+            errors["required_experiments_branches"],
+        )
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+                False,
+            ),
+        ]
+    )
+    def test_should_show_end_enrollment_experiment(
+        self, status, publish_status, is_paused, expected
+    ):
+        published_dto = None
+        if is_paused:
+            published_dto = {"isEnrollmentPaused": True}
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            publish_status=publish_status,
+            is_rollout=False,
+            published_dto=published_dto,
+        )
+        self.assertEqual(experiment.should_show_end_enrollment, expected)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_should_show_end_enrollment_rollout(self, status, publish_status, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            publish_status=publish_status,
+            is_rollout=True,
+        )
+        self.assertEqual(experiment.should_show_end_enrollment, expected)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ),
+            (
+                NimbusExperiment.Status.COMPLETE,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_should_show_end_experiment(self, status, publish_status, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            publish_status=publish_status,
+        )
+        self.assertEqual(experiment.should_show_end_experiment, expected)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value,
+                True,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value,
+                False,
+            ),
+        ]
+    )
+    def test_remote_settings_pending_message_with_lifecycless(
+        self, lifecycle, expected_message, is_rollout
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=is_rollout
+        )
+        self.assertEqual(experiment.remote_settings_pending_message, expected_message)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_EXPERIMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.LAUNCH_ROLLOUT.value,
+                True,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.END_EXPERIMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
+                NimbusUIConstants.ReviewRequestMessages.END_ENROLLMENT.value,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_REVIEW_REQUESTED,
+                NimbusUIConstants.ReviewRequestMessages.END_ROLLOUT.value,
+                True,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+                NimbusUIConstants.ReviewRequestMessages.UPDATE_ROLLOUT.value,
+                True,
+            ),
+        ]
+    )
+    def test_review_messages_and_action_type(
+        self, lifecycle, expected_message, is_rollout
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=is_rollout
+        )
+        self.assertEqual(experiment.review_messages(), expected_message)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                "LAUNCH_EXPERIMENT",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                "END_ENROLLMENT",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                "END_EXPERIMENT",
+            ),
+        ]
+    )
+    def test_rejection_block_from_rejection_changelog(
+        self,
+        status,
+        status_next,
+        expected_flow_key,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        experiment.status = status
+        experiment.status_next = status_next
+
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.IDLE,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            generate_nimbus_changelog(experiment, experiment.owner, "test message")
+
+        block = experiment.rejection_block
+        self.assertIsNotNone(block)
+        self.assertEqual(
+            block["action"],
+            NimbusUIConstants.ReviewRequestMessages[expected_flow_key].value,
+        )
+        self.assertEqual(
+            block["email"], experiment.changes.latest_rejection().changed_by.email
+        )
+        self.assertEqual(block["date"], experiment.changes.latest_rejection().changed_on)
+        self.assertEqual(block["message"], "test message")
+
+    def test_save_populates_firefox_min_version_parsed_with_bang_notation(self):
+        experiment = NimbusExperimentFactory.create(firefox_min_version="95.!")
+        self.assertEqual(experiment._firefox_min_version_parsed, [95, 0, 0])
+
+    def test_save_populates_firefox_min_version_parsed_with_semver(self):
+        experiment = NimbusExperimentFactory.create(firefox_min_version="92.0.1")
+        self.assertEqual(experiment._firefox_min_version_parsed, [92, 0, 1])
+
+    def test_save_populates_firefox_min_version_parsed_with_empty_version(self):
+        experiment = NimbusExperimentFactory.create(firefox_min_version="")
+        self.assertEqual(experiment._firefox_min_version_parsed, [0, 0, 0])
+
+    def test_save_populates_firefox_min_version_parsed_with_no_version(self):
+        experiment = NimbusExperimentFactory.create(
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION
+        )
+        self.assertEqual(experiment._firefox_min_version_parsed, [0, 0, 0])
+
+    def test_save_updates_firefox_min_version_parsed_on_version_change(self):
+        experiment = NimbusExperimentFactory.create(firefox_min_version="95.!")
+        self.assertEqual(experiment._firefox_min_version_parsed, [95, 0, 0])
+
+        experiment.firefox_min_version = "100.1.0"
+        experiment.save()
+        self.assertEqual(experiment._firefox_min_version_parsed, [100, 1, 0])
+
+    def test_save_handles_invalid_version_gracefully(self):
+        experiment = NimbusExperimentFactory.create(firefox_min_version="invalid")
+        self.assertEqual(experiment._firefox_min_version_parsed, [0, 0, 0])
+
+    def test_all_version_constants_parse_correctly(self):
+        for version_string, version_label in NimbusExperiment.Version.choices:
+            if version_string == NimbusExperiment.Version.NO_VERSION:
+                continue
+
+            try:
+                parsed = NimbusExperiment.Version.parse(version_string.replace("!", "0"))
+                self.assertIsInstance(parsed.major, int)
+                self.assertIsInstance(parsed.minor, int)
+                self.assertIsInstance(parsed.micro, int)
+                self.assertGreaterEqual(parsed.major, 0)
+                self.assertGreaterEqual(parsed.minor, 0)
+                self.assertGreaterEqual(parsed.micro, 0)
+            except Exception as e:
+                self.fail(
+                    f"Failed to parse version constant {version_label} "
+                    f"('{version_string}'): {e}"
+                )
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "errors": {
+                            "ad_clicks": [
+                                {"analysis_basis": "enrollments", "segment": "all"}
+                            ],
+                            "experiment": [],
+                        },
+                    }
+                },
+                True,
+            ),
+            (
+                {
+                    "v3": {
+                        "errors": {"experiment": []},
+                    }
+                },
+                False,
+            ),
+        ]
+    )
+    def test_check_experiment_has_results_errors(self, results_data, expected_results):
+        experiment = NimbusExperimentFactory.create()
+
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertEqual(experiment.has_results_errors, expected_results)
 
 
 class TestNimbusBranch(TestCase):
@@ -3576,10 +5216,16 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.isolation_group.name, experiment.slug)
         self.assertEqual(bucket.isolation_group.instance, 1)
         self.assertEqual(bucket.isolation_group.total, NimbusExperiment.BUCKET_TOTAL)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_existing_isolation_group_adds_bucket_range(self):
         """
@@ -3598,10 +5244,16 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.end, 99)
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group, isolation_group)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_existing_isolation_group_with_buckets_adds_next_bucket_range(self):
         """
@@ -3623,10 +5275,16 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.end, 199)
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group, isolation_group)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_full_isolation_group_creates_next_isolation_group_adds_bucket_range(
         self,
@@ -3653,10 +5311,17 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group.name, isolation_group.name)
         self.assertEqual(bucket.isolation_group.instance, isolation_group.instance + 1)
-        self.assertEqual(
-            bucket.isolation_group.randomization_unit,
-            experiment.application_config.randomization_unit,
-        )
+
+        if experiment.is_desktop:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                BucketRandomizationUnit.GROUP_ID,
+            )
+        else:
+            self.assertEqual(
+                bucket.isolation_group.randomization_unit,
+                experiment.application_config.randomization_unit,
+            )
 
     def test_isolation_group_with_group_id(
         self,
@@ -3714,6 +5379,17 @@ class TestNimbusChangeLogManager(TestCase):
         change = generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertEqual(experiment.changes.latest_review_request(), change)
+
+    def test_latest_review_request_returns_email_change_for_idle_to_review(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
+        self.assertEqual(experiment.latest_review_requested_by, experiment.owner.email)
 
     def test_latest_review_request_returns_change_for_dirty_to_review(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -3958,6 +5634,24 @@ class TestNimbusBranchScreenshot(TestCase):
             self.screenshot.save()
             self.screenshot.delete()
             mock_delete.assert_called_with(expected_filename)
+
+    def test_clone_screenshot_with_missing_image_skips(self):
+        self.screenshot.save()
+        # Simulate a screenshot record whose image field has no file associated
+        # (e.g., file was removed from storage or field was cleared)
+        NimbusBranchScreenshot.objects.filter(id=self.screenshot.id).update(image="")
+        self.screenshot.refresh_from_db()
+
+        target_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        target_branch = target_experiment.branches.first()
+        initial_count = target_branch.screenshots.count()
+
+        # Should not raise ValueError — just skip the broken screenshot
+        result = self.screenshot.clone(target_branch)
+        self.assertIsNone(result)
+        self.assertEqual(target_branch.screenshots.count(), initial_count)
 
 
 class NimbusFeatureConfigTests(TestCase):
@@ -4209,6 +5903,27 @@ class NimbusFeatureConfigTests(TestCase):
             ),
         )
 
+    def test_feature_config_can_have_subscribers(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        feature = NimbusFeatureConfigFactory.create()
+        feature.subscribers.add(user1, user2)
+
+        self.assertEqual(feature.subscribers.count(), 5)
+        self.assertIn(user1, feature.subscribers.all())
+        self.assertIn(user2, feature.subscribers.all())
+
+    def test_user_can_subscribe_to_multiple_feature_configs(self):
+        user = UserFactory.create()
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+        feature1.subscribers.add(user)
+        feature2.subscribers.add(user)
+
+        self.assertEqual(user.subscribed_nimbus_features.count(), 2)
+        self.assertIn(feature1, user.subscribed_nimbus_features.all())
+        self.assertIn(feature2, user.subscribed_nimbus_features.all())
+
 
 class ApplicationConfigTests(TestCase):
     application_config = experimenter.experiments.constants.APPLICATION_CONFIG_DESKTOP
@@ -4223,11 +5938,11 @@ class ApplicationConfigTests(TestCase):
             for slug in ("feature-1", "feature-2")
         }
 
-    def _create_experiment(self, feature_ids):
+    def _create_experiment(self, feature_ids, firefox_min_version):
         return NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_min_version=firefox_min_version,
             feature_configs=[self.features[feature_id] for feature_id in feature_ids],
         )
 
@@ -4243,7 +5958,9 @@ class ApplicationConfigTests(TestCase):
             "kinto_collections_by_feature_id",
             kinto_collections_by_feature_id,
         ):
-            experiment = self._create_experiment(["feature-1"])
+            experiment = self._create_experiment(
+                ["feature-1"], NimbusExperiment.Version.FIREFOX_100
+            )
             self.assertEqual(
                 experiment.kinto_collection,
                 self.application_config.default_kinto_collection,
@@ -4251,23 +5968,44 @@ class ApplicationConfigTests(TestCase):
 
     @parameterized.expand(
         [
-            ({"feature-1": "collection-1"},),
-            ({"feature-1": "collection-1", "feature-2": "collection-2"},),
+            ({"feature-1": "collection-1"}, NimbusExperiment.Version.FIREFOX_141, None),
+            (
+                {"feature-1": "collection-1"},
+                NimbusExperiment.Version.FIREFOX_142,
+                "collection-1",
+            ),
+            (
+                {"feature-1": "collection-1", "feature-2": "collection-2"},
+                NimbusExperiment.Version.FIREFOX_141,
+                None,
+            ),
+            (
+                {"feature-1": "collection-1", "feature-2": "collection-2"},
+                NimbusExperiment.Version.FIREFOX_142,
+                None,
+            ),
         ]
     )
-    def test_get_kinto_collection_for_multiple(self, kinto_collections_by_feature_id):
+    def test_get_kinto_collection_for_multiple(
+        self, kinto_collections_by_feature_id, firefox_min_version, kinto_collection
+    ):
         with mock.patch.object(
             self.application_config,
             "kinto_collections_by_feature_id",
             kinto_collections_by_feature_id,
         ):
-            experiment = self._create_experiment(["feature-1", "feature-2"])
+            experiment = self._create_experiment(
+                ["feature-1", "feature-2"], firefox_min_version
+            )
 
-            with self.assertRaisesRegex(
-                TargetingMultipleKintoCollectionsError,
-                "Experiment targets multiple collections",
-            ):
-                experiment.kinto_collection  # noqa: B018
+            if kinto_collection is None:
+                with self.assertRaisesRegex(
+                    TargetingMultipleKintoCollectionsError,
+                    "Experiment targets multiple collections",
+                ):
+                    experiment.kinto_collection  # noqa: B018
+            else:
+                self.assertEqual(experiment.kinto_collection, kinto_collection)
 
     @parameterized.expand(
         [
@@ -4300,4 +6038,82 @@ class ApplicationConfigTests(TestCase):
         self.assertEqual(
             application_config.kinto_collections,
             expected_collections,
+        )
+
+    def test_targeting_formatted_with_complex_expression(self):
+        locale_ca = LocaleFactory.create(code="en-CA")
+        locale_us = LocaleFactory.create(code="en-US")
+        country_us = CountryFactory.create(code="US")
+        country_ca = CountryFactory.create(code="CA")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_110,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            locales=[locale_ca, locale_us],
+            countries=[country_us, country_ca],
+        )
+        result = experiment.targeting_formatted
+        expected = """browserSettings.update.channel in ["release"] &&
+version|versionCompare("110.*") <= 0 &&
+os.isMac &&
+version|versionCompare("100.!") >= 0 &&
+locale in ["en-CA", "en-US"] &&
+region in ["CA", "US"]"""
+        self.assertEqual(result, expected)
+
+
+class TestNimbusAlert(TestCase):
+    def test_str_representation(self):
+        experiment = NimbusExperimentFactory.create(slug="test-experiment")
+        alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.EXPERIMENT_LAUNCHED,
+            message="🚀 Experiment is now live",
+        )
+        expected = f"{experiment.slug} - {alert.alert_type} - {alert.sent_on}"
+        self.assertEqual(str(alert), expected)
+
+    def test_was_sent_recently_returns_true_for_recent_alert(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            message="Recent error",
+        )
+        self.assertTrue(
+            NimbusAlert.was_sent_recently(
+                experiment,
+                NimbusConstants.AlertType.ANALYSIS_ERROR,
+                within_hours=24,
+            )
+        )
+
+    def test_was_sent_recently_returns_false_for_old_alert(self):
+        experiment = NimbusExperimentFactory.create()
+        alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.ANALYSIS_ERROR,
+            message="Old error",
+        )
+        NimbusAlert.objects.filter(id=alert.id).update(
+            sent_on=timezone.now() - datetime.timedelta(days=2)
+        )
+        self.assertFalse(
+            NimbusAlert.was_sent_recently(
+                experiment,
+                NimbusConstants.AlertType.ANALYSIS_ERROR,
+                within_hours=24,
+            )
+        )
+
+    def test_was_sent_recently_returns_false_when_no_alert(self):
+        experiment = NimbusExperimentFactory.create()
+
+        self.assertFalse(
+            NimbusAlert.was_sent_recently(
+                experiment, NimbusConstants.AlertType.ANALYSIS_ERROR
+            )
         )

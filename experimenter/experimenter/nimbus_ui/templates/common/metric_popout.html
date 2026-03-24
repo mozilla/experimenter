@@ -1,0 +1,183 @@
+{% load nimbus_extras %}
+
+<div class="modal fade"
+     id="{{ experiment_slug }}-{{ metric_info.slug }}-{{ area|slugify }}"
+     tabindex="-1"
+     aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+    <div class="modal-content p-4">
+      <div class="modal-header align-items-baseline border-0">
+        <div>
+          <h1 class="modal-title fs-4" id="exampleModalLabel">{{ metric_info.friendly_name }}</h1>
+          <p class="text-muted mt-2">{{ metric_info.description|render_markdown }}</p>
+        </div>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex flex-column gap-4"
+           id="{{ experiment_slug }}-{{ metric_info.slug }}-accordion">
+        <div class="border border-1 rounded py-4 px-5 rounded-4">
+          <h2 class="fs-6 fw-bold">Overview</h2>
+          <div class="row row-cols-3 g-3">
+            <div class="col">
+              <p class="fw-bold text-center">Branches</p>
+              {% for branch in branch_data %}
+                <div class="p-3 mb-3 d-flex flex-column justify-content-center text-start text-center align-items-center"
+                     style="height: 75px">
+                  {% if branch.slug == reference_branch %}<small class="text-muted">Baseline</small>{% endif %}
+                  <p class="mb-0 text-truncate w-100 text-center"
+                     title="{{ branch.name }}">{{ branch.name }}</p>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="col">
+              <p class="fw-bold text-center">Absolute count</p>
+              {% for branch_slug, branch_data in metric_data.items %}
+                {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=branch_data.absolute.0.lower absolute_upper=branch_data.absolute.0.upper significance=branch_data.absolute.0.significance reference_branch=reference_branch branch_slug=branch_slug %}
+
+              {% endfor %}
+            </div>
+            <div class="col">
+              <p class="fw-bold text-center">Relative change</p>
+              <div class="d-flex flex-column">
+                {% for branch_slug, branch_data in metric_data.items %}
+                  {% for branch_relative_ui, branch_relative_ui_properties in ui_properties.items %}
+                    {% if branch_slug == branch_relative_ui %}
+                      {% include "common/metric_popout_card.html" with type="relative" lower_confidence=branch_data.relative.0.lower upper_confidence=branch_data.relative.0.upper significance=branch_data.relative.0.significance reference_branch=reference_branch branch_slug=branch_slug branch_relative_ui_properties=branch_relative_ui_properties lower_relative=branch_data.relative.0.lower upper_relative=branch_data.relative.0.upper %}
+
+                    {% endif %}
+                  {% endfor %}
+                  {% comment %} the reference branch does not have relative comparision data therefore it must be separately rendered {% endcomment %}
+                  {% if branch_slug == reference_branch %}
+                    {% include "common/metric_popout_card.html" with type="relative" lower_confidence=branch_data.relative.0.lower upper_confidence=branch_data.relative.0.upper significance=branch_data.relative.0.significance reference_branch=reference_branch branch_slug=branch_slug %}
+
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% with weekly_metric_data=all_weekly_metric_data|dict_get:metric_info.slug %}
+          {% if weekly_metric_data.has_weekly_data %}
+            <div class="border border-1 rounded py-4 px-5 rounded-4">
+              <h2 class="fs-6 fw-bold">Weekly breakdown</h2>
+              <div class="d-flex mt-3">
+                <div class="col-2">
+                  <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
+                  {% with reference_branch_weekly=weekly_metric_data.data|dict_get:reference_branch %}
+                    {% for branch_slug, branch_weekly_metric_data in weekly_metric_data.data.items %}
+                      {% if forloop.first %}
+                        {% for week in branch_weekly_metric_data %}
+                          <div class="{% if forloop.last %}mb-4{% endif %} mb-3 d-flex text-center rounded-4 w-100 text-start position-relative d-flex flex-column align-items-center justify-content-center"
+                               style="height: 100px">
+                            <small class="text-muted">Week {{ forloop.counter }}</small>
+                          </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endwith %}
+                </div>
+                <div class="col position-relative w-25">
+                  <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 3 %}mx-4{% endif %}">
+                    {% if branch_data|length > 3 %}
+                      <div class="branch-fade branch-fade-left"></div>
+                      <div class="branch-fade branch-fade-right"></div>
+                    {% endif %}
+                    {% for branch in branch_data %}
+                      <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 3 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                        <p class="fs-5 text-truncate w-100 text-center"
+                           title="{{ branch.name }}">{{ branch.name }}</p>
+                        <div class="d-flex flex-column gap-3 w-100 h-100">
+                          {% for weekly_data_point in weekly_metric_data.data|dict_get:branch.slug %}
+                            {% if not weekly_data_point.0.lower and not weekly_data_point.1.lower %}
+                              <div class="d-flex align-items-center" style="height: 100px;">
+                                <div class="position-absolute alert alert-warning d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
+                                  <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                                  <p class="mb-0 fw-semibold">Week unavailable</p>
+                                  <p class="mb-0">Other weeks may not be affected.</p>
+                                  <a class="btn btn-secondary bg-secondary-subtle border-0 text-body fw-semibold"
+                                     target="_blank"
+                                     href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
+                                </div>
+                              </div>
+                            {% else %}
+                              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=weekly_data_point.0.lower absolute_upper=weekly_data_point.0.upper significance=weekly_data_point.1.significance percentage=weekly_data_point.1.avg_rel_change lower_percent=weekly_data_point.1.lower upper_percent=weekly_data_point.1.upper %}
+
+                            {% endif %}
+                          {% empty %}
+                            {% comment %} DAU edge case: reference branch lacks both absolute and relative weekly data, so render a standalone baseline column. {% endcomment %}
+                            <div class="text-center text-muted w-100 py-4 h-100 d-flex flex-column align-items-center justify-content-center rounded-3 bg-body-tertiary">
+                              <div>Baseline</div>
+                            </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endwith %}
+        {% with daily_metric_data=all_daily_metric_data|dict_get:metric_info.slug %}
+          {% if daily_metric_data.has_daily_data %}
+            <div class="border border-1 rounded py-4 px-5 rounded-4">
+              <h2 class="fs-6 fw-bold">Daily breakdown</h2>
+              <div class="d-flex mt-3">
+                <div class="col-2">
+                  <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
+                  {% for i in '0123456'|make_list %}
+                    <div class="{% if forloop.last %}mb-4{% endif %} mb-3 d-flex text-center rounded-4 w-100 text-start position-relative d-flex flex-column align-items-center justify-content-center"
+                         style="height: 100px">
+                      <small class="text-muted">Day {{ forloop.counter }}</small>
+                    </div>
+                  {% endfor %}
+                </div>
+                <div class="col position-relative w-25">
+                  <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 3 %}mx-4{% endif %}">
+                    {% if branch_data|length > 3 %}
+                      <div class="branch-fade branch-fade-left"></div>
+                      <div class="branch-fade branch-fade-right"></div>
+                    {% endif %}
+                    {% for branch in branch_data %}
+                      <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 3 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                        <p class="fs-5 text-truncate w-100 text-center"
+                           title="{{ branch.name }}">{{ branch.name }}</p>
+                        <div class="d-flex flex-column gap-3 w-100 h-100">
+                          {% for daily_data_point in daily_metric_data.data|dict_get:branch.slug|slice:":7" %}
+                            {% if not daily_data_point.0.lower and not daily_data_point.1.lower %}
+                              <div class="d-flex align-items-center" style="height: 100px;">
+                                <div class="position-absolute alert alert-warning d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
+                                  <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                                  <p class="mb-0 fw-semibold">Day unavailable</p>
+                                  <p class="mb-0">Other days may not be affected.</p>
+                                  <a class="btn btn-secondary bg-secondary-subtle border-0 text-body fw-semibold"
+                                     target="_blank"
+                                     href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
+                                </div>
+                              </div>
+                            {% else %}
+                              {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=daily_data_point.0.lower absolute_upper=daily_data_point.0.upper significance=daily_data_point.1.significance percentage=daily_data_point.1.avg_rel_change lower_percent=daily_data_point.1.lower upper_percent=daily_data_point.1.upper %}
+
+                            {% endif %}
+                          {% empty %}
+                            <div class="text-center text-muted w-100 py-4 h-100 d-flex flex-column align-items-center justify-content-center rounded-3 bg-body-tertiary">
+                              <div>Baseline</div>
+                            </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+</div>

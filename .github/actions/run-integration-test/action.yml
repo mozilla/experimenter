@@ -1,0 +1,45 @@
+name: "Run Integration Test"
+description: "Run integration tests with retry on infra failures"
+
+inputs:
+  make-args:
+    description: "Extra arguments to pass to make (e.g. FIREFOX_CHANNEL=beta)"
+    default: ""
+  retries:
+    description: "Number of retry attempts after the first failure"
+    default: "1"
+  artifact-name:
+    description: "Name for the uploaded test report artifact"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Run integration tests
+      shell: bash
+      env:
+        BUILDKIT_PROGRESS: plain
+        COMPOSE_ANSI: never
+      run: |
+        cp .env.integration-tests .env
+        attempts=$(( ${{ inputs.retries }} + 1 ))
+        for attempt in $(seq 1 "$attempts"); do
+          echo "::group::Attempt $attempt of $attempts"
+          if make refresh SKIP_DUMMY=1 ${{ inputs.make-args }} up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"; then
+            echo "::endgroup::"
+            exit 0
+          fi
+          echo "::endgroup::"
+          if [ "$attempt" -eq "$attempts" ]; then
+            echo "::error::All $attempts attempts failed"
+            exit 1
+          fi
+          echo "::warning::Attempt $attempt failed, retrying..."
+        done
+
+    - name: Upload test report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: experimenter/tests/integration/test-reports/report.htm

@@ -12,13 +12,11 @@ def update_languages_field_for_mobile_client(apps, schema_editor):
             locale_code = locale.code[:2]
             language = Language.objects.filter(code=locale_code).first()
             if language:
-
                 experiment.languages.add(language.id)
         experiment.locales.clear()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0212_nimbusexperiment_is_sticky"),
     ]

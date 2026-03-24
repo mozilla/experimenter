@@ -8,6 +8,7 @@ KINTO_PASS = "review"
 KINTO_COLLECTION_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_MOBILE = "nimbus-mobile-experiments"
 KINTO_COLLECTION_WEB = "nimbus-web-experiments"
+KINTO_COLLECTION_PREVIEW = "nimbus-preview"
 KINTO_BUCKET_WORKSPACE = "main-workspace"
 KINTO_REVIEW_STATUS = "to-review"
 KINTO_REJECTED_STATUS = "work-in-progress"
@@ -47,7 +48,7 @@ class KintoClient:
                     pass
                 else:
                     return
-            time.sleep(1)
+            time.sleep(2)
         raise Exception("Unable to approve kinto review")
 
     def reject(self):
@@ -62,5 +63,10 @@ class KintoClient:
                     bucket=KINTO_BUCKET_WORKSPACE,
                 )
                 return
-            time.sleep(1)
+            time.sleep(2)
         raise Exception("Unable to reject kinto review")
+
+    def get_record_data(self):
+        return self.kinto_http_client.get_records(
+            collection=self.collection, bucket=KINTO_BUCKET_WORKSPACE
+        )

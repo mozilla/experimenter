@@ -9,11 +9,9 @@ from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0071_auto_20190911_1515")]
 
     def prune_new_changelog(apps, schema_editor):
-
         ExperimentChangeLog = apps.get_model("experiments", "ExperimentChangeLog")
 
         Experiment = apps.get_model("experiments", "experiment")

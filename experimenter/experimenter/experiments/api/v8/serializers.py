@@ -92,6 +92,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     appName = serializers.SerializerMethodField()
     appId = serializers.SerializerMethodField()
     branches = serializers.SerializerMethodField()
+    channels = serializers.SerializerMethodField()
     userFacingName = serializers.ReadOnlyField(source="name")
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     isEnrollmentPaused = serializers.ReadOnlyField(source="is_paused")
@@ -116,6 +117,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     isFirefoxLabsOptIn = serializers.ReadOnlyField(source="is_firefox_labs_opt_in")
     firefoxLabsTitle = serializers.ReadOnlyField(source="firefox_labs_title")
     firefoxLabsDescription = serializers.ReadOnlyField(source="firefox_labs_description")
+    firefoxLabsDescriptionLinks = serializers.SerializerMethodField()
     firefoxLabsGroup = serializers.ReadOnlyField(source="firefox_labs_group")
     requiresRestart = serializers.ReadOnlyField(source="requires_restart")
 
@@ -130,6 +132,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "appName",
             "appId",
             "channel",
+            "channels",
             "userFacingName",
             "userFacingDescription",
             "isEnrollmentPaused",
@@ -154,6 +157,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "isFirefoxLabsOptIn",
             "firefoxLabsTitle",
             "firefoxLabsDescription",
+            "firefoxLabsDescriptionLinks",
             "firefoxLabsGroup",
             "requiresRestart",
         )
@@ -175,6 +179,13 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             serializer_cls = NimbusBranchSerializerMobile
 
         return serializer_cls(obj.branches.all(), many=True).data
+
+    def get_channels(self, obj):
+        if obj.channels:
+            return obj.channels
+        elif obj.channel:
+            return [obj.channel]
+        return []
 
     def get_featureIds(self, obj):
         return sorted(
@@ -208,3 +219,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         locale_codes = [locale.code for locale in obj.locales.all()]
         if len(locale_codes):
             return locale_codes
+
+    def get_firefoxLabsDescriptionLinks(self, obj):
+        if obj.firefox_labs_description_links:
+            with contextlib.suppress(json.JSONDecodeError):
+                return json.loads(obj.firefox_labs_description_links)

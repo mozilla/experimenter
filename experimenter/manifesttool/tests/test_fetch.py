@@ -42,7 +42,7 @@ FML_APP_CONFIG = AppConfig(
 LEGACY_APP_CONFIG = AppConfig(
     slug="legacy-app",
     repo=Repository(
-        type=RepositoryType.HGMO,
+        type=RepositoryType.GITHUB,
         name="legacy-repo",
         default_branch="tip",
     ),
@@ -154,8 +154,8 @@ def make_mock_fetch_file(
         """A mock version of hgmo_api.fetch_file."""
         try:
             paths = paths_by_ref[rev]
-        except KeyError:
-            raise Exception(f"Unexpected ref {rev} passed to hgmo_api.fetch_file")
+        except KeyError as e:
+            raise Exception(f"Unexpected ref {rev} passed to hgmo_api.fetch_file") from e
 
         try:
             content = paths[file_path]
@@ -199,6 +199,12 @@ class FetchTests(TestCase):
         super().tearDownClass()
         responses.stop()
 
+    @parameterized.expand(
+        [
+            RepositoryType.GITHUB,
+            RepositoryType.LOCAL,
+        ]
+    )
     @patch.object(
         manifesttool.fetch.github_api,
         "resolve_branch",
@@ -214,33 +220,49 @@ class FetchTests(TestCase):
         "get_channels",
         side_effect=lambda *args: ["release", "beta"],
     )
-    def test_fetch_fml(self, get_channels, download_single_file, resolve_branch):
+    def test_fetch_fml(
+        self, repo_type, get_channels, download_single_file, resolve_branch
+    ):
         """Testing fetch_fml_app."""
         with TemporaryDirectory() as tmp:
             manifest_dir = Path(tmp)
             manifest_dir.joinpath("fml-app").mkdir()
 
-            result = fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG)
+            is_local = repo_type == RepositoryType.LOCAL
+            app_config = AppConfig(
+                slug="fml-app",
+                repo=Repository(
+                    type=repo_type,
+                    name=None if is_local else "fml-repo",
+                ),
+                fml_path="nimbus.fml.yaml",
+            )
+
+            result = fetch_fml_app(manifest_dir, "app", app_config)
             self.assertIsNone(result.exc)
 
-            resolve_branch.assert_called_with(FML_APP_CONFIG.repo.name, "main")
-            get_channels.asset_called_with(FML_APP_CONFIG, "ref")
+            if is_local:
+                resolve_branch.assert_not_called()
+            else:
+                resolve_branch.assert_called_with(app_config.repo.name, "main")
+            expected_ref = None if is_local else Ref("main", "ref")
+            get_channels.asset_called_with(app_config, expected_ref)
             download_single_file.assert_has_calls(
                 [
                     call(
                         manifest_dir,
-                        FML_APP_CONFIG,
-                        FML_APP_CONFIG.fml_path,
+                        app_config,
+                        app_config.fml_path,
                         "release",
-                        "ref",
+                        expected_ref,
                         None,
                     ),
                     call(
                         manifest_dir,
-                        FML_APP_CONFIG,
-                        FML_APP_CONFIG.fml_path,
+                        app_config,
+                        app_config.fml_path,
                         "beta",
-                        "ref",
+                        expected_ref,
                         None,
                     ),
                 ]
@@ -248,7 +270,7 @@ class FetchTests(TestCase):
 
             experimenter_manifest_path = _get_experimenter_yaml_path(
                 manifest_dir,
-                FML_APP_CONFIG,
+                app_config,
                 None,
             )
             self.assertTrue(
@@ -300,15 +322,13 @@ class FetchTests(TestCase):
             self.assertIsNone(result.exc)
 
             resolve_branch.assert_not_called()
-            get_channels.assert_called_with(
-                FML_APP_CONFIG, FML_APP_CONFIG.fml_path, ref.target
-            )
+            get_channels.assert_called_with(FML_APP_CONFIG, FML_APP_CONFIG.fml_path, ref)
             download_single_file.assert_called_with(
                 manifest_dir,
                 FML_APP_CONFIG,
                 FML_APP_CONFIG.fml_path,
                 "release",
-                ref.target,
+                ref,
                 None,
             )
             generate_experimenter_yaml.assert_called_with(
@@ -328,6 +348,26 @@ class FetchTests(TestCase):
                 ValueError, "Cannot fetch specific version without a ref."
             ):
                 fetch_fml_app(manifest_dir, "app", FML_APP_CONFIG, version=Version(1))
+
+    def test_fetch_fml_local_with_ref(self):
+        """Testing fetch_fml_app with local repo and ref results in an error."""
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            manifest_dir.joinpath("fml-app").mkdir()
+
+            with self.assertRaisesRegex(
+                ValueError, "Cannot fetch specific ref for a local repository."
+            ):
+                fetch_fml_app(
+                    manifest_dir,
+                    "app",
+                    AppConfig(
+                        slug="fml-app",
+                        repo=Repository(type=RepositoryType.LOCAL),
+                        fml_path="nimbus.fml.yaml",
+                    ),
+                    ref=Ref("main", "ref"),
+                )
 
     @patch.object(manifesttool.fetch.github_api, "resolve_branch")
     @patch.object(
@@ -363,9 +403,7 @@ class FetchTests(TestCase):
             self.assertEqual(result, FetchResult("app", ref, version))
 
             resolve_branch.assert_not_called()
-            get_channels.assert_called_with(
-                FML_APP_CONFIG, FML_APP_CONFIG.fml_path, ref.target
-            )
+            get_channels.assert_called_with(FML_APP_CONFIG, FML_APP_CONFIG.fml_path, ref)
             download_single_file.assert_has_calls(
                 [
                     call(
@@ -373,7 +411,7 @@ class FetchTests(TestCase):
                         FML_APP_CONFIG,
                         FML_APP_CONFIG.fml_path,
                         "release",
-                        ref.target,
+                        ref,
                         version,
                     ),
                     call(
@@ -381,7 +419,7 @@ class FetchTests(TestCase):
                         FML_APP_CONFIG,
                         FML_APP_CONFIG.fml_path,
                         "beta",
-                        ref.target,
+                        ref,
                         version,
                     ),
                 ]
@@ -417,13 +455,14 @@ class FetchTests(TestCase):
         "download_single_file",
         side_effect=mock_download_single_file,
     )
-    def test_fetch_fml_multiple_fml(
+    def test_fetch_fml_multiple_fml_github(
         self,
         fml_paths: list[str],
         correct_fml_path: str,
         download_single_file,
         get_channels,
     ):
+        """Testing fetch_fml_app with multiple fml paths and a github repo."""
         app_config = AppConfig(
             slug="fml-app",
             repo=Repository(
@@ -455,20 +494,82 @@ class FetchTests(TestCase):
                 ),
             )
 
-            # Files are resolved in order, so file_exists() should be called index+1 times.
+            # Files are resolved in order, so file_exists() should be called index+1 times
             index = fml_paths.index(correct_fml_path)
             self.assertEqual(file_exists.call_count, index + 1)
             file_exists.assert_has_calls(
                 [call("fml-repo", fml_path, "foo") for fml_path in fml_paths[: index + 1]]
             )
 
-        get_channels.assert_called_once_with(app_config, correct_fml_path, "foo")
+        get_channels.assert_called_once_with(
+            app_config, correct_fml_path, Ref("main", "foo")
+        )
         download_single_file.assert_called_once_with(
             manifest_dir,
             app_config,
             correct_fml_path,
             "channel",
-            "foo",
+            Ref("main", "foo"),
+            None,
+        )
+
+    @parameterized.expand(
+        [
+            (["nimbus.fml.yaml", "app/nimbus.fml.yaml"], "nimbus.fml.yaml"),
+            (["nimbus.fml.yaml", "app/nimbus.fml.yaml"], "app/nimbus.fml.yaml"),
+        ]
+    )
+    @patch.object(
+        manifesttool.fetch.nimbus_cli,
+        "get_channels",
+        side_effect=lambda *args: ["channel"],
+    )
+    @patch.object(
+        manifesttool.fetch.nimbus_cli,
+        "download_single_file",
+        side_effect=mock_download_single_file,
+    )
+    def test_fetch_fml_multiple_fml_local(
+        self,
+        fml_paths: list[str],
+        correct_fml: str,
+        download_single_file,
+        get_channels,
+    ):
+        """Testing fetch_fml_app with multiple fml paths and a local repo."""
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            manifest_dir = tmp_path / "manifest"
+            manifest_dir.joinpath("fml-app").mkdir(parents=True)
+
+            _local_dir = tmp_path / "local"
+            correct_fml_path = _local_dir / correct_fml
+            correct_fml_path.parent.mkdir(parents=True, exist_ok=True)
+            correct_fml_path.touch()
+
+            app_config = AppConfig(
+                slug="fml-app",
+                repo=Repository(type=RepositoryType.LOCAL),
+                fml_path=[str(_local_dir / path) for path in fml_paths],
+            )
+
+            result = fetch_fml_app(manifest_dir, "fml_app", app_config)
+            self.assertEqual(
+                result,
+                FetchResult(
+                    app_name="fml_app",
+                    ref=None,
+                    version=None,
+                ),
+            )
+
+        get_channels.assert_called_once_with(app_config, str(correct_fml_path), None)
+        download_single_file.assert_called_once_with(
+            manifest_dir,
+            app_config,
+            str(correct_fml_path),
+            "channel",
+            None,
             None,
         )
 
@@ -524,31 +625,13 @@ class FetchTests(TestCase):
             self.assertIsNotNone(result.exc)
             self.assertEqual(str(result.exc), "Connection error")
 
-    def test_fetch_fml_hgmo(self):
-        """Testing fetch_fml_app with an hg.mozilla.org repository fails."""
-        app_config = AppConfig(
-            slug="invalid",
-            repo=Repository(
-                type=RepositoryType.HGMO,
-                name="invalid",
-                default_branch="tip",
-            ),
-            fml_path="nimbus.fml.yaml",
-        )
-
-        with self.assertRaisesRegex(
-            Exception,
-            "FML-based apps on hg.mozilla.org are not supported.",
-        ):
-            fetch_fml_app(Path("."), "invalid", app_config)
-
     def test_fetch_fml_unresolved_ref(self):
         """Testing fetch_fml_app with an unresolved ref."""
         with self.assertRaisesRegex(
             ValueError,
             "fetch_fml_app: ref `foo` is not resolved",
         ):
-            fetch_fml_app(Path("."), "repo", FML_APP_CONFIG, Ref("foo"))
+            fetch_fml_app(Path(), "repo", FML_APP_CONFIG, Ref("foo"))
 
     @patch.object(manifesttool.fetch.nimbus_cli, "download_single_file")
     @patch.object(manifesttool.fetch.nimbus_cli, "generate_experimenter_yaml")
@@ -575,10 +658,10 @@ class FetchTests(TestCase):
         generate_experimenter_yaml.assert_not_called()
 
     @patch.object(
-        manifesttool.fetch.hgmo_api, "resolve_branch", lambda *args: Ref("tip", "ref")
+        manifesttool.fetch.github_api, "resolve_branch", lambda *args: Ref("tip", "ref")
     )
     @patch.object(
-        manifesttool.fetch.hgmo_api,
+        manifesttool.fetch.github_api,
         "fetch_file",
         side_effect=make_mock_fetch_file(ref="ref"),
     )
@@ -612,9 +695,9 @@ class FetchTests(TestCase):
             )
             self.assertEqual(fetch_file.call_count, 2)
 
-    @patch.object(manifesttool.fetch.hgmo_api, "resolve_branch")
+    @patch.object(manifesttool.fetch.github_api, "resolve_branch")
     @patch.object(
-        manifesttool.fetch.hgmo_api,
+        manifesttool.fetch.github_api,
         "fetch_file",
         side_effect=make_mock_fetch_file(ref="resolved"),
     )
@@ -662,9 +745,9 @@ class FetchTests(TestCase):
                     manifest_dir, "app", LEGACY_APP_CONFIG, version=Version(1)
                 )
 
-    @patch.object(manifesttool.fetch.hgmo_api, "resolve_branch")
+    @patch.object(manifesttool.fetch.github_api, "resolve_branch")
     @patch.object(
-        manifesttool.fetch.hgmo_api,
+        manifesttool.fetch.github_api,
         "fetch_file",
         side_effect=make_mock_fetch_file(ref="foo"),
     )
@@ -708,10 +791,10 @@ class FetchTests(TestCase):
             )
 
     @patch.object(
-        manifesttool.fetch.hgmo_api, "resolve_branch", lambda *args: Ref("tip", "ref")
+        manifesttool.fetch.github_api, "resolve_branch", lambda *args: Ref("tip", "ref")
     )
     @patch.object(
-        manifesttool.fetch.hgmo_api,
+        manifesttool.fetch.github_api,
         "fetch_file",
         side_effect=make_mock_fetch_file(
             paths_by_ref={
@@ -756,7 +839,7 @@ class FetchTests(TestCase):
             self.assertEqual(fetch_file.call_count, 2)
 
     @patch.object(
-        manifesttool.fetch.hgmo_api,
+        manifesttool.fetch.github_api,
         "resolve_branch",
         side_effect=Exception("Connection error"),
     )
@@ -770,7 +853,7 @@ class FetchTests(TestCase):
             self.assertEqual(str(result.exc), "Connection error")
 
     def test_fetch_legacy_github(self):
-        """Testing fetch_legacy_app with a GitHub repository fails."""
+        """Testing fetch_legacy_app with a GitHub repository"""
         app_config = AppConfig(
             slug="invalid",
             repo=Repository(
@@ -780,12 +863,10 @@ class FetchTests(TestCase):
             experimenter_yaml_path="experimenter.yaml",
         )
 
-        with TemporaryDirectory() as tmp:
-            with self.assertRaisesRegex(
-                Exception,
-                "Legacy experimenter.yaml apps on GitHub are not supported.",
-            ):
-                fetch_legacy_app(Path(tmp), "invalid", app_config)
+        with (
+            TemporaryDirectory() as tmp,
+        ):
+            fetch_legacy_app(Path(tmp), "invalid", app_config)
 
     def test_fetch_legacy_unresolved_ref(self):
         """Testing fetch_legacy_app with an unresolved ref."""
@@ -917,7 +998,7 @@ class FetchTests(TestCase):
         app_config = AppConfig(
             slug="legacy-app",
             repo=Repository(
-                type=RepositoryType.HGMO,
+                type=RepositoryType.GITHUB,
                 name="legacy-repo",
                 default_branch="tip",
             ),
@@ -983,11 +1064,11 @@ class FetchTests(TestCase):
             fetch_releases(manifest_dir, "fml_app", app_config, cache)
 
         self.assertEqual(fetch_fml_app.call_count, 1)
-        fetch_fml_app.called_once_with(
+        fetch_fml_app.assert_called_once_with(
             manifest_dir,
             "fml_app",
             app_config,
-            Ref("branch", "updated-branch"),
+            Ref("branch", "up-to-date-branch"),
             Version(1),
         )
 

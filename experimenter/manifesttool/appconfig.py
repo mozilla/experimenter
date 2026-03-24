@@ -3,28 +3,29 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, Field, RootModel, model_validator
+from pydantic import BaseModel, Field, RootModel, field_validator, model_validator
 
 from manifesttool.version import Version
 
 
 class RepositoryType(str, Enum):
-    HGMO = "hgmo"  # hg.mozilla.org
     GITHUB = "github"
+    LOCAL = "local"
 
 
 class Repository(BaseModel):
     type: RepositoryType
-    name: str
+    name: str | None = None
     default_branch: str = Field(default="main")
 
     @model_validator(mode="before")
-    def validate_default_branch(cls, values: dict[str, Any]):
+    @classmethod
+    def validate_name(cls, values: dict[str, Any]):
         ty = values.get("type")
-        default_branch = values.get("default_branch")
+        name = values.get("name")
 
-        if ty == RepositoryType.HGMO and default_branch is None:
-            raise ValueError("hg.mozilla.org-hosted repositories require default_branch")
+        if ty != RepositoryType.LOCAL and name is None:
+            raise ValueError("non-local repositories require name")
 
         return values
 
@@ -36,12 +37,12 @@ class VersionFileType(str, Enum):
 
 class PlainTextVersionFile(BaseModel):
     type: Literal[VersionFileType.PLAIN_TEXT]
-    path: str | list[str]
+    path: str
 
 
 class PListVersionFile(BaseModel):
     type: Literal[VersionFileType.PLIST]
-    path: str | list[str]
+    path: str
     key: str
 
 
@@ -49,7 +50,7 @@ class VersionFile(RootModel):
     root: PlainTextVersionFile | PListVersionFile = Field(discriminator="type")
 
     @classmethod
-    def create_plain_text(cls, path: str | list[str]):  # pragma: no cover
+    def create_plain_text(cls, path: str):  # pragma: no cover
         return cls(
             PlainTextVersionFile(
                 type=VersionFileType.PLAIN_TEXT,
@@ -58,7 +59,7 @@ class VersionFile(RootModel):
         )
 
     @classmethod
-    def create_plist(cls, path: str | list[str], key: str):  # pragma: no cover
+    def create_plist(cls, path: str, key: str):  # pragma: no cover
         return cls(
             PListVersionFile(
                 type=VersionFileType.PLIST,
@@ -127,8 +128,18 @@ class DiscoveryStrategy(RootModel):
 
 
 class ReleaseDiscovery(BaseModel):
-    version_file: VersionFile
+    version_file: list[VersionFile]
     strategies: list[DiscoveryStrategy] = Field(min_items=1)
+
+    @field_validator("version_file", mode="before")
+    @classmethod
+    def ensure_version_file_is_list(
+        cls, value: VersionFile | list[VersionFile]
+    ) -> list[VersionFile]:
+        if isinstance(value, list):
+            return value
+
+        return [value]
 
 
 class AppConfig(BaseModel):
@@ -141,6 +152,7 @@ class AppConfig(BaseModel):
     release_discovery: ReleaseDiscovery | None = None
 
     @model_validator(mode="before")
+    @classmethod
     def validate_one_manifest_path(cls, values):
         has_fml_path = values.get("fml_path") is not None
         has_legacy_path = values.get("experimenter_yaml_path") is not None

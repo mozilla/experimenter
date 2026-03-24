@@ -1,0 +1,58 @@
+{% extends "nimbus_experiments/experiment_base.html" %}
+
+{% load static %}
+{% load nimbus_extras nimbus_devtools %}
+
+{% block title %}{{ experiment.name }}{% endblock %}
+{% block main_content %}
+  {% devtools_metadata experiment %}
+  <div id="PageSummary" class="mt-3">
+    {% include "nimbus_experiments/invalid_pages_warning.html" %}
+    {% include "nimbus_experiments/audience_overlap_warnings.html" %}
+
+    {% if not invalid_pages or not experiment.is_draft %}
+      {% include "nimbus_experiments/launch_controls.html" %}
+
+    {% endif %}
+    {% if experiment.is_complete %}
+      {% include "nimbus_experiments/detail_card_takeaways.html" %}
+
+    {% endif %}
+    {% include "nimbus_experiments/detail_card_overview.html" %}
+    {% include "nimbus_experiments/detail_card_risk_mitigation.html" %}
+    {% include "nimbus_experiments/detail_card_signoff.html" with edit=False experiment=experiment %}
+    {% include "nimbus_experiments/detail_card_audience.html" %}
+    {% include "nimbus_experiments/detail_branch.html" with branch=experiment.reference_branch experiment=experiment branch_number=1 total_branches=experiment.branches.all.count %}
+
+    {% for branch in experiment.treatment_branches %}
+      {% include "nimbus_experiments/detail_branch.html" with branch=branch experiment=experiment branch_number=forloop.counter|add:1 total_branches=experiment.branches.all.count %}
+
+    {% endfor %}
+    {% include "nimbus_experiments/detail_card_firefox_labs.html" %}
+
+    {% if experiment.is_localized %}
+      {% include "nimbus_experiments/detail_card_localizations.html" %}
+
+    {% endif %}
+    {% include "nimbus_experiments/detail_card_qa.html" %}
+
+  </div>
+  {% if save_failed %}
+    <div class="toast text-bg-danger position-fixed top-0 end-0 m-3 w-auto z-3"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true">
+      <div class="toast-body">
+        <i class="fa-regular fa-circle-check"></i>
+        Save Failed: This experiment is not editable in its current state.
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+{% block extrascripts %}
+  {{ block.super }}
+  <script src="{% static 'nimbus_ui/setup_selectpicker.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui/review_controls.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui/experiment_detail.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui/branch_detail.bundle.js' %}"></script>
+{% endblock %}

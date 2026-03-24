@@ -1,28 +1,104 @@
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 
-class TestMigrations(MigratorTestCase):
+class TestRemoveVpnApplicationsMigration(MigratorTestCase):
     migrate_from = (
-        "base",
-        "0004_language",
+        "experiments",
+        "0318_alter_nimbusexperiment_application_and_more",
     )
     migrate_to = (
-        "base",
-        "0005_jajpmacos",
+        "experiments",
+        "0319_delete_vpn_features",
     )
 
     def prepare(self):
-        """Prepare some data before the migration."""
-        Locale = self.old_state.apps.get_model("base", "Locale")
+        User = self.old_state.apps.get_model("auth", "User")
+        NimbusFeatureConfig = self.old_state.apps.get_model(
+            "experiments", "NimbusFeatureConfig"
+        )
+        NimbusExperiment = self.old_state.apps.get_model(
+            "experiments", "NimbusExperiment"
+        )
+        NimbusIsolationGroup = self.old_state.apps.get_model(
+            "experiments", "NimbusIsolationGroup"
+        )
 
-        Locale.objects.create(code="ja-JP-mac", name="Japanese")
+        owner, _ = User.objects.get_or_create(
+            username="test@example.com",
+            defaults={"email": "test@example.com"},
+        )
+
+        NimbusFeatureConfig.objects.get_or_create(
+            slug="no-feature-vpn-web",
+            defaults={
+                "name": "No Feature VPN Web",
+                "application": "vpn-web",
+            },
+        )
+
+        NimbusFeatureConfig.objects.get_or_create(
+            slug="no-feature-fenix",
+            defaults={
+                "name": "No Feature Fenix",
+                "application": "fenix",
+            },
+        )
+
+        NimbusExperiment.objects.get_or_create(
+            slug="test-vpn-web",
+            defaults={
+                "name": "Test VPN Web",
+                "application": "vpn-web",
+                "owner": owner,
+            },
+        )
+
+        NimbusExperiment.objects.get_or_create(
+            slug="test-fenix",
+            defaults={
+                "name": "Test Fenix",
+                "application": "fenix",
+                "owner": owner,
+            },
+        )
+
+        NimbusIsolationGroup.objects.get_or_create(
+            application="vpn-web",
+            name="test-group",
+            instance=1,
+        )
+
+        NimbusIsolationGroup.objects.get_or_create(
+            application="fenix",
+            name="test-group",
+            instance=1,
+        )
 
     def test_migration(self):
-        """Run the test itself."""
-        Locale = self.new_state.apps.get_model("base", "Locale")
+        NimbusFeatureConfig = self.new_state.apps.get_model(
+            "experiments", "NimbusFeatureConfig"
+        )
+        NimbusExperiment = self.new_state.apps.get_model(
+            "experiments", "NimbusExperiment"
+        )
+        NimbusIsolationGroup = self.new_state.apps.get_model(
+            "experiments", "NimbusIsolationGroup"
+        )
 
-        self.assertFalse(Locale.objects.filter(code="ja-JP-mac").exists())
+        self.assertFalse(
+            NimbusFeatureConfig.objects.filter(slug="no-feature-vpn-web").exists()
+        )
 
-        locale = Locale.objects.get(code="ja-JP-macos")
+        self.assertTrue(
+            NimbusFeatureConfig.objects.filter(slug="no-feature-fenix").exists()
+        )
 
-        self.assertEqual(locale.name, "Japanese (macOS)")
+        self.assertFalse(NimbusExperiment.objects.filter(application="vpn-web").exists())
+
+        self.assertTrue(NimbusExperiment.objects.filter(application="fenix").exists())
+
+        self.assertFalse(
+            NimbusIsolationGroup.objects.filter(application="vpn-web").exists()
+        )
+
+        self.assertTrue(NimbusIsolationGroup.objects.filter(application="fenix").exists())

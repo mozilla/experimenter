@@ -77,12 +77,12 @@ class CSVStreamingRenderer(CSVRenderer):
         can iterate over it, rendering and returning each line.
 
         >>> renderer = CSVStreamingRenderer()
-        >>> renderer.header = ['a', 'b']
-        >>> data = [{'a': 1, 'b': 2}]
+        >>> renderer.header = ["a", "b"]
+        >>> data = [{"a": 1, "b": 2}]
         >>> from django.http import StreamingHttpResponse
         >>> response = StreamingHttpResponse(renderer.render(data),
                                              content_type='text/csv')
-        >>> response['Content-Disposition'] = 'attachment; filename="f.csv"'
+        >>> response["Content-Disposition"] = 'attachment; filename="f.csv"'
         >>> # return response
 
         """

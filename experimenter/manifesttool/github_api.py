@@ -1,10 +1,12 @@
 import os
+from collections.abc import Generator
 from pathlib import Path
-from typing import Any, Generator, Optional, overload
+from typing import Any, Optional, overload
 
 import requests
 
 from manifesttool import download
+from manifesttool.http import http_client
 from manifesttool.repository import Ref
 
 GITHUB_API_URL = "https://api.github.com"
@@ -22,7 +24,7 @@ def api_request(
 ) -> requests.Response:
     """Make a request to the GitHub API."""
     url = f"{GITHUB_API_URL}/{path}"
-    rsp = requests.get(url, headers=GITHUB_API_HEADERS, **kwargs)
+    rsp = http_client().get(url, headers=GITHUB_API_HEADERS, **kwargs)
 
     if rsp.status_code == 403:
         if rsp.headers.get("X-RateLimit-Remaining") == "0":
@@ -35,7 +37,9 @@ def api_request(
 
 
 def paginated_api_request(path: str, per_page: int = 100) -> Generator[Any, None, None]:
-    """Make several reqeusts to a paginated API resource and yield each page of results."""
+    """Make several reqeusts to a paginated API resource and yield each page of
+    results.
+    """
     page = 1
 
     while True:
@@ -92,13 +96,13 @@ def _get_refs(repo: str, kind: str) -> list[Ref]:
 
 
 @overload
-def fetch_file(repo: str, file_path: str, rev: str) -> str:
-    ...  # pragma: no cover
+def fetch_file(repo: str, file_path: str, rev: str) -> str: ...  # pragma: no cover
 
 
 @overload
-def fetch_file(repo: str, file_path: str, rev: str, download_path: Path) -> None:
-    ...  # pragma: no cover
+def fetch_file(
+    repo: str, file_path: str, rev: str, download_path: Path
+) -> None: ...  # pragma: no cover
 
 
 def fetch_file(

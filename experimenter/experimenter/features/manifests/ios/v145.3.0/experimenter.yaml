@@ -1,0 +1,569 @@
+address-autofill-edit:
+  description: This property defines if the address editing is enabled in Settings
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    status:
+      type: boolean
+      description: If true, we will allow user to edit the address
+address-bar-menu-feature:
+  description: |
+    This property determines if we show the new address bar menu entry or the toolbar menu in settings
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    status:
+      type: boolean
+      description: If true, we will show the new address bar menu entry
+app-icon-selection-feature:
+  description: |
+    Controls which app icons users can select as their default app icon from the App Icon Selection screen in Settings.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    funIconsEnabled:
+      type: boolean
+      description: |
+        Controls whether users see the fun icons in the app icon settings.
+appearance-menu-feature:
+  description: |
+    This property determines if we show the new appearance menu entry or the old theme settings
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    status:
+      type: boolean
+      description: If true, we will show the new appearance menu entry
+apple-summarizer-feature:
+  description: |
+    This feature enables the apple summarizer feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the apple summarizer feature.
+    shakeGesture:
+      type: boolean
+      description: |
+        Enables the shake gesture for the summarizer feature.
+    toolbarEntrypoint:
+      type: boolean
+      description: |
+        Enables the toolbar entrypoint for the summarizer feature.
+deeplink-optimization-refactor-feature:
+  description: |
+    The feature flag to manage the rollout of deeplink optimization feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Variable description
+default-zoom-feature:
+  description: |
+    The feature flag to manage the rollout of default zoom feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, page zoom settings and default zoom feature are shown
+download-live-activities-feature:
+  description: |
+    Download Live Activities Feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, the download live activities feature is enabled
+felt-privacy-feature:
+  description: The feature that enhances private browsing mode
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    felt-deletion-enabled:
+      type: boolean
+      description: If true, enable Felt Deletion part of Felt Privacy
+    simplified-ui-enabled:
+      type: boolean
+      description: If true, enable simplified UI part of Felt Privacy
+firefox-jp-guide-default-site:
+  description: |
+    This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
+firefox-suggest-feature:
+  description: Configuration for the Firefox Suggest feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    available-suggestions-types:
+      type: json
+      description: |
+        A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.
+    status:
+      type: boolean
+      description: |
+        Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
+general-app-features:
+  description: The feature that contains feature flags for the entire application
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    report-site-issue:
+      type: json
+      description: This property defines whether or not the feature is enabled
+hnt-sponsored-shortcuts-feature:
+  description: This feature manages the visibility of sponsored shortcuts on the homepage
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: Setting 'enabled' to false will hide sponsored shortcuts on the homepage and disable the respective toggle in the homepage settings
+homepage-rebuild-feature:
+  description: |
+    This feature is for managing the roll out of the Homepage rebuild feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, enables the feature
+homepage-redesign-feature:
+  description: |
+    This feature is for managing the roll out of the Homepage New Tab Redesign feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    discover-more-feature-configuration:
+      type: json
+      description: |
+        A configuration for the Discover More feature
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
+    scrim:
+      type: boolean
+      description: |
+        If true, enables the scrim on the homepage when searching.
+    search-bar:
+      type: boolean
+      description: |
+        If true, enables the search bar feature on homepage for users.
+    shortcuts-library:
+      type: boolean
+      description: |
+        If true, enables the shortcuts library feature, accessible from the homepage
+    stories-redesign:
+      type: boolean
+      description: |
+        If true, enables the stories section redesign on homepage, which also includes the removal of other sections (i.e. jump back in, bookmarks)
+hosted-summarizer-feature:
+  description: |
+    This feature enables the hosted summarizer feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the hosted summarizer feature.
+    shakeGesture:
+      type: boolean
+      description: |
+        Enables the shake gesture for the summarizer feature.
+    toolbarEntrypoint:
+      type: boolean
+      description: |
+        Enables the toolbar entrypoint for the summarizer feature.
+menu-refactor-feature:
+  description: |
+    Controls the menu refactor feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Controls which menu users will see
+    menu-default-browser-banner:
+      type: boolean
+      description: |
+        If true, enables the menu Make Firefox your default banner, on top of the menu.
+    menu-redesign-hint:
+      type: boolean
+      description: |
+        If true, enables the menu contextual hint for menu redesign.
+messaging:
+  description: |
+    The in-app messaging system
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    actions:
+      type: json
+      description: A growable map of action URLs.
+    message-under-experiment:
+      type: string
+      description: 'Deprecated. Please use "experiment": "{experiment}" instead.'
+    messages:
+      type: json
+      description: |
+        A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
+    on-control:
+      type: string
+      description: What should be displayed when a control message is selected.
+      enum:
+      - show-next-message
+      - show-none
+    styles:
+      type: json
+      description: |
+        A map of styles to configure message appearance.
+    triggers:
+      type: json
+      description: |
+        A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.
+    ~~experiment:
+      type: string
+      description: Not to be set by experiment.
+microsurvey-feature:
+  description: |
+    A feature that shows the microsurvey for users to interact with and submit responses.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, the feature is active.
+native-error-page-feature:
+  description: |
+    This feature is for managing the roll out of the native error page feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, the feature is active.
+    no_internet_connection_error:
+      type: boolean
+      description: |
+        This feature is for managing the roll out of the no interet connection native error page feature
+onboarding-framework-feature:
+  description: |
+    The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    cards:
+      type: json
+      description: |
+        The list of available cards for onboarding.
+    conditions:
+      type: json
+      description: |
+        A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
+    dismissable:
+      type: boolean
+      description: |
+        Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.
+    enable-modern-ui:
+      type: boolean
+      description: |
+        Toggle between legacy (false) and modern (true) UI variants.
+    should-use-japan-configuration:
+      type: boolean
+      description: |
+        Toggle between standard (false) and Japan-specific (true) assets and content.
+recent-searches-feature:
+  description: |
+    Enables recent searches.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable recent searches.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
+relay-integration-feature:
+  description: |
+    This feature is for managing the roll out of Relay email masking integration in iOS
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature
+rust-fxa-keychain:
+  description: |
+    Feature that enables the rust FxA keychain logic.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    rust-fxa-keychain-enabled:
+      type: boolean
+      description: |
+        Whether the rust FxA keychain logic is enabled. When enabled, the rust keychain is used to store and retrieve encryption key data for the FxA rust comoponent. Otherwise, the pre-existing MZKeychainWrapper logic is used.
+search:
+  description: |
+    Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    awesome-bar:
+      type: json
+      description: Configuring the awesome bar.
+search-engine-consolidation-feature:
+  description: |
+    This feature is for managing the roll out of Search Engine Consolidation support in iOS
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature
+sent-from-firefox-feature:
+  description: |
+    Adds additional promo text to links shared to WhatsApp.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.
+    isTreatmentA:
+      type: boolean
+      description: |
+        If true, shares the treatment A text. If false, shares the treatment B text.
+splash-screen:
+  description: |
+    A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, the feature is active.
+    maximum_duration_ms:
+      type: int
+      description: |
+        The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
+spotlight-search:
+  description: Add pages as items findable with Spotlight.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If this is true, then on each page load adds a new item to Spotlight.
+    icon-type:
+      type: string
+      description: |
+        The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
+    keep-for-days:
+      type: int
+      description: |
+        Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
+    searchable-content:
+      type: string
+      description: |
+        The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.
+start-at-home-feature:
+  description: This feature is for experimenting with opening screen
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    setting:
+      type: string
+      description: This property provides a default setting for the start at home feature
+      enum:
+      - afterFourHours
+      - always
+      - disabled
+tab-scroll-refactor-feature:
+  description: |
+    The feature flag to manage the rollout of tab scroll refactor feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, tab scroll new implementation is used to show and hide toolbar views reacting to user scroll
+tab-tray-ui-experiments:
+  description: |
+    The tab tray will undergo some UI experimentation to test potential improvements.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, enables the tab tray UI experiments.
+    translucency:
+      type: boolean
+      description: |
+        If true, enables translucency for tab tray actions at the bottom.
+tabTrayFeature:
+  description: The tab tray screen that the user goes to when they open the tab tray.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    sections-enabled:
+      type: json
+      description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
+toolbar-refactor-feature:
+  description: |
+    This feature is for managing the roll out of the Toolbar refactor feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature
+    layout:
+      type: string
+      description: |
+        The type of layout of the toolbars.
+    middle_button_customization:
+      type: boolean
+      description: |
+        Enables the middle button customization for navigation toolbar.
+    minimal_address_bar:
+      type: boolean
+      description: |
+        Enables minimal address bar mode on scroll to ensure the url is always visible.
+    navigation_hint:
+      type: boolean
+      description: |
+        If true, enables the navigation contextual hint.
+    one_tap_new_tab:
+      type: boolean
+      description: |
+        If true, enables the one tap new tab feature for users.
+    swiping_tabs:
+      type: boolean
+      description: |
+        Enables swipe gestures to switch between browser tabs.
+    toolbar_update_hint:
+      type: boolean
+      description: |
+        If true, enables the toolbar update contextual hint.
+    translucency:
+      type: boolean
+      description: |
+        Enables translucency for toolbars.
+    unified_search:
+      type: boolean
+      description: |
+        Enables the unified search feature.
+tos-feature:
+  description: |
+    This feature is for managing the roll out of the ToS (Term of Service) implementation
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    status:
+      type: boolean
+      description: |
+        Enables the feature
+tou-feature:
+  description: |
+    This feature is for managing the rollout of the Terms of Use (ToU) implementation.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    max-reminders-count:
+      type: int
+      description: |
+        Maximum number of ToU bottom sheet reminders that can be displayed
+    status:
+      type: boolean
+      description: |
+        Enables the feature
+tracking-protection-refactor:
+  description: |
+    The Enhanced Tracking Protection refactor
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether the Enhanced Tracking Protection refactor is enabled or not
+translations-feature:
+  description: |
+    Enables translations feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable translations feature.
+trending-searches-feature:
+  description: |
+    Enables trending searches.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable trending searches.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
+unified-ads:
+  description: |
+    This property is for managing the roll out of the unified ads API
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, we will enable user to use the unified ads API
+updated-password-manager-feature:
+  description: |
+    This property determines if we use the updated password manager or the legacy one.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    status:
+      type: boolean
+      description: If true, firefox will use the  the updated password manager.
+web-engine-integration-refactor:
+  description: |
+    The feature flag to manage the roll out of the integration of WebEngine into Firefox.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.

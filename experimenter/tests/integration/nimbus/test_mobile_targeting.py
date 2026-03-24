@@ -15,6 +15,12 @@ class MockMetricsHandler(nimbus_rust.MetricsHandler):
     def __init__(self, *args, **kwargs):
         pass
 
+    def record_database_load(self, *args, **kwargs):
+        pass
+
+    def record_database_migration(self, *args, **kwargs):
+        pass
+
     def record_enrollment_statuses(self, *args, **kwargs):
         pass
 
@@ -27,11 +33,14 @@ class MockMetricsHandler(nimbus_rust.MetricsHandler):
     def record_malformed_feature_config(self, *args, **kwargs):
         pass
 
+    def submit_targeting_context(self, *args, **kwargs):
+        pass
 
-def client_info_list():
+
+def load_app_context_data():
     path = Path(__file__).parent / "app_contexts.json"
     with path.open() as file:
-        return [r["app_context"] for r in json.load(file)["query_result"]["data"]["rows"]]
+        return json.load(file)
 
 
 @pytest.fixture(params=helpers.load_targeting_configs(app="MOBILE"))
@@ -53,7 +62,6 @@ def load_app_context():
             android_sdk_version=base_app_context.android_sdk_version,
             debug_tag=base_app_context.debug_tag,
             installation_date=base_app_context.installation_date,
-            home_directory=base_app_context.home_directory,
             custom_targeting_attributes=None,
         )
 
@@ -64,12 +72,7 @@ def load_app_context():
 def fixture_sdk_client():
     def _client_helper(app_context):
         return nimbus_rust.NimbusClient(
-            app_context,
-            None,
-            [],
-            str(Path.cwd()),
-            None,
-            MockMetricsHandler(),
+            app_context, None, [], str(Path.cwd()), MockMetricsHandler(), None, None
         )
 
     return _client_helper
@@ -77,14 +80,13 @@ def fixture_sdk_client():
 
 @pytest.mark.run_targeting
 @pytest.mark.parametrize("targeting", helpers.load_targeting_configs("MOBILE"))
-@pytest.mark.parametrize("context", client_info_list())
 def test_check_mobile_targeting(
     sdk_client,
     load_app_context,
-    context,
     targeting,
     experiment_slug,
 ):
+    context = load_app_context_data()
     # The context fixtures can only contain strings or null
     context["language"] = context["language"][:2]  # strip region
     # This context dictionary supports non string values
@@ -99,6 +101,31 @@ def test_check_mobile_targeting(
             "is_phone": True,
             "is_review_checker_enabled": True,
             "is_default_browser": True,
+            "is_bottom_toolbar_user": True,
+            "has_enabled_tips_notifications": True,
+            "has_accepted_terms_of_use": True,
+            "tou_experience_points": 0,
+            "is_apple_intelligence_available": True,
+            "cannot_use_apple_intelligence": True,
+            "install_referrer_response_utm_source": "test",
+            "number_of_app_launches": 1,
+            "is_large_device": True,
+            "user_accepted_tou": True,
+            "no_shortcuts_or_stories_opt_outs": True,
+            "addon_ids": [
+                "uBlock0@raymondhill.net",
+                "{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}",
+                "adguardadblocker@adguard.com",
+                "adblockultimate@adblockultimate.net",
+                "firefox@ghostery.com",
+                "lock@adblock",
+                "ultrablock-pro@ultrablock.com",
+                "{2b3f2f5d-f5ae-44b3-846e-b630acf8eced}",
+                "kolesin.work@gmail.com",
+                "adblocker@pcmatic.com",
+                "{73a6fe31-595d-460b-a920-fcc0f8843232}",
+            ],
+            "tou_points": 3,
         }
     )
     client = sdk_client(load_app_context(context))
@@ -113,7 +140,7 @@ def test_check_mobile_targeting(
         languages=context["language"],
     )
     data = helpers.load_experiment_data(experiment_slug)
-    expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
+    expression = data["targeting"]
 
     for sub_expr in collect_exprs(expression):
         # The evaluator will throw if it detects a syntax error, a comparison type

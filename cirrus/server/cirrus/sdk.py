@@ -1,6 +1,7 @@
 import json
 import logging
-from typing import Any, Dict, List
+from enum import StrEnum
+from typing import Any, NotRequired, TypedDict
 
 from cirrus_sdk import (  # type: ignore
     CirrusClient,
@@ -12,41 +13,99 @@ from cirrus_sdk import (  # type: ignore
 logger = logging.getLogger(__name__)
 
 
-class CirrusMetricsHandler(MetricsHandler):
-    def __init__(self, metrics: Any, pings: Any):
-        self.metrics = metrics
-        self.pings = pings
+class ExperimentEnrollment(TypedDict):
+    slug: str
+    status: str
 
-    def record_enrollment_statuses(
-        self, enrollment_status_extras: list[EnrollmentStatusExtraDef]
+
+class EnrollmentRequest(TypedDict):
+    clientId: str | None
+    requestContext: dict[str, Any]
+    prevEnrollments: NotRequired[list[ExperimentEnrollment]]
+
+
+class FeatureConfig(TypedDict):
+    featureId: str
+    value: dict[str, Any]
+
+
+class EnrolledFeatureConfig(TypedDict):
+    feature: FeatureConfig
+    slug: str
+    branch: str | None
+    featureId: str
+
+
+class EnrollmentChangeEventType(StrEnum):
+    Enrollment = "Enrollment"
+    EnrollFailed = "EnrollFailed"
+    Disqualification = "Disqualification"
+    Unenrollment = "Unenrollment"
+    UnenrollFailed = "UnenrolLFailed"
+
+
+class EnrollmentChangeEvent(TypedDict):
+    experiment_slug: str
+    branch_slug: str
+    reason: str | None
+    change: EnrollmentChangeEventType
+
+
+# N.B.: This type is much looser than the actual EnrollmentResponse type because
+# `compute_enrollments()` returns `{}` as a fallback on error.
+class EnrollmentResponse(TypedDict):
+    enrolledFeatureConfigMap: NotRequired[dict[str, EnrolledFeatureConfig]]
+    enrollments: NotRequired[list[ExperimentEnrollment]]
+    events: NotRequired[list[EnrollmentChangeEvent]]
+
+
+class CirrusMetricsHandler(MetricsHandler):
+    def __init__(self, enrollment_status_ping: Any):
+        self.enrollment_status_ping = enrollment_status_ping
+
+    def record_enrollment_statuses_v2(
+        self,
+        enrollment_status_extras: list[EnrollmentStatusExtraDef],
+        nimbus_user_id: str | None,
     ):
-        for enrollment_status_extra in enrollment_status_extras:
-            self.metrics.cirrus_events.enrollment_status.record(
-                self.metrics.cirrus_events.EnrollmentStatusExtra(
-                    branch=enrollment_status_extra.branch or "",
-                    conflict_slug=enrollment_status_extra.conflict_slug or "",
-                    error_string=enrollment_status_extra.error_string or "",
-                    reason=enrollment_status_extra.reason or "",
-                    slug=enrollment_status_extra.slug or "",
-                    status=enrollment_status_extra.status or "",
-                    user_id=enrollment_status_extra.user_id or "",
-                )
-            )
-        self.pings.enrollment_status.submit()
+        self.enrollment_status_ping.record(
+            user_agent=None,
+            ip_address=None,
+            nimbus_nimbus_user_id=nimbus_user_id or "",
+            events=[
+                {
+                    "category": "cirrus_events",
+                    "name": "enrollment_status",
+                    "extra": {
+                        "branch": str(enrollment_status_extra.branch or ""),
+                        "conflict_slug": str(enrollment_status_extra.conflict_slug or ""),
+                        "error_string": str(enrollment_status_extra.error_string or ""),
+                        "reason": str(enrollment_status_extra.reason or ""),
+                        "slug": str(enrollment_status_extra.slug or ""),
+                        "status": str(enrollment_status_extra.status or ""),
+                        "nimbus_user_id": str(enrollment_status_extra.user_id or ""),
+                    },
+                }
+                for enrollment_status_extra in enrollment_status_extras
+            ],
+        )
 
 
 class SDK:
     def __init__(
         self,
         context: str,
-        coenrolling_feature_ids: List[str],
+        coenrolling_feature_ids: list[str],
         metrics_handler: CirrusMetricsHandler,
     ):
         self.client = CirrusClient(context, metrics_handler, coenrolling_feature_ids)
 
-    def compute_enrollments(self, targeting_context: Dict[str, str]) -> Dict[str, Any]:
+    def compute_enrollments(
+        self,
+        enrollment_request: EnrollmentRequest,
+    ) -> EnrollmentResponse:
         try:
-            res = self.client.handle_enrollment(json.dumps(targeting_context))
+            res = self.client.handle_enrollment(json.dumps(enrollment_request))
             return json.loads(res)
         except (NimbusError, Exception) as e:  # type: ignore
             logger.error(f"An error occurred during compute_enrollments: {e}")

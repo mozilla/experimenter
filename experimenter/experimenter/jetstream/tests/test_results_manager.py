@@ -1,0 +1,2772 @@
+from django.test import TestCase
+from parameterized.parameterized import parameterized
+
+from experimenter.experiments.models import (
+    NimbusExperiment,
+)
+from experimenter.experiments.tests.factories import (
+    NimbusBranchFactory,
+    NimbusExperimentFactory,
+)
+from experimenter.jetstream.results_manager import (
+    ExperimentResultsManager,
+    MetricSignificance,
+)
+from experimenter.metrics import MetricAreas
+from experimenter.metrics.tests import mock_valid_metrics
+from experimenter.outcomes import Outcomes
+from experimenter.outcomes.tests import mock_valid_outcomes
+
+
+@mock_valid_outcomes
+class TestExperimentResultsManager(TestCase):
+    def setUp(self):
+        application = NimbusExperiment.Application.DESKTOP
+        Outcomes.clear_cache()
+        self.desktop_outcome_1 = Outcomes.get_by_slug_and_application(
+            "desktop_outcome_1", application
+        )
+        self.experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[self.desktop_outcome_1.slug],
+            secondary_outcomes=[],
+        )
+        self.experiment.delete_branches()
+        self.experiment.reference_branch = NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch A", slug="branch-a"
+        )
+        NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch B", slug="branch-b"
+        )
+        self.results_manager = ExperimentResultsManager(self.experiment)
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                                "window_index": "1",
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                                "window_index": "2",
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                                "window_index": "3",
+                                                            },
+                                                        ]
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        },
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                                "window_index": "1",
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                                "window_index": "2",
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                                "window_index": "3",
+                                                            },
+                                                        ]
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": 10,
+                                                                    "upper": 20,
+                                                                    "point": 15,
+                                                                    "window_index": "1",
+                                                                },
+                                                                {
+                                                                    "lower": 5,
+                                                                    "upper": 15,
+                                                                    "point": 10,
+                                                                    "window_index": "2",
+                                                                },
+                                                                {
+                                                                    "lower": 0,
+                                                                    "upper": 10,
+                                                                    "point": 5,
+                                                                    "window_index": "3",
+                                                                },
+                                                            ]
+                                                        },
+                                                        "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                },
+                "weekly",
+                {
+                    "data": {
+                        "branch-a": [
+                            (
+                                {
+                                    "lower": 140,
+                                    "upper": 160,
+                                    "significance": "neutral",
+                                    "window_index": "1",
+                                },
+                                None,
+                            ),
+                            (
+                                {
+                                    "lower": 130,
+                                    "upper": 150,
+                                    "significance": "neutral",
+                                    "window_index": "2",
+                                },
+                                None,
+                            ),
+                            (
+                                {
+                                    "lower": 120,
+                                    "upper": 140,
+                                    "significance": "neutral",
+                                    "window_index": "3",
+                                },
+                                None,
+                            ),
+                        ],
+                        "branch-b": [
+                            (
+                                {
+                                    "lower": 140,
+                                    "upper": 160,
+                                    "significance": "neutral",
+                                    "window_index": "1",
+                                },
+                                {
+                                    "avg_rel_change": 15,
+                                    "lower": 10,
+                                    "upper": 20,
+                                    "significance": "neutral",
+                                    "window_index": "1",
+                                },
+                            ),
+                            (
+                                {
+                                    "lower": 130,
+                                    "upper": 150,
+                                    "significance": "neutral",
+                                    "window_index": "2",
+                                },
+                                {
+                                    "avg_rel_change": 10,
+                                    "lower": 5,
+                                    "upper": 15,
+                                    "significance": "neutral",
+                                    "window_index": "2",
+                                },
+                            ),
+                            (
+                                {
+                                    "lower": 120,
+                                    "upper": 140,
+                                    "significance": "neutral",
+                                    "window_index": "3",
+                                },
+                                {
+                                    "avg_rel_change": 5,
+                                    "lower": 0,
+                                    "upper": 10,
+                                    "significance": "neutral",
+                                    "window_index": "3",
+                                },
+                            ),
+                        ],
+                    },
+                    "has_weekly_data": True,
+                },
+            ),
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                                "window_index": "1",
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                                "window_index": "3",
+                                                            },
+                                                        ]
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        },
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                                "window_index": "1",
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                                "window_index": "3",
+                                                            },
+                                                        ]
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": 10,
+                                                                    "upper": 20,
+                                                                    "point": 15,
+                                                                    "window_index": "1",
+                                                                },
+                                                                {
+                                                                    "lower": 0,
+                                                                    "upper": 10,
+                                                                    "point": 5,
+                                                                    "window_index": "3",
+                                                                },
+                                                            ]
+                                                        },
+                                                        "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                },
+                "weekly",
+                {
+                    "data": {
+                        "branch-a": [
+                            (
+                                {
+                                    "lower": 140,
+                                    "upper": 160,
+                                    "significance": "neutral",
+                                    "window_index": "1",
+                                },
+                                None,
+                            ),
+                            (
+                                {
+                                    "lower": None,
+                                    "upper": None,
+                                    "significance": "neutral",
+                                    "window_index": "2",
+                                },
+                                None,
+                            ),
+                            (
+                                {
+                                    "lower": 120,
+                                    "upper": 140,
+                                    "significance": "neutral",
+                                    "window_index": "3",
+                                },
+                                None,
+                            ),
+                        ],
+                        "branch-b": [
+                            (
+                                {
+                                    "lower": 140,
+                                    "upper": 160,
+                                    "significance": "neutral",
+                                    "window_index": "1",
+                                },
+                                {
+                                    "avg_rel_change": 15,
+                                    "lower": 10,
+                                    "upper": 20,
+                                    "significance": "neutral",
+                                    "window_index": "1",
+                                },
+                            ),
+                            (
+                                {
+                                    "lower": None,
+                                    "upper": None,
+                                    "significance": "neutral",
+                                    "window_index": "2",
+                                },
+                                {
+                                    "lower": None,
+                                    "upper": None,
+                                    "significance": "neutral",
+                                    "window_index": "2",
+                                },
+                            ),
+                            (
+                                {
+                                    "lower": 120,
+                                    "upper": 140,
+                                    "significance": "neutral",
+                                    "window_index": "3",
+                                },
+                                {
+                                    "avg_rel_change": 5,
+                                    "lower": 0,
+                                    "upper": 10,
+                                    "significance": "neutral",
+                                    "window_index": "3",
+                                },
+                            ),
+                        ],
+                    },
+                    "has_weekly_data": True,
+                },
+            ),
+            (
+                {
+                    "v3": {
+                        "daily": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                                "window_index": "1",
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                                "window_index": "2",
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                                "window_index": "3",
+                                                            },
+                                                        ]
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        },
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                                "window_index": "1",
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                                "window_index": "2",
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                                "window_index": "3",
+                                                            },
+                                                        ]
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": 10,
+                                                                    "upper": 20,
+                                                                    "point": 15,
+                                                                    "window_index": "1",
+                                                                },
+                                                                {
+                                                                    "lower": 5,
+                                                                    "upper": 15,
+                                                                    "point": 10,
+                                                                    "window_index": "2",
+                                                                },
+                                                                {
+                                                                    "lower": 0,
+                                                                    "upper": 10,
+                                                                    "point": 5,
+                                                                    "window_index": "3",
+                                                                },
+                                                            ]
+                                                        },
+                                                        "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                },
+                "daily",
+                {
+                    "data": {
+                        "branch-a": [
+                            (
+                                {
+                                    "lower": 140,
+                                    "upper": 160,
+                                    "significance": "neutral",
+                                    "window_index": "1",
+                                },
+                                None,
+                            ),
+                            (
+                                {
+                                    "lower": 130,
+                                    "upper": 150,
+                                    "significance": "neutral",
+                                    "window_index": "2",
+                                },
+                                None,
+                            ),
+                            (
+                                {
+                                    "lower": 120,
+                                    "upper": 140,
+                                    "significance": "neutral",
+                                    "window_index": "3",
+                                },
+                                None,
+                            ),
+                        ],
+                        "branch-b": [
+                            (
+                                {
+                                    "lower": 140,
+                                    "upper": 160,
+                                    "significance": "neutral",
+                                    "window_index": "1",
+                                },
+                                {
+                                    "avg_rel_change": 15,
+                                    "lower": 10,
+                                    "upper": 20,
+                                    "significance": "neutral",
+                                    "window_index": "1",
+                                },
+                            ),
+                            (
+                                {
+                                    "lower": 130,
+                                    "upper": 150,
+                                    "significance": "neutral",
+                                    "window_index": "2",
+                                },
+                                {
+                                    "avg_rel_change": 10,
+                                    "lower": 5,
+                                    "upper": 15,
+                                    "significance": "neutral",
+                                    "window_index": "2",
+                                },
+                            ),
+                            (
+                                {
+                                    "lower": 120,
+                                    "upper": 140,
+                                    "significance": "neutral",
+                                    "window_index": "3",
+                                },
+                                {
+                                    "avg_rel_change": 5,
+                                    "lower": 0,
+                                    "upper": 10,
+                                    "significance": "neutral",
+                                    "window_index": "3",
+                                },
+                            ),
+                        ],
+                    },
+                    "has_daily_data": True,
+                },
+            ),
+            (
+                {
+                    "v3": {
+                        "daily": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                            },
+                                                        ]
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        },
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                            },
+                                                            {
+                                                                "lower": 120,
+                                                                "upper": 140,
+                                                                "point": 130,
+                                                            },
+                                                        ]
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": 10,
+                                                                    "upper": 20,
+                                                                    "point": 15,
+                                                                },
+                                                                {
+                                                                    "lower": 5,
+                                                                    "upper": 15,
+                                                                    "point": 10,
+                                                                },
+                                                                {
+                                                                    "lower": 0,
+                                                                    "upper": 10,
+                                                                    "point": 5,
+                                                                },
+                                                            ]
+                                                        },
+                                                        "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                },
+                "daily",
+                {
+                    "data": {
+                        "branch-a": [
+                            (
+                                {
+                                    "lower": 140,
+                                    "upper": 160,
+                                    "significance": "neutral",
+                                    "window_index": None,
+                                },
+                                None,
+                            ),
+                            (
+                                {
+                                    "lower": 130,
+                                    "upper": 150,
+                                    "significance": "neutral",
+                                    "window_index": None,
+                                },
+                                None,
+                            ),
+                            (
+                                {
+                                    "lower": 120,
+                                    "upper": 140,
+                                    "significance": "neutral",
+                                    "window_index": None,
+                                },
+                                None,
+                            ),
+                        ],
+                        "branch-b": [
+                            (
+                                {
+                                    "lower": 140,
+                                    "upper": 160,
+                                    "significance": "neutral",
+                                    "window_index": None,
+                                },
+                                {
+                                    "avg_rel_change": 15,
+                                    "lower": 10,
+                                    "upper": 20,
+                                    "significance": "neutral",
+                                    "window_index": None,
+                                },
+                            ),
+                            (
+                                {
+                                    "lower": 130,
+                                    "upper": 150,
+                                    "significance": "neutral",
+                                    "window_index": None,
+                                },
+                                {
+                                    "avg_rel_change": 10,
+                                    "lower": 5,
+                                    "upper": 15,
+                                    "significance": "neutral",
+                                    "window_index": None,
+                                },
+                            ),
+                            (
+                                {
+                                    "lower": 120,
+                                    "upper": 140,
+                                    "significance": "neutral",
+                                    "window_index": None,
+                                },
+                                {
+                                    "avg_rel_change": 5,
+                                    "lower": 0,
+                                    "upper": 10,
+                                    "significance": "neutral",
+                                    "window_index": None,
+                                },
+                            ),
+                        ],
+                    },
+                    "has_daily_data": True,
+                },
+            ),
+        ]
+    )
+    def test_get_weekly_metric_data(self, results_data, window, expected_data):
+        self.experiment.results_data = results_data
+        self.experiment.save()
+
+        self.assertEqual(
+            self.results_manager.build_window_metric_breakdown(
+                "enrollments", "all", "branch-a", window
+            ).get("urlbar_amazon_search_count"),
+            expected_data,
+        )
+        self.assertEqual(
+            self.results_manager.build_window_metric_breakdown(
+                "enrollments", "all", "branch-a", window
+            ).get("total_amazon_search_count"),
+            {
+                "data": {},
+                f"has_{window}_data": False,
+            },
+        )
+
+    def test_get_metric_data_returns_correct_data(self):
+        self.experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "urlbar_amazon_search_count": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.49,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                "branch-a": {"all": []},
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.12,
+                                                            "upper": 0.15,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                },
+                                            },
+                                            "significance": {
+                                                "branch-a": {"overall": {}},
+                                                "branch-b": {"overall": {"1": "neutral"}},
+                                            },
+                                            "difference": {
+                                                "branch-a": {"all": []},
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.01,
+                                                            "upper": 0.03,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                },
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "urlbar_amazon_search_count": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.24,
+                                                        "upper": 1.63,
+                                                        "point": 1.43,
+                                                    }
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                "branch-a": {"all": [{}]},
+                                                "branch-b": {"all": []},
+                                            },
+                                            "significance": {
+                                                "branch-a": {
+                                                    "overall": {"1": "positive"}
+                                                },
+                                                "branch-b": {"overall": {}},
+                                            },
+                                            "difference": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.01,
+                                                            "upper": 0.03,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                },
+                                                "branch-b": {"all": []},
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        self.experiment.save()
+
+        results_a = self.results_manager.get_metric_data("enrollments", "all", "branch-a")
+        results_b = self.results_manager.get_metric_data("enrollments", "all", "branch-b")
+
+        data_a = (
+            results_b.get(self.desktop_outcome_1.friendly_name, {})
+            .get("data", {})
+            .get("overall", {})
+        )
+        data_b = (
+            results_a.get(self.desktop_outcome_1.friendly_name, {})
+            .get("data", {})
+            .get("overall", {})
+        )
+
+        self.assertEqual(
+            data_a.get("urlbar_amazon_search_count").get("branch-a").get("absolute"),
+            [
+                {
+                    "lower": 1.49,
+                    "upper": 1.74,
+                    "significance": "neutral",
+                    "window_index": None,
+                }
+            ],
+        )
+        self.assertEqual(
+            data_a.get("urlbar_amazon_search_count").get("branch-a").get("relative"),
+            [
+                {
+                    "lower": -0.12,
+                    "upper": 0.15,
+                    "significance": "neutral",
+                    "avg_rel_change": 0.02,
+                    "window_index": None,
+                }
+            ],
+        )
+
+        self.assertEqual(
+            data_b.get("urlbar_amazon_search_count").get("branch-b").get("absolute"),
+            [
+                {
+                    "lower": 1.24,
+                    "upper": 1.63,
+                    "significance": "positive",
+                    "window_index": None,
+                }
+            ],
+        )
+
+    @mock_valid_metrics
+    def test_metric_areas_created_correctly(self):
+        self.experiment.results_data = {
+            "v3": {
+                "other_metrics": {
+                    "other_metrics": {
+                        "mock_engagement_metric": "Metric Name",
+                        "custom_metric": "Custom Metric Name",
+                    }
+                },
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 1.19,
+                                                    "upper": 1.74,
+                                                    "point": 1.62,
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "branch-a": {"all": [], "first": {}},
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.1,
+                                                            "upper": 0.42,
+                                                            "point": 0.2,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    },
+                                                },
+                                            },
+                                            "significance": {
+                                                "branch-a": {"overall": {}},
+                                                "branch-b": {
+                                                    "overall": {"1": "negative"}
+                                                },
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "retained": {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ],
+                                                "first": {
+                                                    "lower": 1.19,
+                                                    "upper": 1.74,
+                                                    "point": 1.62,
+                                                },
+                                            },
+                                            "relative_uplift": {
+                                                "branch-a": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.1,
+                                                            "upper": 0.42,
+                                                            "point": 0.2,
+                                                        }
+                                                    ],
+                                                    "first": {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    },
+                                                },
+                                                "branch-b": {"all": [], "first": {}},
+                                            },
+                                            "significance": {
+                                                "branch-a": {
+                                                    "overall": {"1": "positive"}
+                                                },
+                                                "branch-b": {"overall": {}},
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                },
+            }
+        }
+        self.experiment.save()
+
+        MetricAreas.clear_cache()
+        metric_areas = self.results_manager.get_metric_areas(
+            "enrollments", "all", "branch-a"
+        )
+
+        self.assertIn("Notable Changes", metric_areas)
+        self.assertIn(
+            "retained",
+            [metric["slug"] for metric in metric_areas["Notable Changes"]["metrics"]],
+        )
+
+        self.assertIn("KPI Metrics", metric_areas)
+        self.assertIn("Engagement", metric_areas)
+        self.assertIn("Other Metrics", metric_areas)
+
+    def test_get_branch_data_returns_correct_data(self):
+        self.experiment.results_data = {
+            "v3": {
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 150}},
+                                            "percent": 12,
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 0}},
+                                            "percent": 0,
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    },
+                    "exposures": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 75}},
+                                            "percent": 12,
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {"first": {"point": 0}},
+                                            "percent": 0,
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    },
+                }
+            }
+        }
+        self.experiment.save()
+
+        result = self.results_manager.get_branch_data("enrollments", "all")
+
+        self.assertEqual(len(result), 2)
+
+        index_map = {item.get("slug"): i for i, item in enumerate(result)}
+        first = result[index_map.get("branch-a")]
+        second = result[index_map.get("branch-b")]
+
+        # Validate first branch
+        self.assertEqual(first["slug"], "branch-a")
+        self.assertEqual(first["name"], "Branch A")
+        self.assertEqual(first["percentage"], 12)
+        self.assertEqual(first["num_enrolled_clients"], 150)
+        self.assertEqual(first["num_exposed_clients"], 75)
+        self.assertEqual(first["exposure_rate"], 0.5)
+
+        # Validate second branch
+        self.assertEqual(second["slug"], "branch-b")
+        self.assertEqual(second["name"], "Branch B")
+        self.assertEqual(second["percentage"], 0)
+        self.assertEqual(second["num_enrolled_clients"], 0)
+        self.assertEqual(second["num_exposed_clients"], 0)
+        self.assertEqual(second["exposure_rate"], 0)
+
+    @parameterized.expand(
+        [
+            (
+                "client_level_daily_active_users_v2",
+                [
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Retention",
+                        "slug": "retained",
+                        "description": "Retention description",
+                        "display_type": "percentage",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "3-Day Retention",
+                        "slug": "active_in_last_3_days_legacy",
+                        "description": "3-Day Retention description",
+                        "display_type": "percentage",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                    {
+                        "group": "search_metrics",
+                        "friendly_name": "Search Count",
+                        "slug": "search_count",
+                        "description": "Search Count description",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Daily Active Users",
+                        "slug": "client_level_daily_active_users_v2",
+                        "description": "DAU description",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                ],
+            ),
+            (
+                "days_of_use",
+                [
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Retention",
+                        "slug": "retained",
+                        "description": "Retention description",
+                        "display_type": "percentage",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "3-Day Retention",
+                        "slug": "active_in_last_3_days_legacy",
+                        "description": "3-Day Retention description",
+                        "display_type": "percentage",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                    {
+                        "group": "search_metrics",
+                        "friendly_name": "Search Count",
+                        "slug": "search_count",
+                        "description": "Search Count description",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Days of Use",
+                        "slug": "days_of_use",
+                        "description": "DOU description",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                ],
+            ),
+        ]
+    )
+    def test_get_kpi_metrics_returns_correct_metrics(
+        self, kpi_slug, expected_kpi_metrics
+    ):
+        self.maxDiff = None
+        self.experiment.results_data = {
+            "v3": {
+                "metadata": {
+                    "metrics": {
+                        "client_level_daily_active_users_v2": {
+                            "friendly_name": "Daily Active Users",
+                            "description": "DAU description",
+                        },
+                        "days_of_use": {
+                            "friendly_name": "Days of Use",
+                            "description": "DOU description",
+                        },
+                        "search_count": {
+                            "friendly_name": "Search Count",
+                            "description": "Search Count description",
+                        },
+                        "retained": {
+                            "friendly_name": "Retention",
+                            "description": "Retention description",
+                        },
+                        "active_in_last_3_days_legacy": {
+                            "friendly_name": "3-Day Retention",
+                            "description": "3-Day Retention description",
+                        },
+                    }
+                },
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        kpi_slug: {
+                                            "absolute": {
+                                                "all": [
+                                                    {
+                                                        "lower": 1.19,
+                                                        "upper": 1.74,
+                                                        "point": 1.62,
+                                                    }
+                                                ]
+                                            },
+                                            "relative_uplift": {
+                                                "branch-a": {"all": []},
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": -0.1,
+                                                            "upper": 0.42,
+                                                            "point": 0.2,
+                                                        }
+                                                    ]
+                                                },
+                                            },
+                                            "significance": {
+                                                "branch-a": {"overall": {}},
+                                                "branch-b": {"overall": {"1": "neutral"}},
+                                            },
+                                            "difference": {
+                                                "branch-a": {"all": []},
+                                                "branch-b": {
+                                                    "all": [
+                                                        {
+                                                            "lower": 0.01,
+                                                            "upper": 0.03,
+                                                            "point": 0.02,
+                                                        }
+                                                    ]
+                                                },
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                },
+            }
+        }
+
+        self.experiment.save()
+        kpi_metrics = self.results_manager.get_kpi_metrics(
+            "enrollments", "all", "branch-a"
+        )
+
+        self.assertListEqual(kpi_metrics, expected_kpi_metrics)
+
+    def test_get_default_metrics_overall_change(self):
+        self.experiment.results_data = {
+            "v3": {
+                "metadata": {
+                    "metrics": {
+                        "metricA": {
+                            "search_count": "Search Count",
+                        }
+                    },
+                },
+                "other_metrics": {
+                    "search_metrics": {
+                        "search_count": "Search Count",
+                    }
+                },
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "search_metrics": {
+                                        "search_count": {
+                                            "significance": {
+                                                "branch-a": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                                "branch-b": {
+                                                    "overall": {"1": "positive"},
+                                                    "weekly": {},
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "branch-b": {
+                                "branch_data": {
+                                    "search_metrics": {
+                                        "search_count": {
+                                            "significance": {
+                                                "branch-a": {
+                                                    "overall": {"1": "positive"},
+                                                    "weekly": {},
+                                                },
+                                                "branch-b": {
+                                                    "overall": {},
+                                                    "weekly": {},
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                },
+            }
+        }
+        self.experiment.save()
+        remaining_metrics = self.results_manager.get_remaining_metrics_metadata(
+            analysis_basis="enrollments", segment="all", reference_branch="branch-a"
+        )
+
+        self.assertEqual(
+            remaining_metrics[0].get("overall_change"),
+            "positive",
+        )
+
+    def test_get_default_metrics_with_exclusions(self):
+        self.experiment.results_data = {
+            "v3": {
+                "metadata": {
+                    "metrics": {
+                        "metricA": {
+                            "retained": "Retained",
+                            "search_count": "Search Count",
+                        }
+                    },
+                },
+                "other_metrics": {
+                    "other_metrics": {
+                        "retained": "2 Week Retention",
+                        "search_count": "Search Count",
+                    }
+                },
+            }
+        }
+        self.experiment.save()
+
+        remaining_metrics = self.results_manager.get_remaining_metrics_metadata(
+            exclude_slugs=["search_count"]
+        )
+        metric_slugs = [metric.get("slug") for metric in remaining_metrics]
+
+        self.assertIn("retained", metric_slugs)
+        self.assertNotIn("search_count", metric_slugs)
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                        "branch-b": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.12,
+                                                                    "upper": 0.15,
+                                                                    "point": 0.02,
+                                                                }
+                                                            ]
+                                                        },
+                                                        "branch-c": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.1,
+                                                                    "upper": 0.2,
+                                                                    "point": 0.03,
+                                                                }
+                                                            ]
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -2.3,
+                                                                    "upper": 2.1,
+                                                                    "point": 1.13,
+                                                                }
+                                                            ]
+                                                        },
+                                                        "branch-b": {"all": []},
+                                                        "branch-c": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.25,
+                                                                    "upper": 0.45,
+                                                                    "point": 0.1,
+                                                                }
+                                                            ]
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.3,
+                                                                    "upper": 1.68,
+                                                                    "point": 1.458,
+                                                                }
+                                                            ]
+                                                        },
+                                                        "branch-b": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.25,
+                                                                    "upper": 0.45,
+                                                                    "point": 0.1,
+                                                                }
+                                                            ]
+                                                        },
+                                                        "branch-c": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                },
+                2.3,
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                        "branch-b": {"all": [{}]},
+                                                        "branch-c": {"all": [{}]},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": [{}]},
+                                                        "branch-b": {"all": []},
+                                                        "branch-c": {"all": [{}]},
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": [{}]},
+                                                        "branch-b": {"all": [{}]},
+                                                        "branch-c": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                },
+                0,
+            ),
+        ]
+    )
+    def test_get_max_metric_value(self, results_data, expected_max_value):
+        NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch C", slug="branch-c"
+        )
+        self.experiment.results_data = results_data
+
+        extreme_retained = self.results_manager.get_max_metric_value(
+            "enrollments", "all", "branch-a", "other_metrics", "retained"
+        )
+        self.assertEqual(extreme_retained, expected_max_value)
+
+    def test_experiment_kpi_metrics_have_errors(self):
+        self.experiment.results_data = {
+            "v3": {
+                "metadata": {
+                    "metrics": {
+                        "client_level_daily_active_users_v2": {
+                            "friendly_name": "Daily Active Users",
+                            "description": "DAU description",
+                        },
+                    }
+                },
+                "errors": {
+                    "client_level_daily_active_users_v2": [
+                        {"analysis_basis": "enrollments", "segment": "all"}
+                    ],
+                    "experiment": [],
+                },
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "branch-a": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "client_level_daily_active_users_v2": {
+                                            "absolute": {"all": []},
+                                            "difference": {
+                                                "branch-a": {"all": [{}]},
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                },
+            }
+        }
+
+        self.experiment.save()
+        kpi_metrics = self.results_manager.get_kpi_metrics(
+            "enrollments", "all", "branch-a"
+        )
+
+        self.assertIn(
+            {
+                "group": "other_metrics",
+                "friendly_name": "Daily Active Users",
+                "slug": "client_level_daily_active_users_v2",
+                "description": "DAU description",
+                "has_errors": True,
+                "overall_change": "neutral",
+                "has_data": False,
+            },
+            kpi_metrics,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 1.49,
+                                                                "upper": 1.74,
+                                                                "point": 1.62,
+                                                            }
+                                                        ]
+                                                    },
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "overall",
+                {
+                    "branch-a": {
+                        "branch_data": {
+                            "other_metrics": {
+                                "urlbar_amazon_search_count": {
+                                    "absolute": {
+                                        "all": [
+                                            {
+                                                "lower": 1.49,
+                                                "upper": 1.74,
+                                                "point": 1.62,
+                                            }
+                                        ]
+                                    },
+                                    "percent": 12,
+                                }
+                            }
+                        }
+                    },
+                },
+            ),
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 140,
+                                                                "upper": 160,
+                                                                "point": 150,
+                                                            },
+                                                            {
+                                                                "lower": 130,
+                                                                "upper": 150,
+                                                                "point": 140,
+                                                            },
+                                                        ]
+                                                    },
+                                                }
+                                            }
+                                        },
+                                    },
+                                }
+                            }
+                        },
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 1.49,
+                                                                "upper": 1.74,
+                                                                "point": 1.62,
+                                                            }
+                                                        ]
+                                                    },
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "weekly",
+                {
+                    "branch-a": {
+                        "branch_data": {
+                            "other_metrics": {
+                                "urlbar_amazon_search_count": {
+                                    "absolute": {
+                                        "all": [
+                                            {
+                                                "lower": 140,
+                                                "upper": 160,
+                                                "point": 150,
+                                            },
+                                            {
+                                                "lower": 130,
+                                                "upper": 150,
+                                                "point": 140,
+                                            },
+                                        ]
+                                    },
+                                }
+                            }
+                        },
+                    },
+                },
+            ),
+            (
+                {
+                    "v3": {
+                        "weekly": None,
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "lower": 1.49,
+                                                                "upper": 1.74,
+                                                                "point": 1.62,
+                                                            }
+                                                        ]
+                                                    },
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "weekly",
+                {},
+            ),
+        ]
+    )
+    def test_get_window_results(self, results_data, window, expected):
+        self.experiment.results_data = results_data
+        self.experiment.save()
+
+        self.assertEqual(
+            self.results_manager.get_window_results("enrollments", "all", window),
+            expected,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "neutral",
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "positive"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "positive",
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "negative"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "negative",
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "negative"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "positive"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "mixed",
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "positive"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "negative"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-b": {
+                                                            "overall": {"1": "neutral"},
+                                                            "weekly": {},
+                                                        },
+                                                        "branch-c": {
+                                                            "overall": {},
+                                                            "weekly": {},
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                "mixed",
+            ),
+        ]
+    )
+    def test_get_overall_change(self, results_data, expected):
+        self.experiment.results_data = results_data
+        self.experiment.save()
+
+        self.assertEqual(
+            self.results_manager.get_overall_change(
+                "other_metrics",
+                "urlbar_amazon_search_count",
+                "enrollments",
+                "all",
+                "branch-a",
+            ),
+            expected,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                "urlbar_amazon_search_count",
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 140,
+                                                            "upper": 160,
+                                                            "point": 150,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"first": {}},
+                                                        "branch-b": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 140,
+                                                            "upper": 160,
+                                                            "point": 150,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                        "branch-b": {"first": {}},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                True,
+            ),
+            (
+                "urlbar_amazon_search_count",
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 0,
+                                                            "upper": 0,
+                                                            "point": 0,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"first": {}},
+                                                        "branch-b": {"first": {}},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 0,
+                                                            "upper": 0,
+                                                            "point": 0,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"first": {}},
+                                                        "branch-b": {"first": {}},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                False,
+            ),
+            (
+                "client_level_daily_active_users_v2",
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "client_level_daily_active_users_v2": {
+                                                    "absolute": {"first": {}},
+                                                    "relative_uplift": {
+                                                        "branch-a": {"first": {}},
+                                                        "branch-b": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "client_level_daily_active_users_v2": {
+                                                    "absolute": {"first": {}},
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                        "branch-b": {"first": {}},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                True,
+            ),
+            (
+                "client_level_daily_active_users_v2",
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "client_level_daily_active_users_v2": {
+                                                    "absolute": {"first": {}},
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                        "branch-b": {
+                                                            "first": {
+                                                                "lower": 0,
+                                                                "upper": 0,
+                                                                "point": 0,
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "client_level_daily_active_users_v2": {
+                                                    "absolute": {"first": {}},
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": 0,
+                                                                "upper": 0,
+                                                                "point": 0,
+                                                            }
+                                                        },
+                                                        "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                False,
+            ),
+            (
+                "urlbar_amazon_search_count",
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "window_index": "1",
+                                                            }
+                                                        ],
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                        "branch-b": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "client_level_daily_active_users_v2": {
+                                                    "relative_uplift": {
+                                                        "absolute": {
+                                                            "all": [
+                                                                {
+                                                                    "window_index": "1",
+                                                                }
+                                                            ],
+                                                        },
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                        "branch-b": {"first": {}},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                False,
+            ),
+        ]
+    )
+    def test_metrics_have_data(self, metric_slug, results_data, expected):
+        self.experiment.results_data = results_data
+        self.experiment.delete_branches()
+
+        self.experiment.reference_branch = NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch A", slug="branch-a"
+        )
+        NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch B", slug="branch-b"
+        )
+        self.experiment.save()
+
+        self.assertEqual(
+            self.results_manager.metric_has_data(
+                metric_slug,
+                "other_metrics",
+                "enrollments",
+                "all",
+                reference_branch="branch-a",
+            ),
+            expected,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "overall": {},
+                        "daily": {},
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 140,
+                                                            "upper": 160,
+                                                            "point": 150,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {},
+                                                        "branch-b": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 140,
+                                                            "upper": 160,
+                                                            "point": 150,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                        "branch-b": {},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                True,
+            ),
+            (
+                {
+                    "v3": {
+                        "overall": {},
+                        "weekly": {},
+                        "daily": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 0.5,
+                                                            "upper": 1.5,
+                                                            "point": 1.0,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {},
+                                                        "branch-b": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "first": {
+                                                            "lower": 0.5,
+                                                            "upper": 1.5,
+                                                            "point": 1.0,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            }
+                                                        },
+                                                        "branch-b": {},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                True,
+            ),
+        ]
+    )
+    def test_metrics_have_data_different_windows(self, results_data, expected):
+        self.experiment.results_data = results_data
+        self.experiment.delete_branches()
+
+        self.experiment.reference_branch = NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch A", slug="branch-a"
+        )
+        NimbusBranchFactory.create(
+            experiment=self.experiment, name="Branch B", slug="branch-b"
+        )
+        self.experiment.save()
+
+        self.assertEqual(
+            self.results_manager.metric_has_data(
+                "urlbar_amazon_search_count",
+                "other_metrics",
+                "enrollments",
+                "all",
+                reference_branch="branch-a",
+            ),
+            expected,
+        )
+
+    def test_get_kpi_metrics_excludes_3day_retention_for_non_desktop(self):
+        fenix_outcome = Outcomes.get_by_slug_and_application(
+            "fenix_outcome", NimbusExperiment.Application.FENIX
+        )
+        fenix_experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.FENIX,
+            primary_outcomes=[fenix_outcome.slug],
+            secondary_outcomes=[],
+        )
+        NimbusBranchFactory.create(
+            experiment=fenix_experiment, name="Branch A", slug="branch-a"
+        )
+        NimbusBranchFactory.create(
+            experiment=fenix_experiment, name="Branch B", slug="branch-b"
+        )
+
+        fenix_results_manager = ExperimentResultsManager(fenix_experiment)
+        kpi_metrics = fenix_results_manager.get_kpi_metrics(
+            "enrollments", "all", "branch-a"
+        )
+
+        slugs = [metric["slug"] for metric in kpi_metrics]
+        self.assertNotIn("active_in_last_3_days_legacy", slugs)
+
+        # Verify base KPI metrics are still present
+        self.assertIn("retained", slugs)
+        self.assertIn("search_count", slugs)
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 150}},
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 80}},
+                                                    "percent": 88,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                            "exposures": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 75}},
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 20}},
+                                                    "percent": 88,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        }
+                    }
+                },
+                (75 + 20) / (150 + 80),
+            ),
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 0}},
+                                                    "percent": 12,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                            "exposures": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "identity": {
+                                                    "absolute": {"first": {"point": 0}},
+                                                    "percent": 0,
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        }
+                    }
+                },
+                0,
+            ),
+        ]
+    )
+    def test_get_overall_exposure_rate(self, results_data, expected_exposure_rate):
+        self.experiment.results_data = results_data
+        self.experiment.save()
+
+        self.assertAlmostEqual(
+            self.results_manager.exposure_rate("all"), expected_exposure_rate
+        )

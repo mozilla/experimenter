@@ -1,3 +1,4 @@
+{% load nimbus_extras %}
 {% autoescape off %}
 
 <style>
@@ -52,7 +53,7 @@
         {% endfor %} {% endfor %}
       </td>
       {% else %}
-      <th scope="row">{{value.display_name|safe}}</th>
+      <th scope="row">{{value.display_name|sanitize_html}}</th>
       <td>{{value.old_value|linebreaks}}</td>
       <td>{{value.new_value|linebreaks}}</td>
       {% endif %}

@@ -101,9 +101,7 @@ def update_results_data_schema(apps, schema_editor):
                                                             cur_branch
                                                         ]["branch_data"][metrics_group][
                                                             metric
-                                                        ][
-                                                            comparison
-                                                        ][
+                                                        ][comparison][
                                                             reference_branch
                                                         ] = comparison_data_value
                                                     else:
@@ -111,9 +109,7 @@ def update_results_data_schema(apps, schema_editor):
                                                             cur_branch
                                                         ]["branch_data"][metrics_group][
                                                             metric
-                                                        ][
-                                                            comparison
-                                                        ][
+                                                        ][comparison][
                                                             branch
                                                         ] = comparison_default
 
@@ -132,9 +128,7 @@ def update_results_data_schema(apps, schema_editor):
                                                             cur_branch
                                                         ]["branch_data"][metrics_group][
                                                             metric
-                                                        ][
-                                                            comparison
-                                                        ][
+                                                        ][comparison][
                                                             reference_branch
                                                         ] = comparison_data_value
                                                     else:
@@ -142,9 +136,7 @@ def update_results_data_schema(apps, schema_editor):
                                                             cur_branch
                                                         ]["branch_data"][metrics_group][
                                                             metric
-                                                        ][
-                                                            comparison
-                                                        ][
+                                                        ][comparison][
                                                             branch
                                                         ] = significance_default
             experiment.results_data = data
@@ -152,7 +144,6 @@ def update_results_data_schema(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         (
             "experiments",

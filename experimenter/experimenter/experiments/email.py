@@ -3,12 +3,13 @@ from django.core.mail.message import EmailMessage
 from django.template.loader import render_to_string
 
 from experimenter.experiments.models import NimbusEmail, NimbusExperiment
+from experimenter.slack.constants import SlackConstants
 
 
 def nimbus_send_experiment_ending_email(experiment):
     nimbus_format_and_send_html_email(
         experiment,
-        "nimbus/emails/experiment_ending_email.html",
+        "emails/experiment_ending_email.html",
         {
             "experiment": experiment,
         },
@@ -20,7 +21,7 @@ def nimbus_send_experiment_ending_email(experiment):
 def nimbus_send_enrollment_ending_email(experiment):
     nimbus_format_and_send_html_email(
         experiment,
-        "nimbus/emails/enrollment_ending_email.html",
+        "emails/enrollment_ending_email.html",
         {
             "experiment": experiment,
         },
@@ -34,14 +35,29 @@ def nimbus_format_and_send_html_email(
 ):
     content = render_to_string(file_string, template_vars)
 
+    all_emails = experiment.notification_emails
+    owner_email = experiment.owner.email
+    cc_emails = [email for email in all_emails if email != owner_email]
+
     email = EmailMessage(
         subject.format(name=experiment.name),
         content,
         settings.EMAIL_SENDER,
-        [experiment.owner.email],
-        cc=experiment.subscribers.all().values_list("email", flat=True),
+        [owner_email],
+        cc=cc_emails,
     )
+
     email.content_subtype = "html"
     email.send(fail_silently=False)
+
+    from experimenter.slack.tasks import nimbus_send_slack_notification
+
+    action_text = SlackConstants.SLACK_EMAIL_ACTIONS.get(email_type, "has updates")
+    nimbus_send_slack_notification.delay(
+        experiment_id=experiment.id,
+        email_addresses=experiment.notification_emails,
+        action_text=action_text,
+        link_url=experiment.experiment_url,
+    )
 
     NimbusEmail.objects.create(experiment=experiment, type=email_type)

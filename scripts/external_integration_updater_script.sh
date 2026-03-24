@@ -5,11 +5,24 @@ WHAT_TRAIN_IS_IT_NOW_API="https://whattrainisitnow.com/api/firefox/releases/"
 FENNEC_GITHUB_API="https://api.github.com/repos/mozilla-mobile/firefox-ios"
 CURLFLAGS=("--proto" "=https" "--tlsv1.2" "-sS")
 
-git checkout main
+# Parse command line arguments
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <application> <channel>"
+    echo "  application: desktop|fenix|fennec"
+    echo "  channel: release|beta"
+    exit 1
+fi
+
+APPLICATION=$1
+CHANNEL=$2
+VARIANT="${APPLICATION}_${CHANNEL}"
+BRANCH_NAME="update_firefox_${VARIANT}"
+firefox_types=("${VARIANT}")
+
 git checkout main
 git pull origin main
-git checkout -B update_firefox_versions
-firefox_types=("fenix_beta" "fennec_release" "fennec_beta" "desktop_beta" "desktop_release")
+git checkout -B "${BRANCH_NAME}"
+
 
 fetch_task_info() {
     local release_version=$(curl "${CURLFLAGS[@]}" "${WHAT_TRAIN_IS_IT_NOW_API}" | jq 'to_entries | last | .key')
@@ -45,33 +58,15 @@ fetch_task_info() {
             env_file="firefox_fenix_beta_build.env"
             ;;
         fennec_release)
-            version=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/releases" | jq '.[0].name')
-            branch=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/releases" | jq '.[0].target_commitish')
+            releases=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/releases" | jq '[.[] | select(.prerelease == false) | select(.name | test("^Firefox v[0-9]+\\.[0-9]+$"))][0]')
+            version=$(echo "$releases" | jq -r '.name')
+            branch=$(echo "$releases" | jq -r '.target_commitish')
+
             echo "FIREFOX_FENNEC_RELEASE_VERSION_ID ${version}"
-            echo "FIREFOX_FENNEC_RELEASE_VERSION_ID=${version}" > firefox_fennec_release_build.env
-            echo "BRANCH=${branch}" >> firefox_fennec_release_build.env
+            echo "FIREFOX_FENNEC_RELEASE_VERSION_ID=\"${version}\"" > firefox_fennec_release_build.env
+            echo "BRANCH=\"${branch}\"" >> firefox_fennec_release_build.env
             echo "# Firefox version is ${release_version}" >> firefox_fennec_release_build.env
             mv firefox_fennec_release_build.env experimenter/tests
-            return
-            ;;
-        fennec_beta)
-            check_branches() {
-                local protected_flag="$1"
-                version=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/branches?protected=${protected_flag}&per_page=100" | jq --argjson major "$major_version" 'map(select(.name=="release/v" + ($major + 1 | tostring)).name)[]')
-                echo $version
-            }
-
-            version=$(check_branches "false")
-
-            if [ -z "$version" ]; then
-                version=$(check_branches "true")
-            fi
-
-            echo "FIREFOX_FENNEC_BETA_VERSION_ID ${version}"
-            echo "FIREFOX_FENNEC_BETA_VERSION_ID=${version}" > firefox_fennec_beta_build.env
-            echo "BRANCH=${version}" >> firefox_fennec_beta_build.env
-            echo "# Firefox version is ${release_version}" >> firefox_fennec_beta_build.env
-            mv firefox_fennec_beta_build.env experimenter/tests
             return
             ;;
         *)
@@ -105,9 +100,28 @@ done
 
 if (($(git status --porcelain | wc -c) > 0)); then
     git add .
-    git commit -m "chore(nimbus): Update Firefox Versions"
-    git push origin -f update_firefox_versions
-    gh pr create -t "chore(nimbus):  Update Firefox Versions" -b "" --base main --head update_firefox_versions --repo mozilla/experimenter || echo "PR already exists, skipping"
+
+    if [ $# -eq 2 ]; then
+        APP_DISPLAY_NAME=""
+        case "$APPLICATION" in
+            desktop) APP_DISPLAY_NAME="Firefox Desktop" ;;
+            fenix) APP_DISPLAY_NAME="Firefox Fenix" ;;
+            fennec) APP_DISPLAY_NAME="Firefox iOS (Fennec)" ;;
+        esac
+        CHANNEL_DISPLAY_NAME="${CHANNEL^}" # Capitalize first letter
+        COMMIT_MSG="chore(nimbus): Update ${APP_DISPLAY_NAME} ${CHANNEL_DISPLAY_NAME}"
+        PR_TITLE="${COMMIT_MSG}"
+        PR_BODY="Automated update of ${APP_DISPLAY_NAME} ${CHANNEL_DISPLAY_NAME} version"
+    else
+        # Update all mode
+        COMMIT_MSG="chore(nimbus): Update Firefox Versions"
+        PR_TITLE="chore(nimbus): Update Firefox Versions"
+        PR_BODY=""
+    fi
+
+    git commit -m "${COMMIT_MSG}"
+    git push origin -f "${BRANCH_NAME}"
+    gh pr create -t "${PR_TITLE}" -b "${PR_BODY}" --base main --head "${BRANCH_NAME}" --repo mozilla/experimenter || echo "PR already exists, skipping"
 else
     echo "No config changes, skipping"
 fi

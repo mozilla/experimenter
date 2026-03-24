@@ -1,0 +1,34 @@
+{% extends "experimenter_base.html" %}
+
+{% load static %}
+
+{% block content %}
+  <div id="content" class="container-fluid">
+    <div id="content-with-sidebar" class="row">
+      <div class="col-xl-2 col-xxl-2 pe-3">
+        <div class="offcanvas-xl offcanvas-start bg-body-tertiary sticky-xl-top pt-xl-4"
+             tabindex="-1"
+             id="offcanvasSidebar"
+             aria-labelledby="offcanvasSidebarLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasSidebarLabel">Filter</h5>
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="offcanvas"
+                    data-bs-target="#offcanvasSidebar"
+                    aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            {% block sidebar %}
+            {% endblock sidebar %}
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-10 col-xxl-10 ps-3 mt-4">
+        {% block main_content_header %}{% endblock %}
+        {% block main_content %}
+        {% endblock main_content %}
+      </div>
+    </div>
+  </div>
+{% endblock content %}

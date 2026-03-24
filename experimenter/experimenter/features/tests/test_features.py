@@ -1,8 +1,7 @@
 import json
 
-from django.core.checks import Error
 from django.test import TestCase
-from mozilla_nimbus_schemas.experiments.feature_manifests import (
+from mozilla_nimbus_schemas.experimenter_apis.experiments.feature_manifests import (
     DesktopFeature,
     DesktopFeatureVariable,
     FeatureVariableType,
@@ -14,10 +13,8 @@ from experimenter.experiments.models import NimbusExperiment
 from experimenter.features import (
     Feature,
     Features,
-    check_features,
 )
 from experimenter.features.tests import (
-    mock_invalid_features,
     mock_invalid_remote_schema_features,
     mock_remote_schema_features,
     mock_valid_features,
@@ -47,6 +44,7 @@ class TestFeatures(TestCase):
                         "hasExposure": True,
                         "exposureDescription": "An exposure event",
                         "isEarlyStartup": True,
+                        "allowCoenrollment": True,
                         "variables": {
                             "stringEnumProperty": DesktopFeatureVariable(
                                 description="String Property",
@@ -110,6 +108,7 @@ class TestFeatures(TestCase):
                         "exposureDescription": "An exposure event",
                         "hasExposure": True,
                         "isEarlyStartup": True,
+                        "allowCoenrollment": True,
                         "variables": {
                             "stringEnumProperty": DesktopFeatureVariable(
                                 description="String Property",
@@ -181,34 +180,7 @@ class TestRemoteSchemaFeatures(TestCase):
         self.assertIsNone(desktop_feature.get_jsonschema())
 
 
-class TestCheckFeatures(TestCase):
-    maxDiff = None
-
-    def setUp(self):
+class TestValidateFeatureManifests(TestCase):
+    def test_valid_feature_manifest_for_application(self):
         Features.clear_cache()
-
-    @mock_valid_features
-    def test_valid_features_do_not_trigger_check_error(self):
-        errors = check_features(None)
-        self.assertEqual(errors, [])
-
-    @mock_invalid_features
-    def test_invalid_features_do_trigger_check_error(self):
-        errors = check_features(None)
-        self.assertEqual(
-            errors,
-            [
-                Error(
-                    msg=(
-                        "Error loading feature data 1 validation error for "
-                        "DesktopFeatureManifest\n"
-                        "readerMode.variables\n"
-                        "  Input should be a valid dictionary [type=dict_type, "
-                        "input_value=[{'fallbackPref': "
-                        "'reader...pty string is no CTA)'}], input_type=list]\n"
-                        "    For further information visit "
-                        "https://errors.pydantic.dev/2.10/v/dict_type"
-                    )
-                )
-            ],
-        )
+        Features.all()

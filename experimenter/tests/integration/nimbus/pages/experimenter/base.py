@@ -8,7 +8,7 @@ class ExperimenterBase(Base):
 
     _save_btn_locator = (By.CSS_SELECTOR, "#save-button")
     _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
-    _sidebar_summary_link = (By.CSS_SELECTOR, 'a[data-testid="nav-summary"]')
+    _sidebar_summary_link = (By.CSS_SELECTOR, 'a[data-testid="nav-edit-summary"]')
     _sidebar_edit_overview_link = (By.CSS_SELECTOR, 'a[data-testid="nav-edit-overview"]')
     _sidebar_edit_branches_link = (By.CSS_SELECTOR, 'a[data-testid="nav-edit-branches"]')
     _sidebar_edit_audience_link = (By.CSS_SELECTOR, 'a[data-testid="nav-edit-audience"]')
@@ -20,12 +20,12 @@ class ExperimenterBase(Base):
         element = self.wait_for_and_find_element(
             *self._save_continue_btn_locator, "save and continue button"
         )
-        element.click()
+        self.js_click(element)
         return self.NEXT_PAGE(self.driver, self.base_url).wait_for_page_to_load()
 
     def save(self):
         element = self.wait_for_and_find_element(*self._save_btn_locator, "save button")
-        element.click()
+        self.js_click(element)
 
     def navigate_to_summary(self):
         # Avoid circular import

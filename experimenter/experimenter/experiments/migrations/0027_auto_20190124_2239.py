@@ -30,7 +30,6 @@ def set_end_dates(apps, schema_editor):  # pragma: no cover
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0026_auto_20190110_2103")]
 
     operations = [

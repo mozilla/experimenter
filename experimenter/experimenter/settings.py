@@ -44,6 +44,10 @@ APP_VERSION = config("APP_VERSION", default=None)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
 
+GH_APP_ID = config("GH_APP_ID", default=None)
+GH_INSTALLATION_ID = config("GH_INSTALLATION_ID", default=None)
+GH_APP_PRIVATE_KEY = config("GH_APP_PRIVATE_KEY", default=None)
+
 DEV_USER_EMAIL = "dev@example.com"
 
 NORMANDY_DEFAULT_CHANGELOG_USER = "unknown-user@normandy.mozilla.com"
@@ -62,9 +66,14 @@ ALLOWED_HOSTS = [HOSTNAME]
 if DEBUG:
     ALLOWED_HOSTS += ["localhost", "nginx"]  # pragma: no cover
 
-USE_YARN_DEV = config("USE_YARN_DEV", default=DEBUG, cast=bool)
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CIRRUS_URL = config("CIRRUS_URL", default=None)
+
+GLEAN_APP_ID = config("GLEAN_APP_ID", default="experimenter-backend")
+
+GLEAN_APP_CHANNEL = config("GLEAN_APP_CHANNEL", default="developer")
 
 # Application definition
 
@@ -79,7 +88,6 @@ INSTALLED_APPS = [
     "django.forms",
     # Libraries
     "import_export",
-    "graphene_django",
     "corsheaders",
     "django_markdown2",
     "rangefilter",
@@ -87,23 +95,27 @@ INSTALLED_APPS = [
     "widget_tweaks",
     "fontawesomefree",
     "django_bootstrap5",
+    "django_summernote",
     # Experimenter
     "experimenter.base",
     "experimenter.changelog",
     "experimenter.experiments",
     "experimenter.features",
+    "experimenter.glean",
     "experimenter.jetstream",
     "experimenter.kinto",
     "experimenter.legacy.legacy_experiments",
-    "experimenter.legacy.normandy",
     "experimenter.legacy.notifications",
     "experimenter.openidc",
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
-    "experimenter.nimbus_ui_new",
+    "experimenter.nimbus_ui",
+    "experimenter.slack",
 ]
 
+
+CSRF_MIDDLEWARE = "django.middleware.csrf.CsrfViewMiddleware"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -111,12 +123,19 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    CSRF_MIDDLEWARE,
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "dockerflow.django.middleware.DockerflowMiddleware",
     "experimenter.openidc.middleware.OpenIDCAuthMiddleware",
+    "experimenter.cirrus.middleware.CirrusMiddleware",
+    "experimenter.glean.middleware.GleanMiddleware",
 ]
+
+EXPERIMENTER_CI_TEST_RUN = config("EXPERIMENTER_CI_TEST_RUN", default=False, cast=bool)
+
+if EXPERIMENTER_CI_TEST_RUN:  # pragma: no cover
+    MIDDLEWARE.remove(CSRF_MIDDLEWARE)
 
 ROOT_URLCONF = "experimenter.urls"
 
@@ -125,8 +144,7 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             BASE_DIR / "legacy" / "legacy-ui" / "templates",
-            BASE_DIR / "nimbus-ui" / "templates",
-            BASE_DIR / "nimbus_ui_new" / "templates",
+            BASE_DIR / "nimbus_ui" / "templates",
             BASE_DIR / "docs",
         ],
         "OPTIONS": {
@@ -135,8 +153,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "experimenter.base.context_processors.features",
-                "experimenter.base.context_processors.debug",
+                "experimenter.cirrus.context_processors.cirrus_features",
+                "experimenter.nimbus_ui.context_processors.nimbus_ui_constants",
             ],
             "debug": DEBUG,
             "loaders": [
@@ -169,14 +187,6 @@ DATABASES = {
         "PORT": "5432",
     }
 }
-
-# Graphene Schema
-GRAPHENE = {"SCHEMA": "experimenter.experiments.api.v5.schema"}
-
-if DEBUG:  # pragma: no cover
-    GRAPHENE["MIDDLEWARE"] = [
-        "experimenter.base.graphene.GrapheneExceptionMiddleware",
-    ]
 
 
 # Password validation
@@ -232,8 +242,7 @@ STATICFILES_DIRS = [
     ("assets", BASE_DIR / "legacy" / "legacy-ui" / "assets"),
     ("scripts", BASE_DIR / "legacy" / "legacy-ui" / "scripts"),
     ("imgs", BASE_DIR / "legacy" / "legacy-ui" / "imgs"),
-    ("nimbus", BASE_DIR / "nimbus-ui" / "build"),
-    ("nimbus_ui_new", BASE_DIR / "nimbus_ui_new" / "static" / "dist"),
+    ("nimbus_ui", BASE_DIR / "nimbus_ui" / "static" / "dist"),
     BASE_DIR / "static",
 ]
 
@@ -289,8 +298,6 @@ LOGGING = {
 # Sentry configuration
 SENTRY_DSN = config("SENTRY_DSN", default=None)
 SENTRY_ENV = config("SENTRY_ENV", default=None)
-SENTRY_DSN_NIMBUS_UI = SENTRY_DSN
-
 
 # Django Rest Framework Configuration
 REST_FRAMEWORK = {
@@ -331,6 +338,10 @@ EMAIL_SHIP = config("EMAIL_SHIP")
 # Email to send to when an experiment is being signed-off
 EMAIL_RELEASE_DRIVERS = config("EMAIL_RELEASE_DRIVERS")
 
+# Slack configuration
+SLACK_AUTH_TOKEN = config("SLACK_AUTH_TOKEN", default=None)
+SLACK_NIMBUS_CHANNEL = config("SLACK_NIMBUS_CHANNEL", default="nimbus-notifications")
+
 # Bugzilla API Integration
 BUGZILLA_HOST = config("BUGZILLA_HOST")
 BUGZILLA_API_KEY = config("BUGZILLA_API_KEY")
@@ -370,6 +381,7 @@ CACHES = {
     },
 }
 API_CACHE_DURATION = 60 * 60
+API_CACHE_WARMING_TTL = 60 * 60 * 24
 SIZING_DATA_KEY = "population_sizing"
 
 # Celery
@@ -391,11 +403,23 @@ CELERY_BEAT_SCHEDULE = {
     },
     "fetch_jetstream_data": {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
-        "schedule": crontab(minute=0, hour="*/6"),
+        "schedule": crontab(minute=0, hour="*/2"),
     },
     "fetch_population_sizing_data": {
         "task": "experimenter.jetstream.tasks.fetch_population_sizing_data",
         "schedule": crontab(minute=0, hour=6, day_of_week=1),
+    },
+    "nimbus_sync_published_dto": {
+        "task": "experimenter.kinto.tasks.nimbus_sync_published_dto",
+        "schedule": crontab(minute=0, hour="*"),
+    },
+    "check_experiment_alerts": {
+        "task": "experimenter.slack.tasks.check_experiment_alerts",
+        "schedule": crontab(minute=0, hour=18),
+    },
+    "warm_api_caches": {
+        "task": "experimenter.experiments.tasks.warm_api_caches",
+        "schedule": config("API_CACHE_WARMING_INTERVAL", default=3600, cast=int),
     },
 }
 
@@ -405,7 +429,7 @@ RECIPE_SLUG_MAX_LEN = 80
 # Monitoring
 MONITORING_URL = (
     # from_date and to_date format is YYYY-mm-dd
-    "https://mozilla.cloud.looker.com/dashboards-next/216?"
+    "https://mozilla.cloud.looker.com/dashboards/experimentation::experiment_enrollments?"
     "Experiment={slug}&Time+Range+[UTC]={from_date}+to+{to_date}"
 )
 ROLLOUT_MONITORING_URL = (
@@ -460,10 +484,6 @@ SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="origin")
 
 # Silenced ssl_redirect, sts, django primary key checks
 SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004", "models.W042"]
-
-# Feature Flags
-FEATURE_MESSAGE_TYPE = config("FEATURE_MESSAGE_TYPE", default=False, cast=bool)
-FEATURE_ANALYSIS = config("FEATURE_ANALYSIS", default=False, cast=bool)
 
 # Kinto settings
 KINTO_HOST = config("KINTO_HOST")
@@ -527,7 +547,9 @@ METRIC_HUB_OUTCOMES_PATH = (
 )
 
 METRIC_HUB_SEGMENTS_PATH_DEFAULT = BASE_DIR / "segments" / "metric-hub-main"
-
+METRIC_HUB_METRICS_PATH_DEFAULT = (
+    BASE_DIR / "metrics" / "metric-hub-main" / "jetstream" / "defaults"
+)
 
 # Feature Manifest path
 FEATURE_MANIFESTS_PATH = BASE_DIR / "features" / "manifests"
@@ -542,3 +564,23 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
 # Only allow JSON for the experiment import/export admin tool
 IMPORT_EXPORT_FORMATS = [JSON]
+
+SUMMERNOTE_CONFIG = {
+    "summernote": {
+        "width": "100%",
+        "height": "450px",
+        "toolbar": [
+            ["style", ["style"]],
+            ["font", ["bold", "underline", "italic", "clear"]],
+            ["fontname", ["fontname"]],
+            ["para", ["ul", "ol", "paragraph"]],
+            ["table", ["table"]],
+            ["insert", ["link", "picture"]],
+        ],
+    },
+}
+
+ASK_EXPERIMENTER_SLACK_LINK = config(
+    "ASK_EXPERIMENTER_SLACK_LINK",
+    default="https://experimenter.info/",
+)

@@ -192,10 +192,9 @@ class LimitedSet:
         >>> for i in range(60000):
         ...     s.add(i)
         ...     s.add(str(i))
-        ...
         >>> 57000 in s  # last 50k inserted values are kept
         True
-        >>> '10' in s  # '10' did expire and was purged from set.
+        >>> "10" in s  # '10' did expire and was purged from set.
         False
         >>> len(s)  # maxlen is reached
         50000
@@ -244,7 +243,6 @@ class LimitedSet:
             >>> r = LimitedSet(maxlen=200)
             >>> for i in range(500):
             ...     s.add(i)
-            ...
             >>> r.update(s.as_dict())
             >>> r == s
             True

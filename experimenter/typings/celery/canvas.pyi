@@ -28,6 +28,7 @@ def maybe_unroll_group(group):
     ...
 
 def task_name_from(task): ...
+
 @abstract.CallableSignature.register
 class Signature(dict):
     """Task Signature.
@@ -46,7 +47,7 @@ class Signature(dict):
 
         .. code-block:: pycon
 
-            >>> add.signature(args=(1,), kwargs={'kw': 2}, options={})
+            >>> add.signature(args=(1,), kwargs={"kw": 2}, options={})
 
     - or the ``.s()`` shortcut that works for star arguments:
 
@@ -103,7 +104,7 @@ class Signature(dict):
         subtask_type=...,
         immutable=...,
         app=...,
-        **ex
+        **ex,
     ) -> None: ...
     def __call__(self, *partial_args, **partial_kwargs):
         """Call the task directly (in the current process)."""
@@ -269,7 +270,7 @@ class _chain(Signature):
         parent_id=...,
         app=...,
         group_index=...,
-        **options
+        **options,
     ): ...
     def freeze(
         self,
@@ -437,7 +438,7 @@ class group(Signature):
         producer=...,
         link=...,
         link_error=...,
-        **options
+        **options,
     ): ...
     def apply(self, args=..., kwargs=..., **options): ...
     def set_immutable(self, immutable): ...
@@ -510,7 +511,7 @@ class _chord(Signature):
         connection=...,
         router=...,
         result_cls=...,
-        **options
+        **options,
     ): ...
     def apply(self, args=..., kwargs=..., propagate=..., body=..., **options): ...
     def __length_hint__(self): ...
@@ -525,7 +526,7 @@ class _chord(Signature):
         max_retries=...,
         eager=...,
         task_id=...,
-        **options
+        **options,
     ): ...
     def clone(self, *args, **kwargs): ...
     def link(self, callback): ...

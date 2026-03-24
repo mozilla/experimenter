@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from nimbus.pages.experimenter.home import HomePage
@@ -12,106 +14,97 @@ def test_create_new_experiment_approve_remote_settings(
     kinto_client,
     base_url,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
     HomePage(selenium, base_url).open().find_in_table(experiment_slug)
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_rollouts
 def test_create_new_rollout_approve_remote_settings(
     selenium,
     experiment_url,
     kinto_client,
     base_url,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
     HomePage(selenium, base_url).open().find_in_table(experiment_slug)
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_experiments
 def test_create_new_experiment_reject_remote_settings(
     selenium,
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.reject()
+    kinto_client().reject()
 
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_rollouts
 def test_create_new_rollout_reject_remote_settings(
     selenium,
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.reject()
+    kinto_client().reject()
 
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_experiments
 def test_end_experiment_and_approve_end_set_takeaways(
     selenium,
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
     summary.end_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
@@ -123,29 +116,26 @@ def test_end_experiment_and_approve_end_set_takeaways(
     assert summary.takeaways_recommendation_badge_text == "Change course"
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_rollouts
 def test_end_rollout_and_approve_end_set_takeaways(
     selenium,
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
     summary.end_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
@@ -157,75 +147,68 @@ def test_end_rollout_and_approve_end_set_takeaways(
     assert summary.takeaways_recommendation_badge_text == "Change course"
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_experiments
 def test_end_experiment_and_reject_end(
     selenium,
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
     summary.end_and_approve()
 
-    kinto_client.reject()
+    kinto_client().reject()
 
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_rollouts
 def test_end_rollout_and_reject_end(
     selenium,
     experiment_url,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
     summary.end_and_approve()
 
-    kinto_client.reject()
+    kinto_client().reject()
 
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_live_updates
 def test_rollout_live_update_approve(
     selenium,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
     experiment_url,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
 
     summary.wait_for_live_status()
@@ -236,26 +219,23 @@ def test_rollout_live_update_approve(
 
     summary.wait_for_update_request_visible()
     summary.request_update_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_live_updates
 def test_rollout_live_update_approve_and_reject(
     selenium,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
     experiment_url,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
 
     summary.wait_for_live_status()
@@ -267,28 +247,25 @@ def test_rollout_live_update_approve_and_reject(
     summary.wait_for_update_request_visible()
 
     summary.request_update_and_approve()
-    kinto_client.reject()
+    kinto_client().reject()
 
     summary.wait_for_rejection_notice_visible()
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_live_updates
 def test_rollout_live_update_reject_on_experimenter(
     selenium,
     kinto_client,
     application,
-    default_data_api,
     experiment_slug,
     experiment_url,
 ):
-    helpers.create_experiment(
-        experiment_slug, application, default_data_api, is_rollout=True
-    )
+    helpers.create_experiment(experiment_slug, application, is_rollout=True)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
 
     summary.wait_for_live_status()
@@ -307,16 +284,52 @@ def test_rollout_live_update_reject_on_experimenter(
     summary.wait_for_rejection_notice_visible()
 
 
-@pytest.mark.remote_settings_all
+@pytest.mark.remote_settings_experiments
 def test_create_new_experiment_timeout_remote_settings(
     selenium,
     application,
-    default_data_api,
     experiment_slug,
     experiment_url,
 ):
-    helpers.create_experiment(experiment_slug, application, default_data_api)
+    helpers.create_experiment(experiment_slug, application)
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
     summary.wait_for_timeout_alert()
+
+
+@pytest.mark.remote_settings_launch
+def test_create_new_experiment_publish_to_preview_and_unpublish(
+    selenium,
+    experiment_url,
+    kinto_client,
+    base_url,
+    application,
+    experiment_slug,
+):
+    timeout = time.time() + 120
+    records_before = len(kinto_client(collection="nimbus-preview").get_record_data())
+
+    helpers.create_experiment(experiment_slug, application)
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.launch_to_preview()
+
+    while time.time() < timeout:
+        preview_data = kinto_client(collection="nimbus-preview").get_record_data()
+        if any(record.get("slug") == experiment_slug for record in preview_data):
+            break
+        time.sleep(15)
+    else:
+        pytest.fail("Experiment not published to preview in time")
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.back_to_draft()
+
+    while time.time() < timeout:
+        records_after = kinto_client(collection="nimbus-preview").get_record_data()
+        if len(records_after) == records_before:
+            break
+        time.sleep(15)
+    else:
+        pytest.fail("Experiment not unpublished from preview in time")

@@ -2,7 +2,7 @@ import json
 from unittest.mock import patch
 
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
 
@@ -10,7 +10,6 @@ from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 
 
-@override_settings(FEATURE_ANALYSIS=False)
 class TestVisualizationView(TestCase):
     maxDiff = None
 
@@ -27,7 +26,7 @@ class TestVisualizationView(TestCase):
         mock_exists.return_value = False
         primary_outcome = "outcome"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle, primary_outcomes=[primary_outcome]
+            lifecycle, primary_outcomes=[primary_outcome], results_data=None
         )
 
         # test None object/response
@@ -60,4 +59,6 @@ class TestVisualizationView(TestCase):
         self.assertEqual(response.status_code, 404)
 
         json_data = json.loads(response.content)
-        self.assertEqual({"detail": "Not found."}, json_data)
+        self.assertEqual(
+            {"detail": "No NimbusExperiment matches the given query."}, json_data
+        )

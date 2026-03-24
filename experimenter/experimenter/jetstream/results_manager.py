@@ -1,0 +1,753 @@
+from collections import defaultdict
+from enum import StrEnum
+from itertools import zip_longest
+from typing import Any
+
+from experimenter.experiments.constants import (
+    NimbusConstants,
+)
+from experimenter.metrics import MetricAreas
+from experimenter.nimbus_ui.constants import NimbusUIConstants
+from experimenter.outcomes import Outcomes
+
+
+class MetricSignificance(StrEnum):
+    POSITIVE = "positive"
+    NEGATIVE = "negative"
+    MIXED = "mixed"
+    NEUTRAL = "neutral"
+
+
+class ExperimentResultsManager:
+    def __init__(self, experiment):
+        self.experiment = experiment
+
+    def get_branch_data(self, analysis_basis, selected_segment, window="overall"):
+        enrollment_results = self.get_window_results(
+            "enrollments", selected_segment, window
+        )
+        exposure_results = self.get_window_results("exposures", selected_segment, window)
+
+        branch_data = []
+
+        for branch in self.experiment.get_sorted_branches():
+            slug = branch.slug
+            enrolled_client_metrics = (
+                enrollment_results.get(slug, {})
+                .get("branch_data", {})
+                .get("other_metrics", {})
+                .get("identity", {})
+            )
+            exposed_client_metrics = (
+                exposure_results.get(slug, {})
+                .get("branch_data", {})
+                .get("other_metrics", {})
+                .get("identity", {})
+            )
+            num_enrolled_clients = (
+                enrolled_client_metrics.get("absolute", {})
+                .get("first", {})
+                .get("point", 0)
+            )
+            num_exposed_clients = (
+                exposed_client_metrics.get("absolute", {})
+                .get("first", {})
+                .get("point", 0)
+            )
+
+            branch_data.append(
+                {
+                    "slug": slug,
+                    "name": branch.name,
+                    "screenshots": branch.screenshots.all,
+                    "description": branch.description,
+                    "percentage": enrolled_client_metrics.get("percent"),
+                    "num_enrolled_clients": num_enrolled_clients,
+                    "num_exposed_clients": num_exposed_clients,
+                    "exposure_rate": self.exposure_rate(selected_segment, slug),
+                },
+            )
+
+        return branch_data
+
+    def get_max_metric_value(
+        self,
+        analysis_basis,
+        segment,
+        reference_branch,
+        outcome_group,
+        outcome_slug,
+        window="overall",
+    ):
+        overall_results = self.get_window_results(analysis_basis, segment, window)
+        max_value = 0
+
+        for branch in self.experiment.get_sorted_branches():
+            if overall_results:
+                for data_point in (
+                    overall_results.get(branch.slug, {})
+                    .get("branch_data", {})
+                    .get(outcome_group, {})
+                    .get(outcome_slug, {})
+                    .get("relative_uplift", {})
+                    .get(reference_branch, {})
+                    .get("all", [])
+                ):
+                    if not data_point:
+                        continue
+
+                    lower = data_point.get("lower")
+                    upper = data_point.get("upper")
+
+                    max_value = max(max_value, abs(lower), abs(upper))
+
+        return max_value
+
+    def build_window_metric_breakdown(
+        self, analysis_basis, segment, reference_branch, window
+    ):
+        all_metrics = self.get_metric_data(analysis_basis, segment, reference_branch)
+
+        window_metric_data = {}
+
+        for metric_data in all_metrics.values():
+            metadata = metric_data.get("metrics", {})
+
+            for metric_metadata in metadata:
+                data = (
+                    metric_data.get("data", {})
+                    .get(window, {})
+                    .get(metric_metadata["slug"], {})
+                )
+                window_data = {}
+
+                for branch_slug, branch_data in data.items():
+
+                    def append_missing_window_points(entries):
+                        if entries:
+                            last_point = int(entries[-1].get("window_index") or 0)
+                            for missing_point in range(1, last_point + 1):
+                                if not any(
+                                    int(e.get("window_index")) == missing_point
+                                    for e in entries
+                                ):
+                                    entries.insert(
+                                        missing_point - 1,
+                                        {
+                                            "lower": None,
+                                            "upper": None,
+                                            "significance": MetricSignificance.NEUTRAL,
+                                            "window_index": str(missing_point),
+                                        },
+                                    )
+                        return entries
+
+                    # Always produce a list of pairs by zipping absolute and relative
+                    # When one side is missing or shorter, pad it with None so templates
+                    # can iterate without complex conditionals.
+                    abs_list = append_missing_window_points(
+                        branch_data.get("absolute") or []
+                    )
+                    rel_list = append_missing_window_points(
+                        branch_data.get("relative") or []
+                    )
+
+                    if abs_list or rel_list:
+                        window_data[branch_slug] = list(
+                            zip_longest(abs_list, rel_list, fillvalue=None)
+                        )
+
+                has_window_data_key = f"has_{window}_data"
+
+                if window_data:
+                    window_metric_data[metric_metadata["slug"]] = {
+                        has_window_data_key: True,
+                        "data": window_data,
+                    }
+                else:
+                    window_metric_data[metric_metadata["slug"]] = {
+                        has_window_data_key: False,
+                        "data": {},
+                    }
+
+        return window_metric_data
+
+    def window_index_for_sort(self, point):
+        wi = point.get("window_index")
+        return int(wi) if wi is not None else 0
+
+    def format_absolute_entries(self, metric_src, significance_map):
+        absolute_data_list = metric_src.get("absolute", {}).get("all", [])
+        absolute_data_list.sort(key=self.window_index_for_sort)
+        abs_entries = []
+        for i, data_point in enumerate(absolute_data_list):
+            lower = data_point.get("lower")
+            upper = data_point.get("upper")
+            window_index = data_point.get("window_index", None)
+            significance = significance_map.get(str(i + 1), MetricSignificance.NEUTRAL)
+            abs_entries.append(
+                {
+                    "lower": lower,
+                    "upper": upper,
+                    "significance": significance,
+                    "window_index": window_index,
+                }
+            )
+        return abs_entries
+
+    def format_relative_entries(self, metric_src, significance_map, reference_branch):
+        relative_data_list = (
+            metric_src.get("relative_uplift", {}).get(reference_branch, {}).get("all", [])
+        )
+        relative_data_list.sort(key=self.window_index_for_sort)
+        rel_entries = []
+        for i, data_point in enumerate(relative_data_list):
+            if not data_point:
+                continue
+
+            lower = data_point.get("lower")
+            upper = data_point.get("upper")
+            avg_rel_change = (
+                abs(data_point.get("point")) if data_point.get("point") else None
+            )
+            window_index = data_point.get("window_index", None)
+            significance = significance_map.get(str(i + 1), MetricSignificance.NEUTRAL)
+            rel_entries.append(
+                {
+                    "lower": lower,
+                    "upper": upper,
+                    "significance": significance,
+                    "avg_rel_change": avg_rel_change,
+                    "window_index": window_index,
+                }
+            )
+        return rel_entries
+
+    def build_branch_metrics(self, group, slug, window_results, reference_branch, window):
+        branch_metrics = {}
+        for branch in self.experiment.get_sorted_branches():
+            branch_results = window_results.get(branch.slug, {}).get("branch_data", {})
+            metric_src = branch_results.get(group, {}).get(slug, {})
+
+            significance_map = (
+                metric_src.get("significance", {})
+                .get(reference_branch, {})
+                .get(window, {})
+            )
+
+            abs_entries = self.format_absolute_entries(metric_src, significance_map)
+            rel_entries = self.format_relative_entries(
+                metric_src, significance_map, reference_branch
+            )
+
+            branch_metrics[branch.slug] = {
+                "absolute": abs_entries,
+                "relative": rel_entries,
+            }
+
+        return branch_metrics
+
+    def metric_has_errors(self, metric_slug, analysis_basis, segment):
+        if self.experiment.results_data:
+            for error, details in (
+                self.experiment.results_data.get("v3", {}).get("errors", {}).items()
+            ):
+                if (
+                    error == metric_slug
+                    and details[0].get("analysis_basis") == analysis_basis
+                    and details[0].get("segment") == segment
+                ):
+                    return True
+        return False
+
+    def metric_has_data(
+        self, metric_slug, group, analysis_basis, segment, reference_branch=None
+    ):
+        if self.experiment.results_data:
+            window_results = (
+                self.get_window_results(analysis_basis, segment, "overall")
+                or self.get_window_results(analysis_basis, segment, "weekly")
+                or self.get_window_results(analysis_basis, segment, "daily")
+            )
+
+            for branch in self.experiment.get_sorted_branches():
+                if branch.slug == reference_branch:
+                    continue
+
+                metric_data = (
+                    window_results.get(branch.slug, {})
+                    .get("branch_data", {})
+                    .get(group, {})
+                    .get(metric_slug, {})
+                )
+
+                abs_point_data = metric_data.get("absolute", {}).get("first", {})
+                rel_point_data = (
+                    metric_data.get("relative_uplift", {})
+                    .get(reference_branch, {})
+                    .get("first", {})
+                )
+
+                def check_valid_point(point):
+                    return (
+                        point.get("lower") and point.get("upper") and point.get("point")
+                    )
+
+                if (
+                    (not abs_point_data or not check_valid_point(abs_point_data))
+                    and metric_slug != NimbusConstants.DAILY_ACTIVE_USERS
+                ) or (not rel_point_data or not check_valid_point(rel_point_data)):
+                    return False
+        return True
+
+    def get_kpi_metrics(
+        self, analysis_basis, segment, reference_branch, window="overall"
+    ):
+
+        kpi_metrics = NimbusConstants.KPI_METRICS.copy()
+
+        # 3-day retention is only available for Desktop experiments
+        if self.experiment.application != self.experiment.Application.DESKTOP:
+            kpi_metrics = [
+                m
+                for m in kpi_metrics
+                if m.get("slug") != NimbusConstants.RETENTION_3_DAYS
+            ]
+
+        window_results = self.get_window_results(analysis_basis, segment, window)
+        other_metrics = (
+            (
+                window_results.get(reference_branch, {})
+                .get("branch_data", {})
+                .get("other_metrics", {})
+            )
+            if isinstance(window_results, dict)
+            else {}
+        )
+
+        if NimbusConstants.DAILY_ACTIVE_USERS in other_metrics:
+            diff_metrics = other_metrics.get(NimbusConstants.DAILY_ACTIVE_USERS, {}).get(
+                "difference", {}
+            )
+            for branch in diff_metrics:
+                if len(diff_metrics.get(branch, {}).get("all", [])) > 0:
+                    kpi_metrics.append(NimbusConstants.DAU_METRIC.copy())
+                    break
+        elif NimbusConstants.DAYS_OF_USE in other_metrics:
+            if (
+                len(
+                    other_metrics.get(NimbusConstants.DAYS_OF_USE, {})
+                    .get("absolute", {})
+                    .get("all", [])
+                )
+                > 0
+            ):
+                kpi_metrics.append(NimbusConstants.DOU_METRIC.copy())
+        else:
+            kpi_metrics.append(NimbusConstants.DAU_METRIC.copy())
+
+        self.append_kpi_metric_fields(
+            kpi_metrics, analysis_basis, segment, reference_branch, window
+        )
+
+        return kpi_metrics
+
+    def append_kpi_metric_fields(
+        self, kpi_metrics, analysis_basis, segment, reference_branch, window
+    ):
+        analysis_data = (
+            self.experiment.results_data.get("v3", {})
+            if self.experiment.results_data
+            else {}
+        )
+        metadata = analysis_data.get("metadata", {})
+        metrics_metadata = metadata.get("metrics", {}) if metadata else {}
+
+        for kpi in kpi_metrics:
+            kpi["friendly_name"] = (
+                metrics_metadata.get(kpi["slug"], {}).get("friendly_name")
+            ) or kpi.get("friendly_name", kpi["slug"])
+            kpi["description"] = (
+                metrics_metadata.get(kpi["slug"], {}).get("description", "")
+            ) or kpi.get("description", "")
+
+            if self.metric_has_errors(kpi["slug"], analysis_basis, segment):
+                kpi["has_errors"] = True
+
+            kpi["overall_change"] = self.get_overall_change(
+                kpi["group"],
+                kpi["slug"],
+                analysis_basis,
+                segment,
+                reference_branch,
+                window=window,
+            )
+
+            kpi["has_data"] = self.metric_has_data(
+                kpi["slug"], kpi["group"], analysis_basis, segment, reference_branch
+            )
+
+    def get_remaining_metrics_metadata(
+        self, exclude_slugs=None, analysis_basis=None, segment=None, reference_branch=None
+    ):
+        analysis_data = (
+            self.experiment.results_data.get("v3", {})
+            if self.experiment.results_data
+            else {}
+        )
+        other_metrics = analysis_data.get("other_metrics", {})
+        metadata = analysis_data.get("metadata", {})
+        metrics_metadata = metadata.get("metrics", {}) if metadata else {}
+        defaults = []
+
+        for group, default_metrics in other_metrics.items():
+            for slug, metric_friendly_name in default_metrics.items():
+                if exclude_slugs and slug in exclude_slugs:
+                    continue
+                defaults.append(
+                    {
+                        "slug": slug,
+                        "description": metrics_metadata.get(slug, {}).get(
+                            "description", ""
+                        ),
+                        "group": group,
+                        "friendly_name": metric_friendly_name,
+                        "has_errors": self.metric_has_errors(
+                            slug, analysis_basis, segment
+                        ),
+                        "overall_change": self.get_overall_change(
+                            group,
+                            slug,
+                            analysis_basis,
+                            segment,
+                            reference_branch,
+                        ),
+                        "has_data": self.metric_has_data(
+                            slug, group, analysis_basis, segment, reference_branch
+                        ),
+                    }
+                )
+
+        defaults.sort(key=lambda m: m["friendly_name"])
+
+        return defaults
+
+    def get_metric_areas(
+        self, analysis_basis, segment, reference_branch, window="overall"
+    ):
+        metric_areas: defaultdict[str, Any] = defaultdict(
+            lambda: {"label_details": None, "metrics": []}
+        )
+        metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA] = {
+            "label_details": None,
+            "metrics": [],
+        }
+        metric_areas[NimbusUIConstants.KPI_AREA] = {
+            "label_details": NimbusUIConstants.MetricAreaType.GUARDRAIL,
+            "metrics": self.get_kpi_metrics(
+                analysis_basis, segment, reference_branch, window
+            ),
+        }
+
+        metrics_metadata = {}
+        if self.experiment.results_data:
+            v3 = self.experiment.results_data.get("v3") or {}
+            metadata = v3.get("metadata") or {}
+            metrics_metadata = metadata.get("metrics") or {}
+
+        all_outcome_metric_slugs = []
+
+        def get_outcome_metrics(outcome_metrics):
+            formatted_metrics = []
+
+            for metric in outcome_metrics:
+                formatted_metric = {
+                    "slug": metric.slug,
+                    "description": (
+                        metric.description
+                        if metric.description
+                        else metrics_metadata.get(metric.slug, {}).get("description", "")
+                    ),
+                    "group": "other_metrics",
+                    "friendly_name": (
+                        metric.friendly_name
+                        if metric.friendly_name
+                        else metrics_metadata.get(metric.slug, {}).get(
+                            "friendly_name", metric.slug
+                        )
+                    ),
+                    "has_errors": self.metric_has_errors(
+                        metric.slug, analysis_basis, segment
+                    ),
+                    "overall_change": self.get_overall_change(
+                        "other_metrics",
+                        metric.slug,
+                        analysis_basis,
+                        segment,
+                        reference_branch,
+                        window=window,
+                    ),
+                    "has_data": self.metric_has_data(
+                        metric.slug,
+                        "other_metrics",
+                        analysis_basis,
+                        segment,
+                        reference_branch,
+                    ),
+                }
+                if formatted_metric not in formatted_metrics:
+                    formatted_metrics.append(formatted_metric)
+                    all_outcome_metric_slugs.append(metric.slug)
+
+            formatted_metrics.sort(key=lambda m: m["friendly_name"])
+            return formatted_metrics
+
+        for slug in self.experiment.primary_outcomes:
+            outcome = Outcomes.get_by_slug_and_application(
+                slug, self.experiment.application
+            )
+            metric_areas[outcome.friendly_name if outcome else slug] = {
+                "label_details": NimbusUIConstants.MetricAreaType.PRIMARY,
+                "metrics": get_outcome_metrics(outcome.metrics if outcome else []),
+            }
+
+        for slug in self.experiment.secondary_outcomes:
+            outcome = Outcomes.get_by_slug_and_application(
+                slug, self.experiment.application
+            )
+            metric_areas[outcome.friendly_name if outcome else slug] = {
+                "label_details": NimbusUIConstants.MetricAreaType.USER_SELECTED_SECONDARY,
+                "metrics": get_outcome_metrics(outcome.metrics if outcome else []),
+            }
+
+        remaining_metrics = self.get_remaining_metrics_metadata(
+            exclude_slugs=all_outcome_metric_slugs,
+            analysis_basis=analysis_basis,
+            segment=segment,
+            reference_branch=reference_branch,
+        )
+
+        grouped_metrics = []
+
+        for metric in remaining_metrics:
+            area = MetricAreas.get(self.experiment.application, metric["slug"])
+
+            if area:
+                metric_areas[area]["metrics"].append(metric)
+                metric_areas[area]["label_details"] = (
+                    NimbusUIConstants.MetricAreaType.DEFAULT_SECONDARY
+                )
+                grouped_metrics.append(metric)
+
+        metric_areas[NimbusUIConstants.OTHER_METRICS_AREA] = {
+            "label_details": None,
+            "metrics": [m for m in remaining_metrics if m not in grouped_metrics],
+        }
+
+        window_results = self.get_window_results(analysis_basis, segment, window)
+
+        def is_metric_notable(slug, group):
+            for branch_data in window_results.values():
+                significance_data = (
+                    branch_data.get("branch_data", {})
+                    .get(group, {})
+                    .get(slug, {})
+                    .get("significance", {})
+                    .get(reference_branch, {})
+                    .get(window, {})
+                )
+
+                if (
+                    MetricSignificance.POSITIVE in significance_data.values()
+                    or MetricSignificance.NEGATIVE in significance_data.values()
+                ):
+                    return True
+            return False
+
+        for area_details in metric_areas.values():
+            for metric in area_details["metrics"]:
+                if (
+                    is_metric_notable(metric["slug"], metric["group"])
+                    and metric
+                    not in metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA]["metrics"]
+                    and metric.get("has_data")
+                ):
+                    metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA]["metrics"].append(
+                        metric
+                    )
+
+        metric_areas[NimbusUIConstants.NOTABLE_METRIC_AREA]["metrics"].sort(
+            key=lambda m: m["friendly_name"]
+        )
+
+        return metric_areas
+
+    def get_metric_area_data(
+        self, metrics, analysis_basis, segment, reference_branch, label_details
+    ):
+        def get_window_metric_data(reference_branch, window_results, window):
+            window_metric_data = {}
+
+            for metric in metrics:
+                slug = metric.get("slug")
+                group = metric.get("group")
+
+                branch_metrics = self.build_branch_metrics(
+                    group, slug, window_results, reference_branch, window
+                )
+
+                window_metric_data[slug] = branch_metrics
+
+            return window_metric_data
+
+        metric_data = {
+            "overall": get_window_metric_data(
+                reference_branch,
+                self.get_window_results(analysis_basis, segment, "overall"),
+                "overall",
+            ),
+            "weekly": get_window_metric_data(
+                reference_branch,
+                self.get_window_results(analysis_basis, segment, "weekly"),
+                "weekly",
+            ),
+            "daily": get_window_metric_data(
+                reference_branch,
+                self.get_window_results(analysis_basis, segment, "daily"),
+                "daily",
+            ),
+        }
+
+        metric_area_data = {
+            "metrics": metrics,
+            "data": metric_data,
+            "label_details": label_details,
+        }
+
+        return metric_area_data
+
+    def get_metric_data(
+        self, analysis_basis, segment, reference_branch, window="overall"
+    ):
+        metric_areas = self.get_metric_areas(
+            analysis_basis, segment, reference_branch, window
+        )
+        metric_data = {}
+
+        for area, area_details in metric_areas.items():
+            metric_data[area] = self.get_metric_area_data(
+                area_details["metrics"],
+                analysis_basis,
+                segment,
+                reference_branch,
+                area_details["label_details"],
+            )
+
+        return metric_data
+
+    def get_window_results(self, analysis_basis, segment, window="overall"):
+        return (
+            (self.experiment.results_data.get("v3", {}).get(window, {}) or {})
+            .get(analysis_basis, {})
+            .get(segment, {})
+            if self.experiment.results_data
+            else {}
+        )
+
+    def get_overall_change(
+        self,
+        group,
+        metric_slug,
+        analysis_basis,
+        segment,
+        reference_branch,
+        window="overall",
+    ):
+        branch_results = self.get_window_results(analysis_basis, segment, window)
+        overall_change = MetricSignificance.NEUTRAL
+
+        for branch_slug, branch_data in branch_results.items():
+            if branch_slug == reference_branch:
+                continue
+
+            metric_significance_list = (
+                branch_data.get("branch_data", {})
+                .get(group, {})
+                .get(metric_slug, {})
+                .get("significance", {})
+                .get(reference_branch, {})
+                .get(window, {})
+            )
+
+            metric_significance = metric_significance_list.get(
+                str(len(metric_significance_list.keys())), MetricSignificance.NEUTRAL
+            )
+
+            significances = {metric_significance, overall_change}
+
+            if significances == {
+                MetricSignificance.POSITIVE,
+                MetricSignificance.NEGATIVE,
+            }:
+                overall_change = MetricSignificance.MIXED
+            elif significances.intersection({MetricSignificance.POSITIVE}):
+                overall_change = MetricSignificance.POSITIVE
+            elif significances.intersection({MetricSignificance.NEGATIVE}):
+                overall_change = MetricSignificance.NEGATIVE
+
+        return overall_change
+
+    def exposure_rate(self, segment, branch_slug=None):
+        for window in ["overall", "weekly", "daily"]:
+            enrollments_data = self.get_window_results("enrollments", segment, window)
+            exposures_data = self.get_window_results("exposures", segment, window)
+
+            if not enrollments_data or not exposures_data:
+                continue
+
+            if branch_slug:
+                enrollments_client_count = (
+                    enrollments_data.get(branch_slug, {})
+                    .get("branch_data", {})
+                    .get("other_metrics", {})
+                    .get("identity", {})
+                    .get("absolute", {})
+                    .get("first", {})
+                    .get("point", 0)
+                )
+                exposures_client_count = (
+                    exposures_data.get(branch_slug, {})
+                    .get("branch_data", {})
+                    .get("other_metrics", {})
+                    .get("identity", {})
+                    .get("absolute", {})
+                    .get("first", {})
+                    .get("point", 0)
+                )
+            else:
+                # If branch_slug is not provided, calculate the overall exposure rate
+                # across all branches for the segment
+                enrollments_client_count = 0
+                exposures_client_count = 0
+                for branch_data in enrollments_data.values():
+                    enrollments_client_count += (
+                        branch_data.get("branch_data", {})
+                        .get("other_metrics", {})
+                        .get("identity", {})
+                        .get("absolute", {})
+                        .get("first", {})
+                        .get("point", 0)
+                    )
+                for branch_data in exposures_data.values():
+                    exposures_client_count += (
+                        branch_data.get("branch_data", {})
+                        .get("other_metrics", {})
+                        .get("identity", {})
+                        .get("absolute", {})
+                        .get("first", {})
+                        .get("point", 0)
+                    )
+
+            if enrollments_client_count:
+                return exposures_client_count / enrollments_client_count
+            return 0

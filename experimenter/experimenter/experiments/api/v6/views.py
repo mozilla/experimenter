@@ -1,10 +1,8 @@
-from django.conf import settings
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django_filters import FilterSet, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 
+from experimenter.experiments.api.cache import CachedListMixin
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 
@@ -38,6 +36,7 @@ class NimbusDraftExperimentFilterSet(BaseExperimentFilterSet):
 
 
 class NimbusExperimentViewSet(
+    CachedListMixin,
     mixins.RetrieveModelMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
@@ -51,14 +50,12 @@ class NimbusExperimentViewSet(
     serializer_class = NimbusExperimentSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = NimbusExperimentFilterSet
-
-    @method_decorator(cache_page(settings.API_CACHE_DURATION))
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    cache_key_prefix = "v6:experiments"
 
 
 class NimbusExperimentDraftViewSet(NimbusExperimentViewSet):
     filterset_class = NimbusDraftExperimentFilterSet
+    cache_key_prefix = "v6:draft-experiments"
 
     queryset = (
         NimbusExperiment.objects.with_related()
@@ -69,6 +66,7 @@ class NimbusExperimentDraftViewSet(NimbusExperimentViewSet):
 
 class NimbusExperimentFirstRunViewSet(NimbusExperimentViewSet):
     filterset_class = BaseExperimentFilterSet
+    cache_key_prefix = "v6:first-run"
 
     queryset = (
         NimbusExperiment.objects.with_related()

@@ -12,7 +12,6 @@ def update_risk_confidential(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0080_auto_20200124_1335")]
 
     operations = [

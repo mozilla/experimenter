@@ -1,0 +1,280 @@
+{% extends "experimenter_base.html" %}
+
+{% load static %}
+{% load widget_tweaks %}
+{% load nimbus_extras %}
+
+{% block content %}
+  <div id="home-page" class="bg-body-tertiary">
+    <div class="container">
+      <div class="card shadow-sm border-0 p-4 mb-4 mt-4">
+        <div class="d-flex flex-column align-items-center text-center">
+          <div class="d-flex align-items-start justify-content-center">
+            <img src="{% static 'assets/welcome.svg' %}"
+                 alt="Hugging Foxes"
+                 style="width: 80px;
+                        height: auto" />
+            <div id="welcome-banner">
+              <h4 id="welcome-message" class="fw-semibold mb-1">Welcome to Nimbus, {{ request.user }}!</h4>
+              <p class="text-muted mb-2 fs-6">
+                Learn what is possible for experiments, roll-outs, labs experiences, surveys, and more!
+              </p>
+              <a id="welcome-learn-more-link"
+                 href="{{ NimbusUIConstants.HOME_PAGE_LINKS.welcome_learn_more_url }}"
+                 class="btn btn-primary btn-sm"
+                 target="_blank"
+                 rel="noopener noreferrer">Learn More</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Cards Section -->
+      <div class="row g-4 align-items-stretch"
+           id="draft-preview-ready-for-attention">
+        <!-- Draft or Preview -->
+        <div id="draft-preview" class="col-md-6">
+          {% include "nimbus_experiments/home_experiments_layout.html" with title="Draft or Preview" experiments=draft_or_preview_page.object_list page_obj=draft_or_preview_page pagination_param="draft_page" empty_message="No draft or preview experiments." empty_image_path="assets/empty-draft.svg" tooltip=NimbusUIConstants.HOME_PAGE_TOOLTIPS.draft_or_preview %}
+
+        </div>
+        <!-- Ready for Attention -->
+        <div id="ready-for-attention" class="col-md-6">
+          {% include "nimbus_experiments/home_experiments_layout.html" with title="Deliveries Ready for Attention" experiments=ready_for_attention_page.object_list page_obj=ready_for_attention_page pagination_param="attention_page" empty_message="No ready for attention experiments." empty_image_path="assets/empty-attention.svg" tooltip=NimbusUIConstants.HOME_PAGE_TOOLTIPS.ready_for_attention %}
+
+        </div>
+      </div>
+      <!-- My Stuff Section -->
+      <div id="my-deliveries"
+           class="mt-4 pb-4 card shadow-sm border-0 px-3  h-100 rounded-3 bg-primary-subtle">
+        <div class="d-flex justify-content-between align-items-center mb-3 ">
+          <h5 class="fw-semibold">
+            <img src="{% static 'assets/my-deliveries.svg' %}"
+                 alt="Hugging Foxes"
+                 style="width: 60px;
+                        height: auto" />
+            My Deliveries
+            <i class="fa-regular fa-circle-question"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-html="true"
+              data-bs-title="{{ NimbusUIConstants.HOME_PAGE_TOOLTIPS.my_deliveries }}"
+              data-bs-delay={"hide":2000}>
+            </i>
+          </h5>
+          <div class="d-flex gap-2 ms-auto align-items-center">
+            <div class="htmx-spinner" style="opacity: 0; pointer-events: none">
+              <i class="fa-solid fa-spinner fa-spin fa-lg text-primary"></i>
+            </div>
+            <a href="{% url 'nimbus-ui-home' %}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
+               class="btn btn-outline-primary btn-sm"
+               hx-get="{% url 'nimbus-ui-home' %}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
+               hx-target="#my-deliveries-table-section"
+               hx-select="#my-deliveries-table-section"
+               hx-push-url="true"
+               title="Clear all applied filters">
+              <i class="fa-solid fa-rotate-left me-1"></i>
+              Reset Filters
+            </a>
+            {# include selected Type + force page=1 on this change #}
+            <form method="get"
+                  hx-get="{% url 'nimbus-ui-home' %}"
+                  hx-select="#my-deliveries-table-section"
+                  hx-target="#my-deliveries-table-section"
+                  hx-trigger="change"
+                  hx-include=".status-filter input[name='status']:checked, .type-filter input[name='type']:checked, .qa-filter input[name='qa_status']:checked, .channel-filter input[name='channel']:checked, .application-filter input[name='application']:checked, .feature-filter input[name='feature_configs']:checked"
+                  hx-push-url="true"
+                  class="d-inline-block">
+              <div class="form-group mb-0">
+                {% render_field my_deliveries_filter.form.my_deliveries_status class="form-select form-select-sm w-auto" %}
+              </div>
+              {# keep current sort as-is (no toggling here) #}
+              {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
+              {# ALWAYS reset to first page when this filter changes #}
+              <input type="hidden" name="my_deliveries_page" value="1">
+            </form>
+          </div>
+        </div>
+        <div id="my-deliveries-table-section">
+          <div class="table-responsive shadow-sm rounded-3">
+            <table id="my-deliveries-table"
+                   class="table table-hover table-borderless align-middle mb-0">
+              <thead>
+                <tr>
+                  {% for field, label in sortable_headers %}
+                    {% include "common/home_sortable_header.html" with field=field label=label form=my_deliveries_filter.form url=request.path hx_target="#my-deliveries-table-section" hx_select="#my-deliveries-table-section" current_sort=request.GET.sort %}
+
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% if all_my_experiments_page.object_list %}
+                  {% for experiment in all_my_experiments_page.object_list %}
+                    <tr>
+                      <td>
+                        <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+                           class="text-decoration-none fw-medium text-break">{{ experiment.name }}</a>
+                        {% include "nimbus_experiments/experiment_tags.html" with hide_no_tags=True %}
+
+                      </td>
+                      <td>
+                        {% with status_info=experiment|home_status_display_with_icon %}
+                          {% if status_info.icon_info.icon %}
+                            <span class="me-1 {{ status_info.icon_info.color }}">
+                              <i class="{{ status_info.icon_info.icon }}"></i>
+                            </span>
+                          {% endif %}
+                          {{ status_info.status }}
+                        {% endwith %}
+                      </td>
+                      <td>
+                        {% with icon_info=experiment.qa_status_icon_info %}
+                          {% if icon_info.icon %}<span class="{{ icon_info.color }}"><i class="{{ icon_info.icon }}"></i></span>{% endif %}
+                        {% endwith %}
+                      </td>
+                      <td>
+                        {% with icon_info=experiment.application|application_icon_info %}
+                          {% if icon_info.icon %}
+                            <span class="{{ icon_info.color }} me-1">
+                              <i class="{{ icon_info.icon }}"></i>
+                            </span>
+                          {% endif %}
+                        {% endwith %}
+                        {{ experiment.get_application_display }}
+                      </td>
+                      <td>{{ experiment.home_type_choice }}</td>
+                      <td>
+                        {% render_channel_icons experiment as channel_data %}
+                        {% if channel_data %}
+                          <div class="d-flex flex-wrap">
+                            {% for channel in channel_data %}
+                              <span class="d-inline-flex align-items-center{% if channel.is_multi %} me-2 mb-1{% endif %}">
+                                <span class="{{ channel.icon_info.color }} me-1">
+                                  <i class="{{ channel.icon_info.icon }}"></i>
+                                </span>
+                                <span class="small">{{ channel.label }}</span>
+                              </span>
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                      </td>
+                      <td>{{ experiment.population_percent|floatformat:2 }}%</td>
+                      <td>
+                        {% with date_progress=experiment|experiment_date_progress %}
+                          {% if date_progress.is_na %}
+                            <span class="text-muted">{{ date_progress.days_text }}</span>
+                          {% else %}
+                            <div class="d-flex flex-column">
+                              <div class="d-flex align-items-center mb-1">
+                                {% if date_progress.show_bar %}
+                                  <div class="progress me-2" style="width: 60px; height: 8px;">
+                                    <div class="progress-bar {{ date_progress.bar_class }}"
+                                         role="progressbar"
+                                         style="{{ date_progress.bar_style }}"
+                                         aria-valuenow="{{ date_progress.progress_percentage }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"></div>
+                                  </div>
+                                {% endif %}
+                                <span class="{% if date_progress.has_bonus_alert %}text-danger fw-bold{% elif date_progress.is_complete %}text-body fw-medium{% endif %}">
+                                  {{ date_progress.days_text }}
+                                </span>
+                              </div>
+                              {% if date_progress.date_range_text %}<small class="text-muted">{{ date_progress.date_range_text }}</small>{% endif %}
+                            </div>
+                          {% endif %}
+                        {% endwith %}
+                      </td>
+                      <td>
+                        {% if experiment.firefox_min_version %}
+                          {{ experiment.get_firefox_min_version_display }}
+                          {% if experiment.firefox_max_version %}
+                            – {{ experiment.get_firefox_max_version_display }}
+                          {% else %}
+                            +
+                          {% endif %}
+                        {% else %}
+                          N/A
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% for feature in experiment.feature_configs.all %}
+                          {{ feature.name }}
+                          <br />
+                        {% empty %}
+                          N/A
+                        {% endfor %}
+                      </td>
+                      <td>
+                        {% if experiment.show_results_url %}
+                          <a href="{{ experiment.get_results_url }}">View Results</a>
+                        {% else %}
+                          <a>N/A</a>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="11" class="text-center text-muted py-5">No experiments found in your workspace.</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          {% if all_my_experiments_page.has_other_pages %}
+            {% with current_sort=request.GET.sort %}
+              <div class="row mt-3">
+                <div class="col text-center">
+                  <ul class="pagination justify-content-center">
+                    {% if all_my_experiments_page.has_previous %}
+                      <li class="page-item">
+                        <button class="page-link"
+                                type="button"
+                                hx-get="?my_deliveries_page={{ all_my_experiments_page.previous_page_number }}{% if request.GET.draft_page %}&draft_page={{ request.GET.draft_page }}{% endif %}{% if request.GET.attention_page %}&attention_page={{ request.GET.attention_page }}{% endif %}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.channel.value %}{% for c in my_deliveries_filter.form.channel.value %}&channel={{ c }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.application.value %}{% for a in my_deliveries_filter.form.application.value %}&application={{ a }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.feature_configs.value %}{% for f in my_deliveries_filter.form.feature_configs.value %}&feature_configs={{ f }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                hx-target="#my-deliveries-table-section"
+                                hx-select="#my-deliveries-table-section"
+                                hx-push-url="true">
+                          <i class="fa-solid fa-angle-left"></i>
+                        </button>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <span class="page-link">
+                          <i class="fa-solid fa-angle-left"></i>
+                        </span>
+                      </li>
+                    {% endif %}
+                    <li class="page-item">
+                      <div class="page-link">{{ all_my_experiments_page.number }} of {{ all_my_experiments_page.paginator.num_pages }}</div>
+                    </li>
+                    {% if all_my_experiments_page.has_next %}
+                      <li class="page-item">
+                        <button class="page-link"
+                                type="button"
+                                hx-get="?my_deliveries_page={{ all_my_experiments_page.next_page_number }}{% if request.GET.draft_page %}&draft_page={{ request.GET.draft_page }}{% endif %}{% if request.GET.attention_page %}&attention_page={{ request.GET.attention_page }}{% endif %}{% for v in my_deliveries_filter.form.type.value %}&type={{ v }}{% endfor %}{% if my_deliveries_filter.form.qa_status.value %}{% for q in my_deliveries_filter.form.qa_status.value %}&qa_status={{ q }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.channel.value %}{% for c in my_deliveries_filter.form.channel.value %}&channel={{ c }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.application.value %}{% for a in my_deliveries_filter.form.application.value %}&application={{ a }}{% endfor %}{% endif %}{% if my_deliveries_filter.form.feature_configs.value %}{% for f in my_deliveries_filter.form.feature_configs.value %}&feature_configs={{ f }}{% endfor %}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                                hx-target="#my-deliveries-table-section"
+                                hx-select="#my-deliveries-table-section"
+                                hx-push-url="true">
+                          <i class="fa-solid fa-angle-right"></i>
+                        </button>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <span class="page-link">
+                          <i class="fa-solid fa-angle-right"></i>
+                        </span>
+                      </li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </div>
+            {% endwith %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block extrascripts %}
+  {{ block.super }}
+  <script src="{% static 'nimbus_ui/experiment_home.bundle.js' %}"></script>
+{% endblock %}

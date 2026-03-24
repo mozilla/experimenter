@@ -14,15 +14,11 @@ services:
       - db
 
   db:
-    restart: always
     image: postgres:14.8
     environment:
       POSTGRES_PASSWORD: postgres
 
   cirrus:
+    image: cirrus:deploy
     env_file: .env.test
-    build:
-      context: cirrus/server/
-      dockerfile: Dockerfile
     working_dir: /cirrus
-    

@@ -1,12 +1,23 @@
 import json
-import logging
-from dataclasses import dataclass
-from typing import Optional, Union, cast
+from typing import cast
 
 from decouple import config  # type: ignore
 
 remote_setting_refresh_rate_in_seconds: int = int(
-    config("CIIRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS", default=10)  # type: ignore
+    config("CIRRUS_REMOTE_SETTING_REFRESH_RATE_IN_SECONDS", default=10)  # type: ignore
+)
+remote_setting_refresh_jitter_in_seconds: int = int(
+    config("CIRRUS_REMOTE_SETTING_REFRESH_JITTER_IN_SECONDS", default=1)  # type: ignore
+)
+remote_setting_retry_backoff_factor_in_seconds: int = int(
+    config("CIRRUS_REMOTE_SETTING_RETRY_BACKOFF_FACTOR_IN_SECONDS", default=1)  # type: ignore
+)
+remote_setting_retry_total: int = int(
+    config("CIRRUS_REMOTE_SETTING_RETRY_TOTAL", default=5)  # type: ignore
+)
+remote_setting_require_fetch_before_start: bool = (
+    config("CIRRUS_REMOTE_SETTING_REQUIRE_FETCH_BEFORE_START", default="").lower()  # type: ignore
+    in ("true", "yes", "1")
 )
 remote_setting_url: str = cast(str, config("CIRRUS_REMOTE_SETTING_URL", default=""))
 remote_setting_preview_url: str = cast(
@@ -25,30 +36,16 @@ context: str = json.dumps(
     }
 )
 fml_path: str = cast(str, config("CIRRUS_FML_PATH", default=""))
-pings_path: str = "./telemetry/pings.yaml"
-metrics_path: str = "./telemetry/metrics.yaml"
 
 cirrus_sentry_dsn: str = cast(str, config("CIRRUS_SENTRY_DSN", default=""))
+cirrus_sentry_traces_sample_rate: float = float(
+    config("CIRRUS_SENTRY_TRACES_SAMPLE_RATE", default=0.25)  # type: ignore
+)
+cirrus_sentry_profiles_sample_rate: float = float(
+    config("CIRRUS_SENTRY_PROFILES_SAMPLE_RATE", default=0.25)  # type: ignore
+)
+
 instance_name: str = cast(
     str, config("CIRRUS_INSTANCE_NAME", default="instance name not defined")
 )
 env_name = cast(str, config("CIRRUS_ENV_NAME", default="production"))
-glean_max_events_buffer: int = int(
-    config("CIRRUS_GLEAN_MAX_EVENTS_BUFFER", default=10)  # type: ignore
-)
-
-
-@dataclass
-class MetricsConfiguration:
-    app_id: str = app_id
-    build: Optional[str] = None
-    channel: str = channel
-    data_dir: str = "/var/glean"
-    log_level: Union[str, int] = logging.WARNING
-    max_events_buffer: int = glean_max_events_buffer
-    server_endpoint: Optional[str] = None
-    upload_enabled: bool = True
-    version: str = "1.0"
-
-
-metrics_config = MetricsConfiguration()

@@ -1,179 +1,153 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.select import Select
 
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.summary import SummaryPage
 
 
 class AudiencePage(ExperimenterBase):
-    """Experiment Audience Page."""
+    """Nimbus Audience page."""
 
     PAGE_TITLE = "Audience Page"
 
-    _page_wait_locator = (By.CSS_SELECTOR, "#PageEditAudience")
-    _channel_select_locator = (By.CSS_SELECTOR, "#channel")
-    _min_version_select_locator = (By.CSS_SELECTOR, "#minVersion")
-    _targeting_select_locator = (By.CSS_SELECTOR, "#targeting")
-    _population_fill_locator = (
+    _page_wait_locator = (By.CSS_SELECTOR, "#audience-form")
+    _channel_select_locator = (By.CSS_SELECTOR, "#id_channel")
+    _channels_button_locator = (By.CSS_SELECTOR, '[data-id="id_channels"]')
+    _channels_input_locator = (By.CSS_SELECTOR, ".bs-searchbox input")
+    _channels_text_locator = (By.CSS_SELECTOR, "#id_channels .filter-option-inner-inner")
+    _min_version_select_locator = (By.CSS_SELECTOR, "#id_firefox_min_version")
+    _targeting_select_locator = (By.CSS_SELECTOR, "#id_targeting_config_slug")
+    _population_fill_locator = (By.CSS_SELECTOR, "#id_population_percent")
+    _expected_clients_locator = (By.CSS_SELECTOR, "#id_total_enrolled_clients")
+    _saved_locator = (By.CSS_SELECTOR, "#sidebar .text-success")
+    _locales_button_locator = (
         By.CSS_SELECTOR,
-        '[data-testid="population-percent-text"]',
+        'div[data-testid="locales"] [data-id="id_locales"]',
     )
-    _expected_clients_locator = (By.CSS_SELECTOR, "#totalEnrolledClients")
-    _enrollment_period_locator = (By.CSS_SELECTOR, "#proposedEnrollment")
-    _duration_locator = (By.CSS_SELECTOR, "#proposedDuration")
-    _locales_input_locator = (By.CSS_SELECTOR, "div[data-testid='locales'] input")
-    _locales_value_locator = (
+    _locales_input_locator = (
         By.CSS_SELECTOR,
-        "div[data-testid='locales'] > div:nth-child(1)",
+        'div[data-testid="locales"] .bs-searchbox input',
     )
-    _countries_input_locator = (By.CSS_SELECTOR, "div[data-testid='countries'] input")
-    _countries_value_locator = (
+    _countries_button_locator = (
         By.CSS_SELECTOR,
-        "div[data-testid='countries'] > div:nth-child(1)",
+        'div[data-testid="countries"] [data-id="id_countries"]',
     )
-    _languages_input_locator = (By.CSS_SELECTOR, "div[data-testid='languages'] input")
-    _languages_value_locator = (
+    _countries_input_locator = (
         By.CSS_SELECTOR,
-        "div[data-testid='languages'] > div:nth-child(1)",
+        'div[data-testid="countries"] .bs-searchbox input',
     )
-    _first_run_checkbox_locator = (By.CSS_SELECTOR, '[data-testid="isFirstRun"]')
-    _release_date_locator = (By.CSS_SELECTOR, '[data-testid="proposedReleaseDate"]')
-    _saved_locator = (By.CSS_SELECTOR, "form.was-validated")
+    _languages_button_locator = (
+        By.CSS_SELECTOR,
+        'div[data-testid="languages"] [data-id="id_languages"]',
+    )
+    _languages_input_locator = (
+        By.CSS_SELECTOR,
+        'div[data-testid="languages"] .bs-searchbox input',
+    )
+    _first_run_locator = (By.CSS_SELECTOR, "#id_is_first_run")
+    _release_date_locator = (By.CSS_SELECTOR, "#id_proposed_release_date")
 
     NEXT_PAGE = SummaryPage
 
-    def save_and_continue(self):
-        # Explicitly save and wait for save to complete before continuing
-        # to prevent intermittent failures where summary loads before saving
-        # audience is complete
-        self.save()
-        self.wait_for_locator(self._saved_locator)
-
-        return super().save_and_continue()
-
     @property
     def channel(self):
-        return self.wait_for_and_find_element(*self._channel_select_locator).text
+        return self.get_select(self._channel_select_locator).text
 
     @channel.setter
     def channel(self, channel="Nightly"):
-        el = self.wait_for_and_find_element(*self._channel_select_locator)
-        select = Select(el)
-        select.select_by_visible_text(channel)
+        self.set_select_by_text(self._channel_select_locator, channel)
+
+    @property
+    def channels(self):
+        return self.wait_for_and_find_elements(*self._channels_text_locator)[0]
+
+    @channels.setter
+    def channels(self, channels):
+        self.set_bootstrap_select(
+            self._channels_button_locator, self._channels_input_locator, channels
+        )
 
     @property
     def min_version(self):
-        return self.wait_for_and_find_element(*self._min_version_select_locator).text
+        return self.get_select(self._min_version_select_locator).text
 
     @min_version.setter
     def min_version(self, version=80):
-        el = self.wait_for_and_find_element(*self._min_version_select_locator)
-        select = Select(el)
-        select.select_by_value(f"FIREFOX_{version}")
+        self.set_select(self._min_version_select_locator, f"{version}")
 
     @property
     def targeting(self):
-        return self.wait_for_and_find_element(*self._targeting_select_locator).text
+        return self.get_select(self._targeting_select_locator).text
 
     @targeting.setter
     def targeting(self, targeting=""):
-        el = self.wait_for_and_find_element(*self._targeting_select_locator)
-        select = Select(el)
-        select.select_by_value(targeting)
+        self.set_select(self._targeting_select_locator, targeting)
 
     @property
     def percentage(self):
-        return self.wait_for_and_find_element(*self._population_fill_locator).text
+        return self.get_input(self._population_fill_locator).text
 
     @percentage.setter
-    def percentage(self, text) -> None:
-        name = self.wait_for_and_find_element(*self._population_fill_locator)
-        name.clear()
-        name.send_keys(f"{text}")
+    def percentage(self, text):
+        el = self.get_input(self._population_fill_locator)
+        el.click()
+        self.execute_script("arguments[0].setAttribute('value', arguments[1]);", el, text)
 
     @property
     def expected_clients(self):
-        el = self.wait_for_and_find_element(*self._expected_clients_locator)
-        return el.get_attribute("value")
+        return self.get_input(self._expected_clients_locator).text
 
     @expected_clients.setter
     def expected_clients(self, text):
-        el = self.wait_for_and_find_element(*self._expected_clients_locator)
-        el.send_keys(text)
-
-    @property
-    def locales(self):
-        return [
-            element.text
-            for element in self.wait_for_and_find_elements(*self._locales_value_locator)
-        ]
-
-    @locales.setter
-    def locales(self, text=None):
-        el = self.wait_for_and_find_element(*self._locales_input_locator)
-        for _ in text:
-            el.send_keys(f"{_}")
-            el.send_keys(Keys.ENTER)
-
-    @property
-    def countries(self):
-        return [
-            element.text
-            for element in self.wait_for_and_find_elements(*self._countries_value_locator)
-        ]
-
-    @countries.setter
-    def countries(self, text=None):
-        el = self.wait_for_and_find_element(*self._countries_input_locator)
-        for _ in text:
-            el.send_keys(f"{_}")
-            el.send_keys(Keys.ENTER)
-
-    @property
-    def languages(self):
-        return [
-            element.text
-            for element in self.wait_for_and_find_elements(*self._languages_value_locator)
-        ]
-
-    @languages.setter
-    def languages(self, text=None):
-        el = self.wait_for_and_find_element(*self._languages_input_locator)
-        for char in text:
-            el.send_keys(char)
-            el.send_keys(Keys.ENTER)
-
-    @property
-    def is_first_run(self):
-        return self.wait_for_and_find_element(
-            *self._first_run_checkbox_locator, "is first run"
-        )
-
-    def make_first_run(self):
-        self.wait_for_and_find_element(
-            *self._first_run_checkbox_locator, "is_first_run"
-        ).click()
+        self.set_input(self._expected_clients_locator, text)
 
     @property
     def proposed_release_date(self):
-        el = self.wait_for_and_find_element(*self._release_date_locator)
-        return el.get_attribute("value")
+        return self.get_input(self._release_date_locator).get_attribute("value")
 
     @proposed_release_date.setter
-    def proposed_release_date(self, text=None):
-        el = self.wait_for_and_find_element(*self._release_date_locator)
-        el.send_keys(text)
+    def proposed_release_date(self, text):
+        self.set_input(self._release_date_locator, text)
+
+    @property
+    def is_first_run(self):
+        return self.wait_for_and_find_element(*self._first_run_locator).is_selected()
+
+    def make_first_run(self):
+        self.click_element(self._first_run_locator)
+
+    @property
+    def locales(self):
+        return self.wait_for_and_find_elements(*self._locales_input_locator)[0]
+
+    @locales.setter
+    def locales(self, locales):
+        self.set_bootstrap_select(
+            self._locales_button_locator, self._locales_input_locator, locales
+        )
+
+    @property
+    def countries(self):
+        return self.wait_for_and_find_elements(*self._countries_input_locator)[0]
+
+    @countries.setter
+    def countries(self, text):
+        self.set_bootstrap_select(
+            self._countries_button_locator, self._countries_input_locator, [text]
+        )
+
+    @property
+    def languages(self):
+        return self.wait_for_and_find_elements(*self._languages_input_locator)[0]
+
+    @languages.setter
+    def languages(self, text):
+        self.set_bootstrap_select(
+            self._languages_button_locator, self._languages_input_locator, [text]
+        )
 
     def wait_until_release_date_not_found(self):
-        self.wait.until_not(
-            EC.presence_of_element_located(self._release_date_locator),
-            message="Audience Page: could not find release date",
-        )
+        self.wait.until(EC.invisibility_of_element_located(self._release_date_locator))
 
     def wait_until_first_run_not_found(self):
-        self.wait.until_not(
-            EC.presence_of_element_located(self._first_run_checkbox_locator),
-            message="Audience Page: could not find first run checkbox",
-        )
+        self.wait.until(EC.invisibility_of_element_located(self._first_run_locator))

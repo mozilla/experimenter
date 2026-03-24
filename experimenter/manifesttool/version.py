@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import plistlib
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
-from pydantic import ValidationInfo
-from typing import Any, Iterable, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
+from pydantic import ValidationInfo
 from requests import HTTPError
 
-from manifesttool import github_api, hgmo_api
+from manifesttool import github_api
 from manifesttool.repository import Ref
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -29,7 +30,7 @@ class Version:
     patch: int = 0
 
     @classmethod
-    def from_match(cls, groups: dict[str, str]) -> "Version":
+    def from_match(cls, groups: dict[str, str]) -> Version:
         """Parse a Version out of regular expression match groups.
 
         Args:
@@ -52,7 +53,7 @@ class Version:
     VERSION_RE = re.compile(r"^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?")
 
     @classmethod
-    def parse(cls, s: str) -> Optional["Version"]:
+    def parse(cls, s: str) -> Optional[Version]:
         """Parse a version out of a given string.
 
         Any missing component will be assumed zero.
@@ -71,16 +72,16 @@ class Version:
     def __hash__(self) -> int:
         return hash(self.as_tuple())
 
-    def __lt__(self, other: "Version") -> bool:
+    def __lt__(self, other: Version) -> bool:
         return self.as_tuple() < other.as_tuple()
 
-    def __le__(self, other: "Version") -> bool:
+    def __le__(self, other: Version) -> bool:
         return self.as_tuple() <= other.as_tuple()
 
-    def __gt__(self, other: "Version") -> bool:
+    def __gt__(self, other: Version) -> bool:
         return self.as_tuple() > other.as_tuple()
 
-    def __ge__(self, other: "Version") -> bool:
+    def __ge__(self, other: Version) -> bool:
         return self.as_tuple() >= other.as_tuple()
 
     def __str__(self):  # pragma: no cover
@@ -102,7 +103,7 @@ class Version:
         if version := cls.parse(value):
             return version
 
-        raise ValueError(f"Invalid version {repr(value)}")
+        raise ValueError(f"Invalid version {value!r}")
 
 
 def find_versioned_refs(
@@ -202,27 +203,19 @@ def resolve_ref_versions(
     """
     from manifesttool.appconfig import RepositoryType
 
-    if app_config.repo.type == RepositoryType.GITHUB:
-        fetch_file = github_api.fetch_file
-    elif app_config.repo.type == RepositoryType.HGMO:
-        fetch_file = hgmo_api.fetch_file
-    else:  # pragma: no cover
-        raise AssertionError("unreachable")
+    if app_config.repo.type == RepositoryType.LOCAL:  # pragma: no cover
+        raise AssertionError("local repositories are unsupported")
 
     versions = {}
 
-    version_file_paths: str | list[
-        str
-    ] = app_config.release_discovery.version_file.root.path
-    if not isinstance(version_file_paths, list):
-        version_file_paths = [version_file_paths]
+    version_files = app_config.release_discovery.version_file
 
     for ref in refs:
-        for version_file_path in version_file_paths:
+        for version_file in version_files:
             try:
-                version_file_contents = fetch_file(
+                version_file_contents = github_api.fetch_file(
                     app_config.repo.name,
-                    version_file_path,
+                    version_file.root.path,
                     ref.target,
                 )
             except HTTPError as e:
@@ -231,15 +224,15 @@ def resolve_ref_versions(
 
                 raise  # pragma: no cover
 
-            break
+            version = parse_version_file(version_file, version_file_contents)
 
+            if version is not None:
+                versions[version] = ref
+                break
         else:
-            raise Exception(f"Could not find version file for app {app_config.slug}")
-
-        v = parse_version_file(
-            app_config.release_discovery.version_file, version_file_contents
-        )
-
-        versions[v] = ref
+            raise Exception(
+                f"Could not find version file for app {app_config.slug} at ref "
+                f"{ref.name} ({ref.target})"
+            )
 
     return versions

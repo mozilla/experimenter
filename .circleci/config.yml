@@ -1,9 +1,9 @@
 version: 2.1
 orbs:
-  gh: circleci/github-cli@2.2
-  gcp-cli: circleci/gcp-cli@3.1.1
+  gh: circleci/github-cli@2.7.2
+  gcp-cli: circleci/gcp-cli@3.3.1
   android: circleci/android@2.5.0
-  macos: circleci/macos@2.5.2
+  macos: circleci/macos@2.5.4
 commands:
   check_file_paths:
     description: "Check file paths"
@@ -44,18 +44,47 @@ commands:
       - run: |
           echo "<< parameters.password >>" | docker login --username << parameters.username >> --password-stdin
 
+  create_test_result_workspace:
+    steps:
+      - run:
+          name: Create Workspace
+          command: |
+            mkdir -p workspace/test-results
 
+  setup-github-bot:
+    steps:
+      - run:
+          name: Install Dependencies
+          command: |
+            pip install PyJWT requests cryptography
+      - gh/install
+      - run:
+          name: Generate token and setup git user
+          command: |
+            export GH_TOKEN=$(python .circleci/scripts/create_jwt.py)
+            if [ -z "$GH_TOKEN" ]; then
+              echo "Failed to generate GH_TOKEN"
+              exit 1
+            fi
+            echo "export GH_TOKEN=\"${GH_TOKEN}\"" >> "$BASH_ENV"
+            git config --global user.email "experimenter-ci-bot@mozilla.com"
+            git config --global user.name "Experimenter CircleCI Bot"
+            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/mozilla/experimenter.git
+            gh auth setup-git
+            gh auth status
+            gh config set git_protocol https
+            gh config set prompt disabled
 jobs:
   check_experimenter_x86_64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/experimenter
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/"
+          paths: "experimenter/|application-services/"
       - run:
           name: Run tests and linting
           command: |
@@ -64,14 +93,14 @@ jobs:
 
   check_experimenter_aarch64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: arm.large
     working_directory: ~/experimenter
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/"
+          paths: "experimenter/|application-services/"
       - run:
           name: Run tests and linting
           command: |
@@ -80,14 +109,14 @@ jobs:
 
   check_cirrus_x86_64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/cirrus
     steps:
       - checkout
       - check_file_paths:
-          paths: "cirrus/"
+          paths: "cirrus/|application-services/"
       - run:
           name: Run Cirrus tests and linting
           command: |
@@ -95,22 +124,44 @@ jobs:
 
   check_cirrus_aarch64:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: arm.large
     working_directory: ~/cirrus
     steps:
       - checkout
       - check_file_paths:
-          paths: "cirrus/"
+          paths: "cirrus/|application-services/"
       - run:
           name: Run Cirrus tests and linting
           command: |
             make cirrus_check
 
+  check_local_feature_manifests:
+    machine:
+      image: ubuntu-2204:2024.11.1
+      docker_layer_caching: true
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - check_file_paths:
+          paths: "experimenter/experimenter/features/manifests/|experimenter/manifesttool/|^experimenter/[^/]+$|application-services/"
+      - run:
+          name: Check local feature manifests
+          command: |
+            cp .env.sample .env
+            make feature_manifests FETCH_ARGS="--local-apps"
+            if ! git diff --quiet experimenter/experimenter/features/manifests/; then
+              echo 'Please commit generated updates to local feature manifests:'
+              echo
+              echo '    make feature_manifests FETCH_ARGS="--local-apps"'
+              echo
+              exit 1
+            fi
+
   check_schemas:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
       - checkout
@@ -123,17 +174,18 @@ jobs:
 
   integration_nimbus_desktop_ui:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
-    resource_class: large
+    resource_class: xlarge
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -m nimbus_ui -n 2 --reruns 1
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -m nimbus_ui -n 4 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/"
+          paths: "experimenter/experimenter/|application-services/"
       - run:
           name: Run integration tests
           command: |
@@ -144,17 +196,18 @@ jobs:
 
   integration_nimbus_remote_settings_launch:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -m remote_settings_launch --reruns 1
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -m remote_settings_launch --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/"
+          paths: "experimenter/experimenter/|application-services/"
       - run:
           name: Run integration tests
           command: |
@@ -164,40 +217,48 @@ jobs:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_remote_settings_all:
+    parallelism: 3
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
-    resource_class: medium
+    resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings_all --reruns 1
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -k FIREFOX_DESKTOP --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/"
+          paths: "experimenter/experimenter/|application-services/"
       - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
+            # Split tests: experiments / rollouts / live updates
+            case $CIRCLE_NODE_INDEX in
+              0) export PYTEST_ARGS="$PYTEST_ARGS -m remote_settings_experiments" ;;
+              1) export PYTEST_ARGS="$PYTEST_ARGS -m remote_settings_rollouts" ;;
+              2) export PYTEST_ARGS="$PYTEST_ARGS -m remote_settings_live_updates" ;;
+            esac
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
           path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_desktop_enrollment:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1
-      UPDATE_FIREFOX_VERSION: true
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+          paths: "experimenter/experimenter/|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
       - run:
           name: Run integration tests
           command: |
@@ -209,18 +270,19 @@ jobs:
 
   integration_nimbus_desktop_release_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
       - run:
           name: Run integration tests
           command: |
@@ -231,19 +293,19 @@ jobs:
 
   integration_nimbus_desktop_beta_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-beta
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1
-      FIREFOX_BETA: 1
+      FIREFOX_CHANNEL: beta
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
       MOZ_REMOTE_SETTINGS_DEVTOOLS: 1 # allows us to override and set the remote settings URL
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
       - run:
           name: Run integration tests
           command: |
@@ -254,18 +316,18 @@ jobs:
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2 --reruns 1
-      UPDATE_FIREFOX_VERSION: true
+      FIREFOX_CHANNEL: nightly
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_desktop_release_build.env|experimenter/tests/firefox_desktop_beta_build.env|application-services/"
       - run:
           name: Run integration tests
           command: |
@@ -284,7 +346,8 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_fenix_beta_build.env|experimenter/tests/firefox_fenix_release_build.env"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_fenix_beta_build.env|experimenter/tests/firefox_fenix_release_build.env|application-services/"
+      - create_test_result_workspace
       - attach_workspace:
           at: /tmp/experimenter
       - android/accept-licenses
@@ -309,11 +372,12 @@ jobs:
       - android/save-gradle-cache:
           cache-prefix: v1a
       - store_artifacts:
-          path: /home/circleci/project/test-reports/report.htm
+          path: workspace/test-results/report.htm
 
   integration_nimbus_ios_enrollment:
     macos:
-      xcode: 16.2
+      xcode: << parameters.ios_version >>
+    resource_class: m4pro.medium
     parameters:
       file_path:
         type: string
@@ -327,7 +391,8 @@ jobs:
     steps:
       - checkout
       - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|<< parameters.file_path >>"
+          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|<< parameters.file_path >>|application-services/"
+      - create_test_result_workspace
       - macos/preboot-simulator:
           version: << parameters.ios_version >>
           platform: "iOS"
@@ -353,13 +418,15 @@ jobs:
             git checkout "$BRANCH"
             sh ./bootstrap.sh
             cd firefox-ios
+            xcodebuild -downloadComponent MetalToolchain
             xcodebuild build-for-testing -scheme Fennec -target Client -destination 'platform=iOS Simulator,name=<< parameters.simulator_device >>,OS=<< parameters.ios_version >>' COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ARCHS="arm64"
       - run:
           name: Run Tests
           command: |
-            curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
+            curl -sSL https://install.python-poetry.org | python3 - --version 2.1.1
             echo 'export PATH=/Users/distiller/.local/bin:$PATH' >> "$BASH_ENV"
             source $BASH_ENV
+            EPOCH=$(date +"%s")
             cd firefox-ios/firefox-ios/firefox-ios-tests/Tests/ExperimentIntegrationTests
             git cherry-pick dfd0b8a556f5990d0b5d9351df8acf571895e6dc -X theirs || true
             export SIMULATOR_UDID=$(python get_specific_device_udid.py)
@@ -367,7 +434,7 @@ jobs:
             cp -f ~/project/experimenter/tests/integration/nimbus/ios/xcodebuild.py ./
             poetry add pydantic==2.10.3
             poetry install
-            poetry run pytest -k test_ios_integration.py --feature ios_enrollment
+            poetry run pytest --junitxml=/Users/distiller/project/workspace/test-results/experimenter_ios_integration_tests.xml -k test_ios_integration.py --feature ios_enrollment
       - run:
           name: Collect XCTest Results
           command: |
@@ -385,51 +452,14 @@ jobs:
       - store_artifacts:
           path: ~/project/results.zip
 
-  integration_nimbus_sdk_targeting:
-    machine:
-      image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
-    resource_class: medium
-    working_directory: ~/experimenter
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|application-services/"
-      - run:
-          name: Run rust integration tests
-          command: |
-            cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_sdk
-      - store_artifacts:
-          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-
-  integration_nimbus_cirrus:
-    machine:
-      image: ubuntu-2004:2023.10.1
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: ~/experimenter
-    environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k DEMO_APP -m cirrus_enrollment --reruns 1
-    steps:
-      - checkout
-      - check_file_paths:
-          paths: "experimenter/experimenter/experiments/|cirrus/|application-services/"
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.integration-tests .env
-            export CIRRUS=1
-            make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_desktop PYTEST_ARGS="$PYTEST_ARGS"
-      - store_artifacts:
-          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
-
   create_mobile_recipes:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
+    environment:
+      PYTEST_ARGS: -k test_create_mobile_experiment_for_integration_test --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - checkout
       - run:
@@ -474,7 +504,7 @@ jobs:
             DOCKER_IMAGE="us-docker.pkg.dev/moz-fx-experimenter-prod-6cd5/experimenter-prod/experimenter"
             docker tag experimenter:deploy ${DOCKER_IMAGE}:latest
             docker push "${DOCKER_IMAGE}:latest"
-            GIT_SHA=$(git rev-parse --short HEAD)
+            GIT_SHA=$(git rev-parse --short=9 HEAD)
             docker tag experimenter:deploy ${DOCKER_IMAGE}:sha-${GIT_SHA}
             docker push ${DOCKER_IMAGE}:sha-${GIT_SHA}
 
@@ -485,19 +515,46 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
+      - run:
+          name: Skip if no changes to cirrus
+          command: |
+            if test -z "<< pipeline.git.base_revision >>"; then
+                echo "No base revision, continuing"
+            else
+                echo "Changed files:"
+                if git diff --exit-code --name-only "<< pipeline.git.base_revision >>" HEAD -- cirrus/ experimenter/experimenter/features/manifests/ .circleci/ $(find -maxdepth 1 -type f); then
+                    echo "No changes to cirrus or fml or .circleci or files in root directory, skipping"
+                    circleci-agent step halt
+                else
+                    echo "Changes detected in cirrus or fml or .circleci or files in root directory, continuing"
+                fi
+            fi
+      - run:
+          name: Prepare environment variables for OIDC authentication
+          command: |
+            echo 'export GOOGLE_PROJECT_ID="moz-fx-cirrus-prod"' >> "$BASH_ENV"
+            echo "export OIDC_SERVICE_ACCOUNT_EMAIL=$DEPLOY_CIRRUS_GCP_SERVICE_ACCOUNT_EMAIL" >> "$BASH_ENV"
+      - gcp-cli/setup:
+          use_oidc: true
       - docker_login:
           username: $DOCKERHUB_CIRRUS_USER
           password: $DOCKERHUB_CIRRUS_PASS
       - run:
-          name: Deploy to latest
+          name: Deploy to Google Artifact Registry and Docker Hub
           command: |
             make cirrus_build
-            docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:latest
-            docker push ${DOCKERHUB_CIRRUS_REPO}:latest
 
-            GIT_SHA=$(git rev-parse --short HEAD)
-            docker tag cirrus:deploy ${DOCKERHUB_CIRRUS_REPO}:sha-${GIT_SHA}
-            docker push ${DOCKERHUB_CIRRUS_REPO}:sha-${GIT_SHA}
+            gcloud auth configure-docker us-docker.pkg.dev --quiet
+
+            GIT_SHA=$(git rev-parse --short=9 HEAD)
+
+            for DOCKER_IMAGE in "us-docker.pkg.dev/moz-fx-cirrus-prod/cirrus-prod/cirrus" "${DOCKERHUB_CIRRUS_REPO}"; do
+              docker tag cirrus:deploy ${DOCKER_IMAGE}:latest
+              docker push "${DOCKER_IMAGE}:latest"
+
+              docker tag cirrus:deploy ${DOCKER_IMAGE}:sha-${GIT_SHA}
+              docker push ${DOCKER_IMAGE}:sha-${GIT_SHA}
+            done
 
   deploy_schemas:
     machine:
@@ -536,21 +593,11 @@ jobs:
   update_external_configs:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "32:8e:72:0b:9a:a1:1c:b8:7e:90:e1:53:a3:73:68:47" # for git pushes from circleci, since relies on ssh
       - checkout
-      - gh/setup:
-          token: GH_EXTERNAL_CONFIG_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
-      - run:
-          name: Setup Git
-          command: |
-            git config --local user.name "dataops-ci-bot"
-            git config --local user.email "dataops+ci-bot@mozilla.com"
-            gh config set git_protocol https
+      - setup-github-bot
       - run:
           name: Check for External Config Update
           command: |
@@ -580,21 +627,11 @@ jobs:
 
   update_application_services:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "32:8e:72:0b:9a:a1:1c:b8:7e:90:e1:53:a3:73:68:47" # for git pushes from circleci, since relies on ssh
       - checkout
-      - gh/setup:
-          token: GH_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
-      - run:
-          name: Setup Git
-          command: |
-            git config --local user.name "dataops-ci-bot"
-            git config --local user.email "dataops+ci-bot@mozilla.com"
-            gh config set git_protocol https
+      - setup-github-bot
       - run:
           name: Check for Application Services update
           command: |
@@ -615,65 +652,68 @@ jobs:
               echo "No config changes, skipping"
             fi
 
-  update_firefox_versions:
+  update_firefox_desktop_release:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     working_directory: ~/experimenter
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "32:8e:72:0b:9a:a1:1c:b8:7e:90:e1:53:a3:73:68:47" # for git pushes from circleci, since relies on ssh
       - checkout
-      - gh/setup:
-          token: GH_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
+      - setup-github-bot
       - run:
-          name: Setup Git
+          name: Update Firefox Desktop Release
           command: |
-            git config --local user.name "dataops-ci-bot"
-            git config --local user.email "dataops+ci-bot@mozilla.com"
-            gh config set git_protocol https
-      - run:
-          name: Check for external Update
-          command: |
-            ./scripts/external_integration_updater_script.sh
+            ./scripts/external_integration_updater_script.sh desktop release
 
-  build_firefox_versions:
-    working_directory: ~/experimenter
+  update_firefox_desktop_beta:
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
+    working_directory: ~/experimenter
     steps:
       - checkout
-      - docker_login:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+      - setup-github-bot
       - run:
-          name: Build and upload images
+          name: Update Firefox Desktop Beta
           command: |
-            # Clone last working version to ensure compatibility with aarch64 apple silicon machines
-            git clone --branch selenium-grid-0.27.0 --depth 1 git@github.com:SeleniumHQ/docker-selenium.git
-            cd docker-selenium
-            BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
-            BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
-            docker tag selenium/standalone-firefox:firefox-release ${DOCKERHUB_REPO}:nimbus-firefox-release
-            docker tag selenium/standalone-firefox:firefox-beta ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker push ${DOCKERHUB_REPO}:nimbus-firefox-beta
-            docker push ${DOCKERHUB_REPO}:nimbus-firefox-release
+            ./scripts/external_integration_updater_script.sh desktop beta
+
+  update_firefox_fenix_beta:
+    machine:
+      image: ubuntu-2204:2024.11.1
+      docker_layer_caching: true
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - setup-github-bot
+      - run:
+          name: Update Firefox Fenix Beta
+          command: |
+            ./scripts/external_integration_updater_script.sh fenix beta
+
+  update_firefox_fennec_release:
+    machine:
+      image: ubuntu-2204:2024.11.1
+      docker_layer_caching: true
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - setup-github-bot
+      - run:
+          name: Update Firefox iOS (Fennec) Release
+          command: |
+            ./scripts/external_integration_updater_script.sh fennec release
 
   build_firefox_fenix:
     working_directory: ~/experimenter
     machine:
-      image: ubuntu-2004:2023.10.1
+      image: ubuntu-2204:2024.11.1
       docker_layer_caching: true
     resource_class: xlarge
     steps:
       - checkout
       - check_file_paths:
           paths: "experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests/firefox_fenix_beta_build.env|experimenter/tests/firefox_fenix_release_build.env"
-      - docker_login:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
       - run:
           name: Build and upload images
           command: |
@@ -688,19 +728,14 @@ jobs:
           paths:
             - tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
             - tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
+      - store_artifacts:
+          path: ~/experimenter/experimenter/tests/integration/nimbus/android/app-fenix-debug-androidTest.apk
+          destination: app-fenix-debug-androidTest.apk
+      - store_artifacts:
+          path: ~/experimenter/experimenter/tests/integration/nimbus/android/app-fenix-x86_64-debug.apk
+          destination: app-fenix-x86_64-debug.apk
 
 workflows:
-  build_firefox:
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - build_firefox_versions
-
   update_configs:
     triggers:
       - schedule:
@@ -722,9 +757,13 @@ workflows:
               only:
                 - main
     jobs:
-      - update_firefox_versions
+      - update_firefox_desktop_release
+      - update_firefox_desktop_beta
+      - update_firefox_fenix_beta
+      - update_firefox_fennec_release
 
   build:
+    max_auto_reruns: 1
     jobs:
       - check_experimenter_x86_64:
           name: Check Experimenter x86_64
@@ -734,6 +773,12 @@ workflows:
           name: Check Cirrus x86_64
       - check_cirrus_aarch64:
           name: Check Cirrus aarch64
+      - check_local_feature_manifests:
+          name: Check Local Feature Manifests
+          filters:
+            branches:
+              ignore:
+                - main
       - check_schemas:
           name: Check Schemas
           filters:
@@ -746,6 +791,7 @@ workflows:
             branches:
               only:
                 - update_firefox_versions
+                - fix-13658
       - integration_nimbus_desktop_ui:
           name: Test Desktop Nimbus UI (Release Firefox)
           filters:
@@ -804,39 +850,17 @@ workflows:
               only:
                 - update_firefox_versions
       - integration_nimbus_ios_enrollment:
-          name: Test Firefox for iOS Beta
-          requires:
-            - Create Fenix and iOS recipes
-          file_path: experimenter/tests/firefox_fennec_beta_build.env
-          ios_version: "18.2"
-          simulator_device: iPhone 16
-          filters:
-            branches:
-              only:
-                - update_firefox_versions
-      - integration_nimbus_ios_enrollment:
           name: Test Firefox for iOS Release
           requires:
             - Create Fenix and iOS recipes
           file_path: experimenter/tests/firefox_fennec_release_build.env
-          ios_version: "18.2"
-          simulator_device: iPhone 16
+          ios_version: "26.0"
+          simulator_device: iPhone 17
           filters:
             branches:
               only:
                 - update_firefox_versions
-      - integration_nimbus_sdk_targeting:
-          name: Test SDK Targeting (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_cirrus:
-          name: Test Demo app with Cirrus
-          filters:
-            branches:
-              ignore:
-                - main
+                - fix-13658
       - deploy_experimenter:
           name: Deploy Experimenter
           context:
@@ -849,6 +873,8 @@ workflows:
             - Check Experimenter aarch64
       - deploy_cirrus:
           name: Deploy Cirrus
+          context:
+            - gcpv2-workload-identity
           filters:
             branches:
               only: main

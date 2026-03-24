@@ -1,11 +1,12 @@
 import json
 from collections import defaultdict
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from itertools import chain
 from pathlib import Path
+from typing import Any
 
-from django.conf import settings
 from django.core.files.storage import storages
+from django.utils import timezone
 from mozilla_nimbus_schemas.jetstream import (
     AnalysisBasis,
     AnalysisError,
@@ -39,6 +40,7 @@ ALL_STATISTICS = {
     Statistic.COUNT,
     Statistic.PERCENT,
     Statistic.POPULATION_RATIO,
+    Statistic.LINEAR_MODEL_MEAN,
 }
 
 analysis_storage = storages["analysis"]
@@ -53,7 +55,7 @@ def load_data_from_gcs(path):
 
 def validate_data(data_json):
     if data_json:
-        Statistics.parse_obj(data_json)
+        Statistics.model_validate(data_json)
     return data_json
 
 
@@ -65,7 +67,7 @@ def get_data(slug, window):
 
 def validate_metadata(metadata_json):
     if metadata_json:
-        Metadata.parse_obj(metadata_json)
+        Metadata.model_validate(metadata_json)
     return metadata_json
 
 
@@ -77,7 +79,7 @@ def get_metadata(slug):
 
 def validate_analysis_errors(analysis_errors_json):
     if analysis_errors_json:
-        AnalysisErrors.parse_obj(analysis_errors_json)
+        AnalysisErrors.model_validate(analysis_errors_json)
     return analysis_errors_json
 
 
@@ -103,9 +105,11 @@ def get_results_metrics_map(
     # used to see which statistic will be used for each metric.
     results_metrics_map: dict[str, set[Statistic]] = {
         Metric.RETENTION: {Statistic.BINOMIAL},
-        Metric.SEARCH: {Statistic.MEAN},
-        Metric.DAYS_OF_USE: {Statistic.MEAN},
+        Metric.RETENTION_3_DAYS: {Statistic.BINOMIAL},
+        Metric.SEARCH: {Statistic.LINEAR_MODEL_MEAN, Statistic.MEAN},
+        Metric.DAYS_OF_USE: {Statistic.LINEAR_MODEL_MEAN, Statistic.MEAN},
         Metric.USER_COUNT: {Statistic.COUNT, Statistic.PERCENT},
+        Metric.DAILY_ACTIVE_USERS: {Statistic.PER_CLIENT_DAU_IMPACT},
     }
     primary_metrics_set: set[str] = set()
     primary_outcome_metrics: list[OutcomeMetric] = list(
@@ -159,7 +163,13 @@ def get_other_metrics_names_and_map(
     other_metrics_map = {}
 
     # This is an ordered list of priorities of stats to graph
-    priority_stats = [Statistic.MEAN, Statistic.BINOMIAL]
+    priority_stats = [
+        Statistic.LINEAR_MODEL_MEAN,
+        Statistic.MEAN,
+        Statistic.BINOMIAL,
+        Statistic.PER_CLIENT_DAU_IMPACT,
+        Statistic.POPULATION_RATIO,
+    ]
     other_data = [
         data_point for data_point in data if data_point.metric not in results_metrics_map
     ]
@@ -188,9 +198,9 @@ def get_other_metrics_names_and_map(
 
 def get_experiment_data(experiment: NimbusExperiment):
     recipe_slug = experiment.slug.replace("-", "_")
-    # we don't use DAILY results in Experimenter, so only get WEEKLY/OVERALL
-    windows = [AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
+    windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
     raw_data = {
+        AnalysisWindow.DAILY: {},
         AnalysisWindow.WEEKLY: {},
         AnalysisWindow.OVERALL: {},
     }
@@ -212,8 +222,7 @@ def get_experiment_data(experiment: NimbusExperiment):
     except RuntimeError as e:
         runtime_errors.append(str(e))
 
-    experiment_data = {
-        "show_analysis": settings.FEATURE_ANALYSIS,
+    experiment_data: dict[str, Any] = {
         "metadata": experiment_metadata,
     }
 
@@ -257,7 +266,15 @@ def get_experiment_data(experiment: NimbusExperiment):
                 # Append some values onto the incoming Jetstream data
                 data.append_population_percentages()
                 data.append_retention_data(
-                    raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
+                    raw_data.get(AnalysisWindow.WEEKLY, {})
+                    .get(AnalysisBasis.ENROLLMENTS, {})
+                    .get(segment)
+                )
+                # Append 3-day retention from daily data
+                data.append_retention_3_days(
+                    raw_data.get(AnalysisWindow.DAILY, {})
+                    .get(AnalysisBasis.ENROLLMENTS, {})
+                    .get(segment)
                 )
                 # Create the output object (overall data)
                 ResultsObjectModel = create_results_object_model(data)
@@ -267,14 +284,15 @@ def get_experiment_data(experiment: NimbusExperiment):
 
                 if segment == Segment.ALL:
                     experiment_data["other_metrics"] = other_metrics
-            elif data and window == AnalysisWindow.WEEKLY:
-                # Create the output object (weekly data)
+            elif (data and window == AnalysisWindow.WEEKLY) or (
+                data and window == AnalysisWindow.DAILY
+            ):
                 ResultsObjectModel = create_results_object_model(data)
 
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
 
             # Convert output object to dict and put into the final object
-            transformed_data = data.dict(exclude_none=True) or None
+            transformed_data = data.model_dump(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
 
         for segment, segment_data in segment_points_exposures.items():
@@ -295,7 +313,15 @@ def get_experiment_data(experiment: NimbusExperiment):
                 # Append some values onto Jetstream data
                 data.append_population_percentages()
                 data.append_retention_data(
-                    raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.EXPOSURES][segment]
+                    raw_data.get(AnalysisWindow.WEEKLY, {})
+                    .get(AnalysisBasis.EXPOSURES, {})
+                    .get(segment)
+                )
+                # Append 3-day retention from daily data
+                data.append_retention_3_days(
+                    raw_data.get(AnalysisWindow.DAILY, {})
+                    .get(AnalysisBasis.EXPOSURES, {})
+                    .get(segment)
                 )
 
                 ResultsObjectModel = create_results_object_model(data)
@@ -303,12 +329,16 @@ def get_experiment_data(experiment: NimbusExperiment):
                 data = ResultsObjectModel(result_metrics, data, experiment)
                 data.append_conversion_count(primary_metrics_set)
 
-            elif data and window == AnalysisWindow.WEEKLY:
+                if segment == Segment.ALL:
+                    experiment_data["other_metrics"].update(other_metrics)
+            elif (data and window == AnalysisWindow.WEEKLY) or (
+                data and window == AnalysisWindow.DAILY
+            ):
                 ResultsObjectModel = create_results_object_model(data)
 
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
 
-            transformed_data = data.dict(exclude_none=True) or None
+            transformed_data = data.model_dump(exclude_none=True) or None
             experiment_data[window][AnalysisBasis.EXPOSURES][segment] = transformed_data
 
     errors_by_metric = {}
@@ -337,10 +367,11 @@ def get_experiment_data(experiment: NimbusExperiment):
 
     for e in runtime_errors:
         # only store runtime errors for overall window if we expect those results
+        # (and lag by one day so there is time for analysis to complete)
         if "overall.json" not in e or (
             "overall.json" in e
             and experiment.end_date
-            and experiment.end_date < date.today()
+            and experiment.end_date < (date.today() - timedelta(days=1))
         ):
             analysis_error = AnalysisError(
                 experiment=experiment.slug,
@@ -348,9 +379,9 @@ def get_experiment_data(experiment: NimbusExperiment):
                 func_name="load_data_from_gcs",
                 log_level="WARNING",
                 message=e,
-                timestamp=datetime.now(),
+                timestamp=timezone.now(),
             )
-            errors_experiment_overall.append(analysis_error.dict())
+            errors_experiment_overall.append(analysis_error.model_dump())
 
     errors_by_metric["experiment"] = errors_experiment_overall
 
@@ -363,5 +394,5 @@ def get_experiment_data(experiment: NimbusExperiment):
 
 def get_population_sizing_data():
     sizing_data = get_sizing_data(suffix="latest")
-    sizing = SampleSizes.parse_obj(sizing_data) if sizing_data is not None else {}
+    sizing = SampleSizes.model_validate(sizing_data) if sizing_data is not None else {}
     return {"v1": sizing}

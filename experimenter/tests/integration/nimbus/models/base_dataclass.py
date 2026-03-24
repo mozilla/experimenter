@@ -4,12 +4,9 @@ from typing import Optional
 
 
 class BaseExperimentApplications(Enum):
-    FIREFOX_DESKTOP = "DESKTOP"
-    FIREFOX_FENIX = "FENIX"
-    FIREFOX_IOS = "IOS"
-    FOCUS_ANDROID = "FOCUS_ANDROID"
-    FOCUS_IOS = "FOCUS_IOS"
-    DEMO_APP = "DEMO_APP"
+    FIREFOX_DESKTOP = "firefox-desktop"
+    FIREFOX_FENIX = "fenix"
+    FIREFOX_IOS = "ios"
 
 
 class BaseExperimentAudienceChannels(Enum):
@@ -28,7 +25,7 @@ class BaseExperimentBranchDataClass:
 @dataclass
 class BaseExperimentAudienceDataClass:
     channel: BaseExperimentAudienceChannels
-    min_version: int
+    min_version: str
     targeting: Optional[str]
     percentage: float
     expected_clients: int

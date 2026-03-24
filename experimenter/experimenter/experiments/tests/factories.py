@@ -32,6 +32,7 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusIsolationGroup,
     NimbusVersionedSchema,
+    Tag,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -107,6 +108,18 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
                     version=None,
                 )
             )
+
+    @factory.post_generation
+    def subscribers(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if isinstance(extracted, Iterable):
+            for subscriber in extracted:
+                self.subscribers.add(subscriber)
+        else:
+            for _ in range(3):
+                self.subscribers.add(UserFactory.create())
 
     @classmethod
     def create_desktop_prefflips_feature(cls, **kwargs):
@@ -443,21 +456,45 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     total_enrolled_clients = factory.LazyAttribute(
         lambda o: random.randint(1, 100) * 1000
     )
-    firefox_min_version = factory.LazyAttribute(
-        lambda o: random.choice(list(NimbusExperiment.Version)).value
-    )
+    firefox_min_version = NimbusExperiment.Version.FIREFOX_100
     application = NimbusExperiment.Application.DESKTOP
     channel = factory.LazyAttribute(
-        lambda o: random.choice(
-            list(
-                NimbusExperiment.APPLICATION_CONFIGS[o.application].channel_app_id.keys()
-            )
-        ).value
+        lambda o: (
+            random.choice(
+                list(
+                    NimbusExperiment.APPLICATION_CONFIGS[
+                        o.application
+                    ].channel_app_id.keys()
+                )
+            ).value
+            if o.application != NimbusExperiment.Application.DESKTOP
+            else NimbusExperiment.Channel.NO_CHANNEL
+        )
+    )
+    channels = factory.LazyAttribute(
+        lambda o: (
+            [
+                str(c)
+                for c in set(
+                    random.choices(
+                        list(
+                            set(
+                                NimbusExperiment.APPLICATION_CONFIGS[
+                                    o.application
+                                ].channel_app_id.keys()
+                            )
+                            - {NimbusExperiment.Channel.NO_CHANNEL}
+                        ),
+                        k=2,
+                    )
+                )
+            ]
+            if o.application == NimbusExperiment.Application.DESKTOP
+            else []
+        )
     )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
-    targeting_config_slug = factory.LazyAttribute(
-        lambda o: random.choice(list(NimbusExperiment.TargetingConfig)).value
-    )
+    targeting_config_slug = NimbusExperiment.TargetingConfig.NO_TARGETING
     primary_outcomes = factory.LazyAttribute(
         lambda o: random_slice([oc.slug for oc in Outcomes.all()[:2]])
     )
@@ -471,28 +508,18 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     risk_revenue = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_brand = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_message = factory.LazyAttribute(lambda o: random.choice([True, False]))
+    risk_ai = False
     is_localized = factory.LazyAttribute(lambda o: False)
     localizations = factory.LazyAttribute(lambda o: None)
     qa_status = factory.LazyAttribute(
         lambda o: random.choice(list(NimbusExperiment.QAStatus)).value
     )
     is_firefox_labs_opt_in = factory.LazyAttribute(lambda o: False)
-    firefox_labs_title = factory.LazyAttribute(
-        lambda o: faker.catch_phrase() if o.is_firefox_labs_opt_in else None
-    )
-    firefox_labs_description = factory.LazyAttribute(
-        lambda o: faker.catch_phrase() if o.is_firefox_labs_opt_in else None
-    )
-    firefox_labs_group = factory.LazyAttribute(
-        lambda o: (
-            random.choice(NimbusExperiment.FirefoxLabsGroups.choices)[0]
-            if o.is_firefox_labs_opt_in
-            else None
-        )
-    )
+    firefox_labs_description_links = factory.LazyAttribute(lambda o: "null")
     requires_restart = factory.LazyAttribute(
-        lambda o: (random.choice([True, False]) if o.is_firefox_labs_opt_in else False)
+        lambda o: random.choice([True, False]) if o.is_firefox_labs_opt_in else False
     )
+    results_data = {"v3": {"overall": {"enrollments": {"all": {}}}}}
 
     class Meta:
         model = NimbusExperiment
@@ -539,6 +566,20 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         else:
             for _ in range(3):
                 self.projects.add(ProjectFactory.create())
+
+    @factory.post_generation
+    def tags(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if isinstance(extracted, Iterable):
+            # A list of tags were passed in, use them
+            for tag in extracted:
+                self.tags.add(tag)
+        else:
+            for _ in range(3):
+                self.tags.add(TagFactory.create())
 
     @factory.post_generation
     def documentation_links(self, create, extracted, **kwargs):
@@ -632,13 +673,34 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         *args,
         **kwargs,
     ):
-        experiment = super().create(*args, **kwargs)
-
         if branches is not None:
             raise factory.FactoryError(
                 "A NimbusExperiment factory can not specify branches at creation time, "
                 "please modify the branches that are created or delete them and add "
                 "new ones."
+            )
+
+        if kwargs.get("is_firefox_labs_opt_in", False):
+            for field in (
+                "firefox_labs_title",
+                "firefox_labs_description",
+                "firefox_labs_group",
+            ):
+                if kwargs.get(field) is None:
+                    raise factory.FactoryError(
+                        f"The field {field} is required when is_firefox_labs_opt_in=True"
+                    )
+
+        experiment = super().create(*args, **kwargs)
+
+        if experiment.is_desktop and experiment.channel:
+            raise factory.FactoryError(
+                "A desktop experiment must not use channel.  Use channels instead."
+            )
+
+        if not experiment.is_desktop and experiment.channels:
+            raise factory.FactoryError(
+                "A non-desktop experiment must not use channels.  Use channel instead."
             )
 
         if excluded_experiments is not None:
@@ -661,7 +723,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             experiment=experiment, name="Control"
         )
         experiment.save()
-        NimbusBranchFactory.create(experiment=experiment, name="Treatment")
+
+        if not experiment.is_rollout:
+            NimbusBranchFactory.create(experiment=experiment, name="Treatment")
 
         return experiment
 
@@ -696,6 +760,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 and experiment.status_next is None
             ) and end_date is not None:
                 experiment._end_date = end_date
+                experiment._computed_end_date = end_date
                 current_datetime = end_date
 
             experiment.save()
@@ -764,7 +829,7 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
 class NimbusBranchFeatureValueFactory(factory.django.DjangoModelFactory):
     branch = factory.SubFactory(NimbusBranchFactory)
     feature_config = factory.SubFactory(NimbusFeatureConfigFactory)
-    value = factory.LazyAttribute(lambda o: json.dumps({faker.slug(): faker.slug()}))
+    value = factory.LazyAttribute(lambda o: json.dumps({"variable": faker.slug()}))
 
     class Meta:
         model = NimbusBranchFeatureValue
@@ -837,3 +902,11 @@ class NimbusFmlErrorDataClass:
     col: int
     message: str
     highlight: str
+
+
+class TagFactory(factory.django.DjangoModelFactory):
+    name = factory.LazyAttribute(lambda o: slugify(faker.unique.catch_phrase()))
+    color = factory.LazyAttribute(lambda o: faker.hex_color())
+
+    class Meta:
+        model = Tag

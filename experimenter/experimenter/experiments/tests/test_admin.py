@@ -3,13 +3,14 @@ from unittest import mock
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from import_export import fields
 
 from experimenter.experiments.admin import (
     DecimalWidget,
     NimbusBranchForeignKeyWidget,
+    NimbusExperimentAdmin,
     NimbusExperimentAdminForm,
     NimbusExperimentResource,
 )
@@ -171,6 +172,86 @@ class TestNimbusExperimentAdmin(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         mock_fetch_experiment_data.delay.assert_called_with(experiment.id)
+
+    def test_admin_save_creates_changelog(self):
+        admin = NimbusExperimentAdmin(NimbusExperiment, None)
+        user = UserFactory.create()
+        request = RequestFactory().post("/")
+        request.user = user
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        initial_changelog_count = experiment.changes.count()
+
+        form = NimbusExperimentAdminForm(
+            instance=experiment,
+            data={
+                "owner": experiment.owner.id,
+                "status": experiment.status,
+                "publish_status": experiment.publish_status,
+                "name": "Updated Name",
+                "slug": experiment.slug,
+                "proposed_duration": experiment.proposed_duration,
+                "proposed_enrollment": experiment.proposed_enrollment,
+                "population_percent": experiment.population_percent,
+                "total_enrolled_clients": experiment.total_enrolled_clients,
+                "application": experiment.application,
+                "hypothesis": experiment.hypothesis,
+            },
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = admin.save_form(request, form, change=True)
+
+        self.assertEqual(experiment.name, "Updated Name")
+        self.assertEqual(experiment.changes.count(), initial_changelog_count + 1)
+
+        latest_change = experiment.changes.latest("changed_on")
+        self.assertEqual(latest_change.changed_by, user)
+        self.assertEqual(
+            latest_change.message, NimbusExperiment.CHANGELOG_MESSAGE_ADMIN_EDIT
+        )
+
+
+class TestNimbusExperimentChangeLogInlineAdmin(TestCase):
+    def test_changelog_display_with_changes(self):
+        admin = NimbusExperimentAdmin(NimbusExperiment, None)
+        user = UserFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=user,
+        )
+
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.PREVIEW,
+            old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            message="Test change",
+        )
+
+        result = admin.changelog_display(experiment)
+        self.assertIn("Test change", result)
+
+    def test_changelog_display_without_changes(self):
+        admin = NimbusExperimentAdmin(NimbusExperiment, None)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        # Clear any changelog entries
+        experiment.changes.all().delete()
+
+        result = admin.changelog_display(experiment)
+        self.assertEqual(result, "No change history")
+
+    def test_changelog_display_without_pk(self):
+        admin = NimbusExperimentAdmin(NimbusExperiment, None)
+        experiment = NimbusExperiment()
+
+        result = admin.changelog_display(experiment)
+        self.assertEqual(result, "No change history")
 
 
 class TestNimbusExperimentExport(TestCase):

@@ -1,0 +1,119 @@
+{% load static %}
+{% load nimbus_extras %}
+
+<div class="d-flex gap-3">
+  {% with shot=branch.screenshots.first %}
+    {% if shot and shot.image %}
+      <div class="position-relative border border-secondary-subtle rounded w-50 h-100">
+        <img src="{{ shot.image.url }}"
+             alt="{{ shot.description|default:branch.name }}"
+             class="rounded w-100"
+             style="height: 120px;
+                    object-fit: cover" />
+        <button type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#{{ experiment_slug }}-{{ branch.slug }}-image-edit"
+                class="position-absolute border-0 opacity-75 bg-secondary-subtle top-0 end-0 p-2 m-1 rounded lh-1">
+          <i class="fa-solid fa-up-right-and-down-left-from-center text-muted"></i>
+        </button>
+      </div>
+    {% else %}
+      <div class="position-relative border border-secondary-subtle rounded text-center d-flex align-items-center justify-content-center w-50"
+           style="height: 120px">
+        <img src="{% static 'assets/img-placeholder.svg' %}"
+             class="rounded w-100"
+             alt="No screenshot uploaded yet"
+             style="height: 120px;
+                    object-fit: cover" />
+        <button type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#{{ experiment_slug }}-{{ branch.slug }}-image-edit"
+                class="position-absolute border-0 opacity-75 bg-secondary-subtle top-0 end-0 p-2 m-1 rounded lh-1">
+          <i class="fa-solid fa-up-right-and-down-left-from-center text-muted"></i>
+        </button>
+      </div>
+    {% endif %}
+  {% endwith %}
+  <div class="w-50">
+    <span class="badge rounded text-body-secondary bg-body-secondary border border-secondary-subtle d-inline-flex flex-column w-100 align-items-start gap-2 fs-6">
+      <div class="text-truncate w-100 text-start" title="{{ branch.name }}">{{ branch.name }}</div>
+      <div class="d-inline-flex gap-1 fw-normal">
+        {% if branch.percentage %}
+          {{ branch.percentage|floatformat:"0g" }}%
+          <span>&middot;</span>
+        {% endif %}
+        {% if experiment.has_exposures == valid_exposure_status or experiment.has_exposures == invalid_exposure_status %}
+          <span class="mb-0"
+                data-bs-toggle="tooltip"
+                data-bs-title="{{ branch.num_exposed_clients }}">{{ branch.num_exposed_clients|short_number }}</span>
+          /
+        {% endif %}
+        <span class="mb-0"
+              data-bs-toggle="tooltip"
+              data-bs-title="{{ branch.num_enrolled_clients }}">{{ branch.num_enrolled_clients|short_number }}</span>users
+      </div>
+      {% if experiment.has_exposures == valid_exposure_status or experiment.has_exposures == invalid_exposure_status %}
+        <div class="d-inline-flex gap-1 fw-normal text-secondary">
+          <small>Exposure Rate: {{ branch.exposure_rate|to_percentage:1 }}
+            <i class="fa-regular fa-circle-question ps-1"
+               data-bs-toggle="tooltip"
+               data-bs-html="true"
+               data-bs-delay='{"hide":1000}'
+               data-bs-title="Percentage of the enrolled population that was exposed to this branch's treatment (also shown above as exposed/enrolled). <a href='https://experimenter.info/data-analysis/data-topics/sizing/#commentary-on-exposure-rates' target='_blank'>Learn more.</a>"></i></small>
+        </div>
+      {% endif %}
+    </span>
+    <p class="mt-2 text-muted">{{ branch.description|truncatechars:100 }}</p>
+  </div>
+</div>
+<div class="modal fade"
+     id="{{ experiment_slug }}-{{ branch.slug }}-image-edit"
+     tabindex="-1"
+     aria-labelledby="{{ experiment_slug }}-{{ branch.slug }}-image-edit"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content p-4">
+      <div class="modal-header border-0">
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post"
+              id="branch-screenshot-form-{{ experiment_slug }}-{{ branch.slug }}"
+              hx-encoding="multipart/form-data"
+              hx-post="{% url "nimbus-ui-branch-leading-screenshot-upload" slug=experiment_slug branch_slug=branch.slug %}">
+          {% csrf_token %}
+          {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
+            <div class="position-relative border border-secondary-subtle rounded h-100 mb-3">
+              <img src="{{ screenshot_form.instance.image.url }}"
+                   alt="{{ screenshot_form.instance.description }}"
+                   class="w-100 rounded">
+            </div>
+          {% else %}
+            <div class="border border-secondary-subtle rounded mb-3">
+              <img src="{% static 'assets/img-placeholder.svg' %}"
+                   alt="No screenshot uploaded yet"
+                   class="rounded w-100" />
+            </div>
+          {% endif %}
+          {{ screenshot_form.image }}
+          {% if screenshot_form.instance.image %}
+            <div class="border border-1 rounded mt-4 p-3">
+              <div class="d-flex flex-column align-items-start">
+                <h6 class="mb-1">Add image description</h6>
+                <small class="text-muted">Add a short description so people who can't see the image know what it shows.</small>
+              </div>
+              <div id="screenshot-form-{{ experiment_slug }}-{{ branch.slug }}"
+                   class="mt-3">{{ screenshot_form.description }}</div>
+            </div>
+          {% endif %}
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

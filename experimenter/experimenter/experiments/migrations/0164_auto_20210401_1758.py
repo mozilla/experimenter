@@ -32,7 +32,6 @@ def update_statuses(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0163_add_ios"),
     ]

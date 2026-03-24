@@ -1,0 +1,493 @@
+{% load static %}
+{% load nimbus_extras %}
+
+<div class="accordion d-flex flex-column gap-4 position-relative"
+     id="{{ experiment.slug }}-results-accordion">
+  {% comment %} Loading overlay {% endcomment %}
+  <div id="htmx-loading-overlay"
+       class="position-absolute bg-secondary top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center rounded">
+    <div class="text-center text-white">
+      <i class="fa-solid fa-spinner fa-spin-pulse fa-3x mb-3"></i>
+      <div class="fs-5">Loading...</div>
+    </div>
+  </div>
+  {% comment %} Overview {% endcomment %}
+  <div class="px-5 pt-4 pb-5 shadow-sm rounded-4 bg-body border border-1">
+    <div class="d-flex mt-2 align-items-center justify-content-between">
+      <h4 class="m-0">Overview</h4>
+      <div>
+        Results last calculated:
+        <span class="fw-bold">{{ experiment.results_data.v3.metadata.analysis_start_time|parse_date|date:"N j, Y g:i A"|default:"N/A" }}
+          {% if experiment.results_data.v3.metadata.analysis_start_time %}UTC{% endif %}
+        </span>
+      </div>
+    </div>
+    <div id="{{ experiment.slug }}-results-overview">
+      <div class="d-flex flex-column gap-4">
+        <hr>
+        <div>
+          <div class="row">
+            <div class="col-xxl">
+              <h5>Hypothesis</h5>
+              {% with hyp=experiment.hypothesis|default:"No hypothesis set." %}
+                {% if hyp|length > 300 %}
+                  <p>
+                    {{ hyp|truncatechars:300 }}
+                    <a href="{{ experiment.get_detail_url }}" class="ms-1">More</a>
+                  </p>
+                {% else %}
+                  <p>{{ hyp }}</p>
+                {% endif %}
+              {% endwith %}
+            </div>
+            <div class="col-xxl">
+              <div class="row">
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Product Owner</p>
+                  <p>{{ experiment.owner|default:"No product owner set." }}</p>
+                </div>
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Advanced Targeting</p>
+                  <p>{{ experiment.targeting_config.name }}</p>
+                </div>
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Application</p>
+                  <p>{{ experiment.application|default:"Unknown" }}</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Localization</p>
+                  {% for locale in experiment.locales.all %}
+                    <p class="mb-0">{{ locale.name }}</p>
+                  {% empty %}
+                    <p class="mb-0">None</p>
+                  {% endfor %}
+                </div>
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Version</p>
+                  <p>
+                    {{ experiment.firefox_min_version }}
+                    {% if experiment.firefox_max_version %}
+                      - {{ experiment.firefox_max_version }}
+                    {% else %}
+                      +
+                    {% endif %}
+                  </p>
+                </div>
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Outcomes</p>
+                  {% for outcome, url in experiment_context.primary_outcome_links %}
+                    <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
+                  {% endfor %}
+                  {% for outcome, url in experiment_context.secondary_outcome_links %}
+                    <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
+                  {% endfor %}
+                </div>
+                <div class="col-4 d-flex"></div>
+                <div class="row mt-2">
+                  <p class="text-muted mb-0">Feature tags</p>
+                  <div class="d-flex flex-wrap">
+                    {% for tag in experiment.tags.all %}
+                      <span class="badge bg-light text-dark mb-1">{{ tag.name }}</span>
+                    {% empty %}
+                      <p>None</p>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div>
+          <h5 class="mb-3">Branches</h5>
+          {% if experiment.has_exposures == valid_exposure_status or experiment.has_exposures == invalid_exposure_status %}
+            <p class="text-muted">
+              Overall Exposure Rate: <strong>{{ overall_exposure_rate|to_percentage:2 }}</strong>
+              <i class="fa-regular fa-circle-question ps-1"
+                 data-bs-toggle="tooltip"
+                 data-bs-html="true"
+                 data-bs-delay='{"hide":1000}'
+                 data-bs-title="Percentage of the total enrolled population that was exposed to the experimental treatment (or would have been exposed, for control branches). <a href='https://experimenter.info/data-analysis/data-topics/sizing/#commentary-on-exposure-rates' target='_blank'>Learn more.</a>"></i>
+            </p>
+          {% endif %}
+          <div class="row row-cols-2 row-cols-xxl-3 g-4">
+            {% for branch in branch_data %}
+              <div class="col">
+                {% for branch_slug, branch_leading_screenshot_form in branch_leading_screenshot_forms.items %}
+                  {% if branch_slug == branch.slug %}
+                    {% include "common/branch_card.html" with branch=branch experiment_slug=experiment.slug screenshot_form=branch_leading_screenshot_form %}
+
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <hr>
+        <div>
+          {% if experiment.takeaways_summary or experiment.next_steps %}
+            <div class="row">
+              <div class="col">
+                <h5>Key takeaways</h5>
+                {% if experiment.takeaways_summary %}
+                  <div>{{ experiment.takeaways_summary|sanitize_html }}</div>
+                {% else %}
+                  <p class="text-muted">
+                    {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.key_takeaways }}
+                  </p>
+                {% endif %}
+              </div>
+              <div class="col d-flex flex-column gap-4">
+                <div>
+                  <h5>Next steps</h5>
+                  {% if experiment.next_steps %}
+                    <div>{{ experiment.next_steps|sanitize_html }}</div>
+                  {% else %}
+                    <p class="text-muted">
+                      {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.next_steps }}
+                    </p>
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="d-flex align-items-start gap-2">
+                    <h5>Project Impact</h5>
+                    {% if not experiment.project_impact %}
+                      <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
+                    {% endif %}
+                  </div>
+                  {% if experiment.project_impact %}
+                    <span class="badge rounded-pill text-bg-warning border border-secondary-subtle"><i class="fa-solid fa-trophy me-2"></i>{{ experiment.project_impact|lower|capfirst }} impact experiment</span>
+                  {% else %}
+                    <p class="text-muted">
+                      {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.project_impact }}
+                    </p>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="d-flex justify-content-end align-items-start col-1">
+                <button type="button"
+                        class="bg-transparent border-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#edit-summary-{{ experiment.slug }}">
+                  <i class="fa-solid fa-pencil text-muted fs-5"></i>
+                </button>
+              </div>
+            </div>
+          {% else %}
+            <div class="row">
+              <div class="col">
+                <h5>Key takeaways</h5>
+                <p class="text-muted">
+                  {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.key_takeaways }}
+                </p>
+              </div>
+              <div class="col">
+                <h5>Next steps</h5>
+                <p class="text-muted">
+                  {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.next_steps }}
+                </p>
+              </div>
+              <div class="col">
+                <div class="d-flex align-items-start gap-2">
+                  <h5>Project Impact</h5>
+                  {% if not experiment.project_impact %}
+                    <span class="badge rounded-pill text-bg-warning bg-opacity-25 border border-secondary-subtle">Incomplete</span>
+                  {% endif %}
+                </div>
+                <p class="text-muted">
+                  {% if experiment.project_impact %}
+                    <span class="badge rounded-pill text-bg-warning border border-secondary-subtle"><i class="fa-solid fa-trophy me-2"></i>{{ experiment.project_impact|lower|capfirst }} impact experiment</span>
+                  {% else %}
+                    <p class="text-muted">
+                      {{ experiment.key_takeaways|default:NimbusUIConstants.OVERVIEW_REFLECTION_PROMPTS.project_impact }}
+                    </p>
+                  {% endif %}
+                </p>
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-start">
+                <button type="button"
+                        class="bg-transparent border-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#edit-summary-{{ experiment.slug }}">
+                  <i class="fa-solid fa-pencil text-muted fs-5"></i>
+                </button>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% comment %} Metrics {% endcomment %}
+  {% for area, metric_data_metadata in metric_area_data.items %}
+    {% with metric_metadata=metric_data_metadata.metrics metric_data=metric_data_metadata.data|dict_get:displayed_window label_details=metric_data_metadata.label_details %}
+      {% if metric_data or area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
+        <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
+          <h2 class="accordion-header d-flex justify-content-between align-items-center">
+            <button class="{% if metric_data %}accordion-button{% else %}border-0 py-3 px-4{% endif %} bg-transparent shadow-none text-body d-flex {% if not area == NimbusUIConstants.NOTABLE_METRIC_AREA %}collapsed{% endif %}"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#{{ experiment.slug }}-results-{{ area|slugify }}"
+                    aria-expanded="{% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}true{% else %}false{% endif %}"
+                    aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}"
+                    style="{% if not metric_data %}cursor: default;
+                           {% endif %}">
+              <div class="pe-3 d-flex flex-column align-items-start">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                  <h4 class="mb-0">{{ area }}</h4>
+                  {% if label_details %}
+                    <span class="badge rounded-pill {{ label_details.badge }} border border-1 border-secondary-subtle"
+                          data-bs-toggle="tooltip"
+                          data-bs-title="{{ label_details.tooltip }}">{{ label_details.label }}</span>
+                  {% endif %}
+                  {% if experiment.is_observation %}
+                    <span class="badge rounded-pill bg-info-subtle border border-1 border-secondary-subtle"><span class="text-body">In progress &middot; <span class="text-muted fw-medium">results still forming</span></span></span>
+                  {% endif %}
+                </div>
+                <div class="d-inline-flex gap-3 flex-wrap row-gap-1">
+                  {% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}
+                    <small class="text-muted">
+                      {% if metric_data %}
+                        {{ NimbusUIConstants.NOTABLE_CHANGES_PRESENT_TEXT }}
+                      {% else %}
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ NimbusUIConstants.NOTABLE_CHANGES_ABSENT_TEXT }}
+                      {% endif %}
+                    </small>
+                  {% else %}
+                    {% for metric in metric_metadata %}
+                      <div>
+                        <small class="text-muted">{{ metric.friendly_name }}</small>
+                        <small>
+                          <i class="fa-solid ms-1 me-2 {% if metric.has_errors or not metric.has_data %}fa-triangle-exclamation text-warning{% elif metric.overall_change == 'positive' %}fa-up-long text-success{% elif metric.overall_change == 'negative' %}fa-down-long text-danger{% elif metric.overall_change == 'mixed' %}fa-up-down text-warning{% elif metric.overall_change == 'neutral' %}fa-left-long text-muted{% endif %}"
+                             data-bs-toggle="tooltip"
+                             title="{% if metric.has_errors or not metric.has_data %}No data available{% elif metric.overall_change == 'positive' %}Positive changes{% elif metric.overall_change == 'negative' %}Negative changes{% elif metric.overall_change == 'mixed' %}Mixed changes{% elif metric.overall_change == 'neutral' %}No notable change{% endif %}">
+                          </i>
+                        </small>
+                        {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+              </div>
+            </button>
+            <div class="dropdown results-table-actions"
+                 data-experiment-slug="{{ experiment.slug }}"
+                 data-controlling-area="{{ area|slugify }}">
+              <a class="btn border-0"
+                 href="#"
+                 role="button"
+                 data-bs-toggle="dropdown"
+                 data-bs-auto-close="outside"
+                 aria-expanded="false">
+                <i class="fa-solid fa-ellipsis-vertical text-secondary"></i>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item"
+                     id="copy-link-{{ experiment.slug }}-results-{{ area|slugify }}">Copy Link</a>
+                </li>
+                <li>
+                  <a class="dropdown-item"
+                     id="copy-table-{{ experiment.slug }}-results-{{ area|slugify }}">Copy Table</a>
+                </li>
+                <li class="dropend">
+                  <a class="dropdown-item dropdown-toggle d-flex justify-content-between align-items-center"
+                     id="export-{{ experiment.slug }}-results-{{ area|slugify }}"
+                     href="#"
+                     data-bs-toggle="dropdown"
+                     data-bs-auto-close="outside"
+                     aria-expanded="false">Export</a>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <a class="dropdown-item export-option" data-export-format="pdf">PDF</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </h2>
+          {% if metric_data %}
+            <div id="{{ experiment.slug }}-results-{{ area|slugify }}"
+                 class="accordion-collapse collapse {% if area == NimbusUIConstants.NOTABLE_METRIC_AREA %}show{% endif %}">
+              <div class="accordion-body d-flex">
+                <div class="col-2">
+                  <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
+                  {% for metric in metric_metadata %}
+                    <button class="btn border-3 p-3 {% if forloop.last %}mb-4{% endif %} align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle                   {% if metric.has_data %}nav-link-hover{% else %}bg-body-tertiary{% endif %}  text-break"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#{{ experiment.slug }}-{{ metric.slug }}-{{ area|slugify }}"
+                            style="height: 100px;
+                                   {% if not metric.has_data %}cursor: default;{% endif %}">
+                      {% if metric.has_data %}
+                        <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
+                      {% endif %}
+                      <p class=" metric-text mb-0">{{ metric.friendly_name }}</p>
+                    </button>
+                    {% for curr_metric_slug, metric_data in metric_data.items %}
+                      {% if curr_metric_slug == metric.slug %}
+                        {% for metric_ui_properties, ui_properties in relative_metric_changes.items %}
+                          {% if metric_ui_properties == curr_metric_slug %}
+                            {% include "common/metric_popout.html" with experiment_slug=experiment.slug metric_info=metric metric_data=metric_data branches=branch_data reference_branch=selected_reference_branch ui_properties=ui_properties display_type=metric.display_type %}
+
+                          {% endif %}
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                </div>
+                <div class="col position-relative w-25 d-flex flex-column">
+                  {% if experiment.is_enrolling %}
+                    <div class="row flex-row flex-nowrap overflow-auto mx-2 {% if branch_data|length > 4 %}mx-4{% endif %}">
+                      {% for branch in branch_data %}
+                        <div class="{% if branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                          <p class="fs-5 text-truncate w-100 text-center"
+                             title="{{ branch.name }}">{{ branch.name }}</p>
+                        </div>
+                      {% endfor %}
+                    </div>
+                    <div class="ms-4 bg-body-tertiary rounded-3 flex-grow-1 overflow-auto d-flex align-items-center mb-4">
+                      <span class="text-muted mx-auto">Metrics are on their way! Enrollment is in progress!</span>
+                    </div>
+                  {% else %}
+                    <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 4 %}mx-4{% endif %}">
+                      {% if branch_data|length > 4 %}
+                        <div class="branch-fade branch-fade-left"></div>
+                        <div class="branch-fade branch-fade-right"></div>
+                      {% endif %}
+                      {% for branch in branch_data %}
+                        <div class="{% if branch.slug == selected_reference_branch %}col-2{% elif branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                          <p class="fs-5 text-truncate w-100 text-center"
+                             title="{{ branch.name }}">{{ branch.name }}</p>
+                          <div class="d-flex flex-column gap-3 w-100">
+                            {% for metric in metric_metadata %}
+                              {% for curr_metric_slug, metric_branch_data in metric_data.items %}
+                                {% if curr_metric_slug == metric.slug %}
+                                  {% if metric.has_errors or not metric.has_data %}
+                                    {% if forloop.parentloop.parentloop.first %}
+                                      <div class="d-flex align-items-center" style="height: 100px;">
+                                        <div class="position-absolute alert alert-warning d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
+                                          <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                                          <p class="mb-0 fw-semibold">Metric unavailable</p>
+                                          <p class="mb-0">Other metrics may not be affected.</p>
+                                          <a class="btn btn-secondary bg-secondary-subtle border-0 text-body fw-semibold"
+                                             target="_blank"
+                                             href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
+                                        </div>
+                                      </div>
+                                    {% else %}
+                                      <div class="invisible" style="height: 100px;" aria-hidden="true"></div>
+                                    {% endif %}
+                                  {% else %}
+                                    {% for curr_branch_slug, branch_metric_data in metric_branch_data.items %}
+                                      {% if curr_branch_slug == branch.slug %}
+                                        {% with abs_last=branch_metric_data.absolute|last %}
+                                          {% with rel_last=branch_metric_data.relative|last %}
+                                            {% include "common/metric_card.html" with slug=branch.slug reference_branch=selected_reference_branch absolute_lower=abs_last.lower absolute_upper=abs_last.upper significance=rel_last.significance percentage=rel_last.avg_rel_change lower_percent=rel_last.lower upper_percent=rel_last.upper display_type=metric.display_type %}
+
+                                          {% endwith %}
+                                        {% endwith %}
+                                      {% endif %}
+                                    {% endfor %}
+                                  {% endif %}
+                                {% endif %}
+                              {% endfor %}
+                            {% endfor %}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+        <table id="clipboard-table-{{ experiment.slug }}-{{ area|slugify }}"
+               class="d-none">
+          <tr>
+            <th>{{ area }}</th>
+            {% for branch in branch_data %}<th>{{ branch.name }}</th>{% endfor %}
+          </tr>
+          {% for metric, metric_data in metric_data.items %}
+            {% for curr_metric_metadata in metric_metadata %}
+              {% if curr_metric_metadata.slug == metric %}
+                <tr>
+                  <th>{{ curr_metric_metadata.friendly_name }}</th>
+                  {% for branch_data in metric_data.values %}
+                    <td>
+                      {% if branch_data.relative.0.avg_rel_change %}
+                        {{ branch_data.relative.0.avg_rel_change|to_percentage:3 }}
+                        {% if branch_data.relative.0.significance == "positive" %}
+                          increase
+                        {% elif branch_data.relative.0.significance == "negative" %}
+                          decrease
+                        {% endif %}
+                      {% else %}
+                        Baseline
+                      {% endif %}
+                      --
+                      {% if branch_data.absolute.0.lower %}
+                        {% if curr_metric_metadata.display_type == "percentage" %}
+                          ({{ branch_data.absolute.0.lower|to_percentage:3 }} to {{ branch_data.absolute.0.upper|to_percentage:3 }})
+                        {% else %}
+                          ({{ branch_data.absolute.0.lower|floatformat:3 }} to {{ branch_data.absolute.0.upper|floatformat:3 }})
+                        {% endif %}
+                      {% endif %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+        </table>
+      {% endif %}
+    {% endwith %}
+  {% endfor %}
+</div>
+<div class="modal fade"
+     id="edit-summary-{{ experiment.slug }}"
+     tabindex="-1"
+     aria-labelledby="edit-summary-{{ experiment.slug }}-label"
+     aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content p-5">
+      <div class="modal-header border-0">
+        <h4 class="modal-title" id="edit-summary-{{ experiment.slug }}-label">Edit outcome summary</h4>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {% include "common/edit_outcome_summary_form.html" %}
+
+      </div>
+    </div>
+  </div>
+</div>
+<div id="copy-table-link-toast"
+     class="toast hide text-bg-primary position-fixed top-0 end-0 m-3 w-auto"
+     role="alert"
+     aria-live="assertive"
+     aria-atomic="true">
+  <div class="toast-body">
+    <i class="fa-regular fa-circle-check"></i>
+    Table URL copied to clipboard!
+  </div>
+</div>
+<div id="copy-table-toast"
+     class="toast hide text-bg-primary position-fixed top-0 end-0 m-3 w-auto"
+     role="alert"
+     aria-live="assertive"
+     aria-atomic="true">
+  <div class="toast-body">
+    <i class="fa-regular fa-circle-check"></i>
+    Table copied to clipboard!
+  </div>
+</div>
+{% block extrascripts %}
+  <script src="{% static 'nimbus_ui/results_data_actions.bundle.js' %}"></script>
+{% endblock extrascripts %}

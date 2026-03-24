@@ -12,7 +12,6 @@ def update_ios_channel(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("experiments", "0267_alter_nimbusexperiment_application_and_more"),
     ]

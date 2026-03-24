@@ -1,0 +1,79 @@
+{% load nimbus_extras %}
+
+{% if experiment.should_show_timeout_message %}
+  <div id="rejection-message" class="alert alert-danger">
+    <p>
+      <span role="img" aria-label="red X emoji">❌</span>
+      Remote Settings request has timed out, please go through the approval flow to {{ experiment.review_messages }} again.
+    </p>
+  </div>
+{% endif %}
+<div id="review-controls">
+  {% can_review_experiment experiment as user_can_review %}
+  {% if not user_can_review %}
+    <div class="alert alert-success">
+      <p class="mb-1">
+        Please ask someone on your team with
+        <a href="{{ NimbusUIConstants.REVIEW_URL }}" target="_blank">review privileges</a> or a qualified reviewer to {{ experiment.review_messages }}.
+      </p>
+      <p class="mb-1">
+        If you don’t have a team reviewer, paste the experiment URL in
+        <strong>#ask-experimenter</strong> and ask for a review.
+      </p>
+      <p>
+        <a href="#"
+           onclick=" navigator.clipboard.writeText(window.location.href) .then(() => alert('URL copied to clipboard!')); return false;">
+          Click here to copy the URL to send them.
+        </a>
+      </p>
+    </div>
+  {% else %}
+    {% if is_ready_to_launch or experiment.is_started %}
+      <div class="alert alert-primary">
+        <p>
+          <strong>{{ experiment.latest_review_requested_by|add:" requested to" }} {{ experiment.review_messages }}</strong>
+        </p>
+        {% if uses_secure_collection %}
+          <p class="mb-2">
+            <strong>Note:</strong> This must be reviewed by a member of the Release Management Team.
+          </p>
+        {% endif %}
+        <button type="button"
+                class="btn btn-success"
+                hx-post="{% url approval_url slug=experiment.slug %}"
+                hx-select="{{ replaced_element|default:"#content" }}"
+                hx-target="{{ replaced_element|default:"#content" }}"
+                hx-vals='{"fragment": "{{ fragment }}"}'
+                hx-swap="outerHTML">Approve and {{ action_label }}</button>
+        <button type="button" class="btn btn-danger" id="reject-button">Reject</button>
+      </div>
+    {% endif %}
+  {% endif %}
+  {% if not replaced_element %}
+    <div class="alert alert-primary">
+      {% include "common/cancel_review_button.html" %}
+
+    </div>
+  {% endif %}
+</div>
+<!-- Rejection Form -->
+<div id="reject-form-container" class="d-none alert alert-warning">
+  <label for="changelog_message">
+    <strong>You are rejecting the request to {{ experiment.review_messages }}. Please provide a reason:</strong>
+  </label>
+  <textarea id="changelog_message"
+            name="changelog_message"
+            class="form-control"
+            rows="4"
+            required></textarea>
+  <button type="submit"
+          id="submit-rejection-button"
+          class="btn btn-danger mt-2"
+          hx-post="{% url cancel_reject_url slug=experiment.slug %}"
+          hx-select="{{ replaced_element|default:"#content" }}"
+          hx-target="{{ replaced_element|default:"#content" }}"
+          hx-vals='{"fragment": "{{ fragment }}"}'
+          hx-swap="outerHTML"
+          hx-include="[name='changelog_message']">Submit Rejection</button>
+  <button type="button" class="btn btn-secondary mt-2" id="cancel">Cancel</button>
+</div>

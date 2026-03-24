@@ -3,11 +3,13 @@
   "license": "MPL-2.0",
   "private": true,
   "workspaces": [
-    "experimenter/legacy/legacy-ui/*",
-    "experimenter/nimbus-ui",
-    "experimenter/nimbus_ui_new/static"
+    "experimenter/legacy/legacy-ui/core",
+    "experimenter/nimbus_ui/static"
   ],
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/react-select": "^5.0.1",
+    "eslint-config-react-app": "^6.0.0"
+  },
   "resolutions": {
     "ansi-regex": "^5.0.1",
     "browserslist": "^4.16.5",
@@ -28,7 +30,8 @@
     "trim-newlines": "^3.0.1",
     "trim": "^0.0.3",
     "ws": "^7.4.6",
-    "yargs-parser": "^13.1.2"
+    "yargs-parser": "^13.1.2",
+    "@lezer/common": "^1.2.0"
   },
   "repository": {
     "type": "git",

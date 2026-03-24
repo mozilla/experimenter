@@ -75,6 +75,7 @@ target/
 
 # VS Code
 **/.vscode/*
+**/.devcontainer/*
 
 # IntelliJ
 **/.idea/*
@@ -94,6 +95,10 @@ experimenter/experimenter/reporting/reporting-ui/assets/
 .tmontmp
 experimenter/coverage_html_report/
 experimenter/tests/integration/test-reports/
+experimenter/tests/integration/nimbus/fixtures/targeting_configs.json
+experimenter/tests/integration/nimbus/fixtures/feature_configs.json
+junit.xml
+**/coverage_report/
 
 # Dependencies
 node_modules

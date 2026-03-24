@@ -1,6 +1,3 @@
-import random
-import string
-
 from pypom import Region
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -17,40 +14,35 @@ class SummaryPage(ExperimenterBase):
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary")
     _promote_rollout_locator = (By.CSS_SELECTOR, 'button[data-testid="promote-rollout"]')
-    _header_slug = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-slug"]')
-    _approve_request_button_locator = (By.CSS_SELECTOR, "#approve-request-button")
-    _reject_request_button_locator = (By.CSS_SELECTOR, "#reject-request-button")
-    _reject_input_text_locator = (
-        By.CSS_SELECTOR,
-        'textarea[data-testid="reject-reason"]',
-    )
-    _reject_input_text_submit_locator = (By.CSS_SELECTOR, '[data-testid="reject-submit"]')
-    _rejection_notice_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
-    _launch_to_preview_locator = (By.CSS_SELECTOR, "#launch-to-preview-button")
-    _launch_without_preview_locator = (By.CSS_SELECTOR, "#launch-to-review-button")
+    _back_to_draft_locator = (By.CSS_SELECTOR, "#back-to-draft-button")
+    _header_slug = (By.CSS_SELECTOR, "#experiment-slug")
+    _approve_request_button_locator = (By.CSS_SELECTOR, "#review-controls .btn-success")
+    _reject_request_button_locator = (By.CSS_SELECTOR, "#reject-button")
+    _reject_input_text_locator = (By.CSS_SELECTOR, "#changelog_message")
+    _reject_input_text_submit_locator = (By.CSS_SELECTOR, "#submit-rejection-button")
+    _rejection_notice_locator = (By.CSS_SELECTOR, "#rejection-reason")
+    _launch_to_preview_locator = (By.CSS_SELECTOR, "#draft-to-preview-button")
+    _launch_without_preview_locator = (By.CSS_SELECTOR, "#draft-to-review-button")
     _rejected_text_alert_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
-    _timeout_alert_locator = (By.CSS_SELECTOR, '[data-testid="timeout-notice"]')
-    _status_live_locator = (By.CSS_SELECTOR, ".status-Live.border-primary")
+    _timeout_alert_locator = (By.CSS_SELECTOR, "#rejection-message")
+    _status_live_locator = (By.CSS_SELECTOR, "#experiment-timeline .bg-primary strong")
     _status_preview_locator = (By.CSS_SELECTOR, ".status-Preview.border-primary")
-    _status_complete_locator = (By.CSS_SELECTOR, ".status-Complete.border-primary")
+    _status_complete_locator = (
+        By.CSS_SELECTOR,
+        "#experiment-timeline .bg-primary strong",
+    )
     _update_request_locator = (By.CSS_SELECTOR, "#request-update-button")
     _experiment_status_icon_locator = (
         By.CSS_SELECTOR,
         ".header-experiment-status .border-primary",
     )
-    _end_experiment_button_locator = (By.CSS_SELECTOR, ".end-experiment-start-button")
-    _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="action-archive"]')
-    _archive_label_locator = (
-        By.CSS_SELECTOR,
-        'span[data-testid="header-experiment-status-archived"]',
-    )
-    _clone_action_locator = (By.CSS_SELECTOR, 'button[data-testid="action-clone"]')
-    _clone_name_field_locator = (
-        By.CSS_SELECTOR,
-        'form[data-testid="FormClone"] input[name="name"]',
-    )
-    _clone_save_locator = (By.CSS_SELECTOR, ".modal .btn-primary")
-    _clone_parent_locator = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-parent"]')
+    _end_experiment_button_locator = (By.CSS_SELECTOR, "#end-experiment")
+    _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="nav-edit-archive"]')
+    _archive_label_locator = (By.CSS_SELECTOR, "#archive-badge")
+    _clone_action_locator = (By.CSS_SELECTOR, 'a[data-testid="nav-edit-clone"]')
+    _clone_name_field_locator = (By.CSS_SELECTOR, "#clone-name")
+    _clone_save_locator = (By.CSS_SELECTOR, "#cloneForm .btn-primary")
+    _clone_parent_locator = (By.CSS_SELECTOR, 'a[data-testid="experiment-parent"]')
     _branch_screenshot_description_locator = (
         By.CSS_SELECTOR,
         'figure[data-testid="branch-screenshot"] figcaption',
@@ -64,26 +56,13 @@ class SummaryPage(ExperimenterBase):
         By.CSS_SELECTOR,
         'button[data-testid="takeaways-edit-save"]',
     )
-    _takeaways_recommendation_field = (
-        By.CSS_SELECTOR,
-        'form[data-testid="FormTakeaways"] input[name="conclusionRecommendations"]',
-    )
-    _takeaways_summary_field = (
-        By.CSS_SELECTOR,
-        'form[data-testid="FormTakeaways"] textarea[name="takeawaysSummary"]',
-    )
-    _takeaways_summary_text = (
-        By.CSS_SELECTOR,
-        'div[data-testid="takeaways-summary-rendered"]',
-    )
+    _takeaways_summary_field_locator = (By.CSS_SELECTOR, "#takeawaysSummary")
+    _takeaways_summary_text = (By.CSS_SELECTOR, "#takeawaysSummaryText")
     _takeaways_recommendation_badge = (
         By.CSS_SELECTOR,
         'span[data-testid="conclusion-recommendation-status"]',
     )
-    _audience_section_locator = (
-        By.CSS_SELECTOR,
-        "#audience",
-    )
+    _audience_section_locator = (By.CSS_SELECTOR, "#audience")
     _audience_is_first_run_locator = (
         By.CSS_SELECTOR,
         '[data-testid="experiment-is-first-run"]',
@@ -92,18 +71,19 @@ class SummaryPage(ExperimenterBase):
         By.CSS_SELECTOR,
         '[data-testid="experiment-release-date"]',
     )
-    _timeline_locator = (
-        By.CSS_SELECTOR,
-        '[data-testid="summary-timeline"]',
-    )
+    _timeline_locator = (By.CSS_SELECTOR, "#experiment-timeline")
     _timeline_proposed_release_date_locator = (
         By.CSS_SELECTOR,
         '[data-testid="label-release-date"]',
     )
+    _promote_to_rollout_save_locator = (
+        By.CSS_SELECTOR,
+        "#promoteToRolloutForm-control .btn-primary",
+    )
 
     def wait_for_archive_label_visible(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._archive_label_locator),
+        self.wait_with_refresh(
+            self._archive_label_locator,
             message="Summary Page: could not find archive label",
         )
 
@@ -114,8 +94,10 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_live_status(self):
-        self.wait_with_refresh(
-            self._status_live_locator, "Summary Page: Unable to find live status"
+        self.wait_with_refresh_and_assert(
+            self._status_live_locator,
+            "Enrollment",
+            "Summary Page: Unable to find live status",
         )
 
     def wait_for_preview_status(self):
@@ -124,8 +106,10 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_complete_status(self):
-        self.wait_with_refresh(
-            self._status_complete_locator, "Summary Page: Unable to find complete status"
+        self.wait_with_refresh_and_assert(
+            self._status_complete_locator,
+            "Complete",
+            "Summary Page: Unable to find complete status",
         )
 
     def wait_for_rejected_alert(self):
@@ -140,8 +124,8 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_clone_parent_link_visible(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._clone_parent_locator),
+        self.wait_with_refresh(
+            self._clone_parent_locator,
             message="Summary Page: could not find clone parent",
         )
 
@@ -157,18 +141,17 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_rejection_notice_visible(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._rejection_notice_locator),
-            message="Summary Page: could not find rejection notice",
+        self.wait_with_refresh(
+            self._rejection_notice_locator,
+            "Summary Page: could not find rejection notice",
         )
 
     def set_rejection_reason(self):
-        text_area = self.wait_for_and_find_element(*self._reject_input_text_locator)
-        text_area.send_keys("oh no")
+        el = self.get_input(self._reject_input_text_locator)
+        el.send_keys("oh no")
 
     def submit_rejection(self):
-        button = self.wait_for_and_find_element(*self._reject_input_text_submit_locator)
-        button.click()
+        self.click_element(self._reject_input_text_submit_locator)
 
     @property
     def experiment_slug(self):
@@ -176,15 +159,19 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def experiment_status(self):
-        el = self.wait_for_and_find_element(*self._experiment_status_icon_locator)
-        return el.text
+        return self.wait_for_and_find_element(*self._experiment_status_icon_locator).text
 
     @property
     def launch_without_preview(self):
         return self.wait_for_and_find_element(*self._launch_without_preview_locator)
 
     def launch_to_preview(self):
-        self.wait_for_and_find_element(*self._launch_to_preview_locator).click()
+        self.click_element(self._launch_to_preview_locator)
+        return self
+
+    def back_to_draft(self):
+        self.click_element(self._back_to_draft_locator)
+        self.wait_for_and_find_element(*self._launch_to_preview_locator)
         return self
 
     @property
@@ -192,15 +179,15 @@ class SummaryPage(ExperimenterBase):
         return self.RequestReview(self)
 
     def approve(self):
-        self.wait_for_and_find_element(*self._approve_request_button_locator).click()
+        self.click_element(self._approve_request_button_locator)
 
     def request_update_and_approve(self):
         self.request_update()
-        self.wait_for_and_find_element(*self._approve_request_button_locator).click()
+        self.click_element(self._approve_request_button_locator)
 
     def request_update_and_reject(self):
         self.request_update()
-        self.wait_for_and_find_element(*self._reject_request_button_locator).click()
+        self.click_element(self._reject_request_button_locator)
 
     @property
     def request_update_action(self):
@@ -210,15 +197,15 @@ class SummaryPage(ExperimenterBase):
         self.request_update_action.click()
 
     def launch_and_approve(self):
-        self.launch_without_preview.click()
+        el = self.launch_without_preview
+        self.js_click(el)
         self.request_review.click_launch_checkboxes()
-        self.request_review.request_launch_button.click()
+        el = self.request_review.request_launch_button
+        self.js_click(el)
         self.approve()
 
-    def end_and_approve(self, action="End"):
-        el = self.wait_for_and_find_element(*self._end_experiment_button_locator)
-        el.click()
-
+    def end_and_approve(self):
+        self.click_element(self._end_experiment_button_locator)
         self.approve()
 
     @property
@@ -232,21 +219,24 @@ class SummaryPage(ExperimenterBase):
 
     class RequestReview(Region, Base):
         PAGE_TITLE = "Review Region"
-        _root_locator = (By.CSS_SELECTOR, "#request-launch-alert")
-        _checkbox0_locator = (By.CSS_SELECTOR, "#checkbox-0")
+        _root_locator = (By.CSS_SELECTOR, "#launch-controls")
         _checkbox1_locator = (By.CSS_SELECTOR, "#checkbox-1")
+        _checkbox2_locator = (By.CSS_SELECTOR, "#checkbox-2")
         _request_launch_locator = (By.CSS_SELECTOR, "#request-launch-button")
 
         def click_launch_checkboxes(self):
-            self.wait_for_and_find_element(*self._checkbox0_locator).click()
-            self.wait_for_and_find_element(*self._checkbox1_locator).click()
+            checkbox1 = self.wait_for_and_find_element(*self._checkbox1_locator)
+            checkbox2 = self.wait_for_and_find_element(*self._checkbox2_locator)
+            self.js_click(checkbox1)
+            self.js_click(checkbox2)
 
         @property
         def request_launch_button(self):
             return self.wait_for_and_find_element(*self._request_launch_locator)
 
     def archive(self):
-        self.wait_for_and_find_element(*self._archive_button_locator).click()
+        el = self.wait_for_and_find_element(*self._archive_button_locator)
+        self.js_click(el)
 
     @property
     def archive_label(self):
@@ -254,11 +244,11 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def clone_action(self):
-        return self.wait_for_and_find_element(*self._clone_action_locator)
+        return self.get_input(self._clone_action_locator)
 
     @property
     def clone_name_field(self):
-        return self.wait_for_and_find_element(*self._clone_name_field_locator)
+        return self.get_input(self._clone_name_field_locator)
 
     @property
     def clone_name(self):
@@ -266,29 +256,28 @@ class SummaryPage(ExperimenterBase):
 
     @clone_name.setter
     def clone_name(self, text=None):
-        # Control-a before typing, in order to fully overwrite default value
         self.clone_name_field.send_keys(f"{Keys.CONTROL}a")
         self.clone_name_field.send_keys(f"{text}")
 
     @property
+    def promote_to_rollout_save(self):
+        return self.wait_for_and_find_element(*self._promote_to_rollout_save_locator)
+
+    @property
     def clone_save(self):
-        return self.wait_for_and_find_element(*self._clone_save_locator)
+        return self.get_input(self._clone_save_locator)
 
     def clone(self):
-        self.clone_action.click()
-        self.clone_save.click()
+        self.js_click(self.clone_action)
+        self.click_and_wait_for_navigation(self._clone_save_locator)
 
     @property
     def promote_to_rollout_buttons(self):
         return self.wait_for_and_find_elements(*self._promote_rollout_locator)
 
     def promote_first_branch_to_rollout(self):
-        self.promote_to_rollout_buttons[0].click()
-        random_chars = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=6)
-        )
-        self.clone_name = f"Rollout {random_chars}"
-        self.clone_save.click()
+        self.js_click(self.promote_to_rollout_buttons[0])
+        self.click_and_wait_for_navigation(self._promote_to_rollout_save_locator)
 
     @property
     def takeaways_edit_button(self):
@@ -299,10 +288,7 @@ class SummaryPage(ExperimenterBase):
         return self.wait_for_and_find_element(*self._takeaways_save_button)
 
     def takeaways_recommendation_checkbox_button(self, value=""):
-        selection_locator = (
-            By.ID,
-            f"conclusionRecommendations-{value}",
-        )
+        selection_locator = (By.ID, f"conclusionRecommendation-{value}")
         return self.wait_for_and_find_element(*selection_locator)
 
     @property
@@ -311,13 +297,13 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def takeaways_summary_field(self):
-        return self.wait_for_and_find_element(*self._takeaways_summary_field)
+        return self.get_input(self._takeaways_summary_field_locator)
 
     @takeaways_summary_field.setter
     def takeaways_summary_field(self, text=None):
-        # Control-a before typing, in order to fully overwrite default value
-        self.takeaways_summary_field.send_keys(f"{Keys.CONTROL}a")
-        self.takeaways_summary_field.send_keys(f"{text}")
+        field = self.get_input(self._takeaways_summary_field_locator)
+        field.send_keys(f"{Keys.CONTROL}a")
+        field.send_keys(f"{text}")
 
     @property
     def takeaways_summary_text(self):
@@ -326,8 +312,8 @@ class SummaryPage(ExperimenterBase):
     def set_takeaways(self, takeaways, recommendation):
         self.takeaways_edit_button.click()
         self.takeaways_summary_field = takeaways
-        self.takeaways_recommendation_checkbox_button(recommendation).click()
-        self.takeaways_save_button.click()
+        self.js_click(self.takeaways_recommendation_checkbox_button(recommendation))
+        self.js_click(self.takeaways_save_button)
 
     @property
     def branch_screenshot_description(self):

@@ -53,7 +53,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     population_percent = factory.LazyAttribute(
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
     )
-    client_matching = "Geos: US, CA, GB\n" 'Some "additional" filtering'
+    client_matching = 'Geos: US, CA, GB\nSome "additional" filtering'
     design = factory.LazyAttribute(lambda o: faker.text(50))
     pref_name = factory.LazyAttribute(
         lambda o: "browser.{pref}.enabled".format(pref=faker.word())
@@ -155,7 +155,8 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             )
 
             if status_value == Experiment.STATUS_SHIP:
-                experiment.recipe_slug = experiment.generate_recipe_slug()
+                # Recipe slug generation removed - using dummy slug for tests
+                experiment.recipe_slug = f"test-recipe-{experiment.slug}"
 
             if status_value == target_status:
                 break

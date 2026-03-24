@@ -1,0 +1,7 @@
+[metrics]
+
+[metrics.areas]
+engagement = [
+    "fenix_metric",
+    "another_metric"
+]

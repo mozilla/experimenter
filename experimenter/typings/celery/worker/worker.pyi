@@ -37,6 +37,7 @@ class WorkController:
 
         name = ...
         default_steps = ...
+
     def __init__(self, app=..., hostname=..., **kwargs) -> None: ...
     def setup_instance(
         self,
@@ -46,7 +47,7 @@ class WorkController:
         include=...,
         use_eventloop=...,
         exclude_queues=...,
-        **kwargs
+        **kwargs,
     ): ...
     def on_init_blueprint(self): ...
     def on_before_init(self, **kwargs): ...
@@ -110,5 +111,5 @@ class WorkController:
         disable_rate_limits=...,
         worker_lost_wait=...,
         max_memory_per_child=...,
-        **_kw
+        **_kw,
     ): ...

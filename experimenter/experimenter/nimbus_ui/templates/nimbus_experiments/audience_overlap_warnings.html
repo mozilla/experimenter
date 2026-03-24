@@ -1,0 +1,21 @@
+{% if experiment.audience_overlap_warnings %}
+  {% for warning in experiment.audience_overlap_warnings %}
+    <div class="alert alert-{{ warning.variant|default:'warning' }}"
+         role="alert">
+      <p class="mb-1">{{ warning.text }}</p>
+      <ul class="mb-1">
+        {% for slug in warning.slugs %}
+          <li>
+            <a target="_blank" href="{% url "nimbus-ui-detail" slug=slug %}">{{ slug }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+      {% if warning.learn_more_link %}
+        <a href="{{ warning.learn_more_link }}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="btn btn-link p-0">Learn more</a>
+      {% endif %}
+    </div>
+  {% endfor %}
+{% endif %}

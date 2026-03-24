@@ -1,10 +1,8 @@
-from django.conf import settings
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django_filters import FilterSet, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 
+from experimenter.experiments.api.cache import CachedListMixin
 from experimenter.experiments.api.v8.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 
@@ -26,9 +24,19 @@ class BaseExperimentFilterSet(FilterSet):
 
 
 class NimbusExperimentFilterSet(BaseExperimentFilterSet):
+    end_date = filters.DateFilter(
+        field_name="_end_date",
+        lookup_expr="gte",
+    )
+
     class Meta:
         model = NimbusExperiment
-        fields = (*BaseExperimentFilterSet.Meta.fields, "is_first_run", "status")
+        fields = (
+            *BaseExperimentFilterSet.Meta.fields,
+            "is_first_run",
+            "status",
+            "end_date",
+        )
 
 
 class NimbusDraftExperimentFilterSet(BaseExperimentFilterSet):
@@ -38,6 +46,7 @@ class NimbusDraftExperimentFilterSet(BaseExperimentFilterSet):
 
 
 class NimbusExperimentViewSet(
+    CachedListMixin,
     mixins.RetrieveModelMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
@@ -45,30 +54,39 @@ class NimbusExperimentViewSet(
     lookup_field = "slug"
     queryset = (
         NimbusExperiment.objects.with_related()
-        .exclude(status__in=[NimbusExperiment.Status.DRAFT])
+        .exclude(
+            status__in=[
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.PREVIEW,
+            ]
+        )
         .order_by("slug")
     )
     serializer_class = NimbusExperimentSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = NimbusExperimentFilterSet
-
-    @method_decorator(cache_page(settings.API_CACHE_DURATION))
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    cache_key_prefix = "v8:experiments"
 
 
 class NimbusExperimentDraftViewSet(NimbusExperimentViewSet):
     filterset_class = NimbusDraftExperimentFilterSet
+    cache_key_prefix = "v8:draft-experiments"
 
     queryset = (
         NimbusExperiment.objects.with_related()
-        .filter(status=NimbusExperiment.Status.DRAFT)
+        .filter(
+            status__in=[
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.PREVIEW,
+            ]
+        )
         .order_by("slug")
     )
 
 
 class NimbusExperimentFirstRunViewSet(NimbusExperimentViewSet):
     filterset_class = BaseExperimentFilterSet
+    cache_key_prefix = "v8:first-run"
 
     queryset = (
         NimbusExperiment.objects.with_related()

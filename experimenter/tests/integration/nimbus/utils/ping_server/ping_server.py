@@ -29,7 +29,6 @@ def pings():
     methods=["POST"],
 )
 def submit(telemetry):
-
     if request.method == "POST":
         request_data = request.get_data()
 

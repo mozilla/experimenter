@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "ExperimentLocalizations",
+  "description": "Per-locale localization substitutions. The top level key is the locale (e.g., \"en-US\" or \"fr\"). Each entry is a mapping of string IDs to their localized equivalents.",
+  "type": "object",
+  "additionalProperties": {
+    "additionalProperties": {
+      "type": "string"
+    },
+    "type": "object"
+  }
+}

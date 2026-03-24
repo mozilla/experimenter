@@ -6,40 +6,32 @@ from django.views.generic.base import RedirectView
 
 from experimenter.legacy.legacy_experiments.views import (
     ExperimentListView,
-    NimbusUIView,
     PageNotFoundView,
 )
-from experimenter.nimbus_ui_new.views import NimbusExperimentsListView
+from experimenter.nimbus_ui.views import (
+    NimbusExperimentsHomeView,
+    NimbusExperimentsListView,
+)
 
 urlpatterns = [
-    re_path(
-        r"^api/v1/experiments/",
-        include("experimenter.legacy.legacy_experiments.api.v1.urls"),
-    ),
-    re_path(
-        r"^api/v2/experiments/",
-        include("experimenter.legacy.legacy_experiments.api.v2.urls"),
-    ),
+    re_path(r"^$", NimbusExperimentsHomeView.as_view(), name="nimbus-ui-home"),
     re_path(r"^api/v3/", include("experimenter.visualization.api.v3.urls")),
     re_path(r"^api/v5/", include("experimenter.experiments.api.v5.urls")),
     re_path(r"^api/v6/", include("experimenter.experiments.api.v6.urls")),
     re_path(r"^api/v7/", include("experimenter.experiments.api.v7.urls")),
     re_path(r"^api/v8/", include("experimenter.experiments.api.v8.urls")),
     re_path(r"^admin/", admin.site.urls),
+    re_path(r"^glean/", include("experimenter.glean.urls")),
     re_path(r"^experiments/", include("experimenter.legacy.legacy_experiments.urls")),
-    re_path(r"^nimbus_new/", include("experimenter.nimbus_ui_new.urls")),
-    re_path(r"^nimbus/new/", NimbusUIView.as_view(), name="nimbus-create"),
+    re_path(r"^nimbus/", include("experimenter.nimbus_ui.urls")),
     re_path(r"^nimbus/$", NimbusExperimentsListView.as_view(), name="nimbus-list"),
-    re_path(r"^nimbus/(?P<slug>[\w-]+)/", NimbusUIView.as_view(), name="nimbus-detail"),
-    re_path(
-        r"^nimbus/(?P<slug>[\w-]+)/results", NimbusUIView.as_view(), name="nimbus-results"
-    ),
     re_path(r"^legacy/$", ExperimentListView.as_view(), name="home"),
     re_path(
         r"^$",
-        RedirectView.as_view(pattern_name="nimbus-list"),
+        RedirectView.as_view(pattern_name="nimbus-ui-home"),
         name="redirect-to-nimbus",
     ),
+    re_path(r"^summernote/", include("django_summernote.urls")),
 ]
 
 handler404 = PageNotFoundView.as_404_view()

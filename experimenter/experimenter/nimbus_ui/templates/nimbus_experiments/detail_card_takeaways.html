@@ -1,0 +1,48 @@
+{% extends "nimbus_experiments/detail_card_base.html" %}
+
+{% load nimbus_extras %}
+
+{% block card_id %}takeaways-card{% endblock %}
+{% block card_anchor %}takeaways-card{% endblock %}
+{% block card_header %}
+  <div class="d-flex justify-content-between align-items-center">
+    <h4 class="mb-0 d-flex align-items-center">
+      <a href="#takeaways-card" class="text-decoration-none text-body">Takeaways</a>
+      <div class="px-2">
+        {% for recommendation in experiment.conclusion_recommendation_labels %}
+          <span class="badge badge-primary border rounded-pill px-1 bg-white border-primary text-primary font-weight-normal"
+                data-testid="conclusion-recommendation-status"
+                style="font-size: 0.6em;
+                       padding: 0.15em">{{ recommendation }}</span>
+        {% endfor %}
+      </div>
+    </h4>
+    <button class="btn btn-outline-primary btn-sm"
+            hx-get="{% url 'nimbus-ui-update-takeaways' experiment.slug %}"
+            hx-target="#takeaways-card"
+            hx-swap="outerHTML"
+            data-testid="edit-takeaways">Edit</button>
+  </div>
+{% endblock %}
+{% block card_body %}
+  <table class="table table-striped mb-0">
+    <tbody>
+      <tr>
+        <th>QBR Learning</th>
+        <td>{{ experiment.takeaways_qbr_learning }}</td>
+        <th>Statistically significant DAU Gain</th>
+        <td>{{ experiment.takeaways_metric_gain }}</td>
+      </tr>
+      <tr>
+        <th>Summary</th>
+        <td colspan="3" id="takeawaysSummaryText">{{ experiment.takeaways_summary|format_not_set }}</td>
+      </tr>
+      <tr>
+        <th class="border-bottom-0">Gain amount</th>
+        <td colspan="3" id="takeawaysGainAmount" class="border-bottom-0">
+          {{ experiment.takeaways_gain_amount|format_not_set }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+{% endblock %}

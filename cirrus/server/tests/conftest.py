@@ -3,13 +3,12 @@ from unittest import mock
 
 from cirrus_sdk import EnrollmentStatusExtraDef, MetricsHandler
 from fastapi.testclient import TestClient
-from glean import testing
 from mozilla_nimbus_shared import check_schema
 from pytest import fixture
 
 from cirrus.experiment_recipes import RemoteSettings
 from cirrus.feature_manifest import FeatureManifestLanguage
-from cirrus.main import app, initialize_glean
+from cirrus.main import app
 from cirrus.sdk import SDK
 from cirrus.settings import (
     channel,
@@ -22,13 +21,17 @@ from cirrus.settings import (
 
 class TestMetricsHandler(MetricsHandler):
     records = []
+    nimbus_user_id = None
 
     def __init__(self):
         pass
 
-    def record_enrollment_statuses(
-        self, enrollment_status_extras: [EnrollmentStatusExtraDef]
+    def record_enrollment_statuses_v2(
+        self,
+        enrollment_status_extras: [EnrollmentStatusExtraDef],
+        nimbus_user_id: str | None,
     ):
+        self.nimbus_user_id = nimbus_user_id
         for enrollment_status_extra in enrollment_status_extras:
             self.records.append(enrollment_status_extra)
 
@@ -40,13 +43,19 @@ def client():
 
 
 @fixture
-def scheduler_mock():
+def app_state_mock():
+    with mock.patch("cirrus.main.app.state") as app_state_mock:
+        yield app_state_mock
+
+
+@fixture
+def scheduler_mock(app_state_mock):
     with mock.patch("cirrus.main.app.state.scheduler") as scheduler_mock:
         yield scheduler_mock
 
 
 @fixture
-def remote_setting_live_mock():
+def remote_setting_live_mock(app_state_mock):
     with mock.patch(
         "cirrus.main.app.state.remote_setting_live"
     ) as remote_setting_live_mock:
@@ -54,7 +63,7 @@ def remote_setting_live_mock():
 
 
 @fixture
-def remote_setting_preview_mock():
+def remote_setting_preview_mock(app_state_mock):
     with mock.patch(
         "cirrus.main.app.state.remote_setting_preview"
     ) as remote_setting_preview_mock:
@@ -108,93 +117,74 @@ def fml_with_coenrolling_features(fml_with_coenrolling_features_path):
     return FeatureManifestLanguage(fml_with_coenrolling_features_path, channel)
 
 
-@fixture
-def exception():
-    return Exception("some error")
-
-
-@fixture(name="reset_glean", scope="function", autouse=True)
-def fixture_reset_glean():
-    testing.reset_glean(application_id="cirrus-test", application_version="0.1.0")
-
-
-@fixture
-def get_telemetry():
-    return initialize_glean()
-
-
-@fixture
-def create_recipe():
-    def _create(
-        slug="test",
-        app_id="org.mozilla.test",
-        app_name="test_app",
-        channel="release",
-        feature="test-feature",
-        value={"enabled": True},
-        is_rollout=False,
-        targeting="true",
-        bucket_count=10000,
-        bucket_start=0,
-        bucket_total=10000,
-        bucket_randomization_unit="user_id",
-        is_enrollment_paused=False,
-    ):
-        recipe = {
-            "slug": slug,
-            "appId": app_id,
-            "appName": app_name,
-            "channel": channel,
-            "endDate": None,
-            "locales": None,
-            "branches": [
-                {
-                    "slug": "control",
-                    "ratio": 1,
-                    "features": [
-                        {
-                            "value": value,
-                            "featureId": feature,
-                        }
-                    ],
-                }
-            ],
-            "outcomes": [],
-            "arguments": {},
-            "isRollout": is_rollout,
-            "probeSets": [],
-            "startDate": "2023-07-05",
-            "targeting": targeting,
-            "featureIds": [feature],
-            "application": app_id,
-            "bucketConfig": {
-                "count": bucket_count,
-                "start": bucket_start,
-                "total": bucket_total,
-                "namespace": f"{feature}-{slug}",
-                "randomizationUnit": bucket_randomization_unit,
-            },
-            "localizations": None,
-            "schemaVersion": "1.12.0",
-            "userFacingName": "",
-            "referenceBranch": "control",
-            "proposedDuration": 28,
-            "enrollmentEndDate": "2023-07-12",
-            "isEnrollmentPaused": is_enrollment_paused,
-            "proposedEnrollment": 7,
-            "userFacingDescription": "",
-            "featureValidationOptOut": False,
-            "id": slug,
-            "last_modified": 1689000336881,
-        }
-        check_schema("experiments/NimbusExperiment", recipe)
-        return recipe
-
-    return _create
+def create_recipe(
+    slug="test",
+    app_id="org.mozilla.test",
+    app_name="test_app",
+    channel="release",
+    feature="test-feature",
+    value=None,
+    is_rollout=False,
+    targeting="true",
+    bucket_count=10000,
+    bucket_start=0,
+    bucket_total=10000,
+    bucket_randomization_unit="user_id",
+    is_enrollment_paused=False,
+):
+    recipe = {
+        "slug": slug,
+        "appId": app_id,
+        "appName": app_name,
+        "channel": channel,
+        "endDate": None,
+        "locales": None,
+        "branches": [
+            {
+                "slug": "control",
+                "ratio": 1,
+                "features": [
+                    {
+                        "value": {"enabled": True} if value is None else value,
+                        "featureId": feature,
+                    }
+                ],
+            }
+        ],
+        "outcomes": [],
+        "arguments": {},
+        "isRollout": is_rollout,
+        "probeSets": [],
+        "startDate": "2023-07-05",
+        "targeting": targeting,
+        "featureIds": [feature],
+        "application": app_id,
+        "bucketConfig": {
+            "count": bucket_count,
+            "start": bucket_start,
+            "total": bucket_total,
+            "namespace": f"{feature}-{slug}",
+            "randomizationUnit": bucket_randomization_unit,
+        },
+        "localizations": None,
+        "schemaVersion": "1.12.0",
+        "userFacingName": "",
+        "referenceBranch": "control",
+        "proposedDuration": 28,
+        "enrollmentEndDate": "2023-07-12",
+        "isEnrollmentPaused": is_enrollment_paused,
+        "proposedEnrollment": 7,
+        "userFacingDescription": "",
+        "featureValidationOptOut": False,
+        "id": slug,
+        "last_modified": 1689000336881,
+    }
+    check_schema("experiments/NimbusExperiment", recipe)
+    return recipe
 
 
 @fixture
-def recipes(create_recipe):
+def recipes():
     return {
         "data": [
             create_recipe(slug="cirrus-test-1", feature="feature-1", is_rollout=True),
@@ -209,7 +199,7 @@ def recipes(create_recipe):
 
 
 @fixture
-def recipes_with_coenrolling_features(create_recipe):
+def recipes_with_coenrolling_features():
     value = {"map": {"{experiment}": "{experiment}"}}
     return json.dumps(
         {

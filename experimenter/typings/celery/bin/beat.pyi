@@ -66,7 +66,7 @@ def beat(
     gid=...,
     umask=...,
     workdir=...,
-    **kwargs
+    **kwargs,
 ):
     """Start the beat periodic task scheduler."""
     ...

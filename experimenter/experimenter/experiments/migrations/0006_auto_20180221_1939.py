@@ -45,7 +45,6 @@ def add_project_to_name(apps, schema_editor):  # pragma: no cover
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("experiments", "0005_experiment_short_description")]
 
     operations = [

@@ -524,7 +524,7 @@
     "model": "base.language",
     "fields": {
       "name": "Indonesian",
-      "code": "pk"
+      "code": "id"
     }
   },
   {

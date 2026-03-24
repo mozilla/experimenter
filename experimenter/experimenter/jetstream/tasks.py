@@ -6,12 +6,33 @@ from django.conf import settings
 from django.core.cache import cache
 
 from experimenter.celery import app
+from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.jetstream.client import get_experiment_data, get_population_sizing_data
+from experimenter.kinto.tasks import get_kinto_user
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("jetstream.tasks")
+
+
+def strip_errors(data):
+    """
+    Strip errors from result data for meaningful comparison.
+
+    Errors contain timestamps and other metadata that change on every fetch
+    even when the actual analysis results are unchanged. We still store errors
+    in the database, but don't use them to determine if results have changed.
+    """
+    if not data:
+        return data
+
+    return {
+        version_key: {k: v for k, v in version_data.items() if k != "errors"}
+        if isinstance(version_data, dict)
+        else version_data
+        for version_key, version_data in data.items()
+    }
 
 
 @app.task
@@ -21,8 +42,23 @@ def fetch_experiment_data(experiment_id):
     experiment = None
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
-        experiment.results_data = get_experiment_data(experiment)
-        experiment.save()
+        old_results_data = experiment.results_data
+        new_results_data = get_experiment_data(experiment)
+
+        if old_results_data != new_results_data:
+            experiment.results_data = new_results_data
+            experiment.save()
+
+            old_normalized = strip_errors(old_results_data)
+            new_normalized = strip_errors(new_results_data)
+
+            if old_normalized != new_normalized:
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.RESULTS_UPDATED,
+                )
+
         metrics.incr("fetch_experiment_data.completed")
     except Exception as e:
         metrics.incr("fetch_experiment_data.failed")
@@ -30,7 +66,7 @@ def fetch_experiment_data(experiment_id):
         if experiment is not None and hasattr(experiment, "slug"):
             failure_message += f"{experiment.slug} "
         failure_message += f"failed: {e}"
-        logger.info(failure_message)
+        logger.error(failure_message)
         raise e
 
 
@@ -60,15 +96,15 @@ def fetch_jetstream_data():
                 fetch_experiment_data.delay(experiment.id)
                 metrics.incr("fetch_jetstream_data.completed")
             else:
-                metrics.incr("fetch_jetstream_data.skipped")
                 logger.info(
                     f"Skipping cache refresh for old experiment {experiment.name}"
                     f" ({experiment.slug})"
                 )
+                metrics.incr("fetch_jetstream_data.skipped")
 
     except Exception as e:
         metrics.incr("fetch_jetstream_data.failed")
-        logger.info(f"Fetching Jetstream data failed: {e}")
+        logger.error(f"Fetching Jetstream data failed: {e}")
         raise e
 
 
