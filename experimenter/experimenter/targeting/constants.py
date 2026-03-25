@@ -4180,6 +4180,20 @@ FX_NEW_NON_SELECTABLE_PROFILE_KIT_CAMPAIGN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
+    name="Smart Window enabled and onboarding complete",
+    slug="smart_window_onboarding_complete",
+    description="Smart Window is enabled and user has completed its onboarding",
+    targeting=(
+        "'browser.smartwindow.enabled' | preferenceValue && "
+        "'browser.smartwindow.firstrun.hasCompleted' | preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
