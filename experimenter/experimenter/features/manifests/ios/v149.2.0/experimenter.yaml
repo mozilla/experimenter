@@ -52,24 +52,6 @@ appearance-menu-feature:
     status:
       type: boolean
       description: If true, we will show the new appearance menu entry
-apple-summarizer-feature:
-  description: |
-    This feature enables the apple summarizer feature.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables the apple summarizer feature.
-    shakeGesture:
-      type: boolean
-      description: |
-        Enables the shake gesture for the summarizer feature.
-    toolbarEntrypoint:
-      type: boolean
-      description: |
-        Enables the toolbar entrypoint for the summarizer feature.
 bookmarks-search-feature:
   description: |
     Configuration feature for the bookmarks search bar

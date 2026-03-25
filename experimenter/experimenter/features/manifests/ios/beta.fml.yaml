@@ -52,25 +52,6 @@ features:
         description: If true, we will show the new appearance menu entry
         type: Boolean
         default: true
-  apple-summarizer-feature:
-    description: |
-      This feature enables the apple summarizer feature.
-    variables:
-      enabled:
-        description: |
-          Enables the apple summarizer feature.
-        type: Boolean
-        default: true
-      shakeGesture:
-        description: |
-          Enables the shake gesture for the summarizer feature.
-        type: Boolean
-        default: true
-      toolbarEntrypoint:
-        description: |
-          Enables the toolbar entrypoint for the summarizer feature.
-        type: Boolean
-        default: true
   bookmarks-search-feature:
     description: |
       Configuration feature for the bookmarks search bar
@@ -79,7 +60,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: true
+        default: false
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
@@ -811,12 +792,12 @@ features:
         description: |
           Toggle between legacy (false) and modern (true) UI variants.
         type: Boolean
-        default: false
+        default: true
       should-use-brand-refresh-configuration:
         description: |
           Toggle between standard (false) and brand refresh (true) onboarding content.
         type: Boolean
-        default: false
+        default: true
       should-use-japan-configuration:
         description: |
           Toggle between standard (false) and Japan-specific (true) assets and content.
