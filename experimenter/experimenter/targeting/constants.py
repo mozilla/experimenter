@@ -4185,8 +4185,8 @@ SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
     slug="smart_window_onboarding_complete",
     description="Smart Window is enabled and user has completed its onboarding",
     targeting=(
-        "'browser.smartwindow.enabled' | preferenceValue && "
-        "'browser.smartwindow.firstrun.hasCompleted' | preferenceValue"
+        "('browser.smartwindow.enabled' | preferenceValue) && "
+        "('browser.smartwindow.firstrun.hasCompleted' | preferenceValue)"
     ),
     desktop_telemetry="",
     sticky_required=False,
