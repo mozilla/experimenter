@@ -206,6 +206,35 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         ),
     }
 
+    COMPLETE_EXPERIMENT_ERROR_MESSAGE = """Your experiment is complete, but there were
+    issues computing some results. Contact Experimenter support using the button below
+    for help resolving analysis errors."""
+
+    INCOMPLETE_EXPERIMENT_ERROR_MESSAGE = """Your experiment is still running &mdash;
+    some metrics aren't available yet. This usually affects early results but may
+    indicate a configuration issue; see error details on the right or Contact
+    Experimenter Support using the button below."""
+
+    INVALID_EXPOSURE_DATA_MESSAGE = """Some branches are missing exposure data while
+    others have them. Exposure-based analysis may be incomplete. You can still view
+    available results — try switching the analysis basis to "Exposures" to inspect what's
+    present, or contact Experimenter Support if you need help fixing the data."""
+
+    CONFIG_OVERRIDES_MESSAGE = """The results shown on this page are from an analysis ran
+    with at least one experiment override that affects only the analysis. The original
+    <b>experiment details and description on the Summary page will not reflect this.</b>
+    """
+
+    ENROLLMENT_PHASE_MESSAGE = """Enrollment is when participants can join your
+    experiment. You'll need to end it yourself once enough people have joined, or when
+    the time you set for enrollment has passed — it won't close automatically."""
+
+    OBSERVATION_PHASE_MESSAGE = """Your experiment is officially in progress, and early
+    numbers are starting to come in. These results are just for checking that
+    everything's running correctly — they aren't reliable for decisions until the
+    monitoring period is complete.
+    <a href="https://experimenter.info/workflow/monitoring">Learn more</a>"""
+
     class MetricAreaType:
         PRIMARY = {
             "label": "Primary Metric",

@@ -331,3 +331,13 @@
     padding-left: 0.75rem !important;
   }
 }
+
+.info-cards-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.info-cards-container > *:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
