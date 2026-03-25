@@ -31,9 +31,21 @@
               <h5>Hypothesis</h5>
               {% with hyp=experiment.hypothesis|default:"No hypothesis set." %}
                 {% if hyp|length > 300 %}
-                  <p>
-                    {{ hyp|truncatechars:300 }}
-                    <a href="{{ experiment.get_detail_url }}" class="ms-1">More</a>
+                  <p id="{{ experiment.slug }}-truncated-hypothesis">
+                    <span>{{ hyp|truncatechars:300 }}</span>
+                    <button class="mb-1 btn btn-link p-0"
+                            type="button"
+                            onclick="document.getElementById('{{ experiment.slug }}-truncated-hypothesis').classList.toggle('d-none'); document.getElementById('{{ experiment.slug }}-full-hypothesis').classList.toggle('d-none');">
+                      More
+                    </button>
+                  </p>
+                  <p id="{{ experiment.slug }}-full-hypothesis" class="d-none">
+                    <span>{{ hyp }}</span>
+                    <button class="mb-1 btn btn-link p-0"
+                            type="button"
+                            onclick="document.getElementById('{{ experiment.slug }}-truncated-hypothesis').classList.toggle('d-none'); document.getElementById('{{ experiment.slug }}-full-hypothesis').classList.toggle('d-none');">
+                      Less
+                    </button>
                   </p>
                 {% else %}
                   <p>{{ hyp }}</p>
