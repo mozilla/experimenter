@@ -79,7 +79,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: true
+        default: false
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
