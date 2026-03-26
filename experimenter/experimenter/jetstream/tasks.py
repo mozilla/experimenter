@@ -142,7 +142,7 @@ def fetch_monitoring_data():
             metrics.incr("fetch_monitoring_data.completed")
             return
 
-        alert_data = data["v1"]
+        alert_data = data.get("v1")
         updated_count = 0
 
         for exp_slug, monitoring_data in alert_data.items():
