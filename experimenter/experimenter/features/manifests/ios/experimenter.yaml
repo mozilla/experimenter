@@ -599,13 +599,3 @@ trending-searches-feature:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
-web-engine-integration-refactor:
-  description: |
-    The feature flag to manage the roll out of the integration of WebEngine into Firefox.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables the feature.
