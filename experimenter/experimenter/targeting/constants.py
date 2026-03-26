@@ -1058,6 +1058,24 @@ NO_ENTERPRISE_OR_RECENT_VPN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXCLUDE_WIN_10 = NimbusTargetingConfig(
+    name="All users, excluding Windows 10",
+    slug="all_users_no_win10",
+    description=(
+        "Mac, Linux and Windows 11 users but not Windows 10 users "
+        "(Windows 10 build > 22000)",
+    ),
+    targeting=(
+        "(os.isWindows && os.windowsVersion >= 10 && "
+        "os.windowsBuildNumber >= 22000) || "
+        "os.isMac || os.isLinux"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIN10_NOT_WIN11 = NimbusTargetingConfig(
     name="Windows 10 users but not Windows 11 users",
     slug="win10_not_win11",
