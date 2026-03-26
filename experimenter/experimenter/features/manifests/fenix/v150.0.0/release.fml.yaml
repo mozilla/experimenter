@@ -23,6 +23,13 @@ features:
         description: Whether or not the feature is available for the user.
         type: Boolean
         default: true
+  app-links:
+    description: Control behavior of app links handling in the browser.
+    variables:
+      show-new-prompt:
+        description: Whether to show the new AppLinksPromptFragment dialog when an app link is detected. If false, the old dialog is used.
+        type: Boolean
+        default: false
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
