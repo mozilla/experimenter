@@ -218,7 +218,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     INVALID_EXPOSURE_DATA_MESSAGE = """Some branches are missing exposure data while
     others have them. Exposure-based analysis may be incomplete. You can still view
     available results — try switching the analysis basis to "Exposures" to inspect what's
-    present, or contact Experimenter Support if you need help fixing the data."""
+    present, or contact Experimenter Support if you need help fixing the data.
+    <a href="https://experimenter.info/data-analysis/data-topics/missing_exposures/">
+    Learn more</a>"""
 
     CONFIG_OVERRIDES_MESSAGE = """The results shown on this page are from an analysis ran
     with at least one experiment override that affects only the analysis. The original
