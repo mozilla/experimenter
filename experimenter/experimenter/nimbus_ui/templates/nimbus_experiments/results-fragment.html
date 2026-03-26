@@ -122,7 +122,7 @@
             <i class="fa-solid fa-triangle-exclamation fs-5"></i>
             <h5 class="mb-0">Exposure data misconfigured</h5>
           </div>
-          <p class="text-muted">{{ NimbusUIConstants.INVALID_EXPOSURE_DATA_MESSAGE }}</p>
+          <p class="text-muted">{{ NimbusUIConstants.INVALID_EXPOSURE_DATA_MESSAGE|sanitize_html }}</p>
           <a class="btn btn-secondary bg-secondary-subtle bg-opacity-25 border-0 text-body fw-semibold"
              target="_blank"
              href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
