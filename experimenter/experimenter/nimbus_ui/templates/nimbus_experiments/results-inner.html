@@ -31,9 +31,21 @@
               <h5>Hypothesis</h5>
               {% with hyp=experiment.hypothesis|default:"No hypothesis set." %}
                 {% if hyp|length > 300 %}
-                  <p>
-                    {{ hyp|truncatechars:300 }}
-                    <a href="{{ experiment.get_detail_url }}" class="ms-1">More</a>
+                  <p id="{{ experiment.slug }}-truncated-hypothesis">
+                    <span>{{ hyp|truncatechars:300 }}</span>
+                    <button class="mb-1 btn btn-link p-0"
+                            type="button"
+                            onclick="document.getElementById('{{ experiment.slug }}-truncated-hypothesis').classList.toggle('d-none'); document.getElementById('{{ experiment.slug }}-full-hypothesis').classList.toggle('d-none');">
+                      More
+                    </button>
+                  </p>
+                  <p id="{{ experiment.slug }}-full-hypothesis" class="d-none">
+                    <span>{{ hyp }}</span>
+                    <button class="mb-1 btn btn-link p-0"
+                            type="button"
+                            onclick="document.getElementById('{{ experiment.slug }}-truncated-hypothesis').classList.toggle('d-none'); document.getElementById('{{ experiment.slug }}-full-hypothesis').classList.toggle('d-none');">
+                      Less
+                    </button>
                   </p>
                 {% else %}
                   <p>{{ hyp }}</p>
@@ -275,7 +287,7 @@
             <div class="dropdown results-table-actions"
                  data-experiment-slug="{{ experiment.slug }}"
                  data-controlling-area="{{ area|slugify }}">
-              <a class="btn border-0"
+              <a class="btn border-0 focus-ring focus-ring-primary"
                  href="#"
                  role="button"
                  data-bs-toggle="dropdown"
@@ -315,7 +327,7 @@
                 <div class="col-2">
                   <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
                   {% for metric in metric_metadata %}
-                    <button class="btn border-3 p-3 {% if forloop.last %}mb-4{% endif %} align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle                   {% if metric.has_data %}nav-link-hover{% else %}bg-body-tertiary{% endif %}  text-break"
+                    <button class="btn border-3 p-3 {% if forloop.last %}mb-4{% endif %} align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle focus-ring focus-ring-primary {% if metric.has_data %}nav-link-hover{% else %}bg-body-tertiary{% endif %} text-break"
                             type="button"
                             data-bs-toggle="modal"
                             data-bs-target="#{{ experiment.slug }}-{{ metric.slug }}-{{ area|slugify }}"
