@@ -18,6 +18,14 @@ app-icon-selection:
     enabled:
       type: boolean
       description: Whether or not the feature is available for the user.
+app-links:
+  description: Control behavior of app links handling in the browser.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    show-new-prompt:
+      type: boolean
+      description: Whether to show the new AppLinksPromptFragment dialog when an app link is detected. If false, the old dialog is used.
 awesomebar-suggestion-provider:
   description: Configuration for the Firefox Suggest awesomebar suggestion provider.
   hasExposure: true

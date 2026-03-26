@@ -5541,6 +5541,20 @@ webApps:
       description: >-
         Controls whether web apps can be installed and accessed.
 
+defaultWindowsLaunchOnLogin:
+  description: >-
+    Controls whether or not new Windows users get defaulted to launch on login
+  owner: drubino@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Exposure event is triggered if Windows policy allows launch on login.
+  variables:
+    enabled:
+      type: boolean
+      description: >-
+        If true, and allowed by Windows policy, a new user will be defaulted
+        to have Firefox launched when they log on.
+
 passwordManager:
   description: Password manager related prefs
   owner: maltejur@mozilla.com
