@@ -4195,7 +4195,9 @@ FX_NEW_NON_SELECTABLE_PROFILE_KIT_CAMPAIGN = NimbusTargetingConfig(
 )
 
 
-EDITORIAL_CONTENT_MARKETS = "['AT', 'BE', 'CA', 'CH', 'DE', 'ES', 'FR', 'GB', 'IE', 'IN', 'IT', 'US']"
+EDITORIAL_CONTENT_MARKETS = (
+    "['AT', 'BE', 'CA', 'CH', 'DE', 'ES', 'FR', 'GB', 'IE', 'IN', 'IT', 'US']"
+)
 
 EDITORIAL_CONTENT_AVAILABLE_MARKETS = NimbusTargetingConfig(
     name="New Tab Editorial Content Available Markets",
