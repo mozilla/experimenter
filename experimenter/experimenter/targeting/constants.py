@@ -4202,9 +4202,7 @@ EDITORIAL_CONTENT_MARKETS = (
 EDITORIAL_CONTENT_AVAILABLE_MARKETS = NimbusTargetingConfig(
     name="New Tab Editorial Content Available Markets",
     slug="newtab-editorial-content-markets",
-    description=(
-        "Users in markets where Firefox New Tab Editorial Content is available"
-    ),
+    description=("Users in markets where Firefox New Tab Editorial Content is available"),
     targeting=f"region in {EDITORIAL_CONTENT_MARKETS}",
     desktop_telemetry="",
     sticky_required=False,
