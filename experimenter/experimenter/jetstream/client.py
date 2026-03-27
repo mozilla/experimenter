@@ -100,14 +100,9 @@ def get_sizing_data(suffix="latest"):
 
 
 def get_monitoring_data():
-    try:
-        filename = "enrollment_counts_latest.json"
-        path = Path(ENROLLMENT_COUNTS_FOLDER, filename)
-        data = load_data_from_gcs(str(path))
-        return data if data else {}
-    except Exception as e:
-        logger.error(f"Failed to load monitoring data from GCS: {e}")
-        return {}
+    filename = "enrollment_counts_latest.json"
+    path = Path(ENROLLMENT_COUNTS_FOLDER, filename)
+    return load_data_from_gcs(str(path))
 
 
 def get_results_metrics_map(

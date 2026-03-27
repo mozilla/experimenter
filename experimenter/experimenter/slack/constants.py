@@ -73,21 +73,6 @@ class SlackConstants:
     SLACK_RESULTS_READY_MESSAGE = "📈 {window} analysis results are now available"
     SLACK_ANALYSIS_ERRORS_MESSAGE = "⚠️ Analysis errors detected:\n{error_lines}"
 
-    # Enrollment monitoring alert thresholds
-    UNENROLLMENT_SPIKE_THRESHOLD = 0.10  # 10%
-    SRM_MISMATCH_P_VALUE_THRESHOLD = 0.001  # p < 0.001
-
-    SLACK_UNENROLLMENT_SPIKE_MESSAGE = (
-        "⚠️ Unexpectedly large unenrollment in {experiment}\n"
-        "Primary reason: {reason}\n"
-        "Unenrollment rate: {rate:.1%} (threshold: {threshold:.1%})"
-    )
-    SLACK_SRM_MISMATCH_MESSAGE = (
-        "⚠️ Branches are misaligned (SRM detected) in {experiment}\n"
-        "P-value: {p_value:.6f} (threshold: {threshold})\n"
-        "This suggests unequal randomization or bias in enrollment."
-    )
-
     # Slack notification log messages
     SLACK_LOG_NOT_CONFIGURED = "Slack not configured, skipping {operation}"
     SLACK_LOG_NOTIFICATION_SENT = "Slack notification sent for experiment {experiment}"

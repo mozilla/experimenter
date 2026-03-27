@@ -2912,6 +2912,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         LIVE = "Experiment is live"
         COMPLETED = "Experiment is complete"
         RESULTS_UPDATED = "Experiment results updated"
+        MONITORING_DATA_UPDATED = "Experiment monitoring data updated"
         EXPIRED_FROM_PREVIEW = "Expired from preview collection after 30 days"
         REMOVED_FROM_PREVIEW = "Removed from preview collection"
         PUSHED_TO_PREVIEW = "Pushed to preview collection"

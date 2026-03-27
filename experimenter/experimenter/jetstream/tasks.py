@@ -138,8 +138,8 @@ def fetch_monitoring_data():
         data = get_monitoring_data()
 
         if not data or "v1" not in data:
-            logger.warning("No enrollment alert data found in GCS")
-            metrics.incr("fetch_monitoring_data.completed")
+            logger.error("No enrollment alert data found in GCS")
+            metrics.incr("fetch_monitoring_data.failed")
             return
 
         alert_data = data.get("v1")
@@ -149,17 +149,25 @@ def fetch_monitoring_data():
             try:
                 experiment = NimbusExperiment.objects.get(
                     slug=exp_slug,
-                    status=NimbusConstants.Status.LIVE,
+                    status__in=[
+                        NimbusConstants.Status.LIVE,
+                        NimbusConstants.Status.COMPLETE,
+                    ],
                 )
 
                 # Only update if data has changed
                 if experiment.monitoring_data != monitoring_data:
                     experiment.monitoring_data = monitoring_data
-                    experiment.save(update_fields=["monitoring_data"])
+                    experiment.save()
+                    generate_nimbus_changelog(
+                        experiment,
+                        get_kinto_user(),
+                        message=NimbusChangeLog.Messages.MONITORING_DATA_UPDATED,
+                    )
                     updated_count += 1
 
             except NimbusExperiment.DoesNotExist:
-                logger.debug(f"Experiment {exp_slug} not found in database")
+                logger.warning(f"Experiment {exp_slug} not found in database")
                 continue
             except Exception as e:
                 logger.error(f"Failed to update experiment {exp_slug}: {e}")
@@ -172,5 +180,5 @@ def fetch_monitoring_data():
 
     except Exception as e:
         metrics.incr("fetch_monitoring_data.failed")
-        logger.error(f"Fatal error in fetch_monitoring_data task: {e}")
+        logger.exception(f"Fatal error in fetch_monitoring_data task: {e}")
         raise

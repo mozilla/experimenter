@@ -420,7 +420,6 @@ CELERY_BEAT_SCHEDULE = {
     "fetch_monitoring_data": {
         "task": "experimenter.jetstream.tasks.fetch_monitoring_data",
         "schedule": crontab(minute=0, hour=8),
-        "options": {"expires": 3600},
     },
     "warm_api_caches": {
         "task": "experimenter.experiments.tasks.warm_api_caches",
