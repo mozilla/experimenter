@@ -2027,6 +2027,49 @@ WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT_V3 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+BACKGROUND_TASK_NO_UBO_CFR_LAPSED_7_14_DAYS = NimbusTargetingConfig(
+    name="Background task notification: no uBO, CFR enabled, 7-14 day lapsed users",
+    slug="background_task_no_ubo_cfr_lapsed_7_14_days",
+    description=(
+        "Windows 10+ users with profiles 28+ days old, "
+        "7-14 days of inactivity, "
+        "no uBlock Origin installed, "
+        "and CFR recommendations still enabled, "
+        "running a background task"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            (currentDate|date - defaultProfile.profileAgeCreated|date) / 86400000 >= 28
+        )
+        &&
+        (
+            (7 <= ((currentDate|date - defaultProfile.currentDate|date) / 86400000))
+            &&
+            (((currentDate|date - defaultProfile.currentDate|date) / 86400000) <= 14)
+        )
+        &&
+        !defaultProfile.addonsInfo.addons["uBlock0@raymondhill.net"]
+        &&
+        defaultProfile.userPrefs.cfrAddons
+        &&
+        defaultProfile.userPrefs.cfrFeatures
+        &&
+        isBackgroundTaskMode
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Newtab has Sponsored TopSites enabled ",
     slug="newtab_sponsored_topsites_enabled",
