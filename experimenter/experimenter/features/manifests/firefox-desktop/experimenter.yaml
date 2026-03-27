@@ -4369,18 +4369,6 @@ scriptloader:
         branch: user
         pref: "dom.script_loader.experimental.navigation_cache"
 
-raceCacheWithNetwork:
-  description: Prefs to toggle the race cache with network.
-  owner: dpalmeiro@mozilla.com, acreskey@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      description: True to enable the rcwn feature.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.http.rcwn.enabled"
-
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
   owner: farre@mozilla.com
