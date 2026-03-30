@@ -1,4 +1,5 @@
 import json
+import logging
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from itertools import chain
@@ -30,10 +31,13 @@ from experimenter.jetstream.models import (
 from experimenter.outcomes import Metric as OutcomeMetric
 from experimenter.outcomes import Outcomes
 
+logger = logging.getLogger(__name__)
+
 STATISTICS_FOLDER = "statistics"
 METADATA_FOLDER = "metadata"
 ERRORS_FOLDER = "errors"
 SIZING_FOLDER = "sample_sizes"
+ENROLLMENT_COUNTS_FOLDER = "enrollment_counts"
 ALL_STATISTICS = {
     Statistic.BINOMIAL,
     Statistic.MEAN,
@@ -92,6 +96,12 @@ def get_analysis_errors(slug):
 def get_sizing_data(suffix="latest"):
     filename = f"sample_sizes_auto_sizing_results_{suffix}.json"
     path = Path(SIZING_FOLDER, filename)
+    return load_data_from_gcs(str(path))
+
+
+def get_monitoring_data():
+    filename = "enrollment_counts_latest.json"
+    path = Path(ENROLLMENT_COUNTS_FOLDER, filename)
     return load_data_from_gcs(str(path))
 
 

@@ -417,6 +417,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.slack.tasks.check_experiment_alerts",
         "schedule": crontab(minute=0, hour=18),
     },
+    "fetch_monitoring_data": {
+        "task": "experimenter.jetstream.tasks.fetch_monitoring_data",
+        "schedule": crontab(minute=0, hour=8),
+    },
     "warm_api_caches": {
         "task": "experimenter.experiments.tasks.warm_api_caches",
         "schedule": config("API_CACHE_WARMING_INTERVAL", default=3600, cast=int),
