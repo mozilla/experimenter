@@ -2088,6 +2088,42 @@ BACKGROUND_TASK_NO_UBO_CFR_LAPSED_7_14_DAYS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_PLUS_BG_TASK_NOTIFICATION_LAPSED_USER_CFR_ENABLED = NimbusTargetingConfig(
+    name="Lapsed users background task notification (recommendations enabled)",
+    slug="background_task_notification_lapsed_user_cfr_enabled",
+    description=(
+        "Windows 10+ users with 0 days of activity in the past 28 days "
+        "who are running a background task and have not disabled "
+        "'Recommend extensions as you browse' or "
+        "'Recommend features as you browse'"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            ((defaultProfile|keys)|length == 0)
+            ||
+            (defaultProfile.userMonthlyActivity|length == 0)
+        )
+        &&
+        isBackgroundTaskMode
+        &&
+        'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue
+        &&
+        'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Newtab has Sponsored TopSites enabled ",
     slug="newtab_sponsored_topsites_enabled",
