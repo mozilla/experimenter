@@ -1098,6 +1098,24 @@ WIN11_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+GUIDANCE_NOTIFICATION_GIF_EXPERIMENT = NimbusTargetingConfig(
+    name="Guidance notification GIF experiment",
+    slug="guidance_notification_gif_experiment",
+    description=(
+        "Windows 11 users but not Windows 10 users: EN users on Fx146+ or users on Fx149+"
+    ),
+    targeting=(
+        "(os.isWindows && os.windowsVersion >= 10 && "
+        "os.windowsBuildNumber >= 22000) && "
+        "((localeLanguageCode == 'en' && version|versionCompare('146.!') >= 0) || "
+        "version|versionCompare('149.!') >= 0)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIN10_VPN_PROMOTION_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10 users eligible for VPN promotion",
     slug="win10_vpn_promotion_eligible",
