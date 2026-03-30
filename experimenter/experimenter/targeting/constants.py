@@ -4185,6 +4185,20 @@ FX_151_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_151_2_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx151 Mar-28 Trainhop",
+    slug="newtab-151-0328-trainhop",
+    description=(
+        "Desktop users having the New Tab 151.2.20260328.211913 train hop, "
+        "which includes users of Fx149"
+    ),
+    targeting="newtabAddonVersion|versionCompare('151.2.20260328.211913') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
@@ -4357,11 +4371,11 @@ TOPSITES_1ROW_NON_EDITORIAL_FX151_TRAINHOP = NimbusTargetingConfig(
     slug="topsites-1row-non-editorial-fx151-trainhop",
     description=(
         "Desktop users in non-editorial content markets, with top sites rows set to 1, "
-        "having the New Tab 151.1.20260327.141953 train hop"
+        "having the New Tab 151.2.20260328.211913 train hop"
     ),
     targeting=(
         f"(region in {EDITORIAL_CONTENT_MARKETS}) != true"
-        f" && {FX_151_TRAINHOP.targeting}"
+        f" && {FX_151_2_TRAINHOP.targeting}"
         " && 'browser.newtabpage.activity-stream.topSitesRows'|preferenceValue == 1"
     ),
     desktop_telemetry="",
