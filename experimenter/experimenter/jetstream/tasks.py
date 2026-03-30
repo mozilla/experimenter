@@ -9,7 +9,11 @@ from experimenter.celery import app
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
-from experimenter.jetstream.client import get_experiment_data, get_population_sizing_data
+from experimenter.jetstream.client import (
+    get_experiment_data,
+    get_monitoring_data,
+    get_population_sizing_data,
+)
 from experimenter.kinto.tasks import get_kinto_user
 
 logger = get_task_logger(__name__)
@@ -124,3 +128,57 @@ def fetch_population_sizing_data():
         metrics.incr("fetch_population_sizing_data.failed")
         logger.error(f"Fetching experiment population auto-sizing data failed: {e}")
         raise e
+
+
+@app.task
+@metrics.timer_decorator("fetch_monitoring_data")
+def fetch_monitoring_data():
+    metrics.incr("fetch_monitoring_data.started")
+    try:
+        data = get_monitoring_data()
+
+        if not data or "v1" not in data:
+            logger.error("No enrollment alert data found in GCS")
+            metrics.incr("fetch_monitoring_data.failed")
+            return
+
+        alert_data = data.get("v1")
+        updated_count = 0
+
+        for exp_slug, monitoring_data in alert_data.items():
+            try:
+                experiment = NimbusExperiment.objects.get(
+                    slug=exp_slug,
+                    status__in=[
+                        NimbusConstants.Status.LIVE,
+                        NimbusConstants.Status.COMPLETE,
+                    ],
+                )
+
+                # Only update if data has changed
+                if experiment.monitoring_data != monitoring_data:
+                    experiment.monitoring_data = monitoring_data
+                    experiment.save()
+                    generate_nimbus_changelog(
+                        experiment,
+                        get_kinto_user(),
+                        message=NimbusChangeLog.Messages.MONITORING_DATA_UPDATED,
+                    )
+                    updated_count += 1
+
+            except NimbusExperiment.DoesNotExist:
+                logger.warning(f"Experiment {exp_slug} not found in database")
+                continue
+            except Exception as e:
+                logger.error(f"Failed to update experiment {exp_slug}: {e}")
+                continue
+
+        logger.info(
+            f"Successfully updated monitoring data for {updated_count} experiments"
+        )
+        metrics.incr("fetch_monitoring_data.completed")
+
+    except Exception as e:
+        metrics.incr("fetch_monitoring_data.failed")
+        logger.exception(f"Fatal error in fetch_monitoring_data task: {e}")
+        raise

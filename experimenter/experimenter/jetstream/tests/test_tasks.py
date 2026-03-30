@@ -2,6 +2,7 @@ import datetime
 import json
 from unittest.mock import patch
 
+import pytest
 from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
@@ -12,7 +13,7 @@ from parameterized import parameterized
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.jetstream import tasks
-from experimenter.jetstream.client import get_data
+from experimenter.jetstream.client import get_data, get_monitoring_data
 from experimenter.jetstream.models import AnalysisWindow, Group
 from experimenter.jetstream.tests import mock_valid_outcomes
 from experimenter.jetstream.tests.constants import (
@@ -3358,3 +3359,203 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         mock_exists.return_value = True
         with self.assertRaises(Exception):
             tasks.fetch_population_sizing_data()
+
+
+@pytest.fixture
+def mock_monitoring_data(request):
+    data = {
+        "total_enrollments": 15000,
+        "total_unenrollments": 1200,
+        "branches": {
+            "control": {
+                "enrollments": 7500,
+                "unenrollments": 580,
+            },
+            "treatment-a": {
+                "enrollments": 7500,
+                "unenrollments": 620,
+            },
+        },
+        "unenrollment_reasons": {},
+        "reasons_by_branch": {
+            "control": {
+                "targeting-mismatch": {"1pct_count": 85},
+                "studies-opt-out": {"1pct_count": 42},
+                "unknown": {"1pct_count": 15},
+            },
+            "treatment-a": {
+                "studies-opt-out": {"1pct_count": 98},
+                "targeting-mismatch": {"1pct_count": 72},
+                "user-request": {"1pct_count": 28},
+            },
+        },
+    }
+    if request.instance:
+        request.instance.monitoring_data = data
+    return data
+
+
+@pytest.mark.usefixtures("mock_monitoring_data")
+class TestFetchMonitoringDataTask(TestCase):
+    def setUp(self):
+        super().setUp()
+        patcher = patch("experimenter.jetstream.tasks.get_monitoring_data")
+        self.mock_get_monitoring_data = patcher.start()
+        self.addCleanup(patcher.stop)
+
+    @parameterized.expand([(None,), ({},)])
+    def test_fetch_monitoring_data_no_data(self, return_value):
+        self.mock_get_monitoring_data.return_value = return_value
+
+        tasks.fetch_monitoring_data()
+
+        self.mock_get_monitoring_data.assert_called_once()
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Status.LIVE,),
+            (NimbusExperiment.Status.COMPLETE,),
+        ]
+    )
+    def test_fetch_monitoring_data_updates_live_or_complete_experiment(self, status):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            monitoring_data={},
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+
+        tasks.fetch_monitoring_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.monitoring_data, self.monitoring_data)
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Status.DRAFT,),
+            (NimbusExperiment.Status.PREVIEW,),
+        ]
+    )
+    def test_fetch_monitoring_data_skips_non_live_or_complete_experiment(self, status):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            monitoring_data={},
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+
+        tasks.fetch_monitoring_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.monitoring_data, {})
+
+    def test_fetch_monitoring_data_skips_nonexistent_experiment(self):
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {"nonexistent-slug": self.monitoring_data}
+        }
+
+        tasks.fetch_monitoring_data()
+
+        self.mock_get_monitoring_data.assert_called_once()
+
+    def test_fetch_monitoring_data_no_update_if_data_unchanged(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            monitoring_data=self.monitoring_data,
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+
+        with patch.object(experiment, "save") as mock_save:
+            tasks.fetch_monitoring_data()
+            mock_save.assert_not_called()
+
+    def test_fetch_monitoring_data_handles_update_exception(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            monitoring_data={},
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+
+        with (
+            patch.object(experiment, "save", side_effect=Exception("DB error")),
+            patch(
+                "experimenter.jetstream.tasks.NimbusExperiment.objects.get"
+            ) as mock_get,
+            patch("experimenter.jetstream.tasks.logger") as mock_logger,
+        ):
+            mock_get.return_value = experiment
+            tasks.fetch_monitoring_data()
+            mock_logger.error.assert_called_once()
+
+    def test_fetch_monitoring_data_updates_multiple_experiments(self):
+        exp1 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            monitoring_data={},
+        )
+        exp2 = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            monitoring_data={},
+        )
+        data1 = dict(self.monitoring_data, total_enrollments=15000)
+        data2 = dict(self.monitoring_data, total_enrollments=25000)
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {
+                exp1.slug: data1,
+                exp2.slug: data2,
+            }
+        }
+
+        tasks.fetch_monitoring_data()
+
+        exp1.refresh_from_db()
+        exp2.refresh_from_db()
+        self.assertEqual(exp1.monitoring_data, data1)
+        self.assertEqual(exp2.monitoring_data, data2)
+
+    def test_fetch_monitoring_data_fatal_error(self):
+        self.mock_get_monitoring_data.side_effect = Exception("GCS connection failed")
+
+        with self.assertRaises(Exception) as context:
+            tasks.fetch_monitoring_data()
+
+        self.assertIn("GCS connection failed", str(context.exception))
+
+
+class TestGetMonitoringData(TestCase):
+    @patch("experimenter.jetstream.client.load_data_from_gcs")
+    def test_get_monitoring_data_success(self, mock_load):
+        data = {
+            "v1": {
+                "experiment-1": {
+                    "total_enrollments": 15000,
+                    "branches": {"control": {"enrollments": 7500}},
+                }
+            }
+        }
+        mock_load.return_value = data
+
+        result = get_monitoring_data()
+
+        self.assertEqual(result, data)
+        mock_load.assert_called_once()
+
+    @patch("experimenter.jetstream.client.load_data_from_gcs")
+    def test_get_monitoring_data_no_data(self, mock_load):
+        mock_load.return_value = None
+
+        result = get_monitoring_data()
+
+        self.assertIsNone(result)
+
+    @patch("experimenter.jetstream.client.load_data_from_gcs")
+    def test_get_monitoring_data_exception(self, mock_load):
+        mock_load.side_effect = Exception("GCS error")
+
+        with self.assertRaises(Exception):
+            get_monitoring_data()
