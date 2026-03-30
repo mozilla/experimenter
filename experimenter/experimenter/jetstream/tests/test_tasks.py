@@ -3362,8 +3362,8 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
 
 @pytest.fixture
-def mock_monitoring_data():
-    return {
+def mock_monitoring_data(request):
+    data = {
         "total_enrollments": 15000,
         "total_unenrollments": 1200,
         "branches": {
@@ -3390,12 +3390,15 @@ def mock_monitoring_data():
             },
         },
     }
+    if request.instance:
+        request.instance.monitoring_data = data
+    return data
 
 
+@pytest.mark.usefixtures("mock_monitoring_data")
 class TestFetchMonitoringDataTask(TestCase):
     def setUp(self):
         super().setUp()
-        self.monitoring_data = mock_monitoring_data()
         patcher = patch("experimenter.jetstream.tasks.get_monitoring_data")
         self.mock_get_monitoring_data = patcher.start()
         self.addCleanup(patcher.stop)
