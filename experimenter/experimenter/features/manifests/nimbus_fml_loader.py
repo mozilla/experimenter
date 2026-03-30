@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 from django.conf import settings
-from nimbus_megazord.fml import FmlClient, FmlError
+from nimbus_megazord.fml import FmlClient, FmlError, FmlLoaderConfig
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusFeatureVersion
@@ -66,9 +66,16 @@ class NimbusFmlLoader:
     @staticmethod
     def get_fml_client_uncached(file_path: Path, channel: str) -> FmlClient:
         try:
-            return FmlClient(
+            # TODO(15100): Remove lax gecko pref validation
+            return FmlClient.new_with_config(
                 str(file_path),
                 channel,
+                FmlLoaderConfig(
+                    cache=None,
+                    refs={},
+                    ref_files=[],
+                    lax_gecko_pref_validation=True,
+                ),
             )
         except FmlError:
             logger.exception(
