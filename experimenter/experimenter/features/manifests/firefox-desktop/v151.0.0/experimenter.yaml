@@ -3068,6 +3068,12 @@ networkingConnections:
       setPref:
         branch: default
         pref: "network.http.speculative-parallel-limit"
+    happyEyeballsEnabled:
+      description: Whether to enable the Happy Eyeballs v3 algorithm for connection establishment
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.happy_eyeballs_enabled"
 
 
 networkingSendOnDataFinished:
@@ -5099,12 +5105,6 @@ sidebar:
   owner: elee@mozilla.com
   hasExposure: false
   variables:
-    defaultLauncherVisible:
-      type: boolean
-      setPref:
-        branch: user
-        pref: sidebar.revamp.defaultLauncherVisible
-      description: Change the initial visibleness of the sidebar launcher with horizontal tabs; true to make the launcher visible by default
     minVersion:
       type: string
       description: Minimum Firefox version to apply prefs
