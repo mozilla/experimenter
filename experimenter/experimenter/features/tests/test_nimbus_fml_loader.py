@@ -1,8 +1,11 @@
 import json
+from pathlib import Path
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import TestCase
 from nimbus_megazord.fml import FmlClient, FmlError
+from parameterized import parameterized
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
@@ -242,4 +245,56 @@ class TestNimbusFmlLoader(TestCase):
             self.assertIn(
                 "Nimbus FML Loader: FmlClient failed to parse manifest",
                 log.output[0],
+            )
+
+
+class FeatureManifestTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        NimbusFmlLoader.create_loader.cache_clear()
+        NimbusFmlLoader.fml_client.cache_clear()
+
+    @classmethod
+    def tearDownClass(cls):
+        NimbusFmlLoader.create_loader.cache_clear()
+        NimbusFmlLoader.fml_client.cache_clear()
+
+    @staticmethod
+    def _discover_fml_files(application):
+        return [
+            (path, channel)
+            for (path, channel) in (
+                (path, path.name.split(".", maxsplit=1)[0])
+                for path in (
+                    root_path / file_name
+                    for (root_path, _, file_names) in Path.walk(
+                        settings.FEATURE_MANIFESTS_PATH / application.slug
+                    )
+                    for file_name in file_names
+                    if file_name.endswith(".fml.yaml")
+                )
+            )
+            if channel in application.channel_app_id
+        ]
+
+    @parameterized.expand(
+        [
+            application
+            for application in NimbusConstants.APPLICATION_CONFIGS.values()
+            if NimbusConstants.Application.is_sdk(application.slug)
+        ]
+    )
+    def test_fml_loads(self, application):
+        for file_path, channel in FeatureManifestTests._discover_fml_files(application):
+            client = NimbusFmlLoader.get_fml_client_uncached(
+                str(file_path),
+                channel,
+            )
+
+            self.assertIsNotNone(
+                client,
+                (
+                    f"`{file_path}' is a valid manifest for `{application}' on channel "
+                    f"`{channel}'"
+                ),
             )
