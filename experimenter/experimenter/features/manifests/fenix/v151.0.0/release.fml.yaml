@@ -145,6 +145,17 @@ features:
         description: If true, Email Mask feature is enabled.
         type: Boolean
         default: false
+  enable-popups:
+    description: A feature that enables or disables in app popups
+    variables:
+      cfr-popups-enabled:
+        description: When true, CFR popups will show
+        type: Boolean
+        default: true
+      in-app-messages-enabled:
+        description: When true, non CFR popups will show
+        type: Boolean
+        default: true
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
