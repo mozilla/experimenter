@@ -2,6 +2,7 @@ import datetime
 import json
 from unittest.mock import patch
 
+import pytest
 from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
@@ -3360,44 +3361,47 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             tasks.fetch_population_sizing_data()
 
 
-MONITORING_DATA_FIXTURE = {
-    "total_enrollments": 15000,
-    "total_unenrollments": 1200,
-    "branches": {
-        "control": {
-            "enrollments": 7500,
-            "unenrollments": 580,
+@pytest.fixture
+def mock_monitoring_data():
+    return {
+        "total_enrollments": 15000,
+        "total_unenrollments": 1200,
+        "branches": {
+            "control": {
+                "enrollments": 7500,
+                "unenrollments": 580,
+            },
+            "treatment-a": {
+                "enrollments": 7500,
+                "unenrollments": 620,
+            },
         },
-        "treatment-a": {
-            "enrollments": 7500,
-            "unenrollments": 620,
+        "unenrollment_reasons": {},
+        "reasons_by_branch": {
+            "control": {
+                "targeting-mismatch": {"1pct_count": 85},
+                "studies-opt-out": {"1pct_count": 42},
+                "unknown": {"1pct_count": 15},
+            },
+            "treatment-a": {
+                "studies-opt-out": {"1pct_count": 98},
+                "targeting-mismatch": {"1pct_count": 72},
+                "user-request": {"1pct_count": 28},
+            },
         },
-    },
-    "unenrollment_reasons": {},
-    "reasons_by_branch": {
-        "control": {
-            "targeting-mismatch": {"1pct_count": 85},
-            "studies-opt-out": {"1pct_count": 42},
-            "unknown": {"1pct_count": 15},
-        },
-        "treatment-a": {
-            "studies-opt-out": {"1pct_count": 98},
-            "targeting-mismatch": {"1pct_count": 72},
-            "user-request": {"1pct_count": 28},
-        },
-    },
-}
+    }
 
 
 class TestFetchMonitoringDataTask(TestCase):
     def setUp(self):
         super().setUp()
+        self.monitoring_data = mock_monitoring_data()
         patcher = patch("experimenter.jetstream.tasks.get_monitoring_data")
         self.mock_get_monitoring_data = patcher.start()
         self.addCleanup(patcher.stop)
 
-    @parameterized.expand([("none_data", None), ("empty_data", {})])
-    def test_fetch_monitoring_data_no_data(self, _name, return_value):
+    @parameterized.expand([(None,), ({},)])
+    def test_fetch_monitoring_data_no_data(self, return_value):
         self.mock_get_monitoring_data.return_value = return_value
 
         tasks.fetch_monitoring_data()
@@ -3406,41 +3410,37 @@ class TestFetchMonitoringDataTask(TestCase):
 
     @parameterized.expand(
         [
-            ("live", NimbusExperiment.Status.LIVE),
-            ("complete", NimbusExperiment.Status.COMPLETE),
+            (NimbusExperiment.Status.LIVE,),
+            (NimbusExperiment.Status.COMPLETE,),
         ]
     )
-    def test_fetch_monitoring_data_updates_live_or_complete_experiment(
-        self, _name, status
-    ):
+    def test_fetch_monitoring_data_updates_live_or_complete_experiment(self, status):
         experiment = NimbusExperimentFactory.create(
             status=status,
             monitoring_data={},
         )
         self.mock_get_monitoring_data.return_value = {
-            "v1": {experiment.slug: MONITORING_DATA_FIXTURE}
+            "v1": {experiment.slug: self.monitoring_data}
         }
 
         tasks.fetch_monitoring_data()
 
         experiment.refresh_from_db()
-        self.assertEqual(experiment.monitoring_data, MONITORING_DATA_FIXTURE)
+        self.assertEqual(experiment.monitoring_data, self.monitoring_data)
 
     @parameterized.expand(
         [
-            ("draft", NimbusExperiment.Status.DRAFT),
-            ("preview", NimbusExperiment.Status.PREVIEW),
+            (NimbusExperiment.Status.DRAFT,),
+            (NimbusExperiment.Status.PREVIEW,),
         ]
     )
-    def test_fetch_monitoring_data_skips_non_live_or_complete_experiment(
-        self, _name, status
-    ):
+    def test_fetch_monitoring_data_skips_non_live_or_complete_experiment(self, status):
         experiment = NimbusExperimentFactory.create(
             status=status,
             monitoring_data={},
         )
         self.mock_get_monitoring_data.return_value = {
-            "v1": {experiment.slug: MONITORING_DATA_FIXTURE}
+            "v1": {experiment.slug: self.monitoring_data}
         }
 
         tasks.fetch_monitoring_data()
@@ -3450,7 +3450,7 @@ class TestFetchMonitoringDataTask(TestCase):
 
     def test_fetch_monitoring_data_skips_nonexistent_experiment(self):
         self.mock_get_monitoring_data.return_value = {
-            "v1": {"nonexistent-slug": MONITORING_DATA_FIXTURE}
+            "v1": {"nonexistent-slug": self.monitoring_data}
         }
 
         tasks.fetch_monitoring_data()
@@ -3460,10 +3460,10 @@ class TestFetchMonitoringDataTask(TestCase):
     def test_fetch_monitoring_data_no_update_if_data_unchanged(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
-            monitoring_data=MONITORING_DATA_FIXTURE,
+            monitoring_data=self.monitoring_data,
         )
         self.mock_get_monitoring_data.return_value = {
-            "v1": {experiment.slug: MONITORING_DATA_FIXTURE}
+            "v1": {experiment.slug: self.monitoring_data}
         }
 
         with patch.object(experiment, "save") as mock_save:
@@ -3476,7 +3476,7 @@ class TestFetchMonitoringDataTask(TestCase):
             monitoring_data={},
         )
         self.mock_get_monitoring_data.return_value = {
-            "v1": {experiment.slug: MONITORING_DATA_FIXTURE}
+            "v1": {experiment.slug: self.monitoring_data}
         }
 
         with (
@@ -3499,8 +3499,8 @@ class TestFetchMonitoringDataTask(TestCase):
             status=NimbusExperiment.Status.LIVE,
             monitoring_data={},
         )
-        data1 = dict(MONITORING_DATA_FIXTURE, total_enrollments=15000)
-        data2 = dict(MONITORING_DATA_FIXTURE, total_enrollments=25000)
+        data1 = dict(self.monitoring_data, total_enrollments=15000)
+        data2 = dict(self.monitoring_data, total_enrollments=25000)
         self.mock_get_monitoring_data.return_value = {
             "v1": {
                 exp1.slug: data1,
