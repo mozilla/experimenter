@@ -271,14 +271,6 @@ urlbar:
     autoFillAdaptiveHistoryUseCountThreshold:
       type: string
       description: This value assumes float expression like "0.47". Threshold for use count of input history that we handle as adaptive history autofill. If the use count is this value or more, it will be a candidate.
-    autoFillAdaptiveHistoryBackspaceBlockDurationMs:
-      type: int
-      fallbackPref: browser.urlbar.autoFill.adaptiveHistory.backspaceBlockDurationMs
-      description: Duration in ms to temporarily block autofill after backspace penalty.
-    autoFillAdaptiveHistoryDismissalBlockDurationMs:
-      type: int
-      fallbackPref: browser.urlbar.autoFill.adaptiveHistory.dismissalBlockDurationMs
-      description: Duration in ms to block an origin or URL after user dismissal.
     deduplicationEnabled:
       type: boolean
       setPref:
@@ -368,13 +360,6 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.merino.timeoutMs
       description: Timeout for Merino fetches (ms)
-    novaFeatureGate:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.nova.featureGate
-      description: >-
-        Feature gate that enables Nova UI.
     exposureResults:
       type: string
       setPref:
@@ -2036,6 +2021,24 @@ password-autocomplete:
       type: boolean
       description: Enable direct migration?
 
+# Experiment for different Relay UI treatments. Variations at:
+# https://www.figma.com/design/gnyElr1Wtce3RdQT54y8kS/Relay-%26-Firefox-Integration?node-id=316-2024&node-type=canvas&t=A3iAuevSTtwXeFxb-0
+email-autocomplete-relay:
+  description: Relay UI for email fields.
+  exposureDescription: Exposure is sent each time a user sees the Relay autocomplete dropdown item
+  hasExposure: true
+  owner: lcrouch@mozilla.com
+  variables:
+    firstOfferVersion:
+      type: string
+      description: Which Relay UI treatment to show
+      fallbackPref: signon.firefoxRelay.firstOfferVersionFallback
+    showToAllBrowsers:
+      type: boolean
+      setPref:
+        branch: user
+        pref: signon.firefoxRelay.showToAllBrowsers
+      description: Whether to show Relay to Firefox users who are NOT signed into FXA.
 
 # This feature flag mirrors the one used for ios
 # https://github.com/mozilla-mobile/firefox-ios/blob/main/nimbus-features/addressAutofillFeature.yaml
@@ -2248,18 +2251,6 @@ selectTranslation:
       setPref:
         branch: user
         pref: browser.translations.select.enable
-
-translationsQuickAction:
-  description: This feature enables the translations quick action in the URL bar.
-  owner: enordin@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      description: Set to true to enable the translations quick action feature.
-      type: boolean
-      setPref:
-        branch: user
-        pref: browser.translations.quickAction.enabled
 
 pdfjs:
   description: The Firefox pdf reader.
@@ -2966,12 +2957,6 @@ networking:
       setPref:
         branch: default
         pref: "network.http.http3.cc_algorithm"
-    http3SlowStartAlgorithm:
-      description: The slow start algorithm with which to configure neqo. Use 0 for Classic, 1 for HyStart++.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.http.http3.slow_start_algorithm"
     enableOffMainThreadStreamDecompression:
       description: Whether to enable decompression of network streams off-main-thread
       type: boolean
@@ -3727,23 +3712,6 @@ safeBrowsingRealTime:
       setPref:
         branch: default
         pref: "browser.safebrowsing.realTime.simulation.hitProbability"
-    simulationNegativeCacheEnabled:
-      description: >
-        Whether to enable the negative cache for the real-time request
-        simulator. When enabled, prefixes with no hits are cached to skip
-        subsequent requests.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "browser.safebrowsing.realTime.simulation.negativeCacheEnabled"
-    simulationNegativeCacheTTLSec:
-      description: >
-        TTL in seconds for negative cache entries in the real-time request
-        simulator.
-      type: int
-      setPref:
-        branch: default
-        pref: "browser.safebrowsing.realTime.simulation.negativeCacheTTLSec"
 
 fxaButtonVisibility:
   description: Prefs to control the visibility of the Firefox Accounts toolbar button when not signed in.
@@ -5386,12 +5354,6 @@ partitioned-cookie-attribute:
       setPref:
         branch: default
         pref: "network.cookie.chips.partitionLimitByteCapacity"
-    chipsAffectsTCP:
-      description: Whether CHIPS cookies also appear as TCP cookies when both jars are queried
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.CHIPS.affectsTCP"
 
 auto-pip:
   description: "Automatic Picture-in-Picture"
@@ -5546,20 +5508,6 @@ webApps:
         pref: browser.taskbarTabs.enabled
       description: >-
         Controls whether web apps can be installed and accessed.
-
-defaultWindowsLaunchOnLogin:
-  description: >-
-    Controls whether or not new Windows users get defaulted to launch on login
-  owner: drubino@mozilla.com
-  hasExposure: true
-  exposureDescription: >-
-    Exposure event is triggered if Windows policy allows launch on login.
-  variables:
-    enabled:
-      type: boolean
-      description: >-
-        If true, and allowed by Windows policy, a new user will be defaulted
-        to have Firefox launched when they log on.
 
 passwordManager:
   description: Password manager related prefs
