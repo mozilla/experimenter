@@ -1107,7 +1107,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"
-    WHAT_TRAIN_IS_IT_NOW_URL = "https://whattrainisitnow.com/api/firefox/releases/"
 
     FIREFOX_LABS_MIN_VERSION = {
         Application.DESKTOP: Version.FIREFOX_137,
