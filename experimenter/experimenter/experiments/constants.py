@@ -298,19 +298,19 @@ class Application(models.TextChoices):
     )
 
     @staticmethod
-    def is_sdk(application):
-        return application != Application.DESKTOP
+    def is_sdk(slug: str):
+        return slug != Application.DESKTOP
 
     @staticmethod
-    def is_mobile(application):
-        return application in (
+    def is_mobile(slug: str):
+        return slug in (
             Application.FENIX,
             Application.IOS,
         )
 
     @staticmethod
-    def is_web(application):
-        return application in (
+    def is_web(slug: str):
+        return slug in (
             Application.DEMO_APP,
             Application.MONITOR,
             Application.FXA,
