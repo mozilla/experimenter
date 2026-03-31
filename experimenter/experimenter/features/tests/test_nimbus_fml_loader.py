@@ -51,12 +51,8 @@ class TestNimbusFmlLoader(TestCase):
         self.assertIsNone(loader.application)
         self.assertIsNone(loader.channel)
 
-    @patch(
-        "nimbus_megazord.fml.FmlClient.__init__",
-    )
     @mock_fml_versioned_features
-    def test_create_fml_client(self, new_client):
-        new_client.return_value = None
+    def test_create_fml_client(self):
         application = "fenix"
         channel = "release"
         version = "119.0.0"
@@ -70,10 +66,10 @@ class TestNimbusFmlLoader(TestCase):
             / f"{channel}.fml.yaml"
         )
 
-        client = loader.fml_client(version=version)
+        self.assertEqual(loader.file_path(version), expected_path)
+
+        client = loader.fml_client(version)
         self.assertIsNotNone(client)
-        new_client.assert_called()
-        new_client.assert_called_with(str(expected_path), channel)
 
     @mock_fml_features
     def test_get_local_file_path_no_version(self):
@@ -215,7 +211,7 @@ class TestNimbusFmlLoader(TestCase):
             self.assertIn("Nimbus FML Loader: Invalid application", log.output[0])
 
     @patch(
-        "nimbus_megazord.fml.FmlClient.__init__",
+        "nimbus_megazord.fml.FmlClient.new_with_config",
         side_effect=FmlError("gecko-pref and default are mutually exclusive"),
     )
     @mock_fml_features
@@ -230,7 +226,7 @@ class TestNimbusFmlLoader(TestCase):
             )
 
     @patch(
-        "nimbus_megazord.fml.FmlClient.__init__",
+        "nimbus_megazord.fml.FmlClient.new_with_config",
         side_effect=FmlError("gecko-pref and default are mutually exclusive"),
     )
     @mock_fml_features
