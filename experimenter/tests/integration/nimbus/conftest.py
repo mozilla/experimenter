@@ -402,7 +402,15 @@ def trigger_experiment_loader(selenium):
                         const { ExperimentAPI } = ChromeUtils.importESModule("resource://nimbus/ExperimentAPI.sys.mjs");
                         const { RemoteSettings } = ChromeUtils.importESModule("resource://services-settings/remote-settings.sys.mjs");
 
-                        await RemoteSettings.pollChanges();
+                        // TODO #15107: Remove this workaround when Kinto is
+                        // bumped to a v2-compatible version. Firefox 149+ sends
+                        // _since as bare integers (v2), but our Kinto v1 test
+                        // server expects quoted strings and returns HTTP 400.
+                        const client = RemoteSettings("nimbus-desktop-experiments");
+                        await client.db.clear();
+                        Services.prefs.clearUserPref("services.settings.last_etag");
+                        await client.sync({loadDump: false});
+
                         await ExperimentAPI.ready();
                         await ExperimentAPI._rsLoader.updateRecipes("test");
 
