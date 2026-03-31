@@ -27,10 +27,10 @@ class TestNimbusExperimentSerializer(TestCase):
     @classmethod
     def _validate_experiment_schema(
         cls,
-        application: NimbusExperiment.Application,
+        application_slug: str,
         experiment_data: dict[str, Any],
     ):
-        if NimbusExperiment.Application.is_sdk(application):
+        if NimbusExperiment.Application.is_sdk(application_slug):
             schema = SdkNimbusExperiment
         else:
             schema = DesktopAllVersionsNimbusExperiment
