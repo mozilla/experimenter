@@ -476,14 +476,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=False,
     )
     equal_branch_ratio = models.BooleanField(default=True)
-    klaatu_status = models.BooleanField("Automated Validation Status", default=False)
-    klaatu_recent_run_ids = ArrayField(
-        models.BigIntegerField(
-            "Recent Klaatu Run ID", blank=True, null=True, default=None
-        ),
-        blank=True,
-        default=list,
-    )
     tags = models.ManyToManyField(Tag, blank=True, related_name="experiments")
     qa_run_date = models.DateField("QA Run Date", blank=True, null=True, default=None)
     qa_run_test_plan_url = models.URLField(
@@ -2030,8 +2022,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.risk_message = None
         cloned.risk_partner_related = None
         cloned.risk_revenue = None
-        cloned.klaatu_status = False
-        cloned.klaatu_recent_run_id = None
         cloned.save()
 
         if rollout_branch_slug:
