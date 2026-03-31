@@ -54,7 +54,6 @@ def firefox_options(firefox_options):
     firefox_options.set_preference("toolkit.telemetry.collectInterval", 1)
     firefox_options.set_preference("toolkit.telemetry.eventping.minimumFrequency", 30000)
     firefox_options.set_preference("toolkit.telemetry.unified", True)
-    firefox_options.set_preference("allowServerURLOverride", True)
     firefox_options.set_preference("browser.aboutConfig.showWarning", False)
     return firefox_options
 
