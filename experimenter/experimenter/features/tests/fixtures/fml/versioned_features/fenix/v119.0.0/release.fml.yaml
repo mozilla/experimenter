@@ -5,17 +5,6 @@ about:
 channels:
   - release
 features:
-  cookie-banners:
-    description: Features for cookie banner handling.
-    variables:
-      sections-enabled:
-        description: This property provides a lookup table of whether or not the given section should be enabled.
-        type: "Map<CookieBannersSection, Int>"
-        default:
-          dialog-re-engage-time: 4
-          feature-setting-value: 0
-          feature-setting-value-pbm: 0
-          feature-ui: 0
   extensions-process:
     description: A feature to rollout the extensions process.
     variables:
