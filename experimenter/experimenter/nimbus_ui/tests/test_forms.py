@@ -223,15 +223,6 @@ class AllocateBucketRangeMockMixin:
         self.addCleanup(self.mock_allocate_bucket_range.stop)
 
 
-class KlaatuStartJobMockMixin:
-    def setUp(self):
-        super().setUp()
-        self.mock_klaatu_task = patch(
-            "experimenter.klaatu.tasks.klaatu_start_job.delay"
-        ).start()
-        self.addCleanup(self.mock_klaatu_task.stop)
-
-
 class MetricsMockMixin:
     def setUp(self):
         super().setUp()
@@ -964,7 +955,6 @@ class SubscriptionFormTests(RequestFormTestCase):
 class TestDraftToPreviewForm(
     KintoPreviewMockMixin,
     AllocateBucketRangeMockMixin,
-    KlaatuStartJobMockMixin,
     RequestFormTestCase,
 ):
     def test_valid_transition(self):
@@ -988,7 +978,6 @@ class TestDraftToPreviewForm(
         self.assertIn("launched experiment to Preview", changelog.message)
         self.mock_preview_task.assert_called_once_with(countdown=5)
         self.mock_allocate_bucket_range.assert_called_once()
-        self.mock_klaatu_task.assert_called_once_with(experiment_id=experiment.id)
 
     @parameterized.expand(
         [

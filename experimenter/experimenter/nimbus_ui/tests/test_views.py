@@ -36,7 +36,6 @@ from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
-from experimenter.klaatu.tasks import klaatu_start_job
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     FeaturesPageSortChoices,
@@ -2365,7 +2364,6 @@ class TestLaunchViews(AuthTestCase):
         self.mock_allocate_bucket_range = patch.object(
             NimbusExperiment, "allocate_bucket_range"
         ).start()
-        self.mock_klaatu_task = patch.object(klaatu_start_job, "delay").start()
         self.mock_slack_task = patch(
             "experimenter.slack.tasks.nimbus_send_slack_notification.delay"
         ).start()
@@ -2394,7 +2392,6 @@ class TestLaunchViews(AuthTestCase):
         self.assertEqual(experiment.status_next, None)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
-        self.mock_klaatu_task.assert_called_once_with(experiment_id=experiment.id)
         self.mock_preview_task.assert_called_once_with(countdown=5)
         self.mock_allocate_bucket_range.assert_called_once()
 
