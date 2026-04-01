@@ -106,7 +106,7 @@ urlpatterns = [
         name="nimbus-ui-detail",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/rollout/$",
+        r"^(?P<slug>[\w-]+)/new/rollout/$",
         NimbusRolloutDetailView.as_view(),
         name="new-nimbus-ui-rollout-detail",
     ),
