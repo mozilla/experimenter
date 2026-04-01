@@ -11,6 +11,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.db.models import Q
 from django.test import TestCase, override_settings
+from django.urls import reverse
 from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
@@ -554,6 +555,20 @@ class TestNimbusExperiment(TestCase):
     def test_str(self):
         experiment = NimbusExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(str(experiment), experiment.name)
+
+    def test_get_rollout_url(self):
+        experiment = NimbusExperimentFactory.create(slug="my-rollout")
+        self.assertEqual(
+            experiment.get_rollout_url(),
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_latest_change_returns_most_recent(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        latest = experiment.changes.order_by("-changed_on").first()
+        self.assertEqual(experiment.latest_change, latest)
 
     def test_targeting_for_experiment_without_channels(self):
         experiment = NimbusExperimentFactory.create(
