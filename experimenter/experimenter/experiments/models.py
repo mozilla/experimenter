@@ -580,6 +580,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_history_url(self):
         return reverse("nimbus-ui-history", kwargs={"slug": self.slug})
 
+    def get_rollout_url(self):
+        return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.slug})
+
     def get_update_overview_url(self):
         return reverse("nimbus-ui-update-overview", kwargs={"slug": self.slug})
 
@@ -597,6 +600,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def get_results_url(self):
         return reverse("nimbus-ui-results", kwargs={"slug": self.slug})
+
+    @property
+    def latest_change(self):
+        return self.changes.order_by("-changed_on").first()
 
     @property
     def experiment_url(self):
