@@ -1,0 +1,78 @@
+name: Update Firefox Versions
+
+on:
+  schedule:
+    - cron: "3 12 * * *"
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: "Which variant to update (leave empty for all)"
+        required: false
+        type: choice
+        options:
+          - all
+          - desktop-release
+          - desktop-beta
+          - fenix-beta
+          - fennec-release
+
+jobs:
+  update:
+    name: "Update ${{ matrix.display_name }}"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - application: desktop
+            channel: release
+            display_name: Firefox Desktop Release
+          - application: desktop
+            channel: beta
+            display_name: Firefox Desktop Beta
+          - application: fenix
+            channel: beta
+            display_name: Firefox Fenix Beta
+          - application: fennec
+            channel: release
+            display_name: Firefox iOS (Fennec) Release
+    steps:
+      - name: Check if this variant should run
+        id: should-run
+        run: |
+          VARIANT="${{ github.event.inputs.variant || 'all' }}"
+          MATRIX_KEY="${{ matrix.application }}-${{ matrix.channel }}"
+          if [[ "$VARIANT" == "all" || "$VARIANT" == "$MATRIX_KEY" ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v6
+        if: steps.should-run.outputs.run == 'true'
+        with:
+          ref: main
+
+      - uses: actions/create-github-app-token@v2
+        if: steps.should-run.outputs.run == 'true'
+        id: app-token
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Configure git
+        if: steps.should-run.outputs.run == 'true'
+        run: |
+          git config user.email "experimenter-ci-bot@mozilla.com"
+          git config user.name "Experimenter Bot"
+          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/mozilla/experimenter.git
+
+      - name: Update Firefox version
+        if: steps.should-run.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          ./scripts/external_integration_updater_script.sh ${{ matrix.application }} ${{ matrix.channel }}
