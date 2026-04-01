@@ -48,7 +48,7 @@ jobs:
         run: |
           if python3 ./experimenter/bin/should-pr.py; then
             git checkout -B external-config
-            git add .
+            git add experimenter/ schemas/
             git commit -m 'chore(nimbus): Update External Configs'
             if (( $((git diff external-config origin/external-config || git diff HEAD~1) | wc -c) > 0 )); then
               git push origin external-config -f
@@ -101,11 +101,11 @@ jobs:
         run: |
           if (( $(git status --porcelain | wc -c) > 0 )); then
             git checkout -B update-application-services
-            git add .
-            git commit -m "chore(nimbus): Update application-services"
+            git add application-services/
+            git commit -m "chore(nimbus): Update Application Services"
             if (( $((git diff update-application-services origin/update-application-services || git diff HEAD~1) | wc -c) > 0 )); then
               git push origin update-application-services -f
-              gh pr create -t "chore(nimbus): Update application-services" -b "" --base main --head update-application-services --repo mozilla/experimenter || echo "PR already exists, skipping"
+              gh pr create -t "chore(nimbus): Update Application Services" -b "" --base main --head update-application-services --repo mozilla/experimenter || echo "PR already exists, skipping"
             else
               echo "Changes already committed, skipping"
             fi
