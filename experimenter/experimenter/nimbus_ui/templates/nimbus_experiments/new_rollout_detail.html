@@ -1,0 +1,40 @@
+{% extends "common/new_base.html" %}
+
+{% load static %}
+{% load nimbus_extras %}
+
+{% block title %}{{ experiment.name }}{% endblock %}
+{% block main_content %}
+  <div id="RolloutSummary" class="d-flex flex-column gap-4">
+    {# ── Define ── #}
+    <div class="d-flex flex-column gap-2">
+      <div class="small fw-medium mb-1 text-secondary">Define</div>
+      {# TODO EXP-6681: Rollout Overview Form/Card #}
+      {% include "nimbus_experiments/rollout_cards/new_detail_card.html" with card_id="overview" title="Overview" subtitle="Name | Observations & Problem space | Important Links" %}
+
+      {# TODO EXP-6682: Rollout Risks Form/Card #}
+      {% include "nimbus_experiments/rollout_cards/new_detail_card.html" with card_id="risks" title="Risks" subtitle="Consider possible risks if the public interacts with your experiment" %}
+
+    </div>
+    {# ── Configure ── #}
+    <div class="d-flex flex-column gap-2">
+      <div class="small fw-medium mb-1 text-secondary">Configure</div>
+      {# TODO EXP-6683: Rollout Configuration & Localization Form/Card #}
+      {% include "nimbus_experiments/rollout_cards/new_detail_card.html" with card_id="configuration" title="Configuration & Localization" subtitle="Platform | Channel | Timeline | Configurations | Localization" %}
+
+      {# TODO EXP-6683: Rollout Audience Form/Card #}
+      {% include "nimbus_experiments/rollout_cards/new_detail_card.html" with card_id="audience" title="Audience" subtitle="Branch treatment details" %}
+
+    </div>
+    {# ── Build ── #}
+    <div class="d-flex flex-column gap-2">
+      <div class="small fw-medium mb-1 text-secondary">Build</div>
+      {# TODO EXP-6685: Rollout Experience Form/Card #}
+      {% include "nimbus_experiments/rollout_cards/new_detail_card.html" with card_id="features" title="Rollout experience" subtitle="Describe the rollout experience" %}
+
+      {# TODO EXP-6685: Rollout Schedule Form/Card #}
+      {% include "nimbus_experiments/rollout_cards/new_detail_card.html" with card_id="schedule" title="Rollout schedule" subtitle="1% → 10% → 50% → 100%" %}
+
+    </div>
+  </div>
+{% endblock %}
