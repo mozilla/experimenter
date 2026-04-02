@@ -3,6 +3,7 @@ from django.urls import path, re_path
 from experimenter.experiments.api.v5.views import (
     FmlErrorsView,
     NimbusExperimentCsvListView,
+    NimbusExperimentUsageStatsView,
     NimbusExperimentYamlListView,
 )
 
@@ -11,6 +12,11 @@ urlpatterns = [
         r"^csv/$",
         NimbusExperimentCsvListView.as_view(),
         name="nimbus-experiments-csv",
+    ),
+    re_path(
+        r"^csv/usage/$",
+        NimbusExperimentUsageStatsView.as_view(),
+        name="nimbus-experiments-csv-usage",
     ),
     re_path(
         r"^yaml/$",

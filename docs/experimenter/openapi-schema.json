@@ -60,6 +60,29 @@
         ]
       }
     },
+    "/api/v5/csv/usage/": {
+      "get": {
+        "operationId": "listNimbusExperimentUsageStats",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
     "/api/v5/yaml/": {
       "get": {
         "operationId": "listNimbusExperiments",
