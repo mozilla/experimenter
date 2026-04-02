@@ -775,6 +775,11 @@ features:
           Toggle between legacy (false) and modern (true) UI variants.
         type: Boolean
         default: true
+      enable-video-intro:
+        description: |
+          When true, a full-screen video is displayed before the Terms of Service screen during fresh-install onboarding.
+        type: Boolean
+        default: false
       should-use-brand-refresh-configuration:
         description: |
           Toggle between standard (false) and brand refresh (true) onboarding content.
