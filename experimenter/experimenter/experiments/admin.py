@@ -8,7 +8,6 @@ from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
-from django_summernote.admin import SummernoteModelAdmin
 from import_export import fields, resources
 from import_export.admin import ExportActionMixin, ImportMixin
 from import_export.widgets import DecimalWidget, ForeignKeyWidget
@@ -331,7 +330,6 @@ class NimbusExperimentAdmin(
     NoDeleteAdminMixin,
     ImportMixin,
     ExportActionMixin,
-    SummernoteModelAdmin,
     admin.ModelAdmin[NimbusExperiment],
 ):
     inlines = (
@@ -364,7 +362,6 @@ class NimbusExperimentAdmin(
     actions = [force_fetch_jetstream_data, force_resync_published_dto]
     resource_class = NimbusExperimentResource
     readonly_fields = ("_firefox_min_version_parsed", "changelog_display")
-    summernote_fields = ("takeaways_summary", "next_steps")
 
     @admin.display(description="Change History")
     def changelog_display(self, obj):

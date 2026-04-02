@@ -1,6 +1,7 @@
 <form method="post"
       hx-post="{% url 'nimbus-ui-edit-outcome-summary' slug=experiment.slug %}"
       id="edit-summary-form-{{ experiment.slug }}">
+  {{ edit_outcome_summary_form.media }}
   {% csrf_token %}
   <div class="border border-1 rounded-4 mt-4 py-4 px-5">
     <div class="d-flex flex-column align-items-start">

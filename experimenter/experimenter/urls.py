@@ -31,7 +31,7 @@ urlpatterns = [
         RedirectView.as_view(pattern_name="nimbus-ui-home"),
         name="redirect-to-nimbus",
     ),
-    re_path(r"^summernote/", include("django_summernote.urls")),
+    re_path(r"^prose/", include("prose.urls")),
 ]
 
 handler404 = PageNotFoundView.as_404_view()

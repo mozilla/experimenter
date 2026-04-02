@@ -91,7 +91,7 @@ INSTALLED_APPS = [
     "widget_tweaks",
     "fontawesomefree",
     "django_bootstrap5",
-    "django_summernote",
+    "prose",
     # Experimenter
     "experimenter.base",
     "experimenter.changelog",
@@ -564,21 +564,6 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
 # Only allow JSON for the experiment import/export admin tool
 IMPORT_EXPORT_FORMATS = [JSON]
-
-SUMMERNOTE_CONFIG = {
-    "summernote": {
-        "width": "100%",
-        "height": "450px",
-        "toolbar": [
-            ["style", ["style"]],
-            ["font", ["bold", "underline", "italic", "clear"]],
-            ["fontname", ["fontname"]],
-            ["para", ["ul", "ol", "paragraph"]],
-            ["table", ["table"]],
-            ["insert", ["link", "picture"]],
-        ],
-    },
-}
 
 ASK_EXPERIMENTER_SLACK_LINK = config(
     "ASK_EXPERIMENTER_SLACK_LINK",
