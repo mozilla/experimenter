@@ -85,6 +85,7 @@ class ApplicationConfig:
     is_web: bool
     preview_collection: str
     kinto_collections_by_feature_id: Optional[dict[str, str]] = field(default=None)
+    targeting_context_file_name: Optional[str] = field(default=None)
 
     def get_kinto_collection_for_experiment(self, experiment: NimbusExperiment) -> str:
         if self.kinto_collections_by_feature_id is not None:
@@ -163,6 +164,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
         DESKTOP_NEWTAB_ADDON_SLUG: settings.KINTO_COLLECTION_NIMBUS_SECURE,
     },
     preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
+    targeting_context_file_name="TargetingContextRecorder.sys.mjs",
 )
 
 APPLICATION_CONFIG_FENIX = ApplicationConfig(
@@ -178,6 +180,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
     preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
+    targeting_context_file_name="RecordedNimbusContext.kt",
 )
 
 APPLICATION_CONFIG_IOS = ApplicationConfig(
@@ -193,6 +196,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     is_web=False,
     preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
+    targeting_context_file_name="RecordedNimbusContext.swift",
 )
 
 APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
