@@ -3,6 +3,7 @@ from unittest import mock
 
 from django.test import TestCase
 from django.utils import timezone
+from parameterized import parameterized
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert
@@ -11,6 +12,39 @@ from experimenter.slack import tasks
 from experimenter.slack.constants import SlackConstants
 
 AnalysisWindow = NimbusConstants.AnalysisWindow
+
+_SPIKE_MONITORING_DATA = {
+    "total_enrollments": 1000,
+    "total_unenrollments": 150,
+    "branches": {
+        "control": {"enrollments": 500},
+        "treatment": {"enrollments": 500},
+    },
+    "reasons_by_branch": {
+        "control": {"targeting_mismatch": {"1pct_count": 75}},
+        "treatment": {"targeting_mismatch": {"1pct_count": 75}},
+    },
+}
+
+_SRM_MONITORING_DATA = {
+    "total_enrollments": 1000,
+    "total_unenrollments": 50,
+    "branches": {
+        "control": {"enrollments": 900},
+        "treatment": {"enrollments": 100},
+    },
+    "reasons_by_branch": {},
+}
+
+_NORMAL_MONITORING_DATA = {
+    "total_enrollments": 1000,
+    "total_unenrollments": 50,
+    "branches": {
+        "control": {"enrollments": 500},
+        "treatment": {"enrollments": 500},
+    },
+    "reasons_by_branch": {},
+}
 
 
 class TestNimbusSendSlackNotification(TestCase):
@@ -800,6 +834,405 @@ class TestCheckAnalysisErrors(TestCase):
             ).count(),
             0,
         )
+
+
+class TestComputeUnenrollmentRate(TestCase):
+    @parameterized.expand(
+        [
+            ("zero_enrollments", 0, 0, 0.0),
+            ("ten_percent", 1000, 100, 0.1),
+            ("above_threshold", 1000, 150, 0.15),
+            ("below_threshold", 1000, 50, 0.05),
+        ]
+    )
+    def test_rate_calculation(self, _, enrollments, unenrollments, expected_rate):
+        self.assertAlmostEqual(
+            tasks._compute_unenrollment_rate(enrollments, unenrollments), expected_rate
+        )
+
+
+class TestComputeSrmPValue(TestCase):
+    def test_equal_branches_returns_high_p_value(self):
+        branches = {
+            "control": {"enrollments": 500},
+            "treatment": {"enrollments": 500},
+        }
+        self.assertGreater(tasks._compute_srm_p_value(branches), 0.05)
+
+    def test_unequal_branches_returns_low_p_value(self):
+        branches = {
+            "control": {"enrollments": 900},
+            "treatment": {"enrollments": 100},
+        }
+        self.assertLess(
+            tasks._compute_srm_p_value(branches),
+            SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD,
+        )
+
+    @parameterized.expand(
+        [
+            ("empty_branches", {}),
+            (
+                "all_zero_enrollments",
+                {"control": {"enrollments": 0}, "treatment": {"enrollments": 0}},
+            ),
+        ]
+    )
+    def test_returns_one_for_no_data(self, _, branches):
+        self.assertEqual(tasks._compute_srm_p_value(branches), 1.0)
+
+
+class TestGetTopUnenrollmentReason(TestCase):
+    def test_returns_top_reason_aggregated_across_branches(self):
+        monitoring_data = {
+            "reasons_by_branch": {
+                "control": {
+                    "targeting_mismatch": {"1pct_count": 75},
+                    "pref_flipped": {"1pct_count": 25},
+                },
+                "treatment": {
+                    "targeting_mismatch": {"1pct_count": 75},
+                    "pref_flipped": {"1pct_count": 25},
+                    "studies_opt_out": {"1pct_count": 100},
+                },
+            }
+        }
+        self.assertEqual(
+            tasks._get_top_unenrollment_reason(monitoring_data), "targeting_mismatch"
+        )
+
+    def test_returns_key_when_all_counts_are_zero(self):
+        # max() on an all-zero dict still returns a key — not "unknown"
+        monitoring_data = {
+            "reasons_by_branch": {
+                "control": {"targeting_mismatch": {"1pct_count": 0}},
+            }
+        }
+        self.assertEqual(
+            tasks._get_top_unenrollment_reason(monitoring_data), "targeting_mismatch"
+        )
+
+    @parameterized.expand(
+        [
+            ("empty_reasons_by_branch", {"reasons_by_branch": {}}),
+            ("missing_reasons_by_branch_key", {}),
+            (
+                "branches_with_empty_reason_dicts",
+                {"reasons_by_branch": {"control": {}, "treatment": {}}},
+            ),
+        ]
+    )
+    def test_returns_unknown_when_no_reasons(self, _, monitoring_data):
+        self.assertEqual(tasks._get_top_unenrollment_reason(monitoring_data), "unknown")
+
+
+class TestCheckUnenrollmentSpike(TestCase):
+    @parameterized.expand(
+        [
+            ("spike_detected", 1000, 150, True, 0.15),
+            ("below_threshold", 1000, 50, False, 0.05),
+            ("at_exact_threshold", 1000, 100, False, 0.10),
+            ("no_enrollments", 0, 0, False, 0.0),
+        ]
+    )
+    def test_spike_detection(
+        self, _, enrollments, unenrollments, expected_is_spike, expected_rate
+    ):
+        monitoring_data = {
+            "total_enrollments": enrollments,
+            "total_unenrollments": unenrollments,
+        }
+        is_spike, rate = tasks._check_unenrollment_spike(monitoring_data)
+        self.assertEqual(is_spike, expected_is_spike)
+        self.assertAlmostEqual(rate, expected_rate)
+
+
+class TestCheckSrmMismatch(TestCase):
+    def test_returns_true_when_p_value_below_threshold(self):
+        monitoring_data = {
+            "branches": {
+                "control": {"enrollments": 900},
+                "treatment": {"enrollments": 100},
+            }
+        }
+        is_srm, p_value = tasks._check_srm_mismatch(monitoring_data)
+        self.assertTrue(is_srm)
+        self.assertLess(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
+
+    def test_returns_false_when_branches_are_balanced(self):
+        monitoring_data = {
+            "branches": {
+                "control": {"enrollments": 500},
+                "treatment": {"enrollments": 500},
+            }
+        }
+        is_srm, p_value = tasks._check_srm_mismatch(monitoring_data)
+        self.assertFalse(is_srm)
+        self.assertGreater(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
+
+    @parameterized.expand(
+        [
+            ("single_branch", {"branches": {"control": {"enrollments": 500}}}),
+            ("no_branches", {"branches": {}}),
+        ]
+    )
+    def test_returns_false_for_insufficient_branches(self, _, monitoring_data):
+        is_srm, p_value = tasks._check_srm_mismatch(monitoring_data)
+        self.assertFalse(is_srm)
+        self.assertEqual(p_value, 1.0)
+
+
+class TestCheckMonitoringAlerts(TestCase):
+    def test_skips_non_live_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            monitoring_data=_SPIKE_MONITORING_DATA,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 0)
+
+    def test_skips_when_monitoring_data_is_none(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 0)
+
+    def test_sends_unenrollment_spike_alert(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_SPIKE_MONITORING_DATA,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_called_once()
+            call_args = mock_send_slack.call_args
+            self.assertEqual(call_args[1]["experiment_id"], experiment.id)
+            self.assertIn("Unexpectedly large unenrollment", call_args[1]["action_text"])
+
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+            ).exists()
+        )
+
+    def test_sends_srm_mismatch_alert(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_SRM_MONITORING_DATA,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_called_once()
+            self.assertIn(
+                "branch ratio mismatch", mock_send_slack.call_args[1]["action_text"]
+            )
+
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.SRM_MISMATCH,
+            ).exists()
+        )
+
+    def test_sends_both_alerts_when_both_conditions_met(self):
+        monitoring_data = {
+            "total_enrollments": 1000,
+            "total_unenrollments": 150,
+            "branches": {
+                "control": {"enrollments": 900},
+                "treatment": {"enrollments": 100},
+            },
+            "reasons_by_branch": {
+                "control": {"targeting_mismatch": {"1pct_count": 75}},
+                "treatment": {"targeting_mismatch": {"1pct_count": 75}},
+            },
+        }
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=monitoring_data,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            self.assertEqual(mock_send_slack.call_count, 2)
+
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+            ).exists()
+        )
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.SRM_MISMATCH,
+            ).exists()
+        )
+
+    def test_no_alert_when_below_both_thresholds(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_NORMAL_MONITORING_DATA,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 0)
+
+    @parameterized.expand(
+        [
+            (
+                "unenrollment_spike",
+                _SPIKE_MONITORING_DATA,
+                NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+            ),
+            (
+                "srm_mismatch",
+                _SRM_MONITORING_DATA,
+                NimbusConstants.AlertType.SRM_MISMATCH,
+            ),
+        ]
+    )
+    def test_does_not_create_duplicate_alert(self, _, monitoring_data, alert_type):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=monitoring_data,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ):
+            tasks._check_monitoring_alerts(experiment)
+            tasks._check_monitoring_alerts(experiment)
+
+        self.assertEqual(
+            NimbusAlert.objects.filter(
+                experiment=experiment, alert_type=alert_type
+            ).count(),
+            1,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                "unenrollment_spike",
+                _SPIKE_MONITORING_DATA,
+                NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+            ),
+            (
+                "srm_mismatch",
+                _SRM_MONITORING_DATA,
+                NimbusConstants.AlertType.SRM_MISMATCH,
+            ),
+        ]
+    )
+    def test_stores_slack_thread_info(self, _, monitoring_data, alert_type):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=monitoring_data,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ):
+            tasks._check_monitoring_alerts(experiment)
+
+        alert = NimbusAlert.objects.get(experiment=experiment, alert_type=alert_type)
+        self.assertEqual(alert.slack_thread_id, "1234567890.123456")
+        self.assertEqual(alert.slack_channel_id, "C123456")
+
+    def test_alert_message_includes_top_reason_for_spike(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_SPIKE_MONITORING_DATA,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ):
+            tasks._check_monitoring_alerts(experiment)
+
+        alert = NimbusAlert.objects.get(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+        )
+        self.assertIn("targeting_mismatch", alert.message)
+
+    def test_alert_message_includes_review_prompt_for_srm(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_SRM_MONITORING_DATA,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ):
+            tasks._check_monitoring_alerts(experiment)
+
+        alert = NimbusAlert.objects.get(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.SRM_MISMATCH,
+        )
+        self.assertIn("branch ratio mismatch", alert.message)
+        self.assertIn("Please review", alert.message)
+
+    @parameterized.expand(
+        [
+            ("unenrollment_spike", _SPIKE_MONITORING_DATA),
+            ("srm_mismatch", _SRM_MONITORING_DATA),
+        ]
+    )
+    def test_handles_slack_failure_gracefully(self, _, monitoring_data):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=monitoring_data,
+        )
+        with (
+            mock.patch(
+                "experimenter.slack.tasks.send_slack_notification",
+                side_effect=Exception("Slack API error"),
+            ),
+            mock.patch("experimenter.slack.tasks.logger") as mock_logger,
+        ):
+            tasks._check_monitoring_alerts(experiment)
+            # send function logs once, outer handler logs once
+            self.assertEqual(mock_logger.error.call_count, 2)
+            self.assertIn(experiment.slug, mock_logger.error.call_args[0][0])
+
+    def test_check_single_experiment_alerts_calls_monitoring_alerts(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_SPIKE_MONITORING_DATA,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks._check_monitoring_alerts"
+        ) as mock_check:
+            tasks.check_single_experiment_alerts(experiment.id)
+            mock_check.assert_called_once_with(experiment)
 
 
 class TestAddEmojiToMessageAsync(TestCase):

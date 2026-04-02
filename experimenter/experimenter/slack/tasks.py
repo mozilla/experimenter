@@ -4,6 +4,7 @@ from datetime import timedelta
 import markus
 from celery import shared_task
 from django.utils import timezone
+from scipy.stats import chisquare
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert, NimbusExperiment
@@ -122,6 +123,9 @@ def check_single_experiment_alerts(experiment_id):
 
         # Check for analysis errors
         _check_analysis_errors(experiment)
+
+        # Check for enrollment monitoring alerts
+        _check_monitoring_alerts(experiment)
 
     except NimbusExperiment.DoesNotExist:
         logger.error(
@@ -299,6 +303,166 @@ def _send_error_alert(experiment, error_items):
         logger.error(f"{msg}: {e}")
         metrics.incr("analysis_error_alert.failed")
         raise
+
+
+def _compute_unenrollment_rate(total_enrollments, total_unenrollments):
+    if total_enrollments == 0:
+        return 0.0
+    return total_unenrollments / total_enrollments
+
+
+def _compute_srm_p_value(branches):
+    enrollments = [b.get("enrollments", 0) for b in branches.values()]
+
+    if not enrollments or sum(enrollments) == 0:
+        return 1.0
+
+    expected_per_branch = sum(enrollments) / len(enrollments)
+    expected = [expected_per_branch] * len(enrollments)
+
+    _, p_value = chisquare(enrollments, expected)
+    return p_value
+
+
+def _get_top_unenrollment_reason(monitoring_data):
+    reasons_by_branch = monitoring_data.get("reasons_by_branch", {})
+
+    if not reasons_by_branch:
+        return "unknown"
+
+    aggregated_reasons = {}
+    for branch_reasons in reasons_by_branch.values():
+        for reason, count_data in branch_reasons.items():
+            count = count_data.get("1pct_count", 0)
+            aggregated_reasons[reason] = aggregated_reasons.get(reason, 0) + count
+
+    if not aggregated_reasons:
+        return "unknown"
+
+    return max(aggregated_reasons, key=aggregated_reasons.get)
+
+
+def _check_unenrollment_spike(monitoring_data):
+    rate = _compute_unenrollment_rate(
+        monitoring_data.get("total_enrollments", 0),
+        monitoring_data.get("total_unenrollments", 0),
+    )
+    return rate > SlackConstants.UNENROLLMENT_SPIKE_THRESHOLD, rate
+
+
+def _check_srm_mismatch(monitoring_data):
+    branches = monitoring_data.get("branches", {})
+
+    if len(branches) < 2:
+        return False, 1.0
+
+    p_value = _compute_srm_p_value(branches)
+    return p_value < SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD, p_value
+
+
+def _send_unenrollment_spike_alert(experiment, rate, reason):
+    try:
+        message = SlackConstants.SLACK_UNENROLLMENT_SPIKE_MESSAGE.format(
+            experiment=experiment.name,
+            reason=reason,
+            rate=rate,
+            threshold=SlackConstants.UNENROLLMENT_SPIKE_THRESHOLD,
+        )
+        email_addresses = [experiment.owner.email] if experiment.owner else []
+        result = send_slack_notification(
+            experiment_id=experiment.id,
+            email_addresses=email_addresses,
+            action_text=message,
+        )
+
+        alert_defaults = {"message": message}
+        if result:
+            message_ts, channel_id = result
+            alert_defaults["slack_thread_id"] = message_ts
+            alert_defaults["slack_channel_id"] = channel_id
+
+        NimbusAlert.objects.update_or_create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+            defaults=alert_defaults,
+        )
+
+        logger.info(
+            SlackConstants.SLACK_LOG_UNENROLLMENT_SPIKE_SENT.format(
+                experiment=experiment.slug
+            )
+        )
+        metrics.incr("unenrollment_spike_alert.sent")
+
+    except Exception as e:
+        msg = SlackConstants.SLACK_LOG_FAILED_SEND_UNENROLLMENT_SPIKE.format(
+            experiment=experiment.slug
+        )
+        logger.error(f"{msg}: {e}")
+        metrics.incr("unenrollment_spike_alert.failed")
+        raise
+
+
+def _send_srm_mismatch_alert(experiment, p_value):
+    try:
+        message = SlackConstants.SLACK_SRM_MISMATCH_MESSAGE.format(
+            experiment=experiment.name,
+        )
+        email_addresses = [experiment.owner.email] if experiment.owner else []
+        result = send_slack_notification(
+            experiment_id=experiment.id,
+            email_addresses=email_addresses,
+            action_text=message,
+        )
+
+        alert_defaults = {"message": message}
+        if result:
+            message_ts, channel_id = result
+            alert_defaults["slack_thread_id"] = message_ts
+            alert_defaults["slack_channel_id"] = channel_id
+
+        NimbusAlert.objects.update_or_create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.SRM_MISMATCH,
+            defaults=alert_defaults,
+        )
+
+        logger.info(
+            SlackConstants.SLACK_LOG_SRM_MISMATCH_SENT.format(experiment=experiment.slug)
+        )
+        metrics.incr("srm_mismatch_alert.sent")
+
+    except Exception as e:
+        msg = SlackConstants.SLACK_LOG_FAILED_SEND_SRM_MISMATCH.format(
+            experiment=experiment.slug
+        )
+        logger.error(f"{msg}: {e}")
+        metrics.incr("srm_mismatch_alert.failed")
+        raise
+
+
+def _check_monitoring_alerts(experiment):
+    if experiment.status != NimbusConstants.Status.LIVE:
+        return
+
+    if not experiment.monitoring_data:
+        return
+
+    try:
+        is_spike, rate = _check_unenrollment_spike(experiment.monitoring_data)
+        if is_spike:
+            reason = _get_top_unenrollment_reason(experiment.monitoring_data)
+            _send_unenrollment_spike_alert(experiment, rate, reason)
+
+        is_srm, p_value = _check_srm_mismatch(experiment.monitoring_data)
+        if is_srm:
+            _send_srm_mismatch_alert(experiment, p_value)
+
+    except Exception as e:
+        msg = SlackConstants.SLACK_LOG_MONITORING_ALERTS_ERROR.format(
+            experiment=experiment.slug
+        )
+        logger.error(f"{msg}: {e}")
 
 
 @shared_task(

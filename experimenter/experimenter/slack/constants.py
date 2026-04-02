@@ -55,6 +55,10 @@ class SlackConstants:
     class ErrorCode:
         ALREADY_REACTED = "already_reacted"
 
+    # Enrollment monitoring thresholds
+    UNENROLLMENT_SPIKE_THRESHOLD = 0.10  # 10%
+    SRM_MISMATCH_P_VALUE_THRESHOLD = 0.001  # p < 0.001
+
     # Slack message templates
     SLACK_DM_PREFIX = "🔔 Join {channel} to get slack notifications: {message}"
     SLACK_DM_CHANNEL_LINK_SUFFIX = "\n\n🔗 View in channel: {channel_message_link}"
@@ -72,6 +76,16 @@ class SlackConstants:
     )
     SLACK_RESULTS_READY_MESSAGE = "📈 {window} analysis results are now available"
     SLACK_ANALYSIS_ERRORS_MESSAGE = "⚠️ Analysis errors detected:\n{error_lines}"
+    SLACK_UNENROLLMENT_SPIKE_MESSAGE = (
+        "⚠️ Unexpectedly large unenrollment in *{experiment}*\n"
+        "Primary reason: {reason}\n"
+        "Unenrollment rate: {rate:.1%} (threshold: {threshold:.1%})"
+    )
+    SLACK_SRM_MISMATCH_MESSAGE = (
+        "⚠️ *{experiment}* has a branch ratio mismatch.\n"
+        "Enrollment is not at the expected ratio across branches — "
+        "something may be wrong. Please review the experiment results"
+    )
 
     # Slack notification log messages
     SLACK_LOG_NOT_CONFIGURED = "Slack not configured, skipping {operation}"
@@ -132,6 +146,19 @@ class SlackConstants:
         "Failed to send {window} results alert for experiment {experiment}"
     )
     SLACK_LOG_FAILED_SEND_ERROR_ALERT = "Failed to send error alert for {experiment}"
+    SLACK_LOG_UNENROLLMENT_SPIKE_SENT = (
+        "Sent unenrollment spike alert for experiment {experiment}"
+    )
+    SLACK_LOG_SRM_MISMATCH_SENT = "Sent SRM mismatch alert for experiment {experiment}"
+    SLACK_LOG_FAILED_SEND_UNENROLLMENT_SPIKE = (
+        "Failed to send unenrollment spike alert for experiment {experiment}"
+    )
+    SLACK_LOG_FAILED_SEND_SRM_MISMATCH = (
+        "Failed to send SRM mismatch alert for experiment {experiment}"
+    )
+    SLACK_LOG_MONITORING_ALERTS_ERROR = (
+        "Error checking monitoring alerts for experiment {experiment}"
+    )
     SLACK_LOG_NOTIFICATION_TASK_SENT = (
         "Slack notification sent for experiment {experiment_id}"
     )

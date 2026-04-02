@@ -81,6 +81,7 @@ deepdiff = "^8.6.2"
 django-summernote = "^0.8.20.0"
 markdown = "^3.10.2"
 nh3 = "^0.3"
+scipy = "^1.15.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
