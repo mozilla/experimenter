@@ -13,8 +13,6 @@ on:
           - all
           - desktop-release
           - desktop-beta
-          - fenix-beta
-          - fennec-release
 
 jobs:
   update:
@@ -33,12 +31,6 @@ jobs:
           - application: desktop
             channel: beta
             display_name: Firefox Desktop Beta
-          - application: fenix
-            channel: beta
-            display_name: Firefox Fenix Beta
-          - application: fennec
-            channel: release
-            display_name: Firefox iOS (Fennec) Release
     steps:
       - name: Check if this variant should run
         id: should-run

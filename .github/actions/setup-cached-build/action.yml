@@ -16,6 +16,15 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Free disk space
+      shell: bash
+      run: |
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        docker system prune -af
+        df -h /
+
     - name: Authenticate to Google Cloud
       if: inputs.gcp-project-number != ''
       uses: google-github-actions/auth@v2
