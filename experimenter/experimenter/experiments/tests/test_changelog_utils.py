@@ -136,8 +136,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "vp_signoff": False,
                 "warn_feature_schema": False,
                 "published_date": None,
-                "klaatu_status": experiment.klaatu_status,
-                "klaatu_recent_run_ids": experiment.klaatu_recent_run_ids,
             },
         )
 
@@ -268,8 +266,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "vp_signoff": False,
                 "warn_feature_schema": False,
                 "published_date": experiment.published_date,
-                "klaatu_status": experiment.klaatu_status,
-                "klaatu_recent_run_ids": experiment.klaatu_recent_run_ids,
             },
         )
 

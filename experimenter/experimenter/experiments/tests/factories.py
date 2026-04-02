@@ -6,6 +6,7 @@ import random
 from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
+from itertools import chain
 
 import factory
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -79,6 +80,8 @@ TEST_LOCALIZATIONS = """\
     }
 }
 """
+
+_UNSET = object()
 
 
 class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
@@ -437,6 +440,275 @@ def random_slice(lst, *, min_items=0, max_items=2):
     return lst[:count]
 
 
+def build_random_results_data(primary_outcomes, secondary_outcomes, application):
+    control_enrollment_pop = random.randint(100000, 150000)
+    control_exposure_pop = random.randint(50000, 100000)
+    treatment_enrollment_pop = random.randint(100000, 150000)
+    treatment_exposure_pop = random.randint(50000, 100000)
+
+    outcome_metrics = []
+
+    for outcome_slug in chain(primary_outcomes, secondary_outcomes):
+        outcome = Outcomes.get_by_slug_and_application(outcome_slug, application)
+
+        outcome_metrics.extend(outcome.metrics if outcome else [])
+
+    def generate_random_data_point():
+        return {
+            "upper": (upper := random.random()),
+            "lower": (lower := random.uniform(0, upper)),
+            "point": (upper + lower) / 2,
+        }
+
+    def build_metric_data(branch_key="control", comparative_branch_data=None):
+        branch_significance = None
+
+        if comparative_branch_data:
+            comparative_branch_significance = (
+                comparative_branch_data.get("significance", {})
+                .get("treatment", {})
+                .get("overall", {})
+                .get("1")
+            )
+
+            branch_significance = (
+                "positive"
+                if comparative_branch_significance == "negative"
+                else (
+                    "negative"
+                    if comparative_branch_significance == "positive"
+                    else "neutral"
+                )
+            )
+        else:
+            branch_significance = random.choice(["neutral", "positive", "negative"])
+
+        return {
+            "absolute": {
+                "all": [(point := generate_random_data_point())],
+                "first": point,
+            },
+            "relative_uplift": {
+                ("treatment" if branch_key == "control" else "control"): {
+                    "all": [(point := generate_random_data_point())],
+                    "first": point,
+                },
+                ("control" if branch_key == "control" else "treatment"): {},
+            },
+            "significance": {
+                ("treatment" if branch_key == "control" else "control"): {
+                    "overall": {
+                        "1": branch_significance,
+                    }
+                },
+                ("control" if branch_key == "control" else "treatment"): {},
+            },
+            "difference": {
+                ("treatment" if branch_key == "control" else "control"): {
+                    "all": [(point := generate_random_data_point())],
+                    "first": point,
+                },
+                ("control" if branch_key == "control" else "treatment"): {},
+            },
+        }
+
+    control_outcome_metrics = {
+        metric.slug: build_metric_data(branch_key="control") for metric in outcome_metrics
+    }
+    treatment_outcome_metrics = {
+        metric.slug: build_metric_data(
+            branch_key="treatment",
+            comparative_branch_data=control_outcome_metrics[metric.slug],
+        )
+        for metric in outcome_metrics
+    }
+
+    results = {
+        "v3": {
+            "overall": {
+                "enrollments": {
+                    "all": {
+                        "control": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "point": control_enrollment_pop,
+                                                }
+                                            ],
+                                            "first": {
+                                                "point": control_enrollment_pop,
+                                            },
+                                        },
+                                    },
+                                    "retained": (
+                                        control_retained := build_metric_data(
+                                            branch_key="control"
+                                        )
+                                    ),
+                                    "client_level_daily_active_users_v2": (
+                                        control_dau := build_metric_data(
+                                            branch_key="control"
+                                        )
+                                    ),
+                                    "active_in_last_3_days_legacy": (
+                                        control_three_day := build_metric_data(
+                                            branch_key="control"
+                                        )
+                                    ),
+                                    **control_outcome_metrics,
+                                },
+                                "search_metrics": {
+                                    "search_count": (
+                                        control_search := build_metric_data(
+                                            branch_key="control"
+                                        )
+                                    ),
+                                },
+                                "usage_metrics": {},
+                            },
+                            "is_control": True,
+                        },
+                        "treatment": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "point": treatment_enrollment_pop,
+                                                }
+                                            ],
+                                            "first": {
+                                                "point": treatment_enrollment_pop,
+                                            },
+                                        },
+                                    },
+                                    "retained": build_metric_data(
+                                        branch_key="treatment",
+                                        comparative_branch_data=control_retained,
+                                    ),
+                                    "client_level_daily_active_users_v2": (
+                                        build_metric_data(
+                                            branch_key="treatment",
+                                            comparative_branch_data=control_dau,
+                                        )
+                                    ),
+                                    "active_in_last_3_days_legacy": build_metric_data(
+                                        branch_key="treatment",
+                                        comparative_branch_data=control_three_day,
+                                    ),
+                                    **treatment_outcome_metrics,
+                                },
+                                "search_metrics": {
+                                    "search_count": build_metric_data(
+                                        branch_key="treatment",
+                                        comparative_branch_data=control_search,
+                                    ),
+                                },
+                                "usage_metrics": {},
+                            },
+                            "is_control": False,
+                        },
+                    },
+                },
+                "exposures": {
+                    "all": {
+                        "control": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "point": control_exposure_pop,
+                                                }
+                                            ],
+                                            "first": {
+                                                "point": control_exposure_pop,
+                                            },
+                                        },
+                                    },
+                                    "retained": (
+                                        control_retained := build_metric_data(
+                                            branch_key="control"
+                                        )
+                                    ),
+                                    "client_level_daily_active_users_v2": (
+                                        control_dau := build_metric_data(
+                                            branch_key="control"
+                                        )
+                                    ),
+                                    "active_in_last_3_days_legacy": (
+                                        control_three_day := build_metric_data(
+                                            branch_key="control"
+                                        )
+                                    ),
+                                    **control_outcome_metrics,
+                                },
+                                "search_metrics": {
+                                    "search_count": (
+                                        control_search := build_metric_data(
+                                            branch_key="control"
+                                        )
+                                    ),
+                                },
+                                "usage_metrics": {},
+                            },
+                            "is_control": True,
+                        },
+                        "treatment": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "point": treatment_exposure_pop,
+                                                }
+                                            ],
+                                            "first": {
+                                                "point": treatment_exposure_pop,
+                                            },
+                                        },
+                                    },
+                                    "retained": build_metric_data(
+                                        branch_key="treatment",
+                                        comparative_branch_data=control_retained,
+                                    ),
+                                    "client_level_daily_active_users_v2": (
+                                        build_metric_data(
+                                            branch_key="treatment",
+                                            comparative_branch_data=control_dau,
+                                        )
+                                    ),
+                                    "active_in_last_3_days_legacy": build_metric_data(
+                                        branch_key="treatment",
+                                        comparative_branch_data=control_three_day,
+                                    ),
+                                    **treatment_outcome_metrics,
+                                },
+                                "search_metrics": {
+                                    "search_count": build_metric_data(
+                                        branch_key="treatment",
+                                        comparative_branch_data=control_search,
+                                    ),
+                                },
+                                "usage_metrics": {},
+                            },
+                            "is_control": False,
+                        },
+                    },
+                },
+            },
+        },
+    }
+
+    return results
+
+
 class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     publish_status = NimbusExperiment.PublishStatus.IDLE
     owner = factory.SubFactory(UserFactory)
@@ -519,7 +791,6 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     requires_restart = factory.LazyAttribute(
         lambda o: random.choice([True, False]) if o.is_firefox_labs_opt_in else False
     )
-    results_data = {"v3": {"overall": {"enrollments": {"all": {}}}}}
 
     class Meta:
         model = NimbusExperiment
@@ -692,6 +963,18 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                     )
 
         experiment = super().create(*args, **kwargs)
+
+        results_data = kwargs.get("results_data", _UNSET)
+
+        if results_data is not _UNSET:
+            experiment.results_data = results_data
+        else:
+            experiment.results_data = build_random_results_data(
+                experiment.primary_outcomes,
+                experiment.secondary_outcomes,
+                experiment.application,
+            )
+        experiment.save()
 
         if experiment.is_desktop and experiment.channel:
             raise factory.FactoryError(

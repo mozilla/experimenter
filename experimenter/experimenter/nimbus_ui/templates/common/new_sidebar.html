@@ -1,0 +1,125 @@
+{# Set up card #}
+<div class="accordion accordion-flush rounded-3 bg-body-secondary"
+     style="--bs-accordion-btn-active-color: var(--bs-body-color);
+            --bs-accordion-btn-active-bg: transparent;
+            --bs-accordion-active-color: var(--bs-body-color)"
+     id="accordion-setup">
+  <div class="accordion-item border-0 bg-transparent rounded-3">
+    <h2 class="accordion-header">
+      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#sidebar-setup"
+              aria-expanded="true"
+              aria-controls="sidebar-setup">
+        <i class="fa-regular fa-pen-to-square text-secondary me-2"></i>
+        Set up
+      </button>
+    </h2>
+    <div class="accordion-collapse collapse show"
+         id="sidebar-setup"
+         data-bs-parent="#accordion-setup">
+      <div class="accordion-body pt-0 px-3 pb-3">
+        <div class="mb-2">
+          <div class="small mb-1 text-secondary">0% complete</div>
+          <div class="rounded-pill bg-secondary-subtle" style="height: 3px;">
+            <div class="rounded-pill bg-primary" style="height: 3px; width: 0%;"></div>
+          </div>
+        </div>
+        <div class="d-flex flex-column gap-1">
+          {% for item in sidebar_setup_items %}
+            <a href="#rollout-card-{{ item.id }}"
+               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
+              <span class="text-body" style="min-width: 16px; font-size: 12px;">{{ forloop.counter }}</span>
+              {{ item.label }}
+            </a>
+          {% empty %}
+            <a href="#rollout-card-overview"
+               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">1</span>Overview</a>
+            <a href="#rollout-card-risks"
+               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">2</span>Risks</a>
+            <a href="#rollout-card-configuration"
+               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">3</span>Configuration &amp; Localization</a>
+            <a href="#rollout-card-audience"
+               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">4</span>Audience</a>
+            <a href="#rollout-card-features"
+               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">5</span>Rollout experience</a>
+            <a href="#rollout-card-schedule"
+               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">6</span>Rollout schedule</a>
+          {% endfor %}
+          {# Preview & QA CTA — disabled until setup complete — EXP-6687 #}
+          <div class="d-flex align-items-center justify-content-center gap-2 rounded-2 mt-2 py-2 px-3 fw-semibold small text-white bg-primary opacity-50"
+               style="cursor: not-allowed">
+            <i class="fa-regular fa-eye"></i>
+            Preview &amp; QA
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{# Preview & QA nav card — EXP-6687 #}
+<div class="accordion accordion-flush rounded-3 bg-body-secondary"
+     style="--bs-accordion-btn-active-color: var(--bs-body-color);
+            --bs-accordion-btn-active-bg: transparent;
+            --bs-accordion-active-color: var(--bs-body-color)"
+     id="accordion-preview">
+  <div class="accordion-item border-0 bg-transparent rounded-3">
+    <h2 class="accordion-header">
+      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#sidebar-preview"
+              aria-expanded="false"
+              aria-controls="sidebar-preview">
+        <i class="fa-regular fa-eye text-secondary me-2"></i>
+        Preview &amp; QA
+      </button>
+    </h2>
+    <div class="accordion-collapse collapse"
+         id="sidebar-preview"
+         data-bs-parent="#accordion-preview">
+      <div class="accordion-body pt-0 px-3 pb-3">{# TODO EXP-6687: Preview & QA content #}</div>
+    </div>
+  </div>
+</div>
+{# Rollout nav card — EXP-6688 #}
+<div class="accordion accordion-flush rounded-3 bg-body-secondary"
+     style="--bs-accordion-btn-active-color: var(--bs-body-color);
+            --bs-accordion-btn-active-bg: transparent;
+            --bs-accordion-active-color: var(--bs-body-color)"
+     id="accordion-rollout">
+  <div class="accordion-item border-0 bg-transparent rounded-3">
+    <h2 class="accordion-header">
+      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#sidebar-rollout"
+              aria-expanded="false"
+              aria-controls="sidebar-rollout">
+        <i class="fa-solid fa-rocket text-secondary me-2"></i>
+        Rollout
+      </button>
+    </h2>
+    <div class="accordion-collapse collapse"
+         id="sidebar-rollout"
+         data-bs-parent="#accordion-rollout">
+      <div class="accordion-body pt-0 px-3 pb-3">{# TODO EXP-6688: Rollout content #}</div>
+    </div>
+  </div>
+</div>
+{# History & Help #}
+<div class="d-flex flex-column gap-1">
+  <a href="{% url 'nimbus-ui-history' experiment.slug %}"
+     class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-2 px-2 text-body">
+    <i class="fa-regular fa-clock text-secondary"></i>
+    History
+  </a>
+  <a href="https://mozilla.slack.com/?redir=%2Farchives%2FCF94YGE03"
+     target="_blank"
+     rel="noopener noreferrer"
+     class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-2 px-2 text-body">
+    <i class="fa-regular fa-circle-question text-secondary"></i>
+    Help
+  </a>
+</div>

@@ -1098,6 +1098,24 @@ WIN11_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+GUIDANCE_NOTIFICATION_GIF_EXPERIMENT = NimbusTargetingConfig(
+    name="Guidance notification GIF experiment",
+    slug="guidance_notification_gif_experiment",
+    description=(
+        "Windows 11 users but not Windows 10 users: EN users on Fx146+ or users on Fx149+"
+    ),
+    targeting=(
+        "(os.isWindows && os.windowsVersion >= 10 && "
+        "os.windowsBuildNumber >= 22000) && "
+        "((localeLanguageCode == 'en' && version|versionCompare('146.!') >= 0) || "
+        "version|versionCompare('149.!') >= 0)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIN10_VPN_PROMOTION_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10 users eligible for VPN promotion",
     slug="win10_vpn_promotion_eligible",
@@ -2019,6 +2037,85 @@ WHATS_NEW_NOTIFICATION_SIDEBAR_VERTICAL_TABS_ROLLOUT_V3 = NimbusTargetingConfig(
         defaultProfile.userPrefs.cfrFeatures
         &&
         !defaultProfile.hasActiveEnterprisePolicies
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+BACKGROUND_TASK_NO_UBO_CFR_LAPSED_7_14_DAYS = NimbusTargetingConfig(
+    name="Background task notification: no uBO, CFR enabled, 7-14 day lapsed users",
+    slug="background_task_no_ubo_cfr_lapsed_7_14_days",
+    description=(
+        "Windows 10+ users with profiles 28+ days old, "
+        "7-14 days of inactivity, "
+        "no uBlock Origin installed, "
+        "and CFR recommendations still enabled, "
+        "running a background task"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            (currentDate|date - defaultProfile.profileAgeCreated|date) / 86400000 >= 28
+        )
+        &&
+        (
+            (7 <= ((currentDate|date - defaultProfile.currentDate|date) / 86400000))
+            &&
+            (((currentDate|date - defaultProfile.currentDate|date) / 86400000) <= 14)
+        )
+        &&
+        !defaultProfile.addonsInfo.addons["uBlock0@raymondhill.net"]
+        &&
+        defaultProfile.userPrefs.cfrAddons
+        &&
+        defaultProfile.userPrefs.cfrFeatures
+        &&
+        isBackgroundTaskMode
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_10_PLUS_BG_TASK_NOTIFICATION_LAPSED_USER_CFR_ENABLED = NimbusTargetingConfig(
+    name="Lapsed users background task notification (recommendations enabled)",
+    slug="background_task_notification_lapsed_user_cfr_enabled",
+    description=(
+        "Windows 10+ users with 0 days of activity in the past 28 days "
+        "who are running a background task and have not disabled "
+        "'Recommend extensions as you browse' or "
+        "'Recommend features as you browse'"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            ((defaultProfile|keys)|length == 0)
+            ||
+            (defaultProfile.userMonthlyActivity|length == 0)
+        )
+        &&
+        isBackgroundTaskMode
+        &&
+        'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue
+        &&
+        'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue
     )
     """,
     desktop_telemetry="",
@@ -4074,6 +4171,34 @@ FX_150_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_151_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx151 Mar-27 Trainhop",
+    slug="newtab-151-0327-trainhop",
+    description=(
+        "Desktop users having the New Tab 151.1.20260327.141953 train hop, "
+        "which includes users of Fx149"
+    ),
+    targeting="newtabAddonVersion|versionCompare('151.1.20260327.141953') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_151_2_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx151 Mar-28 Trainhop",
+    slug="newtab-151-0328-trainhop",
+    description=(
+        "Desktop users having the New Tab 151.2.20260328.211913 train hop, "
+        "which includes users of Fx149"
+    ),
+    targeting="newtabAddonVersion|versionCompare('151.2.20260328.211913') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
@@ -4226,6 +4351,53 @@ NOT_DEFAULT_BROWSER_PROFILE_7_DAYS_NO_ENTERPRISE = NimbusTargetingConfig(
         f" && !isFirstStartup"
         f" && {PROFILEMORETHAN7DAYS}"
         f" && {NO_ENTERPRISE.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+
+EDITORIAL_CONTENT_MARKETS = (
+    "['AT', 'BE', 'CA', 'CH', 'DE', 'ES', 'FR', 'GB', 'IE', 'IN', 'IT', 'US']"
+)
+
+EDITORIAL_CONTENT_AVAILABLE_MARKETS = NimbusTargetingConfig(
+    name="New Tab Editorial Content Available Markets",
+    slug="newtab-editorial-content-markets",
+    description=("Users in markets where Firefox New Tab Editorial Content is available"),
+    targeting=f"region in {EDITORIAL_CONTENT_MARKETS}",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EDITORIAL_CONTENT_UNAVAILABLE_MARKETS = NimbusTargetingConfig(
+    name="New Tab Editorial Content Unavailable Markets",
+    slug="newtab-non-editorial-content-markets",
+    description=(
+        "Users in markets where Firefox New Tab Editorial Content is NOT available"
+    ),
+    targeting=f"(region in {EDITORIAL_CONTENT_MARKETS}) != true",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TOPSITES_1ROW_NON_EDITORIAL_FX151_TRAINHOP = NimbusTargetingConfig(
+    name="Non-Editorial Markets, 1-Row Top Sites, Fx151 Trainhop",
+    slug="topsites-1row-non-editorial-fx151-trainhop",
+    description=(
+        "Desktop users in non-editorial content markets, with top sites rows set to 1, "
+        "having the New Tab 151.2.20260328.211913 train hop"
+    ),
+    targeting=(
+        f"(region in {EDITORIAL_CONTENT_MARKETS}) != true"
+        f" && {FX_151_2_TRAINHOP.targeting}"
+        " && 'browser.newtabpage.activity-stream.topSitesRows'|preferenceValue == 1"
     ),
     desktop_telemetry="",
     sticky_required=True,

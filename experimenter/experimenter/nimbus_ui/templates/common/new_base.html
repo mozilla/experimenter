@@ -1,0 +1,108 @@
+{% load static %}
+{% load nimbus_extras %}
+
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'imgs/favicon.ico' %}" />
+    <title>
+      {% block title %}{% endblock %}
+    | Experimenter</title>
+    <script src="{% static 'nimbus_ui/app.bundle.js' %}"></script>
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body class="m-0 p-0"
+        style="font-family: -apple-system, 'SF Pro', BlinkMacSystemFont, sans-serif">
+    <div class="d-flex overflow-hidden" style="height: 100vh;">
+      {# ── Sidebar ── #}
+      <div class="d-flex flex-column overflow-y-auto flex-shrink-0 bg-body-tertiary"
+           style="width: 340px">
+        {# Sidebar top bar: Nimbus logo | Back #}
+        <div class="d-flex align-items-center justify-content-between px-3 pt-3"
+             style="min-height: 56px">
+          <div class="d-flex align-items-center gap-2">
+            <img src="{% static 'assets/logo.svg' %}"
+                 alt="Nimbus"
+                 width="24"
+                 height="24">
+            <span class="fw-semibold text-body fs-4" style="letter-spacing: -0.01em;">Nimbus</span>
+          </div>
+          <input id="theme-selector" type="checkbox" class="d-none">
+          <a href="{% url 'nimbus-list' %}"
+             class="text-decoration-none d-flex align-items-center gap-1 small fw-normal text-primary">
+            <i class="fa-solid fa-chevron-left" style="font-size: 11px;"></i>
+            Back
+          </a>
+        </div>
+        {# Sidebar navigation #}
+        <div class="d-flex flex-column gap-2 p-3 pb-5 flex-grow-1">
+          {% include "common/new_sidebar.html" with experiment=experiment %}
+
+        </div>
+      </div>
+      {# ── Main content ── #}
+      <div class="flex-grow-1 overflow-y-auto bg-body-tertiary"
+           style="padding: 32px 97px;
+                  min-width: 0">
+        {# Experiment header #}
+        <div class="d-flex align-items-start justify-content-between mb-4">
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <h1 class="mb-0 fw-semibold fs-4 text-body">{{ experiment.name }}</h1>
+              <button class="btn p-0 border-0 text-secondary" aria-label="Notifications">
+                <i class="fa-solid fa-bell"></i>
+              </button>
+              <div class="dropdown">
+                <button class="btn p-0 border-0 text-secondary"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="More options">
+                  <i class="fa-solid fa-ellipsis"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  {# TODO: more options items #}
+                </ul>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2 mt-1">
+              {% if experiment.is_rollout %}
+                <span class="badge rounded-pill fw-medium small"
+                      style="background-color: #2AC3A2">Rollout</span>
+              {% endif %}
+              <button id="experiment-slug"
+                      class="btn p-0 border-0 text-secondary d-flex align-items-center gap-1 small"
+                      aria-label="Copy slug">
+                <span>{{ experiment.slug }}</span>
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+            {% if experiment.latest_change %}
+              <div class="small text-secondary mt-1">Updated {{ experiment.latest_change.changed_on|timesince }} ago</div>
+            {% endif %}
+          </div>
+        </div>
+        {# Toast container #}
+        <div class="position-fixed top-0 end-0 m-3 w-auto z-3">
+          <div id="toasts-container" class="d-flex flex-column">
+            <div id="slug-toast"
+                 class="toast hide text-bg-primary mb-1"
+                 role="alert"
+                 aria-live="assertive"
+                 aria-atomic="true">
+              <div class="toast-body">
+                <i class="fa-regular fa-circle-check"></i>
+                Slug copied to clipboard!
+              </div>
+            </div>
+          </div>
+        </div>
+        {# Page content #}
+        {% block main_content %}{% endblock %}
+      </div>
+    </div>
+    {% block extrascripts %}{% endblock %}
+  </body>
+</html>

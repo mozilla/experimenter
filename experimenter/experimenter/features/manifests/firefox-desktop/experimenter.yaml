@@ -271,13 +271,26 @@ urlbar:
     autoFillAdaptiveHistoryUseCountThreshold:
       type: string
       description: This value assumes float expression like "0.47". Threshold for use count of input history that we handle as adaptive history autofill. If the use count is this value or more, it will be a candidate.
-    autoFillAdaptiveHistoryBackspaceBlockDurationMs:
+    autoFillBackspaceBlockDurationMs:
       type: int
-      fallbackPref: browser.urlbar.autoFill.adaptiveHistory.backspaceBlockDurationMs
+      setPref:
+        pref: browser.urlbar.autoFill.backspaceBlockDurationMs
+        branch: user
       description: Duration in ms to temporarily block autofill after backspace penalty.
-    autoFillAdaptiveHistoryDismissalBlockDurationMs:
+    autoFillBackspaceThreshold:
       type: int
-      fallbackPref: browser.urlbar.autoFill.adaptiveHistory.dismissalBlockDurationMs
+      setPref:
+        pref: browser.urlbar.autoFill.backspaceThreshold
+        branch: user
+      description: >-
+        How many times the user must consecutively backspace away an autofill
+        suggestion before we penalize and temporarily suppress it from
+        autofilling. The result may still appear as a regular history result.
+    autoFillDismissalBlockDurationMs:
+      type: int
+      setPref:
+        pref: browser.urlbar.autoFill.dismissalBlockDurationMs
+        branch: user
       description: Duration in ms to block an origin or URL after user dismissal.
     deduplicationEnabled:
       type: boolean
@@ -3068,6 +3081,12 @@ networkingConnections:
       setPref:
         branch: default
         pref: "network.http.speculative-parallel-limit"
+    happyEyeballsEnabled:
+      description: Whether to enable the Happy Eyeballs v3 algorithm for connection establishment
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.happy_eyeballs_enabled"
 
 
 networkingSendOnDataFinished:
@@ -4369,18 +4388,6 @@ scriptloader:
         branch: user
         pref: "dom.script_loader.experimental.navigation_cache"
 
-raceCacheWithNetwork:
-  description: Prefs to toggle the race cache with network.
-  owner: dpalmeiro@mozilla.com, acreskey@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      description: True to enable the rcwn feature.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.http.rcwn.enabled"
-
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
   owner: farre@mozilla.com
@@ -5111,12 +5118,6 @@ sidebar:
   owner: elee@mozilla.com
   hasExposure: false
   variables:
-    defaultLauncherVisible:
-      type: boolean
-      setPref:
-        branch: user
-        pref: sidebar.revamp.defaultLauncherVisible
-      description: Change the initial visibleness of the sidebar launcher with horizontal tabs; true to make the launcher visible by default
     minVersion:
       type: string
       description: Minimum Firefox version to apply prefs
