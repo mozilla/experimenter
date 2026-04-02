@@ -407,8 +407,6 @@ def _send_srm_mismatch_alert(experiment, p_value):
     try:
         message = SlackConstants.SLACK_SRM_MISMATCH_MESSAGE.format(
             experiment=experiment.name,
-            p_value=p_value,
-            threshold=SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD,
         )
         email_addresses = [experiment.owner.email] if experiment.owner else []
         result = send_slack_notification(

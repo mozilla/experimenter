@@ -82,9 +82,9 @@ class SlackConstants:
         "Unenrollment rate: {rate:.1%} (threshold: {threshold:.1%})"
     )
     SLACK_SRM_MISMATCH_MESSAGE = (
-        "⚠️ Branches are misaligned (SRM detected) in *{experiment}*\n"
-        "P-value: {p_value:.6f} (threshold: {threshold})\n"
-        "This suggests unequal randomization or bias in enrollment."
+        "⚠️ *{experiment}* has a branch ratio mismatch.\n"
+        "Enrollment is not at the expected ratio across branches — "
+        "something may be wrong. Please review the experiment results"
     )
 
     # Slack notification log messages

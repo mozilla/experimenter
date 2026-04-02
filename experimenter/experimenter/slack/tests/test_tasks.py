@@ -1042,7 +1042,9 @@ class TestCheckMonitoringAlerts(TestCase):
         ) as mock_send_slack:
             tasks._check_monitoring_alerts(experiment)
             mock_send_slack.assert_called_once()
-            self.assertIn("SRM detected", mock_send_slack.call_args[1]["action_text"])
+            self.assertIn(
+                "branch ratio mismatch", mock_send_slack.call_args[1]["action_text"]
+            )
 
         self.assertTrue(
             NimbusAlert.objects.filter(
@@ -1180,7 +1182,7 @@ class TestCheckMonitoringAlerts(TestCase):
         )
         self.assertIn("targeting_mismatch", alert.message)
 
-    def test_alert_message_includes_p_value_for_srm(self):
+    def test_alert_message_includes_review_prompt_for_srm(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             monitoring_data=_SRM_MONITORING_DATA,
@@ -1195,7 +1197,8 @@ class TestCheckMonitoringAlerts(TestCase):
             experiment=experiment,
             alert_type=NimbusConstants.AlertType.SRM_MISMATCH,
         )
-        self.assertIn("P-value", alert.message)
+        self.assertIn("branch ratio mismatch", alert.message)
+        self.assertIn("Please review", alert.message)
 
     @parameterized.expand(
         [
