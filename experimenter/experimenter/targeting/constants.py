@@ -4212,6 +4212,27 @@ SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NOT_DEFAULT_BROWSER_PROFILE_7_DAYS_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Not default browser, profile 7+ days, not first startup, no enterprise",
+    slug="not_default_browser_profile_7_days_no_enterprise",
+    description=(
+        "Users who have not set Firefox as their default browser, "
+        "have a profile older than 7 days, "
+        "are not on their first startup, "
+        "and are not enterprise users"
+    ),
+    targeting=(
+        f"{NEED_DEFAULT}"
+        f" && !isFirstStartup"
+        f" && {PROFILEMORETHAN7DAYS}"
+        f" && {NO_ENTERPRISE.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
