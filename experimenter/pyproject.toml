@@ -66,7 +66,7 @@ redis = "4.6.0"
 requests = { version = "2.33.0", extras = ["security"] }
 responses = "0.26.0"
 ruff = "^0.15.0"
-sentry-sdk = "^2.56.0"
+sentry-sdk = "^2.57.0"
 slack-sdk = "^3.40.0"
 sqlparse = "0.5.4"
 tblib = "1.7.0"
