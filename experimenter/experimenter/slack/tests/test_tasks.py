@@ -214,6 +214,7 @@ class TestCheckResultsReady(TestCase):
     def test_sends_alert_for_weekly_results(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "weekly": {
@@ -248,6 +249,7 @@ class TestCheckResultsReady(TestCase):
     def test_sends_alert_for_overall_results(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "overall": {
@@ -281,6 +283,7 @@ class TestCheckResultsReady(TestCase):
     def test_sends_alerts_for_both_weekly_and_overall(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "weekly": {
@@ -318,6 +321,7 @@ class TestCheckResultsReady(TestCase):
     def test_does_not_send_duplicate_alerts(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "weekly": {
@@ -354,7 +358,9 @@ class TestCheckResultsReady(TestCase):
 
     def test_no_alert_when_no_results_data(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, results_data=None
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data=None,
+            monitoring_data=None,
         )
 
         with mock.patch(
@@ -369,6 +375,7 @@ class TestCheckResultsReady(TestCase):
     def test_no_alert_when_results_empty(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={"v3": {"weekly": {}, "overall": {}}},
         )
 
@@ -384,6 +391,7 @@ class TestCheckResultsReady(TestCase):
     def test_no_alert_when_results_array_empty(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={"v3": {"weekly": {"enrollments": {"all": []}}}},
         )
 
@@ -399,6 +407,7 @@ class TestCheckResultsReady(TestCase):
     def test_handles_slack_notification_failure(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "weekly": {
@@ -430,6 +439,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_sends_alert_for_analysis_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -480,6 +490,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_does_not_resend_same_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -522,6 +533,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_sends_new_alert_for_different_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -590,6 +602,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_no_alert_when_no_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={"v3": {}},
         )
 
@@ -610,6 +623,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_no_alert_when_errors_empty(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={"v3": {"errors": {}}},
         )
 
@@ -629,7 +643,9 @@ class TestCheckAnalysisErrors(TestCase):
 
     def test_no_alert_when_no_results_data(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, results_data=None
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data=None,
+            monitoring_data=None,
         )
 
         with mock.patch(
@@ -649,6 +665,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_no_alert_when_error_missing_exception_type(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -681,6 +698,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_skips_empty_error_lists(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -715,6 +733,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_ignores_expected_error_types(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -757,6 +776,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_alerts_on_non_ignorable_error_types(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -796,6 +816,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_handles_error_alert_slack_failure(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {

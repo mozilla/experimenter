@@ -1425,6 +1425,43 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     @property
+    def monitoring_summary(self):
+        if not self.monitoring_data:
+            return None
+
+        total_enrollments = self.monitoring_data.get("total_enrollments", 0)
+        total_unenrollments = self.monitoring_data.get("total_unenrollments", 0)
+        unenrollment_rate = (
+            (total_unenrollments / total_enrollments) * 100 if total_enrollments else 0.0
+        )
+
+        reasons_by_branch = self.monitoring_data.get("reasons_by_branch", {})
+        branches = []
+        for branch_name, branch_data in self.monitoring_data.get("branches", {}).items():
+            branch_reasons = reasons_by_branch.get(branch_name, {})
+            if branch_reasons:
+                top_reason = max(
+                    branch_reasons, key=lambda r: branch_reasons[r].get("1pct_count", 0)
+                )
+            else:
+                top_reason = None
+            branches.append(
+                {
+                    "name": branch_name,
+                    "enrollments": branch_data.get("enrollments", 0),
+                    "unenrollments": branch_data.get("unenrollments", 0),
+                    "top_reason": top_reason,
+                }
+            )
+
+        return {
+            "total_enrollments": total_enrollments,
+            "total_unenrollments": total_unenrollments,
+            "unenrollment_rate": unenrollment_rate,
+            "branches": branches,
+        }
+
+    @property
     def monitoring_dashboard_url(self):
         start_date = (self.start_date or datetime.date.today()) - datetime.timedelta(
             days=1

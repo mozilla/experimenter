@@ -5185,6 +5185,55 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(experiment.has_results_errors, expected_results)
 
+    def test_monitoring_summary_returns_none_when_no_monitoring_data(self):
+        experiment = NimbusExperimentFactory.create(monitoring_data=None)
+        self.assertIsNone(experiment.monitoring_summary)
+
+    def test_monitoring_summary_returns_none_when_monitoring_data_empty(self):
+        experiment = NimbusExperimentFactory.create(monitoring_data={})
+        self.assertIsNone(experiment.monitoring_summary)
+
+    def test_monitoring_summary_returns_summary_with_branch_no_reasons(self):
+        experiment = NimbusExperimentFactory.create(
+            monitoring_data={
+                "total_enrollments": 1000,
+                "total_unenrollments": 50,
+                "branches": {
+                    "control": {"enrollments": 500, "unenrollments": 25},
+                    "treatment": {"enrollments": 500, "unenrollments": 25},
+                },
+                "reasons_by_branch": {},
+            }
+        )
+        summary = experiment.monitoring_summary
+        self.assertIsNotNone(summary)
+        self.assertEqual(summary["total_enrollments"], 1000)
+        self.assertEqual(summary["total_unenrollments"], 50)
+        self.assertAlmostEqual(summary["unenrollment_rate"], 5.0)
+        for branch in summary["branches"]:
+            self.assertIsNone(branch["top_reason"])
+
+    def test_monitoring_summary_returns_top_reason_for_branches_with_reasons(self):
+        experiment = NimbusExperimentFactory.create(
+            monitoring_data={
+                "total_enrollments": 1000,
+                "total_unenrollments": 150,
+                "branches": {
+                    "control": {"enrollments": 500, "unenrollments": 75},
+                },
+                "reasons_by_branch": {
+                    "control": {
+                        "targeting_mismatch": {"1pct_count": 50},
+                        "recipe-not-seen": {"1pct_count": 25},
+                    }
+                },
+            }
+        )
+        summary = experiment.monitoring_summary
+        self.assertIsNotNone(summary)
+        branch = summary["branches"][0]
+        self.assertEqual(branch["top_reason"], "targeting_mismatch")
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):

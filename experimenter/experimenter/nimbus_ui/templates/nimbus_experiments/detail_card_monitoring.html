@@ -1,0 +1,57 @@
+{% extends "nimbus_experiments/detail_card_base.html" %}
+
+{% block card_id %}monitoring{% endblock %}
+{% block card_anchor %}monitoring{% endblock %}
+{% block card_title %}Enrollment Monitoring{% endblock %}
+{% block card_body %}
+  {% with summary=experiment.monitoring_summary %}
+    <table class="table table-striped mb-0">
+      <tbody>
+        <tr>
+          <th>Total Enrollments</th>
+          <td>{{ summary.total_enrollments }}</td>
+          <th>Total Unenrollments</th>
+          <td>{{ summary.total_unenrollments }}</td>
+        </tr>
+        <tr>
+          <th>Unenrollment Rate</th>
+          <td colspan="3">
+            {{ summary.unenrollment_rate|floatformat:1 }}%
+            {% if summary.unenrollment_rate > 10 %}
+              <span class="badge bg-warning text-dark ms-2">⚠️ Above 10% threshold</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th>Branch Breakdown</th>
+          <td colspan="3">
+            <table class="table table-sm table-bordered mb-0">
+              <thead>
+                <tr>
+                  <th>Branch</th>
+                  <th>Enrollments</th>
+                  <th>Unenrollments</th>
+                  <th>Top Unenrollment Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for branch in summary.branches %}
+                  <tr>
+                    <td>{{ branch.name }}</td>
+                    <td>{{ branch.enrollments }}</td>
+                    <td>{{ branch.unenrollments }}</td>
+                    <td>{{ branch.top_reason|default:"—" }}</td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-muted">No branch data available</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  {% endwith %}
+{% endblock %}
