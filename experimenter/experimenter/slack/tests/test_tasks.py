@@ -1125,9 +1125,12 @@ class TestCheckMonitoringAlerts(TestCase):
         with mock.patch(
             "experimenter.slack.tasks.send_slack_notification",
             return_value=("1234567890.123456", "C123456"),
-        ):
+        ) as mock_send_slack:
             tasks._check_monitoring_alerts(experiment)
             tasks._check_monitoring_alerts(experiment)
+
+            # Slack must only be called once — the second run must be skipped entirely
+            mock_send_slack.assert_called_once()
 
         self.assertEqual(
             NimbusAlert.objects.filter(
