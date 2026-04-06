@@ -125,12 +125,19 @@ def fetch_fml_app(
                 version,
             )
 
-        fetch_targeting_files(
-            manifest_dir / app_config.slug / f"v{version}",
-            f"fetch: {app_name} at {ref} version {version} downloading targeting files",
-            app_config,
-            ref,
-        )
+        if version is not None:
+            if not isinstance(version, Version):
+                raise TypeError(
+                    f"Expected version to be Version or None, got"
+                    f"{type(version).__name__}: {version!r}"
+                )
+            fetch_targeting_files(
+                manifest_dir / app_config.slug / f"v{version}",
+                f"fetch: {app_name} at {ref} version {version} downloading targeting"
+                "files",
+                app_config,
+                ref,
+            )
 
         print(f"fetch: {app_name}: generate experimenter.yaml")
         # The single-file fml file for each channel will generate the same
@@ -194,12 +201,19 @@ def fetch_legacy_app(
             manifest_path,
         )
 
-        fetch_targeting_files(
-            manifest_dir / app_config.slug / f"v{version}",
-            f"fetch: {app_name} at {ref} version {version} downloading targeting files",
-            app_config,
-            ref,
-        )
+        if version is not None:
+            if not isinstance(version, Version):
+                raise TypeError(
+                    f"Expected version to be Version or None, got"
+                    f"{type(version).__name__}:{version!r}"
+                )
+            fetch_targeting_files(
+                manifest_dir / app_config.slug / f"v{version}",
+                f"fetch: {app_name} at {ref} version {version} downloading targeting"
+                "files",
+                app_config,
+                ref,
+            )
 
         with manifest_path.open() as f:
             raw_manifest = yaml.safe_load(f)

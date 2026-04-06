@@ -658,6 +658,21 @@ class FetchTests(TestCase):
         download_single_file.assert_not_called()
         generate_experimenter_yaml.assert_not_called()
 
+    @patch.object(manifesttool.fetch, "fetch_targeting_files")
+    def test_fetch_fml_targeting_files_missing_version(self, fetch_targeting_files):
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+
+            fetch_fml_app(
+                manifest_dir,
+                "app",
+                FML_APP_CONFIG,
+                ref=Ref("main", "0" * 40),
+                version=None,
+            )
+
+            fetch_targeting_files.assert_not_called()
+
     @patch.object(
         manifesttool.fetch.github_api, "resolve_branch", lambda *args: Ref("tip", "ref")
     )

@@ -610,14 +610,14 @@ jobs:
             echo -e "\nCircle CI Task: ${CIRCLE_BUILD_URL}" >> /tmp/pr-body.txt
             if python3 ./experimenter/bin/should-pr.py
               then
-                git checkout -B external-config
+                git checkout -B external-config-moibra-test
                 git add .
                 git commit -m 'chore(nimbus): Update External Configs'
-                if (($((git diff external-config origin/external-config || git diff HEAD~1) | wc -c) > 0))
+                if (($((git diff external-config-moibra-test origin/external-config-moibra-test || git diff HEAD~1) | wc -c) > 0))
                   then
-                    git push origin external-config -f
-                    gh pr create -t "chore(nimbus): Update External Configs" -F /tmp/pr-body.txt --base main --head external-config --repo mozilla/experimenter || \
-                      gh pr edit external-config -F /tmp/pr-body.txt
+                    git push origin external-config-moibra-test -f
+                    gh pr create -t "ignore " -F /tmp/pr-body.txt --base main --head external-config-moibra-test --repo mozilla/experimenter || \
+                      gh pr edit external-config-moibra-test -F /tmp/pr-body.txt
                   else
                     echo "Changes already committed, skipping"
                 fi
@@ -880,3 +880,11 @@ workflows:
           filters:
             branches:
               only: main
+      - update_external_configs:
+          name: Update External Configs
+          context:
+            - gh-external-config-token
+          filters:
+            branches:
+              ignore: 
+                - main
