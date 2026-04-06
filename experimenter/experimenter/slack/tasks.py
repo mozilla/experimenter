@@ -361,6 +361,12 @@ def _check_srm_mismatch(monitoring_data):
 
 
 def _send_unenrollment_spike_alert(experiment, rate, reason):
+    if NimbusAlert.objects.filter(
+        experiment=experiment,
+        alert_type=NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+    ).exists():
+        return
+
     try:
         message = SlackConstants.SLACK_UNENROLLMENT_SPIKE_MESSAGE.format(
             experiment=experiment.name,
@@ -373,19 +379,20 @@ def _send_unenrollment_spike_alert(experiment, rate, reason):
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
+            link_url=experiment.experiment_url,
         )
 
-        alert_defaults = {"message": message}
+        alert_kwargs = {
+            "experiment": experiment,
+            "alert_type": NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+            "message": message,
+        }
         if result:
             message_ts, channel_id = result
-            alert_defaults["slack_thread_id"] = message_ts
-            alert_defaults["slack_channel_id"] = channel_id
+            alert_kwargs["slack_thread_id"] = message_ts
+            alert_kwargs["slack_channel_id"] = channel_id
 
-        NimbusAlert.objects.update_or_create(
-            experiment=experiment,
-            alert_type=NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
-            defaults=alert_defaults,
-        )
+        NimbusAlert.objects.create(**alert_kwargs)
 
         logger.info(
             SlackConstants.SLACK_LOG_UNENROLLMENT_SPIKE_SENT.format(
@@ -404,6 +411,12 @@ def _send_unenrollment_spike_alert(experiment, rate, reason):
 
 
 def _send_srm_mismatch_alert(experiment, p_value):
+    if NimbusAlert.objects.filter(
+        experiment=experiment,
+        alert_type=NimbusConstants.AlertType.SRM_MISMATCH,
+    ).exists():
+        return
+
     try:
         message = SlackConstants.SLACK_SRM_MISMATCH_MESSAGE.format(
             experiment=experiment.name,
@@ -413,19 +426,20 @@ def _send_srm_mismatch_alert(experiment, p_value):
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
+            link_url=experiment.experiment_url,
         )
 
-        alert_defaults = {"message": message}
+        alert_kwargs = {
+            "experiment": experiment,
+            "alert_type": NimbusConstants.AlertType.SRM_MISMATCH,
+            "message": message,
+        }
         if result:
             message_ts, channel_id = result
-            alert_defaults["slack_thread_id"] = message_ts
-            alert_defaults["slack_channel_id"] = channel_id
+            alert_kwargs["slack_thread_id"] = message_ts
+            alert_kwargs["slack_channel_id"] = channel_id
 
-        NimbusAlert.objects.update_or_create(
-            experiment=experiment,
-            alert_type=NimbusConstants.AlertType.SRM_MISMATCH,
-            defaults=alert_defaults,
-        )
+        NimbusAlert.objects.create(**alert_kwargs)
 
         logger.info(
             SlackConstants.SLACK_LOG_SRM_MISMATCH_SENT.format(experiment=experiment.slug)
