@@ -4,6 +4,13 @@ about:
 channels:
 - developer
 features:
+  add-shortcuts-improvement:
+    description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Add Shortcuts improvement is enabled.
+        type: Boolean
+        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -507,6 +514,13 @@ features:
         description: If true, Merino Client is enabled.
         type: Boolean
         default: false
+  merino-manifest:
+    description: Feature to enable the Merino Manifest for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Merino Manifest is enabled.
+        type: Boolean
+        default: false
   messaging:
     description: |
       The in-app messaging system.
@@ -848,7 +862,7 @@ features:
       enabled:
         description: If true, Private Mode and Stories Entry Point Experiment is enabled.
         type: Boolean
-        default: false
+        default: true
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
