@@ -780,6 +780,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "'browser.ai.control.default'|preferenceValue == 'available'"
             )
 
+        if self.risk_ai and self.is_mobile:
+            expressions.append("user_disabled_ai == false")
+
         #  If there is no targeting defined all clients should match, so we return "true"
         return (
             " && ".join(f"({expression})" for expression in expressions)

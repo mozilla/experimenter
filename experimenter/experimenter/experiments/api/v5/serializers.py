@@ -1357,6 +1357,21 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     ],
                 }
             )
+
+        if (
+            risk_ai
+            and NimbusExperiment.Application.is_mobile(application)
+            and firefox_min_version
+            and NimbusExperiment.Version.parse(firefox_min_version)
+            < NimbusExperiment.Version.parse(NimbusExperiment.AI_RISK_MIN_VERSION_MOBILE)
+        ):
+            raise serializers.ValidationError(
+                {
+                    "firefox_min_version": [
+                        NimbusConstants.ERROR_FIREFOX_VERSION_MIN_151_FOR_AI_RISK_MOBILE
+                    ],
+                }
+            )
         return data
 
     def _validate_enrollment_targeting(self, data):

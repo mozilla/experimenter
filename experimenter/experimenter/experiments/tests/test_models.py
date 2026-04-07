@@ -1405,10 +1405,11 @@ class TestNimbusExperiment(TestCase):
             (True, NimbusExperiment.Application.DESKTOP, True),
             (False, NimbusExperiment.Application.DESKTOP, False),
             (None, NimbusExperiment.Application.DESKTOP, False),
-            (True, NimbusExperiment.Application.FENIX, False),
         ]
     )
-    def test_targeting_with_risk_ai(self, risk_ai, application, should_include_targeting):
+    def test_targeting_with_risk_ai_desktop(
+        self, risk_ai, application, should_include_targeting
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=application,
@@ -1423,6 +1424,37 @@ class TestNimbusExperiment(TestCase):
             self.assertIn(ai_targeting_expr, experiment.targeting)
         else:
             self.assertNotIn(ai_targeting_expr, experiment.targeting)
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    @parameterized.expand(
+        [
+            (True, NimbusExperiment.Application.FENIX, True),
+            (True, NimbusExperiment.Application.IOS, True),
+            (False, NimbusExperiment.Application.FENIX, False),
+            (None, NimbusExperiment.Application.IOS, False),
+        ]
+    )
+    def test_targeting_with_risk_ai_mobile(
+        self, risk_ai, application, should_include_targeting
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_151,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            risk_ai=risk_ai,
+        )
+        mobile_ai_targeting_expr = "user_disabled_ai == false"
+        desktop_ai_targeting_expr = (
+            "'browser.ai.control.default'|preferenceValue == 'available'"
+        )
+        if should_include_targeting:
+            self.assertIn(mobile_ai_targeting_expr, experiment.targeting)
+        else:
+            self.assertNotIn(mobile_ai_targeting_expr, experiment.targeting)
+        self.assertNotIn(desktop_ai_targeting_expr, experiment.targeting)
         validate_jexl_expr(experiment.targeting, experiment.application)
 
     def test_start_date_returns_None_for_not_started_experiment(self):
