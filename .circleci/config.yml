@@ -882,8 +882,6 @@ workflows:
               only: main
       - update_external_configs:
           name: Update External Configs
-          context:
-            - gh-external-config-token
           filters:
             branches:
               ignore: 
