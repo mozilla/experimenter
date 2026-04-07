@@ -972,6 +972,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_VERSION_MIN_148_FOR_AI_RISK = (
         "Experiments using AI features require Firefox version 148 or higher"
     )
+    ERROR_FIREFOX_VERSION_MIN_151_FOR_AI_RISK_MOBILE = (
+        "Mobile experiments using AI features require version 151 or higher"
+    )
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
@@ -1048,6 +1051,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     EXCLUDED_REQUIRED_MIN_VERSION = Version.FIREFOX_116
 
     AI_RISK_MIN_VERSION = Version.FIREFOX_148
+
+    AI_RISK_MIN_VERSION_MOBILE = Version.FIREFOX_151
 
     MULTIFEATURE_MAX_FEATURES = 20
     ERROR_MULTIFEATURE_TOO_MANY_FEATURES = (

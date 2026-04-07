@@ -5379,11 +5379,53 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
         )
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
-    def test_risk_ai_mobile_allows_any_version(self):
+    def test_risk_ai_requires_firefox_151_mobile(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.FENIX,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_150,
+            risk_ai=True,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "firefox_min_version": [
+                    NimbusConstants.ERROR_FIREFOX_VERSION_MIN_151_FOR_AI_RISK_MOBILE
+                ],
+            },
+        )
+
+    def test_risk_ai_accepts_firefox_151_mobile(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_151,
+            risk_ai=True,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_risk_ai_accepts_firefox_151_ios(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.IOS,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_151,
             risk_ai=True,
         )
         serializer = NimbusReviewSerializer(
