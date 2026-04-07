@@ -1,3 +1,11 @@
+add-shortcuts-improvement:
+  description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Add Shortcuts improvement is enabled.
 alternative-app-launcher-icon:
   description: A feature that changes the app launcher icon background color.
   hasExposure: true
@@ -372,6 +380,14 @@ merino-client:
     enabled:
       type: boolean
       description: If true, Merino Client is enabled.
+merino-manifest:
+  description: Feature to enable the Merino Manifest for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Merino Manifest is enabled.
 messaging:
   description: |
     The in-app messaging system.

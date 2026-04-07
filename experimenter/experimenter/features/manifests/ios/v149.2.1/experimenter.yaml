@@ -293,10 +293,6 @@ onboarding-framework-feature:
       type: boolean
       description: |
         Toggle between legacy (false) and modern (true) UI variants.
-    enable-video-intro:
-      type: boolean
-      description: |
-        When true, a full-screen video is displayed before the Terms of Service screen during fresh-install onboarding.
     should-use-brand-refresh-configuration:
       type: boolean
       description: |

@@ -4,6 +4,13 @@ about:
 channels:
 - beta
 features:
+  add-shortcuts-improvement:
+    description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Add Shortcuts improvement is enabled.
+        type: Boolean
+        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -505,6 +512,13 @@ features:
     variables:
       enabled:
         description: If true, Merino Client is enabled.
+        type: Boolean
+        default: false
+  merino-manifest:
+    description: Feature to enable the Merino Manifest for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Merino Manifest is enabled.
         type: Boolean
         default: false
   messaging:
