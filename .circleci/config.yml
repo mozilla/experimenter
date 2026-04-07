@@ -601,8 +601,6 @@ jobs:
       - run:
           name: Check for External Config Update
           command: |
-            git checkout main
-            git pull origin main
             cp .env.sample .env
             touch ./experimenter/fetch-summary.txt
             env GITHUB_BEARER_TOKEN="${GH_EXTERNAL_CONFIG_TOKEN}" make fetch_external_resources FETCH_ARGS="--summary fetch-summary.txt"
