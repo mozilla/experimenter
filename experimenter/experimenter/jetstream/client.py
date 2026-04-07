@@ -242,7 +242,19 @@ def get_experiment_data(experiment: NimbusExperiment):
         try:
             data_from_jetstream = get_data(recipe_slug, window)
         except RuntimeError as e:
-            runtime_errors.append(str(e))
+            # only store runtime errors for weekly/overall windows if we expect those
+            # results (overall also lags by one day so there is time for analysis to
+            # complete)
+            if (
+                (window == AnalysisWindow.DAILY)
+                or (window == AnalysisWindow.WEEKLY and experiment.results_ready)
+                or (
+                    window == AnalysisWindow.OVERALL
+                    and experiment.end_date
+                    and experiment.end_date < (date.today() - timedelta(days=1))
+                )
+            ):
+                runtime_errors.append(str(e))
 
         segment_points_enrollments = defaultdict(list)
         segment_points_exposures = defaultdict(list)
@@ -376,22 +388,15 @@ def get_experiment_data(experiment: NimbusExperiment):
                     errors_experiment_overall.append(err)
 
     for e in runtime_errors:
-        # only store runtime errors for overall window if we expect those results
-        # (and lag by one day so there is time for analysis to complete)
-        if "overall.json" not in e or (
-            "overall.json" in e
-            and experiment.end_date
-            and experiment.end_date < (date.today() - timedelta(days=1))
-        ):
-            analysis_error = AnalysisError(
-                experiment=experiment.slug,
-                filename="experimenter/jetstream/client.py",
-                func_name="load_data_from_gcs",
-                log_level="WARNING",
-                message=e,
-                timestamp=timezone.now(),
-            )
-            errors_experiment_overall.append(analysis_error.model_dump())
+        analysis_error = AnalysisError(
+            experiment=experiment.slug,
+            filename="experimenter/jetstream/client.py",
+            func_name="load_data_from_gcs",
+            log_level="WARNING",
+            message=e,
+            timestamp=timezone.now(),
+        )
+        errors_experiment_overall.append(analysis_error.model_dump())
 
     errors_by_metric["experiment"] = errors_experiment_overall
 
