@@ -1,0 +1,114 @@
+name: Update Configs
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+jobs:
+  update-external-configs:
+    name: Update External Configs
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Configure git
+        run: |
+          git config user.email "experimenter-ci-bot@mozilla.com"
+          git config user.name "Experimenter Bot"
+          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/mozilla/experimenter.git
+
+      - uses: ./.github/actions/setup-cached-build
+        with:
+          arch: x86_64
+          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - name: Fetch external resources
+        run: |
+          cp .env.sample .env
+          touch ./experimenter/fetch-summary.txt
+          env GITHUB_BEARER_TOKEN="${{ steps.app-token.outputs.token }}" make fetch_external_resources FETCH_ARGS="--summary fetch-summary.txt"
+          mv ./experimenter/fetch-summary.txt /tmp/pr-body.txt
+
+      - name: Create or update PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          if python3 ./experimenter/bin/should-pr.py; then
+            git checkout -B external-config
+            git add experimenter/ schemas/
+            git commit -m 'chore(nimbus): Update External Configs'
+            if (( $((git diff external-config origin/external-config || git diff HEAD~1) | wc -c) > 0 )); then
+              git push origin external-config -f
+              gh pr create -t "chore(nimbus): Update External Configs" -F /tmp/pr-body.txt --base main --head external-config --repo mozilla/experimenter || \
+                gh pr edit external-config -F /tmp/pr-body.txt
+            else
+              echo "Changes already committed, skipping"
+            fi
+          else
+            echo "No config changes, skipping"
+          fi
+
+  update-application-services:
+    name: Update Application Services
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Configure git
+        run: |
+          git config user.email "experimenter-ci-bot@mozilla.com"
+          git config user.name "Experimenter Bot"
+          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/mozilla/experimenter.git
+
+      - uses: ./.github/actions/setup-cached-build
+        with:
+          arch: x86_64
+          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - name: Check for update
+        run: |
+          cp .env.sample .env
+          make update_application_services
+
+      - name: Create or update PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          if (( $(git status --porcelain | wc -c) > 0 )); then
+            git checkout -B update-application-services
+            git add application-services/
+            git commit -m "chore(nimbus): Update Application Services"
+            if (( $((git diff update-application-services origin/update-application-services || git diff HEAD~1) | wc -c) > 0 )); then
+              git push origin update-application-services -f
+              gh pr create -t "chore(nimbus): Update Application Services" -b "" --base main --head update-application-services --repo mozilla/experimenter || echo "PR already exists, skipping"
+            else
+              echo "Changes already committed, skipping"
+            fi
+          else
+            echo "No config changes, skipping"
+          fi
