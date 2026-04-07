@@ -173,6 +173,26 @@ class TestNimbusExperimentAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
         mock_fetch_experiment_data.delay.assert_called_with(experiment.id)
 
+    @mock.patch("experimenter.experiments.admin.kinto_tasks.nimbus_sync_published_dto")
+    def test_admin_force_resync_published_dto(self, mock_resync):
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE
+        )
+        response = self.client.post(
+            reverse(
+                "admin:experiments_nimbusexperiment_changelist",
+            ),
+            {
+                "action": "force_resync_published_dto",
+                "_selected_action": [experiment.id],
+            },
+            follow=True,
+            **{settings.OPENIDC_EMAIL_HEADER: user.email},
+        )
+        self.assertEqual(response.status_code, 200)
+        mock_resync.delay.assert_called_with(experiment.id)
+
     def test_admin_save_creates_changelog(self):
         admin = NimbusExperimentAdmin(NimbusExperiment, None)
         user = UserFactory.create()
