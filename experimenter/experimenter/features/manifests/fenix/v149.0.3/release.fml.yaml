@@ -2,15 +2,8 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- beta
+- release
 features:
-  add-shortcuts-improvement:
-    description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Add Shortcuts improvement is enabled.
-        type: Boolean
-        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -28,13 +21,6 @@ features:
     variables:
       enabled:
         description: Whether or not the feature is available for the user.
-        type: Boolean
-        default: true
-  app-links:
-    description: Control behavior of app links handling in the browser.
-    variables:
-      show-new-prompt:
-        description: Whether to show the new AppLinksPromptFragment dialog when an app link is detected. If false, the old dialog is used.
         type: Boolean
         default: true
   awesomebar-suggestion-provider:
@@ -63,6 +49,13 @@ features:
         description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
         type: String
         default: ''
+  browser-mode-toggle:
+    description: Feature to enable the Browser Mode Toggle for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Browser Mode Toggle is enabled.
+        type: Boolean
+        default: false
   composable-toolbar:
     description: Use a composable toolbar instead of the View based one.
     variables:
@@ -98,14 +91,6 @@ features:
         description: When enabled we show the custom review prompt UI. Otherwise we try to directly show the Play Store in-app review prompt.
         type: Boolean
         default: true
-  default-bottom-toolbar:
-    description: Default toolbar position for new users.
-    variables:
-      enabled:
-        description: |
-          Whether to default the toolbar position to bottom.
-        type: Boolean
-        default: false
   default-browser-prompt:
     description: Feature that controls when the default browser prompt is shown.
     variables:
@@ -138,31 +123,13 @@ features:
           When `true`, include DoH settings in the settings UI.
         type: Boolean
         default: true
-  downloads-custom-location:
-    description: Feature to enable the custom download location for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, custom download location is enabled.
-        type: Boolean
-        default: false
   email-masks:
     description: Feature to enable Email Mask for users on Firefox on Android.
     variables:
       enabled:
         description: If true, Email Mask feature is enabled.
         type: Boolean
-        default: true
-  enable-popups:
-    description: A feature that enables or disables in app popups
-    variables:
-      cfr-popups-enabled:
-        description: When true, CFR popups will show
-        type: Boolean
-        default: true
-      in-app-messages-enabled:
-        description: When true, non CFR popups will show
-        type: Boolean
-        default: true
+        default: false
   encourage-search-cfr:
     description: A feature that shows a CFR on first launch to encourage users to make a search
     variables:
@@ -241,6 +208,16 @@ features:
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
         default: false
+  gecko-nimbus-validation:
+    description: Feature for validating Nimbus Gecko functionality
+    variables:
+      test-preference:
+        description: A test gecko preference
+        type: String
+        default: ''
+        gecko-pref:
+          pref: gecko.nimbus.test
+          branch: default
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -306,6 +283,7 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
         type: Map<HomeScreenSection, Boolean>
         default:
+          header: true
           top-sites: true
           jump-back-in: true
           bookmarks: true
@@ -314,7 +292,6 @@ features:
           pocket-sponsored-stories: true
           synced-tabs: true
           collections: true
-          privacy-report: false
   homescreen-edge-to-edge-background:
     description: |
       Feature that sets an edge to edge background on the Home Screen if the user hasn't selected a custom wallpaper
@@ -322,7 +299,7 @@ features:
       enabled:
         description: Enables the feature
         type: Boolean
-        default: true
+        default: false
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
@@ -512,13 +489,6 @@ features:
     variables:
       enabled:
         description: If true, Merino Client is enabled.
-        type: Boolean
-        default: false
-  merino-manifest:
-    description: Feature to enable the Merino Manifest for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Merino Manifest is enabled.
         type: Boolean
         default: false
   messaging:
@@ -779,6 +749,14 @@ features:
         description: If true, the one click search will be enabled.
         type: Boolean
         default: false
+  override-user-specified-homepage-sections:
+    description: Whether to ignore the user-specified homepage section visibility settings and hide the options in the settings.
+    variables:
+      enabled:
+        description: |
+          When true, ignore the user-specified homepage section visibility settings, and hide the toggle options in the settings.
+        type: Boolean
+        default: false
   pdfjs:
     description: PDF.js features
     variables:
@@ -830,13 +808,17 @@ features:
           Whether or not to enable private browsing mode lock.
         type: Boolean
         default: true
-  private-mode-and-stories-entry-point:
-    description: Feature to enable the Private Mode and Stories Entry Point Experiment.
+  re-engagement-notification:
+    description: A feature that shows the re-engagement notification if the user is inactive.
     variables:
       enabled:
-        description: If true, Private Mode and Stories Entry Point Experiment is enabled.
+        description: If true, the re-engagement notification is shown to the inactive user.
         type: Boolean
         default: false
+      type:
+        description: The type of re-engagement notification that is shown to the inactive user.
+        type: Int
+        default: 0
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -854,41 +836,6 @@ features:
           Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
         type: Boolean
         default: true
-  safe-browsing-real-time:
-    description: Control Safe Browsing real-time lookup and simulation.
-    variables:
-      feature-enabled:
-        description: If true, this feature is enabled and the below settings override the Gecko defaults. Otherwise, the Gecko defaults are used.
-        type: Boolean
-        default: false
-      global-cache-enabled:
-        description: Enables / disables the Safe Browsing Global Cache.
-        type: Boolean
-        default: false
-      real-time-enabled:
-        description: Enables / disables Safe Browsing real-time lookup.
-        type: Boolean
-        default: false
-      simulation-cache-ttl-sec:
-        description: Cache TTL in seconds for the real-time request simulator.
-        type: Int
-        default: 300
-      simulation-enabled:
-        description: Enables / disables the real-time request simulator.
-        type: Boolean
-        default: false
-      simulation-hit-probability:
-        description: Hit probability for the real-time request simulator.
-        type: Int
-        default: 5
-      simulation-negative-cache-enabled:
-        description: Enables / disables the negative cache for the real-time request simulator.
-        type: Boolean
-        default: false
-      simulation-negative-cache-ttl-sec:
-        description: Negative cache TTL in seconds for the real-time request simulator.
-        type: Int
-        default: 300
   safe-browsing-v5:
     description: Control Safe Browsing V5.
     variables:
@@ -997,13 +944,14 @@ features:
         description: The collection used for the setup checklist.
         type: SetupChecklistType
         default: collection-1
-  shake-to-summarize:
-    description: A feature that can summarize the content of a page when you shake the screen.
+  ship:
+    description: The feature that controls Session History in Parent (SHIP) in Gecko.
     variables:
-      enabled:
-        description: If true, shake to summarize will be enabled
+      disabled:
+        description: |
+          Whether or not to disable SHIP. SHIP is enabled when set to false. SHIP is disabled when set to true.
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
@@ -1032,14 +980,6 @@ features:
     variables:
       enabled:
         description: If true, new users won’t see sponsored tiles for 14 days.
-        type: Boolean
-        default: false
-  tab-groups:
-    description: Control the visibility of the tab groups feature.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the tab groups feature.
         type: Boolean
         default: false
   tab-management-enhancements:
@@ -1202,14 +1142,14 @@ enums:
         description: The sites the user has bookmarked.
       collections:
         description: The collections section of the homepage.
+      header:
+        description: The header of the homescreen.
       jump-back-in:
         description: The tabs the user was looking immediately before being interrupted.
       pocket:
         description: The pocket section. This should only be available in the US.
       pocket-sponsored-stories:
         description: Subsection of the Pocket homescreen section which shows sponsored stories.
-      privacy-report:
-        description: The privacy report section showing trackers blocked.
       recent-explorations:
         description: The tab groups
       synced-tabs:
