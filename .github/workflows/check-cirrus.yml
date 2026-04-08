@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+      - external-config
+      - update-application-services
+      - update_firefox_desktop_release
+      - update_firefox_desktop_beta
     paths:
       - "cirrus/**"
       - "application-services/**"
