@@ -5,107 +5,108 @@
 {% block card_title %}Enrollment Monitoring{% endblock %}
 {% block card_body %}
   {% with summary=experiment.monitoring_summary %}
-    <div class="row g-3 mb-3">
-      <div class="col-md-6">
-        <div class="card h-100">
-          <div class="card-header d-flex align-items-center gap-2">
-            {% if summary.is_unenrollment_spike %}
-              <span class="text-warning fs-5">⚠️</span>
-            {% else %}
-              <span class="text-success fs-5">✅</span>
-            {% endif %}
-            <strong>Unenrollment</strong>
-          </div>
-          <div class="card-body">
-            <table class="table table-sm mb-0">
-              <tbody>
-                <tr>
-                  <th>Total Enrollments</th>
-                  <td>{{ summary.total_enrollments }}</td>
-                </tr>
-                <tr>
-                  <th>Total Unenrollments</th>
-                  <td>{{ summary.total_unenrollments }}</td>
-                </tr>
-                <tr>
-                  <th>Unenrollment Rate</th>
-                  <td>
-                    {{ summary.unenrollment_rate|floatformat:1 }}%
-                    {% if summary.is_unenrollment_spike %}
-                      <span class="badge bg-warning text-dark ms-1">Above 10% threshold</span>
-                    {% endif %}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <table class="table table-sm table-bordered mt-2 mb-0">
-              <thead>
-                <tr>
-                  <th>Branch</th>
-                  <th>Enrollments</th>
-                  <th>Unenrollments</th>
-                  <th>Top Unenrollment Reason</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for branch in summary.branches %}
-                  <tr>
-                    <td>{{ branch.name }}</td>
-                    <td>{{ branch.enrollments }}</td>
-                    <td>{{ branch.unenrollments }}</td>
-                    <td>{{ branch.top_reason|default:"—" }}</td>
-                  </tr>
-                {% empty %}
-                  <tr>
-                    <td colspan="4" class="text-muted">No branch data available</td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
+    <div class="card mb-3">
+      <div class="card-header d-flex align-items-center gap-2">
+        {% if summary.is_unenrollment_spike %}
+          <span class="text-warning fs-5">⚠️</span>
+        {% else %}
+          <span class="text-success fs-5">✅</span>
+        {% endif %}
+        <strong>Unenrollment</strong>
       </div>
-      <div class="col-md-6">
-        <div class="card h-100">
-          <div class="card-header d-flex align-items-center gap-2">
-            {% if summary.is_srm %}
-              <span class="text-warning fs-5">⚠️</span>
-            {% else %}
-              <span class="text-success fs-5">✅</span>
-            {% endif %}
-            <strong>Branch Ratio (SRM)</strong>
-          </div>
-          <div class="card-body">
-            {% if summary.is_srm %}
-              <p class="text-warning mb-2">
-                <strong>Mismatch detected.</strong> Enrollment is not at the expected ratio across branches.
-                Check the Live Monitoring Dashboard for more details.
-              </p>
-            {% else %}
-              <p class="text-success mb-2">Branches are enrolling at the expected ratio.</p>
-            {% endif %}
-            <table class="table table-sm table-bordered mb-0">
-              <thead>
-                <tr>
-                  <th>Branch</th>
-                  <th>Enrollments</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for branch in summary.branches %}
-                  <tr>
-                    <td>{{ branch.name }}</td>
-                    <td>{{ branch.enrollments }}</td>
-                  </tr>
-                {% empty %}
-                  <tr>
-                    <td colspan="2" class="text-muted">No branch data available</td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <div class="card-body">
+        {% if summary.is_unenrollment_spike %}
+          <p class="text-warning mb-2">
+            <strong>Unenrollment rate is above the 10% threshold.</strong>
+            Check the Live Monitoring Dashboard for more details.
+          </p>
+        {% else %}
+          <p class="text-success mb-2">Unenrollments are within a healthy range.</p>
+        {% endif %}
+        <table class="table table-sm mb-2">
+          <tbody>
+            <tr>
+              <th>Total Enrollments</th>
+              <td>{{ summary.total_enrollments }}</td>
+              <th>Total Unenrollments</th>
+              <td>{{ summary.total_unenrollments }}</td>
+            </tr>
+            <tr>
+              <th>Unenrollment Rate</th>
+              <td colspan="3">
+                {{ summary.unenrollment_rate|floatformat:1 }}%
+                {% if summary.is_unenrollment_spike %}
+                  <span class="badge bg-warning text-dark ms-1">Above 10% threshold</span>
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table table-sm table-bordered mb-0">
+          <thead>
+            <tr>
+              <th>Branch</th>
+              <th>Enrollments</th>
+              <th>Unenrollments</th>
+              <th>Top Unenrollment Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for branch in summary.branches %}
+              <tr>
+                <td>{{ branch.name }}</td>
+                <td>{{ branch.enrollments }}</td>
+                <td>{{ branch.unenrollments }}</td>
+                <td>{{ branch.top_reason|default:"—" }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4" class="text-muted">No branch data available</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex align-items-center gap-2">
+        {% if summary.is_srm %}
+          <span class="text-warning fs-5">⚠️</span>
+        {% else %}
+          <span class="text-success fs-5">✅</span>
+        {% endif %}
+        <strong>Branch Ratio (SRM)</strong>
+      </div>
+      <div class="card-body">
+        {% if summary.is_srm %}
+          <p class="text-warning mb-2">
+            <strong>Mismatch detected.</strong> Enrollment is not at the expected ratio across branches.
+            Check the Live Monitoring Dashboard for more details.
+          </p>
+        {% else %}
+          <p class="text-success mb-2">Branches are enrolling at the expected ratio.</p>
+        {% endif %}
+        <table class="table table-sm table-bordered mb-0">
+          <thead>
+            <tr>
+              <th>Branch</th>
+              <th>Enrollments</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for branch in summary.branches %}
+              <tr>
+                <td>{{ branch.name }}</td>
+                <td>{{ branch.enrollments }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="2" class="text-muted">No branch data available</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
   {% endwith %}
