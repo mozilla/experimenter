@@ -1098,6 +1098,24 @@ WIN11_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN10_NEED_DEFAULT = NimbusTargetingConfig(
+    name="Windows 10 users needing default",
+    slug="win10_need_default",
+    description=(
+        "Windows 10 users but not Windows 11 users (Windows 10 build < 22000) "
+        "needing default"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && "
+        "os.windowsBuildNumber < 22000 && "
+        f"{NEED_DEFAULT}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 GUIDANCE_NOTIFICATION_GIF_EXPERIMENT = NimbusTargetingConfig(
     name="Guidance notification GIF experiment",
     slug="guidance_notification_gif_experiment",
