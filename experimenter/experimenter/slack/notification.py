@@ -323,6 +323,13 @@ def remove_emoji_from_slack_message(experiment, alert_type, emoji_name):
         return True
 
     except SlackApiError as e:
+        if e.response.get("error") == SlackConstants.ErrorCode.NO_REACTION:
+            logger.info(
+                SlackConstants.SLACK_LOG_EMOJI_ALREADY_REMOVED.format(
+                    emoji_name=emoji_name, experiment=experiment.slug
+                )
+            )
+            return False
         msg = SlackConstants.SLACK_LOG_FAILED_REMOVE_EMOJI.format(
             emoji_name=emoji_name, experiment=experiment.slug
         )
