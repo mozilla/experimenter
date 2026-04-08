@@ -1440,8 +1440,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
         reasons_by_branch = self.monitoring_data.get("reasons_by_branch", {})
+        raw_branches = self.monitoring_data.get("branches", {})
+
+        branch_ratios = {b.slug: b.ratio for b in self.branches.all()}
+        total_ratio = sum(branch_ratios.values()) or 1
+        total_branch_enrollments = sum(
+            b.get("enrollments", 0) for b in raw_branches.values()
+        )
+
         branches = []
-        for branch_name, branch_data in self.monitoring_data.get("branches", {}).items():
+        for branch_name, branch_data in raw_branches.items():
             branch_reasons = reasons_by_branch.get(branch_name, {})
             if branch_reasons:
                 top_reason = max(
@@ -1449,12 +1457,22 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 )
             else:
                 top_reason = None
+            enrollments = branch_data.get("enrollments", 0)
+            actual_ratio = (
+                (enrollments / total_branch_enrollments * 100)
+                if total_branch_enrollments
+                else 0.0
+            )
+            ratio = branch_ratios.get(branch_name, 1)
+            expected_ratio = ratio / total_ratio * 100
             branches.append(
                 {
                     "name": branch_name,
-                    "enrollments": branch_data.get("enrollments", 0),
+                    "enrollments": enrollments,
                     "unenrollments": branch_data.get("unenrollments", 0),
                     "top_reason": top_reason,
+                    "expected_ratio": expected_ratio,
+                    "actual_ratio": actual_ratio,
                 }
             )
 

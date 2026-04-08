@@ -16,12 +16,14 @@
       </div>
       <div class="card-body">
         {% if summary.is_unenrollment_spike %}
-          <p class="text-warning mb-2">
-            <strong>Unenrollment rate is above the 10% threshold.</strong>
-            Check the Live Monitoring Dashboard for more details.
-          </p>
+          <div class="alert alert-warning mb-3" role="alert">
+            <strong>{{ NimbusUIConstants.MONITORING_UNENROLLMENT_SPIKE_WARNING }}</strong>
+            <a href="{{ NimbusUIConstants.VALIDATING_EXPERIMENTS_URL }}"
+               target="_blank"
+               rel="noopener noreferrer">Learn more.</a>
+          </div>
         {% else %}
-          <p class="text-success mb-2">Unenrollments are within a healthy range.</p>
+          <div class="alert alert-success mb-3" role="alert">{{ NimbusUIConstants.MONITORING_UNENROLLMENT_HEALTHY }}</div>
         {% endif %}
         <table class="table table-sm mb-2">
           <tbody>
@@ -79,18 +81,22 @@
       </div>
       <div class="card-body">
         {% if summary.is_srm %}
-          <p class="text-warning mb-2">
-            <strong>Mismatch detected.</strong> Enrollment is not at the expected ratio across branches.
-            Check the Live Monitoring Dashboard for more details.
-          </p>
+          <div class="alert alert-warning mb-3" role="alert">
+            <strong>{{ NimbusUIConstants.MONITORING_SRM_WARNING }}</strong>
+            <a href="{{ NimbusUIConstants.VALIDATING_EXPERIMENTS_URL }}"
+               target="_blank"
+               rel="noopener noreferrer">Learn more.</a>
+          </div>
         {% else %}
-          <p class="text-success mb-2">Branches are enrolling at the expected ratio.</p>
+          <div class="alert alert-success mb-3" role="alert">{{ NimbusUIConstants.MONITORING_SRM_HEALTHY }}</div>
         {% endif %}
         <table class="table table-sm table-bordered mb-0">
           <thead>
             <tr>
               <th>Branch</th>
               <th>Enrollments</th>
+              <th>Expected Ratio</th>
+              <th>Actual Ratio</th>
             </tr>
           </thead>
           <tbody>
@@ -98,10 +104,12 @@
               <tr>
                 <td>{{ branch.name }}</td>
                 <td>{{ branch.enrollments }}</td>
+                <td>{{ branch.expected_ratio|floatformat:1 }}%</td>
+                <td>{{ branch.actual_ratio|floatformat:1 }}%</td>
               </tr>
             {% empty %}
               <tr>
-                <td colspan="2" class="text-muted">No branch data available</td>
+                <td colspan="4" class="text-muted">No branch data available</td>
               </tr>
             {% endfor %}
           </tbody>
