@@ -1,6 +1,18 @@
 name: Feature Manifest Tests
 
 on:
+  push:
+    branches:
+      - main
+      - external-config
+      - update-application-services
+      - update_firefox_desktop_release
+      - update_firefox_desktop_beta
+    paths:
+      - "experimenter/experimenter/features/manifests/**"
+      - "experimenter/manifesttool/**"
+      - "application-services/**"
+      - ".github/workflows/check-feature-manifests.yml"
   pull_request:
     paths:
       - "experimenter/experimenter/features/manifests/**"
