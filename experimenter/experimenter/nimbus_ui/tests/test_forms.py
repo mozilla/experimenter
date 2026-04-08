@@ -1170,6 +1170,7 @@ class TestDraftToReviewForm(
             emoji_calls,
         )
 
+
 class TestPreviewToReviewForm(
     SlackEmojiMockMixin, SlackNotificationMockMixin, RequestFormTestCase
 ):
