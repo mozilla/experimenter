@@ -50,6 +50,7 @@ class SlackConstants:
         CANCEL = "x"
         APPROVE = "eyes"
         COMPLETE = "white_check_mark"
+        SECURE = "lock"
 
     # Slack API error codes
     class ErrorCode:
