@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - main
-      - update_firefox_versions
+      - external-config
       - update-application-services
+      - update_firefox_desktop_release
+      - update_firefox_desktop_beta
     paths:
       - "experimenter/**"
       - "application-services/**"
