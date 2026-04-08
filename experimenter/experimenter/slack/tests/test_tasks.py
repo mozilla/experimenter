@@ -10,6 +10,13 @@ from experimenter.experiments.models import NimbusAlert
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.slack import tasks
 from experimenter.slack.constants import SlackConstants
+from experimenter.slack.monitoring_utils import (
+    check_srm_mismatch,
+    check_unenrollment_spike,
+    compute_srm_p_value,
+    compute_unenrollment_rate,
+    get_top_unenrollment_reason,
+)
 
 AnalysisWindow = NimbusConstants.AnalysisWindow
 
@@ -868,7 +875,7 @@ class TestComputeUnenrollmentRate(TestCase):
     )
     def test_rate_calculation(self, _, enrollments, unenrollments, expected_rate):
         self.assertAlmostEqual(
-            tasks._compute_unenrollment_rate(enrollments, unenrollments), expected_rate
+            compute_unenrollment_rate(enrollments, unenrollments), expected_rate
         )
 
 
@@ -878,7 +885,7 @@ class TestComputeSrmPValue(TestCase):
             "control": {"enrollments": 500},
             "treatment": {"enrollments": 500},
         }
-        self.assertGreater(tasks._compute_srm_p_value(branches), 0.05)
+        self.assertGreater(compute_srm_p_value(branches), 0.05)
 
     def test_unequal_branches_returns_low_p_value(self):
         branches = {
@@ -886,7 +893,7 @@ class TestComputeSrmPValue(TestCase):
             "treatment": {"enrollments": 100},
         }
         self.assertLess(
-            tasks._compute_srm_p_value(branches),
+            compute_srm_p_value(branches),
             SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD,
         )
 
@@ -900,7 +907,7 @@ class TestComputeSrmPValue(TestCase):
         ]
     )
     def test_returns_one_for_no_data(self, _, branches):
-        self.assertEqual(tasks._compute_srm_p_value(branches), 1.0)
+        self.assertEqual(compute_srm_p_value(branches), 1.0)
 
 
 class TestGetTopUnenrollmentReason(TestCase):
@@ -919,7 +926,7 @@ class TestGetTopUnenrollmentReason(TestCase):
             }
         }
         self.assertEqual(
-            tasks._get_top_unenrollment_reason(monitoring_data), "targeting_mismatch"
+            get_top_unenrollment_reason(monitoring_data), "targeting_mismatch"
         )
 
     def test_returns_key_when_all_counts_are_zero(self):
@@ -930,7 +937,7 @@ class TestGetTopUnenrollmentReason(TestCase):
             }
         }
         self.assertEqual(
-            tasks._get_top_unenrollment_reason(monitoring_data), "targeting_mismatch"
+            get_top_unenrollment_reason(monitoring_data), "targeting_mismatch"
         )
 
     @parameterized.expand(
@@ -944,7 +951,7 @@ class TestGetTopUnenrollmentReason(TestCase):
         ]
     )
     def test_returns_unknown_when_no_reasons(self, _, monitoring_data):
-        self.assertEqual(tasks._get_top_unenrollment_reason(monitoring_data), "unknown")
+        self.assertEqual(get_top_unenrollment_reason(monitoring_data), "unknown")
 
 
 class TestCheckUnenrollmentSpike(TestCase):
@@ -963,7 +970,7 @@ class TestCheckUnenrollmentSpike(TestCase):
             "total_enrollments": enrollments,
             "total_unenrollments": unenrollments,
         }
-        is_spike, rate = tasks._check_unenrollment_spike(monitoring_data)
+        is_spike, rate = check_unenrollment_spike(monitoring_data)
         self.assertEqual(is_spike, expected_is_spike)
         self.assertAlmostEqual(rate, expected_rate)
 
@@ -976,7 +983,7 @@ class TestCheckSrmMismatch(TestCase):
                 "treatment": {"enrollments": 100},
             }
         }
-        is_srm, p_value = tasks._check_srm_mismatch(monitoring_data)
+        is_srm, p_value = check_srm_mismatch(monitoring_data)
         self.assertTrue(is_srm)
         self.assertLess(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
 
@@ -987,7 +994,7 @@ class TestCheckSrmMismatch(TestCase):
                 "treatment": {"enrollments": 500},
             }
         }
-        is_srm, p_value = tasks._check_srm_mismatch(monitoring_data)
+        is_srm, p_value = check_srm_mismatch(monitoring_data)
         self.assertFalse(is_srm)
         self.assertGreater(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
 
@@ -998,7 +1005,7 @@ class TestCheckSrmMismatch(TestCase):
         ]
     )
     def test_returns_false_for_insufficient_branches(self, _, monitoring_data):
-        is_srm, p_value = tasks._check_srm_mismatch(monitoring_data)
+        is_srm, p_value = check_srm_mismatch(monitoring_data)
         self.assertFalse(is_srm)
         self.assertEqual(p_value, 1.0)
 

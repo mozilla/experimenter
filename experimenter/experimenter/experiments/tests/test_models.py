@@ -5193,7 +5193,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(monitoring_data={})
         self.assertIsNone(experiment.monitoring_summary)
 
-    def test_monitoring_summary_returns_summary_with_branch_no_reasons(self):
+    def test_monitoring_summary_healthy(self):
         experiment = NimbusExperimentFactory.create(
             monitoring_data={
                 "total_enrollments": 1000,
@@ -5210,16 +5210,50 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(summary["total_enrollments"], 1000)
         self.assertEqual(summary["total_unenrollments"], 50)
         self.assertAlmostEqual(summary["unenrollment_rate"], 5.0)
+        self.assertFalse(summary["is_unenrollment_spike"])
+        self.assertFalse(summary["is_srm"])
         for branch in summary["branches"]:
             self.assertIsNone(branch["top_reason"])
 
-    def test_monitoring_summary_returns_top_reason_for_branches_with_reasons(self):
+    def test_monitoring_summary_unenrollment_spike_detected(self):
         experiment = NimbusExperimentFactory.create(
             monitoring_data={
                 "total_enrollments": 1000,
                 "total_unenrollments": 150,
                 "branches": {
                     "control": {"enrollments": 500, "unenrollments": 75},
+                    "treatment": {"enrollments": 500, "unenrollments": 75},
+                },
+                "reasons_by_branch": {},
+            }
+        )
+        summary = experiment.monitoring_summary
+        self.assertTrue(summary["is_unenrollment_spike"])
+        self.assertFalse(summary["is_srm"])
+
+    def test_monitoring_summary_srm_detected(self):
+        experiment = NimbusExperimentFactory.create(
+            monitoring_data={
+                "total_enrollments": 1000,
+                "total_unenrollments": 50,
+                "branches": {
+                    "control": {"enrollments": 900},
+                    "treatment": {"enrollments": 100},
+                },
+                "reasons_by_branch": {},
+            }
+        )
+        summary = experiment.monitoring_summary
+        self.assertFalse(summary["is_unenrollment_spike"])
+        self.assertTrue(summary["is_srm"])
+
+    def test_monitoring_summary_returns_top_reason_for_branches_with_reasons(self):
+        experiment = NimbusExperimentFactory.create(
+            monitoring_data={
+                "total_enrollments": 1000,
+                "total_unenrollments": 50,
+                "branches": {
+                    "control": {"enrollments": 500, "unenrollments": 25},
                 },
                 "reasons_by_branch": {
                     "control": {

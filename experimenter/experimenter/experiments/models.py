@@ -36,6 +36,10 @@ from experimenter.experiments.jexl_utils import format_jexl
 from experimenter.jetstream.results_manager import ExperimentResultsManager
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.projects.models import Project
+from experimenter.slack.monitoring_utils import (
+    check_srm_mismatch,
+    check_unenrollment_spike,
+)
 from experimenter.targeting.constants import TargetingConstants
 
 
@@ -1454,10 +1458,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 }
             )
 
+        is_unenrollment_spike, _ = check_unenrollment_spike(self.monitoring_data)
+        is_srm, _ = check_srm_mismatch(self.monitoring_data)
+
         return {
             "total_enrollments": total_enrollments,
             "total_unenrollments": total_unenrollments,
             "unenrollment_rate": unenrollment_rate,
+            "is_unenrollment_spike": is_unenrollment_spike,
+            "is_srm": is_srm,
             "branches": branches,
         }
 
