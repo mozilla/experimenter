@@ -1,6 +1,11 @@
 from django.test import TestCase
+from parameterized import parameterized
 
-from experimenter.experiments.jexl_utils import format_jexl
+from experimenter.experiments.jexl_utils import (
+    JEXLParser,
+    format_jexl,
+    to_str,
+)
 
 
 class TestFormatJexl(TestCase):
@@ -189,3 +194,33 @@ e"""
 
     def test_invalid_operator(self):
         self.assertEqual(format_jexl(")))))"), ")))))")
+
+
+class TestToStr(TestCase):
+    parser = JEXLParser()
+
+    @parameterized.expand(
+        [
+            (parser.parse("a"), "a"),
+            (parser.parse("1"), "1"),
+            (parser.parse('["a", "b"]'), '["a", "b"]'),
+            (parser.parse("!a"), "(!a)"),
+            (parser.parse("a == 1"), "(a == 1)"),
+            (
+                parser.parse("a|preferenceValue(true)"),
+                "a|preferenceValue(true)",
+            ),
+            (parser.parse("items[index > 5]"), "items[(index > 5)]"),
+            (parser.parse("{}"), "{}"),
+            (
+                parser.parse("(a ? b : c)"),
+                "(a ? b : c)",
+            ),
+        ]
+    )
+    def test_parsed_jexl_nodes(self, raw_node, expected_str):
+        self.assertEqual(to_str(raw_node), expected_str)
+
+    def test_invalid_expression_to_str(self):
+        with self.assertRaises(Exception):
+            to_str("a && || b")

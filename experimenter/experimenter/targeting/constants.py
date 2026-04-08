@@ -27,6 +27,21 @@ class NimbusTargetingConfig:
         self.targeting_configs.append(self)
 
 
+PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
+    Application.DESKTOP: {
+        "defaultProfile",
+        "newtabAddonVersion",
+        "newtabSettings",
+        "userId",
+        "searchEngines",
+        "isBackgroundTaskMode",
+        "localeLanguageCode",
+        "attachedFxAOAuthClients",
+    },
+    Application.FENIX: {"current_date", "nimbus_id"},
+    Application.IOS: {"current_date", "nimbus_id"},
+}
+
 HAS_PIN = "!doesAppNeedPin"
 NEED_DEFAULT = "!isDefaultBrowser"
 PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
@@ -2894,28 +2909,6 @@ ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-ANDROID_EARLY_APP_LAUNCH_USERS_ONLY = NimbusTargetingConfig(
-    name="Android early app launch users only",
-    slug="android_early_app_launch_users_only",
-    description="Targeting users under or equal 20 app launches since install",
-    targeting="number_of_app_launches <= 20",
-    desktop_telemetry="",
-    sticky_required=True,
-    is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name,),
-)
-
-ANDROID_LATER_APP_LAUNCH_USERS_ONLY = NimbusTargetingConfig(
-    name="Android later app launch users only",
-    slug="android_later_app_launch_users_only",
-    description="Targeting users over 20 app launches since install",
-    targeting="number_of_app_launches > 20",
-    desktop_telemetry="",
-    sticky_required=True,
-    is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name,),
-)
-
 ANDROID_DMA_USERS_ONLY = NimbusTargetingConfig(
     name="DMA users only",
     slug="android_dma_users_only",
@@ -2927,17 +2920,6 @@ ANDROID_DMA_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-
-ANDROID_LARGE_SCREEN_USERS_ONLY = NimbusTargetingConfig(
-    name="Large screen device users only",
-    slug="large_screen_device_users_only",
-    description="Targeting users who have large screen devices",
-    targeting="is_large_device",
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.FENIX.name,),
-)
 
 ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
     name="Existing users who have not accepted Terms of Use",
