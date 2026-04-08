@@ -35,6 +35,7 @@ from experimenter.experiments.models import (
     Tag,
 )
 from experimenter.jetstream import tasks
+from experimenter.kinto import tasks as kinto_tasks
 from experimenter.settings import DEV_USER_EMAIL
 
 
@@ -42,6 +43,12 @@ from experimenter.settings import DEV_USER_EMAIL
 def force_fetch_jetstream_data(modeladmin, request, queryset):
     for experiment in queryset:
         tasks.fetch_experiment_data.delay(experiment.id)
+
+
+@admin.action(description="Force resync published DTO from Remote Settings.")
+def force_resync_published_dto(modeladmin, request, queryset):
+    for experiment in queryset:
+        kinto_tasks.nimbus_sync_published_dto.delay(experiment.id)
 
 
 # Monkeypatch DecimalWidget render fn to work around a bug exporting Decimal to YAML
@@ -354,7 +361,7 @@ class NimbusExperimentAdmin(
     search_fields = ("name", "slug")
     prepopulated_fields = {"slug": ("name",)}
     form = NimbusExperimentAdminForm
-    actions = [force_fetch_jetstream_data]
+    actions = [force_fetch_jetstream_data, force_resync_published_dto]
     resource_class = NimbusExperimentResource
     readonly_fields = ("_firefox_min_version_parsed", "changelog_display")
     summernote_fields = ("takeaways_summary", "next_steps")
