@@ -54,6 +54,7 @@ class SlackConstants:
     # Slack API error codes
     class ErrorCode:
         ALREADY_REACTED = "already_reacted"
+        NO_REACTION = "no_reaction"
 
     # Enrollment monitoring thresholds
     UNENROLLMENT_SPIKE_THRESHOLD = 0.10  # 10%
@@ -126,6 +127,9 @@ class SlackConstants:
         "Failed to add {emoji_name} emoji to message for {experiment}"
     )
     SLACK_LOG_EMOJI_REMOVED = "Removed {emoji_name} emoji from message for {experiment}"
+    SLACK_LOG_EMOJI_ALREADY_REMOVED = (
+        "{emoji_name} emoji already removed or never existed for {experiment}"
+    )
     SLACK_LOG_FAILED_REMOVE_EMOJI = (
         "Failed to remove {emoji_name} emoji from message for {experiment}"
     )
