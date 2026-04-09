@@ -608,44 +608,60 @@ def nimbus_send_emails():
 
 @app.task
 @metrics.timer_decorator("nimbus_sync_published_dto")
-def nimbus_sync_published_dto():
+def nimbus_sync_published_dto(experiment_id=None):
     """
-    A scheduled task that finds live experiments with published_dto=null,
-    reads their record from Kinto, and saves it to the published_dto field.
+    A scheduled task that reads the published record of all live experiments
+    from Remote Settings and overwrites the local published_dto if they differ,
+    creating a changelog entry for any resynchronized experiments. Can also be
+    invoked for a single experiment by passing experiment_id.
     """
     metrics.incr("nimbus_sync_published_dto.started")
 
     kinto_clients = {
-        app_config.slug: KintoClient(app_config.preview_collection, review=False)
+        collection: KintoClient(collection)
         for app_config in NimbusConstants.APPLICATION_CONFIGS.values()
+        for collection in app_config.kinto_collections
     }
 
     try:
         experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.LIVE,
-            published_dto__isnull=True,
         )
+        if experiment_id:
+            experiments = experiments.filter(id=experiment_id)
 
         for experiment in experiments:
-            logger.info(f"Syncing published_dto for {experiment.slug}")
+            collection = experiment.kinto_collection
+            if collection is None:
+                continue
 
-            kinto_client = kinto_clients[experiment.application]
-            records = kinto_client.get_main_records()
+            records = kinto_clients[collection].get_main_records()
 
-            if experiment.slug in records:
-                published_record = records[experiment.slug].copy()
-                published_record.pop("last_modified", None)
-
-                experiment.published_dto = published_record
-                experiment.save()
-
-                logger.info(f"Synced published_dto for {experiment.slug}")
-                metrics.incr("nimbus_sync_published_dto.synced")
-            else:
-                logger.warning(
-                    f"Experiment {experiment.slug} not found in Kinto collection"
-                )
+            if experiment.slug not in records:
+                logger.info(f"Experiment {experiment.slug} not found in Remote Settings")
                 metrics.incr("nimbus_sync_published_dto.not_found")
+                continue
+
+            published_record = records[experiment.slug].copy()
+            published_record.pop("last_modified", None)
+
+            stored_record = (experiment.published_dto or {}).copy()
+            stored_record.pop("last_modified", None)
+
+            if published_record != stored_record:
+                logger.info(f"Resynchronizing {experiment.slug} from Remote Settings")
+
+                with transaction.atomic():
+                    experiment.published_dto = published_record
+                    experiment.save()
+
+                    generate_nimbus_changelog(
+                        experiment,
+                        get_kinto_user(),
+                        message=NimbusChangeLog.Messages.RESYNCHRONIZED_FROM_RS,
+                    )
+
+                metrics.incr("nimbus_sync_published_dto.resynced")
 
         metrics.incr("nimbus_sync_published_dto.completed")
 

@@ -1,6 +1,16 @@
 name: Schema Tests
 
 on:
+  push:
+    branches:
+      - main
+      - external-config
+      - update-application-services
+      - update_firefox_desktop_release
+      - update_firefox_desktop_beta
+    paths:
+      - "schemas/**"
+      - ".github/workflows/check-schemas.yml"
   pull_request:
     paths:
       - "schemas/**"
