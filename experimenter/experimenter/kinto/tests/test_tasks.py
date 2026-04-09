@@ -1825,6 +1825,10 @@ class TestNimbusSyncPublishedDto(MockKintoClientMixin, TestCase):
 
         experiment.refresh_from_db()
         self.assertEqual(experiment.published_dto, {"id": experiment.slug})
+        self.assertEqual(
+            experiment.changes.latest_change().message,
+            NimbusChangeLog.Messages.RESYNCHRONIZED_FROM_RS,
+        )
 
     @parameterized.expand(
         [
@@ -1833,22 +1837,54 @@ class TestNimbusSyncPublishedDto(MockKintoClientMixin, TestCase):
             NimbusExperiment.Application.IOS,
         ]
     )
-    def test_does_not_sync_published_dto_for_experiments_with_existing_published_dto(
-        self, application
-    ):
-        existing_dto = {"id": "test-experiment", "some": "data"}
+    def test_resyncs_when_published_dto_differs(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=application,
-            published_dto=existing_dto,
+            published_dto={"id": "old-data"},
         )
 
-        self.setup_kinto_get_main_records([experiment.slug])
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": True, "last_modified": "0"}
+        ]
 
         tasks.nimbus_sync_published_dto()
 
         experiment.refresh_from_db()
-        self.assertEqual(experiment.published_dto, existing_dto)
+        self.assertEqual(
+            experiment.published_dto,
+            {"id": experiment.slug, "isEnrollmentPaused": True},
+        )
+        self.assertEqual(
+            experiment.changes.latest_change().message,
+            NimbusChangeLog.Messages.RESYNCHRONIZED_FROM_RS,
+        )
+
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.IOS,
+        ]
+    )
+    def test_does_not_resync_when_published_dto_matches(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+        )
+        experiment.published_dto = {"id": experiment.slug, "key": "value"}
+        experiment.save()
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "key": "value", "last_modified": "0"}
+        ]
+
+        changes_before = experiment.changes.count()
+
+        tasks.nimbus_sync_published_dto()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.changes.count(), changes_before)
 
     @parameterized.expand(
         [
@@ -1870,6 +1906,38 @@ class TestNimbusSyncPublishedDto(MockKintoClientMixin, TestCase):
 
         experiment.refresh_from_db()
         self.assertIsNone(experiment.published_dto)
+
+    def test_syncs_single_experiment_by_id(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_dto={"id": "old-data"},
+        )
+
+        other_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_dto={"id": "other-old-data"},
+        )
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "updated": True, "last_modified": "0"},
+            {"id": other_experiment.slug, "updated": True, "last_modified": "0"},
+        ]
+
+        other_changes_before = other_experiment.changes.count()
+
+        tasks.nimbus_sync_published_dto(experiment_id=experiment.id)
+
+        experiment.refresh_from_db()
+        self.assertEqual(
+            experiment.published_dto,
+            {"id": experiment.slug, "updated": True},
+        )
+
+        other_experiment.refresh_from_db()
+        self.assertEqual(other_experiment.published_dto, {"id": "other-old-data"})
+        self.assertEqual(other_experiment.changes.count(), other_changes_before)
 
     @parameterized.expand(
         [
@@ -1908,6 +1976,26 @@ class TestNimbusSyncPublishedDto(MockKintoClientMixin, TestCase):
         experiment.refresh_from_db()
         self.assertEqual(experiment.published_dto, {"id": experiment.slug})
         self.assertNotIn("last_modified", experiment.published_dto)
+
+    @mock.patch(
+        "experimenter.experiments.models.NimbusExperiment.kinto_collection",
+        new_callable=mock.PropertyMock,
+        return_value=None,
+    )
+    def test_skips_experiment_with_no_kinto_collection(self, _mock_collection):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_dto={"id": "old-data"},
+        )
+
+        changes_before = experiment.changes.count()
+
+        tasks.nimbus_sync_published_dto()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.published_dto, {"id": "old-data"})
+        self.assertEqual(experiment.changes.count(), changes_before)
 
     def test_reraises_exception(self):
         NimbusExperimentFactory.create_with_lifecycle(

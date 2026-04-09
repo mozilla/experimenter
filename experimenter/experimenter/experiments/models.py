@@ -2916,6 +2916,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         EXPIRED_FROM_PREVIEW = "Expired from preview collection after 30 days"
         REMOVED_FROM_PREVIEW = "Removed from preview collection"
         PUSHED_TO_PREVIEW = "Pushed to preview collection"
+        RESYNCHRONIZED_FROM_RS = "Resynchronized from Remote Settings"
 
     def __str__(self):
         return self.message or (
