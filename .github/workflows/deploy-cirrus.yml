@@ -28,9 +28,6 @@ jobs:
           fetch-tags: true
 
       - uses: ./.github/actions/setup-cached-build
-        with:
-          arch: x86_64
-          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
 
       - name: Build Cirrus
         run: make cirrus_build
