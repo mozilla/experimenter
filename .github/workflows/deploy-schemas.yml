@@ -1,0 +1,46 @@
+name: Deploy Schemas
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "schemas/**"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    name: Deploy Schemas
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Check for version change
+        id: version-check
+        run: |
+          if git diff HEAD~1 schemas/pyproject.toml | grep 'version'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No version change, skipping deploy"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build schemas
+        if: steps.version-check.outputs.changed == 'true'
+        run: |
+          cp .env.sample .env
+          make schemas_build
+
+      - name: Upload to PyPI
+        if: steps.version-check.outputs.changed == 'true'
+        run: |
+          make schemas_deploy_pypi SCHEMAS_ENV="-e TWINE_USERNAME=${{ secrets.TWINE_USERNAME }} -e TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }}"
+
+      - name: Upload to NPM
+        if: steps.version-check.outputs.changed == 'true'
+        run: |
+          make schemas_deploy_npm SCHEMAS_ENV="-e NPM_TOKEN=${{ secrets.NPM_TOKEN }}"
