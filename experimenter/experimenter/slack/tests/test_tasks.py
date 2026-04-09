@@ -71,6 +71,7 @@ class TestNimbusSendSlackNotification(TestCase):
             action_text=action_text,
             requesting_user_email=requesting_user_email,
             link_url=experiment.experiment_url,
+            thread_ts=None,
         )
 
     @mock.patch("experimenter.slack.tasks.send_slack_notification")
@@ -94,6 +95,7 @@ class TestNimbusSendSlackNotification(TestCase):
             action_text=action_text,
             requesting_user_email=None,
             link_url=experiment.experiment_url,
+            thread_ts=None,
         )
 
     @mock.patch("experimenter.slack.tasks.send_slack_notification")

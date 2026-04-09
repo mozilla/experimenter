@@ -9,6 +9,7 @@ from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.slack.constants import SlackConstants
 from experimenter.slack.notification import (
     add_emoji_to_slack_message,
+    get_launch_request_thread,
     remove_emoji_from_slack_message,
     send_slack_notification,
     send_threaded_success_message,
@@ -1073,3 +1074,66 @@ class TestSlackNotifications(TestCase):
             mock_logger.info.assert_called()
             call_args = mock_logger.info.call_args[0][0]
             self.assertIn("already removed", call_args)
+
+    def test_get_launch_request_thread_returns_ids_when_alert_exists(self):
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
+
+        thread_ts, channel_id = get_launch_request_thread(self.experiment.id)
+
+        self.assertEqual(thread_ts, "1234567890.123456")
+        self.assertEqual(channel_id, "C123456")
+
+    def test_get_launch_request_thread_returns_none_when_no_alert(self):
+        thread_ts, channel_id = get_launch_request_thread(self.experiment.id)
+
+        self.assertIsNone(thread_ts)
+        self.assertIsNone(channel_id)
+
+    def test_get_launch_request_thread_returns_none_when_no_thread_id(self):
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Launch request",
+            slack_thread_id=None,
+            slack_channel_id=None,
+        )
+
+        thread_ts, channel_id = get_launch_request_thread(self.experiment.id)
+
+        self.assertIsNone(thread_ts)
+        self.assertIsNone(channel_id)
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_send_slack_notification_threaded_skips_dms(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.users_lookupByEmail.return_value = {"user": {"id": "U123456"}}
+        mock_client.chat_postMessage.return_value = {
+            "ok": True,
+            "ts": "9999999999.000001",
+            "channel": "C123456",
+        }
+
+        result = send_slack_notification(
+            experiment_id=self.experiment.id,
+            email_addresses=["test@example.com"],
+            action_text="📈 Weekly analysis results are now available",
+            link_url=self.experiment.results_url,
+            thread_ts="1234567890.123456",
+        )
+
+        self.assertEqual(result, ("9999999999.000001", "C123456"))
+        # Should post only one message (the thread reply), no DMs
+        mock_client.chat_postMessage.assert_called_once()
+        call_kwargs = mock_client.chat_postMessage.call_args.kwargs
+        self.assertEqual(call_kwargs["thread_ts"], "1234567890.123456")
+        # Permalink and DM helpers should not be called
+        mock_client.chat_getPermalink.assert_not_called()
+        mock_client.conversations_open.assert_not_called()
