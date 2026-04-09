@@ -32,7 +32,6 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      id-token: write
     env:
       FIREFOX_CHANNEL: release
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
@@ -41,9 +40,6 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-cached-build
-        with:
-          arch: x86_64
-          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
 
       - uses: ./.github/actions/run-integration-test
         with:
