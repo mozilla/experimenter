@@ -72,6 +72,16 @@ deeplink-optimization-refactor-feature:
       type: boolean
       description: |
         Variable description
+default-zoom-feature:
+  description: |
+    The feature flag to manage the rollout of default zoom feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, page zoom settings and default zoom feature are shown
 download-live-activities-feature:
   description: |
     Download Live Activities Feature
@@ -90,6 +100,9 @@ felt-privacy-feature:
     felt-deletion-enabled:
       type: boolean
       description: If true, enable Felt Deletion part of Felt Privacy
+    simplified-ui-enabled:
+      type: boolean
+      description: If true, enable simplified UI part of Felt Privacy
 firefox-jp-guide-default-site:
   description: |
     This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut

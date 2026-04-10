@@ -778,6 +778,66 @@ features:
         description: The number of events that should be sent.
         type: Int
         default: 1
+  nimbus-qa-bool-default:
+    description: A feature for testing boolean pref-setting on the default branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-bool-default
+          branch: default
+  nimbus-qa-bool-user:
+    description: A feature for testing boolean pref-setting on the user branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-bool-user
+          branch: user
+  nimbus-qa-int-default:
+    description: A feature for testing int pref-setting on the default branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-int-default
+          branch: default
+  nimbus-qa-int-user:
+    description: A feature for testing int pref-setting on the user branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-int-user
+          branch: user
+  nimbus-qa-string-default:
+    description: A feature for testing string pref-setting on the default branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<String>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-string-default
+          branch: default
+  nimbus-qa-string-user:
+    description: A feature for testing string pref-setting on the user branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<String>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-string-user
+          branch: user
   nimbus-system:
     description: |
       Configuration of the Nimbus System in Android.
@@ -1083,6 +1143,14 @@ features:
       enabled:
         description: |
           Whether or not to enable the tab groups feature.
+        type: Boolean
+        default: false
+  tab-groups-drag-and-drop:
+    description: Control the visibility of drag and drop for tab groups.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable drag and drop for tab groups.
         type: Boolean
         default: false
   tab-management-enhancements:
