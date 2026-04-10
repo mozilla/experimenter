@@ -5,6 +5,7 @@ from typing import Optional, TextIO
 
 import yaml
 from mozilla_nimbus_schemas import DesktopFeatureManifest
+from requests.exceptions import HTTPError
 
 from manifesttool import github_api, nimbus_cli
 from manifesttool.appconfig import AppConfig, DiscoveryStrategyType, RepositoryType
@@ -43,14 +44,19 @@ def fetch_targeting_files(
 ) -> None:
     targeting_files_path = app_config.targeting_files
     if targeting_files_path:
-        print(logging_msg)
-
-        github_api.fetch_file(
-            app_config.repo.name,
-            targeting_files_path[0],
-            ref.target,
-            save_path / Path(targeting_files_path[0]).name,
-        )
+        try:
+            github_api.fetch_file(
+                app_config.repo.name,
+                targeting_files_path[0],
+                ref.target,
+                save_path / Path(targeting_files_path[0]).name,
+            )
+            print(logging_msg)
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                print(f"${logging_msg}; received HTTP 404")
+            else:  # pragma: no cover
+                raise
 
 
 def fetch_fml_app(
