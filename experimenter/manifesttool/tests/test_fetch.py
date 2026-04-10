@@ -1186,6 +1186,72 @@ class FetchTests(TestCase):
 
             self.assertEqual(fetch_file.call_count, 3)
 
+    @patch.object(
+        manifesttool.fetch,
+        "discover_branched_releases",
+        lambda *args: {
+            Version(1): Ref("branch", "foo"),
+            Version(1, 2, 3): Ref("tag", "bar"),
+        },
+    )
+    @patch.object(
+        manifesttool.fetch.github_api,
+        "fetch_file",
+        side_effect=make_mock_fetch_file(
+            paths_by_ref={
+                "bar": {"targeting-contexts.yaml": {"context": "v1.2.3"}},
+            }
+        ),
+    )
+    @patch.object(
+        manifesttool.fetch.nimbus_cli,
+        "download_single_file",
+        side_effect=mock_download_single_file,
+    )
+    @patch.object(
+        manifesttool.fetch.nimbus_cli,
+        "get_channels",
+        side_effect=lambda *args: ["release", "beta"],
+    )
+    def test_fetch_releases_targeting_contexts_404(
+        self,
+        get_channels,
+        download_single_file,
+        fetch_file,
+    ):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[DiscoveryStrategy.create_branched()],
+            ),
+            targeting_files=["targeting-contexts.yaml"],
+        )
+
+        cache = RefCache()
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+
+            fetch_releases(manifest_dir, "fml_app", app_config, cache)
+
+            self.assertFalse(
+                (manifest_dir / "fml-app" / "v1.0.0" / "targeting-contexts.yaml").exists()
+            )
+            self.assertTrue(
+                (manifest_dir / "fml-app" / "v1.2.3" / "targeting-contexts.yaml").exists()
+            )
+            self.assertTrue(
+                (manifest_dir / "fml-app" / "targeting-contexts.yaml").exists()
+            )
+
+            self.assertEqual(fetch_file.call_count, 3)
+
     def test_summarize_results(self):
         buffer = StringIO()
 
