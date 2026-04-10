@@ -24,6 +24,7 @@ from manifesttool.fetch import (
     fetch_fml_app,
     fetch_legacy_app,
     fetch_releases,
+    fetch_targeting_files,
     summarize_results,
 )
 from manifesttool.nimbus_cli import _get_experimenter_yaml_path, _get_fml_path
@@ -916,6 +917,43 @@ class FetchTests(TestCase):
             self.assertTrue(
                 (manifest_dir / "legacy-app" / "v1.0.0" / "targeting_files.txt").exists()
             )
+
+    @patch.object(
+        manifesttool.fetch.github_api,
+        "fetch_file",
+    )
+    def test_fetch_targeting_files_404(self, fetch_file):
+        """fetch_targeting_files should not raise when fetch_file returns a 404."""
+        from requests import Response
+        from requests.exceptions import HTTPError
+
+        mock_response = Response()
+        mock_response.status_code = 404
+        fetch_file.side_effect = HTTPError(response=mock_response)
+
+        app_config = AppConfig(
+            slug="legacy-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="legacy-repo",
+                default_branch="tip",
+            ),
+            experimenter_yaml_path="experimenter.yaml",
+            targeting_files=["targeting_files.txt"],
+        )
+
+        with TemporaryDirectory() as tmp:
+            save_path = Path(tmp) / "legacy-app" / "v1.0.0"
+            save_path.mkdir(parents=True)
+            # Should not raise — 404s are handled gracefully.
+            fetch_targeting_files(
+                save_path,
+                "fetch: legacy-app at tip version 1.0.0 downloading targeting files",
+                app_config,
+                Ref("tip", "foo"),
+            )
+            self.assertFalse((save_path / "targeting_files.txt").exists())
+            fetch_file.assert_called_once()
 
     def test_fetch_releases_unsupported_apps(self):
         """Testing fetch_releases with unsupported apps."""
