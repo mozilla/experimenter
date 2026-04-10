@@ -37,19 +37,28 @@ class FetchResult:
 
 
 def fetch_targeting_files(
-    save_path: Path,
-    logging_msg: str,
+    manifest_dir: Path,
+    version: Optional[Version],
     app_config: AppConfig,
+    app_name: str,
     ref: Ref,
 ) -> None:
     targeting_files_path = app_config.targeting_files
     if targeting_files_path:
+        logging_msg = (
+            f"fetch: {app_name} at {ref} version {version} downloading targeting files"
+        )
+        path = manifest_dir / app_config.slug
+
+        if version:
+            path /= f"v{version}"
+
         try:
             github_api.fetch_file(
                 app_config.repo.name,
                 targeting_files_path[0],
                 ref.target,
-                save_path / Path(targeting_files_path[0]).name,
+                path / Path(targeting_files_path[0]).name,
             )
             print(logging_msg)
         except HTTPError as e:
@@ -132,9 +141,10 @@ def fetch_fml_app(
             )
 
         fetch_targeting_files(
-            manifest_dir / app_config.slug / f"v{version}",
-            f"fetch: {app_name} at {ref} version {version} downloading targeting files",
+            manifest_dir,
+            version,
             app_config,
+            app_name,
             ref,
         )
 
@@ -201,9 +211,10 @@ def fetch_legacy_app(
         )
 
         fetch_targeting_files(
-            manifest_dir / app_config.slug / f"v{version}",
-            f"fetch: {app_name} at {ref} version {version} downloading targeting files",
+            manifest_dir,
+            version,
             app_config,
+            app_name,
             ref,
         )
 
@@ -290,12 +301,6 @@ def fetch_releases(
 
         results.append(result)
 
-    fetch_targeting_files(
-        manifest_dir / app_config.slug,
-        f"fetch: {app_name} at {ref.name} downloading targeting files ",
-        app_config,
-        ref,
-    )
     return results
 
 

@@ -943,16 +943,19 @@ class FetchTests(TestCase):
         )
 
         with TemporaryDirectory() as tmp:
-            save_path = Path(tmp) / "legacy-app" / "v1.0.0"
-            save_path.mkdir(parents=True)
+            manifest_dir = Path(tmp)
             # Should not raise — 404s are handled gracefully.
             fetch_targeting_files(
-                save_path,
-                "fetch: legacy-app at tip version 1.0.0 downloading targeting files",
+                manifest_dir,
+                Version(1, 0, 0),
                 app_config,
+                "legacy-app",
                 Ref("tip", "foo"),
             )
-            self.assertFalse((save_path / "targeting_files.txt").exists())
+
+            self.assertFalse(
+                (manifest_dir / "legacy-app" / "v1.0.0" / "targeting_files.txt").exists()
+            )
             fetch_file.assert_called_once()
 
     def test_fetch_releases_unsupported_apps(self):
@@ -1218,11 +1221,8 @@ class FetchTests(TestCase):
             self.assertTrue(
                 (manifest_dir / "fml-app" / "v1.2.3" / "targeting-contexts.yaml").exists()
             )
-            self.assertTrue(
-                (manifest_dir / "fml-app" / "targeting-contexts.yaml").exists()
-            )
 
-            self.assertEqual(fetch_file.call_count, 3)
+            self.assertEqual(fetch_file.call_count, 2)
 
     @patch.object(
         manifesttool.fetch,
@@ -1284,11 +1284,8 @@ class FetchTests(TestCase):
             self.assertTrue(
                 (manifest_dir / "fml-app" / "v1.2.3" / "targeting-contexts.yaml").exists()
             )
-            self.assertTrue(
-                (manifest_dir / "fml-app" / "targeting-contexts.yaml").exists()
-            )
 
-            self.assertEqual(fetch_file.call_count, 3)
+            self.assertEqual(fetch_file.call_count, 2)
 
     def test_summarize_results(self):
         buffer = StringIO()
