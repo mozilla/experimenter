@@ -32,17 +32,22 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     VALIDATING_EXPERIMENTS_URL = (
         "https://experimenter.info/data-analysis/validating-experiments/"
     )
-    MONITORING_UNENROLLMENT_SPIKE_WARNING = (
-        "Unenrollment rate is above the 10% threshold."
-        " Check the Live Monitoring Dashboard for more details."
+    UNENROLLMENT_SPIKE_THRESHOLD_DISPLAY = "10%"
+    SRM_P_VALUE_THRESHOLD_DISPLAY = "0.001"
+
+    MONITORING_CARD_TITLE = "Enrollment Monitoring"
+    MONITORING_SECTION_UNENROLLMENT = "Unenrollment"
+    MONITORING_SECTION_SRM = "Sample Ratio Mismatch (SRM)"
+    MONITORING_SRM_SUBTITLE = "branches enrolling at unexpected ratios may indicate a bug"
+    MONITORING_DASHBOARD_LINK_TEXT = "Check the Live Monitoring Dashboard."
+    MONITORING_SRM_SPIKE_DETAIL = (
+        "Branches are not enrolling at the expected ratio"
+        " — something may be wrong. Please review the experiment."
     )
-    MONITORING_SRM_WARNING = (
-        "Mismatch detected."
-        " Enrollment is not at the expected ratio across branches."
-        " Check the Live Monitoring Dashboard for more details."
+    MONITORING_SRM_HEALTHY_DETAIL = "Branches are enrolling at the expected ratio."
+    MONITORING_UNENROLLMENT_HEALTHY_DETAIL = (
+        "Unenrollment rate is within a healthy range — below the alert threshold."
     )
-    MONITORING_UNENROLLMENT_HEALTHY = "Unenrollments are within a healthy range."
-    MONITORING_SRM_HEALTHY = "Branches are enrolling at the expected ratio."
 
     EXCLUDING_EXPERIMENTS_WARNING = """The following experiments are being excluded by
     your experiment and may reduce the eligible population for your experiment which

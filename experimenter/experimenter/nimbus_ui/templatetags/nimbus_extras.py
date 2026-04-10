@@ -375,3 +375,14 @@ def sanitize_html(value):
     if not value:
         return ""
     return mark_safe(nh3.clean(str(value)))
+
+
+@register.filter
+def format_p_value(value):
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        return "N/A"
+    if value < 0.0001:
+        return f"{value:.2e}"
+    return f"{value:.4f}"

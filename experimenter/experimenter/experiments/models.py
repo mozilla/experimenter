@@ -1477,7 +1477,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
 
         is_unenrollment_spike, _ = check_unenrollment_spike(self.monitoring_data)
-        is_srm, _ = check_srm_mismatch(self.monitoring_data)
+        is_srm, srm_p_value = check_srm_mismatch(self.monitoring_data)
 
         return {
             "total_enrollments": total_enrollments,
@@ -1485,6 +1485,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             "unenrollment_rate": unenrollment_rate,
             "is_unenrollment_spike": is_unenrollment_spike,
             "is_srm": is_srm,
+            "srm_p_value": srm_p_value,
             "branches": branches,
         }
 
