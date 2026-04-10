@@ -1133,15 +1133,18 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         loader: NimbusFmlLoader,
         feature_config: NimbusFeatureConfig,
-        blob: str,
+        value: str,
     ) -> list[str]:
         errors = []
         schema_errors_versions = defaultdict(set)
         for schema in schemas_in_range.schemas:
             for fml_error in loader.get_fml_errors(
-                blob, feature_config.slug, schema.version
+                value, feature_config.slug, schema.version
             ):
                 schema_errors_versions[fml_error.message].add(schema.version)
+
+        if feature_config.slug == NimbusConstants.MOBILE_MESSAGING_SLUG:
+            errors.extend(cls._validate_mobile_messaging(value))
 
         for fml_error, versions in schema_errors_versions.items():
             version_strs = [str(v) for v in versions]
@@ -1495,7 +1498,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {
                         "localizations": [
-                            f"Experiment locale {locale_code} not present in "
+                            f"Experimen locale {locale_code} not present in "
                             f"localizations."
                         ]
                     }
@@ -1636,6 +1639,32 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
 
         return data
+
+    @classmethod
+    def _validate_mobile_messaging(cls, value: str):
+        json_value = None
+        try:
+            json_value = json.loads(value)
+        except:
+            # Invalid JSON errors are handled by the FML loader
+            return []
+
+        errors = []
+        if messages := json_value.get(NimbusConstants.MOBILE_MESSAGING_MESSAGES_FIELD):
+            for message_id, message_value in messages.items():
+                if (
+                    message_value.get(
+                        NimbusConstants.MOBILE_MESSAGING_MESSAGE_EXPERIMENT_FIELD
+                    )
+                    != NimbusConstants.MOBILE_MESSAGING_EXPERIMENT_PLACEHOLDER
+                ):
+                    errors.append(
+                        NimbusConstants.ERROR_MOBILE_MESSAGING_EXPERIMENT_FIELD.format(
+                            message_id=message_id
+                        )
+                    )
+
+        return errors
 
     def _validate_feature_value_variables(self, data):
         warn_feature_schema = data.get("warn_feature_schema", False)

@@ -403,6 +403,13 @@ class NimbusConstants:
     DESKTOP_PREFFLIPS_SLUG = DESKTOP_PREFFLIPS_SLUG
     DESKTOP_NEWTAB_ADDON_SLUG = DESKTOP_NEWTAB_ADDON_SLUG
 
+    MOBILE_MESSAGING_SLUG = "messaging"
+    MOBILE_MESSAGING_MESSAGES_FIELD = "messages"
+    MOBILE_MESSAGING_MESSAGE_EXPERIMENT_FIELD = "experiment"
+
+    # https://searchfox.org/mozilla-mobile/rev/7d8e9f43399a128c5b31b306ef62d160d12bf525/application-services/components/nimbus/src/lib.rs#44
+    MOBILE_MESSAGING_EXPERIMENT_PLACEHOLDER = "{experiment}"
+
     Channel = Channel
 
     class DocumentationLink(models.TextChoices):
@@ -1164,6 +1171,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_CANNOT_PAUSE_INVALID = "Cannot end enrollment at this time"
 
     ERROR_CANNOT_PARSE_TARGETING = "Cannot parse targeting expression"
+
+    ERROR_MOBILE_MESSAGING_EXPERIMENT_FIELD = (
+        'The message "{message_id}" requires a "experiment" key with the '
+        'value "{{experiment}}"'
+    )
 
     # Analysis window to alert type mappings
     ANALYSIS_WINDOW_TO_ALERT_TYPE = {

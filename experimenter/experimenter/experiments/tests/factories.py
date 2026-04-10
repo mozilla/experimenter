@@ -136,6 +136,14 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
             ],
         )
 
+    @classmethod
+    def create_mobile_messaging_feature(cls, application):
+        return cls.create(
+            name=NimbusExperiment.MOBILE_MESSAGING_SLUG,
+            slug=NimbusExperiment.MOBILE_MESSAGING_SLUG,
+            application=application,
+        )
+
     class Meta:
         model = NimbusFeatureConfig
 
