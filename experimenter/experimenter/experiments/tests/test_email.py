@@ -29,6 +29,13 @@ class TestNimbusEmail(TestCase):
             subscribers=[],
             feature_configs=[feature_config],
         )
+        launch_alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
 
         nimbus_send_experiment_ending_email(experiment)
 
@@ -51,7 +58,6 @@ class TestNimbusEmail(TestCase):
         self.assertEqual(sent_email.cc, [])
         self.assertIn(experiment.experiment_url, sent_email.body)
 
-        # Verify Slack notification task was queued
         mock_slack_task.assert_called_once_with(
             experiment_id=experiment.id,
             email_addresses=[experiment.owner.email],
@@ -59,7 +65,7 @@ class TestNimbusEmail(TestCase):
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
             link_url=experiment.experiment_url,
-            thread_ts=None,
+            thread_ts=launch_alert.slack_thread_id,
         )
 
     @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
@@ -103,6 +109,13 @@ class TestNimbusEmail(TestCase):
             subscribers=[],
             feature_configs=[feature_config],
         )
+        launch_alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
 
         nimbus_send_enrollment_ending_email(experiment)
 
@@ -125,7 +138,6 @@ class TestNimbusEmail(TestCase):
         self.assertEqual(sent_email.cc, [])
         self.assertIn(experiment.experiment_url, sent_email.body)
 
-        # Verify Slack notification task was queued
         mock_slack_task.assert_called_once_with(
             experiment_id=experiment.id,
             email_addresses=[experiment.owner.email],
@@ -133,7 +145,7 @@ class TestNimbusEmail(TestCase):
                 NimbusExperiment.EmailType.ENROLLMENT_END
             ],
             link_url=experiment.experiment_url,
-            thread_ts=None,
+            thread_ts=launch_alert.slack_thread_id,
         )
 
     @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
@@ -296,54 +308,3 @@ class TestNimbusEmail(TestCase):
         self.assertEqual(len(sent_email.cc), 2)
         self.assertIn(experiment_subscriber1.email, sent_email.cc)
         self.assertIn(experiment_subscriber2.email, sent_email.cc)
-
-    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
-    def test_send_experiment_ending_email_threads_under_launch_request(
-        self, mock_slack_task
-    ):
-        feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            start_date=datetime.date.today() - datetime.timedelta(days=10),
-            proposed_duration=10,
-            subscribers=[],
-            feature_configs=[feature_config],
-        )
-        NimbusAlert.objects.create(
-            experiment=experiment,
-            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
-            message="Launch request",
-            slack_thread_id="1234567890.123456",
-            slack_channel_id="C123456",
-        )
-
-        nimbus_send_experiment_ending_email(experiment)
-
-        mock_slack_task.assert_called_once()
-        call_kwargs = mock_slack_task.call_args.kwargs
-        self.assertEqual(call_kwargs["thread_ts"], "1234567890.123456")
-
-    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
-    def test_send_enrollment_ending_email_threads_under_launch_request(
-        self, mock_slack_task
-    ):
-        feature_config = NimbusFeatureConfigFactory.create(subscribers=[])
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            proposed_enrollment=10,
-            subscribers=[],
-            feature_configs=[feature_config],
-        )
-        NimbusAlert.objects.create(
-            experiment=experiment,
-            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
-            message="Launch request",
-            slack_thread_id="1234567890.123456",
-            slack_channel_id="C123456",
-        )
-
-        nimbus_send_enrollment_ending_email(experiment)
-
-        mock_slack_task.assert_called_once()
-        call_kwargs = mock_slack_task.call_args.kwargs
-        self.assertEqual(call_kwargs["thread_ts"], "1234567890.123456")

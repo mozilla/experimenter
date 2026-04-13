@@ -1075,8 +1075,8 @@ class TestSlackNotifications(TestCase):
             call_args = mock_logger.info.call_args[0][0]
             self.assertIn("already removed", call_args)
 
-    def test_get_launch_request_thread_returns_ids_when_alert_exists(self):
-        NimbusAlert.objects.create(
+    def test_get_launch_request_thread_returns_alert_when_exists(self):
+        alert = NimbusAlert.objects.create(
             experiment=self.experiment,
             alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
             message="Launch request",
@@ -1084,16 +1084,13 @@ class TestSlackNotifications(TestCase):
             slack_channel_id="C123456",
         )
 
-        thread_ts, channel_id = get_launch_request_thread(self.experiment.id)
+        result = get_launch_request_thread(self.experiment.id)
 
-        self.assertEqual(thread_ts, "1234567890.123456")
-        self.assertEqual(channel_id, "C123456")
+        self.assertEqual(result, alert)
+        self.assertEqual(result.slack_thread_id, "1234567890.123456")
 
     def test_get_launch_request_thread_returns_none_when_no_alert(self):
-        thread_ts, channel_id = get_launch_request_thread(self.experiment.id)
-
-        self.assertIsNone(thread_ts)
-        self.assertIsNone(channel_id)
+        self.assertIsNone(get_launch_request_thread(self.experiment.id))
 
     def test_get_launch_request_thread_returns_none_when_no_thread_id(self):
         NimbusAlert.objects.create(
@@ -1101,13 +1098,9 @@ class TestSlackNotifications(TestCase):
             alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
             message="Launch request",
             slack_thread_id=None,
-            slack_channel_id=None,
         )
 
-        thread_ts, channel_id = get_launch_request_thread(self.experiment.id)
-
-        self.assertIsNone(thread_ts)
-        self.assertIsNone(channel_id)
+        self.assertIsNone(get_launch_request_thread(self.experiment.id))
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
     @patch("experimenter.slack.notification.WebClient")

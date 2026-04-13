@@ -53,7 +53,8 @@ def nimbus_format_and_send_html_email(
     email.send(fail_silently=False)
 
     action_text = SlackConstants.SLACK_EMAIL_ACTIONS.get(email_type, "has updates")
-    thread_ts, _ = get_launch_request_thread(experiment.id)
+    launch_alert = get_launch_request_thread(experiment.id)
+    thread_ts = launch_alert.slack_thread_id if launch_alert else None
 
     nimbus_send_slack_notification.delay(
         experiment_id=experiment.id,

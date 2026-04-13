@@ -167,7 +167,8 @@ def _send_results_ready_alert(experiment, window, alert_type):
         message = SlackConstants.SLACK_RESULTS_READY_MESSAGE.format(
             window=window.capitalize()
         )
-        thread_ts, _ = get_launch_request_thread(experiment.id)
+        launch_alert = get_launch_request_thread(experiment.id)
+        thread_ts = launch_alert.slack_thread_id if launch_alert else None
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
@@ -278,7 +279,8 @@ def _send_error_alert(experiment, error_items):
             error_lines=error_lines
         )
 
-        thread_ts, _ = get_launch_request_thread(experiment.id)
+        launch_alert = get_launch_request_thread(experiment.id)
+        thread_ts = launch_alert.slack_thread_id if launch_alert else None
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
@@ -331,7 +333,8 @@ def _send_unenrollment_spike_alert(experiment, rate, reason):
             threshold=SlackConstants.UNENROLLMENT_SPIKE_THRESHOLD,
         )
         email_addresses = [experiment.owner.email] if experiment.owner else []
-        thread_ts, _ = get_launch_request_thread(experiment.id)
+        launch_alert = get_launch_request_thread(experiment.id)
+        thread_ts = launch_alert.slack_thread_id if launch_alert else None
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
@@ -380,7 +383,8 @@ def _send_srm_mismatch_alert(experiment, p_value):
             experiment=experiment.name,
         )
         email_addresses = [experiment.owner.email] if experiment.owner else []
-        thread_ts, _ = get_launch_request_thread(experiment.id)
+        launch_alert = get_launch_request_thread(experiment.id)
+        thread_ts = launch_alert.slack_thread_id if launch_alert else None
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,

@@ -51,6 +51,7 @@ def _send_dm_to_user(client, user_id, message, channel_message_link=None):
         conversation = client.conversations_open(users=[user_id])
         channel_id = conversation["channel"]["id"]
 
+        # Add prefix message and channel message link if provided
         dm_message = SlackConstants.SLACK_DM_PREFIX.format(
             channel=settings.SLACK_NIMBUS_CHANNEL, message=message
         )
@@ -71,15 +72,11 @@ def _send_dm_to_user(client, user_id, message, channel_message_link=None):
 
 
 def get_launch_request_thread(experiment_id):
-    alert = NimbusAlert.objects.filter(
+    return NimbusAlert.objects.filter(
         experiment_id=experiment_id,
         alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
         slack_thread_id__isnull=False,
-        slack_channel_id__isnull=False,
     ).last()
-    if alert:
-        return alert.slack_thread_id, alert.slack_channel_id
-    return None, None
 
 
 def send_slack_notification(
