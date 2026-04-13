@@ -3102,25 +3102,29 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                     )
                     + "Z",
                 },
-                {
-                    "analysis_basis": None,
-                    "source": None,
-                    "exception": None,
-                    "exception_type": None,
-                    "experiment": experiment.slug,
-                    "filename": "experimenter/jetstream/client.py",
-                    "func_name": "load_data_from_gcs",
-                    "log_level": "WARNING",
-                    "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_weekly.json",  # noqa: E501
-                    "metric": None,
-                    "segment": None,
-                    "statistic": None,
-                    "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
-                        "+00:00"
-                    )
-                    + "Z",
-                },
             ]
+            if experiment.results_ready:
+                experiment_errors.append(
+                    {
+                        "analysis_basis": None,
+                        "source": None,
+                        "exception": None,
+                        "exception_type": None,
+                        "experiment": experiment.slug,
+                        "filename": "experimenter/jetstream/client.py",
+                        "func_name": "load_data_from_gcs",
+                        "log_level": "WARNING",
+                        "message": f"Could not find data in analysis bucket at path statistics/statistics_{experiment.slug.replace('-', '_')}_weekly.json",  # noqa: E501
+                        "metric": None,
+                        "segment": None,
+                        "statistic": None,
+                        "timestamp": now.isoformat(timespec="milliseconds").removesuffix(
+                            "+00:00"
+                        )
+                        + "Z",
+                    }
+                )
+
             if (
                 lifecycle == NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
                 and offset > 1

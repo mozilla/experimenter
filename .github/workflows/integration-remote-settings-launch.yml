@@ -28,7 +28,6 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      id-token: write
     env:
       FIREFOX_CHANNEL: release
       PYTEST_ARGS: -m remote_settings_launch --reruns 1 --base-url https://nginx/nimbus/
@@ -37,9 +36,6 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-cached-build
-        with:
-          arch: x86_64
-          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
 
       - uses: ./.github/actions/run-integration-test
         with:
