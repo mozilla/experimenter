@@ -18,6 +18,10 @@
       {% include "nimbus_experiments/detail_card_takeaways.html" %}
 
     {% endif %}
+    {% if experiment.monitoring_data %}
+      {% include "nimbus_experiments/detail_card_monitoring.html" %}
+
+    {% endif %}
     {% include "nimbus_experiments/detail_card_overview.html" %}
     {% include "nimbus_experiments/detail_card_risk_mitigation.html" %}
     {% include "nimbus_experiments/detail_card_signoff.html" with edit=False experiment=experiment %}

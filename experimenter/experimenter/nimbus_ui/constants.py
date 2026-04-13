@@ -29,6 +29,24 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/getting-started/for-reviewers"
+    VALIDATING_EXPERIMENTS_URL = (
+        "https://experimenter.info/data-analysis/validating-experiments/"
+    )
+    UNENROLLMENT_SPIKE_THRESHOLD_DISPLAY = "10%"
+    SRM_P_VALUE_THRESHOLD_DISPLAY = "0.001"
+
+    MONITORING_CARD_TITLE = "Enrollment Monitoring"
+    MONITORING_SECTION_UNENROLLMENT = "Unenrollment"
+    MONITORING_SECTION_SRM = "Sample Ratio Mismatch (SRM)"
+    MONITORING_SRM_SUBTITLE = "branches enrolling at unexpected ratios may indicate a bug"
+    MONITORING_DASHBOARD_LINK_TEXT = "Check the Live Monitoring Dashboard."
+    MONITORING_SRM_SPIKE_DETAIL = (
+        "Branches are not at the expected distribution. Please review the experiment."
+    )
+    MONITORING_SRM_HEALTHY_DETAIL = "Branches are at the expected distribution."
+    MONITORING_UNENROLLMENT_HEALTHY_DETAIL = (
+        "Unenrollment rate is within a healthy range — below the alert threshold."
+    )
 
     EXCLUDING_EXPERIMENTS_WARNING = """The following experiments are being excluded by
     your experiment and may reduce the eligible population for your experiment which
