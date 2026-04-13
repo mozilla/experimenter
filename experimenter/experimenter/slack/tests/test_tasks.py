@@ -7,6 +7,13 @@ from parameterized import parameterized
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert
+from experimenter.experiments.monitoring_utils import (
+    check_srm_mismatch,
+    check_unenrollment_spike,
+    compute_srm_p_value,
+    compute_unenrollment_rate,
+    get_top_unenrollment_reason,
+)
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.slack import tasks
 from experimenter.slack.constants import SlackConstants
@@ -214,6 +221,7 @@ class TestCheckResultsReady(TestCase):
     def test_sends_alert_for_weekly_results(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "weekly": {
@@ -248,6 +256,7 @@ class TestCheckResultsReady(TestCase):
     def test_sends_alert_for_overall_results(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "overall": {
@@ -281,6 +290,7 @@ class TestCheckResultsReady(TestCase):
     def test_sends_alerts_for_both_weekly_and_overall(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "weekly": {
@@ -318,6 +328,7 @@ class TestCheckResultsReady(TestCase):
     def test_does_not_send_duplicate_alerts(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "weekly": {
@@ -354,7 +365,9 @@ class TestCheckResultsReady(TestCase):
 
     def test_no_alert_when_no_results_data(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, results_data=None
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data=None,
+            monitoring_data=None,
         )
 
         with mock.patch(
@@ -369,6 +382,7 @@ class TestCheckResultsReady(TestCase):
     def test_no_alert_when_results_empty(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={"v3": {"weekly": {}, "overall": {}}},
         )
 
@@ -384,6 +398,7 @@ class TestCheckResultsReady(TestCase):
     def test_no_alert_when_results_array_empty(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={"v3": {"weekly": {"enrollments": {"all": []}}}},
         )
 
@@ -399,6 +414,7 @@ class TestCheckResultsReady(TestCase):
     def test_handles_slack_notification_failure(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "weekly": {
@@ -430,6 +446,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_sends_alert_for_analysis_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -480,6 +497,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_does_not_resend_same_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -522,6 +540,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_sends_new_alert_for_different_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -590,6 +609,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_no_alert_when_no_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={"v3": {}},
         )
 
@@ -610,6 +630,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_no_alert_when_errors_empty(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={"v3": {"errors": {}}},
         )
 
@@ -629,7 +650,9 @@ class TestCheckAnalysisErrors(TestCase):
 
     def test_no_alert_when_no_results_data(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, results_data=None
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            results_data=None,
+            monitoring_data=None,
         )
 
         with mock.patch(
@@ -649,6 +672,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_no_alert_when_error_missing_exception_type(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -681,6 +705,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_skips_empty_error_lists(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -715,6 +740,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_ignores_expected_error_types(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -757,6 +783,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_alerts_on_non_ignorable_error_types(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -796,6 +823,7 @@ class TestCheckAnalysisErrors(TestCase):
     def test_handles_error_alert_slack_failure(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=None,
             results_data={
                 "v3": {
                     "errors": {
@@ -847,7 +875,7 @@ class TestComputeUnenrollmentRate(TestCase):
     )
     def test_rate_calculation(self, _, enrollments, unenrollments, expected_rate):
         self.assertAlmostEqual(
-            tasks._compute_unenrollment_rate(enrollments, unenrollments), expected_rate
+            compute_unenrollment_rate(enrollments, unenrollments), expected_rate
         )
 
 
@@ -857,7 +885,7 @@ class TestComputeSrmPValue(TestCase):
             "control": {"enrollments": 500},
             "treatment": {"enrollments": 500},
         }
-        self.assertGreater(tasks._compute_srm_p_value(branches), 0.05)
+        self.assertGreater(compute_srm_p_value(branches), 0.05)
 
     def test_unequal_branches_returns_low_p_value(self):
         branches = {
@@ -865,7 +893,7 @@ class TestComputeSrmPValue(TestCase):
             "treatment": {"enrollments": 100},
         }
         self.assertLess(
-            tasks._compute_srm_p_value(branches),
+            compute_srm_p_value(branches),
             SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD,
         )
 
@@ -879,7 +907,7 @@ class TestComputeSrmPValue(TestCase):
         ]
     )
     def test_returns_one_for_no_data(self, _, branches):
-        self.assertEqual(tasks._compute_srm_p_value(branches), 1.0)
+        self.assertEqual(compute_srm_p_value(branches), 1.0)
 
 
 class TestGetTopUnenrollmentReason(TestCase):
@@ -898,7 +926,7 @@ class TestGetTopUnenrollmentReason(TestCase):
             }
         }
         self.assertEqual(
-            tasks._get_top_unenrollment_reason(monitoring_data), "targeting_mismatch"
+            get_top_unenrollment_reason(monitoring_data), "targeting_mismatch"
         )
 
     def test_returns_key_when_all_counts_are_zero(self):
@@ -909,7 +937,7 @@ class TestGetTopUnenrollmentReason(TestCase):
             }
         }
         self.assertEqual(
-            tasks._get_top_unenrollment_reason(monitoring_data), "targeting_mismatch"
+            get_top_unenrollment_reason(monitoring_data), "targeting_mismatch"
         )
 
     @parameterized.expand(
@@ -923,7 +951,7 @@ class TestGetTopUnenrollmentReason(TestCase):
         ]
     )
     def test_returns_unknown_when_no_reasons(self, _, monitoring_data):
-        self.assertEqual(tasks._get_top_unenrollment_reason(monitoring_data), "unknown")
+        self.assertEqual(get_top_unenrollment_reason(monitoring_data), "unknown")
 
 
 class TestCheckUnenrollmentSpike(TestCase):
@@ -942,7 +970,7 @@ class TestCheckUnenrollmentSpike(TestCase):
             "total_enrollments": enrollments,
             "total_unenrollments": unenrollments,
         }
-        is_spike, rate = tasks._check_unenrollment_spike(monitoring_data)
+        is_spike, rate = check_unenrollment_spike(monitoring_data)
         self.assertEqual(is_spike, expected_is_spike)
         self.assertAlmostEqual(rate, expected_rate)
 
@@ -955,7 +983,7 @@ class TestCheckSrmMismatch(TestCase):
                 "treatment": {"enrollments": 100},
             }
         }
-        is_srm, p_value = tasks._check_srm_mismatch(monitoring_data)
+        is_srm, p_value = check_srm_mismatch(monitoring_data)
         self.assertTrue(is_srm)
         self.assertLess(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
 
@@ -966,7 +994,7 @@ class TestCheckSrmMismatch(TestCase):
                 "treatment": {"enrollments": 500},
             }
         }
-        is_srm, p_value = tasks._check_srm_mismatch(monitoring_data)
+        is_srm, p_value = check_srm_mismatch(monitoring_data)
         self.assertFalse(is_srm)
         self.assertGreater(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
 
@@ -977,7 +1005,7 @@ class TestCheckSrmMismatch(TestCase):
         ]
     )
     def test_returns_false_for_insufficient_branches(self, _, monitoring_data):
-        is_srm, p_value = tasks._check_srm_mismatch(monitoring_data)
+        is_srm, p_value = check_srm_mismatch(monitoring_data)
         self.assertFalse(is_srm)
         self.assertEqual(p_value, 1.0)
 

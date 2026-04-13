@@ -36,6 +36,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     experiment_date_progress,
     format_json,
     format_not_set,
+    format_p_value,
     format_string,
     home_status_display,
     parse_date,
@@ -1888,3 +1889,18 @@ class TestHomeFilters(AuthTestCase):
             self.assertNotIn(experiment_with_tag1, filtered_experiments)
             self.assertNotIn(experiment_with_tag2, filtered_experiments)
             self.assertNotIn(experiment_with_no_tags, filtered_experiments)
+
+
+class TestFormatPValue(TestCase):
+    @parameterized.expand(
+        [
+            ("very_small", 1.23e-24, "1.23e-24"),
+            ("small_below_threshold", 0.00005, "5.00e-05"),
+            ("above_threshold", 0.0003, "0.0003"),
+            ("exactly_at_threshold", 0.0001, "0.0001"),
+            ("invalid_string", "not-a-number", "N/A"),
+            ("none", None, "N/A"),
+        ]
+    )
+    def test_format_p_value(self, _name, value, expected):
+        self.assertEqual(format_p_value(value), expected)
