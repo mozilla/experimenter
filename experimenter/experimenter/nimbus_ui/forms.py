@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 import markus
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Case, When
@@ -1367,6 +1368,15 @@ class SlackNotificationMixin:
                         alert_type,
                         SlackConstants.EmojiReaction.PENDING,
                     )
+                    if (
+                        experiment.kinto_collection
+                        == settings.KINTO_COLLECTION_NIMBUS_SECURE
+                    ):
+                        add_emoji_to_message_async.delay(
+                            experiment.id,
+                            alert_type,
+                            SlackConstants.EmojiReaction.SECURE,
+                        )
         return experiment
 
 

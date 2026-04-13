@@ -1135,6 +1135,41 @@ class TestDraftToReviewForm(
             SlackConstants.EmojiReaction.PENDING,
         )
 
+    @patch("experimenter.slack.tasks.add_emoji_to_message_async.delay")
+    @patch("experimenter.nimbus_ui.forms.nimbus_send_slack_notification")
+    def test_adds_lock_emoji_for_secure_collection(
+        self, mock_send_slack, mock_emoji_task
+    ):
+        mock_send_slack.return_value = ("1234567890.123456", "C123456")
+
+        secure_feature = NimbusFeatureConfigFactory.create(
+            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            enable_review_slack_notifications=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[secure_feature],
+        )
+        form = DraftToReviewForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        emoji_calls = [call[0] for call in mock_emoji_task.call_args_list]
+        alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
+        self.assertIn(
+            (experiment.id, alert_type, SlackConstants.EmojiReaction.PENDING),
+            emoji_calls,
+        )
+        self.assertIn(
+            (experiment.id, alert_type, SlackConstants.EmojiReaction.SECURE),
+            emoji_calls,
+        )
+
 
 class TestPreviewToReviewForm(
     SlackEmojiMockMixin, SlackNotificationMockMixin, RequestFormTestCase
