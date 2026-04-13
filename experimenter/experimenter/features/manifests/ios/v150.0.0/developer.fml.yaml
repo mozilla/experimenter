@@ -70,15 +70,6 @@ features:
           Variable description
         type: Boolean
         default: false
-  default-zoom-feature:
-    description: |
-      The feature flag to manage the rollout of default zoom feature.
-    variables:
-      enabled:
-        description: |
-          If true, page zoom settings and default zoom feature are shown
-        type: Boolean
-        default: true
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
@@ -86,17 +77,6 @@ features:
       enabled:
         description: |
           If true, the download live activities feature is enabled
-        type: Boolean
-        default: true
-  felt-privacy-feature:
-    description: The feature that enhances private browsing mode
-    variables:
-      felt-deletion-enabled:
-        description: If true, enable Felt Deletion part of Felt Privacy
-        type: Boolean
-        default: false
-      simplified-ui-enabled:
-        description: If true, enable simplified UI part of Felt Privacy
         type: Boolean
         default: true
   firefox-jp-guide-default-site:

@@ -318,6 +318,14 @@ homescreen-edge-to-edge-background:
     enabled:
       type: boolean
       description: Enables the feature
+ip-protection:
+  description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, IP Protection feature is enabled.
 isolated-content-processes:
   description: Feature that controls content process isolation.
   hasExposure: true
@@ -500,6 +508,54 @@ nimbus-is-ready:
     event-count:
       type: int
       description: The number of events that should be sent.
+nimbus-qa-bool-default:
+  description: A feature for testing boolean pref-setting on the default branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: boolean
+      description: The value to set for the pref.
+nimbus-qa-bool-user:
+  description: A feature for testing boolean pref-setting on the user branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: boolean
+      description: The value to set for the pref.
+nimbus-qa-int-default:
+  description: A feature for testing int pref-setting on the default branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: int
+      description: The value to set for the pref.
+nimbus-qa-int-user:
+  description: A feature for testing int pref-setting on the user branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: int
+      description: The value to set for the pref.
+nimbus-qa-string-default:
+  description: A feature for testing string pref-setting on the default branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: string
+      description: The value to set for the pref.
+nimbus-qa-string-user:
+  description: A feature for testing string pref-setting on the user branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: string
+      description: The value to set for the pref.
 nimbus-system:
   description: |
     Configuration of the Nimbus System in Android.
@@ -805,6 +861,15 @@ tab-groups:
       type: boolean
       description: |
         Whether or not to enable the tab groups feature.
+tab-groups-drag-and-drop:
+  description: Control the visibility of drag and drop for tab groups.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable drag and drop for tab groups.
 tab-management-enhancements:
   description: Control the visibility of the tab management enhancements.
   hasExposure: true
