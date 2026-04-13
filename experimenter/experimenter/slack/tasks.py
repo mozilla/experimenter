@@ -7,12 +7,12 @@ from django.utils import timezone
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert, NimbusExperiment
-from experimenter.slack.constants import SlackConstants
-from experimenter.slack.monitoring_utils import (
+from experimenter.experiments.monitoring_utils import (
     check_srm_mismatch,
     check_unenrollment_spike,
     get_top_unenrollment_reason,
 )
+from experimenter.slack.constants import SlackConstants
 from experimenter.slack.notification import (
     add_emoji_to_slack_message,
     remove_emoji_from_slack_message,

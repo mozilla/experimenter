@@ -1,6 +1,7 @@
 from scipy.stats import chisquare
 
-from experimenter.slack.constants import SlackConstants
+UNENROLLMENT_SPIKE_THRESHOLD = 0.10
+SRM_MISMATCH_P_VALUE_THRESHOLD = 0.001
 
 
 def compute_unenrollment_rate(total_enrollments, total_unenrollments):
@@ -45,7 +46,7 @@ def check_unenrollment_spike(monitoring_data):
         monitoring_data.get("total_enrollments", 0),
         monitoring_data.get("total_unenrollments", 0),
     )
-    return rate > SlackConstants.UNENROLLMENT_SPIKE_THRESHOLD, rate
+    return rate > UNENROLLMENT_SPIKE_THRESHOLD, rate
 
 
 def check_srm_mismatch(monitoring_data):
@@ -55,4 +56,4 @@ def check_srm_mismatch(monitoring_data):
         return False, 1.0
 
     p_value = compute_srm_p_value(branches)
-    return p_value < SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD, p_value
+    return p_value < SRM_MISMATCH_P_VALUE_THRESHOLD, p_value

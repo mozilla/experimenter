@@ -91,16 +91,26 @@
       <div class="card-body">
         {% if summary.is_srm %}
           <div class="alert alert-warning mb-3" role="alert">
-            <strong>p-value {{ summary.srm_p_value|format_p_value }} is below the {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }} significance threshold.</strong>
-            {{ NimbusUIConstants.MONITORING_SRM_SPIKE_DETAIL }}
+            <strong>{{ NimbusUIConstants.MONITORING_SRM_SPIKE_DETAIL }}</strong>
+            <span tabindex="0"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="top"
+                  title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
+                  style="cursor: help;
+                         text-decoration: underline dotted">ℹ️</span>
             <a href="{{ experiment.monitoring_dashboard_url }}"
                target="_blank"
                rel="noopener noreferrer">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
           </div>
         {% else %}
           <div class="alert alert-success mb-3" role="alert">
-            <strong>p-value {{ summary.srm_p_value|format_p_value }}</strong> is above the {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }} threshold.
             {{ NimbusUIConstants.MONITORING_SRM_HEALTHY_DETAIL }}
+            <span tabindex="0"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="top"
+                  title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
+                  style="cursor: help;
+                         text-decoration: underline dotted">ℹ️</span>
           </div>
         {% endif %}
         <table class="table table-sm table-bordered mb-0">

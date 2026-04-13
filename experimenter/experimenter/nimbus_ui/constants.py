@@ -41,10 +41,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     MONITORING_SRM_SUBTITLE = "branches enrolling at unexpected ratios may indicate a bug"
     MONITORING_DASHBOARD_LINK_TEXT = "Check the Live Monitoring Dashboard."
     MONITORING_SRM_SPIKE_DETAIL = (
-        "Branches are not enrolling at the expected ratio"
-        " — something may be wrong. Please review the experiment."
+        "Branches are not at the expected distribution. Please review the experiment."
     )
-    MONITORING_SRM_HEALTHY_DETAIL = "Branches are enrolling at the expected ratio."
+    MONITORING_SRM_HEALTHY_DETAIL = "Branches are at the expected distribution."
     MONITORING_UNENROLLMENT_HEALTHY_DETAIL = (
         "Unenrollment rate is within a healthy range — below the alert threshold."
     )

@@ -7,16 +7,16 @@ from parameterized import parameterized
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.slack import tasks
-from experimenter.slack.constants import SlackConstants
-from experimenter.slack.monitoring_utils import (
+from experimenter.experiments.monitoring_utils import (
     check_srm_mismatch,
     check_unenrollment_spike,
     compute_srm_p_value,
     compute_unenrollment_rate,
     get_top_unenrollment_reason,
 )
+from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.slack import tasks
+from experimenter.slack.constants import SlackConstants
 
 AnalysisWindow = NimbusConstants.AnalysisWindow
 

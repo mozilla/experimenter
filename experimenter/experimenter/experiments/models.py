@@ -33,13 +33,13 @@ from experimenter.experiments.constants import (
     TargetingMultipleKintoCollectionsError,
 )
 from experimenter.experiments.jexl_utils import format_jexl
-from experimenter.jetstream.results_manager import ExperimentResultsManager
-from experimenter.nimbus_ui.constants import NimbusUIConstants
-from experimenter.projects.models import Project
-from experimenter.slack.monitoring_utils import (
+from experimenter.experiments.monitoring_utils import (
     check_srm_mismatch,
     check_unenrollment_spike,
 )
+from experimenter.jetstream.results_manager import ExperimentResultsManager
+from experimenter.nimbus_ui.constants import NimbusUIConstants
+from experimenter.projects.models import Project
 from experimenter.targeting.constants import TargetingConstants
 
 
