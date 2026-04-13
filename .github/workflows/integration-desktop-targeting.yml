@@ -8,17 +8,7 @@ on:
       - update-application-services
       - update_firefox_desktop_release
       - update_firefox_desktop_beta
-    paths:
-      - "experimenter/**"
-      - "application-services/**"
-      - ".github/actions/run-integration-test/**"
-      - ".github/workflows/integration-desktop-targeting.yml"
   pull_request:
-    paths:
-      - "experimenter/**"
-      - "application-services/**"
-      - ".github/actions/run-integration-test/**"
-      - ".github/workflows/integration-desktop-targeting.yml"
   merge_group:
     types: [checks_requested]
 
@@ -39,10 +29,19 @@ jobs:
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/ application-services/"
 
       - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
 
       - uses: ./.github/actions/run-integration-test
+        if: steps.check-paths.outputs.should-run == 'true'
         with:
           make-args: FIREFOX_CHANNEL=${{ matrix.channel }}
           artifact-name: desktop-targeting-${{ matrix.channel }}-${{ matrix.split }}-test-report

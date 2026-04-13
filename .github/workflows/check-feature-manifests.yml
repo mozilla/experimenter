@@ -8,17 +8,7 @@ on:
       - update-application-services
       - update_firefox_desktop_release
       - update_firefox_desktop_beta
-    paths:
-      - "experimenter/experimenter/features/manifests/**"
-      - "experimenter/manifesttool/**"
-      - "application-services/**"
-      - ".github/workflows/check-feature-manifests.yml"
   pull_request:
-    paths:
-      - "experimenter/experimenter/features/manifests/**"
-      - "experimenter/manifesttool/**"
-      - "application-services/**"
-      - ".github/workflows/check-feature-manifests.yml"
   merge_group:
     types: [checks_requested]
 
@@ -30,10 +20,19 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/experimenter/features/manifests/ experimenter/manifesttool/ application-services/"
 
       - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
 
       - name: Check local feature manifests
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           cp .env.sample .env
           make feature_manifests FETCH_ARGS="--local-apps"

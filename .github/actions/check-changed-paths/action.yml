@@ -1,0 +1,60 @@
+name: "Check Changed Paths"
+description: "Check if any files matching the given patterns were changed, always true for merge_group and push to main"
+
+inputs:
+  paths:
+    description: "Space-separated list of path patterns to check (e.g. 'experimenter/ application-services/')"
+    required: true
+
+outputs:
+  should-run:
+    description: "Whether the job should run based on changed paths"
+    value: ${{ steps.check.outputs.should_run }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check changed paths
+      id: check
+      shell: bash
+      run: |
+        if [[ "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          BASE="${{ github.event.pull_request.base.sha }}"
+        elif [[ "${{ github.event_name }}" == "push" ]]; then
+          BASE="${{ github.event.before }}"
+        else
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        CHANGED=$(git diff --name-only "$BASE" HEAD 2>/dev/null || echo "")
+
+        if [ -z "$CHANGED" ]; then
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        ROOT_OR_GITHUB=$(echo "$CHANGED" | grep -E '^[^/]+$|^\.github/' || true)
+        if [ -n "$ROOT_OR_GITHUB" ]; then
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        for pattern in ${{ inputs.paths }}; do
+          if echo "$CHANGED" | grep -q "^${pattern}"; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+        done
+
+        echo "should_run=false" >> "$GITHUB_OUTPUT"
