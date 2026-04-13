@@ -64,6 +64,14 @@ features:
           When the feature is enabled the user will see a new composable toolbar instead the previous View based one.
         type: Boolean
         default: true
+  continuous-onboarding:
+    description: |
+      Feature to enable the continuous onboarding flow. This feature reduces the number of upfront onboarding cards and distributes the cards and other prompts progressively over a number of days.
+    variables:
+      enabled:
+        description: If true, the feature is enabled.
+        type: Boolean
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -143,6 +151,17 @@ features:
     variables:
       enabled:
         description: If true, Email Mask feature is enabled.
+        type: Boolean
+        default: true
+  enable-popups:
+    description: A feature that enables or disables in app popups
+    variables:
+      cfr-popups-enabled:
+        description: When true, CFR popups will show
+        type: Boolean
+        default: true
+      in-app-messages-enabled:
+        description: When true, non CFR popups will show
         type: Boolean
         default: true
   encourage-search-cfr:
