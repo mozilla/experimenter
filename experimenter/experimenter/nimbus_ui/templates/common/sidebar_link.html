@@ -24,20 +24,17 @@
             <ul class="nav flex-column ms-4">
               {% for subitem in item.subitems %}
                 <li class="nav-item w-100">
-                  <a href="#{{ experiment.slug }}-results-{{ item.title|slugify }}"
-                     class="text-reset text-decoration-none">
-                    {% if item.title == "Overview" %}
+                  {% if item.title == "Overview" %}
+                    <a href="#{{ experiment.slug }}-results-{{ item.title|slugify }}"
+                       class="text-reset text-decoration-none">
                       <span class="nav-link text-start text-reset">{{ subitem.title }}</span>
-                    {% else %}
-                      <button class="nav-link text-start text-reset"
-                              data-bs-toggle="collapse"
-                              data-bs-target="#{{ experiment.slug }}-results-{{ item.title|slugify }}"
-                              aria-expanded="true"
-                              aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}">
-                        {{ subitem.title }}
-                      </button>
-                    {% endif %}
-                  </a>
+                    </a>
+                  {% else %}
+                    <a class="nav-link text-start text-reset open-only-collapse-trigger text-break"
+                       href="#{{ experiment.slug }}-results-{{ item.title|slugify }}"
+                       aria-expanded="true"
+                       aria-controls="{{ experiment.slug }}-results-{{ area|slugify }}">{{ subitem.title }}</a>
+                  {% endif %}
                 </li>
               {% endfor %}
             </ul>
