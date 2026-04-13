@@ -1,5 +1,5 @@
 name: "Setup Docker Build"
-description: "Free disk space, set up Buildx, and build megazords/schemas/cirrus images"
+description: "Free disk space, set up Buildx, and build megazords/schemas/cirrus images with GHA cache"
 
 runs:
   using: composite
@@ -18,32 +18,82 @@ runs:
       with:
         driver: docker
 
+    - name: Compute cache key
+      id: cache-key
+      shell: bash
+      run: |
+        MEGAZORD_KEY=$(sha256sum application-services/Dockerfile application-services/application-services.env | sha256sum | cut -c1-16)
+        echo "megazord=$MEGAZORD_KEY" >> "$GITHUB_OUTPUT"
+        SCHEMAS_KEY=$(sha256sum schemas/Dockerfile schemas/pyproject.toml schemas/poetry.lock 2>/dev/null | sha256sum | cut -c1-16)
+        echo "schemas=$SCHEMAS_KEY" >> "$GITHUB_OUTPUT"
+        CIRRUS_KEY=$(cat cirrus/server/Dockerfile cirrus/server/pyproject.toml cirrus/server/poetry.lock application-services/application-services.env 2>/dev/null | sha256sum | cut -c1-16)
+        echo "cirrus=$CIRRUS_KEY" >> "$GITHUB_OUTPUT"
+
+    - name: Restore megazords image cache
+      id: cache-megazords
+      uses: actions/cache@v4
+      with:
+        path: /tmp/docker-cache/megazords.tar
+        key: docker-megazords-${{ steps.cache-key.outputs.megazord }}
+
+    - name: Restore schemas image cache
+      id: cache-schemas
+      uses: actions/cache@v4
+      with:
+        path: /tmp/docker-cache/schemas.tar
+        key: docker-schemas-${{ steps.cache-key.outputs.schemas }}
+
+    - name: Restore cirrus image cache
+      id: cache-cirrus
+      uses: actions/cache@v4
+      with:
+        path: /tmp/docker-cache/cirrus.tar
+        key: docker-cirrus-${{ steps.cache-key.outputs.cirrus }}
+
+    - name: Load cached megazords image
+      if: steps.cache-megazords.outputs.cache-hit == 'true'
+      shell: bash
+      run: docker load -i /tmp/docker-cache/megazords.tar
+
     - name: Build megazords
+      if: steps.cache-megazords.outputs.cache-hit != 'true'
       shell: bash
       env:
         MEGAZORD_BUILD_FLAGS: --load
-      run: make build_megazords
+      run: |
+        make build_megazords
+        mkdir -p /tmp/docker-cache
+        docker save experimenter:megazords -o /tmp/docker-cache/megazords.tar
+
+    - name: Load cached schemas image
+      if: steps.cache-schemas.outputs.cache-hit == 'true'
+      shell: bash
+      run: docker load -i /tmp/docker-cache/schemas.tar
 
     - name: Build schemas
-      uses: docker/build-push-action@v6
-      with:
-        context: schemas/
-        file: schemas/Dockerfile
-        target: dev
-        tags: schemas:dev
-        load: true
+      if: steps.cache-schemas.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        docker buildx build --load --target dev -f schemas/Dockerfile -t schemas:dev schemas/
+        mkdir -p /tmp/docker-cache
+        docker save schemas:dev -o /tmp/docker-cache/schemas.tar
+
+    - name: Load cached cirrus image
+      if: steps.cache-cirrus.outputs.cache-hit == 'true'
+      shell: bash
+      run: docker load -i /tmp/docker-cache/cirrus.tar
 
     - name: Build cirrus
-      uses: docker/build-push-action@v6
-      with:
-        context: cirrus/server/
-        file: cirrus/server/Dockerfile
-        target: deploy
-        tags: cirrus:deploy
-        load: true
-        build-contexts: |
-          experimenter:megazords=docker-image://experimenter:megazords
-          fml=experimenter/experimenter/features/manifests/
+      if: steps.cache-cirrus.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        CID=$(docker create experimenter:megazords)
+        mkdir -p /tmp/megazords-files
+        docker cp "$CID:/application-services" /tmp/megazords-files/application-services
+        docker rm "$CID"
+        docker buildx build --load --target deploy -f cirrus/server/Dockerfile -t cirrus:deploy --build-context experimenter:megazords=/tmp/megazords-files --build-context fml=experimenter/experimenter/features/manifests/ cirrus/server/
+        mkdir -p /tmp/docker-cache
+        docker save cirrus:deploy -o /tmp/docker-cache/cirrus.tar
 
     - name: Export build flags
       shell: bash
