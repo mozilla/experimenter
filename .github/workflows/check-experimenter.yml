@@ -8,15 +8,7 @@ on:
       - update-application-services
       - update_firefox_desktop_release
       - update_firefox_desktop_beta
-    paths:
-      - "experimenter/**"
-      - "application-services/**"
-      - ".github/workflows/check-experimenter.yml"
   pull_request:
-    paths:
-      - "experimenter/**"
-      - "application-services/**"
-      - ".github/workflows/check-experimenter.yml"
   merge_group:
     types: [checks_requested]
 
@@ -36,10 +28,19 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/ application-services/"
 
       - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
 
       - name: Run tests and linting
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           cp .env.sample .env
           make check
