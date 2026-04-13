@@ -8,17 +8,7 @@ on:
       - update-application-services
       - update_firefox_desktop_release
       - update_firefox_desktop_beta
-    paths:
-      - "experimenter/**"
-      - "application-services/**"
-      - ".github/actions/run-integration-test/**"
-      - ".github/workflows/integration-nimbus-ui.yml"
   pull_request:
-    paths:
-      - "experimenter/**"
-      - "application-services/**"
-      - ".github/actions/run-integration-test/**"
-      - ".github/workflows/integration-nimbus-ui.yml"
   merge_group:
     types: [checks_requested]
 
@@ -28,19 +18,24 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      id-token: write
     env:
       FIREFOX_CHANNEL: release
       PYTEST_ARGS: -m nimbus_ui -n 4 --reruns 1 --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/ application-services/"
 
       - uses: ./.github/actions/setup-cached-build
-        with:
-          arch: x86_64
-          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+        if: steps.check-paths.outputs.should-run == 'true'
 
       - uses: ./.github/actions/run-integration-test
+        if: steps.check-paths.outputs.should-run == 'true'
         with:
           artifact-name: nimbus-ui-test-report

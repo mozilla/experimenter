@@ -440,6 +440,52 @@ def random_slice(lst, *, min_items=0, max_items=2):
     return lst[:count]
 
 
+UNENROLLMENT_REASONS = [
+    "targeting-mismatch",
+    "bucketing",
+    "changed-pref",
+    "studies-opt-out",
+    "labs-opt-out",
+    "invalid-feature",
+    "recipe-not-seen",
+    "unknown",
+]
+
+
+def build_random_monitoring_data(branches):
+    """Generate realistic monitoring data for a set of branch names."""
+    total_enrollments = random.randint(5000, 50000)
+    branch_names = [b.slug for b in branches] if branches else ["control", "treatment"]
+    n = len(branch_names)
+
+    # Distribute enrollments roughly evenly with some noise
+    branch_enrollment_counts = [
+        int(total_enrollments / n * random.uniform(0.9, 1.1)) for _ in branch_names
+    ]
+    unenrollment_rate = random.uniform(0.02, 0.20)
+
+    branch_data = {}
+    reasons_by_branch = {}
+    for name, enrollments in zip(branch_names, branch_enrollment_counts):
+        unenrollments = int(enrollments * unenrollment_rate * random.uniform(0.8, 1.2))
+        branch_data[name] = {
+            "enrollments": enrollments,
+            "unenrollments": unenrollments,
+        }
+        top_reason = random.choice(UNENROLLMENT_REASONS)
+        reasons_by_branch[name] = {
+            top_reason: {"1pct_count": random.randint(50, unenrollments or 100)},
+        }
+
+    total_unenrollments = sum(b["unenrollments"] for b in branch_data.values())
+    return {
+        "total_enrollments": sum(b["enrollments"] for b in branch_data.values()),
+        "total_unenrollments": total_unenrollments,
+        "branches": branch_data,
+        "reasons_by_branch": reasons_by_branch,
+    }
+
+
 def build_random_results_data(primary_outcomes, secondary_outcomes, application):
     control_enrollment_pop = random.randint(100000, 150000)
     control_exposure_pop = random.randint(50000, 100000)
@@ -791,6 +837,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     requires_restart = factory.LazyAttribute(
         lambda o: random.choice([True, False]) if o.is_firefox_labs_opt_in else False
     )
+    monitoring_data = None
 
     class Meta:
         model = NimbusExperiment
@@ -974,6 +1021,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 experiment.secondary_outcomes,
                 experiment.application,
             )
+
         experiment.save()
 
         if experiment.is_desktop and experiment.channel:
@@ -1065,6 +1113,19 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             latest_change = experiment.changes.latest_change()
             latest_change.changed_on = timezone.now()
             latest_change.save()
+
+        monitoring_data = kwargs.get("monitoring_data", _UNSET)
+        if monitoring_data is not _UNSET:
+            experiment.monitoring_data = monitoring_data
+            experiment.save()
+        elif experiment.status in (
+            NimbusExperiment.Status.LIVE,
+            NimbusExperiment.Status.COMPLETE,
+        ):
+            experiment.monitoring_data = build_random_monitoring_data(
+                list(experiment.branches.all())
+            )
+            experiment.save()
 
         return NimbusExperiment.objects.get(id=experiment.id)
 

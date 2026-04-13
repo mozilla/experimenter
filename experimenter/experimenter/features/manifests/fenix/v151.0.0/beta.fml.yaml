@@ -63,14 +63,14 @@ features:
         description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
         type: String
         default: ''
-  composable-toolbar:
-    description: Use a composable toolbar instead of the View based one.
+  continuous-onboarding:
+    description: |
+      Feature to enable the continuous onboarding flow. This feature reduces the number of upfront onboarding cards and distributes the cards and other prompts progressively over a number of days.
     variables:
       enabled:
-        description: |
-          When the feature is enabled the user will see a new composable toolbar instead the previous View based one.
+        description: If true, the feature is enabled.
         type: Boolean
-        default: true
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -241,6 +241,23 @@ features:
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
         default: false
+  gecko-nimbus-validation:
+    description: Feature for validating Nimbus Gecko functionality
+    variables:
+      test-preference:
+        description: A test gecko preference
+        type: Option<String>
+        default: null
+        gecko-pref:
+          pref: gecko.nimbus.test
+          branch: default
+      test-preference-2:
+        description: A second test gecko preference
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: gecko.nimbus.test.two
+          branch: user
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -323,6 +340,13 @@ features:
         description: Enables the feature
         type: Boolean
         default: true
+  ip-protection:
+    description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, IP Protection feature is enabled.
+        type: Boolean
+        default: false
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
@@ -735,6 +759,66 @@ features:
         description: The number of events that should be sent.
         type: Int
         default: 1
+  nimbus-qa-bool-default:
+    description: A feature for testing boolean pref-setting on the default branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-bool-default
+          branch: default
+  nimbus-qa-bool-user:
+    description: A feature for testing boolean pref-setting on the user branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-bool-user
+          branch: user
+  nimbus-qa-int-default:
+    description: A feature for testing int pref-setting on the default branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-int-default
+          branch: default
+  nimbus-qa-int-user:
+    description: A feature for testing int pref-setting on the user branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-int-user
+          branch: user
+  nimbus-qa-string-default:
+    description: A feature for testing string pref-setting on the default branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<String>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-string-default
+          branch: default
+  nimbus-qa-string-user:
+    description: A feature for testing string pref-setting on the user branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<String>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-string-user
+          branch: user
   nimbus-system:
     description: |
       Configuration of the Nimbus System in Android.
@@ -1042,6 +1126,14 @@ features:
           Whether or not to enable the tab groups feature.
         type: Boolean
         default: false
+  tab-groups-drag-and-drop:
+    description: Control the visibility of drag and drop for tab groups.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable drag and drop for tab groups.
+        type: Boolean
+        default: false
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
@@ -1056,7 +1148,7 @@ features:
         description: |
           Whether or not to enable the tab search feature.
         type: Boolean
-        default: false
+        default: true
   tab-strip:
     description: Enables tab strip.
     variables:

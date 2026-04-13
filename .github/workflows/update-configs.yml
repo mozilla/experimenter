@@ -31,9 +31,6 @@ jobs:
           git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/mozilla/experimenter.git
 
       - uses: ./.github/actions/setup-cached-build
-        with:
-          arch: x86_64
-          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
 
       - name: Fetch external resources
         run: |
@@ -86,9 +83,6 @@ jobs:
           git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/mozilla/experimenter.git
 
       - uses: ./.github/actions/setup-cached-build
-        with:
-          arch: x86_64
-          gcp-project-number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
 
       - name: Check for update
         run: |

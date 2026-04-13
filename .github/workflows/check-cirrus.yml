@@ -8,15 +8,7 @@ on:
       - update-application-services
       - update_firefox_desktop_release
       - update_firefox_desktop_beta
-    paths:
-      - "cirrus/**"
-      - "application-services/**"
-      - ".github/workflows/check-cirrus.yml"
   pull_request:
-    paths:
-      - "cirrus/**"
-      - "application-services/**"
-      - ".github/workflows/check-cirrus.yml"
   merge_group:
     types: [checks_requested]
 
@@ -34,16 +26,21 @@ jobs:
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "cirrus/ application-services/"
 
       - uses: ./.github/actions/setup-cached-build
-        with:
-          arch: ${{ matrix.arch }}
-          gcp-project-number: ${{ !github.event.pull_request.head.repo.fork && vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER || '' }}
+        if: steps.check-paths.outputs.should-run == 'true'
 
       - name: Run Cirrus tests and linting
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           cp .env.sample .env
           make cirrus_check

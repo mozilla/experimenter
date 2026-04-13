@@ -24,6 +24,7 @@ from manifesttool.fetch import (
     fetch_fml_app,
     fetch_legacy_app,
     fetch_releases,
+    fetch_targeting_files,
     summarize_results,
 )
 from manifesttool.nimbus_cli import _get_experimenter_yaml_path, _get_fml_path
@@ -917,6 +918,46 @@ class FetchTests(TestCase):
                 (manifest_dir / "legacy-app" / "v1.0.0" / "targeting_files.txt").exists()
             )
 
+    @patch.object(
+        manifesttool.fetch.github_api,
+        "fetch_file",
+    )
+    def test_fetch_targeting_files_404(self, fetch_file):
+        """fetch_targeting_files should not raise when fetch_file returns a 404."""
+        from requests import Response
+        from requests.exceptions import HTTPError
+
+        mock_response = Response()
+        mock_response.status_code = 404
+        fetch_file.side_effect = HTTPError(response=mock_response)
+
+        app_config = AppConfig(
+            slug="legacy-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="legacy-repo",
+                default_branch="tip",
+            ),
+            experimenter_yaml_path="experimenter.yaml",
+            targeting_files=["targeting_files.txt"],
+        )
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+            # Should not raise — 404s are handled gracefully.
+            fetch_targeting_files(
+                manifest_dir,
+                Version(1, 0, 0),
+                app_config,
+                "legacy-app",
+                Ref("tip", "foo"),
+            )
+
+            self.assertFalse(
+                (manifest_dir / "legacy-app" / "v1.0.0" / "targeting_files.txt").exists()
+            )
+            fetch_file.assert_called_once()
+
     def test_fetch_releases_unsupported_apps(self):
         """Testing fetch_releases with unsupported apps."""
         app_config = AppConfig(
@@ -1180,11 +1221,71 @@ class FetchTests(TestCase):
             self.assertTrue(
                 (manifest_dir / "fml-app" / "v1.2.3" / "targeting-contexts.yaml").exists()
             )
+
+            self.assertEqual(fetch_file.call_count, 2)
+
+    @patch.object(
+        manifesttool.fetch,
+        "discover_branched_releases",
+        lambda *args: {
+            Version(1): Ref("branch", "foo"),
+            Version(1, 2, 3): Ref("tag", "bar"),
+        },
+    )
+    @patch.object(
+        manifesttool.fetch.github_api,
+        "fetch_file",
+        side_effect=make_mock_fetch_file(
+            paths_by_ref={
+                "bar": {"targeting-contexts.yaml": {"context": "v1.2.3"}},
+            }
+        ),
+    )
+    @patch.object(
+        manifesttool.fetch.nimbus_cli,
+        "download_single_file",
+        side_effect=mock_download_single_file,
+    )
+    @patch.object(
+        manifesttool.fetch.nimbus_cli,
+        "get_channels",
+        side_effect=lambda *args: ["release", "beta"],
+    )
+    def test_fetch_releases_targeting_contexts_404(
+        self,
+        get_channels,
+        download_single_file,
+        fetch_file,
+    ):
+        app_config = AppConfig(
+            slug="fml-app",
+            repo=Repository(
+                type=RepositoryType.GITHUB,
+                name="fml-repo",
+            ),
+            fml_path="nimbus.fml.yaml",
+            release_discovery=ReleaseDiscovery(
+                version_file=VersionFile.create_plain_text("version.txt"),
+                strategies=[DiscoveryStrategy.create_branched()],
+            ),
+            targeting_files=["targeting-contexts.yaml"],
+        )
+
+        cache = RefCache()
+
+        with TemporaryDirectory() as tmp:
+            manifest_dir = Path(tmp)
+
+            fetch_releases(manifest_dir, "fml_app", app_config, cache)
+
+            self.assertFalse(
+                (manifest_dir / "fml-app" / "v1.0.0" / "targeting-contexts.yaml").exists()
+            )
             self.assertTrue(
-                (manifest_dir / "fml-app" / "targeting-contexts.yaml").exists()
+                (manifest_dir / "fml-app" / "v1.2.3" / "targeting-contexts.yaml").exists()
             )
 
-            self.assertEqual(fetch_file.call_count, 3)
+            self.assertEqual(fetch_file.call_count, 2)
 
     def test_summarize_results(self):
         buffer = StringIO()

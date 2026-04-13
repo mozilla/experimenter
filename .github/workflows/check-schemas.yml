@@ -8,13 +8,7 @@ on:
       - update-application-services
       - update_firefox_desktop_release
       - update_firefox_desktop_beta
-    paths:
-      - "schemas/**"
-      - ".github/workflows/check-schemas.yml"
   pull_request:
-    paths:
-      - "schemas/**"
-      - ".github/workflows/check-schemas.yml"
   merge_group:
     types: [checks_requested]
 
@@ -24,13 +18,19 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "schemas/"
 
       - uses: ./.github/actions/setup-cached-build
-        with:
-          gcp-project-number: ${{ !github.event.pull_request.head.repo.fork && vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER || '' }}
+        if: steps.check-paths.outputs.should-run == 'true'
 
       - name: Run schemas tests and linting
+        if: steps.check-paths.outputs.should-run == 'true'
         run: make schemas_check

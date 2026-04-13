@@ -1,0 +1,55 @@
+name: Deploy Cirrus
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "cirrus/**"
+      - "application-services/**"
+      - "experimenter/experimenter/features/manifests/**"
+  workflow_dispatch: {}
+
+env:
+  PROJECT_ID: moz-fx-cirrus-prod
+  IMAGE_BASE: us-docker.pkg.dev/moz-fx-cirrus-prod/cirrus-prod/cirrus
+
+jobs:
+  deploy:
+    name: Deploy Cirrus
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          fetch-tags: true
+
+      - uses: ./.github/actions/setup-cached-build
+
+      - name: Build Cirrus
+        run: make cirrus_build
+
+      - name: Generate image tag
+        id: tag
+        run: |
+          TAG="$(git rev-parse --short=10 HEAD)"
+          echo "image_tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Tag image for GAR
+        env:
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
+        run: |
+          docker tag cirrus:deploy "${IMAGE_BASE}:latest"
+          docker tag cirrus:deploy "${IMAGE_BASE}:${IMAGE_TAG}"
+
+      - name: Push to Google Artifact Registry
+        uses: mozilla-it/deploy-actions/docker-push@v4.3.2
+        with:
+          image_tags: |-
+            ${{ env.IMAGE_BASE }}:latest
+            ${{ env.IMAGE_BASE }}:${{ steps.tag.outputs.image_tag }}
+          workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+          project_id: ${{ env.PROJECT_ID }}
