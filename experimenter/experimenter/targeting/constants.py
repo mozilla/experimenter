@@ -2626,6 +2626,42 @@ LAPSED_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+LAPSED_USER_WINDOWS_ONLY = NimbusTargetingConfig(
+    name="Lapsed Windows users (No activity in the past 28 days)",
+    slug="lapsed_user_28_days_windows",
+    description=(
+        "Users with a profile age of 28 days and 0 days of activity "
+        "in the past 28 days, using Windows"
+    ),
+    targeting=(f"{LAPSED_USER.targeting} && (os.isWindows && (os.windowsVersion >= 10))"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION = NimbusTargetingConfig(
+    name="Returning users who have lapsed a second time",
+    slug="returning_churned_user_48_hr",
+    description=(
+        "Users lapsed for 48 hours after returning to the browser after 28 days, "
+        "enrolled in the lapsed users rollout, "
+        "running a background task"
+    ),
+    targeting=(
+        "(os.isWindows && (os.windowsVersion >= 10)) "
+        "&& isBackgroundTaskMode "
+        "&& (defaultProfile.enrollmentsMap"
+        "['48hr-os-notification-for-resurrected-users-enrollment-rollout'] "
+        "== 'control') "
+        "&& ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 48)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 CORE_USER_FULLY_ACTIVE = NimbusTargetingConfig(
     name="Core user (Active Every Day)",
     slug="core_user_active_every_day",
