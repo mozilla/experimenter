@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "cirrus/**"
-      - "application-services/**"
-      - "experimenter/experimenter/features/manifests/**"
   workflow_dispatch: {}
 
 env:
@@ -26,19 +22,29 @@ jobs:
         with:
           persist-credentials: false
           fetch-tags: true
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "cirrus/ application-services/ experimenter/experimenter/features/manifests/"
 
       - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
 
       - name: Build Cirrus
+        if: steps.check-paths.outputs.should-run == 'true'
         run: make cirrus_build
 
       - name: Generate image tag
+        if: steps.check-paths.outputs.should-run == 'true'
         id: tag
         run: |
-          TAG="$(git rev-parse --short=9 HEAD)"
+          TAG="sha-$(git rev-parse --short=9 HEAD)"
           echo "image_tag=${TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Tag image for GAR
+        if: steps.check-paths.outputs.should-run == 'true'
         env:
           IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
         run: |
@@ -46,6 +52,7 @@ jobs:
           docker tag cirrus:deploy "${IMAGE_BASE}:${IMAGE_TAG}"
 
       - name: Push to Google Artifact Registry
+        if: steps.check-paths.outputs.should-run == 'true'
         uses: mozilla-it/deploy-actions/docker-push@v4.3.2
         with:
           image_tags: |-
