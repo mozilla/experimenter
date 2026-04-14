@@ -13,7 +13,6 @@ from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
-from django_summernote.widgets import SummernoteWidget
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
@@ -2051,8 +2050,6 @@ class FeatureSubscribersForm(forms.ModelForm):
 
 
 class EditOutcomeSummaryForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    takeaways_summary = forms.CharField(required=False, widget=SummernoteWidget())
-    next_steps = forms.CharField(required=False, widget=SummernoteWidget())
     project_impact = forms.ChoiceField(
         required=False,
         choices=NimbusExperiment.ProjectImpact.choices,
