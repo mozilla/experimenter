@@ -22,7 +22,7 @@ class TestClearMonitoringDataMigration(MigratorTestCase):
             defaults={"email": "test@example.com"},
         )
 
-        monitoring = {"total_enrollments": 100, "total_unenrollments": 5}
+        self.monitoring_data = {"total_enrollments": 100, "total_unenrollments": 5}
 
         for status in ("Draft", "Preview", "Live", "Complete"):
             NimbusExperiment.objects.create(
@@ -31,7 +31,7 @@ class TestClearMonitoringDataMigration(MigratorTestCase):
                 application="firefox-desktop",
                 owner=owner,
                 status=status,
-                monitoring_data=monitoring,
+                monitoring_data=self.monitoring_data,
             )
 
     def test_migration(self):
@@ -43,10 +43,11 @@ class TestClearMonitoringDataMigration(MigratorTestCase):
         self.assertIsNone(
             NimbusExperiment.objects.get(slug="test-preview").monitoring_data
         )
-        monitoring = {"total_enrollments": 100, "total_unenrollments": 5}
         self.assertEqual(
-            NimbusExperiment.objects.get(slug="test-live").monitoring_data, monitoring
+            NimbusExperiment.objects.get(slug="test-live").monitoring_data,
+            self.monitoring_data,
         )
         self.assertEqual(
-            NimbusExperiment.objects.get(slug="test-complete").monitoring_data, monitoring
+            NimbusExperiment.objects.get(slug="test-complete").monitoring_data,
+            self.monitoring_data,
         )
