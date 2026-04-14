@@ -7,9 +7,11 @@ from pyjexl.operators import Operator, default_binary_operators, default_unary_o
 from pyjexl.parser import (
     ArrayLiteral,
     BinaryExpression,
+    ConditionalExpression,
     FilterExpression,
     Identifier,
     Literal,
+    ObjectLiteral,
     Parser,
     Transform,
     UnaryExpression,
@@ -34,6 +36,63 @@ class JEXLParser(Parser):
 
     def __init__(self):
         super().__init__(JEXL_CONFIG)
+
+
+def to_str(node):
+    """
+    Serialize a JEXL tree node back to its string representation
+    """
+    if type(node) is Identifier:
+        subject = f"{to_str(node.subject)}." if node.subject is not None else ""
+        if node.relative:
+            subject = f".{subject}"
+        return f"{subject}{node.value}"
+    elif type(node) is Literal:
+        return f"{json.dumps(node.value)}"
+    elif type(node) is ArrayLiteral:
+        return f"[{', '.join([to_str(a) for a in node.value])}]"
+    elif type(node) is UnaryExpression:
+        return f"({node.operator.symbol}{to_str(node.right)})"
+    elif type(node) is BinaryExpression:
+        return f"({to_str(node.left)} {node.operator.symbol} {to_str(node.right)})"
+    elif type(node) is Transform:
+        args = f"({', '.join([to_str(a) for a in node.args])})" if node.args else ""
+        return f"{to_str(node.subject)}|{node.name}{args}"
+    elif type(node) is FilterExpression:
+        return f"{to_str(node.subject)}[{to_str(node.expression)}]"
+    elif type(node) is ObjectLiteral:
+        items = ", ".join(f"{to_str(k)}: {to_str(v)}" for k, v in node.value.items())
+        return f"{{{items}}}"
+    elif type(node) is ConditionalExpression:
+        return (
+            f"({to_str(node.test)} ? "
+            f"{to_str(node.consequent)} : "
+            f"{to_str(node.alternate)})"
+        )
+    else:
+        raise Exception(f"Unhandled node type: {node}")
+
+
+def collect_exprs(expr):
+    """
+    Collect the leaf sub expressions of a JEXL expression
+    """
+    nodes = [JEXLParser().parse(expr)]
+    exprs = set()
+
+    while nodes:
+        node = nodes.pop()
+
+        children = list(node.children)
+        if isinstance(node, ArrayLiteral):
+            children.extend(node.value)
+
+        if children:
+            nodes += children
+        else:
+            exprs.add(to_str(node))
+
+    return exprs
 
 
 def format_jexl(expression):
