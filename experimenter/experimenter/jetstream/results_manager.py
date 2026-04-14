@@ -401,6 +401,18 @@ class ExperimentResultsManager:
                 kpi["slug"], kpi["group"], analysis_basis, segment, reference_branch
             )
 
+            if (
+                kpi["slug"] == NimbusConstants.RETENTION_3_DAYS
+                or kpi["slug"] == NimbusConstants.RETENTION_3_DAYS_DESKTOP
+            ):
+                kpi["displayed_window"] = "Day 4"
+            # TODO: EXP-5498 - We are still unclear on the best window to show for weekly
+            # retention, so for now we are defaulting to showing whatever window the
+            # latest results data is available for. Once we have clarity, we can
+            # hardcode a displayed_window value like we do for 3DR.
+            # if kpi["slug"] == NimbusConstants.RETENTION:
+            #     kpi["displayed_window"] = "Week 2"
+
     def get_remaining_metrics_metadata(
         self, exclude_slugs=None, analysis_basis=None, segment=None, reference_branch=None
     ):
