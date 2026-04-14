@@ -43,9 +43,10 @@ class TestClearMonitoringDataMigration(MigratorTestCase):
         self.assertIsNone(
             NimbusExperiment.objects.get(slug="test-preview").monitoring_data
         )
-        self.assertIsNotNone(
-            NimbusExperiment.objects.get(slug="test-live").monitoring_data
+        monitoring = {"total_enrollments": 100, "total_unenrollments": 5}
+        self.assertEqual(
+            NimbusExperiment.objects.get(slug="test-live").monitoring_data, monitoring
         )
-        self.assertIsNotNone(
-            NimbusExperiment.objects.get(slug="test-complete").monitoring_data
+        self.assertEqual(
+            NimbusExperiment.objects.get(slug="test-complete").monitoring_data, monitoring
         )
