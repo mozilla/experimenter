@@ -5,6 +5,7 @@ from django.conf import settings
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.slack.constants import SlackConstants
 
@@ -70,12 +71,21 @@ def _send_dm_to_user(client, user_id, message, channel_message_link=None):
         )
 
 
+def get_launch_request_thread(experiment_id):
+    return NimbusAlert.objects.filter(
+        experiment_id=experiment_id,
+        alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+        slack_thread_id__isnull=False,
+    ).last()
+
+
 def send_slack_notification(
     experiment_id,
     email_addresses,
     action_text,
     requesting_user_email=None,
     link_url=None,
+    thread_ts=None,
 ):
     if not (client := _get_slack_client()):
         logger.info(
@@ -118,34 +128,41 @@ def send_slack_notification(
         message = f"{message} @ {' '.join(all_mentions)}"
 
     try:
-        response = client.chat_postMessage(
-            channel=channel, text=message, unfurl_links=False, unfurl_media=False
-        )
+        post_kwargs = {
+            "channel": channel,
+            "text": message,
+            "unfurl_links": False,
+            "unfurl_media": False,
+        }
+        if thread_ts:
+            post_kwargs["thread_ts"] = thread_ts
+
+        response = client.chat_postMessage(**post_kwargs)
         message_ts = response["ts"]
         channel_id = response["channel"]
         logger.info(
             SlackConstants.SLACK_LOG_NOTIFICATION_SENT.format(experiment=experiment.name)
         )
 
-        # Get the permalink to the channel message
-        channel_message_link = None
-        try:
-            permalink_response = client.chat_getPermalink(
-                channel=channel, message_ts=message_ts
-            )
-            channel_message_link = permalink_response["permalink"]
-        except SlackApiError as e:
-            logger.warning(f"{SlackConstants.SLACK_LOG_COULD_NOT_GET_PERMALINK}: {e}")
-
-        for user_id in all_user_ids:
-            if not _is_user_in_channel(client, user_id, channel):
-                _send_dm_to_user(client, user_id, message, channel_message_link)
-            else:
-                logger.info(
-                    SlackConstants.SLACK_LOG_USER_IN_CHANNEL.format(
-                        user_id=user_id, channel=channel
-                    )
+        if not thread_ts:
+            channel_message_link = None
+            try:
+                permalink_response = client.chat_getPermalink(
+                    channel=channel, message_ts=message_ts
                 )
+                channel_message_link = permalink_response["permalink"]
+            except SlackApiError as e:
+                logger.warning(f"{SlackConstants.SLACK_LOG_COULD_NOT_GET_PERMALINK}: {e}")
+
+            for user_id in all_user_ids:
+                if not _is_user_in_channel(client, user_id, channel):
+                    _send_dm_to_user(client, user_id, message, channel_message_link)
+                else:
+                    logger.info(
+                        SlackConstants.SLACK_LOG_USER_IN_CHANNEL.format(
+                            user_id=user_id, channel=channel
+                        )
+                    )
 
         return (message_ts, channel_id)
 

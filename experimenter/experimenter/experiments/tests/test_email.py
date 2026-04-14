@@ -4,11 +4,12 @@ from unittest.mock import patch
 from django.core import mail
 from django.test import TestCase
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.email import (
     nimbus_send_enrollment_ending_email,
     nimbus_send_experiment_ending_email,
 )
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -27,6 +28,13 @@ class TestNimbusEmail(TestCase):
             proposed_duration=10,
             subscribers=[],
             feature_configs=[feature_config],
+        )
+        launch_alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
         )
 
         nimbus_send_experiment_ending_email(experiment)
@@ -50,7 +58,6 @@ class TestNimbusEmail(TestCase):
         self.assertEqual(sent_email.cc, [])
         self.assertIn(experiment.experiment_url, sent_email.body)
 
-        # Verify Slack notification task was queued
         mock_slack_task.assert_called_once_with(
             experiment_id=experiment.id,
             email_addresses=[experiment.owner.email],
@@ -58,6 +65,7 @@ class TestNimbusEmail(TestCase):
                 NimbusExperiment.EmailType.EXPERIMENT_END
             ],
             link_url=experiment.experiment_url,
+            thread_ts=launch_alert.slack_thread_id,
         )
 
     @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
@@ -101,6 +109,13 @@ class TestNimbusEmail(TestCase):
             subscribers=[],
             feature_configs=[feature_config],
         )
+        launch_alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
 
         nimbus_send_enrollment_ending_email(experiment)
 
@@ -123,7 +138,6 @@ class TestNimbusEmail(TestCase):
         self.assertEqual(sent_email.cc, [])
         self.assertIn(experiment.experiment_url, sent_email.body)
 
-        # Verify Slack notification task was queued
         mock_slack_task.assert_called_once_with(
             experiment_id=experiment.id,
             email_addresses=[experiment.owner.email],
@@ -131,6 +145,7 @@ class TestNimbusEmail(TestCase):
                 NimbusExperiment.EmailType.ENROLLMENT_END
             ],
             link_url=experiment.experiment_url,
+            thread_ts=launch_alert.slack_thread_id,
         )
 
     @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")

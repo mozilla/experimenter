@@ -15,6 +15,7 @@ from experimenter.experiments.monitoring_utils import (
 from experimenter.slack.constants import SlackConstants
 from experimenter.slack.notification import (
     add_emoji_to_slack_message,
+    get_launch_request_thread,
     remove_emoji_from_slack_message,
     send_slack_notification,
 )
@@ -36,6 +37,7 @@ def nimbus_send_slack_notification(
     action_text,
     requesting_user_email=None,
     link_url=None,
+    thread_ts=None,
 ):
     """
     An invoked task that sends a Slack notification for an experiment action.
@@ -52,6 +54,7 @@ def nimbus_send_slack_notification(
             action_text=action_text,
             requesting_user_email=requesting_user_email,
             link_url=link_url,
+            thread_ts=thread_ts,
         )
 
         logger.info(
@@ -164,11 +167,14 @@ def _send_results_ready_alert(experiment, window, alert_type):
         message = SlackConstants.SLACK_RESULTS_READY_MESSAGE.format(
             window=window.capitalize()
         )
+        launch_alert = get_launch_request_thread(experiment.id)
+        thread_ts = launch_alert.slack_thread_id if launch_alert else None
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
             link_url=experiment.results_url,
+            thread_ts=thread_ts,
         )
 
         # Create alert record to prevent duplicates
@@ -273,11 +279,14 @@ def _send_error_alert(experiment, error_items):
             error_lines=error_lines
         )
 
+        launch_alert = get_launch_request_thread(experiment.id)
+        thread_ts = launch_alert.slack_thread_id if launch_alert else None
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
             link_url=experiment.results_url,
+            thread_ts=thread_ts,
         )
 
         # Update or create alert record - keeps only one alert per experiment
@@ -324,11 +333,14 @@ def _send_unenrollment_spike_alert(experiment, rate, reason):
             threshold=SlackConstants.UNENROLLMENT_SPIKE_THRESHOLD,
         )
         email_addresses = [experiment.owner.email] if experiment.owner else []
+        launch_alert = get_launch_request_thread(experiment.id)
+        thread_ts = launch_alert.slack_thread_id if launch_alert else None
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
             link_url=experiment.experiment_url,
+            thread_ts=thread_ts,
         )
 
         alert_kwargs = {
@@ -371,11 +383,14 @@ def _send_srm_mismatch_alert(experiment, p_value):
             experiment=experiment.name,
         )
         email_addresses = [experiment.owner.email] if experiment.owner else []
+        launch_alert = get_launch_request_thread(experiment.id)
+        thread_ts = launch_alert.slack_thread_id if launch_alert else None
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
             action_text=message,
             link_url=experiment.experiment_url,
+            thread_ts=thread_ts,
         )
 
         alert_kwargs = {
