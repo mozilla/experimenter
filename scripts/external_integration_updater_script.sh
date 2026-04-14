@@ -120,8 +120,9 @@ if (($(git status --porcelain | wc -c) > 0)); then
     fi
 
     git commit -m "${COMMIT_MSG}"
+    gh pr close "${BRANCH_NAME}" --repo mozilla/experimenter 2>/dev/null || true
     git push origin -f "${BRANCH_NAME}"
-    gh pr create -t "${PR_TITLE}" -b "${PR_BODY}" --base main --head "${BRANCH_NAME}" --repo mozilla/experimenter || echo "PR already exists, skipping"
+    gh pr create -t "${PR_TITLE}" -b "${PR_BODY}" --base main --head "${BRANCH_NAME}" --repo mozilla/experimenter
 else
     echo "No config changes, skipping"
 fi
