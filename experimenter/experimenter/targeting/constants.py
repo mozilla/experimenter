@@ -2633,21 +2633,7 @@ LAPSED_USER_WINDOWS_ONLY = NimbusTargetingConfig(
         "Users with a profile age of 28 days and 0 days of activity "
         "in the past 28 days, using Windows"
     ),
-    targeting=(
-        f"{PROFILE28DAYS} && "
-        "(os.isWindows && (os.windowsVersion >= 10)) && "
-        "((userMonthlyActivity|length == 0) || "
-        "(userMonthlyActivity|length == 1 && "
-        "(currentDate|date - userMonthlyActivity|mapToProperty('1')"
-        "[userMonthlyActivity|mapToProperty('1')|length - 1]|date < 86400000)) || "
-        "(userMonthlyActivity|mapToProperty('1')[userMonthlyActivity|length - 1]|date "
-        "<= currentDate|date - (86400000 * 28)) || "
-        "(((userMonthlyActivity|length > 1) && "
-        "(currentDate|date - userMonthlyActivity|mapToProperty('1')"
-        "[userMonthlyActivity|mapToProperty('1')|length - 1]|date < 86400000) && "
-        "(userMonthlyActivity|mapToProperty('1')[userMonthlyActivity|length - 2]|date "
-        "<= currentDate|date - (86400000 * 28)))))"
-    ),
+    targeting=(f"{LAPSED_USER.targeting} && (os.isWindows && (os.windowsVersion >= 10))"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
