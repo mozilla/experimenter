@@ -1,26 +1,20 @@
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 
-class TestRemoveVpnApplicationsMigration(MigratorTestCase):
+class TestClearMonitoringDataMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0318_alter_nimbusexperiment_application_and_more",
+        "0325_remove_nimbusexperiment_klaatu_fields",
     )
     migrate_to = (
         "experiments",
-        "0319_delete_vpn_features",
+        "0326_clear_monitoring_data_non_live_complete",
     )
 
     def prepare(self):
         User = self.old_state.apps.get_model("auth", "User")
-        NimbusFeatureConfig = self.old_state.apps.get_model(
-            "experiments", "NimbusFeatureConfig"
-        )
         NimbusExperiment = self.old_state.apps.get_model(
             "experiments", "NimbusExperiment"
-        )
-        NimbusIsolationGroup = self.old_state.apps.get_model(
-            "experiments", "NimbusIsolationGroup"
         )
 
         owner, _ = User.objects.get_or_create(
@@ -28,77 +22,30 @@ class TestRemoveVpnApplicationsMigration(MigratorTestCase):
             defaults={"email": "test@example.com"},
         )
 
-        NimbusFeatureConfig.objects.get_or_create(
-            slug="no-feature-vpn-web",
-            defaults={
-                "name": "No Feature VPN Web",
-                "application": "vpn-web",
-            },
-        )
+        monitoring = {"total_enrollments": 100, "total_unenrollments": 5}
 
-        NimbusFeatureConfig.objects.get_or_create(
-            slug="no-feature-fenix",
-            defaults={
-                "name": "No Feature Fenix",
-                "application": "fenix",
-            },
-        )
-
-        NimbusExperiment.objects.get_or_create(
-            slug="test-vpn-web",
-            defaults={
-                "name": "Test VPN Web",
-                "application": "vpn-web",
-                "owner": owner,
-            },
-        )
-
-        NimbusExperiment.objects.get_or_create(
-            slug="test-fenix",
-            defaults={
-                "name": "Test Fenix",
-                "application": "fenix",
-                "owner": owner,
-            },
-        )
-
-        NimbusIsolationGroup.objects.get_or_create(
-            application="vpn-web",
-            name="test-group",
-            instance=1,
-        )
-
-        NimbusIsolationGroup.objects.get_or_create(
-            application="fenix",
-            name="test-group",
-            instance=1,
-        )
+        for status in ("Draft", "Preview", "Live", "Complete"):
+            NimbusExperiment.objects.create(
+                slug=f"test-{status.lower()}",
+                name=f"Test {status}",
+                application="firefox-desktop",
+                owner=owner,
+                status=status,
+                monitoring_data=monitoring,
+            )
 
     def test_migration(self):
-        NimbusFeatureConfig = self.new_state.apps.get_model(
-            "experiments", "NimbusFeatureConfig"
-        )
         NimbusExperiment = self.new_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
-        NimbusIsolationGroup = self.new_state.apps.get_model(
-            "experiments", "NimbusIsolationGroup"
+
+        self.assertIsNone(NimbusExperiment.objects.get(slug="test-draft").monitoring_data)
+        self.assertIsNone(
+            NimbusExperiment.objects.get(slug="test-preview").monitoring_data
         )
-
-        self.assertFalse(
-            NimbusFeatureConfig.objects.filter(slug="no-feature-vpn-web").exists()
+        self.assertIsNotNone(
+            NimbusExperiment.objects.get(slug="test-live").monitoring_data
         )
-
-        self.assertTrue(
-            NimbusFeatureConfig.objects.filter(slug="no-feature-fenix").exists()
+        self.assertIsNotNone(
+            NimbusExperiment.objects.get(slug="test-complete").monitoring_data
         )
-
-        self.assertFalse(NimbusExperiment.objects.filter(application="vpn-web").exists())
-
-        self.assertTrue(NimbusExperiment.objects.filter(application="fenix").exists())
-
-        self.assertFalse(
-            NimbusIsolationGroup.objects.filter(application="vpn-web").exists()
-        )
-
-        self.assertTrue(NimbusIsolationGroup.objects.filter(application="fenix").exists())

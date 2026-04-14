@@ -2079,6 +2079,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.published_dto = None
         cloned.published_date = None
         cloned.results_data = None
+        cloned.monitoring_data = None
         cloned.takeaways_summary = None
         cloned.next_steps = None
         cloned.project_impact = None
