@@ -511,6 +511,19 @@ FIRST_RUN_NEW_PROFILE_WINDOWS_1903_PAIDSEARCH = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_MACOS = NimbusTargetingConfig(
+    name="First start-up users on MacOS",
+    slug="first_run_macos",
+    description="First start-up users (e.g. for about:welcome) on MacOS",
+    targeting=f"{FIRST_RUN.targeting} && os.isMac",
+    desktop_telemetry=(
+        f"{FIRST_RUN.desktop_telemetry} AND environment.system.os.name = 'Darwin'"
+    ),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_TCP_STUDY = NimbusTargetingConfig(
     name="Exclude users in the TCP revenue study",
     slug="not_tcp_study",
