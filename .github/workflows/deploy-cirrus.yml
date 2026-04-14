@@ -35,7 +35,7 @@ jobs:
       - name: Generate image tag
         id: tag
         run: |
-          TAG="$(git rev-parse --short=10 HEAD)"
+          TAG="$(git rev-parse --short=9 HEAD)"
           echo "image_tag=${TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Tag image for GAR

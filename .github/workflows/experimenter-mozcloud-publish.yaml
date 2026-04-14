@@ -43,7 +43,6 @@ jobs:
           ./scripts/store_git_info.sh
           make build_prod
 
-      # Generate MozCloud Tag (use tag name on tag events, else 10-char short SHA)
       - name: Generate MozCloud Tag
         id: mozcloud-tag
         shell: bash
@@ -54,7 +53,7 @@ jobs:
           if [[ "${REF_TYPE}" == "tag" ]]; then
             tag="${REF_NAME}"
           else
-            tag="$(git rev-parse --short=10 HEAD)"
+            tag="$(git rev-parse --short=9 HEAD)"
           fi
 
           echo "Setting IMAGE_TAG=${tag} as output"
