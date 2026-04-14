@@ -3,13 +3,9 @@ name: Experimenter -- Build, Tag and Push Container Images to GAR Repository
 on:
   pull_request:
     types: [labeled, unlabeled, synchronize]
-    paths:
-      - 'experimenter/**'
   push:
     branches:
       - main
-    paths:
-      - 'experimenter/**'
   workflow_dispatch: {}
 
 env:
@@ -37,13 +33,21 @@ jobs:
           ref: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.sha) || github.ref }}
           persist-credentials: false
           fetch-tags: true
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/"
 
       - name: Build (make build_prod)
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           ./scripts/store_git_info.sh
           make build_prod
 
       - name: Generate MozCloud Tag
+        if: steps.check-paths.outputs.should-run == 'true'
         id: mozcloud-tag
         shell: bash
         env:
@@ -53,24 +57,25 @@ jobs:
           if [[ "${REF_TYPE}" == "tag" ]]; then
             tag="${REF_NAME}"
           else
-            tag="$(git rev-parse --short=9 HEAD)"
+            tag="sha-$(git rev-parse --short=9 HEAD)"
           fi
 
           echo "Setting IMAGE_TAG=${tag} as output"
           echo "image_tag=${tag}" >> "$GITHUB_OUTPUT"
 
       - name: Tag image(s) for GAR
+        if: steps.check-paths.outputs.should-run == 'true'
         id: meta
         shell: bash
         env:
           IMAGE_TAG: ${{ steps.mozcloud-tag.outputs.image_tag }}
         run: |
-          # Re-tag the image built by make build_prod (experimenter:deploy)
           docker tag experimenter:deploy "${IMAGE_BASE}:latest"
           docker tag experimenter:deploy "${IMAGE_BASE}:${IMAGE_TAG}"
           echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Push to Google Artifact Registry
+        if: steps.check-paths.outputs.should-run == 'true'
         uses: mozilla-it/deploy-actions/docker-push@v4.3.2
         with:
           image_tags: |-
