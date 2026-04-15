@@ -895,6 +895,32 @@ class TestSlackNotifications(TestCase):
         self.assertEqual(call_args.kwargs["name"], "tada")
         self.assertEqual(call_args.kwargs["timestamp"], "1234567890.123456")
 
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
+    def test_add_emoji_to_slack_message_already_reacted(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.reactions_add.side_effect = SlackApiError(
+            message="already_reacted",
+            response={"error": "already_reacted"},
+        )
+
+        NimbusAlert.objects.create(
+            experiment=self.experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Test launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
+
+        result = add_emoji_to_slack_message(
+            self.experiment,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            "eyes",
+        )
+
+        self.assertTrue(result)
+
     @override_settings(SLACK_AUTH_TOKEN=None)
     def test_add_emoji_to_slack_message_not_configured(self):
         NimbusAlert.objects.create(
