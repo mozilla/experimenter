@@ -35,20 +35,22 @@ class NimbusDraftExperimentFilterSet(BaseExperimentFilterSet):
         fields = (*BaseExperimentFilterSet.Meta.fields, "is_first_run")
 
 
-class NimbusExperimentViewSet(
-    CachedListMixin,
+class BaseNimbusExperimentViewSet(
     mixins.RetrieveModelMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
     lookup_field = "slug"
+    serializer_class = NimbusExperimentSerializer
+    filter_backends = [DjangoFilterBackend]
+
+
+class NimbusExperimentViewSet(CachedListMixin, BaseNimbusExperimentViewSet):
     queryset = (
         NimbusExperiment.objects.with_related()
         .exclude(status__in=[NimbusExperiment.Status.DRAFT])
         .order_by("slug")
     )
-    serializer_class = NimbusExperimentSerializer
-    filter_backends = [DjangoFilterBackend]
     filterset_class = NimbusExperimentFilterSet
     cache_key_prefix = "v6:experiments"
 
@@ -64,9 +66,8 @@ class NimbusExperimentDraftViewSet(NimbusExperimentViewSet):
     )
 
 
-class NimbusExperimentFirstRunViewSet(NimbusExperimentViewSet):
+class NimbusExperimentFirstRunViewSet(BaseNimbusExperimentViewSet):
     filterset_class = BaseExperimentFilterSet
-    cache_key_prefix = "v6:first-run"
 
     queryset = (
         NimbusExperiment.objects.with_related()

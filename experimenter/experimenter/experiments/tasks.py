@@ -50,12 +50,6 @@ def _get_warm_cache_endpoints():
             {},
         ),
         (
-            "v6:first-run",
-            v6_views.NimbusExperimentFirstRunViewSet.queryset,
-            v6_ser.NimbusExperimentSerializer,
-            {},
-        ),
-        (
             "v7:experiments",
             v7_views.NimbusExperimentViewSet.queryset,
             v7_ser.NimbusExperimentSerializer,

@@ -94,25 +94,6 @@ class TestWarmApiCaches(TestCase):
             cached = cache.get(cache_key)
             self.assertIsNotNone(cached)
 
-    def test_warm_api_caches_first_run_endpoint(self):
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            slug="first-run-exp",
-            is_first_run=True,
-        )
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            slug="not-first-run-exp",
-            is_first_run=False,
-        )
-
-        warm_api_caches()
-
-        first_run_data = json.loads(cache.get(get_api_cache_key("v6:first-run")))
-        slugs = [exp["slug"] for exp in first_run_data]
-        self.assertIn("first-run-exp", slugs)
-        self.assertNotIn("not-first-run-exp", slugs)
-
     def test_warm_api_caches_json_endpoints_produce_valid_json(self):
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
