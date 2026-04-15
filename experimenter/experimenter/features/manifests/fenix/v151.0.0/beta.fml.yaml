@@ -285,6 +285,13 @@ features:
         type: Int
         default: 1000
     allow-coenrollment: true
+  google-lens-integration:
+    description: A feature that enables Google Lens integration for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Google Lens integration is enabled.
+        type: Boolean
+        default: false
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -1087,7 +1094,7 @@ features:
       enabled:
         description: If true, shake to summarize will be enabled
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
