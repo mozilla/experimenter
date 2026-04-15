@@ -22,7 +22,7 @@ jobs:
             runner: ubuntu-24.04
           - arch: aarch64
             runner: ubuntu-24.04-arm
-    name: "${{ matrix.arch }}"
+    name: "Experimenter Check (${{ matrix.arch }})"
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
