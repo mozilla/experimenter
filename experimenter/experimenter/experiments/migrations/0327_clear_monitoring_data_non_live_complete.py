@@ -10,7 +10,7 @@ def clear_monitoring_data(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("experiments", "0325_remove_nimbusexperiment_klaatu_fields"),
+        ("experiments", "0326_alter_nimbusexperiment_next_steps_and_more"),
     ]
 
     operations = [

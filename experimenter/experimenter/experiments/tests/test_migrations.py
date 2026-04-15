@@ -4,11 +4,11 @@ from django_test_migrations.contrib.unittest_case import MigratorTestCase
 class TestClearMonitoringDataMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0325_remove_nimbusexperiment_klaatu_fields",
+        "0326_alter_nimbusexperiment_next_steps_and_more",
     )
     migrate_to = (
         "experiments",
-        "0326_clear_monitoring_data_non_live_complete",
+        "0327_clear_monitoring_data_non_live_complete",
     )
 
     def prepare(self):
