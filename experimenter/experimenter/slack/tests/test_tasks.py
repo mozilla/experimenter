@@ -1083,6 +1083,25 @@ class TestCheckMonitoringAlerts(TestCase):
             ).exists()
         )
 
+    def test_skips_srm_alert_for_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_SRM_MONITORING_DATA,
+            is_rollout=True,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_not_called()
+
+        self.assertFalse(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.SRM_MISMATCH,
+            ).exists()
+        )
+
     def test_sends_both_alerts_when_both_conditions_met(self):
         monitoring_data = {
             "total_enrollments": 1000,

@@ -432,9 +432,10 @@ def _check_monitoring_alerts(experiment):
             reason = get_top_unenrollment_reason(experiment.monitoring_data)
             _send_unenrollment_spike_alert(experiment, rate, reason)
 
-        is_srm, p_value = check_srm_mismatch(experiment.monitoring_data)
-        if is_srm:
-            _send_srm_mismatch_alert(experiment, p_value)
+        if not experiment.is_rollout:
+            is_srm, p_value = check_srm_mismatch(experiment.monitoring_data)
+            if is_srm:
+                _send_srm_mismatch_alert(experiment, p_value)
 
     except Exception as e:
         msg = SlackConstants.SLACK_LOG_MONITORING_ALERTS_ERROR.format(
