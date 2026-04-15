@@ -262,6 +262,14 @@ glean:
     ping-lifetime-threshold:
       type: int
       description: Write count threshold when to auto-flush
+google-lens-integration:
+  description: A feature that enables Google Lens integration for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Google Lens integration is enabled.
 homepage-as-new-tab:
   description: Enables homepage as a a new tab.
   hasExposure: true
