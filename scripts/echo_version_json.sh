@@ -1,4 +1,4 @@
 printf '{"commit":"%s","source":"%s","build":"%s"}\n' \
   "$(git rev-parse HEAD)" \
   "$(git config --local remote.origin.url | sed -e s,git@github.com:,https://github.com/,)" \
-  "$CIRCLE_BUILD_URL"
+  "${GITHUB_SERVER_URL:+${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}}${CIRCLE_BUILD_URL}"
