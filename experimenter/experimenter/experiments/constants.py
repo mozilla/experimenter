@@ -1173,6 +1173,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     EXPOSURE_CLIENT_CUTOFF = 10
 
+    MONITORING_ALERT_MINIMUM_DAYS = 1
+
 
 EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/workflow/risk-mitigation#qa-sign-off",

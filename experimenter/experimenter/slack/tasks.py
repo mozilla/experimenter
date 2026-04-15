@@ -429,7 +429,7 @@ def _check_monitoring_alerts(experiment):
 
     if experiment.start_date and (
         datetime.date.today() - experiment.start_date
-    ) < datetime.timedelta(days=1):
+    ) < datetime.timedelta(days=NimbusConstants.MONITORING_ALERT_MINIMUM_DAYS):
         return
 
     try:

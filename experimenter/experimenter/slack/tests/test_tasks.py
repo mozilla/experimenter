@@ -1040,11 +1040,12 @@ class TestCheckMonitoringAlerts(TestCase):
 
         self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 0)
 
-    def test_skips_when_experiment_started_less_than_one_day_ago(self):
+    def test_skips_when_experiment_started_less_than_minimum_days_ago(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             monitoring_data=_SPIKE_MONITORING_DATA,
-            start_date=datetime.date.today(),
+            start_date=datetime.date.today()
+            - datetime.timedelta(days=NimbusConstants.MONITORING_ALERT_MINIMUM_DAYS - 1),
         )
         with mock.patch(
             "experimenter.slack.tasks.send_slack_notification"
