@@ -780,6 +780,7 @@ class TestExperimentResultsManager(TestCase):
                                                         "lower": 1.49,
                                                         "upper": 1.74,
                                                         "point": 1.62,
+                                                        "window_index": "1",
                                                     }
                                                 ]
                                             },
@@ -791,6 +792,7 @@ class TestExperimentResultsManager(TestCase):
                                                             "lower": -0.12,
                                                             "upper": 0.15,
                                                             "point": 0.02,
+                                                            "window_index": "1",
                                                         }
                                                     ]
                                                 },
@@ -807,6 +809,7 @@ class TestExperimentResultsManager(TestCase):
                                                             "lower": 0.01,
                                                             "upper": 0.03,
                                                             "point": 0.02,
+                                                            "window_index": "1",
                                                         }
                                                     ]
                                                 },
@@ -825,6 +828,7 @@ class TestExperimentResultsManager(TestCase):
                                                         "lower": 1.24,
                                                         "upper": 1.63,
                                                         "point": 1.43,
+                                                        "window_index": "1",
                                                     }
                                                 ]
                                             },
@@ -845,6 +849,7 @@ class TestExperimentResultsManager(TestCase):
                                                             "lower": 0.01,
                                                             "upper": 0.03,
                                                             "point": 0.02,
+                                                            "window_index": "1",
                                                         }
                                                     ]
                                                 },
@@ -882,7 +887,7 @@ class TestExperimentResultsManager(TestCase):
                     "lower": 1.49,
                     "upper": 1.74,
                     "significance": "neutral",
-                    "window_index": None,
+                    "window_index": "1",
                 }
             ],
         )
@@ -894,7 +899,7 @@ class TestExperimentResultsManager(TestCase):
                     "upper": 0.15,
                     "significance": "neutral",
                     "avg_rel_change": 0.02,
-                    "window_index": None,
+                    "window_index": "1",
                 }
             ],
         )
@@ -906,7 +911,7 @@ class TestExperimentResultsManager(TestCase):
                     "lower": 1.24,
                     "upper": 1.63,
                     "significance": "positive",
-                    "window_index": None,
+                    "window_index": "1",
                 }
             ],
         )
