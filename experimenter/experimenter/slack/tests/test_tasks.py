@@ -1,3 +1,4 @@
+import datetime
 from datetime import timedelta
 from unittest import mock
 
@@ -1030,6 +1031,20 @@ class TestCheckMonitoringAlerts(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             monitoring_data=None,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_not_called()
+
+        self.assertEqual(NimbusAlert.objects.filter(experiment=experiment).count(), 0)
+
+    def test_skips_when_experiment_started_less_than_one_day_ago(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_SPIKE_MONITORING_DATA,
+            start_date=datetime.date.today(),
         )
         with mock.patch(
             "experimenter.slack.tasks.send_slack_notification"
