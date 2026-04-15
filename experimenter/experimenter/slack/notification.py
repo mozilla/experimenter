@@ -273,11 +273,15 @@ def add_emoji_to_slack_message(experiment, alert_type, emoji_name):
             return False
 
         # Add emoji reaction to the message
-        client.reactions_add(
-            channel=channel_id,
-            name=emoji_name,
-            timestamp=thread_ts,
-        )
+        try:
+            client.reactions_add(
+                channel=channel_id,
+                name=emoji_name,
+                timestamp=thread_ts,
+            )
+        except SlackApiError as e:
+            if e.response.get("error") != SlackConstants.ErrorCode.ALREADY_REACTED:
+                raise
 
         logger.info(
             SlackConstants.SLACK_LOG_EMOJI_ADDED.format(
