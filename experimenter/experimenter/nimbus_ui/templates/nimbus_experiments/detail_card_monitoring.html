@@ -78,66 +78,68 @@
         </table>
       </div>
     </div>
-    <div class="card">
-      <div class="card-header d-flex align-items-center gap-2">
-        {% if summary.is_srm %}
-          <span class="text-warning fs-5">⚠️</span>
-        {% else %}
-          <span class="text-success fs-5">✅</span>
-        {% endif %}
-        <strong>{{ NimbusUIConstants.MONITORING_SECTION_SRM }}</strong>
-        <span class="text-muted small fw-normal">— {{ NimbusUIConstants.MONITORING_SRM_SUBTITLE }}</span>
-      </div>
-      <div class="card-body">
-        {% if summary.is_srm %}
-          <div class="alert alert-warning mb-3" role="alert">
-            <strong>{{ NimbusUIConstants.MONITORING_SRM_SPIKE_DETAIL }}</strong>
-            <span tabindex="0"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="top"
-                  title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
-                  style="cursor: help;
-                         text-decoration: underline dotted">ℹ️</span>
-            <a href="{{ experiment.monitoring_dashboard_url }}"
-               target="_blank"
-               rel="noopener noreferrer">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
-          </div>
-        {% else %}
-          <div class="alert alert-success mb-3" role="alert">
-            {{ NimbusUIConstants.MONITORING_SRM_HEALTHY_DETAIL }}
-            <span tabindex="0"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="top"
-                  title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
-                  style="cursor: help;
-                         text-decoration: underline dotted">ℹ️</span>
-          </div>
-        {% endif %}
-        <table class="table table-sm table-bordered mb-0">
-          <thead>
-            <tr>
-              <th>Branch</th>
-              <th>Enrollments</th>
-              <th>Expected Ratio</th>
-              <th>Actual Ratio</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for branch in summary.branches %}
+    {% if not experiment.is_rollout %}
+      <div class="card">
+        <div class="card-header d-flex align-items-center gap-2">
+          {% if summary.is_srm %}
+            <span class="text-warning fs-5">⚠️</span>
+          {% else %}
+            <span class="text-success fs-5">✅</span>
+          {% endif %}
+          <strong>{{ NimbusUIConstants.MONITORING_SECTION_SRM }}</strong>
+          <span class="text-muted small fw-normal">— {{ NimbusUIConstants.MONITORING_SRM_SUBTITLE }}</span>
+        </div>
+        <div class="card-body">
+          {% if summary.is_srm %}
+            <div class="alert alert-warning mb-3" role="alert">
+              <strong>{{ NimbusUIConstants.MONITORING_SRM_SPIKE_DETAIL }}</strong>
+              <span tabindex="0"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
+                    style="cursor: help;
+                           text-decoration: underline dotted">ℹ️</span>
+              <a href="{{ experiment.monitoring_dashboard_url }}"
+                 target="_blank"
+                 rel="noopener noreferrer">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
+            </div>
+          {% else %}
+            <div class="alert alert-success mb-3" role="alert">
+              {{ NimbusUIConstants.MONITORING_SRM_HEALTHY_DETAIL }}
+              <span tabindex="0"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
+                    style="cursor: help;
+                           text-decoration: underline dotted">ℹ️</span>
+            </div>
+          {% endif %}
+          <table class="table table-sm table-bordered mb-0">
+            <thead>
               <tr>
-                <td>{{ branch.name }}</td>
-                <td>{{ branch.enrollments }}</td>
-                <td>{{ branch.expected_ratio|floatformat:1 }}%</td>
-                <td>{{ branch.actual_ratio|floatformat:1 }}%</td>
+                <th>Branch</th>
+                <th>Enrollments</th>
+                <th>Expected Ratio</th>
+                <th>Actual Ratio</th>
               </tr>
-            {% empty %}
-              <tr>
-                <td colspan="4" class="text-muted">No branch data available</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {% for branch in summary.branches %}
+                <tr>
+                  <td>{{ branch.name }}</td>
+                  <td>{{ branch.enrollments }}</td>
+                  <td>{{ branch.expected_ratio|floatformat:1 }}%</td>
+                  <td>{{ branch.actual_ratio|floatformat:1 }}%</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-muted">No branch data available</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    {% endif %}
   {% endwith %}
 {% endblock %}
