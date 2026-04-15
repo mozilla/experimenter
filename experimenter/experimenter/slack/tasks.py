@@ -1,3 +1,4 @@
+import datetime
 import logging
 from datetime import timedelta
 
@@ -424,6 +425,11 @@ def _check_monitoring_alerts(experiment):
         return
 
     if not experiment.monitoring_data:
+        return
+
+    if experiment.start_date and (
+        datetime.date.today() - experiment.start_date
+    ) < datetime.timedelta(days=NimbusConstants.MONITORING_ALERT_MINIMUM_DAYS):
         return
 
     try:
