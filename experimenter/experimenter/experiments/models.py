@@ -24,6 +24,7 @@ from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
+from prose.fields import RichTextField
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import (
@@ -375,8 +376,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     takeaways_qbr_learning = models.BooleanField(
         "Takeaways QBR Learning", default=False, blank=False, null=False
     )
-    takeaways_summary = models.TextField("Takeaways Summary", blank=True, null=True)
-    next_steps = models.TextField("Next Steps", blank=True, null=True)
+    takeaways_summary = RichTextField(blank=True, null=True)
+    next_steps = RichTextField(blank=True, null=True)
     project_impact = models.CharField(
         "Project Impact",
         max_length=255,

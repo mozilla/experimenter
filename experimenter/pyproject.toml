@@ -78,9 +78,9 @@ inflection = "^0.5.1"
 pytest = "^8.4.0"
 humanize = "^4.15.0"
 deepdiff = "^8.6.2"
-django-summernote = "^0.8.20.0"
 markdown = "^3.10.2"
 nh3 = "^0.3"
+django-prose = "^2.1.0"
 scipy = "^1.15.0"
 
 [tool.poetry.dev-dependencies]

@@ -474,7 +474,7 @@ def build_random_monitoring_data(branches):
         }
         top_reason = random.choice(UNENROLLMENT_REASONS)
         reasons_by_branch[name] = {
-            top_reason: {"1pct_count": random.randint(50, unenrollments or 100)},
+            top_reason: {"1pct_count": random.randint(50, max(unenrollments, 100))},
         }
 
     total_unenrollments = sum(b["unenrollments"] for b in branch_data.values())
