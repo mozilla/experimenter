@@ -20,22 +20,16 @@
     <div class="mb-3">
       {% if summary.is_unenrollment_spike %}
         <div class="alert alert-warning mx-3 mt-3 mb-3" role="alert">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <span class="fs-5">⚠️</span>
-            <strong>{{ NimbusUIConstants.MONITORING_SECTION_UNENROLLMENT }}</strong>
-          </div>
-          Unenrollment rate {{ summary.unenrollment_rate|floatformat:1 }}% &ge; {{ NimbusUIConstants.UNENROLLMENT_SPIKE_THRESHOLD_DISPLAY }} alert threshold.
+          ⚠️ <strong>Unenrollment rate {{ summary.unenrollment_rate|floatformat:1 }}%</strong>
+          &ge; {{ NimbusUIConstants.UNENROLLMENT_SPIKE_THRESHOLD_DISPLAY }} alert threshold.
           <a href="{{ experiment.monitoring_dashboard_url }}"
              target="_blank"
              rel="noopener noreferrer">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
         </div>
       {% else %}
         <div class="alert alert-success mx-3 mt-3 mb-3" role="alert">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <span class="fs-5">✅</span>
-            <strong>{{ NimbusUIConstants.MONITORING_SECTION_UNENROLLMENT }}</strong>
-          </div>
-          <strong>Unenrollment rate {{ summary.unenrollment_rate|floatformat:1 }}%</strong> — {{ NimbusUIConstants.MONITORING_UNENROLLMENT_HEALTHY_DETAIL }}
+          ✅ <strong>Unenrollment rate {{ summary.unenrollment_rate|floatformat:1 }}%</strong>
+          — {{ NimbusUIConstants.MONITORING_UNENROLLMENT_HEALTHY_DETAIL }}
           <a href="{{ experiment.monitoring_dashboard_url }}"
              target="_blank"
              rel="noopener noreferrer">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
@@ -52,9 +46,7 @@
         </thead>
         <tbody>
           <tr class="table-secondary">
-            <td>
-              <strong>Total</strong>
-            </td>
+            <td><strong>Total</strong></td>
             <td class="text-end">{{ summary.total_enrollments }}</td>
             <td class="text-end">{{ summary.total_unenrollments }}</td>
             <td></td>
@@ -78,36 +70,28 @@
       <div>
         {% if summary.is_srm %}
           <div class="alert alert-warning mx-3 mt-3 mb-3" role="alert">
-            <div class="d-flex align-items-center gap-2 mb-1">
-              <span class="fs-5">⚠️</span>
-              <strong>{{ NimbusUIConstants.MONITORING_SECTION_SRM }}</strong>
-              <i class="fa-regular fa-circle-question"
-                 tabindex="0"
-                 data-bs-toggle="tooltip"
-                 data-bs-placement="top"
-                 title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: &lt; {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
-                 style="cursor: help"></i>
-              <span class="fw-normal small">— {{ NimbusUIConstants.MONITORING_SRM_SUBTITLE }}</span>
-            </div>
-            {{ NimbusUIConstants.MONITORING_SRM_SPIKE_DETAIL }}
+            ⚠️ <strong>{{ NimbusUIConstants.MONITORING_SECTION_SRM }}</strong>
+            <i class="fa-regular fa-circle-question"
+               tabindex="0"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: &lt; {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
+               style="cursor: help"></i>
+            — {{ NimbusUIConstants.MONITORING_SRM_SPIKE_DETAIL }}
             <a href="{{ experiment.monitoring_dashboard_url }}"
                target="_blank"
                rel="noopener noreferrer">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
           </div>
         {% else %}
           <div class="alert alert-success mx-3 mt-3 mb-3" role="alert">
-            <div class="d-flex align-items-center gap-2 mb-1">
-              <span class="fs-5">✅</span>
-              <strong>{{ NimbusUIConstants.MONITORING_SECTION_SRM }}</strong>
-              <i class="fa-regular fa-circle-question"
-                 tabindex="0"
-                 data-bs-toggle="tooltip"
-                 data-bs-placement="top"
-                 title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: &lt; {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
-                 style="cursor: help"></i>
-              <span class="fw-normal small">— {{ NimbusUIConstants.MONITORING_SRM_SUBTITLE }}</span>
-            </div>
-            {{ NimbusUIConstants.MONITORING_SRM_HEALTHY_DETAIL }}
+            ✅ <strong>{{ NimbusUIConstants.MONITORING_SECTION_SRM }}</strong>
+            <i class="fa-regular fa-circle-question"
+               tabindex="0"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: &lt; {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
+               style="cursor: help"></i>
+            — {{ NimbusUIConstants.MONITORING_SRM_HEALTHY_DETAIL }}
           </div>
         {% endif %}
         <table class="table table-sm table-bordered mb-0">
