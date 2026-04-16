@@ -323,6 +323,13 @@ features:
           Whether or not to enable the homepage search bar.
         type: Boolean
         default: false
+  homepage-sports-widget:
+    description: Feature to enable Homepage Sports Widget for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Homepage Sports Widget is enabled.
+        type: Boolean
+        default: false
   homescreen:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
@@ -354,6 +361,10 @@ features:
         description: If true, IP Protection feature is enabled.
         type: Boolean
         default: false
+      show-beta-badge:
+        description: If true, a BETA badge is shown next to the IP Protection entry in the settings list.
+        type: Boolean
+        default: true
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
