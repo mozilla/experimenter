@@ -1059,6 +1059,8 @@ class TestCheckMonitoringAlerts(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             monitoring_data=_SPIKE_MONITORING_DATA,
+            start_date=datetime.date.today()
+            - datetime.timedelta(days=NimbusConstants.MONITORING_ALERT_MINIMUM_DAYS),
         )
         with mock.patch(
             "experimenter.slack.tasks.send_slack_notification",
@@ -1068,7 +1070,11 @@ class TestCheckMonitoringAlerts(TestCase):
             mock_send_slack.assert_called_once()
             call_args = mock_send_slack.call_args
             self.assertEqual(call_args[1]["experiment_id"], experiment.id)
-            self.assertIn("Unexpectedly large unenrollment", call_args[1]["action_text"])
+            action_text = call_args[1]["action_text"]
+            self.assertIn("Unexpectedly large unenrollment", action_text)
+            self.assertIn(
+                f"after {NimbusConstants.MONITORING_ALERT_MINIMUM_DAYS} days", action_text
+            )
 
         self.assertTrue(
             NimbusAlert.objects.filter(

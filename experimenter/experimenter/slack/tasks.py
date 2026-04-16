@@ -319,7 +319,7 @@ def _send_error_alert(experiment, error_items):
         raise
 
 
-def _send_unenrollment_spike_alert(experiment, rate, reason):
+def _send_unenrollment_spike_alert(experiment, rate, reason, days):
     if NimbusAlert.objects.filter(
         experiment=experiment,
         alert_type=NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
@@ -332,6 +332,7 @@ def _send_unenrollment_spike_alert(experiment, rate, reason):
             reason=reason,
             rate=rate,
             threshold=SlackConstants.UNENROLLMENT_SPIKE_THRESHOLD,
+            days=days,
         )
         email_addresses = [experiment.owner.email] if experiment.owner else []
         launch_alert = get_launch_request_thread(experiment.id)
@@ -427,16 +428,18 @@ def _check_monitoring_alerts(experiment):
     if not experiment.monitoring_data:
         return
 
-    if experiment.start_date and (
+    if not experiment.start_date or (
         datetime.date.today() - experiment.start_date
     ) < datetime.timedelta(days=NimbusConstants.MONITORING_ALERT_MINIMUM_DAYS):
         return
+
+    days_since_start = (datetime.date.today() - experiment.start_date).days
 
     try:
         is_spike, rate = check_unenrollment_spike(experiment.monitoring_data)
         if is_spike:
             reason = get_top_unenrollment_reason(experiment.monitoring_data)
-            _send_unenrollment_spike_alert(experiment, rate, reason)
+            _send_unenrollment_spike_alert(experiment, rate, reason, days_since_start)
 
         if not experiment.is_rollout:
             is_srm, p_value = check_srm_mismatch(experiment.monitoring_data)
