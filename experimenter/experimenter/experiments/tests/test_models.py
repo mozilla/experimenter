@@ -4093,6 +4093,7 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             conclusion_recommendations=["RERUN", "STOP"],
             takeaways_summary="takeaway",
+            monitoring_data={"total_enrollments": 500, "total_unenrollments": 10},
         )
         NimbusExperimentBranchThroughRequired.objects.create(
             parent_experiment=parent,
@@ -4216,6 +4217,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.published_dto, None)
         self.assertEqual(child.published_date, None)
         self.assertEqual(child.results_data, None)
+        self.assertEqual(child.monitoring_data, None)
         self.assertEqual(child.takeaways_gain_amount, None)
         self.assertEqual(child.takeaways_metric_gain, False)
         self.assertEqual(child.takeaways_qbr_learning, False)
