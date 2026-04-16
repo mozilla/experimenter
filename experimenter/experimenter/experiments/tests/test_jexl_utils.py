@@ -195,6 +195,34 @@ e"""
     def test_invalid_operator(self):
         self.assertEqual(format_jexl(")))))"), ")))))")
 
+    def test_conditional_expression(self):
+        result = format_jexl("a ? b : c")
+        self.assertEqual(result, "(a ? b : c)")
+
+    def test_conditional_expression_with_complex_children(self):
+        result = format_jexl(
+            '("id" in things|mapToProperty("id")) '
+            '? (things[.id == "id"].days > 29) '
+            ": true"
+        )
+        self.assertEqual(
+            result,
+            '("id" in things|mapToProperty("id") ? things[.id == "id"].days > 29 : true)',
+        )
+
+    def test_conditional_expression_inside_and(self):
+        result = format_jexl("a && (b ? c : d)")
+        expected = "a &&\n(b ? c : d)"
+        self.assertEqual(result, expected)
+
+    def test_filter_expression_with_relative_identifier(self):
+        result = format_jexl('things[.id == "x"].days > 5')
+        self.assertEqual(result, 'things[.id == "x"].days > 5')
+
+    def test_object_literal(self):
+        result = format_jexl("{foo: 1, bar: 2}")
+        self.assertEqual(result, "{foo: 1, bar: 2}")
+
 
 class TestToStr(TestCase):
     parser = JEXLParser()
