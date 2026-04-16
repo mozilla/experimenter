@@ -120,9 +120,14 @@ if (($(git status --porcelain | wc -c) > 0)); then
     fi
 
     git commit -m "${COMMIT_MSG}"
-    gh pr close "${BRANCH_NAME}" --repo mozilla/experimenter 2>/dev/null || true
-    git push origin -f "${BRANCH_NAME}"
-    gh pr create -t "${PR_TITLE}" -b "${PR_BODY}" --base main --head "${BRANCH_NAME}" --repo mozilla/experimenter
+    git fetch origin "${BRANCH_NAME}" 2>/dev/null || true
+    if git show-ref --verify --quiet "refs/remotes/origin/${BRANCH_NAME}" && [ -z "$(git diff "${BRANCH_NAME}" "origin/${BRANCH_NAME}")" ]; then
+        echo "Content matches existing PR, skipping"
+    else
+        gh pr close "${BRANCH_NAME}" --repo mozilla/experimenter 2>/dev/null || true
+        git push origin -f "${BRANCH_NAME}"
+        gh pr create -t "${PR_TITLE}" -b "${PR_BODY}" --base main --head "${BRANCH_NAME}" --repo mozilla/experimenter
+    fi
 else
     echo "No config changes, skipping"
 fi
