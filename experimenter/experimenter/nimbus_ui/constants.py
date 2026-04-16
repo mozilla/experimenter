@@ -45,7 +45,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     MONITORING_SRM_HEALTHY_DETAIL = "Branches are at the expected distribution."
     MONITORING_UNENROLLMENT_HEALTHY_DETAIL = (
-        "Unenrollment rate is within a healthy range — below the alert threshold."
+        "within a healthy range — below the alert threshold."
     )
 
     EXCLUDING_EXPERIMENTS_WARNING = """The following experiments are being excluded by
