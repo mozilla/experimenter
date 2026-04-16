@@ -47,12 +47,13 @@ jobs:
             git checkout -B external-config
             git add experimenter/ schemas/
             git commit -m 'chore(nimbus): Update External Configs'
-            if (( $((git diff external-config origin/external-config || git diff HEAD~1) | wc -c) > 0 )); then
+            git fetch origin external-config 2>/dev/null || true
+            if git show-ref --verify --quiet refs/remotes/origin/external-config && [ -z "$(git diff external-config origin/external-config)" ]; then
+              echo "Content matches existing PR, skipping"
+            else
               gh pr close external-config --repo mozilla/experimenter 2>/dev/null || true
               git push origin external-config -f
               gh pr create -t "chore(nimbus): Update External Configs" -F /tmp/pr-body.txt --base main --head external-config --repo mozilla/experimenter
-            else
-              echo "Changes already committed, skipping"
             fi
           else
             echo "No config changes, skipping"
@@ -97,12 +98,13 @@ jobs:
             git checkout -B update-application-services
             git add application-services/
             git commit -m "chore(nimbus): Update Application Services"
-            if (( $((git diff update-application-services origin/update-application-services || git diff HEAD~1) | wc -c) > 0 )); then
+            git fetch origin update-application-services 2>/dev/null || true
+            if git show-ref --verify --quiet refs/remotes/origin/update-application-services && [ -z "$(git diff update-application-services origin/update-application-services)" ]; then
+              echo "Content matches existing PR, skipping"
+            else
               gh pr close update-application-services --repo mozilla/experimenter 2>/dev/null || true
               git push origin update-application-services -f
               gh pr create -t "chore(nimbus): Update Application Services" -b "" --base main --head update-application-services --repo mozilla/experimenter
-            else
-              echo "Changes already committed, skipping"
             fi
           else
             echo "No config changes, skipping"
