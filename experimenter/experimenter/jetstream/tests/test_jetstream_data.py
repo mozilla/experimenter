@@ -60,3 +60,52 @@ class TestJetstreamData(TestCase):
         data.append_retention_3_days([retention])
 
         self.assertIn(retention, data)
+
+    def test_replace_retention_3_days_replaces_existing_entries(self):
+        existing_retention_1 = JetstreamDataPoint(
+            metric=Metric.RETENTION_3_DAYS,
+            statistic=Statistic.BINOMIAL,
+            branch="control",
+            point=0.5,
+            segment=Segment.ALL,
+            window_index="1",
+        )
+        existing_retention_2 = JetstreamDataPoint(
+            metric=Metric.RETENTION_3_DAYS,
+            statistic=Statistic.BINOMIAL,
+            branch="control",
+            point=0.25,
+            segment=Segment.ALL,
+            window_index="2",
+        )
+        existing_retention_3 = JetstreamDataPoint(
+            metric=Metric.RETENTION_3_DAYS,
+            statistic=Statistic.BINOMIAL,
+            branch="control",
+            point=0.25,
+            segment=Segment.ALL,
+            window_index="3",
+        )
+        kept_retention = JetstreamDataPoint(
+            metric=Metric.RETENTION_3_DAYS,
+            statistic=Statistic.BINOMIAL,
+            branch="control",
+            point=0.65,
+            segment=Segment.ALL,
+            window_index="4",
+        )
+
+        data = JetstreamData(
+            [
+                existing_retention_1,
+                existing_retention_2,
+                existing_retention_3,
+                kept_retention,
+            ]
+        )
+        data.replace_retention_3_days(data)
+
+        self.assertNotIn(existing_retention_1, data)
+        self.assertNotIn(existing_retention_2, data)
+        self.assertNotIn(existing_retention_3, data)
+        self.assertIn(kept_retention, data)

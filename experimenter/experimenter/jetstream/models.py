@@ -77,6 +77,7 @@ GROUPED_METRICS = {
     Group.SEARCH: SEARCH_METRICS,
     Group.USAGE: USAGE_METRICS,
 }
+RETENTION_3_DAYS_WINDOW_INDEX = 4
 
 
 # A map of metric -> group for quick lookups.
@@ -168,9 +169,22 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
         # Extract the 3-day retention data (window index 4)
         # without falling back to earlier windows
         retention_data = self.get_retention_by_window(
-            4, daily_data, Metric.RETENTION_3_DAYS
+            RETENTION_3_DAYS_WINDOW_INDEX, daily_data, Metric.RETENTION_3_DAYS
         )
 
+        self.extend(retention_data)
+
+    def replace_retention_3_days(self, daily_data):
+        # Extract and replace with the 3-day retention data (window index 4)
+        retention_data = self.get_retention_by_window(
+            RETENTION_3_DAYS_WINDOW_INDEX, daily_data, Metric.RETENTION_3_DAYS
+        )
+
+        self.root = [
+            jetstream_data_point
+            for jetstream_data_point in self.root
+            if jetstream_data_point.metric != Metric.RETENTION_3_DAYS
+        ]
         self.extend(retention_data)
 
 

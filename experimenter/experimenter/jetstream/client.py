@@ -306,9 +306,25 @@ def get_experiment_data(experiment: NimbusExperiment):
 
                 if segment == Segment.ALL:
                     experiment_data["other_metrics"] = other_metrics
-            elif (data and window == AnalysisWindow.WEEKLY) or (
-                data and window == AnalysisWindow.DAILY
-            ):
+            elif data and window == AnalysisWindow.WEEKLY:
+                # Append 3-day retention from daily data
+                data.append_retention_3_days(
+                    raw_data.get(AnalysisWindow.DAILY, {})
+                    .get(AnalysisBasis.ENROLLMENTS, {})
+                    .get(segment)
+                )
+
+                ResultsObjectModel = create_results_object_model(data)
+
+                data = ResultsObjectModel(result_metrics, data, experiment, window)
+            elif data and window == AnalysisWindow.DAILY:
+                # Replace the daily 3-day retention data with only the correct fourth
+                # window (if it exists)
+                data.replace_retention_3_days(
+                    raw_data.get(AnalysisWindow.DAILY, {})
+                    .get(AnalysisBasis.ENROLLMENTS, {})
+                    .get(segment)
+                )
                 ResultsObjectModel = create_results_object_model(data)
 
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
@@ -353,9 +369,26 @@ def get_experiment_data(experiment: NimbusExperiment):
 
                 if segment == Segment.ALL:
                     experiment_data["other_metrics"].update(other_metrics)
-            elif (data and window == AnalysisWindow.WEEKLY) or (
-                data and window == AnalysisWindow.DAILY
-            ):
+            elif data and window == AnalysisWindow.WEEKLY:
+                # Append 3-day retention from daily data
+                data.append_retention_3_days(
+                    raw_data.get(AnalysisWindow.DAILY, {})
+                    .get(AnalysisBasis.EXPOSURES, {})
+                    .get(segment)
+                )
+
+                ResultsObjectModel = create_results_object_model(data)
+
+                data = ResultsObjectModel(result_metrics, data, experiment, window)
+            elif data and window == AnalysisWindow.DAILY:
+                # Replace the daily 3-day retention data with only the correct fourth
+                # window (if it exists)
+                data.replace_retention_3_days(
+                    raw_data.get(AnalysisWindow.DAILY, {})
+                    .get(AnalysisBasis.EXPOSURES, {})
+                    .get(segment)
+                )
+
                 ResultsObjectModel = create_results_object_model(data)
 
                 data = ResultsObjectModel(result_metrics, data, experiment, window)

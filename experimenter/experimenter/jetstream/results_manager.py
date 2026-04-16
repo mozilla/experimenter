@@ -180,11 +180,11 @@ class ExperimentResultsManager:
         absolute_data_list = metric_src.get("absolute", {}).get("all", [])
         absolute_data_list.sort(key=self.window_index_for_sort)
         abs_entries = []
-        for i, data_point in enumerate(absolute_data_list):
+        for data_point in absolute_data_list:
             lower = data_point.get("lower")
             upper = data_point.get("upper")
             window_index = data_point.get("window_index", None)
-            significance = significance_map.get(str(i + 1), MetricSignificance.NEUTRAL)
+            significance = significance_map.get(window_index, MetricSignificance.NEUTRAL)
             abs_entries.append(
                 {
                     "lower": lower,
@@ -201,7 +201,7 @@ class ExperimentResultsManager:
         )
         relative_data_list.sort(key=self.window_index_for_sort)
         rel_entries = []
-        for i, data_point in enumerate(relative_data_list):
+        for data_point in relative_data_list:
             if not data_point:
                 continue
 
@@ -211,7 +211,7 @@ class ExperimentResultsManager:
                 abs(data_point.get("point")) if data_point.get("point") else None
             )
             window_index = data_point.get("window_index", None)
-            significance = significance_map.get(str(i + 1), MetricSignificance.NEUTRAL)
+            significance = significance_map.get(window_index, MetricSignificance.NEUTRAL)
             rel_entries.append(
                 {
                     "lower": lower,
