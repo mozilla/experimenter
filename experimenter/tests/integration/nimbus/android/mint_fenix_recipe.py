@@ -64,7 +64,7 @@ def main():
             "population_percent": "100",
             "total_enrolled_clients": "1000000",
             "channel": "release",
-            "firefox_min_version": "0.0",
+            "firefox_min_version": "",
         },
         targeting="no_targeting",
     )
