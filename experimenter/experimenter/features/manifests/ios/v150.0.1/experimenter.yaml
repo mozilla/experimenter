@@ -143,6 +143,14 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the search bar feature on homepage for users.
+    stories-scroll-direction:
+      type: string
+      description: |
+        Controls the layout direction for stories on the homepage.
+      enum:
+      - baseline
+      - horizontal
+      - vertical
 hosted-summarizer-feature:
   description: |
     This feature enables the hosted summarizer feature.
@@ -220,10 +228,6 @@ native-error-page-feature:
   hasExposure: true
   exposureDescription: ''
   variables:
-    bad-cert-domain-error-page:
-      type: boolean
-      description: |
-        This feature is for managing the roll out of the bad certificate domain native error page
     enabled:
       type: boolean
       description: |
@@ -232,6 +236,10 @@ native-error-page-feature:
       type: boolean
       description: |
         This feature is for managing the roll out of the no interet connection native error page feature
+    other-error-pages:
+      type: boolean
+      description: |
+        This feature is for managing the roll out of other native error pages
 needs-reload-refactor:
   description: |
     This is a technical refactor which cleans up the reloading of the webview
@@ -440,10 +448,6 @@ tab-tray-ui-experiments:
       type: boolean
       description: |
         If true, enables the tab tray UI experiments.
-    iPad_update_enabled:
-      type: boolean
-      description: |
-        If true, enables the tab tray UI experiments on iPad.
     translucency:
       type: boolean
       description: |
@@ -466,6 +470,10 @@ toolbar-refactor-feature:
       type: boolean
       description: |
         Enables the middle button customization for navigation toolbar.
+    minimal_address_bar:
+      type: boolean
+      description: |
+        Enables minimal address bar mode on scroll to ensure the url is always visible.
     navigation_hint:
       type: boolean
       description: |
