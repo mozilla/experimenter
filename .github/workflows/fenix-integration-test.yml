@@ -3,7 +3,7 @@ name: Fenix Enrollment Integration Test
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 13 * * *"
+    - cron: "3 12 * * *"
   push:
     branches:
       - main
