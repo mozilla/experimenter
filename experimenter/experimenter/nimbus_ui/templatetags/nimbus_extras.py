@@ -384,5 +384,5 @@ def format_p_value(value):
     except (TypeError, ValueError):
         return "N/A"
     if value < 0.0001:
-        return f"{value:.2e}"
+        return "< 0.0001"
     return f"{value:.4f}"

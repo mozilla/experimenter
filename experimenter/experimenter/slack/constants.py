@@ -79,7 +79,7 @@ class SlackConstants:
     SLACK_RESULTS_READY_MESSAGE = "📈 {window} analysis results are now available"
     SLACK_ANALYSIS_ERRORS_MESSAGE = "⚠️ Analysis errors detected:\n{error_lines}"
     SLACK_UNENROLLMENT_SPIKE_MESSAGE = (
-        "⚠️ Unexpectedly large unenrollment in *{experiment}*\n"
+        "⚠️ Unexpectedly large unenrollment in *{experiment}* after {days} days\n"
         "Primary reason: {reason}\n"
         "Unenrollment rate: {rate:.1%} (threshold: {threshold:.1%})"
     )
