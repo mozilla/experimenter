@@ -1,0 +1,21 @@
+{% extends "common/readonly_json.html" %}
+
+{% block json %}
+  <textarea class="readonly-json" data-nimbus-devtools-targeting-expression>{{ json_content }}</textarea>
+{% endblock %}
+{% block json_controls_collapsed %}
+  <button class="btn btn-sm btn-outline-secondary ms-1 d-none"
+          type="button"
+          title="Debug with nimbus-devtools"
+          data-nimbus-devtools-debug-jexl-button>
+    <span class="fa-solid fa-bug">
+    </button>
+  {% endblock %}
+  {% block json_controls_expanded %}
+    <button class="btn btn-sm btn-outline-secondary ms-1 d-none"
+            type="button"
+            title="Debug with nimbus-devtools"
+            data-nimbus-devtools-debug-jexl-button>
+      <span class="fa-solid fa-bug">
+      </button>
+    {% endblock %}
