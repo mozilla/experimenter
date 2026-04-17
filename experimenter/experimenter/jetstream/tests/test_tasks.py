@@ -20,7 +20,7 @@ from experimenter.jetstream.client import (
     get_featmon_slugs,
     get_monitoring_data,
 )
-from experimenter.jetstream.models import AnalysisWindow, Group
+from experimenter.jetstream.models import AnalysisWindow, Group, Metric
 from experimenter.jetstream.tests import mock_valid_outcomes
 from experimenter.jetstream.tests.constants import (
     JetstreamTestData,
@@ -1052,6 +1052,61 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             mock_get_metadata.return_value = None
             mock_get_errors.return_value = None
             tasks.fetch_experiment_data(experiment.id)
+
+    def test_results_data_warns_when_week_2_retention_is_missing(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        experiment.reference_branch.slug = "control"
+        experiment.reference_branch.save()
+
+        def mock_jetstream_data_by_window(_, window):
+            if window == AnalysisWindow.WEEKLY:
+                return [
+                    {
+                        "metric": Metric.RETENTION,
+                        "statistic": "binomial",
+                        "branch": "control",
+                        "point": 0.5,
+                        "segment": "all",
+                        "analysis_basis": "enrollments",
+                        "window_index": "1",
+                    }
+                ]
+            if window == AnalysisWindow.OVERALL:
+                return [
+                    {
+                        "metric": "identity",
+                        "statistic": "count",
+                        "branch": "control",
+                        "point": 10,
+                        "segment": "all",
+                        "analysis_basis": "enrollments",
+                        "window_index": "1",
+                    }
+                ]
+            return []
+
+        with (
+            patch("experimenter.jetstream.client.get_data") as mock_get_data,
+            patch("experimenter.jetstream.client.get_metadata") as mock_get_metadata,
+            patch("experimenter.jetstream.client.get_analysis_errors") as mock_get_errors,
+        ):
+            mock_get_data.side_effect = mock_jetstream_data_by_window
+            mock_get_metadata.return_value = None
+            mock_get_errors.return_value = None
+
+            tasks.fetch_experiment_data(experiment.id)
+
+        experiment.refresh_from_db()
+        errors = experiment.results_data["v3"]["errors"]["experiment"]
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0]["metric"], Metric.RETENTION)
+        self.assertEqual(
+            errors[0]["message"],
+            "Week 2 retention is unavailable because this experiment did not run "
+            "long enough.",
+        )
 
     @parameterized.expand(
         [

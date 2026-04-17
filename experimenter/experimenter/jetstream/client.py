@@ -280,9 +280,9 @@ def get_experiment_data(experiment: NimbusExperiment):
                 raw_data[window][AnalysisBasis.EXPOSURES] = {}
 
         for segment, segment_data in segment_points_enrollments.items():
-            data = raw_data[window][AnalysisBasis.ENROLLMENTS][segment] = JetstreamData(
-                segment_data
-            )
+            raw_segment_data = JetstreamData(segment_data)
+            raw_data[window][AnalysisBasis.ENROLLMENTS][segment] = raw_segment_data
+            data = raw_segment_data.model_copy(deep=True)
             (
                 result_metrics,
                 primary_metrics_set,
@@ -300,11 +300,36 @@ def get_experiment_data(experiment: NimbusExperiment):
             if data and window == AnalysisWindow.OVERALL:
                 # Append some values onto the incoming Jetstream data
                 data.append_population_percentages()
-                data.append_retention_data(
+                weekly_data = (
                     raw_data.get(AnalysisWindow.WEEKLY, {})
                     .get(AnalysisBasis.ENROLLMENTS, {})
                     .get(segment)
                 )
+                week_2_retention = data.get_retention_by_window(
+                    2,
+                    weekly_data,
+                    Metric.RETENTION,
+                )
+                has_retention = any(
+                    point.metric == Metric.RETENTION for point in weekly_data or []
+                )
+
+                if has_retention and not week_2_retention and segment == Segment.ALL:
+                    runtime_errors.append(
+                        AnalysisError(
+                            experiment=experiment.slug,
+                            filename="experimenter/jetstream/client.py",
+                            func_name="get_experiment_data",
+                            log_level="WARNING",
+                            message=(
+                                "Week 2 retention is unavailable because this "
+                                "experiment did not run long enough."
+                            ),
+                            metric=Metric.RETENTION,
+                            timestamp=timezone.now(),
+                        )
+                    )
+                data.extend(week_2_retention)
                 # Append 3-day retention from daily data
                 data.append_retention_3_days(
                     raw_data.get(AnalysisWindow.DAILY, {})
@@ -318,6 +343,12 @@ def get_experiment_data(experiment: NimbusExperiment):
                 data.append_conversion_count(primary_metrics_set)
 
             elif data and window == AnalysisWindow.WEEKLY:
+                data.replace_retention_weeks(
+                    raw_data.get(AnalysisWindow.WEEKLY, {})
+                    .get(AnalysisBasis.ENROLLMENTS, {})
+                    .get(segment)
+                )
+
                 # Append 3-day retention from daily data
                 data.append_retention_3_days(
                     raw_data.get(AnalysisWindow.DAILY, {})
@@ -345,9 +376,9 @@ def get_experiment_data(experiment: NimbusExperiment):
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
 
         for segment, segment_data in segment_points_exposures.items():
-            data = raw_data[window][AnalysisBasis.EXPOSURES][segment] = JetstreamData(
-                segment_data
-            )
+            raw_segment_data = JetstreamData(segment_data)
+            raw_data[window][AnalysisBasis.EXPOSURES][segment] = raw_segment_data
+            data = raw_segment_data.model_copy(deep=True)
             (
                 result_metrics,
                 primary_metrics_set,
@@ -383,6 +414,12 @@ def get_experiment_data(experiment: NimbusExperiment):
                 data.append_conversion_count(primary_metrics_set)
 
             elif data and window == AnalysisWindow.WEEKLY:
+                data.replace_retention_weeks(
+                    raw_data.get(AnalysisWindow.WEEKLY, {})
+                    .get(AnalysisBasis.EXPOSURES, {})
+                    .get(segment)
+                )
+
                 # Append 3-day retention from daily data
                 data.append_retention_3_days(
                     raw_data.get(AnalysisWindow.DAILY, {})
@@ -439,14 +476,17 @@ def get_experiment_data(experiment: NimbusExperiment):
                     errors_experiment_overall.append(err)
 
     for e in runtime_errors:
-        analysis_error = AnalysisError(
-            experiment=experiment.slug,
-            filename="experimenter/jetstream/client.py",
-            func_name="load_data_from_gcs",
-            log_level="WARNING",
-            message=e,
-            timestamp=timezone.now(),
-        )
+        if isinstance(e, AnalysisError):
+            analysis_error = e
+        else:
+            analysis_error = AnalysisError(
+                experiment=experiment.slug,
+                filename="experimenter/jetstream/client.py",
+                func_name="load_data_from_gcs",
+                log_level="WARNING",
+                message=e,
+                timestamp=timezone.now(),
+            )
         errors_experiment_overall.append(analysis_error.model_dump())
 
     errors_by_metric["experiment"] = errors_experiment_overall
