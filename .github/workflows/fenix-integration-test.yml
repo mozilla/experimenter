@@ -64,6 +64,22 @@ jobs:
           make refresh SKIP_DUMMY=1 up_prod_detached
           df -h /
 
+      - name: Wait for Experimenter backend to be ready
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -sk -o /dev/null -w "%{http_code}" https://localhost/__lbheartbeat__ || echo "000")
+            if [ "$code" = "200" ]; then
+              echo "Experimenter backend ready after ${i} polls (HTTP ${code})"
+              exit 0
+            fi
+            echo "Poll ${i}: HTTP ${code}, waiting..."
+            sleep 5
+          done
+          echo "::error::Experimenter backend did not return 200 on /__lbheartbeat__ within 5 minutes"
+          docker compose -f docker-compose-prod.yml ps
+          docker compose -f docker-compose-prod.yml logs --tail=80 experimenter nginx
+          exit 1
+
       - name: Mint Fenix recipe from Experimenter
         run: |
           python experimenter/tests/integration/nimbus/android/mint_fenix_recipe.py \
