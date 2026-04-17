@@ -2653,6 +2653,30 @@ LAPSED_USER_WINDOWS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+LAPSED_USER_WINDOWS_ONLY_NO_DEFAULT_PROMPT = NimbusTargetingConfig(
+    name="Lapsed Windows users (No activity in the past 28 days), no default prompt",
+    slug="lapsed_user_28_days_windows_no_default_prompt",
+    description=(
+        "Users with a profile age of 28 days and 0 days of activity "
+        "in the past 28 days, using Windows, "
+        "who will not see the set to default prompt"
+    ),
+    targeting=f"""
+    (
+        {LAPSED_USER.targeting}
+        &&
+        (os.isWindows && (os.windowsVersion >= 10))
+        &&
+        (isDefaultBrowser || 'browser.shell.checkDefaultBrowser'|preferenceValue == false
+         || 'browser.shell.skipDefaultBrowserCheckOnFirstRun'|preferenceValue)
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION = NimbusTargetingConfig(
     name="Returning users who have lapsed a second time",
     slug="returning_churned_user_48_hr",
