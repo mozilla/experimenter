@@ -2591,6 +2591,10 @@ class NimbusFeatureConfig(models.Model):
     def __str__(self):  # pragma: no cover
         return f"{self.name} ({self.application})"
 
+    @property
+    def feature_monitoring_url(self):
+        return settings.FEATURE_MONITORING_URL.format(slug=self.slug)
+
     def schemas_between_versions(
         self,
         min_version: packaging.version.Version,

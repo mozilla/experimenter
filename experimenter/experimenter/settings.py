@@ -436,6 +436,10 @@ ROLLOUT_MONITORING_URL = (
     "https://mozilla.cloud.looker.com/dashboards/operational_monitoring::{slug}"
 )
 ROLLOUT_MONITORING_EXPIRATION_DAYS = 90
+FEATURE_MONITORING_URL = (
+    "https://yardstick.mozilla.org/d/dtfz7xv/nimbus-feature-monitoring"
+    "?var-feature_slug={slug}"
+)
 
 # Statsd via Markus
 STATSD_BACKEND = config(

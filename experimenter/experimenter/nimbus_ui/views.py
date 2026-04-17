@@ -1129,6 +1129,12 @@ class NimbusFeaturesView(TemplateView):
         return context
 
 
+class NimbusFeatureMonitoringView(DetailView):
+    template_name = "nimbus_experiments/feature_monitoring.html"
+    model = NimbusFeatureConfig
+    context_object_name = "feature_config"
+
+
 class NimbusExperimentsHomeView(FilterView):
     template_name = "nimbus_experiments/home.html"
     filterset_class = NimbusExperimentsHomeFilter
