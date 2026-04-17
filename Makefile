@@ -258,8 +258,8 @@ integration_test_nimbus_sdk: build_integration_test build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) -it rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"
 
 integration_test_nimbus_fenix:
-	poetry -C experimenter/tests/integration/ -vvv install --no-root
-	poetry -C experimenter/tests/integration/ -vvv run pytest --html=workspace/test-results/report.htm --self-contained-html --reruns-delay 30 --driver Firefox experimenter/tests/integration/nimbus/android --junitxml=experimenter/tests/integration/test-reports/experimenter_fenix_integration_tests.xml -vvv
+	poetry -C experimenter/tests install --no-root
+	poetry -C experimenter/tests run pytest -v -m fenix_enrollment experimenter/tests/integration/nimbus/android $(PYTEST_ARGS)
 
 # cirrus
 CIRRUS_ENABLE = export CIRRUS=1 &&

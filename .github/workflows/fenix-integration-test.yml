@@ -92,9 +92,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Python deps for minting
+      - name: Install poetry
         if: steps.check-paths.outputs.should-run == 'true'
-        run: pip install requests urllib3
+        run: pipx install poetry
 
       - name: Bring up Experimenter stack (migrate + load features + up_prod)
         if: steps.check-paths.outputs.should-run == 'true'
@@ -120,16 +120,6 @@ jobs:
           docker compose -f docker-compose-prod.yml logs --tail=80 experimenter nginx
           exit 1
 
-      - name: Mint Fenix recipe from Experimenter
-        if: steps.check-paths.outputs.should-run == 'true'
-        run: |
-          python experimenter/tests/integration/nimbus/android/mint_fenix_recipe.py \
-            --slug "$FENIX_EXPERIMENT_SLUG" \
-            --channel "$FENIX_CHANNEL" \
-            --output "$FENIX_RECIPE_PATH"
-          echo "--- Recipe summary ---"
-          python -c "import json,sys; d=json.load(open(sys.argv[1])); print('slug:', d.get('slug')); print('appName:', d.get('appName')); print('application:', d.get('application')); print('channel:', d.get('channel')); print('targeting:', d.get('targeting')); print('bucketConfig:', d.get('bucketConfig')); print('branches:', [b.get('slug') for b in d.get('branches', [])])" "$FENIX_RECIPE_PATH"
-
       - name: Enable KVM
         if: steps.check-paths.outputs.should-run == 'true'
         run: |
@@ -154,24 +144,14 @@ jobs:
           disable-animations: true
           disk-size: 4096M
           emulator-options: -no-window -no-boot-anim -no-audio -accel on -gpu swiftshader_indirect
-          script: bash experimenter/tests/integration/nimbus/android/run_fenix_test.sh
+          script: make integration_test_nimbus_fenix
 
-      - name: Dump logcat on failure
-        if: failure() && steps.check-paths.outputs.should-run == 'true'
-        run: |
-          if [ -f logcat.txt ]; then
-            echo "--- Full logcat ---"
-            cat logcat.txt
-          fi
-
-      - name: Upload artifacts on failure
+      - name: Upload test report on failure
         if: failure() && steps.check-paths.outputs.should-run == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: fenix-${{ matrix.channel }}-debug-artifacts
-          path: |
-            logcat.txt
-            fenix_recipe.json
+          name: fenix-${{ matrix.channel }}-test-report
+          path: experimenter/tests/integration/test-reports/
           if-no-files-found: ignore
 
       - name: Teardown
