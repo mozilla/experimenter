@@ -94,6 +94,11 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Prepare Android SDK install dir
+        run: |
+          sudo mkdir -p /usr/local/lib/android
+          sudo chown -R "$USER" /usr/local/lib/android
+
       - name: Run Fenix enrollment test on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
