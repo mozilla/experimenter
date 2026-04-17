@@ -152,7 +152,6 @@ class JetstreamTestData:
     def get_data_points(cls):
         DATA_POINT_A = DataPoint(lower=10, point=12, upper=13, window_index=1)
         DATA_POINT_F = DATA_POINT_A.model_copy()
-        DATA_POINT_F.window_index = None
         DATA_POINT_A_COVARIATE = DATA_POINT_A.model_copy()
         DATA_POINT_A_COVARIATE.point = 11.5
         DATA_POINT_F_COVARIATE = DATA_POINT_F.model_copy()
@@ -160,11 +159,9 @@ class JetstreamTestData:
 
         DATA_POINT_B = DataPoint(lower=-5, point=12, upper=13, window_index=1)
         DATA_POINT_E = DATA_POINT_B.model_copy()
-        DATA_POINT_E.window_index = None
 
         DATA_POINT_C = DataPoint(lower=-5, point=-2, upper=-1, window_index=1)
         DATA_POINT_D = DATA_POINT_C.model_copy()
-        DATA_POINT_D.window_index = None
 
         ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
         ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
@@ -364,6 +361,7 @@ class JetstreamTestData:
 
                 data_point_overall = range_data.model_copy()
                 data_point_overall.count = 48.0
+                data_point_overall.window_index = "1"
                 overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_overall)
                 )
@@ -416,6 +414,7 @@ class JetstreamTestData:
 
                 data_point_overall = range_data.model_copy()
                 data_point_overall.count = 0.0
+                data_point_overall.window_index = "1"
                 overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_overall)
                 )
@@ -1557,15 +1556,12 @@ class ZeroJetstreamTestData(JetstreamTestData):
     def get_data_points(cls):
         DATA_POINT_A = DataPoint(lower=0, point=0, upper=0, window_index=1)
         DATA_POINT_F = DATA_POINT_A.model_copy()
-        DATA_POINT_F.window_index = None
 
         DATA_POINT_B = DataPoint(lower=0, point=0, upper=0, window_index=1)
         DATA_POINT_E = DATA_POINT_B.model_copy()
-        DATA_POINT_E.window_index = None
 
         DATA_POINT_C = DataPoint(lower=0, point=0, upper=0, window_index=1)
         DATA_POINT_D = DATA_POINT_C.model_copy()
-        DATA_POINT_D.window_index = None
 
         ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
         ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
@@ -1737,6 +1733,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
 
                 data_point_overall = range_data.model_copy()
                 data_point_overall.count = 0.0
+                data_point_overall.window_index = "1"
                 overall_data[branch]["branch_data"][Group.OTHER.value][primary_metric] = (
                     cls.get_metric_data(data_point_overall)
                 )
@@ -1785,15 +1782,12 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
     def get_data_points(cls):
         DATA_POINT_A = DataPoint(lower=None, point=None, upper=None, window_index=None)
         DATA_POINT_F = DATA_POINT_A.model_copy()
-        DATA_POINT_F.window_index = None
 
         DATA_POINT_B = DataPoint(lower=None, point=None, upper=None, window_index=None)
         DATA_POINT_E = DATA_POINT_B.model_copy()
-        DATA_POINT_E.window_index = None
 
         DATA_POINT_C = DataPoint(lower=None, point=None, upper=None, window_index=None)
         DATA_POINT_D = DATA_POINT_C.model_copy()
-        DATA_POINT_D.window_index = None
 
         ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
         ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
