@@ -47,7 +47,8 @@ jobs:
         run: |
           curl -sSfL https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh -o /tmp/install-nimbus-cli.sh
           sudo bash /tmp/install-nimbus-cli.sh --directory /usr/local/bin
-          nimbus-cli --version
+          command -v nimbus-cli
+          nimbus-cli --help | head -5
 
       - name: Set up Python
         uses: actions/setup-python@v5
