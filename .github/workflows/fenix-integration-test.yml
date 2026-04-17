@@ -7,21 +7,38 @@ on:
   push:
     branches:
       - main
-      - update_firefox_fenix_debug
+      - update_firefox_fenix_beta
+      - update_firefox_fenix_release
 
 jobs:
   test:
-    name: "Fenix Enrollment"
+    name: "Fenix Enrollment (${{ matrix.channel }})"
     runs-on: ubuntu-24.04
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - channel: beta
+            package: org.mozilla.firefox_beta
+            apk_namespace: gecko.v2.mozilla-beta.latest.mobile.fenix-beta
+            build_env: experimenter/tests/firefox_fenix_beta_build.env
+            task_id_var: FIREFOX_FENIX_BETA_TASK_ID
+          - channel: release
+            package: org.mozilla.firefox
+            apk_namespace: gecko.v2.mozilla-release.latest.mobile.fenix-release
+            build_env: experimenter/tests/firefox_fenix_release_build.env
+            task_id_var: FIREFOX_FENIX_RELEASE_TASK_ID
     env:
       BUILDKIT_PROGRESS: plain
       COMPOSE_ANSI: never
       INTEGRATION_TEST_NGINX_URL: https://localhost
-      FENIX_APK_PATH: ${{ github.workspace }}/fenix-debug.apk
+      FENIX_APK_PATH: ${{ github.workspace }}/fenix.apk
       FENIX_RECIPE_PATH: ${{ github.workspace }}/fenix_recipe.json
-      FENIX_EXPERIMENT_SLUG: fenix-integration-test-experiment
+      FENIX_EXPERIMENT_SLUG: fenix-${{ matrix.channel }}-integration-test
+      FENIX_CHANNEL: ${{ matrix.channel }}
+      FENIX_PACKAGE: ${{ matrix.package }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -29,17 +46,21 @@ jobs:
 
       - uses: ./.github/actions/setup-cached-build
 
-      - name: Resolve and download Fenix debug APK
+      - name: Resolve and download Fenix ${{ matrix.channel }} APK
         run: |
-          TASK_ID_FILE=experimenter/tests/firefox_fenix_debug_build.env
-          if [ -f "$TASK_ID_FILE" ] && grep -q '^FIREFOX_FENIX_DEBUG_TASK_ID=.\+' "$TASK_ID_FILE"; then
+          TASK_ID_FILE=${{ matrix.build_env }}
+          TASK_ID_VAR=${{ matrix.task_id_var }}
+          if [ -f "$TASK_ID_FILE" ] && grep -q "^${TASK_ID_VAR}=.\+" "$TASK_ID_FILE"; then
             # shellcheck disable=SC1090
             . "$TASK_ID_FILE"
-            APK_URL="https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${FIREFOX_FENIX_DEBUG_TASK_ID}/artifacts/public/build/target.x86_64.apk"
-            echo "Using pinned task ID: ${FIREFOX_FENIX_DEBUG_TASK_ID}"
+            TASK_ID="$(eval echo \${$TASK_ID_VAR})"
+            TASK_ID="${TASK_ID%\"}"
+            TASK_ID="${TASK_ID#\"}"
+            APK_URL="https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${TASK_ID}/artifacts/public/build/target.x86_64.apk"
+            echo "Using pinned ${TASK_ID_VAR}=${TASK_ID}"
           else
-            APK_URL="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.mozilla-central.latest.mobile.fenix-debug/artifacts/public/build/target.x86_64.apk"
-            echo "No pinned task ID, using mozilla-central latest"
+            APK_URL="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/${{ matrix.apk_namespace }}/artifacts/public/build/target.x86_64.apk"
+            echo "No pinned task id in $TASK_ID_FILE, using ${{ matrix.apk_namespace }}"
           fi
           echo "Downloading: $APK_URL"
           curl -sSfL -o "$FENIX_APK_PATH" "$APK_URL"
@@ -87,9 +108,10 @@ jobs:
         run: |
           python experimenter/tests/integration/nimbus/android/mint_fenix_recipe.py \
             --slug "$FENIX_EXPERIMENT_SLUG" \
+            --channel "$FENIX_CHANNEL" \
             --output "$FENIX_RECIPE_PATH"
           echo "--- Recipe summary ---"
-          python -c "import json,sys; d=json.load(open(sys.argv[1])); print('slug:', d.get('slug')); print('appName:', d.get('appName')); print('targeting:', d.get('targeting')); print('bucketConfig:', d.get('bucketConfig')); print('branches:', [b.get('slug') for b in d.get('branches', [])])" "$FENIX_RECIPE_PATH"
+          python -c "import json,sys; d=json.load(open(sys.argv[1])); print('slug:', d.get('slug')); print('appName:', d.get('appName')); print('application:', d.get('application')); print('channel:', d.get('channel')); print('targeting:', d.get('targeting')); print('bucketConfig:', d.get('bucketConfig')); print('branches:', [b.get('slug') for b in d.get('branches', [])])" "$FENIX_RECIPE_PATH"
 
       - name: Enable KVM
         run: |
@@ -126,7 +148,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: fenix-test-debug-artifacts
+          name: fenix-${{ matrix.channel }}-debug-artifacts
           path: |
             logcat.txt
             fenix_recipe.json

@@ -13,7 +13,8 @@ on:
           - all
           - desktop-release
           - desktop-beta
-          - fenix-debug
+          - fenix-beta
+          - fenix-release
 
 jobs:
   update:
@@ -33,8 +34,11 @@ jobs:
             channel: beta
             display_name: Firefox Desktop Beta
           - application: fenix
-            channel: debug
-            display_name: Firefox Fenix Debug
+            channel: beta
+            display_name: Firefox Fenix Beta
+          - application: fenix
+            channel: release
+            display_name: Firefox Fenix Release
     steps:
       - name: Check if this variant should run
         id: should-run

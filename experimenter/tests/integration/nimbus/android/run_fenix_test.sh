@@ -4,10 +4,10 @@ set -euo pipefail
 : "${FENIX_APK_PATH:?must be set}"
 : "${FENIX_RECIPE_PATH:?must be set}"
 : "${FENIX_EXPERIMENT_SLUG:?must be set}"
+: "${FENIX_PACKAGE:?must be set}"
+: "${FENIX_CHANNEL:?must be set}"
 
-FENIX_PACKAGE=org.mozilla.fenix.debug
-
-echo "=== Install Fenix debug APK ==="
+echo "=== Install Fenix APK for $FENIX_CHANNEL ($FENIX_PACKAGE) ==="
 adb install -r -t -g "$FENIX_APK_PATH"
 adb shell pm list packages "$FENIX_PACKAGE"
 
@@ -17,7 +17,7 @@ adb logcat -c
 echo "=== nimbus-cli enroll (preserve targeting + bucketing) ==="
 nimbus-cli \
     --app fenix \
-    --channel developer \
+    --channel "$FENIX_CHANNEL" \
     enroll "$FENIX_EXPERIMENT_SLUG" \
     --branch control \
     --file "$FENIX_RECIPE_PATH" \
@@ -30,7 +30,7 @@ echo "=== Wait for app + Nimbus SDK to apply experiments ==="
 sleep 15
 
 echo "=== nimbus-cli log-state (dumps enrollment state to logcat) ==="
-nimbus-cli --app fenix --channel developer log-state
+nimbus-cli --app fenix --channel "$FENIX_CHANNEL" log-state
 sleep 5
 
 echo "=== Dump logcat ==="

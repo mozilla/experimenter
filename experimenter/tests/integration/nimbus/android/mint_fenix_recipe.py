@@ -46,6 +46,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--slug", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument(
+        "--channel",
+        required=True,
+        choices=("beta", "release"),
+    )
     args = parser.parse_args()
 
     feature_id = helpers.get_feature_id_as_string(FEATURE_SLUG, FENIX_APP)
@@ -65,7 +70,7 @@ def main():
             },
             "population_percent": "100",
             "total_enrolled_clients": "1000000",
-            "channel": "release",
+            "channel": args.channel,
             "firefox_min_version": "",
         },
         targeting="no_targeting",
