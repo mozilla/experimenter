@@ -10,6 +10,9 @@ on:
       - update_firefox_fenix_beta
       - update_firefox_fenix_release
       - "15340"  # TEMP: drop before promote to ready-for-review
+  pull_request:
+  merge_group:
+    types: [checks_requested]
 
 jobs:
   test:
@@ -45,9 +48,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/ experimenter/tests/firefox_fenix_beta_build.env experimenter/tests/firefox_fenix_release_build.env"
+
       - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
 
       - name: Resolve and download Fenix ${{ matrix.channel }} APK
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           TASK_ID_FILE=${{ matrix.build_env }}
           TASK_ID_VAR=${{ matrix.task_id_var }}
@@ -69,6 +79,7 @@ jobs:
           file "$FENIX_APK_PATH"
 
       - name: Install nimbus-cli
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           curl -sSfL https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh -o /tmp/install-nimbus-cli.sh
           sudo bash /tmp/install-nimbus-cli.sh --directory /usr/local/bin
@@ -76,20 +87,24 @@ jobs:
           nimbus-cli --help | head -5
 
       - name: Set up Python
+        if: steps.check-paths.outputs.should-run == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install Python deps for minting
+        if: steps.check-paths.outputs.should-run == 'true'
         run: pip install requests urllib3
 
       - name: Bring up Experimenter stack (migrate + load features + up_prod)
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           cp .env.integration-tests .env
           make refresh SKIP_DUMMY=1 up_prod_detached
           df -h /
 
       - name: Wait for Experimenter backend to be ready
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           for i in $(seq 1 60); do
             code=$(curl -sk -o /dev/null -w "%{http_code}" https://localhost/__lbheartbeat__ || echo "000")
@@ -106,6 +121,7 @@ jobs:
           exit 1
 
       - name: Mint Fenix recipe from Experimenter
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           python experimenter/tests/integration/nimbus/android/mint_fenix_recipe.py \
             --slug "$FENIX_EXPERIMENT_SLUG" \
@@ -115,17 +131,20 @@ jobs:
           python -c "import json,sys; d=json.load(open(sys.argv[1])); print('slug:', d.get('slug')); print('appName:', d.get('appName')); print('application:', d.get('application')); print('channel:', d.get('channel')); print('targeting:', d.get('targeting')); print('bucketConfig:', d.get('bucketConfig')); print('branches:', [b.get('slug') for b in d.get('branches', [])])" "$FENIX_RECIPE_PATH"
 
       - name: Enable KVM
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
       - name: Prepare Android SDK install dir
+        if: steps.check-paths.outputs.should-run == 'true'
         run: |
           sudo mkdir -p /usr/local/lib/android
           sudo chown -R "$USER" /usr/local/lib/android
 
       - name: Run Fenix enrollment test on emulator
+        if: steps.check-paths.outputs.should-run == 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -138,7 +157,7 @@ jobs:
           script: bash experimenter/tests/integration/nimbus/android/run_fenix_test.sh
 
       - name: Dump logcat on failure
-        if: failure()
+        if: failure() && steps.check-paths.outputs.should-run == 'true'
         run: |
           if [ -f logcat.txt ]; then
             echo "--- Full logcat ---"
@@ -146,7 +165,7 @@ jobs:
           fi
 
       - name: Upload artifacts on failure
-        if: failure()
+        if: failure() && steps.check-paths.outputs.should-run == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: fenix-${{ matrix.channel }}-debug-artifacts
@@ -156,5 +175,5 @@ jobs:
           if-no-files-found: ignore
 
       - name: Teardown
-        if: always()
+        if: always() && steps.check-paths.outputs.should-run == 'true'
         run: make kill || true
