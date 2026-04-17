@@ -21,19 +21,23 @@ FEATURE_SLUG = "messaging"
 
 
 def wait_for_recipe(base_url, slug, timeout=60):
-    url = urljoin(base_url, f"/api/v6/draft-experiments/{slug}/")
+    url = urljoin(base_url, f"/api/v6/experiments/{slug}/")
     deadline = time.time() + timeout
+    last_error = None
     while time.time() < deadline:
         try:
             resp = requests.get(url, verify=False, timeout=5)
             if resp.status_code == 200:
                 recipe = resp.json()
-                if recipe.get("slug") == slug:
+                if recipe.get("slug") == slug and recipe.get("bucketConfig"):
                     return recipe
-        except (requests.RequestException, ValueError):
-            pass
+                last_error = f"recipe missing bucketConfig: {recipe.get('bucketConfig')!r}"
+            else:
+                last_error = f"HTTP {resp.status_code}"
+        except (requests.RequestException, ValueError) as exc:
+            last_error = str(exc)
         time.sleep(1)
-    raise RuntimeError(f"Timed out waiting for recipe at {url}")
+    raise RuntimeError(f"Timed out waiting for recipe at {url} ({last_error})")
 
 
 def main():
@@ -63,6 +67,9 @@ def main():
         },
         targeting="no_targeting",
     )
+
+    print(f"Transitioning {args.slug} draft → preview to allocate bucket range")
+    helpers._post_form(f"/nimbus/{args.slug}/draft-to-preview/")
 
     base_url = helpers._get_nginx_url()
     recipe = wait_for_recipe(base_url, args.slug)
