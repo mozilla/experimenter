@@ -1,0 +1,112 @@
+name: Fenix Enrollment Integration Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "15340"
+
+jobs:
+  test:
+    name: "Fenix Enrollment"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      BUILDKIT_PROGRESS: plain
+      COMPOSE_ANSI: never
+      INTEGRATION_TEST_NGINX_URL: https://localhost
+      FENIX_APK_PATH: ${{ github.workspace }}/fenix-debug.apk
+      FENIX_RECIPE_PATH: ${{ github.workspace }}/fenix_recipe.json
+      FENIX_EXPERIMENT_SLUG: fenix-integration-test-experiment
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-cached-build
+
+      - name: Resolve and download Fenix debug APK
+        run: |
+          TASK_ID_FILE=experimenter/tests/firefox_fenix_debug_build.env
+          if [ -f "$TASK_ID_FILE" ] && grep -q '^FIREFOX_FENIX_DEBUG_TASK_ID=.\+' "$TASK_ID_FILE"; then
+            # shellcheck disable=SC1090
+            . "$TASK_ID_FILE"
+            APK_URL="https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${FIREFOX_FENIX_DEBUG_TASK_ID}/artifacts/public/build/target.x86_64.apk"
+            echo "Using pinned task ID: ${FIREFOX_FENIX_DEBUG_TASK_ID}"
+          else
+            APK_URL="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.mozilla-central.latest.mobile.fenix-debug/artifacts/public/build/target.x86_64.apk"
+            echo "No pinned task ID, using mozilla-central latest"
+          fi
+          echo "Downloading: $APK_URL"
+          curl -sSfL -o "$FENIX_APK_PATH" "$APK_URL"
+          ls -lh "$FENIX_APK_PATH"
+          file "$FENIX_APK_PATH"
+
+      - name: Install nimbus-cli
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh -o /tmp/install-nimbus-cli.sh
+          sudo bash /tmp/install-nimbus-cli.sh --directory /usr/local/bin
+          nimbus-cli --version
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python deps for minting
+        run: pip install requests urllib3
+
+      - name: Bring up Experimenter stack (migrate + load features + up_prod)
+        run: |
+          cp .env.integration-tests .env
+          make refresh SKIP_DUMMY=1 up_prod_detached
+          df -h /
+
+      - name: Mint Fenix recipe from Experimenter
+        run: |
+          python experimenter/tests/integration/nimbus/android/mint_fenix_recipe.py \
+            --slug "$FENIX_EXPERIMENT_SLUG" \
+            --output "$FENIX_RECIPE_PATH"
+          echo "--- Recipe summary ---"
+          python -c "import json,sys; d=json.load(open(sys.argv[1])); print('slug:', d.get('slug')); print('appName:', d.get('appName')); print('targeting:', d.get('targeting')); print('bucketConfig:', d.get('bucketConfig')); print('branches:', [b.get('slug') for b in d.get('branches', [])])" "$FENIX_RECIPE_PATH"
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Fenix enrollment test on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          disk-size: 4096M
+          emulator-options: -no-window -no-boot-anim -no-audio -accel on -gpu swiftshader_indirect
+          script: bash experimenter/tests/integration/nimbus/android/run_fenix_test.sh
+
+      - name: Dump logcat on failure
+        if: failure()
+        run: |
+          if [ -f logcat.txt ]; then
+            echo "--- Full logcat ---"
+            cat logcat.txt
+          fi
+
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fenix-test-debug-artifacts
+          path: |
+            logcat.txt
+            fenix_recipe.json
+          if-no-files-found: ignore
+
+      - name: Teardown
+        if: always()
+        run: make kill || true
