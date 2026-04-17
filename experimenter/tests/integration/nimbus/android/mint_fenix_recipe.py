@@ -31,7 +31,9 @@ def wait_for_recipe(base_url, slug, timeout=60):
                 recipe = resp.json()
                 if recipe.get("slug") == slug and recipe.get("bucketConfig"):
                     return recipe
-                last_error = f"recipe missing bucketConfig: {recipe.get('bucketConfig')!r}"
+                last_error = (
+                    f"recipe missing bucketConfig: {recipe.get('bucketConfig')!r}"
+                )
             else:
                 last_error = f"HTTP {resp.status_code}"
         except (requests.RequestException, ValueError) as exc:

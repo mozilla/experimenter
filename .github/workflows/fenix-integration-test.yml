@@ -2,9 +2,12 @@ name: Fenix Enrollment Integration Test
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "17 13 * * *"
   push:
     branches:
-      - "15340"
+      - main
+      - update_firefox_fenix_debug
 
 jobs:
   test:

@@ -57,6 +57,11 @@ fetch_task_info() {
             namespace="gecko.v2.mozilla-beta.latest.mobile.fenix-beta"
             env_file="firefox_fenix_beta_build.env"
             ;;
+        fenix_debug)
+            index_base="gecko.v2.mozilla-central.latest.mobile"
+            namespace="gecko.v2.mozilla-central.latest.mobile.fenix-debug"
+            env_file="firefox_fenix_debug_build.env"
+            ;;
         fennec_release)
             releases=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/releases" | jq '[.[] | select(.prerelease == false) | select(.name | test("^Firefox v[0-9]+\\.[0-9]+$"))][0]')
             version=$(echo "$releases" | jq -r '.name')
