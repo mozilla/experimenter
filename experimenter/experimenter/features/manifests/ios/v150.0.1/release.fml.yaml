@@ -143,6 +143,11 @@ features:
           If true, enables the search bar feature on homepage for users.
         type: Boolean
         default: false
+      stories-scroll-direction:
+        description: |
+          Controls the layout direction for stories on the homepage.
+        type: ScrollDirection
+        default: vertical
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
@@ -311,11 +316,6 @@ features:
     description: |
       This feature is for managing the roll out of the native error page feature
     variables:
-      bad-cert-domain-error-page:
-        description: |
-          This feature is for managing the roll out of the bad certificate domain native error page
-        type: Boolean
-        default: false
       enabled:
         description: |
           If true, the feature is active.
@@ -324,6 +324,11 @@ features:
       no_internet_connection_error:
         description: |
           This feature is for managing the roll out of the no interet connection native error page feature
+        type: Boolean
+        default: false
+      other-error-pages:
+        description: |
+          This feature is for managing the roll out of other native error pages
         type: Boolean
         default: false
   needs-reload-refactor:
@@ -930,11 +935,6 @@ features:
           If true, enables the tab tray UI experiments.
         type: Boolean
         default: true
-      iPad_update_enabled:
-        description: |
-          If true, enables the tab tray UI experiments on iPad.
-        type: Boolean
-        default: false
       translucency:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
@@ -957,6 +957,11 @@ features:
       middle_button_customization:
         description: |
           Enables the middle button customization for navigation toolbar.
+        type: Boolean
+        default: true
+      minimal_address_bar:
+        description: |
+          Enables minimal address bar mode on scroll to ensure the url is always visible.
         type: Boolean
         default: true
       navigation_hint:
@@ -1298,6 +1303,15 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
+  ScrollDirection:
+    description: The layout direction for stories on the homepage.
+    variants:
+      baseline:
+        description: Uses the current default stories layout.
+      horizontal:
+        description: Shows stories in a horizontal layout.
+      vertical:
+        description: Shows stories in a vertical layout.
   StartAtHome:
     description: The option for what screen to open the app to
     variants:
