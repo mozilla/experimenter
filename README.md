@@ -1,6 +1,6 @@
 # Mozilla Experimenter
 
-[![CircleCI](https://circleci.com/gh/mozilla/experimenter.svg?style=svg)](https://circleci.com/gh/mozilla/experimenter) ![Status](https://img.shields.io/badge/Status-Invest-green)
+[![CI](https://github.com/mozilla/experimenter/actions/workflows/check-experimenter.yml/badge.svg)](https://github.com/mozilla/experimenter/actions/workflows/check-experimenter.yml) ![Status](https://img.shields.io/badge/Status-Invest-green)
 
 Experimenter is a platform for managing experiments in [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/?utm_medium=referral&utm_source=firefox-com).
 
@@ -432,7 +432,7 @@ For a full reference of all the common commands that can be run inside the conta
 
 ### Integration Tests
 
-The integration tests run Selenium against a full Experimenter stack (app server, nginx, kinto, Firefox) inside Docker containers. They are defined in `experimenter/tests/integration/nimbus/` and configured in `.circleci/config.yml`.
+The integration tests run Selenium against a full Experimenter stack (app server, nginx, kinto, Firefox) inside Docker containers. They are defined in `experimenter/tests/integration/nimbus/` and run in CI via the workflows under `.github/workflows/`.
 
 #### Running a specific test locally (recommended)
 
@@ -535,7 +535,7 @@ firefox_options.binary = "/path/to/firefox-bin"
 | `experimenter/tests/pytest.ini` | Pytest configuration and marker definitions |
 | `docker-compose-integration-test.yml` | Firefox/Selenium container config |
 | `.env.integration-tests` | Env file with short Kinto polling intervals for tests |
-| `.circleci/config.yml` | CI job definitions and `PYTEST_ARGS` used in CI |
+| `.github/workflows/` | GitHub Actions workflows defining CI jobs and `PYTEST_ARGS` used in CI |
 
 #### Troubleshooting
 

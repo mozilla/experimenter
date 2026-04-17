@@ -6,8 +6,6 @@ services:
     env_file: .env.sample
     environment:
       - DEBUG=False
-      - CIRCLE_PULL_REQUEST
-      - CIRCLE_BRANCH
     volumes:
       - ./docs/experimenter:/experimenter/experimenter/docs
     depends_on:

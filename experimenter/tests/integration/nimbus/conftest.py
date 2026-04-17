@@ -132,12 +132,11 @@ def selenium(selenium, experiment_slug, kinto_client):
 
     yield selenium
 
-    if os.getenv("CIRCLECI") is None:
-        try:
-            helpers.end_experiment(experiment_slug)
-            kinto_client.approve()
-        except Exception:
-            pass
+    try:
+        helpers.end_experiment(experiment_slug)
+        kinto_client.approve()
+    except Exception:
+        pass
 
 
 @pytest.fixture
