@@ -1,0 +1,42 @@
+{% extends "experimenter_base.html" %}
+
+{% load static %}
+
+{% block content %}
+  <div class="bg-body-tertiary py-4">
+    <div class="container">
+      <div class="mb-3 d-flex align-items-center justify-content-between">
+        <div>
+          <h4 class="fw-semibold mb-1">
+            <i class="fa-solid fa-chart-line me-2"></i>
+            Feature Monitoring — {{ feature_config.name }}
+          </h4>
+          <p class="text-muted mb-0 small">{{ feature_config.application }}</p>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="{% url 'nimbus-ui-features' %}?application={{ feature_config.application }}&feature_configs={{ feature_config.pk }}"
+             class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i>
+            Back to Feature Page
+          </a>
+          <a href="{{ feature_config.feature_monitoring_url }}"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="btn btn-outline-primary btn-sm">
+            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>
+            Open in Grafana
+          </a>
+        </div>
+      </div>
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0">
+          <iframe src="{{ feature_config.feature_monitoring_url }}&kiosk"
+                  width="100%"
+                  height="800"
+                  frameborder="0"
+                  title="Feature Monitoring Dashboard"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

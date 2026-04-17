@@ -172,6 +172,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "All statistically significant changes that have occurred in the experiment"
     )
     NOTABLE_CHANGES_ABSENT_TEXT = "There are no notable changes in this experiment"
+    FEATURE_MONITORING_CARD_TITLE = "Feature Monitoring"
+    FEATURE_MONITORING_OPEN_DASHBOARD_TEXT = "Open in Grafana"
+
     FEATURE_PAGE_LINKS = {
         "feature_learn_more_url": "https://experimenter.info/getting-started/for-experiment-owners",
         "deliveries_table_tooltip": """This shows all Nimbus experiments, rollouts, Labs
