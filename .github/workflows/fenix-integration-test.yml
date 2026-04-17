@@ -9,6 +9,7 @@ on:
       - main
       - update_firefox_fenix_beta
       - update_firefox_fenix_release
+      - "15340"  # TEMP: drop before promote to ready-for-review
 
 jobs:
   test:
