@@ -2593,7 +2593,10 @@ class NimbusFeatureConfig(models.Model):
 
     @property
     def feature_monitoring_url(self):
-        return settings.FEATURE_MONITORING_URL.format(slug=self.slug)
+        application = (self.application or "").replace("-", "_")
+        return settings.FEATURE_MONITORING_URL.format(
+            slug=self.slug, application=application
+        )
 
     def schemas_between_versions(
         self,

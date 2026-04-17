@@ -5776,10 +5776,15 @@ class TestNimbusBranchScreenshot(TestCase):
 
 class NimbusFeatureConfigTests(TestCase):
     def test_feature_monitoring_url(self):
-        feature = NimbusFeatureConfigFactory.create(slug="my-feature")
+        feature = NimbusFeatureConfigFactory.create(
+            slug="my-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
         self.assertEqual(
             feature.feature_monitoring_url,
-            settings.FEATURE_MONITORING_URL.format(slug="my-feature"),
+            settings.FEATURE_MONITORING_URL.format(
+                slug="my-feature", application="firefox_desktop"
+            ),
         )
 
     def test_schemas_between_versions(self):
