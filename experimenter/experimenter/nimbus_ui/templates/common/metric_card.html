@@ -1,6 +1,6 @@
 {% load nimbus_extras %}
 
-{% with sig=significance|default:"neutral" %}
+{% with sig=significance|default:"unknown" %}
   {% if slug == reference_branch %}
     <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center flex-wrap rounded-3"
          style="height: 100px">
@@ -38,10 +38,14 @@
           <span class="fw-semibold"
                 data-bs-toggle="tooltip"
                 data-bs-title="Range: {{ lower_percent|to_percentage:2 }} to {{ upper_percent|to_percentage:2 }}">{{ percentage|to_percentage:1 }} average decrease</span>
-        {% else %}
+        {% elif sig == "neutral" %}
           <span class="fw-semibold"
                 data-bs-toggle="tooltip"
                 data-bs-title="Range: {{ lower_percent|to_percentage:2 }} to {{ upper_percent|to_percentage:2 }}">No notable change</span>
+        {% else %}
+          <span class="fw-semibold"
+                data-bs-toggle="tooltip"
+                data-bs-title="Range: {{ lower_percent|to_percentage:2 }} to {{ upper_percent|to_percentage:2 }}">Unknown significance</span>
         {% endif %}
         <span class="mb-0 d-flex">
           {% if absolute_lower %}

@@ -16,6 +16,7 @@ class MetricSignificance(StrEnum):
     NEGATIVE = "negative"
     MIXED = "mixed"
     NEUTRAL = "neutral"
+    UNKNOWN = "unknown"
 
 
 class ExperimentResultsManager:
@@ -136,7 +137,7 @@ class ExperimentResultsManager:
                                         {
                                             "lower": None,
                                             "upper": None,
-                                            "significance": MetricSignificance.NEUTRAL,
+                                            "significance": MetricSignificance.UNKNOWN,
                                             "window_index": str(missing_point),
                                         },
                                     )
@@ -184,7 +185,7 @@ class ExperimentResultsManager:
             lower = data_point.get("lower")
             upper = data_point.get("upper")
             window_index = data_point.get("window_index", None)
-            significance = significance_map.get(window_index, MetricSignificance.NEUTRAL)
+            significance = significance_map.get(window_index, MetricSignificance.UNKNOWN)
             abs_entries.append(
                 {
                     "lower": lower,
@@ -211,7 +212,7 @@ class ExperimentResultsManager:
                 abs(data_point.get("point")) if data_point.get("point") else None
             )
             window_index = data_point.get("window_index", None)
-            significance = significance_map.get(window_index, MetricSignificance.NEUTRAL)
+            significance = significance_map.get(window_index, MetricSignificance.UNKNOWN)
             rel_entries.append(
                 {
                     "lower": lower,
@@ -680,7 +681,7 @@ class ExperimentResultsManager:
             )
 
             metric_significance = metric_significance_list.get(
-                str(len(metric_significance_list.keys())), MetricSignificance.NEUTRAL
+                str(len(metric_significance_list.keys())), MetricSignificance.UNKNOWN
             )
 
             significances = {metric_significance, overall_change}
