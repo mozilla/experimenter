@@ -381,13 +381,6 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.merino.timeoutMs
       description: Timeout for Merino fetches (ms)
-    novaFeatureGate:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.nova.featureGate
-      description: >-
-        Feature gate that enables Nova UI.
     exposureResults:
       type: string
       setPref:
@@ -4572,12 +4565,6 @@ cookieBannerHandling:
         When set to true, cookie banners are detected and detection events are
         dispatched, but they will not be handled.
         This pref applies to both normal and private browsing windows.
-    enableFirefoxDesktopUI:
-      type: boolean
-      setPref:
-        branch: default
-        pref: cookiebanners.ui.desktop.enabled
-      description: Enables the cookie banner desktop UI.
     enablePromo:
       type: boolean
       setPref:
