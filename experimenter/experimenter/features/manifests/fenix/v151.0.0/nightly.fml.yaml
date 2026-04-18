@@ -291,7 +291,7 @@ features:
       enabled:
         description: If true, Google Lens integration is enabled.
         type: Boolean
-        default: true
+        default: false
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
