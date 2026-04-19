@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- beta
+- developer
 features:
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
@@ -10,7 +10,7 @@ features:
       status:
         description: If true, we will allow user to edit the address
         type: Boolean
-        default: false
+        default: true
   address-bar-menu-feature:
     description: |
       This property determines if we show the new address bar menu entry or the toolbar menu in settings
@@ -25,7 +25,7 @@ features:
       status:
         description: If true, we will enable the rust ads client
         type: Boolean
-        default: false
+        default: true
   ai-kill-switch-feature:
     description: |
       Configuration feature for AI features
@@ -34,7 +34,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   app-icon-selection-feature:
     description: |
       Controls which app icons users can select as their default app icon from the App Icon Selection screen in Settings.
@@ -87,7 +87,7 @@ features:
         description: |
           Enables the feature.
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -103,7 +103,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   general-app-features:
     description: The feature that contains feature flags for the entire application
     variables:
@@ -143,6 +143,11 @@ features:
           If true, enables the search bar feature on homepage for users.
         type: Boolean
         default: false
+      stories-scroll-direction:
+        description: |
+          Controls the layout direction for stories on the homepage.
+        type: ScrollDirection
+        default: vertical
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
@@ -242,6 +247,16 @@ features:
               - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+          survey-surface-message:
+            surface: survey
+            style: SURVEY
+            trigger-if-all:
+            - NEVER
+            text: ResearchSurface/Body.Text.v112
+            button-label: ResearchSurface/PrimaryButton.Label.v112
+            action: OPEN_URL
+            action-params:
+              url: https://www.macrumors.com
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -324,24 +339,24 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
     variables:
-      bad-cert-domain-error-page:
-        description: |
-          This feature is for managing the roll out of the bad certificate domain native error page
-        type: Boolean
-        default: false
       enabled:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
       no_internet_connection_error:
         description: |
           This feature is for managing the roll out of the no interet connection native error page feature
+        type: Boolean
+        default: true
+      other-error-pages:
+        description: |
+          This feature is for managing the roll out of other native error pages
         type: Boolean
         default: false
   needs-reload-refactor:
@@ -836,19 +851,19 @@ features:
         description: |
           Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.
         type: Boolean
-        default: false
+        default: true
       isTreatmentA:
         description: |
           If true, shares the treatment A text. If false, shares the treatment B text.
         type: Boolean
         default: true
   snapkit-removal-refactor:
-    description: This property defines if SnapKit removal refactor is enabled
+    description: This property defines if SnapKit removal refactor is enbaled
     variables:
       enabled:
         description: If true the SnapKit removal refactor version will be used
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: |
       A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
@@ -862,19 +877,19 @@ features:
         description: |
           The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
         type: Int
-        default: 0
+        default: 6000
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
         type: Boolean
-        default: false
+        default: true
       icon-type:
         description: |
           The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
         type: Option<IconType>
-        default: letter
+        default: screenshot
       keep-for-days:
         description: |
           Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
@@ -948,25 +963,50 @@ features:
           If true, enables the tab tray UI experiments.
         type: Boolean
         default: true
-      iPad_update_enabled:
-        description: |
-          If true, enables the tab tray UI experiments on iPad.
-        type: Boolean
-        default: false
       translucency:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
         type: Boolean
-        default: false
+        default: true
   toolbar-refactor-feature:
     description: |
       This feature is for managing the roll out of the Toolbar refactor feature
     variables:
+      enabled:
+        description: |
+          Enables the feature
+        type: Boolean
+        default: true
       layout:
         description: |
           The type of layout of the toolbars.
         type: Option<ToolbarLayoutType>
         default: version1
+      middle_button_customization:
+        description: |
+          Enables the middle button customization for navigation toolbar.
+        type: Boolean
+        default: true
+      minimal_address_bar:
+        description: |
+          Enables minimal address bar mode on scroll to ensure the url is always visible.
+        type: Boolean
+        default: true
+      navigation_hint:
+        description: |
+          If true, enables the navigation contextual hint.
+        type: Boolean
+        default: true
+      one_tap_new_tab:
+        description: |
+          If true, enables the one tap new tab feature for users.
+        type: Boolean
+        default: true
+      swiping_tabs:
+        description: |
+          Enables swipe gestures to switch between browser tabs.
+        type: Boolean
+        default: true
       tab_tray_button_type:
         description: |
           The style of the tab tray button in the toolbar.
@@ -977,6 +1017,16 @@ features:
           If true, enables the toolbar update contextual hint.
         type: Boolean
         default: false
+      translucency:
+        description: |
+          Enables translucency for toolbars.
+        type: Boolean
+        default: true
+      translucency-refactor:
+        description: |
+          Enables translucency refactor for toolbars.
+        type: Boolean
+        default: true
       unified_search:
         description: |
           Enables the unified search feature.
@@ -1220,7 +1270,7 @@ enums:
           Corresponding to onboarding cards with multiple choice buttons
   OnboardingInstructionsPopupActions:
     description: |
-      The identifiers for the different actions available for the instruction card in onboarding
+      The identifiers for the different actions available for the insturction card in onboarding
     variants:
       dismiss:
         description: |
@@ -1281,6 +1331,15 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
+  ScrollDirection:
+    description: The layout direction for stories on the homepage.
+    variants:
+      baseline:
+        description: Uses the current default stories layout.
+      horizontal:
+        description: Shows stories in a horizontal layout.
+      vertical:
+        description: Shows stories in a vertical layout.
   StartAtHome:
     description: The option for what screen to open the app to
     variants:
@@ -1472,7 +1531,7 @@ objects:
     fields:
       body:
         description: |
-          The body text displayed on the card, in less prominent text. This should never be defaulted.
+          The body text dispalyed on the card, in less prominent text. This should never be defaulted.
         type: Text
         default: ''
       buttons:
@@ -1496,7 +1555,7 @@ objects:
         default: []
       image:
         description: |
-          The image that should be displayed on the card.
+          The image that should be dispalyed on the card.
         type: NimbusOnboardingHeaderImage
         default: welcome-globe
       instructions-popup:
@@ -1609,7 +1668,7 @@ objects:
         default: true
   StyleData:
     description: |
-      A group of properties (predominantly visual) to the describe style of the message.
+      A group of properities (predominantly visual) to the describe style of the message.
     fields:
       max-display-count:
         description: |
