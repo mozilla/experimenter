@@ -25,22 +25,15 @@ jobs:
       matrix:
         include:
           - channel: beta
-            package: org.mozilla.firefox_beta
             build_env: experimenter/tests/firefox_fenix_beta_build.env
             task_id_var: FIREFOX_FENIX_BETA_TASK_ID
           - channel: release
-            package: org.mozilla.firefox
             build_env: experimenter/tests/firefox_fenix_release_build.env
             task_id_var: FIREFOX_FENIX_RELEASE_TASK_ID
     env:
-      BUILDKIT_PROGRESS: plain
-      COMPOSE_ANSI: never
       INTEGRATION_TEST_NGINX_URL: https://localhost
       FENIX_APK_PATH: ${{ github.workspace }}/fenix.apk
-      FENIX_RECIPE_PATH: ${{ github.workspace }}/fenix_recipe.json
-      FENIX_EXPERIMENT_SLUG: fenix-${{ matrix.channel }}-integration-test
       FENIX_CHANNEL: ${{ matrix.channel }}
-      FENIX_PACKAGE: ${{ matrix.package }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -83,7 +76,7 @@ jobs:
         if: steps.check-paths.outputs.should-run == 'true'
         run: pipx install poetry
 
-      - name: Bring up Experimenter stack (migrate + load features + up_prod)
+      - name: Bring up Experimenter stack
         if: steps.check-paths.outputs.should-run == 'true'
         run: |
           cp .env.integration-tests .env
@@ -136,7 +129,3 @@ jobs:
           name: fenix-${{ matrix.channel }}-test-report
           path: experimenter/tests/integration/test-reports/
           if-no-files-found: ignore
-
-      - name: Teardown
-        if: always() && steps.check-paths.outputs.should-run == 'true'
-        run: make kill || true

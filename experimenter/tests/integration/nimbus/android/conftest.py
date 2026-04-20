@@ -1,6 +1,5 @@
 import os
 import time
-from pathlib import Path
 
 import pytest
 import requests
@@ -14,18 +13,12 @@ RECIPE_POLL_TIMEOUT = 60
 
 @pytest.fixture(name="fenix_channel")
 def fixture_fenix_channel():
-    value = os.environ.get("FENIX_CHANNEL")
-    if not value:
-        pytest.skip("FENIX_CHANNEL is not set")
-    return value
+    return os.environ["FENIX_CHANNEL"]
 
 
 @pytest.fixture(name="fenix_apk_path")
 def fixture_fenix_apk_path():
-    value = os.environ.get("FENIX_APK_PATH")
-    if not value or not Path(value).exists():
-        pytest.skip(f"FENIX_APK_PATH not set or missing: {value!r}")
-    return value
+    return os.environ["FENIX_APK_PATH"]
 
 
 @pytest.fixture
@@ -65,14 +58,7 @@ def create_fenix_experiment(application_feature_ids):
             FENIX_APP,
             data={
                 "feature_config_ids": [int(feature_id)],
-                "reference_branch": {
-                    "name": "control",
-                    "description": "control branch",
-                },
-                "population_percent": "100",
-                "total_enrolled_clients": "1000000",
                 "channel": channel,
-                "firefox_min_version": "",
             },
             targeting="no_targeting",
         )

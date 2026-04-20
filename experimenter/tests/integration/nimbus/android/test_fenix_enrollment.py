@@ -25,7 +25,7 @@ def test_fenix_enrollment(
     recipe_path = tmp_path / "fenix_recipe.json"
     recipe_path.write_text(json.dumps(recipe))
 
-    subprocess.check_call(["adb", "install", "-r", "-t", "-g", fenix_apk_path])
+    subprocess.check_call(["adb", "install", fenix_apk_path])
     subprocess.check_call(["adb", "logcat", "-c"])
 
     subprocess.check_call(
