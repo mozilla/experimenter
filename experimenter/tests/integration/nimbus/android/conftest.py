@@ -59,6 +59,7 @@ def create_fenix_experiment(application_feature_ids):
             data={
                 "feature_config_ids": [int(feature_id)],
                 "channel": channel,
+                "firefox_min_version": "",
             },
             targeting="no_targeting",
         )
