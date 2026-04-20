@@ -1,5 +1,5 @@
 name: "Setup Docker Build"
-description: "Free disk space, set up Buildx, and build megazords/schemas/cirrus images"
+description: "Free disk space, set up Buildx, and build megazords/schemas/cirrus images with retry"
 
 runs:
   using: composite
@@ -18,32 +18,34 @@ runs:
       with:
         driver: docker
 
-    - name: Build megazords
-      shell: bash
-      env:
-        MEGAZORD_BUILD_FLAGS: --load
-      run: make build_megazords
-
-    - name: Build schemas
-      uses: docker/build-push-action@v6
+    - uses: ./.github/actions/retry
       with:
-        context: schemas/
-        file: schemas/Dockerfile
-        target: dev
-        tags: schemas:dev
-        load: true
+        label: Build megazords
+        run: MEGAZORD_BUILD_FLAGS=--load make build_megazords
 
-    - name: Build cirrus
-      uses: docker/build-push-action@v6
+    - uses: ./.github/actions/retry
       with:
-        context: cirrus/server/
-        file: cirrus/server/Dockerfile
-        target: deploy
-        tags: cirrus:deploy
-        load: true
-        build-contexts: |
-          experimenter:megazords=docker-image://experimenter:megazords
-          fml=experimenter/experimenter/features/manifests/
+        label: Build schemas
+        run: |
+          docker buildx build \
+            --file schemas/Dockerfile \
+            --target dev \
+            --tag schemas:dev \
+            --load \
+            schemas/
+
+    - uses: ./.github/actions/retry
+      with:
+        label: Build cirrus
+        run: |
+          docker buildx build \
+            --file cirrus/server/Dockerfile \
+            --target deploy \
+            --tag cirrus:deploy \
+            --load \
+            --build-context experimenter:megazords=docker-image://experimenter:megazords \
+            --build-context fml=experimenter/experimenter/features/manifests/ \
+            cirrus/server/
 
     - name: Export build flags
       shell: bash

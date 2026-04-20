@@ -33,11 +33,13 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build schemas
+      - uses: ./.github/actions/retry
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
-        run: |
-          cp .env.sample .env
-          make schemas_build
+        with:
+          label: Build schemas
+          run: |
+            cp .env.sample .env
+            make schemas_build
 
       - name: Upload to PyPI
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
