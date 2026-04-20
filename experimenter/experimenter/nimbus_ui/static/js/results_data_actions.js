@@ -125,8 +125,31 @@ const setupExportResultsPDF = (experimentSlug, area) => {
     .download(`${experimentSlug}-${area}-results.pdf`);
 };
 
+const setupOpenOnlyCollapseControllers = () => {
+  document.body.addEventListener("click", (event) => {
+    const controller = event.target.closest(".open-only-collapse-trigger");
+    if (!controller) {
+      return;
+    }
+
+    const targetSelector = controller.getAttribute("href");
+    const target = document.querySelector(targetSelector);
+    if (!target) {
+      return;
+    }
+
+    const collapse = window.bootstrap.Collapse.getOrCreateInstance(target, {
+      toggle: false,
+    });
+    collapse.show();
+  });
+};
+
 document.addEventListener("DOMContentLoaded", function () {
   setupResultsTableActions();
+  setupOpenOnlyCollapseControllers();
 
-  document.body.addEventListener("htmx:afterSwap", setupResultsTableActions);
+  document.body.addEventListener("htmx:afterSwap", () => {
+    setupResultsTableActions();
+  });
 });
