@@ -57,7 +57,6 @@ jobs:
       - name: Download Fenix ${{ matrix.channel }} APK
         if: steps.check-paths.outputs.should-run == 'true'
         run: |
-          # shellcheck disable=SC1090
           . ${{ matrix.build_env }}
           if [ -z "${!TASK_ID_VAR}" ]; then
             echo "::error::$TASK_ID_VAR is empty in ${{ matrix.build_env }}. Run update-firefox.yml with the ${{ matrix.channel == 'beta' && 'fenix-beta' || 'fenix-release' }} variant to populate it."
