@@ -259,6 +259,8 @@ integration_test_nimbus_sdk: build_integration_test build_prod
 
 integration_test_nimbus_fenix:
 	poetry -C experimenter/tests install --no-root
+	mkdir -p experimenter/tests/integration/test-reports
+	poetry -C experimenter/tests run pytest --co -q -m fenix_enrollment experimenter/tests/integration/nimbus/android
 	poetry -C experimenter/tests run pytest -v -m fenix_enrollment experimenter/tests/integration/nimbus/android $(PYTEST_ARGS)
 
 # cirrus
