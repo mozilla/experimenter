@@ -8,10 +8,10 @@ from pathlib import Path
 import pytest
 import requests
 
+from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.utils import helpers
 
-FENIX_APP = "fenix"
-FEATURE_SLUG = "messaging"
+FENIX_APP = BaseExperimentApplications.FIREFOX_FENIX.value
 RECIPE_POLL_TIMEOUT = 60
 APP_APPLY_WAIT = 15
 LOG_STATE_WAIT = 5
@@ -38,11 +38,7 @@ def experiment_slug(channel):
     return f"fenix-{channel}-integration-test"
 
 
-def _mint_preview_experiment(slug, channel):
-    feature_id = helpers.get_feature_id_as_string(FEATURE_SLUG, FENIX_APP)
-    assert feature_id, (
-        f"Could not resolve feature id for '{FEATURE_SLUG}' in '{FENIX_APP}'"
-    )
+def _mint_preview_experiment(slug, channel, feature_id):
     helpers.create_experiment(
         slug,
         FENIX_APP,
@@ -85,8 +81,12 @@ def _wait_for_recipe(slug):
 
 
 @pytest.mark.fenix_enrollment
-def test_fenix_enrollment(channel, apk_path, experiment_slug, tmp_path):
-    _mint_preview_experiment(experiment_slug, channel)
+def test_fenix_enrollment(
+    channel, apk_path, experiment_slug, application_feature_ids, tmp_path
+):
+    feature_id = application_feature_ids[FENIX_APP]
+    assert feature_id, f"No feature id registered for '{FENIX_APP}'"
+    _mint_preview_experiment(experiment_slug, channel, feature_id)
     recipe = _wait_for_recipe(experiment_slug)
 
     recipe_path = tmp_path / "fenix_recipe.json"
