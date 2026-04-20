@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- nightly
+- release
 features:
   add-shortcuts-improvement:
     description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
@@ -36,7 +36,7 @@ features:
       show-new-prompt:
         description: Whether to show the new AppLinksPromptFragment dialog when an app link is detected. If false, the old dialog is used.
         type: Boolean
-        default: true
+        default: false
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -70,7 +70,7 @@ features:
       enabled:
         description: If true, the feature is enabled.
         type: Boolean
-        default: true
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -144,14 +144,14 @@ features:
       enabled:
         description: If true, custom download location is enabled.
         type: Boolean
-        default: true
+        default: false
   email-masks:
     description: Feature to enable Email Mask for users on Firefox on Android.
     variables:
       enabled:
         description: If true, Email Mask feature is enabled.
         type: Boolean
-        default: true
+        default: false
   enable-popups:
     description: A feature that enables or disables in app popups
     variables:
@@ -222,7 +222,7 @@ features:
         description: |
           The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
         type: Int
-        default: 2
+        default: 0
       shouldUseNimbus:
         description: |
           If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
@@ -240,7 +240,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: true
+        default: false
   gecko-nimbus-validation:
     description: Feature for validating Nimbus Gecko functionality
     variables:
@@ -353,7 +353,7 @@ features:
       enabled:
         description: Enables the feature
         type: Boolean
-        default: true
+        default: false
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
@@ -434,7 +434,7 @@ features:
             card-type: add-search-widget
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data: null
             image-res: nova_onboarding_widget
             ordering: 20
@@ -448,7 +448,7 @@ features:
             card-type: sync-sign-in
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data: null
             image-res: nova_onboarding_sync
             ordering: 30
@@ -462,7 +462,7 @@ features:
             card-type: notification-permission
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data: null
             image-res: nova_onboarding_notifications
             ordering: 40
@@ -476,7 +476,7 @@ features:
             card-type: toolbar-placement
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data:
               customization-toolbar-data:
               - toolbar-type: toolbar-top
@@ -640,29 +640,6 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example-nightly:
-            title: microsurvey_prompt_printing_title
-            text: microsurvey_survey_printing_title
-            surface: microsurvey
-            trigger-if-all:
-            - RECENTLY_PRINTED
-            style: MICROSURVEY
-            microsurvey-config:
-              utm-content: homepage
-              icon: ic_print
-              answers:
-              - text: likert_scale_option_1
-                ordering: 0
-              - text: likert_scale_option_2
-                ordering: 1
-              - text: likert_scale_option_3
-                ordering: 2
-              - text: likert_scale_option_4
-                ordering: 3
-              - text: likert_scale_option_5
-                ordering: 4
-              - text: likert_scale_option_6
-                ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -769,7 +746,7 @@ features:
       enabled:
         description: If true, Mozilla Ads Client is enabled.
         type: Boolean
-        default: true
+        default: false
   native-share-sheet:
     description: Feature to enable the Native Share Sheet for users on Firefox on Android.
     variables:
@@ -784,7 +761,7 @@ features:
         description: |
           When the feature is enabled then the user will see the new navigation toolbar.
         type: Boolean
-        default: true
+        default: false
   networkingBannedPorts:
     description: Networking (Necko) Banned Ports
     variables:
@@ -961,7 +938,7 @@ features:
       enabled:
         description: If true, Private Mode and Stories Entry Point Experiment is enabled.
         type: Boolean
-        default: true
+        default: false
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -1128,7 +1105,7 @@ features:
       enabled:
         description: If true, shake to summarize will be enabled
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
@@ -1181,7 +1158,7 @@ features:
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
-        default: true
+        default: false
   tab-search:
     description: Control the visibility of the tab search feature.
     variables:

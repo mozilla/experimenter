@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- nightly
+- developer
 features:
   add-shortcuts-improvement:
     description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
@@ -70,7 +70,7 @@ features:
       enabled:
         description: If true, the feature is enabled.
         type: Boolean
-        default: true
+        default: false
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -78,9 +78,9 @@ features:
         description: This property provides a lookup table of whether or not the given section should be enabled.
         type: Map<CookieBannersSection, Int>
         default:
-          feature-ui: 0
+          feature-ui: 1
           feature-setting-value: 0
-          feature-setting-value-pbm: 0
+          feature-setting-value-pbm: 1
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
@@ -209,7 +209,7 @@ features:
         description: |
           Enables the feature.
         type: Boolean
-        default: false
+        default: true
   fission:
     description: The feature that controls whether fission is enabled or not in Gecko.
     variables:
@@ -235,7 +235,7 @@ features:
         description: |
           The feature boost wiki and AMP suggestions to the top of its group.
         type: Boolean
-        default: false
+        default: true
       enabled:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
@@ -291,7 +291,7 @@ features:
       enabled:
         description: If true, Google Lens integration is enabled.
         type: Boolean
-        default: false
+        default: true
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -434,7 +434,7 @@ features:
             card-type: add-search-widget
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data: null
             image-res: nova_onboarding_widget
             ordering: 20
@@ -448,7 +448,7 @@ features:
             card-type: sync-sign-in
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data: null
             image-res: nova_onboarding_sync
             ordering: 30
@@ -462,7 +462,7 @@ features:
             card-type: notification-permission
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data: null
             image-res: nova_onboarding_notifications
             ordering: 40
@@ -476,7 +476,7 @@ features:
             card-type: toolbar-placement
             disqualifiers:
             - NEVER
-            enabled: false
+            enabled: true
             extra-data:
               customization-toolbar-data:
               - toolbar-type: toolbar-top
@@ -640,7 +640,7 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example-nightly:
+          microsurvey-printing-example:
             title: microsurvey_prompt_printing_title
             text: microsurvey_survey_printing_title
             surface: microsurvey
@@ -668,7 +668,7 @@ features:
         description: Configuration of the notification worker for all notification messages.
         type: NotificationConfig
         default:
-          refresh-interval: 240
+          refresh-interval: 120
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -680,7 +680,7 @@ features:
         default:
           DEFAULT:
             priority: 50
-            max-display-count: 5
+            max-display-count: 100
           SURVEY:
             priority: 55
             max-display-count: 1
@@ -699,6 +699,9 @@ features:
           MICROSURVEY:
             priority: 50
             max-display-count: 5
+          EXPIRES_QUICKLY:
+            priority: 100
+            max-display-count: 1
         string-alias: StyleName
       triggers:
         description: |
@@ -1063,19 +1066,19 @@ features:
       enabled:
         description: If true, Search Optimization is enabled.
         type: Boolean
-        default: false
+        default: true
       show-flights-card:
         description: If true, Search Optimization Flights cards are enabled.
         type: Boolean
-        default: false
+        default: true
       show-sports-card:
         description: If true, Search Optimization Sports cards are enabled.
         type: Boolean
-        default: false
+        default: true
       show-stocks-card:
         description: If true, Search Optimization Stock cards are enabled.
         type: Boolean
-        default: false
+        default: true
   search-suggestions-on-homepage:
     description: Enables search suggestions on homepage.
     variables:
@@ -1090,19 +1093,19 @@ features:
       download-link:
         description: A store download link.
         type: Text
-        default: ''
+        default: '[Download Link]'
       enabled:
         description: If true, the feature is available for the user.
         type: Boolean
-        default: false
+        default: true
       show-snackbar:
         description: If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings.
         type: Boolean
-        default: false
+        default: true
       template-message:
         description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
         type: Text
-        default: ''
+        default: sent_from_firefox_template
   settings-search:
     description: Feature to allow users to search for settings.
     variables:
@@ -1181,7 +1184,7 @@ features:
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
-        default: true
+        default: false
   tab-search:
     description: Control the visibility of the tab search feature.
     variables:
