@@ -341,13 +341,13 @@ def create_experiment(base_url, default_data, mobile_apps, application):
             branches.feature_config = "no feature"
             branches.reference_branch_value = "{}"
         elif "fenix" in application.lower():
-            branches.feature_config = "nimbus-is-ready"
-            branches.reference_branch_value = '{"event-count": 1}'
-            branches.treatment_branch_value = '{"event-count": 1}'
+            branches.feature_config = "no-feature-fenix"
+            branches.reference_branch_value = "{}"
+            branches.treatment_branch_value = "{}"
         elif "ios" in application.lower():
-            branches.feature_config = "toolbar-refactor-feature"
-            branches.treatment_branch_value = '{"enabled": true}'
-            branches.reference_branch_value = '{"enabled": true}'
+            branches.feature_config = "no-feature-ios"
+            branches.reference_branch_value = "{}"
+            branches.treatment_branch_value = "{}"
         branches.reference_branch_description = default_data.branches[0].description
         if is_rollout:
             branches.make_rollout()
