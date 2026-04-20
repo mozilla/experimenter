@@ -57,8 +57,8 @@ def wait_for_recipe(slug):
 
 
 @pytest.fixture
-def mint_preview_experiment(application_feature_ids):
-    def _mint(slug, channel):
+def create_fenix_experiment(application_feature_ids):
+    def _create_fenix_experiment(slug, channel):
         feature_id = application_feature_ids[FENIX_APP]
         helpers.create_experiment(
             slug,
@@ -79,4 +79,4 @@ def mint_preview_experiment(application_feature_ids):
         helpers.launch_to_preview(slug)
         return wait_for_recipe(slug)
 
-    return _mint
+    return _create_fenix_experiment

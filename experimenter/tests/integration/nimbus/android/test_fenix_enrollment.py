@@ -17,10 +17,10 @@ def test_fenix_enrollment(
     fenix_channel,
     fenix_apk_path,
     experiment_slug,
-    mint_preview_experiment,
+    create_fenix_experiment,
     tmp_path,
 ):
-    recipe = mint_preview_experiment(experiment_slug, fenix_channel)
+    recipe = create_fenix_experiment(experiment_slug, fenix_channel)
 
     recipe_path = tmp_path / "fenix_recipe.json"
     recipe_path.write_text(json.dumps(recipe))
