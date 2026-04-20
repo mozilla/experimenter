@@ -59,6 +59,10 @@ jobs:
         run: |
           # shellcheck disable=SC1090
           . ${{ matrix.build_env }}
+          if [ -z "${!TASK_ID_VAR}" ]; then
+            echo "::error::$TASK_ID_VAR is empty in ${{ matrix.build_env }}. Run update-firefox.yml with the ${{ matrix.channel == 'beta' && 'fenix-beta' || 'fenix-release' }} variant to populate it."
+            exit 1
+          fi
           curl -sSfL -o "$FENIX_APK_PATH" \
             "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${!TASK_ID_VAR}/artifacts/public/build/target.x86_64.apk"
         env:
