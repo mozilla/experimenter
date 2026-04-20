@@ -26,12 +26,10 @@ jobs:
         include:
           - channel: beta
             package: org.mozilla.firefox_beta
-            apk_namespace: gecko.v2.mozilla-beta.latest.mobile.fenix-beta
             build_env: experimenter/tests/firefox_fenix_beta_build.env
             task_id_var: FIREFOX_FENIX_BETA_TASK_ID
           - channel: release
             package: org.mozilla.firefox
-            apk_namespace: gecko.v2.mozilla-release.latest.mobile.fenix-release
             build_env: experimenter/tests/firefox_fenix_release_build.env
             task_id_var: FIREFOX_FENIX_RELEASE_TASK_ID
     env:
@@ -56,19 +54,15 @@ jobs:
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - name: Resolve and download Fenix ${{ matrix.channel }} APK
+      - name: Download Fenix ${{ matrix.channel }} APK
         if: steps.check-paths.outputs.should-run == 'true'
         run: |
-          TASK_ID_FILE=${{ matrix.build_env }}
-          TASK_ID_VAR=${{ matrix.task_id_var }}
-          if [ -f "$TASK_ID_FILE" ] && grep -q "^${TASK_ID_VAR}=.\+" "$TASK_ID_FILE"; then
-            # shellcheck disable=SC1090
-            . "$TASK_ID_FILE"
-            APK_URL="https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${!TASK_ID_VAR}/artifacts/public/build/target.x86_64.apk"
-          else
-            APK_URL="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/${{ matrix.apk_namespace }}/artifacts/public/build/target.x86_64.apk"
-          fi
-          curl -sSfL -o "$FENIX_APK_PATH" "$APK_URL"
+          # shellcheck disable=SC1090
+          . ${{ matrix.build_env }}
+          curl -sSfL -o "$FENIX_APK_PATH" \
+            "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${!TASK_ID_VAR}/artifacts/public/build/target.x86_64.apk"
+        env:
+          TASK_ID_VAR: ${{ matrix.task_id_var }}
 
       - name: Install nimbus-cli
         if: steps.check-paths.outputs.should-run == 'true'
