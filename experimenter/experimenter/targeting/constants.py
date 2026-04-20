@@ -2689,7 +2689,7 @@ RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION = NimbusTargetingConfig(
         "(os.isWindows && (os.windowsVersion >= 10)) "
         "&& isBackgroundTaskMode "
         "&& (defaultProfile.enrollmentsMap"
-        "['48hr-os-notification-for-resurrected-users-enrollment-rollout'] "
+        "['48hr-os-notification-for-resurrected-users-enrollment-rollout-v2'] "
         "== 'control') "
         "&& ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 48)"
     ),
