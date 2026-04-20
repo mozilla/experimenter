@@ -35,8 +35,14 @@ jobs:
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
+      - uses: ./.github/actions/retry
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          label: Build experimenter test image
+          run: |
+            cp .env.sample .env
+            make build_test
+
       - name: Run tests and linting
         if: steps.check-paths.outputs.should-run == 'true'
-        run: |
-          cp .env.sample .env
-          make check
+        run: make check

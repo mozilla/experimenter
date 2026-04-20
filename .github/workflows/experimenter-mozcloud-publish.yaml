@@ -40,11 +40,13 @@ jobs:
         with:
           paths: "experimenter/"
 
-      - name: Build (make build_prod)
+      - uses: ./.github/actions/retry
         if: steps.check-paths.outputs.should-run == 'true'
-        run: |
-          ./scripts/store_git_info.sh
-          make build_prod
+        with:
+          label: Build experimenter prod image
+          run: |
+            ./scripts/store_git_info.sh
+            make build_prod
 
       - name: Generate MozCloud Tag
         if: steps.check-paths.outputs.should-run == 'true'

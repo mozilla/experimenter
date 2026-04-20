@@ -32,9 +32,11 @@ jobs:
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - name: Build Cirrus
+      - uses: ./.github/actions/retry
         if: steps.check-paths.outputs.should-run == 'true'
-        run: make cirrus_build
+        with:
+          label: Build Cirrus
+          run: make cirrus_build
 
       - name: Generate image tag
         if: steps.check-paths.outputs.should-run == 'true'
