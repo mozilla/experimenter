@@ -64,14 +64,10 @@ jobs:
           if [ -f "$TASK_ID_FILE" ] && grep -q "^${TASK_ID_VAR}=.\+" "$TASK_ID_FILE"; then
             # shellcheck disable=SC1090
             . "$TASK_ID_FILE"
-            TASK_ID="${!TASK_ID_VAR}"
-            APK_URL="https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${TASK_ID}/artifacts/public/build/target.x86_64.apk"
-            echo "Using pinned ${TASK_ID_VAR}=${TASK_ID}"
+            APK_URL="https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${!TASK_ID_VAR}/artifacts/public/build/target.x86_64.apk"
           else
             APK_URL="https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/${{ matrix.apk_namespace }}/artifacts/public/build/target.x86_64.apk"
-            echo "No pinned task id in $TASK_ID_FILE, using ${{ matrix.apk_namespace }}"
           fi
-          echo "Downloading: $APK_URL"
           curl -sSfL -o "$FENIX_APK_PATH" "$APK_URL"
 
       - name: Install nimbus-cli
@@ -99,13 +95,10 @@ jobs:
       - name: Wait for Experimenter backend to be ready
         if: steps.check-paths.outputs.should-run == 'true'
         run: |
-          for i in $(seq 1 60); do
-            code=$(curl -sk -o /dev/null -w "%{http_code}" https://localhost/__lbheartbeat__ || echo "000")
-            if [ "$code" = "200" ]; then
-              echo "Experimenter backend ready after ${i} polls (HTTP ${code})"
+          for _ in $(seq 1 60); do
+            if curl -sfk -o /dev/null https://localhost/__lbheartbeat__; then
               exit 0
             fi
-            echo "Poll ${i}: HTTP ${code}, waiting..."
             sleep 5
           done
           echo "::error::Experimenter backend did not return 200 on /__lbheartbeat__ within 5 minutes"
