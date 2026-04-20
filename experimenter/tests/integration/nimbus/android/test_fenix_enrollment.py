@@ -68,7 +68,6 @@ def test_fenix_enrollment(
     tmp_path,
 ):
     feature_id = application_feature_ids[FENIX_APP]
-    assert feature_id, f"No feature id registered for '{FENIX_APP}'"
     mint_preview_experiment(experiment_slug, fenix_channel, feature_id)
     recipe = wait_for_recipe(experiment_slug)
 
@@ -110,12 +109,11 @@ def test_fenix_enrollment(
         rf"nimbus_client:\s*{re.escape(experiment_slug)}\s+\|\s*\S+\s+\|\s*(\S+)"
     )
     match = pattern.search(logcat)
-    if match is None:
-        nimbus_lines = [line for line in logcat.splitlines() if "nimbus_client" in line]
-        assert match is not None, (
-            f"No log-state row found for {experiment_slug}.\n"
-            f"--- last 30 nimbus_client lines ---\n" + "\n".join(nimbus_lines[-30:])
-        )
+    nimbus_lines = [line for line in logcat.splitlines() if "nimbus_client" in line]
+    assert match is not None, (
+        f"No log-state row found for {experiment_slug}.\n"
+        f"--- last 30 nimbus_client lines ---\n" + "\n".join(nimbus_lines[-30:])
+    )
     enrolled_branch = match.group(1)
     assert enrolled_branch in {"control", "treatment-a"}, (
         f"Unexpected branch {enrolled_branch!r} for {experiment_slug}"

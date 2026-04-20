@@ -64,9 +64,7 @@ jobs:
           if [ -f "$TASK_ID_FILE" ] && grep -q "^${TASK_ID_VAR}=.\+" "$TASK_ID_FILE"; then
             # shellcheck disable=SC1090
             . "$TASK_ID_FILE"
-            TASK_ID="$(eval echo \${$TASK_ID_VAR})"
-            TASK_ID="${TASK_ID%\"}"
-            TASK_ID="${TASK_ID#\"}"
+            TASK_ID="${!TASK_ID_VAR}"
             APK_URL="https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${TASK_ID}/artifacts/public/build/target.x86_64.apk"
             echo "Using pinned ${TASK_ID_VAR}=${TASK_ID}"
           else
@@ -75,16 +73,12 @@ jobs:
           fi
           echo "Downloading: $APK_URL"
           curl -sSfL -o "$FENIX_APK_PATH" "$APK_URL"
-          ls -lh "$FENIX_APK_PATH"
-          file "$FENIX_APK_PATH"
 
       - name: Install nimbus-cli
         if: steps.check-paths.outputs.should-run == 'true'
         run: |
           curl -sSfL https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh -o /tmp/install-nimbus-cli.sh
           sudo bash /tmp/install-nimbus-cli.sh --directory /usr/local/bin
-          command -v nimbus-cli
-          nimbus-cli --help | head -5
 
       - name: Set up Python
         if: steps.check-paths.outputs.should-run == 'true'
