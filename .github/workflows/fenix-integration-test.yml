@@ -95,7 +95,6 @@ jobs:
         run: |
           cp .env.integration-tests .env
           make refresh SKIP_DUMMY=1 up_prod_detached
-          df -h /
 
       - name: Wait for Experimenter backend to be ready
         if: steps.check-paths.outputs.should-run == 'true'
