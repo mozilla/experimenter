@@ -354,3 +354,7 @@ def update_experiment_audience(slug, audience_data):
 def end_experiment(slug):
     _post_form(f"/nimbus/{slug}/live-to-complete/")
     _post_form(f"/nimbus/{slug}/approve-end-experiment/")
+
+
+def launch_to_preview(slug):
+    _post_form(f"/nimbus/{slug}/draft-to-preview/")
