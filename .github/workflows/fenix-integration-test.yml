@@ -83,17 +83,7 @@ jobs:
 
       - name: Wait for Experimenter backend to be ready
         if: steps.check-paths.outputs.should-run == 'true'
-        run: |
-          for _ in $(seq 1 60); do
-            if curl -sfk -o /dev/null https://localhost/__lbheartbeat__; then
-              exit 0
-            fi
-            sleep 5
-          done
-          echo "::error::Experimenter backend did not return 200 on /__lbheartbeat__ within 5 minutes"
-          docker compose -f docker-compose-prod.yml ps
-          docker compose -f docker-compose-prod.yml logs --tail=80 experimenter nginx
-          exit 1
+        run: curl --retry 60 --retry-delay 5 --retry-all-errors -sfk -o /dev/null https://localhost/__lbheartbeat__
 
       - name: Enable KVM
         if: steps.check-paths.outputs.should-run == 'true'
