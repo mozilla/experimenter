@@ -1894,8 +1894,8 @@ class TestHomeFilters(AuthTestCase):
 class TestFormatPValue(TestCase):
     @parameterized.expand(
         [
-            ("very_small", 1.23e-24, "1.23e-24"),
-            ("small_below_threshold", 0.00005, "5.00e-05"),
+            ("very_small", 1.23e-24, "< 0.0001"),
+            ("small_below_threshold", 0.00005, "< 0.0001"),
             ("above_threshold", 0.0003, "0.0003"),
             ("exactly_at_threshold", 0.0001, "0.0001"),
             ("invalid_string", "not-a-number", "N/A"),

@@ -33,6 +33,7 @@ from experimenter.nimbus_ui.views import (
     NimbusExperimentsListTableView,
     NimbusExperimentsPromoteToRolloutView,
     NimbusExperimentsSidebarCloneView,
+    NimbusFeatureMonitoringView,
     NimbusFeaturesView,
     NimbusRolloutDetailView,
     OverviewUpdateView,
@@ -69,6 +70,11 @@ urlpatterns = [
         r"^features/",
         NimbusFeaturesView.as_view(),
         name="nimbus-ui-features",
+    ),
+    re_path(
+        r"^feature-monitoring/(?P<pk>\d+)/$",
+        NimbusFeatureMonitoringView.as_view(),
+        name="nimbus-ui-feature-monitoring",
     ),
     re_path(
         r"^tags/manage/$",

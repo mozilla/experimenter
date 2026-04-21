@@ -1,6 +1,6 @@
 {% load nimbus_extras %}
 
-{% with sig=significance|default:"neutral" %}
+{% with sig=significance|default:"unknown" %}
   {% if type == "absolute" %}
     <div class="p-3 bg-body-tertiary rounded-3 text-center d-flex flex-row align-items-center justify-content-center mb-3 fw-semibold {% if sig == "positive" %}bg-success-subtle text-success{% elif sig == "negative" %}bg-danger-subtle text-danger{% else %}bg-body-tertiary text-muted{% endif %}"
          style="height: 75px">

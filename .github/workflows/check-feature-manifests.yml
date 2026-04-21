@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-      - external-config
-      - update-application-services
-      - update_firefox_desktop_release
-      - update_firefox_desktop_beta
   pull_request:
   merge_group:
     types: [checks_requested]
@@ -31,10 +27,17 @@ jobs:
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
+      - uses: ./.github/actions/retry
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          label: Build experimenter dev image
+          run: |
+            cp .env.sample .env
+            make build_dev
+
       - name: Check local feature manifests
         if: steps.check-paths.outputs.should-run == 'true'
         run: |
-          cp .env.sample .env
           make feature_manifests FETCH_ARGS="--local-apps"
           if ! git diff --quiet experimenter/experimenter/features/manifests/; then
             echo 'Please commit generated updates to local feature manifests:'

@@ -845,6 +845,7 @@ class NimbusConstants:
         WEBPAGE_DISPLAY = "experimental-features-group-webpage-display"
         DEVELOPER_TOOLS = "experimental-features-group-developer-tools"
         PRODUCTIVITY = "experimental-features-group-productivity"
+        NEWTAB_WIDGETS = "experimental-features-group-newtab-widgets"
 
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
     EMAIL_ENROLLMENT_END_SUBJECT = "Action required: Please end experiment enrollment"
@@ -1127,6 +1128,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             FirefoxLabsGroups.WEBPAGE_DISPLAY: Version.FIREFOX_137,
             FirefoxLabsGroups.DEVELOPER_TOOLS: Version.FIREFOX_137,
             FirefoxLabsGroups.PRODUCTIVITY: Version.FIREFOX_143_B3,
+            FirefoxLabsGroups.NEWTAB_WIDGETS: Version.FIREFOX_151,
         },
     }
 

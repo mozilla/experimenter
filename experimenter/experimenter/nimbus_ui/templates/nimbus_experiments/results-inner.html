@@ -351,7 +351,7 @@
                   {% endfor %}
                 </div>
                 <div class="col position-relative w-25 d-flex flex-column">
-                  {% if experiment.is_enrolling %}
+                  {% if not experiment.has_displayable_results %}
                     <div class="row flex-row flex-nowrap overflow-auto mx-2 {% if branch_data|length > 4 %}mx-4{% endif %}">
                       {% for branch in branch_data %}
                         <div class="{% if branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">

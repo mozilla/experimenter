@@ -132,12 +132,11 @@ def selenium(selenium, experiment_slug, kinto_client):
 
     yield selenium
 
-    if os.getenv("CIRCLECI") is None:
-        try:
-            helpers.end_experiment(experiment_slug)
-            kinto_client.approve()
-        except Exception:
-            pass
+    try:
+        helpers.end_experiment(experiment_slug)
+        kinto_client.approve()
+    except Exception:
+        pass
 
 
 @pytest.fixture
@@ -342,13 +341,13 @@ def create_experiment(base_url, default_data, mobile_apps, application):
             branches.feature_config = "no feature"
             branches.reference_branch_value = "{}"
         elif "fenix" in application.lower():
-            branches.feature_config = "nimbus-is-ready"
-            branches.reference_branch_value = '{"event-count": 1}'
-            branches.treatment_branch_value = '{"event-count": 1}'
+            branches.feature_config = "nimbus-system"
+            branches.reference_branch_value = '{"refresh-interval-foreground": 60}'
+            branches.treatment_branch_value = '{"refresh-interval-foreground": 60}'
         elif "ios" in application.lower():
-            branches.feature_config = "toolbar-refactor-feature"
-            branches.treatment_branch_value = '{"enabled": true}'
+            branches.feature_config = "spotlight-search"
             branches.reference_branch_value = '{"enabled": true}'
+            branches.treatment_branch_value = '{"enabled": true}'
         branches.reference_branch_description = default_data.branches[0].description
         if is_rollout:
             branches.make_rollout()

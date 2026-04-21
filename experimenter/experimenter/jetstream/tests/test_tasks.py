@@ -480,12 +480,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                         "lower": 10.0,
                                                         "point": 12.0,
                                                         "upper": 13.0,
+                                                        "window_index": "1",
                                                     }
                                                 ],
                                                 "first": {
                                                     "lower": 10.0,
                                                     "point": 12.0,
                                                     "upper": 13.0,
+                                                    "window_index": "1",
                                                 },
                                             },
                                             "difference": {
@@ -526,12 +528,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                         "lower": 10.0,
                                                         "point": 12.0,
                                                         "upper": 13.0,
+                                                        "window_index": "1",
                                                     }
                                                 ],
                                                 "first": {
                                                     "lower": 10.0,
                                                     "point": 12.0,
                                                     "upper": 13.0,
+                                                    "window_index": "1",
                                                 },
                                             },
                                             "difference": {
@@ -577,12 +581,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                         "lower": 10.0,
                                                         "point": 12.0,
                                                         "upper": 13.0,
+                                                        "window_index": "1",
                                                     }
                                                 ],
                                                 "first": {
                                                     "lower": 10.0,
                                                     "point": 12.0,
                                                     "upper": 13.0,
+                                                    "window_index": "1",
                                                 },
                                             },
                                             "difference": {
@@ -623,12 +629,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                         "lower": 10.0,
                                                         "point": 12.0,
                                                         "upper": 13.0,
+                                                        "window_index": "1",
                                                     }
                                                 ],
                                                 "first": {
                                                     "lower": 10.0,
                                                     "point": 12.0,
                                                     "upper": 13.0,
+                                                    "window_index": "1",
                                                 },
                                             },
                                             "difference": {
@@ -1505,12 +1513,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                         "lower": 0.0,
                                                         "point": 0.0,
                                                         "upper": 0.0,
+                                                        "window_index": "1",
                                                     }
                                                 ],
                                                 "first": {
                                                     "lower": 0.0,
                                                     "point": 0.0,
                                                     "upper": 0.0,
+                                                    "window_index": "1",
                                                 },
                                             },
                                             "difference": {
@@ -1551,12 +1561,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                         "lower": 0.0,
                                                         "point": 0.0,
                                                         "upper": 0.0,
+                                                        "window_index": "1",
                                                     }
                                                 ],
                                                 "first": {
                                                     "lower": 0.0,
                                                     "point": 0.0,
                                                     "upper": 0.0,
+                                                    "window_index": "1",
                                                 },
                                             },
                                             "difference": {
@@ -2658,12 +2670,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                         "lower": 0.855,
                                                         "point": 0.856,
                                                         "upper": 0.8575,
+                                                        "window_index": "1",
                                                     }
                                                 ],
                                                 "first": {
                                                     "lower": 0.855,
                                                     "point": 0.856,
                                                     "upper": 0.8575,
+                                                    "window_index": "1",
                                                 },
                                             },
                                             "difference": {
@@ -2673,12 +2687,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": -10.2,
                                                             "point": -0.1,
                                                             "upper": -0.01,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": -10.2,
                                                         "point": -0.1,
                                                         "upper": -0.01,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "treatment-b": {
@@ -2687,12 +2703,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": -1.2,
                                                             "point": -1.1,
                                                             "upper": -1.01,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": -1.2,
                                                         "point": -1.1,
                                                         "upper": -1.01,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "control": {
@@ -2707,12 +2725,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": -0.3,
                                                             "point": -0.2,
                                                             "upper": -0.1,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": -0.3,
                                                         "point": -0.2,
                                                         "upper": -0.1,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "treatment-b": {
@@ -2721,12 +2741,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": -2.2,
                                                             "point": -2.1,
                                                             "upper": -2.01,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": -2.2,
                                                         "point": -2.1,
                                                         "upper": -2.01,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "control": {
@@ -2768,12 +2790,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                         "lower": 0.857,
                                                         "point": 0.858,
                                                         "upper": 0.8596,
+                                                        "window_index": "1",
                                                     }
                                                 ],
                                                 "first": {
                                                     "lower": 0.857,
                                                     "point": 0.858,
                                                     "upper": 0.8596,
+                                                    "window_index": "1",
                                                 },
                                             },
                                             "difference": {
@@ -2783,12 +2807,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": -10.0,
                                                             "point": 0.1,
                                                             "upper": 10.2,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": -10.0,
                                                         "point": 0.1,
                                                         "upper": 10.2,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "treatment-b": {
@@ -2797,12 +2823,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": 2.5,
                                                             "point": 0.1,
                                                             "upper": 1.0,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": 2.5,
                                                         "point": 0.1,
                                                         "upper": 1.0,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "treatment-a": {
@@ -2817,12 +2845,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": 0.1,
                                                             "point": 0.2,
                                                             "upper": 0.3,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": 0.1,
                                                         "point": 0.2,
                                                         "upper": 0.3,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "treatment-b": {
@@ -2831,12 +2861,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": 3.141592653589793,
                                                             "point": 0.1111111111111111,
                                                             "upper": 0.2222222222222222,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": 3.141592653589793,
                                                         "point": 0.1111111111111111,
                                                         "upper": 0.2222222222222222,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "treatment-a": {
@@ -2878,12 +2910,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                         "lower": 0.856,
                                                         "point": 0.857,
                                                         "upper": 0.8589,
+                                                        "window_index": "1",
                                                     }
                                                 ],
                                                 "first": {
                                                     "lower": 0.856,
                                                     "point": 0.857,
                                                     "upper": 0.8589,
+                                                    "window_index": "1",
                                                 },
                                             },
                                             "difference": {
@@ -2893,12 +2927,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": 1.0,
                                                             "point": 0.0,
                                                             "upper": 0.5,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": 1.0,
                                                         "point": 0.0,
                                                         "upper": 0.5,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "treatment-a": {
@@ -2907,12 +2943,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": -0.9,
                                                             "point": -0.8,
                                                             "upper": -0.5,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": -0.9,
                                                         "point": -0.8,
                                                         "upper": -0.5,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "treatment-b": {
@@ -2927,12 +2965,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": 2.2,
                                                             "point": 0.1,
                                                             "upper": 0.02,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": 2.2,
                                                         "point": 0.1,
                                                         "upper": 0.02,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "treatment-a": {
@@ -2941,12 +2981,14 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                                                             "lower": -0.2,
                                                             "point": -0.1,
                                                             "upper": -0.01,
+                                                            "window_index": "1",
                                                         },
                                                     ],
                                                     "first": {
                                                         "lower": -0.2,
                                                         "point": -0.1,
                                                         "upper": -0.01,
+                                                        "window_index": "1",
                                                     },
                                                 },
                                                 "treatment-b": {

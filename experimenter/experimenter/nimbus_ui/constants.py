@@ -45,7 +45,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     MONITORING_SRM_HEALTHY_DETAIL = "Branches are at the expected distribution."
     MONITORING_UNENROLLMENT_HEALTHY_DETAIL = (
-        "Unenrollment rate is within a healthy range — below the alert threshold."
+        "within a healthy range — below the alert threshold."
     )
 
     EXCLUDING_EXPERIMENTS_WARNING = """The following experiments are being excluded by
@@ -172,6 +172,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "All statistically significant changes that have occurred in the experiment"
     )
     NOTABLE_CHANGES_ABSENT_TEXT = "There are no notable changes in this experiment"
+    FEATURE_MONITORING_CARD_TITLE = "Feature Monitoring"
+    FEATURE_MONITORING_OPEN_DASHBOARD_TEXT = "Open in Grafana"
+
     FEATURE_PAGE_LINKS = {
         "feature_learn_more_url": "https://experimenter.info/getting-started/for-experiment-owners",
         "deliveries_table_tooltip": """This shows all Nimbus experiments, rollouts, Labs

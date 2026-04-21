@@ -1,0 +1,41 @@
+name: "Retry"
+description: "Run a shell command with retry on failure"
+
+inputs:
+  run:
+    description: "Shell command to run"
+    required: true
+  label:
+    description: "Human-readable label for log grouping"
+    required: true
+  attempts:
+    description: "Total number of attempts (including the first)"
+    default: "3"
+  backoff-seconds:
+    description: "Seconds to sleep before each retry, multiplied by the attempt number"
+    default: "10"
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        RETRY_RUN: ${{ inputs.run }}
+        RETRY_LABEL: ${{ inputs.label }}
+        RETRY_ATTEMPTS: ${{ inputs.attempts }}
+        RETRY_BACKOFF: ${{ inputs.backoff-seconds }}
+      run: |
+        for attempt in $(seq 1 "$RETRY_ATTEMPTS"); do
+          echo "::group::${RETRY_LABEL} (attempt ${attempt} of ${RETRY_ATTEMPTS})"
+          if bash -c "$RETRY_RUN"; then
+            echo "::endgroup::"
+            exit 0
+          fi
+          echo "::endgroup::"
+          if [ "$attempt" -eq "$RETRY_ATTEMPTS" ]; then
+            echo "::error::${RETRY_LABEL} failed after ${RETRY_ATTEMPTS} attempts"
+            exit 1
+          fi
+          echo "::warning::${RETRY_LABEL} attempt ${attempt} failed, retrying..."
+          sleep $((attempt * RETRY_BACKOFF))
+        done

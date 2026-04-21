@@ -102,11 +102,18 @@ def format_jexl(expression):
     def node_to_str(node):
         if isinstance(node, Identifier):
             subject = f"{node_to_str(node.subject)}." if node.subject else ""
-            return f"{'.{subject}' if node.relative else subject}{node.value}"
+            prefix = f".{subject}" if node.relative else subject
+            return f"{prefix}{node.value}"
         if isinstance(node, Literal):
             return json.dumps(node.value)
         if isinstance(node, ArrayLiteral):
             return f"[{', '.join(node_to_str(a) for a in node.value)}]"
+        if isinstance(node, ObjectLiteral):
+            items = ", ".join(
+                f"{k}: {node_to_str(v) or format_node(v, False, 0)}"
+                for k, v in node.value.items()
+            )
+            return f"{{{items}}}"
         if isinstance(node, Transform):
             args_list = [node_to_str(a) or format_node(a, False, 0) for a in node.args]
             args_str = ", ".join(args_list)
@@ -169,6 +176,15 @@ def format_jexl(expression):
         if isinstance(node, UnaryExpression):
             right = node_to_str(node.right) or format_node(node.right, False, indent)
             return f"{node.operator.symbol}({right})"
+        if isinstance(node, ConditionalExpression):
+            test = node_to_str(node.test) or format_node(node.test, False, indent)
+            consequent = node_to_str(node.consequent) or format_node(
+                node.consequent, False, indent
+            )
+            alternate = node_to_str(node.alternate) or format_node(
+                node.alternate, False, indent
+            )
+            return f"({test} ? {consequent} : {alternate})"
         return node_to_str(node) or str(node)
 
     try:
