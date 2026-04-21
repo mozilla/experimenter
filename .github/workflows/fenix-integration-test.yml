@@ -1,0 +1,120 @@
+name: Fenix Enrollment Integration Test
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "3 12 * * *"
+  push:
+    branches:
+      - main
+      - update_firefox_fenix_beta
+      - update_firefox_fenix_release
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  test:
+    name: "Fenix Enrollment (${{ matrix.channel }})"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - channel: beta
+            build_env: experimenter/tests/firefox_fenix_beta_build.env
+            task_id_var: FIREFOX_FENIX_BETA_TASK_ID
+          - channel: release
+            build_env: experimenter/tests/firefox_fenix_release_build.env
+            task_id_var: FIREFOX_FENIX_RELEASE_TASK_ID
+    env:
+      INTEGRATION_TEST_NGINX_URL: https://localhost
+      FENIX_APK_PATH: ${{ github.workspace }}/fenix.apk
+      FENIX_CHANNEL: ${{ matrix.channel }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/experimenter/ experimenter/tests/integration/ experimenter/tests/firefox_fenix_beta_build.env experimenter/tests/firefox_fenix_release_build.env"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - name: Download Fenix ${{ matrix.channel }} APK
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: |
+          . ${{ matrix.build_env }}
+          if [ -z "${!TASK_ID_VAR}" ]; then
+            echo "::error::$TASK_ID_VAR is empty in ${{ matrix.build_env }}. Run update-firefox.yml with the ${{ matrix.channel == 'beta' && 'fenix-beta' || 'fenix-release' }} variant to populate it."
+            exit 1
+          fi
+          curl -sSfL -o "$FENIX_APK_PATH" \
+            "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${!TASK_ID_VAR}/artifacts/public/build/target.x86_64.apk"
+        env:
+          TASK_ID_VAR: ${{ matrix.task_id_var }}
+
+      - name: Install nimbus-cli
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh -o /tmp/install-nimbus-cli.sh
+          sudo bash /tmp/install-nimbus-cli.sh --directory /usr/local/bin
+
+      - name: Set up Python
+        if: steps.check-paths.outputs.should-run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install poetry
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: pipx install poetry
+
+      - name: Bring up Experimenter stack
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: |
+          cp .env.integration-tests .env
+          make refresh SKIP_DUMMY=1 up_prod_detached
+
+      - name: Wait for Experimenter backend to be ready
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: curl --retry 60 --retry-delay 5 --retry-all-errors -sfk -o /dev/null https://localhost/__lbheartbeat__
+
+      - name: Enable KVM
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Prepare Android SDK install dir
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: |
+          sudo mkdir -p /usr/local/lib/android
+          sudo chown -R "$USER" /usr/local/lib/android
+
+      - name: Run Fenix enrollment test on emulator
+        if: steps.check-paths.outputs.should-run == 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          disk-size: 4096M
+          emulator-options: -no-window -no-boot-anim -no-audio -accel on -gpu swiftshader_indirect
+          script: make integration_test_nimbus_fenix
+
+      - name: Upload test report on failure
+        if: failure() && steps.check-paths.outputs.should-run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fenix-${{ matrix.channel }}-test-report
+          path: experimenter/tests/integration/test-reports/
+          if-no-files-found: ignore
