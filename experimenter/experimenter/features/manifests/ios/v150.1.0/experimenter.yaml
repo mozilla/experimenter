@@ -466,10 +466,6 @@ toolbar-refactor-feature:
       type: boolean
       description: |
         Enables the middle button customization for navigation toolbar.
-    minimal_address_bar:
-      type: boolean
-      description: |
-        Enables minimal address bar mode on scroll to ensure the url is always visible.
     navigation_hint:
       type: boolean
       description: |
