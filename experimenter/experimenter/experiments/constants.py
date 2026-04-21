@@ -1177,6 +1177,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     MONITORING_ALERT_MINIMUM_DAYS = 1
 
+    OVERALL_WINDOW_INDEX = "1"
+
 
 EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/workflow/risk-mitigation#qa-sign-off",

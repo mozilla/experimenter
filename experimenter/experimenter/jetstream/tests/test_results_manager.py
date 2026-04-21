@@ -2775,3 +2775,181 @@ class TestExperimentResultsManager(TestCase):
         self.assertAlmostEqual(
             self.results_manager.exposure_rate("all"), expected_exposure_rate
         )
+
+    @parameterized.expand(
+        [
+            # This test case uses the updated results data strucutre where we give points
+            # in the overall window a value for window_index
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-b": {
+                                                            "all": [
+                                                                {
+                                                                    "window_index": "1",
+                                                                    "lower": -0.12,
+                                                                    "upper": 0.15,
+                                                                    "point": 0.02,
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    "significance": {
+                                                        "branch-b": {
+                                                            "overall": {"1": "negative"}
+                                                        }
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "window_index": "1",
+                                                                    "lower": -0.12,
+                                                                    "upper": 0.15,
+                                                                    "point": 0.02,
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "positive"}
+                                                        }
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                },
+                            }
+                        }
+                    }
+                },
+                [
+                    {
+                        "lower": -0.12,
+                        "upper": 0.15,
+                        "significance": MetricSignificance.NEGATIVE,
+                        "avg_rel_change": 0.02,
+                        "window_index": "1",
+                    }
+                ],
+            ),
+            # This test case uses the old results data structure where points in the
+            # overall window do not have a value for window_index, and ensures that the
+            # code correctly defaults to using "1" as the window index for overall
+            # metrics when it's not provided
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-b": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.12,
+                                                                    "upper": 0.15,
+                                                                    "point": 0.02,
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    "significance": {
+                                                        "branch-b": {
+                                                            "overall": {"1": "negative"}
+                                                        }
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.12,
+                                                                    "upper": 0.15,
+                                                                    "point": 0.02,
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "positive"}
+                                                        }
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                },
+                            }
+                        }
+                    }
+                },
+                [
+                    {
+                        "lower": -0.12,
+                        "upper": 0.15,
+                        "significance": MetricSignificance.NEGATIVE,
+                        "avg_rel_change": 0.02,
+                        "window_index": "1",
+                    }
+                ],
+            ),
+        ]
+    )
+    def test_metric_significance_correctness_on_overall_window(
+        self, results_data, expected_significance
+    ):
+        self.experiment.results_data = results_data
+        self.experiment.save()
+
+        metric_src = (
+            results_data.get("v3")
+            .get("overall")
+            .get("enrollments")
+            .get("all")
+            .get("branch-a", {})
+            .get("branch_data")
+            .get("other_metrics")
+            .get("retained")
+        )
+        reference_branch = "branch-b"
+
+        self.assertEqual(
+            self.results_manager.format_relative_entries(
+                metric_src,
+                metric_src.get("significance").get(reference_branch).get("overall"),
+                reference_branch,
+                "overall",
+            ),
+            expected_significance,
+        )

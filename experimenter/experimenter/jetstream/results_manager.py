@@ -177,14 +177,18 @@ class ExperimentResultsManager:
         wi = point.get("window_index")
         return int(wi) if wi is not None else 0
 
-    def format_absolute_entries(self, metric_src, significance_map):
+    def format_absolute_entries(self, metric_src, significance_map, window=None):
         absolute_data_list = metric_src.get("absolute", {}).get("all", [])
         absolute_data_list.sort(key=self.window_index_for_sort)
         abs_entries = []
         for data_point in absolute_data_list:
             lower = data_point.get("lower")
             upper = data_point.get("upper")
-            window_index = data_point.get("window_index", None)
+            window_index = (
+                NimbusConstants.OVERALL_WINDOW_INDEX
+                if window == "overall"
+                else data_point.get("window_index")
+            )
             significance = significance_map.get(window_index, MetricSignificance.UNKNOWN)
             abs_entries.append(
                 {
@@ -196,7 +200,9 @@ class ExperimentResultsManager:
             )
         return abs_entries
 
-    def format_relative_entries(self, metric_src, significance_map, reference_branch):
+    def format_relative_entries(
+        self, metric_src, significance_map, reference_branch, window=None
+    ):
         relative_data_list = (
             metric_src.get("relative_uplift", {}).get(reference_branch, {}).get("all", [])
         )
@@ -211,7 +217,11 @@ class ExperimentResultsManager:
             avg_rel_change = (
                 abs(data_point.get("point")) if data_point.get("point") else None
             )
-            window_index = data_point.get("window_index", None)
+            window_index = (
+                NimbusConstants.OVERALL_WINDOW_INDEX
+                if window == "overall"
+                else data_point.get("window_index")
+            )
             significance = significance_map.get(window_index, MetricSignificance.UNKNOWN)
             rel_entries.append(
                 {
@@ -236,9 +246,11 @@ class ExperimentResultsManager:
                 .get(window, {})
             )
 
-            abs_entries = self.format_absolute_entries(metric_src, significance_map)
+            abs_entries = self.format_absolute_entries(
+                metric_src, significance_map, window
+            )
             rel_entries = self.format_relative_entries(
-                metric_src, significance_map, reference_branch
+                metric_src, significance_map, reference_branch, window
             )
 
             branch_metrics[branch.slug] = {
