@@ -3,13 +3,12 @@ name: Fenix Enrollment Integration Test
 on:
   workflow_dispatch:
   schedule:
-    - cron: "3 12 * * *"
+    - cron: "0 3 * * *"
   push:
     branches:
       - main
       - update_firefox_fenix_beta
       - update_firefox_fenix_release
-      - "15340"  # TEMP: drop before promote to ready-for-review
   pull_request:
   merge_group:
     types: [checks_requested]
