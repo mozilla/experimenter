@@ -194,3 +194,18 @@ def format_jexl(expression):
         logging.exception(f"Failed to parse JEXL expression `{expression}'")
 
         return expression
+
+
+def extract_targeting_fields(targeting_config):
+    extracted_root_fields = set()
+
+    for subexpr in collect_exprs(targeting_config):
+        try:
+            json.loads(subexpr)
+            continue
+        except json.JSONDecodeError:
+            if subexpr.startswith("."):
+                continue
+            extracted_root_fields.add(subexpr.partition(".")[0])
+
+    return extracted_root_fields

@@ -1,10 +1,8 @@
-import json
-
 from django.test import TestCase
 from parameterized import parameterized
 
 from experimenter.experiments.constants import Application
-from experimenter.experiments.jexl_utils import collect_exprs
+from experimenter.experiments.jexl_utils import extract_targeting_fields
 from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.targeting.constants import (
     PRESERVED_TARGETING_KEYS_BY_APPLICATION,
@@ -14,6 +12,10 @@ from experimenter.targeting.targeting_context_parser import TargetingContextFiel
 
 
 class TestTargetingConfigs(TestCase):
+    def setUp(self):
+        super().setUp()
+        TargetingContextFields.clear_cache()
+
     def test_all_targeting_configs_defined_in_constants(self):
         self.assertEqual(
             {t.value for t in TargetingConstants.TargetingConfig},
@@ -66,18 +68,9 @@ class TestTargetingConfigs(TestCase):
                     )
 
         if targeting_config.targeting:
-            extracted_root_fields = set()
-
-            for subexpr in collect_exprs(targeting_config.targeting):
-                try:
-                    json.loads(subexpr)
-                    continue
-                except json.JSONDecodeError:
-                    if subexpr.startswith("."):
-                        continue
-                    extracted_root_fields.add(subexpr.partition(".")[0])
-
-            unknown_fields = extracted_root_fields - valid_fields
+            unknown_fields = (
+                extract_targeting_fields(targeting_config.targeting) - valid_fields
+            )
 
             self.assertFalse(
                 unknown_fields,

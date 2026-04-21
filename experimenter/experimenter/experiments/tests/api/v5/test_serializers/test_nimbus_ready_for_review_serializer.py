@@ -14,6 +14,9 @@ from experimenter.base.tests.factories import (
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureVersion
+from experimenter.experiments.tests.api.v5.test_serializers import (
+    mock_targeting_manifests,
+)
 from experimenter.experiments.tests.api.v5.test_serializers.mixins import (
     MockFmlErrorMixin,
 )
@@ -26,6 +29,7 @@ from experimenter.experiments.tests.factories import (
     NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.targeting.targeting_context_parser import TargetingContextFields
 
 BASIC_JSON_SCHEMA = """\
 {
@@ -3371,11 +3375,13 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         )
 
 
+@mock_targeting_manifests
 class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
     maxDiff = None
 
     def setUp(self):
         super().setUp()
+        TargetingContextFields.clear_cache()
 
         self.user = UserFactory()
 
@@ -4403,6 +4409,110 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.errors, {})
+
+    @parameterized.expand(
+        [
+            (False, False),
+            (True, True),
+        ]
+    )
+    def test_validate_targeting_configs_unknown_field_is_error_or_warning(
+        self,
+        warn_feature_schema,
+        expected_valid,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_121,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ATTRIBUTION_MEDIUM_EMAIL,
+            warn_feature_schema=warn_feature_schema,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        with patch(
+            "experimenter.experiments.api.v5.serializers.extract_targeting_fields",
+            return_value={"knownField", "unknownField"},
+        ):
+            self.assertEqual(serializer.is_valid(), expected_valid, serializer.errors)
+
+        if expected_valid:
+            self.assertEqual(len(serializer.warnings["targeting_config_slug"]), 1)
+            self.assertIn("unknownField", serializer.warnings["targeting_config_slug"][0])
+        else:
+            self.assertEqual(len(serializer.errors["targeting_config_slug"]), 1)
+            self.assertIn("unknownField", serializer.errors["targeting_config_slug"][0])
+
+    @parameterized.expand(
+        [
+            # min == max
+            (NimbusExperiment.Version.FIREFOX_120, NimbusExperiment.Version.FIREFOX_120),
+            (NimbusExperiment.Version.FIREFOX_121, NimbusExperiment.Version.FIREFOX_121),
+            (NimbusExperiment.Version.FIREFOX_122, NimbusExperiment.Version.FIREFOX_122),
+            # min <= max (bounded)
+            (NimbusExperiment.Version.FIREFOX_120, NimbusExperiment.Version.FIREFOX_121),
+            (NimbusExperiment.Version.FIREFOX_120, NimbusExperiment.Version.FIREFOX_122),
+            (NimbusExperiment.Version.FIREFOX_121, NimbusExperiment.Version.FIREFOX_122),
+            # min <= max (unbounded)
+            (NimbusExperiment.Version.FIREFOX_120, NimbusExperiment.Version.NO_VERSION),
+            (NimbusExperiment.Version.FIREFOX_121, NimbusExperiment.Version.NO_VERSION),
+            (NimbusExperiment.Version.FIREFOX_122, NimbusExperiment.Version.NO_VERSION),
+        ]
+    )
+    def test_validate_targeting_configs_valid_version_ranges(
+        self,
+        min_version,
+        max_version,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=min_version,
+            firefox_max_version=max_version,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ATTRIBUTION_MEDIUM_EMAIL,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        with (
+            patch(
+                "experimenter.experiments.api.v5.serializers.extract_targeting_fields",
+                return_value={"knownField"},
+            ),
+        ):
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        self.assertEqual(serializer.warnings, {})
+
+    def test_validate_targeting_configs_assume_unversioned_uses_unversioned_context(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_119,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_119,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ATTRIBUTION_MEDIUM_EMAIL,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        with patch(
+            "experimenter.experiments.api.v5.serializers.extract_targeting_fields",
+            return_value={"knownField"},
+        ):
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        self.assertEqual(serializer.warnings, {})
 
 
 class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
