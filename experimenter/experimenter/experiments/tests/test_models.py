@@ -4793,6 +4793,402 @@ class TestNimbusExperiment(TestCase):
         matching_experiments = experiment.live_experiments_in_namespace
         self.assertEqual(len(matching_experiments), 0)
 
+    def _make_namespace_peer(self, feature, **kwargs):
+        defaults = {
+            "application": NimbusExperiment.Application.DESKTOP,
+            "channels": [NimbusExperiment.Channel.RELEASE],
+            "firefox_min_version": NimbusExperiment.Version.FIREFOX_129,
+            "firefox_max_version": NimbusExperiment.Version.FIREFOX_130,
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "feature_configs": [feature],
+        }
+        defaults.update(kwargs)
+        return NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE, **defaults
+        )
+
+    def _make_namespace_draft(self, feature, **kwargs):
+        defaults = {
+            "application": NimbusExperiment.Application.DESKTOP,
+            "channels": [NimbusExperiment.Channel.RELEASE],
+            "firefox_min_version": NimbusExperiment.Version.FIREFOX_129,
+            "firefox_max_version": NimbusExperiment.Version.FIREFOX_130,
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "feature_configs": [feature],
+        }
+        defaults.update(kwargs)
+        return NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, **defaults
+        )
+
+    def test_audiences_overlap_both_empty(self):
+        a = NimbusExperimentFactory.create(locales=[], countries=[], languages=[])
+        b = NimbusExperimentFactory.create(locales=[], countries=[], languages=[])
+        self.assertTrue(a.audiences_overlap(b))
+
+    def test_audiences_overlap_empty_vs_nonempty_is_overlap(self):
+        en = LocaleFactory.create(code="en-US")
+        a = NimbusExperimentFactory.create(locales=[], countries=[], languages=[])
+        b = NimbusExperimentFactory.create(locales=[en], countries=[], languages=[])
+        self.assertTrue(a.audiences_overlap(b))
+        self.assertTrue(b.audiences_overlap(a))
+
+    def test_audiences_overlap_disjoint_locales_no_overlap(self):
+        en = LocaleFactory.create(code="en-US")
+        fr = LocaleFactory.create(code="fr")
+        a = NimbusExperimentFactory.create(locales=[en], countries=[], languages=[])
+        b = NimbusExperimentFactory.create(locales=[fr], countries=[], languages=[])
+        self.assertFalse(a.audiences_overlap(b))
+        self.assertFalse(b.audiences_overlap(a))
+
+    def test_audiences_overlap_overlapping_locales_overlap(self):
+        en = LocaleFactory.create(code="en-US")
+        fr = LocaleFactory.create(code="fr")
+        a = NimbusExperimentFactory.create(locales=[en, fr], countries=[], languages=[])
+        b = NimbusExperimentFactory.create(locales=[fr], countries=[], languages=[])
+        self.assertTrue(a.audiences_overlap(b))
+
+    def test_audiences_overlap_locales_match_but_countries_disjoint(self):
+        en = LocaleFactory.create(code="en-US")
+        us = CountryFactory.create(code="US")
+        de = CountryFactory.create(code="DE")
+        a = NimbusExperimentFactory.create(locales=[en], countries=[us], languages=[])
+        b = NimbusExperimentFactory.create(locales=[en], countries=[de], languages=[])
+        self.assertFalse(a.audiences_overlap(b))
+
+    def test_audiences_overlap_disjoint_languages_no_overlap(self):
+        en_lang = LanguageFactory.create(code="en")
+        fr_lang = LanguageFactory.create(code="fr")
+        a = NimbusExperimentFactory.create(locales=[], countries=[], languages=[en_lang])
+        b = NimbusExperimentFactory.create(locales=[], countries=[], languages=[fr_lang])
+        self.assertFalse(a.audiences_overlap(b))
+
+    def test_audiences_overlap_exclude_self_covers_other(self):
+        en = LocaleFactory.create(code="en-US")
+        fr = LocaleFactory.create(code="fr")
+        a = NimbusExperimentFactory.create(
+            locales=[en, fr],
+            countries=[],
+            languages=[],
+            exclude_locales=True,
+        )
+        b = NimbusExperimentFactory.create(locales=[en], countries=[], languages=[])
+        self.assertFalse(a.audiences_overlap(b))
+        self.assertFalse(b.audiences_overlap(a))
+
+    def test_audiences_overlap_exclude_partial_covers_other(self):
+        en = LocaleFactory.create(code="en-US")
+        fr = LocaleFactory.create(code="fr")
+        a = NimbusExperimentFactory.create(
+            locales=[en],
+            countries=[],
+            languages=[],
+            exclude_locales=True,
+        )
+        b = NimbusExperimentFactory.create(locales=[en, fr], countries=[], languages=[])
+        self.assertTrue(a.audiences_overlap(b))
+
+    def test_audiences_overlap_both_exclude_overlap(self):
+        en = LocaleFactory.create(code="en-US")
+        fr = LocaleFactory.create(code="fr")
+        a = NimbusExperimentFactory.create(
+            locales=[en],
+            countries=[],
+            languages=[],
+            exclude_locales=True,
+        )
+        b = NimbusExperimentFactory.create(
+            locales=[fr],
+            countries=[],
+            languages=[],
+            exclude_locales=True,
+        )
+        self.assertTrue(a.audiences_overlap(b))
+
+    def test_live_experiments_in_namespace_excludes_disjoint_locales(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        en = LocaleFactory.create(code="en-US")
+        fr = LocaleFactory.create(code="fr")
+        self._make_namespace_peer(feature, slug="live-en", locales=[en])
+        experiment = self._make_namespace_draft(feature, slug="draft-fr", locales=[fr])
+        self.assertEqual(list(experiment.live_experiments_in_namespace), [])
+
+    def test_live_experiments_in_namespace_includes_overlapping_locales(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        en = LocaleFactory.create(code="en-US")
+        self._make_namespace_peer(feature, slug="live-en", locales=[en])
+        experiment = self._make_namespace_draft(feature, slug="draft-en", locales=[en])
+        self.assertEqual(list(experiment.live_experiments_in_namespace), ["live-en"])
+
+    def test_live_experiments_in_namespace_includes_when_draft_all(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        en = LocaleFactory.create(code="en-US")
+        self._make_namespace_peer(feature, slug="live-en", locales=[en])
+        experiment = self._make_namespace_draft(feature, slug="draft-all")
+        self.assertEqual(list(experiment.live_experiments_in_namespace), ["live-en"])
+
+    def test_live_experiments_in_namespace_excludes_disjoint_countries(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        us = CountryFactory.create(code="US")
+        de = CountryFactory.create(code="DE")
+        self._make_namespace_peer(feature, slug="live-us", countries=[us])
+        experiment = self._make_namespace_draft(feature, slug="draft-de", countries=[de])
+        self.assertEqual(list(experiment.live_experiments_in_namespace), [])
+
+    def test_live_experiments_in_namespace_excludes_disjoint_languages(self):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        en_lang = LanguageFactory.create(code="en")
+        fr_lang = LanguageFactory.create(code="fr")
+        self._make_namespace_peer(feature, slug="live-en", languages=[en_lang])
+        experiment = self._make_namespace_draft(
+            feature, slug="draft-fr", languages=[fr_lang]
+        )
+        self.assertEqual(list(experiment.live_experiments_in_namespace), [])
+
+    def test_feature_has_live_multifeature_experiments_excludes_disjoint_locales(
+        self,
+    ):
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        en = LocaleFactory.create(code="en-US")
+        fr = LocaleFactory.create(code="fr")
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-multi",
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1, feature2],
+            locales=[en],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft",
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1],
+            locales=[fr],
+        )
+        self.assertEqual(list(experiment.feature_has_live_multifeature_experiments), [])
+
+    def test_feature_has_live_multifeature_experiments_includes_overlapping_locales(
+        self,
+    ):
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        en = LocaleFactory.create(code="en-US")
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-multi",
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1, feature2],
+            locales=[en],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft",
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1],
+            locales=[en],
+        )
+        self.assertEqual(
+            list(experiment.feature_has_live_multifeature_experiments),
+            ["live-multi"],
+        )
+
+    def test_rollout_conflict_warning_disjoint_locales_no_warning(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        en = LocaleFactory.create(code="en-US")
+        fr = LocaleFactory.create(code="fr")
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            locales=[en],
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            locales=[fr],
+        )
+        self.assertIsNone(experiment.rollout_conflict_warning)
+
+    def test_rollout_conflict_warning_disjoint_countries_no_warning(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        us = CountryFactory.create(code="US")
+        de = CountryFactory.create(code="DE")
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            countries=[us],
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            countries=[de],
+        )
+        self.assertIsNone(experiment.rollout_conflict_warning)
+
+    def test_rollout_conflict_warning_disjoint_languages_no_warning(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        en_lang = LanguageFactory.create(code="en")
+        fr_lang = LanguageFactory.create(code="fr")
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            languages=[en_lang],
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            languages=[fr_lang],
+        )
+        self.assertIsNone(experiment.rollout_conflict_warning)
+
+    def test_rollout_conflict_warning_overlapping_locales_fires(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        en = LocaleFactory.create(code="en-US")
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            locales=[en],
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            locales=[en],
+        )
+        warning = experiment.rollout_conflict_warning
+        self.assertIsNotNone(warning)
+        self.assertEqual(warning["text"], NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS)
+
+    def test_rollout_conflict_warning_draft_empty_locales_fires(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        en = LocaleFactory.create(code="en-US")
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            locales=[en],
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            locales=[],
+        )
+        self.assertIsNotNone(experiment.rollout_conflict_warning)
+
+    def test_rollout_conflict_warning_one_overlapping_of_many_fires(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        en = LocaleFactory.create(code="en-US")
+        fr = LocaleFactory.create(code="fr")
+        de = LocaleFactory.create(code="de")
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            locales=[fr],
+        )
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            locales=[en],
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            locales=[en, de],
+        )
+        self.assertIsNotNone(experiment.rollout_conflict_warning)
+
     @parameterized.expand(
         [
             (
