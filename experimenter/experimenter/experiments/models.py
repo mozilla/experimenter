@@ -1640,7 +1640,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     @staticmethod
-    def audience_dimension_overlap(self_items, self_exclude, other_items, other_exclude):
+    def audience_targeting_overlap(self_items, self_exclude, other_items, other_exclude):
         self_set = set(self_items or ()) - {None}
         other_set = set(other_items or ()) - {None}
         if not self_set or not other_set:
@@ -1673,19 +1673,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return [
             candidate["slug"]
             for candidate in candidates
-            if self.audience_dimension_overlap(
+            if self.audience_targeting_overlap(
                 self_locales,
                 self.exclude_locales,
                 candidate["locale_codes"],
                 candidate["exclude_locales"],
             )
-            and self.audience_dimension_overlap(
+            and self.audience_targeting_overlap(
                 self_countries,
                 self.exclude_countries,
                 candidate["country_codes"],
                 candidate["exclude_countries"],
             )
-            and self.audience_dimension_overlap(
+            and self.audience_targeting_overlap(
                 self_languages,
                 self.exclude_languages,
                 candidate["language_codes"],
