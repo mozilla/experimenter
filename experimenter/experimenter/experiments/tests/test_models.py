@@ -4829,7 +4829,7 @@ class TestNimbusExperiment(TestCase):
         self, _name, self_items, self_exclude, other_items, other_exclude, expected
     ):
         self.assertEqual(
-            NimbusExperiment._audience_dimension_overlap(
+            NimbusExperiment.audience_dimension_overlap(
                 self_items, self_exclude, other_items, other_exclude
             ),
             expected,
