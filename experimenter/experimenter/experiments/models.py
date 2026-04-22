@@ -2094,6 +2094,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned._computed_end_date = None
         cloned.qa_status = NimbusExperiment.QAStatus.NOT_SET
         cloned.qa_comment = None
+        cloned.enable_review_slack_notifications = True
         cloned.risk_ai = None
         cloned.risk_brand = None
         cloned.risk_message = None
