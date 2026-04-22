@@ -4901,7 +4901,7 @@ class TestNimbusExperiment(TestCase):
         )
         candidates = NimbusExperiment.objects.filter(id=other_experiment.id)
         self.assertEqual(
-            self_experiment.audience_overlapping_slugs(candidates),
+            self_experiment.audience_targeting_overlap(candidates),
             ["other-exp"] if expected_overlap else [],
         )
 

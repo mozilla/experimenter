@@ -1640,7 +1640,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     @staticmethod
-    def audience_targeting_overlap(self_items, self_exclude, other_items, other_exclude):
+    def audience_set_overlap(self_items, self_exclude, other_items, other_exclude):
         self_set = set(self_items or ()) - {None}
         other_set = set(other_items or ()) - {None}
         if not self_set or not other_set:
@@ -1653,7 +1653,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return not other_set.issubset(self_set)
         return not self_set.issubset(other_set)
 
-    def audience_overlapping_slugs(self, candidates):
+    def audience_targeting_overlap(self, candidates):
         self_locales = [locale.code for locale in self.locales.all()]
         self_countries = [country.code for country in self.countries.all()]
         self_languages = [language.code for language in self.languages.all()]
@@ -1673,19 +1673,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return [
             candidate["slug"]
             for candidate in candidates
-            if self.audience_targeting_overlap(
+            if self.audience_set_overlap(
                 self_locales,
                 self.exclude_locales,
                 candidate["locale_codes"],
                 candidate["exclude_locales"],
             )
-            and self.audience_targeting_overlap(
+            and self.audience_set_overlap(
                 self_countries,
                 self.exclude_countries,
                 candidate["country_codes"],
                 candidate["exclude_countries"],
             )
-            and self.audience_targeting_overlap(
+            and self.audience_set_overlap(
                 self_languages,
                 self.exclude_languages,
                 candidate["language_codes"],
@@ -1709,7 +1709,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .exclude(id=self.id)
                 .order_by("slug")
             )
-            matching = self.audience_overlapping_slugs(candidates)
+            matching = self.audience_targeting_overlap(candidates)
         return matching
 
     @property
@@ -1742,7 +1742,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             .exclude(id=self.id)
             .order_by("slug")
         )
-        return self.audience_overlapping_slugs(candidates)
+        return self.audience_targeting_overlap(candidates)
 
     @property
     def can_edit(self):
@@ -1945,7 +1945,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             is_rollout=True,
         ).exclude(id=self.id)
 
-        if self.audience_overlapping_slugs(duplicate_rollouts):
+        if self.audience_targeting_overlap(duplicate_rollouts):
             return {
                 "text": NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS,
                 "variant": "danger",
