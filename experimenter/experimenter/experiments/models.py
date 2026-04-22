@@ -14,6 +14,7 @@ import packaging
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.fields import ArrayField
 from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
@@ -1640,10 +1641,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @staticmethod
     def _audience_dimension_overlap(self_items, self_exclude, other_items, other_exclude):
-        if not self_items or not other_items:
+        self_set = {code for code in (self_items or ()) if code is not None}
+        other_set = {code for code in (other_items or ()) if code is not None}
+        if not self_set or not other_set:
             return True
-        self_set = set(self_items)
-        other_set = set(other_items)
         if not self_exclude and not other_exclude:
             return bool(self_set & other_set)
         if self_exclude and other_exclude:
@@ -1651,36 +1652,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self_exclude:
             return not other_set.issubset(self_set)
         return not self_set.issubset(other_set)
-
-    def _audience_overlapping_experiments(self, queryset):
-        candidates = queryset.prefetch_related("locales", "countries", "languages")
-        self_locales = [loc.code for loc in self.locales.all()]
-        self_countries = [cty.code for cty in self.countries.all()]
-        self_languages = [lng.code for lng in self.languages.all()]
-        matching = []
-        for candidate in candidates:
-            if (
-                self._audience_dimension_overlap(
-                    self_locales,
-                    self.exclude_locales,
-                    [loc.code for loc in candidate.locales.all()],
-                    candidate.exclude_locales,
-                )
-                and self._audience_dimension_overlap(
-                    self_countries,
-                    self.exclude_countries,
-                    [cty.code for cty in candidate.countries.all()],
-                    candidate.exclude_countries,
-                )
-                and self._audience_dimension_overlap(
-                    self_languages,
-                    self.exclude_languages,
-                    [lng.code for lng in candidate.languages.all()],
-                    candidate.exclude_languages,
-                )
-            ):
-                matching.append(candidate)
-        return matching
 
     @property
     def feature_has_live_multifeature_experiments(self):
@@ -1696,11 +1667,46 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .filter(n_feature_configs__gt=1)
                 .filter(feature_configs__slug__in=feature_slugs)
                 .exclude(id=self.id)
-                .distinct()
+                .annotate(
+                    locale_codes=ArrayAgg("locales__code", distinct=True),
+                    country_codes=ArrayAgg("countries__code", distinct=True),
+                    language_codes=ArrayAgg("languages__code", distinct=True),
+                )
                 .order_by("slug")
+                .values(
+                    "slug",
+                    "exclude_locales",
+                    "exclude_countries",
+                    "exclude_languages",
+                    "locale_codes",
+                    "country_codes",
+                    "language_codes",
+                )
             )
+            self_locales = [locale.code for locale in self.locales.all()]
+            self_countries = [country.code for country in self.countries.all()]
+            self_languages = [language.code for language in self.languages.all()]
             matching = [
-                c.slug for c in self._audience_overlapping_experiments(candidates)
+                candidate["slug"]
+                for candidate in candidates
+                if self._audience_dimension_overlap(
+                    self_locales,
+                    self.exclude_locales,
+                    candidate["locale_codes"],
+                    candidate["exclude_locales"],
+                )
+                and self._audience_dimension_overlap(
+                    self_countries,
+                    self.exclude_countries,
+                    candidate["country_codes"],
+                    candidate["exclude_countries"],
+                )
+                and self._audience_dimension_overlap(
+                    self_languages,
+                    self.exclude_languages,
+                    candidate["language_codes"],
+                    candidate["exclude_languages"],
+                )
             ]
         return matching
 
@@ -1732,10 +1738,47 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 status=NimbusExperiment.Status.LIVE,
             )
             .exclude(id=self.id)
-            .distinct()
+            .annotate(
+                locale_codes=ArrayAgg("locales__code", distinct=True),
+                country_codes=ArrayAgg("countries__code", distinct=True),
+                language_codes=ArrayAgg("languages__code", distinct=True),
+            )
             .order_by("slug")
+            .values(
+                "slug",
+                "exclude_locales",
+                "exclude_countries",
+                "exclude_languages",
+                "locale_codes",
+                "country_codes",
+                "language_codes",
+            )
         )
-        return [c.slug for c in self._audience_overlapping_experiments(candidates)]
+        self_locales = [locale.code for locale in self.locales.all()]
+        self_countries = [country.code for country in self.countries.all()]
+        self_languages = [language.code for language in self.languages.all()]
+        return [
+            candidate["slug"]
+            for candidate in candidates
+            if self._audience_dimension_overlap(
+                self_locales,
+                self.exclude_locales,
+                candidate["locale_codes"],
+                candidate["exclude_locales"],
+            )
+            and self._audience_dimension_overlap(
+                self_countries,
+                self.exclude_countries,
+                candidate["country_codes"],
+                candidate["exclude_countries"],
+            )
+            and self._audience_dimension_overlap(
+                self_languages,
+                self.exclude_languages,
+                candidate["language_codes"],
+                candidate["exclude_languages"],
+            )
+        ]
 
     @property
     def can_edit(self):
@@ -1939,16 +1982,51 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 is_rollout=True,
             )
             .exclude(id=self.id)
-            .distinct()
+            .annotate(
+                locale_codes=ArrayAgg("locales__code", distinct=True),
+                country_codes=ArrayAgg("countries__code", distinct=True),
+                language_codes=ArrayAgg("languages__code", distinct=True),
+            )
+            .values(
+                "exclude_locales",
+                "exclude_countries",
+                "exclude_languages",
+                "locale_codes",
+                "country_codes",
+                "language_codes",
+            )
         )
 
-        if self._audience_overlapping_experiments(duplicate_rollouts):
-            return {
-                "text": NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS,
-                "variant": "danger",
-                "slugs": [],
-                "learn_more_link": NimbusUIConstants.ROLLOUT_BUCKET_WARNING,
-            }
+        self_locales = [locale.code for locale in self.locales.all()]
+        self_countries = [country.code for country in self.countries.all()]
+        self_languages = [language.code for language in self.languages.all()]
+        for candidate in duplicate_rollouts:
+            if (
+                self._audience_dimension_overlap(
+                    self_locales,
+                    self.exclude_locales,
+                    candidate["locale_codes"],
+                    candidate["exclude_locales"],
+                )
+                and self._audience_dimension_overlap(
+                    self_countries,
+                    self.exclude_countries,
+                    candidate["country_codes"],
+                    candidate["exclude_countries"],
+                )
+                and self._audience_dimension_overlap(
+                    self_languages,
+                    self.exclude_languages,
+                    candidate["language_codes"],
+                    candidate["exclude_languages"],
+                )
+            ):
+                return {
+                    "text": NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS,
+                    "variant": "danger",
+                    "slugs": [],
+                    "learn_more_link": NimbusUIConstants.ROLLOUT_BUCKET_WARNING,
+                }
 
     @property
     def rollout_version_warning(self):
