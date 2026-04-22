@@ -1653,7 +1653,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return not other_set.issubset(self_set)
         return not self_set.issubset(other_set)
 
-    def audience_targeting_overlap(self, candidates):
+    def audience_overlap(self, candidates):
         self_locales = [locale.code for locale in self.locales.all()]
         self_countries = [country.code for country in self.countries.all()]
         self_languages = [language.code for language in self.languages.all()]
@@ -1709,7 +1709,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .exclude(id=self.id)
                 .order_by("slug")
             )
-            matching = self.audience_targeting_overlap(candidates)
+            matching = self.audience_overlap(candidates)
         return matching
 
     @property
@@ -1742,7 +1742,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             .exclude(id=self.id)
             .order_by("slug")
         )
-        return self.audience_targeting_overlap(candidates)
+        return self.audience_overlap(candidates)
 
     @property
     def can_edit(self):
@@ -1945,7 +1945,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             is_rollout=True,
         ).exclude(id=self.id)
 
-        if self.audience_targeting_overlap(duplicate_rollouts):
+        if self.audience_overlap(duplicate_rollouts):
             return {
                 "text": NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS,
                 "variant": "danger",
