@@ -1653,22 +1653,26 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return not self_set.issubset(other_set)
 
     def audiences_overlap(self, other):
-        dimensions = (
-            ("locales", "exclude_locales"),
-            ("countries", "exclude_countries"),
-            ("languages", "exclude_languages"),
+        return (
+            self._audience_dimension_overlap(
+                list(self.locales.values_list("code", flat=True)),
+                self.exclude_locales,
+                list(other.locales.values_list("code", flat=True)),
+                other.exclude_locales,
+            )
+            and self._audience_dimension_overlap(
+                list(self.countries.values_list("code", flat=True)),
+                self.exclude_countries,
+                list(other.countries.values_list("code", flat=True)),
+                other.exclude_countries,
+            )
+            and self._audience_dimension_overlap(
+                list(self.languages.values_list("code", flat=True)),
+                self.exclude_languages,
+                list(other.languages.values_list("code", flat=True)),
+                other.exclude_languages,
+            )
         )
-        for field, exclude_field in dimensions:
-            self_items = list(getattr(self, field).values_list("code", flat=True))
-            other_items = list(getattr(other, field).values_list("code", flat=True))
-            if not self._audience_dimension_overlap(
-                self_items,
-                getattr(self, exclude_field),
-                other_items,
-                getattr(other, exclude_field),
-            ):
-                return False
-        return True
 
     @property
     def feature_has_live_multifeature_experiments(self):
