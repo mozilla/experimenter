@@ -4793,25 +4793,6 @@ class TestNimbusExperiment(TestCase):
         matching_experiments = experiment.live_experiments_in_namespace
         self.assertEqual(len(matching_experiments), 0)
 
-    def _namespace_base(self, feature):
-        return {
-            "application": NimbusExperiment.Application.DESKTOP,
-            "channels": [NimbusExperiment.Channel.RELEASE],
-            "firefox_min_version": NimbusExperiment.Version.FIREFOX_129,
-            "firefox_max_version": NimbusExperiment.Version.FIREFOX_130,
-            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
-            "feature_configs": [feature],
-        }
-
-    def _rollout_base(self, feature):
-        return {
-            "is_rollout": True,
-            "channels": [NimbusExperiment.Channel.BETA],
-            "application": NimbusExperiment.Application.DESKTOP,
-            "targeting_config_slug": NimbusExperiment.TargetingConfig.FIRST_RUN,
-            "feature_configs": [feature],
-        }
-
     @parameterized.expand(
         [
             ("both_empty_locales", LocaleFactory, "locales", [], False, [], False, True),
@@ -4940,13 +4921,23 @@ class TestNimbusExperiment(TestCase):
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
             slug="peer",
-            **self._namespace_base(feature),
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            feature_configs=[feature],
             **{field: [factory.create(code=live_code)]},
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             slug="draft",
-            **self._namespace_base(feature),
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            feature_configs=[feature],
             **{field: [factory.create(code=draft_code)]},
         )
         self.assertEqual(list(experiment.live_experiments_in_namespace), [])
@@ -5000,12 +4991,20 @@ class TestNimbusExperiment(TestCase):
         )
         NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
-            **self._rollout_base(feature),
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.BETA],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
             **{field: [factory.create(code=live_code)]},
         )
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
-            **self._rollout_base(feature),
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.BETA],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
             **{field: [factory.create(code=draft_code)]},
         )
         self.assertIsNone(experiment.rollout_conflict_warning)
