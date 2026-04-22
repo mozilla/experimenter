@@ -4197,6 +4197,13 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertFalse(child.is_rollout_dirty)
 
+    def test_clone_resets_enable_review_slack_notifications(self):
+        parent = NimbusExperimentFactory.create(
+            enable_review_slack_notifications=False,
+        )
+        child = parent.clone("Child Experiment", parent.owner)
+        self.assertTrue(child.enable_review_slack_notifications)
+
     def _clone_experiment_and_assert_common_expectations(
         self, parent, rollout_branch_slug=None
     ):
@@ -4226,6 +4233,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.conclusion_recommendations, [])
         self.assertEqual(child.qa_status, NimbusExperiment.QAStatus.NOT_SET)
         self.assertEqual(child.qa_comment, None)
+        self.assertEqual(child.enable_review_slack_notifications, True)
         self.assertEqual(child.qa_run_date, None)
         self.assertEqual(child.qa_run_test_plan_url, None)
         self.assertEqual(child.qa_run_testrail_url, None)
