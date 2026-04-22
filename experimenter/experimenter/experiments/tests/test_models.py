@@ -4837,29 +4837,6 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            ("all_match", "en-US", "US", "en", "en-US", "US", "en", True),
-            ("locales_disjoint", "en-US", "US", "en", "fr", "US", "en", False),
-            ("countries_disjoint", "en-US", "US", "en", "en-US", "DE", "en", False),
-            ("languages_disjoint", "en-US", "US", "en", "en-US", "US", "fr", False),
-        ]
-    )
-    def test_audiences_overlap(
-        self, _name, a_loc, a_cty, a_lng, b_loc, b_cty, b_lng, expected
-    ):
-        a = NimbusExperimentFactory.create(
-            locales=[LocaleFactory.create(code=a_loc)],
-            countries=[CountryFactory.create(code=a_cty)],
-            languages=[LanguageFactory.create(code=a_lng)],
-        )
-        b = NimbusExperimentFactory.create(
-            locales=[LocaleFactory.create(code=b_loc)],
-            countries=[CountryFactory.create(code=b_cty)],
-            languages=[LanguageFactory.create(code=b_lng)],
-        )
-        self.assertEqual(a.audiences_overlap(b), expected)
-
-    @parameterized.expand(
-        [
             ("locales_disjoint", LocaleFactory, "locales", "en-US", "fr", []),
             ("countries_disjoint", CountryFactory, "countries", "US", "DE", []),
             ("languages_disjoint", LanguageFactory, "languages", "en", "fr", []),
