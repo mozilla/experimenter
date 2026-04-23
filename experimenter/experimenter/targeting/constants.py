@@ -3470,6 +3470,17 @@ AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+HAS_NO_STARTPAGE_ADDON_INSTALLED = NimbusTargetingConfig(
+    name="No Startpage Addon installed",
+    slug="No Startpage Addon installed",
+    description="Users who do not have Startpage Addon installed.",
+    targeting=("addonsInfo.addons['{20fc2e06-e3e4-4b2b-812b-ab431220cada}'] == null"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
     name="Has Bing as current default search engine and ad blockers installed",
     slug="has_bing_as_current_default_search_engine_and_ad_blockers_installed",
