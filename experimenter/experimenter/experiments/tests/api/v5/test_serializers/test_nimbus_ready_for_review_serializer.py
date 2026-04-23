@@ -4421,6 +4421,14 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         warn_feature_schema,
         expected_valid,
     ):
+        NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=self.versions[(120, 0, 0)]),
+                NimbusVersionedSchemaFactory.build(version=self.versions[(121, 0, 0)]),
+            ],
+        )
+
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
@@ -4469,6 +4477,15 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         min_version,
         max_version,
     ):
+        NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=self.versions[(120, 0, 0)]),
+                NimbusVersionedSchemaFactory.build(version=self.versions[(121, 0, 0)]),
+                NimbusVersionedSchemaFactory.build(version=self.versions[(122, 0, 0)]),
+            ],
+        )
+
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
@@ -4493,6 +4510,14 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         self.assertEqual(serializer.warnings, {})
 
     def test_validate_targeting_configs_assume_unversioned_uses_unversioned_context(self):
+        NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=self.versions[(120, 0, 0)]),
+                NimbusVersionedSchemaFactory.build(version=self.versions[(121, 0, 0)]),
+            ],
+        )
+
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
@@ -4515,6 +4540,14 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         self.assertEqual(serializer.warnings, {})
 
     def test_validate_targeting_config_uses_preserved_targeting_keys(self):
+        NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=self.versions[(120, 0, 0)]),
+                NimbusVersionedSchemaFactory.build(version=self.versions[(121, 0, 0)]),
+            ],
+        )
+
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,

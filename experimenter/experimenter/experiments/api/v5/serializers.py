@@ -1850,7 +1850,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         versions = (
             NimbusFeatureVersion.objects.filter(
-                NimbusFeatureVersion.objects.between_versions_q(min_version, max_version)
+                NimbusFeatureVersion.objects.between_versions_q(min_version, max_version),
+                schemas__feature_config__application=data.get("application"),
             )
             .order_by("-major", "-minor", "-patch")
             .distinct()
