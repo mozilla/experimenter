@@ -6011,6 +6011,18 @@ class NimbusFeatureConfigTests(TestCase):
             ),
         )
 
+    def test_feature_monitoring_proxy_path(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="my-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        # Should be path+query only (no scheme or host)
+        proxy_path = feature.feature_monitoring_proxy_path
+        self.assertNotIn("https://", proxy_path)
+        self.assertNotIn("yardstick.mozilla.org", proxy_path)
+        self.assertIn("my-feature", proxy_path)
+        self.assertIn("firefox_desktop", proxy_path)
+
     def test_schemas_between_versions(self):
         feature = NimbusFeatureConfigFactory.create()
 

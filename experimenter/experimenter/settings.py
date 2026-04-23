@@ -440,6 +440,11 @@ FEATURE_MONITORING_URL = (
     "https://yardstick.mozilla.org/d/dtfz7xv/nimbus-feature-monitoring"
     "?orgId=1&var-feature_slug={slug}&var-application={application}"
 )
+GRAFANA_INTERNAL_URL = config(
+    "GRAFANA_INTERNAL_URL",
+    default="http://grafana.grafana-prod.svc.cluster.local:8080",
+)
+GRAFANA_SERVICE_ACCOUNT_TOKEN = config("GRAFANA_SERVICE_ACCOUNT_TOKEN", default="")
 
 # Statsd via Markus
 STATSD_BACKEND = config(
