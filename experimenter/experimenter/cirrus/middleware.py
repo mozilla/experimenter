@@ -54,6 +54,7 @@ class CirrusMiddleware:
                         "context": {},
                     },
                     params=params,
+                    timeout=(2, 5),
                 )
                 cirrus_response.raise_for_status()
                 response_json = cirrus_response.json()
@@ -61,6 +62,8 @@ class CirrusMiddleware:
                     enrollments=response_json["Enrollments"],
                     features=CirrusFeatures(response_json["Features"]),
                 )
+            except requests.exceptions.Timeout as e:
+                sentry_sdk.capture_exception(e)
             except (KeyError, requests.exceptions.RequestException) as e:
                 sentry_sdk.capture_exception(e)
         return self.get_response(request)
