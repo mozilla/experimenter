@@ -51,7 +51,7 @@ class RemoteSettings:
         self.sdk.set_experiments(json.dumps(self.recipes))
 
     def fetch_recipes(self) -> None:
-        response = self.session.get(self.url)
+        response = self.session.get(self.url, timeout=(2, 10))
         response.raise_for_status()
         response_json = response.json()
         data = response_json.get("changes")
