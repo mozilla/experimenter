@@ -222,8 +222,9 @@
   transition: opacity 200ms ease-in;
 }
 
-// Diff toggle button states (features page)
-.diff-toggle-btn {
+// Toggle button states driven by Bootstrap's aria-expanded
+.diff-toggle-btn,
+.collapsible-list-toggle {
   .btn-text-expanded {
     display: none;
   }
@@ -236,10 +237,12 @@
     .btn-text-expanded {
       display: inline;
     }
+  }
+}
 
-    .chevron-icon {
-      transform: rotate(180deg);
-    }
+.diff-toggle-btn {
+  &[aria-expanded="true"] .chevron-icon {
+    transform: rotate(180deg);
   }
 
   .chevron-icon {
