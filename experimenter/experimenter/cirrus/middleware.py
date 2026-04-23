@@ -54,7 +54,7 @@ class CirrusMiddleware:
                         "context": {},
                     },
                     params=params,
-                    timeout=(2, 5),
+                    timeout=(5, 10),
                 )
                 cirrus_response.raise_for_status()
                 response_json = cirrus_response.json()
