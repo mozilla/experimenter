@@ -4295,10 +4295,7 @@ FX_151_2_TRAINHOP_NEW_USERS = NimbusTargetingConfig(
         "having the New Tab 151.2.20260328.211913 train hop, "
         "which includes users of Fx149"
     ),
-    targeting=(
-        f"{PROFILELESSTHAN2DAYS} && "
-        f"{FX_151_2_TRAINHOP.targeting}"
-    )
+    targeting=f"{PROFILELESSTHAN2DAYS} && {FX_151_2_TRAINHOP.targeting}",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
