@@ -4803,6 +4803,222 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
+            ("both_empty_locales", LocaleFactory, "locales", [], False, [], False, True),
+            (
+                "self_empty_countries",
+                CountryFactory,
+                "countries",
+                [],
+                False,
+                ["US"],
+                False,
+                True,
+            ),
+            (
+                "other_empty_languages",
+                LanguageFactory,
+                "languages",
+                ["en"],
+                False,
+                [],
+                False,
+                True,
+            ),
+            (
+                "include_match_locales",
+                LocaleFactory,
+                "locales",
+                ["en-US"],
+                False,
+                ["en-US"],
+                False,
+                True,
+            ),
+            (
+                "include_disjoint_countries",
+                CountryFactory,
+                "countries",
+                ["US"],
+                False,
+                ["DE"],
+                False,
+                False,
+            ),
+            (
+                "self_exclude_covers_other_locales",
+                LocaleFactory,
+                "locales",
+                ["en-US", "fr"],
+                True,
+                ["en-US"],
+                False,
+                False,
+            ),
+            (
+                "self_exclude_partial_languages",
+                LanguageFactory,
+                "languages",
+                ["en"],
+                True,
+                ["en", "fr"],
+                False,
+                True,
+            ),
+            (
+                "other_exclude_covers_self_countries",
+                CountryFactory,
+                "countries",
+                ["US"],
+                False,
+                ["US", "DE"],
+                True,
+                False,
+            ),
+            (
+                "both_exclude_languages",
+                LanguageFactory,
+                "languages",
+                ["en"],
+                True,
+                ["fr"],
+                True,
+                True,
+            ),
+        ]
+    )
+    def test_audience_overlap(
+        self,
+        _name,
+        factory,
+        field,
+        self_codes,
+        self_exclude,
+        other_codes,
+        other_exclude,
+        expected_overlap,
+    ):
+        self_experiment = NimbusExperimentFactory.create(
+            slug="self-exp",
+            **{field: [factory.create(code=code) for code in self_codes]},
+            **{f"exclude_{field}": self_exclude},
+        )
+        other_experiment = NimbusExperimentFactory.create(
+            slug="other-exp",
+            **{field: [factory.create(code=code) for code in other_codes]},
+            **{f"exclude_{field}": other_exclude},
+        )
+        candidates = NimbusExperiment.objects.filter(id=other_experiment.id)
+        self.assertEqual(
+            self_experiment.audience_overlap(candidates),
+            ["other-exp"] if expected_overlap else [],
+        )
+
+    @parameterized.expand(
+        [
+            ("locale", LocaleFactory, "locales", "en-US", "fr"),
+            ("country", CountryFactory, "countries", "US", "DE"),
+            ("language", LanguageFactory, "languages", "en", "fr"),
+        ]
+    )
+    def test_live_experiments_in_namespace_skips_disjoint_audience(
+        self, _name, factory, field, live_code, draft_code
+    ):
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="peer",
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            feature_configs=[feature],
+            **{field: [factory.create(code=live_code)]},
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft",
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            feature_configs=[feature],
+            **{field: [factory.create(code=draft_code)]},
+        )
+        self.assertEqual(list(experiment.live_experiments_in_namespace), [])
+
+    @parameterized.expand(
+        [
+            ("locale", LocaleFactory, "locales", "en-US", "fr"),
+            ("country", CountryFactory, "countries", "US", "DE"),
+            ("language", LanguageFactory, "languages", "en", "fr"),
+        ]
+    )
+    def test_feature_has_live_multifeature_experiments_skips_disjoint_audience(
+        self, _name, factory, field, live_code, draft_code
+    ):
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-multi",
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1, feature2],
+            **{field: [factory.create(code=live_code)]},
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft",
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature1],
+            **{field: [factory.create(code=draft_code)]},
+        )
+        self.assertEqual(list(experiment.feature_has_live_multifeature_experiments), [])
+
+    @parameterized.expand(
+        [
+            ("locale", LocaleFactory, "locales", "en-US", "fr"),
+            ("country", CountryFactory, "countries", "US", "DE"),
+            ("language", LanguageFactory, "languages", "en", "fr"),
+        ]
+    )
+    def test_rollout_conflict_warning_skips_disjoint_audience(
+        self, _name, factory, field, live_code, draft_code
+    ):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            name="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.BETA],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            **{field: [factory.create(code=live_code)]},
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.BETA],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+            **{field: [factory.create(code=draft_code)]},
+        )
+        self.assertIsNone(experiment.rollout_conflict_warning)
+
+    @parameterized.expand(
+        [
             (
                 NimbusExperiment.Application.DESKTOP,
                 NimbusExperiment.Channel.NO_CHANNEL,
