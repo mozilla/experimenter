@@ -546,3 +546,13 @@ trending-searches-feature:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
+world-cup-widget-feature:
+  description: |
+    The feature flag to manage the roll out of the world cup widget feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
