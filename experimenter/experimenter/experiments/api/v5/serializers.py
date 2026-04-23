@@ -37,6 +37,7 @@ from experimenter.experiments.models import (
     NimbusVersionedSchema,
 )
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
+from experimenter.targeting.constants import PRESERVED_TARGETING_KEYS_BY_APPLICATION
 from experimenter.targeting.targeting_context_parser import TargetingContextFields
 
 logger = logging.getLogger()
@@ -1861,6 +1862,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             fields = set(
                 TargetingContextFields.for_application(
                     data.get("application"), targeting_context_version
+                )
+            )
+            fields.update(
+                PRESERVED_TARGETING_KEYS_BY_APPLICATION.get(
+                    data.get("application"), set()
                 )
             )
 

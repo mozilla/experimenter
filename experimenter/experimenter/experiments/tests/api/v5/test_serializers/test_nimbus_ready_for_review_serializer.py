@@ -4514,6 +4514,28 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         self.assertEqual(serializer.warnings, {})
 
+    def test_validate_targeting_config_uses_preserved_targeting_keys(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_121,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ATTRIBUTION_MEDIUM_EMAIL,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        with patch(
+            "experimenter.experiments.api.v5.serializers.extract_targeting_fields",
+            return_value={"knownField", "newtabAddonVersion", "defaultProfile", "userId"},
+        ):
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        self.assertEqual(serializer.warnings, {})
+
 
 class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
     def setUp(self):
