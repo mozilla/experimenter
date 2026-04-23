@@ -47,6 +47,7 @@ NEED_DEFAULT = "!isDefaultBrowser"
 PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
 PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 < 28"
 PROFILELESSTHAN1HOUR = "(currentDate|date - profileAgeCreated|date) / 3600000 < 1"
+PROFILELESSTHAN2DAYS = "(currentDate|date - profileAgeCreated|date) / 3600000 < 48"
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
 NEW_NON_SELECTABLE_PROFILE = f"({NEW_PROFILE}) && profileGroupProfileCount == 0"
@@ -4282,6 +4283,21 @@ FX_151_3_TRAINHOP = NimbusTargetingConfig(
     targeting="newtabAddonVersion|versionCompare('151.3.20260419.192959') >= 0",
     desktop_telemetry="",
     sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_151_2_TRAINHOP_NEW_USERS = NimbusTargetingConfig(
+    name="New users with New Tab Fx151 Mar-28 Trainhop",
+    slug="newtab-151-0328-trainhop-new-users",
+    description=(
+        "Desktop new users with profile age less than 48 hours "
+        "having the New Tab 151.2.20260328.211913 train hop, "
+        "which includes users of Fx149"
+    ),
+    targeting=f"{PROFILELESSTHAN2DAYS} && {FX_151_2_TRAINHOP.targeting}",
+    desktop_telemetry="",
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
