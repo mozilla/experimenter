@@ -22,7 +22,10 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
-from experimenter.experiments.jexl_utils import JEXLParser
+from experimenter.experiments.jexl_utils import (
+    JEXLParser,
+    extract_targeting_fields,
+)
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -34,6 +37,7 @@ from experimenter.experiments.models import (
     NimbusVersionedSchema,
 )
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
+from experimenter.targeting.targeting_context_parser import TargetingContextFields
 
 logger = logging.getLogger()
 
@@ -1811,6 +1815,77 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_targeting_configs(self, data):
+        targeting_config_slug = data.get("targeting_config_slug")
+        targeting_config = NimbusExperiment.TARGETING_CONFIGS[targeting_config_slug]
+        result = self.ValidateFeatureResult()
+
+        if not targeting_config.targeting:
+            return data
+
+        min_version = None
+        max_version = None
+        assume_unversioned = False
+        if not NimbusExperiment.Application.is_web(self.instance.application):
+            raw_min_version = data.get("firefox_min_version", "")
+            raw_max_version = data.get("firefox_max_version", "")
+
+            min_version = NimbusExperiment.Version.parse(raw_min_version)
+            if raw_max_version:
+                max_version = NimbusExperiment.Version.parse(raw_max_version)
+
+        if min_supported_version := NimbusConstants.MIN_VERSIONED_FEATURE_VERSION.get(
+            data.get("application")
+        ):
+            min_supported_version = NimbusExperiment.Version.parse(min_supported_version)
+
+            if min_supported_version > min_version:
+                if max_version is not None and min_supported_version > max_version:
+                    assume_unversioned = True
+                elif max_version is None or min_supported_version < max_version:
+                    min_version = min_supported_version
+
+        extracted_root_fields = extract_targeting_fields(targeting_config.targeting)
+
+        versions = (
+            NimbusFeatureVersion.objects.filter(
+                NimbusFeatureVersion.objects.between_versions_q(min_version, max_version)
+            )
+            .order_by("-major", "-minor", "-patch")
+            .distinct()
+        )
+
+        unsupported_versions = defaultdict(list)
+        for version in versions:
+            targeting_context_version = None if assume_unversioned else f"v{version}"
+            fields = set(
+                TargetingContextFields.for_application(
+                    data.get("application"), targeting_context_version
+                )
+            )
+
+            unknown_fields = extracted_root_fields - fields
+
+            for field in unknown_fields:
+                unsupported_versions[field].append(str(version))
+
+        for field, versions in unsupported_versions.items():
+            result.append(
+                NimbusConstants.ERROR_TARGETING_FIELD_UNSUPPORTED_IN_VERSIONS.format(
+                    field=field,
+                    versions=versions,
+                ),
+                data.get("warn_feature_schema", False),
+            )
+
+        if result.errors:
+            raise serializers.ValidationError({"targeting_config_slug": result.errors})
+
+        if result.warnings:
+            self.warnings["targeting_config_slug"] = result.warnings
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1836,6 +1911,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_value_variables(data)
         data = self._validate_primary_secondary_outcomes(data)
         data = self._validate_firefox_labs(data)
+        data = self._validate_targeting_configs(data)
         if application == NimbusExperiment.Application.DESKTOP:
             data = self._validate_desktop_pref_rollouts(data)
             data = self._validate_desktop_pref_flips(data)

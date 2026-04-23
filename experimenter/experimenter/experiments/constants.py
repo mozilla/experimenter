@@ -1068,6 +1068,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "In versions {versions}: Feature {feature_config} is not supported"
     )
 
+    ERROR_TARGETING_FIELD_UNSUPPORTED_IN_RANGE = (
+        "Targeting field {field} is not supported by any version in this range."
+    )
+
+    ERROR_TARGETING_FIELD_UNSUPPORTED_IN_VERSIONS = (
+        "In versions {versions}: Targeting field {field} is not supported"
+    )
+
     ERROR_FEATURE_VALUE_IN_VERSIONS = "In versions {versions}: {error}"
     WARNING_FEATURE_VALUE_IN_VERSIONS = "Warning: In versions {versions}: {warning}"
 
