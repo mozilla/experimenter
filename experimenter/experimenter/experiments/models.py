@@ -2,6 +2,7 @@ import copy
 import datetime
 import json
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from decimal import Decimal
 from itertools import chain
@@ -1640,7 +1641,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     @staticmethod
-    def audience_set_overlap(self_items, self_exclude, other_items, other_exclude):
+    def audience_set_overlap(
+        self_items: Iterable[Optional[str]] | None,
+        self_exclude: bool,
+        other_items: Iterable[Optional[str]] | None,
+        other_exclude: bool,
+    ) -> bool:
         self_set = set(self_items or ()) - {None}
         other_set = set(other_items or ()) - {None}
         if not self_set or not other_set:
@@ -1653,7 +1659,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return not other_set.issubset(self_set)
         return not self_set.issubset(other_set)
 
-    def audience_overlap(self, candidates):
+    def audience_overlap(self, candidates: "QuerySet[NimbusExperiment]") -> list[str]:
         self_locales = [locale.code for locale in self.locales.all()]
         self_countries = [country.code for country in self.countries.all()]
         self_languages = [language.code for language in self.languages.all()]
