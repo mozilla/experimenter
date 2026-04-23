@@ -45,7 +45,8 @@
             Languages
           </th>
           <td>
-            {{ experiment.languages.all|join:"<br>"|default:"All Languages" }}
+            {% include "common/collapsible_list.html" with items=experiment.languages.all empty_text="All Languages" id="collapsible-list-languages" %}
+
           </td>
         {% else %}
           <th>
@@ -57,7 +58,8 @@
             Locales
           </th>
           <td>
-            {{ experiment.locales.all|join:"<br>"|default:"All Locales" }}
+            {% include "common/collapsible_list.html" with items=experiment.locales.all empty_text="All Locales" id="collapsible-list-locales" %}
+
           </td>
         {% endif %}
         <th>
@@ -69,7 +71,8 @@
           Countries
         </th>
         <td>
-          {{ experiment.countries.all|join:"<br>"| default:"All Countries" }}
+          {% include "common/collapsible_list.html" with items=experiment.countries.all empty_text="All Countries" id="collapsible-list-countries" %}
+
         </td>
       </tr>
       <tr>

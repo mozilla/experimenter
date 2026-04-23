@@ -1,0 +1,29 @@
+{% if not items %}
+  {{ empty_text }}
+{% elif items|length <= 10 %}
+  {% for item in items %}
+    {{ item }}
+    {% if not forloop.last %}<br>{% endif %}
+  {% endfor %}
+{% else %}
+  {% for item in items|slice:":10" %}
+    {{ item }}
+    {% if not forloop.last %}<br>{% endif %}
+  {% endfor %}
+  <span class="collapse" id="{{ id }}">
+    <br>
+    {% for item in items|slice:"10:" %}
+      {{ item }}
+      {% if not forloop.last %}<br>{% endif %}
+    {% endfor %}
+  </span>
+  <button type="button"
+          class="btn btn-outline-primary btn-sm mt-2 d-block collapsible-list-toggle"
+          data-bs-toggle="collapse"
+          data-bs-target="#{{ id }}"
+          aria-expanded="false"
+          aria-controls="{{ id }}">
+    <span class="btn-text-collapsed"><i class="fa-solid fa-plus"></i> Show {{ items|length|add:"-10" }} more</span>
+    <span class="btn-text-expanded"><i class="fa-solid fa-minus"></i> Show less</span>
+  </button>
+{% endif %}
