@@ -823,9 +823,6 @@ features:
         type: AwesomeBar
         default:
           min-search-term: 3
-          position:
-            is-bottom: false
-            is-position-feature-enabled: true
           search-highlights: false
           use-page-content: false
   sent-from-firefox-feature:
@@ -1032,7 +1029,7 @@ features:
         description: |
           Whether or not to enable translations feature.
         type: Boolean
-        default: false
+        default: true
       languagePickerEnabled:
         description: |
           Whether or not to enable the translations language picker (Phase 2).
@@ -1340,13 +1337,6 @@ objects:
         description: The minimum number of characters that the user types before searching in the page.
         type: Int
         default: 3
-      position:
-        description: |
-          This property defines whether or not the feature is enabled, and the position of the search bar
-        type: SearchBarPositionFeature
-        default:
-          is-position-feature-enabled: true
-          is-bottom: true
       search-highlights:
         description: Whether or not search highlights are enabled
         type: Boolean
@@ -1596,17 +1586,6 @@ objects:
           The text of the button title. This should never be defaulted.
         type: Text
         default: ''
-  SearchBarPositionFeature:
-    description: The configuration for the bottom search bar on the homescreen
-    fields:
-      is-bottom:
-        description: Whether or not the default position is at the bottom
-        type: Boolean
-        default: true
-      is-position-feature-enabled:
-        description: Whether or not the feature is enabled
-        type: Boolean
-        default: true
   StyleData:
     description: |
       A group of properties (predominantly visual) to the describe style of the message.

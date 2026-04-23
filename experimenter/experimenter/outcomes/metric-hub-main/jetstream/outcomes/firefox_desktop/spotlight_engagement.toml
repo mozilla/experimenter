@@ -1,7 +1,14 @@
-### outcome properties
-friendly_name = "Spotlight Engagement"
-description = "Usage and engagement metrics for the Spotlight feature - for ALL engagement with Spotlight feature, not experiment specific "
+# NOTE: Data Source only supports `client_id`, not `profile_group_id`,
+# so this data source, and therefore this outcome, cannot be used for
+# automated analysis at this time.
 
+### outcome properties
+friendly_name = "DO NOT USE - Spotlight Engagement"
+description = """
+Usage and engagement metrics for the Spotlight feature - for ALL engagement with Spotlight feature, not experiment specific.
+
+NOTE: does not support `profile_group_id`, which is the default analysis unit, and so cannot be used for automated analysis.
+"""
 
 ### parameters definition
 [parameters]
@@ -10,7 +17,7 @@ description = "Usage and engagement metrics for the Spotlight feature - for ALL 
 friendly_name = "Message ID associated with the experiment"
 description = "ID of the spotlight message associated with this experiment"
 # only used for validation; needs to be specified for each experiment
-default = { test-branch = "test-message-id"}
+default = { test-branch = "test-message-id" }
 distinct_by_branch = true
 
 
@@ -21,6 +28,7 @@ description = "How often users saw Spotlight during an analysis window"
 select_expression = "COUNTIF(event = 'IMPRESSION' AND message_id = '{{ parameters.message_id }}')"
 data_source = "spotlight"
 statistics = { bootstrap_mean = {} }
+analysis_units = ["client_id"]
 
 [metrics.spotlight_clicks]
 friendly_name = "Spotlight Clicks"
@@ -28,6 +36,7 @@ description = "How often users clicked Spotlight during an analysis window"
 select_expression = "COUNTIF(event = 'CLICK' AND message_id = '{{ parameters.message_id }}')"
 data_source = "spotlight"
 statistics = { bootstrap_mean = {} }
+analysis_units = ["client_id"]
 
 [metrics.spotlight_dismisses]
 friendly_name = "Spotlight Dismisses"
@@ -35,6 +44,7 @@ description = "How often users dismissed Spotlight during an analysis window"
 select_expression = "COUNTIF(event = 'DISMISS' AND message_id = '{{ parameters.message_id }}')"
 data_source = "spotlight"
 statistics = { bootstrap_mean = {} }
+analysis_units = ["client_id"]
 
 [data_sources.spotlight]
 from_expression = """
@@ -51,3 +61,4 @@ CROSS JOIN
 )
 """
 experiments_column_type = "native"
+analysis_units = ["client_id"]
