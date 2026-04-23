@@ -6016,7 +6016,6 @@ class NimbusFeatureConfigTests(TestCase):
             slug="my-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-        # Should be path+query only (no scheme or host)
         proxy_path = feature.feature_monitoring_proxy_path
         self.assertNotIn("https://", proxy_path)
         self.assertNotIn("yardstick.mozilla.org", proxy_path)
