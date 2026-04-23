@@ -31,8 +31,9 @@ def test_fenix_enrollment(
     # Prevent the real Nimbus RS fetch from overwriting our local enrollment
     # (without this, Nimbus evolves against the fresh fetch — which does not
     # contain our test experiment — and unenrolls us).
-    subprocess.check_call(["adb", "shell", "svc", "wifi", "disable"])
-    subprocess.check_call(["adb", "shell", "svc", "data", "disable"])
+    subprocess.check_call(
+        ["adb", "shell", "cmd", "connectivity", "airplane-mode", "enable"]
+    )
 
     subprocess.check_call(
         [
