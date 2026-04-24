@@ -156,17 +156,6 @@ enable-popups:
     in-app-messages-enabled:
       type: boolean
       description: When true, non CFR popups will show
-encourage-search-cfr:
-  description: A feature that shows a CFR on first launch to encourage users to make a search
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    cfrText:
-      type: string
-      description: The text to show in the CFR
-    enabled:
-      type: boolean
-      description: When true, the CFR will show
 fingerprinting-protection:
   description: Control Fingerprinting Protection
   hasExposure: true
