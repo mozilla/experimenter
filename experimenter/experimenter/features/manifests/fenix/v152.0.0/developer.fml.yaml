@@ -163,17 +163,6 @@ features:
         description: When true, non CFR popups will show
         type: Boolean
         default: true
-  encourage-search-cfr:
-    description: A feature that shows a CFR on first launch to encourage users to make a search
-    variables:
-      cfrText:
-        description: The text to show in the CFR
-        type: Text
-        default: ''
-      enabled:
-        description: When true, the CFR will show
-        type: Boolean
-        default: false
   fingerprinting-protection:
     description: Control Fingerprinting Protection
     variables:
