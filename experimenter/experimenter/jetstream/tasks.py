@@ -4,6 +4,7 @@ import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.core.cache import cache
+from django.utils import timezone
 
 from experimenter.celery import app
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
@@ -149,15 +150,13 @@ def fetch_monitoring_data():
             try:
                 experiment = NimbusExperiment.objects.get(
                     slug=exp_slug,
-                    status__in=[
-                        NimbusConstants.Status.LIVE,
-                        NimbusConstants.Status.COMPLETE,
-                    ],
+                    status=NimbusConstants.Status.LIVE,
                 )
 
                 # Only update if data has changed
                 if experiment.monitoring_data != monitoring_data:
                     experiment.monitoring_data = monitoring_data
+                    experiment.monitoring_data_updated_at = timezone.now()
                     experiment.save()
                     generate_nimbus_changelog(
                         experiment,

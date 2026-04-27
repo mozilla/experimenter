@@ -351,6 +351,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             "(enrollment/unenrollment counts, reasons, branches)"
         ),
     )
+    monitoring_data_updated_at = models.DateTimeField(
+        "Monitoring Data Last Updated",
+        blank=True,
+        null=True,
+    )
     risk_partner_related = models.BooleanField(
         "Is a Partner Related Risk Flag", default=None, blank=True, null=True
     )
