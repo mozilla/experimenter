@@ -38,7 +38,13 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
         "localeLanguageCode",
         "attachedFxAOAuthClients",
     },
-    Application.FENIX: {"current_date", "nimbus_id"},
+    Application.FENIX: {
+        "current_date",
+        "nimbus_id",
+        "isFirstRun",
+        "is_large_device",
+        "number_of_app_launches",
+    },
     Application.IOS: {"current_date", "nimbus_id"},
 }
 

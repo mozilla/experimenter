@@ -4539,9 +4539,36 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         self.assertEqual(serializer.warnings, {})
 
-    def test_validate_targeting_config_uses_preserved_targeting_keys(self):
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.TargetingConfig.ATTRIBUTION_MEDIUM_EMAIL,
+                {"knownField", "newtabAddonVersion", "defaultProfile", "userId"},
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.TargetingConfig.MOBILE_FIRST_RUN,
+                {
+                    "knownField",
+                    "nimbus_id",
+                    "isFirstRun",
+                    "is_large_device",
+                    "number_of_app_launches",
+                },
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.TargetingConfig.MOBILE_FIRST_RUN,
+                {"knownField", "current_date", "nimbus_id"},
+            ),
+        ]
+    )
+    def test_validate_targeting_config_uses_preserved_targeting_keys(
+        self, app, targeting_config, extracted_fields
+    ):
         NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP,
+            application=app,
             schemas=[
                 NimbusVersionedSchemaFactory.build(version=self.versions[(120, 0, 0)]),
                 NimbusVersionedSchemaFactory.build(version=self.versions[(121, 0, 0)]),
@@ -4550,10 +4577,11 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
+            application=app,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_121,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.ATTRIBUTION_MEDIUM_EMAIL,
+            targeting_config_slug=targeting_config,
+            is_sticky=True,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -4563,7 +4591,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
 
         with patch(
             "experimenter.experiments.api.v5.serializers.extract_targeting_fields",
-            return_value={"knownField", "newtabAddonVersion", "defaultProfile", "userId"},
+            return_value=extracted_fields,
         ):
             self.assertTrue(serializer.is_valid(), serializer.errors)
 
