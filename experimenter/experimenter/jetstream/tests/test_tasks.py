@@ -3457,15 +3457,9 @@ class TestFetchMonitoringDataTask(TestCase):
 
         self.mock_get_monitoring_data.assert_called_once()
 
-    @parameterized.expand(
-        [
-            (NimbusExperiment.Status.LIVE,),
-            (NimbusExperiment.Status.COMPLETE,),
-        ]
-    )
-    def test_fetch_monitoring_data_updates_live_or_complete_experiment(self, status):
+    def test_fetch_monitoring_data_updates_live_experiment(self):
         experiment = NimbusExperimentFactory.create(
-            status=status,
+            status=NimbusExperiment.Status.LIVE,
             monitoring_data={},
         )
         self.mock_get_monitoring_data.return_value = {
@@ -3476,14 +3470,16 @@ class TestFetchMonitoringDataTask(TestCase):
 
         experiment.refresh_from_db()
         self.assertEqual(experiment.monitoring_data, self.monitoring_data)
+        self.assertIsNotNone(experiment.monitoring_data_updated_at)
 
     @parameterized.expand(
         [
             (NimbusExperiment.Status.DRAFT,),
             (NimbusExperiment.Status.PREVIEW,),
+            (NimbusExperiment.Status.COMPLETE,),
         ]
     )
-    def test_fetch_monitoring_data_skips_non_live_or_complete_experiment(self, status):
+    def test_fetch_monitoring_data_skips_non_live_experiment(self, status):
         experiment = NimbusExperimentFactory.create(
             status=status,
             monitoring_data={},
@@ -3496,6 +3492,7 @@ class TestFetchMonitoringDataTask(TestCase):
 
         experiment.refresh_from_db()
         self.assertEqual(experiment.monitoring_data, {})
+        self.assertIsNone(experiment.monitoring_data_updated_at)
 
     def test_fetch_monitoring_data_skips_nonexistent_experiment(self):
         self.mock_get_monitoring_data.return_value = {

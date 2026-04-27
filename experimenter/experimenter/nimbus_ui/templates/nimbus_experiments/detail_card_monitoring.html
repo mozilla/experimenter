@@ -9,13 +9,23 @@
     <h4 class="mb-0">
       <a href="#monitoring" class="text-decoration-none text-body">{{ NimbusUIConstants.MONITORING_CARD_TITLE }}</a>
     </h4>
-    <a href="{{ NimbusUIConstants.VALIDATING_EXPERIMENTS_URL }}"
-       target="_blank"
-       rel="noopener noreferrer"
-       class="small">Learn more</a>
+    <div class="d-flex align-items-center gap-3">
+      {% if experiment.monitoring_data_updated_at %}
+        <span class="text-muted small">Last updated: {{ experiment.monitoring_data_updated_at|date:"N j, Y" }}</span>
+      {% endif %}
+      <a href="{{ NimbusUIConstants.VALIDATING_EXPERIMENTS_URL }}"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="small">Learn more</a>
+    </div>
   </div>
 {% endblock %}
 {% block card_body %}
+  {% if experiment.is_complete %}
+    <div class="alert alert-secondary mx-3 mt-3 mb-0" role="alert">
+      This experiment has ended. Monitoring data reflects the last update before the experiment concluded.
+    </div>
+  {% endif %}
   {% with summary=experiment.monitoring_summary %}
     <div class="mb-3">
       {% if summary.is_unenrollment_spike %}
