@@ -819,6 +819,13 @@ submission_date_column = "submission_date"
 client_id_column = "client_id"
 deprecated = false
 
+[data_sources.clients_daily]
+from_expression = "mozdata.fenix.baseline_clients_daily"
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+friendly_name = "Clients Daily"
+description = "Clients Daily"
+
 [segments]
 
 [segments.new_users]
@@ -837,6 +844,110 @@ description = """
     Clients who were in the experiment within the first 28 days since they were first seen.
 """
 
+[segments.us]
+data_source = "clients_daily"
+friendly_name = "United States"
+description = "Clients in United States"
+select_expression = "COALESCE(LOGICAL_OR(country = 'US'), FALSE)"
+
+[segments.jp]
+data_source = "clients_daily"
+friendly_name = "Japan"
+description = "Clients in Japan"
+select_expression = "COALESCE(LOGICAL_OR(country = 'JP'), FALSE)"
+
+[segments.gb]
+data_source = "clients_daily"
+friendly_name = "Great Britain"
+description = "Clients in Great Britain"
+select_expression = "COALESCE(LOGICAL_OR(country = 'GB'), FALSE)"
+
+[segments.ca]
+data_source = "clients_daily"
+friendly_name = "Canada"
+description = "Clients in Canada"
+select_expression = "COALESCE(LOGICAL_OR(country = 'CA'), FALSE)"
+
+[segments.au]
+data_source = "clients_daily"
+friendly_name = "Australia"
+description = "Clients in Australia"
+select_expression = "COALESCE(LOGICAL_OR(country = 'AU'), FALSE)"
+
+[segments.de]
+data_source = "clients_daily"
+friendly_name = "Germany"
+description = "Clients in Germany"
+select_expression = "COALESCE(LOGICAL_OR(country = 'DE'), FALSE)"
+
+[segments.fr]
+data_source = "clients_daily"
+friendly_name = "France"
+description = "Clients in France"
+select_expression = "COALESCE(LOGICAL_OR(country = 'FR'), FALSE)"
+
+[segments.pl]
+data_source = "clients_daily"
+friendly_name = "Poland"
+description = "Clients in Poland"
+select_expression = "COALESCE(LOGICAL_OR(country = 'PL'), FALSE)"
+
+[segments.ch]
+data_source = "clients_daily"
+friendly_name = "Switzerland"
+description = "Clients in Switzerland"
+select_expression = "COALESCE(LOGICAL_OR(country = 'CH'), FALSE)"
+
+[segments.it]
+data_source = "clients_daily"
+friendly_name = "Italy"
+description = "Clients in Italy"
+select_expression = "COALESCE(LOGICAL_OR(country = 'IT'), FALSE)"
+
+[segments.nl]
+data_source = "clients_daily"
+friendly_name = "Netherlands"
+description = "Clients in Netherlands"
+select_expression = "COALESCE(LOGICAL_OR(country = 'NL'), FALSE)"
+
+[segments.aut]
+data_source = "clients_daily"
+friendly_name = "Austria"
+description = "Clients in Austria"
+select_expression = "COALESCE(LOGICAL_OR(country = 'AT'), FALSE)"
+
+[segments.es]
+data_source = "clients_daily"
+friendly_name = "Spain"
+description = "Clients in Spain"
+select_expression = "COALESCE(LOGICAL_OR(country = 'ES'), FALSE)"
+
+[segments.ind]
+data_source = "clients_daily"
+friendly_name = "India"
+description = "Clients in India"
+select_expression = "COALESCE(LOGICAL_OR(country = 'IN'), FALSE)"
+
+[segments.id]
+data_source = "clients_daily"
+friendly_name = "Indonesia"
+description = "Clients in Indonesia"
+select_expression = "COALESCE(LOGICAL_OR(country = 'ID'), FALSE)"
+
+[segments.br]
+data_source = "clients_daily"
+friendly_name = "Brazil"
+description = "Clients in Brazil"
+select_expression = "COALESCE(LOGICAL_OR(country = 'BR'), FALSE)"
+
+[segments.mx]
+data_source = "clients_daily"
+friendly_name = "Mexico"
+description = "Clients in Mexico"
+select_expression = "COALESCE(LOGICAL_OR(country = 'MX'), FALSE)"
+
+[segments.data_sources]
+
 [segments.data_sources.baseline_clients_daily]
 from_expression = """(
     SELECT
@@ -844,5 +955,10 @@ from_expression = """(
     FROM
         `moz-fx-data-shared-prod.fenix.baseline_clients_daily`
 )"""
+window_start = 0
+window_end = 0
+
+[segments.data_sources.clients_daily]
+from_expression = "mozdata.fenix.baseline_clients_daily"
 window_start = 0
 window_end = 0
