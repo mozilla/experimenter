@@ -10,46 +10,47 @@
         {% endif %}
       </p>
       <ul class="mb-1">
-        {% if warning.entries %}
-          {% for entry in warning.entries %}
-            <li>
-              {% if entry.publish_date_relation == "blocked_by" %}
-                <span class="text-muted me-1"
-                      title="This live delivery published earlier and will claim contested clients first.">↳ blocked by</span>
-              {% elif entry.publish_date_relation == "would_block" %}
-                <span class="text-muted me-1"
-                      title="This live delivery published later; clients eligible for both will enroll here instead.">↰ would block</span>
-              {% endif %}
-              <a target="_blank" href="{% url "nimbus-ui-detail" slug=entry.slug %}">{{ entry.slug }}</a>
-              <span class="text-muted">
-                (
-                {% for reason in entry.reasons %}
-                  {% if reason.shared_features %}
-                    {{ reason.label_prefix }}
-                    {% for feature in reason.shared_features %}
-                      <a target="_blank" href="{{ feature.url }}">{{ feature.slug }}</a>
-                      {% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                  {% else %}
-                    {{ reason.label }}
-                  {% endif %}
-                  <i class="fa-regular fa-circle-question fa-sm"
-                     data-bs-toggle="tooltip"
-                     data-bs-placement="top"
-                     title="{{ reason.detail }}"></i>
-                  {% if not forloop.last %},{% endif %}
-                {% endfor %}
-                )
-              </span>
-            </li>
-          {% endfor %}
-        {% else %}
-          {% for slug in warning.slugs %}
-            <li>
-              <a target="_blank" href="{% url "nimbus-ui-detail" slug=slug %}">{{ slug }}</a>
-            </li>
-          {% endfor %}
-        {% endif %}
+        {% for entry in warning.entries %}
+          <li>
+            {% if entry.publish_date_relation == "blocked_by" %}
+              <span class="text-muted me-1"
+                    title="This live delivery published earlier and will claim contested clients first.">↳ blocked by</span>
+            {% elif entry.publish_date_relation == "would_block" %}
+              <span class="text-muted me-1"
+                    title="This live delivery published later; clients eligible for both will enroll here instead.">↰ would block</span>
+            {% endif %}
+            <a target="_blank" href="{% url "nimbus-ui-detail" slug=entry.slug %}">{{ entry.slug }}</a>
+            <span class="text-muted">
+              (
+              {% for reason in entry.reasons %}
+                {% if reason.shared_features %}
+                  {{ reason.label_prefix }}
+                  {% for feature in reason.shared_features %}
+                    <a target="_blank" href="{{ feature.url }}">{{ feature.slug }}</a>
+                    {% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                {% else %}
+                  {{ reason.label }}
+                {% endif %}
+                <i class="fa-regular fa-circle-question fa-sm"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   title="{{ reason.detail }}"></i>
+                {% if not forloop.last %},{% endif %}
+              {% endfor %}
+              )
+            </span>
+          </li>
+        {% endfor %}
+        {% for issue in warning.self_issues %}
+          <li>
+            <span>{{ issue.label }}</span>
+            <i class="fa-regular fa-circle-question fa-sm"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               title="{{ issue.detail }}"></i>
+          </li>
+        {% endfor %}
       </ul>
       {% if warning.learn_more_link %}
         <a href="{{ warning.learn_more_link }}"
