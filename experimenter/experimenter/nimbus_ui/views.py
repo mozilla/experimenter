@@ -1,12 +1,16 @@
 import json
+import re
 
+import requests
 from deepdiff import DeepDiff
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.views import View
 from django.views.generic import CreateView, DetailView, TemplateView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
@@ -1133,6 +1137,67 @@ class NimbusFeatureMonitoringView(DetailView):
     template_name = "nimbus_experiments/feature_monitoring.html"
     model = NimbusFeatureConfig
     context_object_name = "feature_config"
+
+
+# Grafana is behind Google IAP, which blocks third-party cookies in iframes.
+# Both Experimenter and Grafana run in the same k8s cluster, so the backend
+# can reach Grafana via internal DNS (bypassing IAP) and proxy it to the browser.
+_GRAFANA_PROXY_PREFIX = "/nimbus/grafana-proxy/"
+_SAFE_RESPONSE_HEADERS = ("Cache-Control", "ETag", "Last-Modified", "Content-Type")
+
+
+class GrafanaProxyView(LoginRequiredMixin, View):
+    def get(self, request, path=""):
+        target = f"{settings.GRAFANA_INTERNAL_URL.rstrip('/')}/{path}"
+        headers = {}
+        if settings.GRAFANA_SERVICE_ACCOUNT_TOKEN:
+            headers["Authorization"] = f"Bearer {settings.GRAFANA_SERVICE_ACCOUNT_TOKEN}"
+
+        try:
+            upstream = requests.get(
+                target,
+                params=request.GET,
+                headers=headers,
+                timeout=30,
+            )
+        except requests.exceptions.RequestException:
+            return HttpResponse("Grafana is unavailable", status=503)
+
+        content_type = upstream.headers.get("Content-Type", "application/octet-stream")
+
+        if "text/html" in content_type:
+            body = self._rewrite_html(upstream.text)
+            response = HttpResponse(
+                body, content_type=content_type, status=upstream.status_code
+            )
+        else:
+            response = HttpResponse(
+                upstream.content, content_type=content_type, status=upstream.status_code
+            )
+
+        for header in _SAFE_RESPONSE_HEADERS:
+            if value := upstream.headers.get(header):
+                response[header] = value
+
+        response["X-Frame-Options"] = "SAMEORIGIN"
+        return response
+
+    def _rewrite_html(self, html):
+        # Rewrite <base href> so relative asset paths (JS, CSS, fonts) resolve
+        # through our proxy instead of directly to Grafana's public URL.
+        html = re.sub(
+            r'(<base\s+href=")[^"]*(")',
+            rf"\g<1>{_GRAFANA_PROXY_PREFIX}\2",
+            html,
+        )
+        # Rewrite appUrl in window.grafanaBootData so Grafana's JS routes
+        # API calls (datasources, dashboards) through our proxy too.
+        html = re.sub(
+            r'("appUrl"\s*:\s*")[^"]*(")',
+            rf"\g<1>{_GRAFANA_PROXY_PREFIX}\2",
+            html,
+        )
+        return html
 
 
 class NimbusExperimentsHomeView(FilterView):

@@ -8,7 +8,7 @@ from decimal import Decimal
 from itertools import chain
 from pathlib import Path
 from typing import Any, Optional
-from urllib.parse import urlencode, urljoin
+from urllib.parse import urlencode, urljoin, urlparse
 from uuid import uuid4
 
 import packaging
@@ -2658,6 +2658,13 @@ class NimbusFeatureConfig(models.Model):
         return settings.FEATURE_MONITORING_URL.format(
             slug=self.slug, application=application
         )
+
+    @property
+    def feature_monitoring_proxy_path(self):
+        parsed = urlparse(self.feature_monitoring_url)
+        path = parsed.path.lstrip("/")
+        query = f"?{parsed.query}" if parsed.query else ""
+        return f"{path}{query}"
 
     def schemas_between_versions(
         self,
