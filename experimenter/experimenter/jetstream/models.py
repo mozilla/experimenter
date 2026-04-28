@@ -77,6 +77,7 @@ GROUPED_METRICS = {
     Group.SEARCH: SEARCH_METRICS,
     Group.USAGE: USAGE_METRICS,
 }
+RETENTION_2_WEEKS_WINDOW_INDEX = 2
 RETENTION_3_DAYS_WINDOW_INDEX = 4
 
 
@@ -155,14 +156,24 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
         ]
 
     def append_retention_data(self, weekly_data):
-        # Try to get the two-week retention data. If it doesn't
-        # exist (experiment was too short), settle for 1 week.
-        retention_data = self.get_retention_by_window(2, weekly_data, Metric.RETENTION)
-        if len(retention_data) == 0:
-            retention_data = self.get_retention_by_window(
-                1, weekly_data, Metric.RETENTION
-            )
+        # Only use two-week retention data.
+        retention_data = self.get_retention_by_window(
+            RETENTION_2_WEEKS_WINDOW_INDEX, weekly_data, Metric.RETENTION
+        )
 
+        self.extend(retention_data)
+
+    def replace_retention_weeks(self, weekly_data):
+        # Remove all weekly retention data except for week 2.
+        retention_data = self.get_retention_by_window(
+            RETENTION_2_WEEKS_WINDOW_INDEX, weekly_data, Metric.RETENTION
+        )
+
+        self.root = [
+            jetstream_data_point
+            for jetstream_data_point in self.root
+            if jetstream_data_point.metric != Metric.RETENTION
+        ]
         self.extend(retention_data)
 
     def append_retention_3_days(self, daily_data):
