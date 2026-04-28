@@ -2715,13 +2715,13 @@ class TestNimbusExperiment(TestCase):
 
     @mock.patch.object(
         NimbusExperiment,
-        "feature_has_live_multifeature_experiments",
+        "feature_has_live_overlapping_deliveries",
         new_callable=mock.PropertyMock,
     )
-    def test_live_multifeature_warning(
-        self, mock_feature_has_live_multifeature_experiments
+    def test_live_feature_overlap_warning(
+        self, mock_feature_has_live_overlapping_deliveries
     ):
-        mock_feature_has_live_multifeature_experiments.return_value = [
+        mock_feature_has_live_overlapping_deliveries.return_value = [
             "experiment5",
             "experiment6",
         ]
@@ -2730,12 +2730,46 @@ class TestNimbusExperiment(TestCase):
             status=NimbusExperiment.Status.PREVIEW,
             channels=[NimbusExperiment.Channel.RELEASE],
             application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=False,
         )
 
         warnings = experiment.audience_overlap_warnings
         self.assertEqual(len(warnings), 1)
-        self.assertEqual(warnings[0]["text"], NimbusUIConstants.LIVE_MULTIFEATURE_WARNING)
+        self.assertEqual(
+            warnings[0]["text"], NimbusUIConstants.LIVE_FEATURE_OVERLAP_WARNING
+        )
         self.assertEqual(warnings[0]["slugs"], ["experiment5", "experiment6"])
+
+    @mock.patch.object(
+        NimbusExperiment,
+        "feature_has_live_overlapping_deliveries",
+        new_callable=mock.PropertyMock,
+    )
+    def test_live_rollout_feature_overlap_warning(
+        self, mock_feature_has_live_overlapping_deliveries
+    ):
+        mock_feature_has_live_overlapping_deliveries.return_value = [
+            "rollout-blocker",
+        ]
+
+        rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+
+        warnings = rollout.audience_overlap_warnings
+        feature_overlap_warning = next(
+            (
+                w
+                for w in warnings
+                if w["text"] == NimbusUIConstants.LIVE_ROLLOUT_FEATURE_OVERLAP_WARNING
+            ),
+            None,
+        )
+        self.assertIsNotNone(feature_overlap_warning)
+        self.assertEqual(feature_overlap_warning["slugs"], ["rollout-blocker"])
 
     @mock.patch.object(
         NimbusExperiment, "excluded_live_deliveries", new_callable=mock.PropertyMock
@@ -2745,23 +2779,24 @@ class TestNimbusExperiment(TestCase):
     )
     @mock.patch.object(
         NimbusExperiment,
-        "feature_has_live_multifeature_experiments",
+        "feature_has_live_overlapping_deliveries",
         new_callable=mock.PropertyMock,
     )
     def test_multiple_warnings(
         self,
-        mock_feature_has_live_multifeature_experiments,
+        mock_feature_has_live_overlapping_deliveries,
         mock_live_experiments_in_namespace,
         mock_excluded_live_deliveries,
     ):
         mock_excluded_live_deliveries.return_value = ["experiment1", "experiment2"]
         mock_live_experiments_in_namespace.return_value = ["experiment3"]
-        mock_feature_has_live_multifeature_experiments.return_value = ["experiment4"]
+        mock_feature_has_live_overlapping_deliveries.return_value = ["experiment4"]
 
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
+            is_rollout=False,
         )
 
         warnings = experiment.audience_overlap_warnings
@@ -2774,7 +2809,9 @@ class TestNimbusExperiment(TestCase):
             warnings[1]["text"], NimbusUIConstants.LIVE_EXPERIMENTS_BUCKET_WARNING
         )
         self.assertEqual(warnings[1]["slugs"], ["experiment3"])
-        self.assertEqual(warnings[2]["text"], NimbusUIConstants.LIVE_MULTIFEATURE_WARNING)
+        self.assertEqual(
+            warnings[2]["text"], NimbusUIConstants.LIVE_FEATURE_OVERLAP_WARNING
+        )
         self.assertEqual(warnings[2]["slugs"], ["experiment4"])
 
     def test_rollout_conflict_warning(self):
@@ -2835,6 +2872,81 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertIsNone(experiment.rollout_conflict_warning)
+
+    def test_rollout_feature_overlap_with_live_rollout_different_targeting(self):
+        shared_feature = NimbusFeatureConfigFactory.create(
+            slug="shared-feature",
+            name="shared-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        extra_feature = NimbusFeatureConfigFactory.create(
+            slug="extra-feature",
+            name="extra-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        live_blocker = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-blocker",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[shared_feature],
+        )
+
+        draft_rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft-rollout",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            feature_configs=[shared_feature, extra_feature],
+        )
+
+        warnings = draft_rollout.audience_overlap_warnings
+        feature_overlap_warning = next(
+            (w for w in warnings if live_blocker.slug in (w.get("slugs") or [])),
+            None,
+        )
+
+        self.assertIsNotNone(
+            feature_overlap_warning,
+            "Expected a warning naming the live single-feature rollout that holds "
+            "the shared feature slot",
+        )
+        self.assertEqual(feature_overlap_warning["variant"], "warning")
+        self.assertEqual(list(feature_overlap_warning["slugs"]), [live_blocker.slug])
+
+    def test_experiment_does_not_warn_on_live_rollout_sharing_feature(self):
+        shared_feature = NimbusFeatureConfigFactory.create(
+            slug="shared-feature",
+            name="shared-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-rollout",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[shared_feature],
+        )
+
+        draft_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft-experiment",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[shared_feature],
+        )
+
+        self.assertEqual(
+            list(draft_experiment.feature_has_live_overlapping_deliveries), []
+        )
 
     @mock_valid_features
     def test_pref_targeting_rollout_collision_warning(self):
@@ -4539,7 +4651,7 @@ class TestNimbusExperiment(TestCase):
             ),
         ]
     )
-    def test_get_live_multifeature_experiments_for_feature(
+    def test_get_live_overlapping_deliveries_for_feature(
         self,
         application1,
         application2,
@@ -4574,10 +4686,10 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[feature1],
         )
 
-        experiments = experiment.feature_has_live_multifeature_experiments
+        experiments = experiment.feature_has_live_overlapping_deliveries
         self.assertEqual(len(experiments), expected_matches)
 
-    def test_get_live_multifeature_experiments_for_feature_no_live(self):
+    def test_get_live_overlapping_deliveries_for_feature_no_live(self):
         feature1 = NimbusFeatureConfigFactory.create()
         feature2 = NimbusFeatureConfigFactory.create()
 
@@ -4594,10 +4706,10 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[feature1, feature2],
         )
 
-        experiments = experiment.feature_has_live_multifeature_experiments
+        experiments = experiment.feature_has_live_overlapping_deliveries
         self.assertEqual(len(experiments), 0)
 
-    def test_get_live_multifeature_experiments_for_feature_no_live_multifeature(self):
+    def test_get_live_overlapping_deliveries_for_feature_single_feature_live(self):
         feature1 = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP
         )
@@ -4605,8 +4717,9 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP
         )
 
-        NimbusExperimentFactory.create_with_lifecycle(
+        live_single_feature = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-single-feature",
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature1],
         )
@@ -4621,10 +4734,12 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[feature1],
         )
 
-        experiments = experiment.feature_has_live_multifeature_experiments
-        self.assertEqual(len(experiments), 0)
+        self.assertEqual(
+            list(experiment.feature_has_live_overlapping_deliveries),
+            [live_single_feature.slug],
+        )
 
-    def test_get_live_multifeature_experiments_none(self):
+    def test_get_live_overlapping_deliveries_none(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
@@ -4635,7 +4750,7 @@ class TestNimbusExperiment(TestCase):
             ],
         )
 
-        experiments = experiment.feature_has_live_multifeature_experiments
+        experiments = experiment.feature_has_live_overlapping_deliveries
         self.assertEqual(len(experiments), 0)
 
     def test_get_live_excluded_experiments(self):
@@ -4957,7 +5072,7 @@ class TestNimbusExperiment(TestCase):
             ("language", LanguageFactory, "languages", "en", "fr"),
         ]
     )
-    def test_feature_has_live_multifeature_experiments_skips_disjoint_audience(
+    def test_feature_has_live_overlapping_deliveries_skips_disjoint_audience(
         self, _name, factory, field, live_code, draft_code
     ):
         feature1 = NimbusFeatureConfigFactory.create(
@@ -4980,7 +5095,7 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[feature1],
             **{field: [factory.create(code=draft_code)]},
         )
-        self.assertEqual(list(experiment.feature_has_live_multifeature_experiments), [])
+        self.assertEqual(list(experiment.feature_has_live_overlapping_deliveries), [])
 
     @parameterized.expand(
         [

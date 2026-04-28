@@ -1713,18 +1713,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ]
 
     @property
-    def feature_has_live_multifeature_experiments(self):
+    def feature_has_live_overlapping_deliveries(self):
         matching = []
-        live_experiments = NimbusExperiment.objects.filter(
+        live_deliveries = NimbusExperiment.objects.filter(
             status=self.Status.LIVE,
             application=self.application,
+            is_rollout=self.is_rollout,
         )
-        if live_experiments.exists():
+        if live_deliveries.exists():
             feature_slugs = self.feature_configs.all().values_list("slug", flat=True)
             candidates = (
-                live_experiments.annotate(n_feature_configs=Count("feature_configs"))
-                .filter(n_feature_configs__gt=1)
-                .filter(feature_configs__slug__in=feature_slugs)
+                live_deliveries.filter(feature_configs__slug__in=feature_slugs)
                 .exclude(id=self.id)
                 .order_by("slug")
             )
@@ -2027,10 +2026,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.excluded_live_deliveries:
             excluded_live_deliveries = ", ".join(self.excluded_live_deliveries)
 
-        feature_has_live_multifeature_experiments = ""
-        if self.feature_has_live_multifeature_experiments:
-            feature_has_live_multifeature_experiments = ", ".join(
-                self.feature_has_live_multifeature_experiments
+        feature_has_live_overlapping_deliveries = ""
+        if self.feature_has_live_overlapping_deliveries:
+            feature_has_live_overlapping_deliveries = ", ".join(
+                self.feature_has_live_overlapping_deliveries
             )
 
         live_experiments_in_namespace = ""
@@ -2038,9 +2037,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             live_experiments_in_namespace = ", ".join(self.live_experiments_in_namespace)
 
         overlapping_warnings = (
-            feature_has_live_multifeature_experiments
+            feature_has_live_overlapping_deliveries
             and live_experiments_in_namespace
-            and feature_has_live_multifeature_experiments in live_experiments_in_namespace
+            and feature_has_live_overlapping_deliveries in live_experiments_in_namespace
         )
 
         if self.status in [NimbusConstants.Status.DRAFT, NimbusConstants.Status.PREVIEW]:
@@ -2064,11 +2063,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     }
                 )
 
-            if feature_has_live_multifeature_experiments:
+            if feature_has_live_overlapping_deliveries:
                 warnings.append(
                     {
-                        "text": NimbusUIConstants.LIVE_MULTIFEATURE_WARNING,
-                        "slugs": self.feature_has_live_multifeature_experiments,
+                        "text": (
+                            NimbusUIConstants.LIVE_ROLLOUT_FEATURE_OVERLAP_WARNING
+                            if self.is_rollout
+                            else NimbusUIConstants.LIVE_FEATURE_OVERLAP_WARNING
+                        ),
+                        "slugs": self.feature_has_live_overlapping_deliveries,
                         "variant": "warning",
                         "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
                     }

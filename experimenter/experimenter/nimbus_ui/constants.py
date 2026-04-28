@@ -56,9 +56,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     previous namespace and may reduce the eligible population for your experiment
     which may result in reduced statistical power and precision. Please check that
     the configured population proportion has accounted for this:"""
-    LIVE_MULTIFEATURE_WARNING = """The following multi-feature experiments are LIVE
-    and may reduce the eligible population for your experiment which may result in
-    reduced statistical power and precision. Please check that the configured population
+    LIVE_FEATURE_OVERLAP_WARNING = """The following experiments are LIVE on a feature
+    this experiment also uses, and may reduce the eligible population which may result
+    in reduced statistical power and precision. Please check that the configured
+    population proportion has accounted for this:"""
+    LIVE_ROLLOUT_FEATURE_OVERLAP_WARNING = """The following rollouts are LIVE on a
+    feature this rollout also uses. Rollouts share feature slots, and the rollout
+    published earliest will claim each contested slot — clients eligible for both will
+    only enroll in the earlier one. Please check that the configured population
     proportion has accounted for this:"""
     ERROR_ROLLOUT_BUCKET_EXISTS = """WARNING: A rollout already exists for this
     combination of application, feature, channel, and advanced targeting!
