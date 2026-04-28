@@ -400,6 +400,11 @@ class ExperimentResultsManager:
                 kpi["slug"], kpi["group"], analysis_basis, segment, reference_branch
             )
 
+            if kpi["slug"] == NimbusConstants.RETENTION_3_DAYS:
+                kpi["displayed_window"] = "Day 4"
+            if kpi["slug"] == NimbusConstants.RETENTION:
+                kpi["displayed_window"] = "Week 2"
+
     def get_remaining_metrics_metadata(
         self, exclude_slugs=None, analysis_basis=None, segment=None, reference_branch=None
     ):
