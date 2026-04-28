@@ -4,11 +4,20 @@
          role="alert">
       <p class="mb-1">{{ warning.text }}</p>
       <ul class="mb-1">
-        {% for slug in warning.slugs %}
-          <li>
-            <a target="_blank" href="{% url "nimbus-ui-detail" slug=slug %}">{{ slug }}</a>
-          </li>
-        {% endfor %}
+        {% if warning.details %}
+          {% for entry in warning.details %}
+            <li>
+              <a target="_blank" href="{% url "nimbus-ui-detail" slug=entry.slug %}">{{ entry.slug }}</a>
+              (Shares {{ entry.shared_features|join:", " }})
+            </li>
+          {% endfor %}
+        {% else %}
+          {% for slug in warning.slugs %}
+            <li>
+              <a target="_blank" href="{% url "nimbus-ui-detail" slug=slug %}">{{ slug }}</a>
+            </li>
+          {% endfor %}
+        {% endif %}
       </ul>
       {% if warning.learn_more_link %}
         <a href="{{ warning.learn_more_link }}"
