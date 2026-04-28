@@ -4319,6 +4319,50 @@ FX_151_2_TRAINHOP_NEW_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_151_3_TRAINHOP_WIN10_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+    name=(
+        "Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop, "
+        "having default and needing pin"
+    ),
+    slug="newtab-151-0419-trainhop-win10-users-has-default-need-pin",
+    description=(
+        "Desktop Windows 10 users having default and needing pin, "
+        "with profiles older than 28 days, "
+        "having the New Tab 151.3.20260419.192959 train hop, "
+        "which includes users of Fx150"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && {FX_151_3_TRAINHOP.targeting} && "
+        f"{WIN10_NOT_WIN11.targeting} && !{NEED_DEFAULT} && !{HAS_PIN}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_151_3_TRAINHOP_WIN10_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+    name=(
+        "Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop, "
+        "needing default and pin"
+    ),
+    slug="newtab-151-0419-trainhop-win10-users-need-default-need-pin",
+    description=(
+        "Desktop Windows 10 users needing default and pin, "
+        "with profiles older than 28 days, "
+        "having the New Tab 151.3.20260419.192959 train hop, "
+        "which includes users of Fx150"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && {FX_151_3_TRAINHOP.targeting} && "
+        f"{WIN10_NOT_WIN11.targeting} && {NEED_DEFAULT} && !{HAS_PIN}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
