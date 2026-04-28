@@ -3374,6 +3374,74 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             },
         )
 
+    @parameterized.expand(
+        [
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.Application.IOS,
+        ]
+    )
+    def test_mobile_messaging_requires_experiment_placeholder(self, application):
+        messaging_feature = NimbusFeatureConfigFactory.create_mobile_messaging_feature(
+            application
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_140,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_150,
+            feature_configs=[messaging_feature],
+            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
+        )
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=messaging_feature
+        )
+        feature_value.value = json.dumps(
+            {
+                "messages": {
+                    "invalid-message-missing": {},
+                    "invalid-message-value": {
+                        "experiment": experiment.slug,
+                    },
+                    "valid-message": {
+                        "experiment": "{experiment}",
+                    },
+                }
+            }
+        )
+        feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_values": [
+                        {
+                            "value": [
+                                NimbusConstants.ERROR_MOBILE_MESSAGING_EXPERIMENT_FIELD.format(
+                                    message_id="invalid-message-missing"
+                                ),
+                                NimbusConstants.ERROR_MOBILE_MESSAGING_EXPERIMENT_FIELD.format(
+                                    message_id="invalid-message-value"
+                                ),
+                            ]
+                        }
+                    ]
+                }
+            },
+        )
+
 
 @mock_targeting_manifests
 class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
