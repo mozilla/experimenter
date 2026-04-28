@@ -4322,7 +4322,7 @@ FX_151_2_TRAINHOP_NEW_USERS = NimbusTargetingConfig(
 FX_151_3_TRAINHOP_WIN10_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name=(
         "Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop, "
-        "having default and needing pin",
+        "having default and needing pin"
     ),
     slug="newtab-151-0419-trainhop-win10-users-has-default-need-pin",
     description=(
@@ -4333,7 +4333,7 @@ FX_151_3_TRAINHOP_WIN10_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     ),
     targeting=(
         f"{PROFILE28DAYS} && {FX_151_3_TRAINHOP.targeting} && "
-        f"{WIN10_NOT_WIN11.targeting} && !{NEED_DEFAULT} && !{HAS_PIN}",
+        f"{WIN10_NOT_WIN11.targeting} && !{NEED_DEFAULT} && !{HAS_PIN}"
     ),
     desktop_telemetry="",
     sticky_required=False,
@@ -4344,7 +4344,7 @@ FX_151_3_TRAINHOP_WIN10_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
 FX_151_3_TRAINHOP_WIN10_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name=(
         "Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop, "
-        "needing default and pin",
+        "needing default and pin"
     ),
     slug="newtab-151-0419-trainhop-win10-users-need-default-need-pin",
     description=(
@@ -4355,7 +4355,7 @@ FX_151_3_TRAINHOP_WIN10_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     ),
     targeting=(
         f"{PROFILE28DAYS} && {FX_151_3_TRAINHOP.targeting} && "
-        f"{WIN10_NOT_WIN11.targeting} && {NEED_DEFAULT} && !{HAS_PIN}",
+        f"{WIN10_NOT_WIN11.targeting} && {NEED_DEFAULT} && !{HAS_PIN}"
     ),
     desktop_telemetry="",
     sticky_required=False,
