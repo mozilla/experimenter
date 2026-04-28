@@ -2191,53 +2191,63 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def audience_overlap_warnings(self):
-        warnings = []
-
         if self.status not in [
             NimbusConstants.Status.DRAFT,
             NimbusConstants.Status.PREVIEW,
         ]:
-            return warnings
+            return []
 
         collisions = self.collision_warnings
-        if collisions["deliveries"]:
-            text = (
-                "WARNING: The following live rollouts may conflict with this rollout:"
-                if self.is_rollout
-                else "WARNING: The following live experiments may conflict with "
-                "this experiment:"
-            )
-            warnings.append(
+        entries = [
+            {
+                "slug": d["slug"],
+                "reasons": d["reasons"],
+                "publish_date_relation": d["publish_date_relation"],
+            }
+            for d in collisions["deliveries"]
+        ]
+
+        self_issues = []
+
+        if version_warning := self.rollout_version_warning:
+            self_issues.append(
                 {
-                    "text": text,
-                    "entries": [
-                        {
-                            "slug": d["slug"],
-                            "reasons": d["reasons"],
-                            "publish_date_relation": d["publish_date_relation"],
-                        }
-                        for d in collisions["deliveries"]
-                    ],
-                    "estimated_loss_percent": collisions["estimated_loss_percent"],
-                    "variant": "warning",
-                    "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                    "label": "Firefox version below the rollout minimum",
+                    "detail": version_warning["text"],
                 }
             )
-
-        if rollout_version_warning := self.rollout_version_warning:
-            warnings.append(rollout_version_warning)
 
         if self.is_desktop and not self.is_rollout and len(self.channels) > 1:
-            warnings.append(
+            self_issues.append(
                 {
-                    "text": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
-                    "slugs": [],
-                    "variant": "warning",
-                    "learn_more_link": "",
+                    "label": "Targeting multiple channels",
+                    "detail": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
                 }
             )
 
-        return warnings
+        if not entries and not self_issues:
+            return []
+
+        return [
+            {
+                "text": self._collision_card_header(entries, self_issues),
+                "entries": entries,
+                "self_issues": self_issues,
+                "estimated_loss_percent": collisions["estimated_loss_percent"],
+                "variant": "warning",
+                "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+            }
+        ]
+
+    def _collision_card_header(self, entries, self_issues):
+        target = "rollout" if self.is_rollout else "experiment"
+        if entries and self_issues:
+            return f"WARNING: Issues that may affect enrollment for this {target}:"
+        if entries:
+            return (
+                f"WARNING: The following live {target}s may conflict with this {target}:"
+            )
+        return f"WARNING: Issues with this {target}:"
 
     @property
     def has_results_errors(self):

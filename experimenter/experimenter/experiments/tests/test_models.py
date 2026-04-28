@@ -3080,6 +3080,38 @@ class TestNimbusExperiment(TestCase):
         # 25% + 25% = 50% estimated loss
         self.assertEqual(warning["estimated_loss_percent"], 50)
 
+    def test_audience_overlap_warnings_combines_collisions_and_self_issues(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="combo-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        live = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="combo-live",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="combo-draft",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+
+        warnings = draft.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        warning = warnings[0]
+        self.assertEqual([e["slug"] for e in warning["entries"]], [live.slug])
+        labels = [issue["label"] for issue in warning["self_issues"]]
+        self.assertIn("Targeting multiple channels", labels)
+        self.assertIn(
+            "Issues that may affect enrollment for this experiment", warning["text"]
+        )
+
     def test_collision_warnings_no_min_version_treats_feature_as_contesting(self):
         # Without firefox_min_version we can't resolve coenrollment schemas, so the
         # feature is treated as contesting (collision still surfaces).
@@ -3177,10 +3209,9 @@ class TestNimbusExperiment(TestCase):
 
         warnings = experiment.audience_overlap_warnings
         self.assertEqual(len(warnings), 1)
-        self.assertEqual(
-            warnings[0]["text"], NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING
-        )
-        self.assertEqual(warnings[0]["slugs"], [])
+        self.assertEqual(warnings[0]["entries"], [])
+        labels = [issue["label"] for issue in warnings[0]["self_issues"]]
+        self.assertIn("Targeting multiple channels", labels)
 
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -3266,16 +3297,14 @@ class TestNimbusExperiment(TestCase):
         )
 
         warnings = experiment.audience_overlap_warnings
-        version_warning = next(
-            (
-                w
-                for w in warnings
-                if NimbusExperiment.Application(application).label in w["text"]
-            ),
-            None,
-        )
-        self.assertIsNotNone(version_warning)
-        self.assertEqual(version_warning["variant"], "warning")
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0]["variant"], "warning")
+        version_issues = [
+            issue
+            for issue in warnings[0]["self_issues"]
+            if NimbusExperiment.Application(application).label in issue["detail"]
+        ]
+        self.assertEqual(len(version_issues), 1)
 
     def test_allocate_buckets_generates_bucket_range(self):
         feature = NimbusFeatureConfigFactory(slug="feature")
