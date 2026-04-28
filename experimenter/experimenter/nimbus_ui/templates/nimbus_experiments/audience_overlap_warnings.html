@@ -2,13 +2,45 @@
   {% for warning in experiment.audience_overlap_warnings %}
     <div class="alert alert-{{ warning.variant|default:'warning' }}"
          role="alert">
-      <p class="mb-1">{{ warning.text }}</p>
+      <p class="mb-1">
+        <i class="fa-solid fa-triangle-exclamation me-1"></i>
+        {{ warning.text }}
+        {% if warning.estimated_loss_percent %}
+          <span class="fw-semibold">Estimated loss: up to {{ warning.estimated_loss_percent }}% of eligible audience.</span>
+        {% endif %}
+      </p>
       <ul class="mb-1">
-        {% if warning.details %}
-          {% for entry in warning.details %}
+        {% if warning.entries %}
+          {% for entry in warning.entries %}
             <li>
+              {% if entry.publish_date_relation == "blocked_by" %}
+                <span class="text-muted me-1"
+                      title="This live delivery published earlier and will claim contested clients first.">↳ blocked by</span>
+              {% elif entry.publish_date_relation == "would_block" %}
+                <span class="text-muted me-1"
+                      title="This live delivery published later; clients eligible for both will enroll here instead.">↰ would block</span>
+              {% endif %}
               <a target="_blank" href="{% url "nimbus-ui-detail" slug=entry.slug %}">{{ entry.slug }}</a>
-              (Shares {{ entry.shared_features|join:", " }})
+              <span class="text-muted">
+                (
+                {% for reason in entry.reasons %}
+                  {% if reason.shared_features %}
+                    {{ reason.label_prefix }}
+                    {% for feature in reason.shared_features %}
+                      <a target="_blank" href="{{ feature.url }}">{{ feature.slug }}</a>
+                      {% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                  {% else %}
+                    {{ reason.label }}
+                  {% endif %}
+                  <i class="fa-regular fa-circle-question fa-sm"
+                     data-bs-toggle="tooltip"
+                     data-bs-placement="top"
+                     title="{{ reason.detail }}"></i>
+                  {% if not forloop.last %},{% endif %}
+                {% endfor %}
+                )
+              </span>
             </li>
           {% endfor %}
         {% else %}
