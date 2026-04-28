@@ -822,14 +822,14 @@ typing_extensions = ">=4.0"
 
 [[package]]
 name = "django-types"
-version = "0.23.0"
+version = "0.24.0"
 description = "Type stubs for Django"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "django_types-0.23.0-py3-none-any.whl", hash = "sha256:0727b13ae810c4b1f14eeac9872834ac928c99dc76584ea7c23afc4461e049dd"},
-    {file = "django_types-0.23.0.tar.gz", hash = "sha256:f97fb746166fb15a5f40e470a1fd7a58226349aac9e0a9cb8ae81deb14d94fd0"},
+    {file = "django_types-0.24.0-py3-none-any.whl", hash = "sha256:ddb478ca733e0dde5475118dd59ab340156980f9659fd92de2083326ae96100a"},
+    {file = "django_types-0.24.0.tar.gz", hash = "sha256:af903de8b9ee963b7594459a7a20cb8eaaab176ae2b3244ecaa089e0c570b0d1"},
 ]
 
 [package.dependencies]
@@ -3804,4 +3804,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "4fd48ffc7f0528c8854c6daec72c83b5d9b16aab15d5232131f7793a90425ad1"
+content-hash = "6de888e591b3243ad64fb5aad31295049f43097472683ab11e2179e15b5ab330"
