@@ -1705,35 +1705,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ]
 
     @property
-    def feature_has_live_overlapping_deliveries(self):
-        live_deliveries = NimbusExperiment.objects.filter(
-            status=self.Status.LIVE,
-            application=self.application,
-            is_rollout=self.is_rollout,
-        )
-        if not live_deliveries.exists():
-            return []
-
-        draft_feature_slugs = set(
-            self.feature_configs.all().values_list("slug", flat=True)
-        )
-        candidates = (
-            live_deliveries.filter(feature_configs__slug__in=draft_feature_slugs)
-            .exclude(id=self.id)
-            .order_by("slug")
-        )
-        overlapping_slugs = set(self.audience_overlap(candidates))
-        details = []
-        for candidate in candidates.filter(slug__in=overlapping_slugs).distinct():
-            shared = sorted(
-                draft_feature_slugs
-                & set(candidate.feature_configs.all().values_list("slug", flat=True))
-            )
-            details.append({"slug": candidate.slug, "shared_features": shared})
-        details.sort(key=lambda entry: entry["slug"])
-        return details
-
-    @property
     def excluded_live_deliveries(self):
         matching = []
         if self.excluded_experiments.exists():
@@ -1749,21 +1720,262 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
         return matching
 
-    @property
-    def live_experiments_in_namespace(self):
-        experiment_ids = NimbusBucketRange.objects.filter(
-            isolation_group__name=self.bucket_namespace,
-            isolation_group__application=self.application,
-        ).values_list("experiment_id", flat=True)
+    def _feature_allows_coenrollment(self, feature_config):
+        if not self.firefox_min_version:
+            return False
+        min_version = NimbusExperiment.Version.parse(self.firefox_min_version)
+        max_version = (
+            NimbusExperiment.Version.parse(self.firefox_max_version)
+            if self.firefox_max_version
+            else None
+        )
+        schemas = feature_config.get_versioned_schema_range(
+            min_version, max_version
+        ).schemas
+        return bool(schemas) and all(schema.allow_coenrollment for schema in schemas)
+
+    def _slot_collisions(self):
+        contesting_features = [
+            fc
+            for fc in self.feature_configs.all()
+            if not self._feature_allows_coenrollment(fc)
+        ]
+        if not contesting_features:
+            return []
+
+        contesting_ids = [fc.id for fc in contesting_features]
+        feature_by_id = {fc.id: fc for fc in contesting_features}
+
         candidates = (
             NimbusExperiment.objects.filter(
-                id__in=experiment_ids,
-                status=NimbusExperiment.Status.LIVE,
+                status=self.Status.LIVE,
+                application=self.application,
+                is_rollout=self.is_rollout,
+                feature_configs__id__in=contesting_ids,
             )
             .exclude(id=self.id)
+            .distinct()
             .order_by("slug")
         )
-        return self.audience_overlap(candidates)
+        overlapping_slugs = set(self.audience_overlap(candidates))
+        if not overlapping_slugs:
+            return []
+
+        self_namespace = self.bucket_namespace
+        collisions = []
+        for candidate in candidates.filter(slug__in=overlapping_slugs):
+            candidate_feature_ids = set(
+                candidate.feature_configs.values_list("id", flat=True)
+            )
+            shared_ids = sorted(set(contesting_ids) & candidate_feature_ids)
+            shared_features = [
+                {"slug": feature_by_id[fid].slug, "id": fid} for fid in shared_ids
+            ]
+
+            same_namespace = candidate.bucket_namespace == self_namespace
+            matching_configuration = bool(
+                self.is_rollout
+                and self.targeting_config_slug
+                and candidate.targeting_config_slug == self.targeting_config_slug
+                and candidate.channel == self.channel
+                and same_namespace
+            )
+
+            publish_date_relation = None
+            if self.is_rollout and candidate._start_date:
+                if not self._start_date or candidate._start_date < self._start_date:
+                    publish_date_relation = "blocked_by"
+                else:
+                    publish_date_relation = "would_block"
+
+            if self.is_rollout:
+                # Rollout slot is exclusive: an earlier-published rollout claims
+                # the entire overlapping audience.
+                estimated_loss = (
+                    Decimal(1) if publish_date_relation == "blocked_by" else Decimal(0)
+                )
+            else:
+                # Experiments contend by bucket fraction: each colliding live
+                # experiment claims roughly its population_percent of the shared
+                # bucket-eligible audience.
+                estimated_loss = (candidate.population_percent or Decimal(0)) / Decimal(
+                    100
+                )
+
+            collisions.append(
+                {
+                    "slug": candidate.slug,
+                    "shared_features": shared_features,
+                    "same_namespace": same_namespace,
+                    "matching_configuration": matching_configuration,
+                    "publish_date_relation": publish_date_relation,
+                    "estimated_loss": estimated_loss,
+                }
+            )
+
+        return collisions
+
+    def _pref_collision_slugs(self):
+        if not (self.is_desktop and not self.is_rollout and self.prevent_pref_conflicts):
+            return []
+        pref_setting_feature_ids = (
+            self.feature_configs.exclude(schemas__set_pref_vars={})
+            .distinct()
+            .values_list("id", flat=True)
+        )
+        if not pref_setting_feature_ids:
+            return []
+        return list(
+            NimbusExperiment.objects.filter(
+                status=self.Status.LIVE,
+                application=self.application,
+                channels__overlap=self.channels,
+                feature_configs__id__in=pref_setting_feature_ids,
+                is_rollout=True,
+            )
+            .exclude(id=self.id)
+            .distinct()
+            .order_by("slug")
+            .values_list("slug", flat=True)
+        )
+
+    @property
+    def collision_warnings(self):
+        if self.status not in (self.Status.DRAFT, self.Status.PREVIEW):
+            return {"deliveries": [], "estimated_loss_percent": 0}
+
+        features_url = reverse("nimbus-ui-features")
+
+        def _feature_link(feature):
+            return {
+                "slug": feature["slug"],
+                "url": (
+                    f"{features_url}?application={self.application}"
+                    f"&feature_configs={feature['id']}"
+                ),
+            }
+
+        deliveries_by_slug = {}
+
+        for slug in self.excluded_live_deliveries:
+            entry = deliveries_by_slug.setdefault(
+                slug,
+                {
+                    "slug": slug,
+                    "reasons": [],
+                    "publish_date_relation": None,
+                    "estimated_loss": Decimal(0),
+                },
+            )
+            entry["reasons"].append(
+                {
+                    "label": (
+                        "Excluded by this rollout"
+                        if self.is_rollout
+                        else "Excluded by this experiment"
+                    ),
+                    "detail": (
+                        "Clients enrolled in this delivery are filtered out of "
+                        "the eligible population, which may reduce statistical "
+                        "power and precision. Verify the configured population "
+                        "proportion accounts for this."
+                    ),
+                }
+            )
+
+        for collision in self._slot_collisions():
+            entry = deliveries_by_slug.setdefault(
+                collision["slug"],
+                {
+                    "slug": collision["slug"],
+                    "reasons": [],
+                    "publish_date_relation": None,
+                    "estimated_loss": Decimal(0),
+                },
+            )
+            entry["publish_date_relation"] = collision["publish_date_relation"]
+            entry["estimated_loss"] = max(
+                entry["estimated_loss"], collision["estimated_loss"]
+            )
+
+            entry["reasons"].append(
+                {
+                    "label_prefix": "Shares feature",
+                    "shared_features": [
+                        _feature_link(f) for f in collision["shared_features"]
+                    ],
+                    "detail": (
+                        "Rollouts share feature slots — the earliest-published "
+                        "rollout claims the slot, and this rollout will not enroll "
+                        "any clients eligible for both."
+                        if self.is_rollout
+                        else "Both deliveries use this feature, contending for the "
+                        "same eligible population, which may reduce statistical "
+                        "power and precision. Verify the configured population "
+                        "proportion accounts for this."
+                    ),
+                }
+            )
+            if collision["same_namespace"]:
+                entry["reasons"].append(
+                    {
+                        "label": "Shares an audience",
+                        "detail": (
+                            "This live delivery shares the same audience, so "
+                            "each client can only be enrolled in one of these. "
+                            "This reduces the eligible population and may reduce "
+                            "statistical power and precision. Verify the "
+                            "configured population proportion accounts for this."
+                        ),
+                    }
+                )
+            if collision["matching_configuration"]:
+                entry["reasons"].append(
+                    {
+                        "label": "Has matching configuration",
+                        "detail": (
+                            "A live rollout already exists with the same "
+                            "application, feature, channel, and advanced "
+                            "targeting. Clients meeting the targeting will enroll "
+                            "in one or the other, and the sizing for this rollout "
+                            "cannot be adjusted."
+                        ),
+                    }
+                )
+
+        for slug in self._pref_collision_slugs():
+            entry = deliveries_by_slug.setdefault(
+                slug,
+                {
+                    "slug": slug,
+                    "reasons": [],
+                    "publish_date_relation": None,
+                    "estimated_loss": Decimal(0),
+                },
+            )
+            entry["reasons"].append(
+                {
+                    "label": "Sets the same preference",
+                    "detail": (
+                        "This live rollout sets the same Firefox preference as "
+                        "this delivery. The collision may reduce the eligible "
+                        "population or prevent enrollment entirely. Verify the "
+                        "configured population proportion accounts for this."
+                    ),
+                }
+            )
+
+        deliveries = sorted(deliveries_by_slug.values(), key=lambda d: d["slug"])
+
+        total_loss = sum((d["estimated_loss"] for d in deliveries), start=Decimal(0))
+        if total_loss > Decimal(1):
+            total_loss = Decimal(1)
+        estimated_loss_percent = int((total_loss * Decimal(100)).to_integral_value())
+
+        return {
+            "deliveries": deliveries,
+            "estimated_loss_percent": estimated_loss_percent,
+        }
 
     @property
     def can_edit(self):
@@ -1953,28 +2165,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.publish_status == self.PublishStatus.WAITING and review_expired
 
     @property
-    def rollout_conflict_warning(self):
-        if not self.is_rollout:
-            return None
-
-        duplicate_rollouts = NimbusExperiment.objects.filter(
-            status=self.Status.LIVE,
-            channel=self.channel,
-            application=self.application,
-            targeting_config_slug=self.targeting_config_slug,
-            feature_configs__in=self.feature_configs.all(),
-            is_rollout=True,
-        ).exclude(id=self.id)
-
-        if self.audience_overlap(duplicate_rollouts):
-            return {
-                "text": NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS,
-                "variant": "danger",
-                "slugs": [],
-                "learn_more_link": NimbusUIConstants.ROLLOUT_BUCKET_WARNING,
-            }
-
-    @property
     def rollout_version_warning(self):
         if not self.is_rollout or not self.firefox_min_version:
             return None
@@ -2000,103 +2190,52 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             }
 
     @property
-    def pref_targeting_rollout_collision_warning(self):
-        if self.is_desktop and not self.is_rollout and self.prevent_pref_conflicts:
-            colliding_experiments = NimbusExperiment.objects.filter(
-                status=self.Status.LIVE,
-                application=self.application,
-                channels__overlap=self.channels,
-                feature_configs__id__in=self.feature_configs.exclude(
-                    schemas__set_pref_vars={}
-                )
-                .distinct()
-                .values_list("id", flat=True),
-                is_rollout=True,
-            ).values_list("slug", flat=True)
-
-            if colliding_experiments:
-                return {
-                    "text": NimbusUIConstants.PREF_TARGETING_WARNING,
-                    "variant": "warning",
-                    "slugs": list(colliding_experiments),
-                    "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
-                }
-
-    @property
     def audience_overlap_warnings(self):
         warnings = []
-        excluded_live_deliveries = ""
-        if self.excluded_live_deliveries:
-            excluded_live_deliveries = ", ".join(self.excluded_live_deliveries)
 
-        feature_overlap_details = self.feature_has_live_overlapping_deliveries
-        feature_overlap_slugs = [entry["slug"] for entry in feature_overlap_details]
-        feature_has_live_overlapping_deliveries = ", ".join(feature_overlap_slugs)
+        if self.status not in [
+            NimbusConstants.Status.DRAFT,
+            NimbusConstants.Status.PREVIEW,
+        ]:
+            return warnings
 
-        live_experiments_in_namespace = ""
-        if self.live_experiments_in_namespace:
-            live_experiments_in_namespace = ", ".join(self.live_experiments_in_namespace)
+        collisions = self.collision_warnings
+        if collisions["deliveries"]:
+            text = (
+                "WARNING: The following live rollouts may conflict with this rollout:"
+                if self.is_rollout
+                else "WARNING: The following live experiments may conflict with "
+                "this experiment:"
+            )
+            warnings.append(
+                {
+                    "text": text,
+                    "entries": [
+                        {
+                            "slug": d["slug"],
+                            "reasons": d["reasons"],
+                            "publish_date_relation": d["publish_date_relation"],
+                        }
+                        for d in collisions["deliveries"]
+                    ],
+                    "estimated_loss_percent": collisions["estimated_loss_percent"],
+                    "variant": "warning",
+                    "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                }
+            )
 
-        overlapping_warnings = (
-            feature_has_live_overlapping_deliveries
-            and live_experiments_in_namespace
-            and feature_has_live_overlapping_deliveries in live_experiments_in_namespace
-        )
+        if rollout_version_warning := self.rollout_version_warning:
+            warnings.append(rollout_version_warning)
 
-        if self.status in [NimbusConstants.Status.DRAFT, NimbusConstants.Status.PREVIEW]:
-            if excluded_live_deliveries:
-                warnings.append(
-                    {
-                        "text": NimbusUIConstants.EXCLUDING_EXPERIMENTS_WARNING,
-                        "slugs": self.excluded_live_deliveries,
-                        "variant": "warning",
-                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
-                    }
-                )
-
-            if live_experiments_in_namespace and not overlapping_warnings:
-                warnings.append(
-                    {
-                        "text": NimbusUIConstants.LIVE_EXPERIMENTS_BUCKET_WARNING,
-                        "slugs": self.live_experiments_in_namespace,
-                        "variant": "warning",
-                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
-                    }
-                )
-
-            if feature_has_live_overlapping_deliveries:
-                warnings.append(
-                    {
-                        "text": (
-                            NimbusUIConstants.LIVE_ROLLOUT_FEATURE_OVERLAP_WARNING
-                            if self.is_rollout
-                            else NimbusUIConstants.LIVE_FEATURE_OVERLAP_WARNING
-                        ),
-                        "slugs": feature_overlap_slugs,
-                        "details": feature_overlap_details,
-                        "variant": "warning",
-                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
-                    }
-                )
-
-            if rollout_conflict_warning := self.rollout_conflict_warning:
-                warnings.append(rollout_conflict_warning)
-
-            if rollout_version_warning := self.rollout_version_warning:
-                warnings.append(rollout_version_warning)
-
-            if pref_collision_warning := self.pref_targeting_rollout_collision_warning:
-                warnings.append(pref_collision_warning)
-
-            if self.is_desktop and not self.is_rollout and len(self.channels) > 1:
-                warnings.append(
-                    {
-                        "text": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
-                        "slugs": [],
-                        "variant": "warning",
-                        "learn_more_link": "",
-                    }
-                )
+        if self.is_desktop and not self.is_rollout and len(self.channels) > 1:
+            warnings.append(
+                {
+                    "text": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
+                    "slugs": [],
+                    "variant": "warning",
+                    "learn_more_link": "",
+                }
+            )
 
         return warnings
 

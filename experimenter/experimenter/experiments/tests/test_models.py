@@ -2675,7 +2675,7 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
-    def test_excluding_experiments_warning(self):
+    def test_collision_warnings_excluded(self):
         draft_feature = NimbusFeatureConfigFactory.create(
             slug="draft-only-feature",
             application=NimbusExperiment.Application.DESKTOP,
@@ -2710,16 +2710,17 @@ class TestNimbusExperiment(TestCase):
                 branch_slug=None,
             )
 
-        warnings = draft.audience_overlap_warnings
-        self.assertEqual(len(warnings), 1)
+        deliveries = draft.collision_warnings["deliveries"]
         self.assertEqual(
-            warnings[0]["text"], NimbusUIConstants.EXCLUDING_EXPERIMENTS_WARNING
+            [d["slug"] for d in deliveries], [excluded_one.slug, excluded_two.slug]
         )
-        self.assertEqual(
-            list(warnings[0]["slugs"]), [excluded_one.slug, excluded_two.slug]
-        )
+        for delivery in deliveries:
+            self.assertEqual(len(delivery["reasons"]), 1)
+            self.assertEqual(
+                delivery["reasons"][0]["label"], "Excluded by this experiment"
+            )
 
-    def test_live_feature_overlap_warning(self):
+    def test_collision_warnings_shares_feature_experiment(self):
         feature_a = NimbusFeatureConfigFactory.create(
             slug="feature-a",
             application=NimbusExperiment.Application.DESKTOP,
@@ -2736,6 +2737,7 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature_a, feature_b],
+            population_percent=Decimal("50"),
         )
         draft = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2746,61 +2748,310 @@ class TestNimbusExperiment(TestCase):
             feature_configs=[feature_a],
         )
 
-        warnings = draft.audience_overlap_warnings
-        feature_overlap_warning = next(
-            (
-                w
-                for w in warnings
-                if w["text"] == NimbusUIConstants.LIVE_FEATURE_OVERLAP_WARNING
-            ),
-            None,
+        result = draft.collision_warnings
+        self.assertEqual(len(result["deliveries"]), 1)
+        delivery = result["deliveries"][0]
+        self.assertEqual(delivery["slug"], live_experiment.slug)
+        feature_reason = next(
+            (r for r in delivery["reasons"] if r.get("shared_features")), None
         )
-        self.assertIsNotNone(feature_overlap_warning)
-        self.assertEqual(feature_overlap_warning["slugs"], [live_experiment.slug])
+        self.assertIsNotNone(feature_reason)
         self.assertEqual(
-            feature_overlap_warning["details"],
-            [{"slug": live_experiment.slug, "shared_features": ["feature-a"]}],
+            [f["slug"] for f in feature_reason["shared_features"]], [feature_a.slug]
+        )
+        self.assertIsNone(delivery["publish_date_relation"])
+        # Single live experiment at 50% → 50% loss
+        self.assertEqual(result["estimated_loss_percent"], 50)
+
+    def test_collision_warnings_shares_feature_rollout_blocked_by(self):
+        shared_feature = NimbusFeatureConfigFactory.create(
+            slug="shared-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        live_blocker = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-blocker",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[shared_feature],
+        )
+        draft_rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft-rollout",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            feature_configs=[shared_feature],
         )
 
-    def test_multiple_warnings(self):
+        result = draft_rollout.collision_warnings
+        self.assertEqual(len(result["deliveries"]), 1)
+        delivery = result["deliveries"][0]
+        self.assertEqual(delivery["slug"], live_blocker.slug)
+        self.assertEqual(delivery["publish_date_relation"], "blocked_by")
+        # Single colliding rollout that published earlier → draft loses entire overlap
+        self.assertEqual(result["estimated_loss_percent"], 100)
+
+    def test_collision_warnings_includes_same_namespace(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="shared-namespace-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        live_peer = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-peer",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+
+        deliveries = draft.collision_warnings["deliveries"]
+        self.assertEqual(len(deliveries), 1)
+        labels = [r["label"] for r in deliveries[0]["reasons"] if r.get("label")]
+        self.assertIn("Shares an audience", labels)
+        self.assertEqual(deliveries[0]["slug"], live_peer.slug)
+
+    def test_collision_warnings_includes_matching_configuration(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="rollout-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-duplicate",
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft-duplicate",
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.BETA],
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+        )
+
+        deliveries = draft.collision_warnings["deliveries"]
+        self.assertEqual(len(deliveries), 1)
+        labels = [r["label"] for r in deliveries[0]["reasons"] if r.get("label")]
+        self.assertIn("Has matching configuration", labels)
+
+    @mock_valid_features
+    def test_collision_warnings_sets_same_preference(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+        feature = NimbusFeatureConfig.objects.get(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="setPrefFeature",
+        )
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            is_rollout=False,
+            prevent_pref_conflicts=True,
+        )
+
+        deliveries = experiment.collision_warnings["deliveries"]
+        slugs = [d["slug"] for d in deliveries]
+        self.assertIn(rollout.slug, slugs)
+        rollout_entry = next(d for d in deliveries if d["slug"] == rollout.slug)
+        labels = [r["label"] for r in rollout_entry["reasons"] if r.get("label")]
+        self.assertIn("Sets the same preference", labels)
+
+    def test_collision_warnings_skips_features_allowing_coenrollment(self):
+        coenroll_feature = NimbusFeatureConfigFactory.create(
+            slug="coenroll-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.create(version=None, allow_coenrollment=True)
+            ],
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-coenroll",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[coenroll_feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft-coenroll",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[coenroll_feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+        )
+
+        self.assertEqual(draft.collision_warnings["deliveries"], [])
+
+    def test_collision_warnings_excludes_self(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="self-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        live = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="self-live",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="self-draft",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        slugs = [d["slug"] for d in draft.collision_warnings["deliveries"]]
+        self.assertNotIn(draft.slug, slugs)
+        self.assertIn(live.slug, slugs)
+
+    def test_collision_warnings_experiment_does_not_collide_with_rollout(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="cross-polarity-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-rollout",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        draft_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft-experiment",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+
+        self.assertEqual(draft_experiment.collision_warnings["deliveries"], [])
+
+    def test_collision_warnings_estimated_loss_caps_at_100_percent(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="cap-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        for slug, pop in (("live-a", "60"), ("live-b", "60")):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                slug=slug,
+                is_rollout=False,
+                application=NimbusExperiment.Application.DESKTOP,
+                channels=[NimbusExperiment.Channel.RELEASE],
+                feature_configs=[feature],
+                population_percent=Decimal(pop),
+            )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft-cap",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        # 60% + 60% would be 120%; capped at 100%
+        self.assertEqual(draft.collision_warnings["estimated_loss_percent"], 100)
+
+    def test_collision_warnings_returns_empty_for_complete_experiment(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="complete-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-conflict",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        complete = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="complete-experiment",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+
+        self.assertEqual(complete.collision_warnings["deliveries"], [])
+
+    def test_audience_overlap_warnings_aggregates_collision_warnings(self):
         feature_a = NimbusFeatureConfigFactory.create(
-            slug="feature-a",
+            slug="agg-feature-a",
             application=NimbusExperiment.Application.DESKTOP,
         )
         feature_b = NimbusFeatureConfigFactory.create(
-            slug="feature-b",
+            slug="agg-feature-b",
             application=NimbusExperiment.Application.DESKTOP,
         )
         feature_c = NimbusFeatureConfigFactory.create(
-            slug="feature-c",
+            slug="agg-feature-c",
             application=NimbusExperiment.Application.DESKTOP,
         )
 
         excluded_live = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            slug="excluded-live",
+            slug="agg-excluded-live",
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature_c],
         )
         same_namespace_live = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            slug="same-namespace-live",
+            slug="agg-same-namespace-live",
             is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature_a, feature_b],
+            population_percent=Decimal("25"),
         )
         feature_overlap_live = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            slug="feature-overlap-live",
+            slug="agg-feature-overlap-live",
             is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature_a],
+            population_percent=Decimal("25"),
         )
         draft = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            slug="draft",
+            slug="agg-draft",
             is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
@@ -2813,199 +3064,108 @@ class TestNimbusExperiment(TestCase):
         )
 
         warnings = draft.audience_overlap_warnings
-        self.assertEqual(len(warnings), 3)
-
+        self.assertEqual(len(warnings), 1)
+        warning = warnings[0]
+        self.assertIn("WARNING:", warning["text"])
+        self.assertEqual(warning["variant"], "warning")
+        entry_slugs = [e["slug"] for e in warning["entries"]]
         self.assertEqual(
-            warnings[0]["text"], NimbusUIConstants.EXCLUDING_EXPERIMENTS_WARNING
+            entry_slugs,
+            [
+                excluded_live.slug,
+                feature_overlap_live.slug,
+                same_namespace_live.slug,
+            ],
         )
-        self.assertEqual(list(warnings[0]["slugs"]), [excluded_live.slug])
+        # 25% + 25% = 50% estimated loss
+        self.assertEqual(warning["estimated_loss_percent"], 50)
 
-        self.assertEqual(
-            warnings[1]["text"], NimbusUIConstants.LIVE_EXPERIMENTS_BUCKET_WARNING
-        )
-        self.assertEqual(list(warnings[1]["slugs"]), [same_namespace_live.slug])
-
-        self.assertEqual(
-            warnings[2]["text"], NimbusUIConstants.LIVE_FEATURE_OVERLAP_WARNING
-        )
-        self.assertEqual(
-            warnings[2]["slugs"],
-            [feature_overlap_live.slug, same_namespace_live.slug],
-        )
-
-    def test_rollout_conflict_warning(self):
-        test_feature = NimbusFeatureConfigFactory.create(
-            slug="test-feature",
-            name="test-feature",
+    def test_collision_warnings_no_min_version_treats_feature_as_contesting(self):
+        # Without firefox_min_version we can't resolve coenrollment schemas, so the
+        # feature is treated as contesting (collision still surfaces).
+        feature = NimbusFeatureConfigFactory.create(
+            slug="no-version-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-
-        NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.LIVE,
-            is_rollout=True,
-            channels=[NimbusExperiment.Channel.BETA],
-            application=NimbusExperiment.Application.DESKTOP,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
-            feature_configs=[test_feature],
-        )
-
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
-            is_rollout=True,
-            channels=[NimbusExperiment.Channel.BETA],
-            application=NimbusExperiment.Application.DESKTOP,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
-            feature_configs=[test_feature],
-        )
-
-        warnings = experiment.audience_overlap_warnings
-        rollout_warning = next(
-            (
-                w
-                for w in warnings
-                if w["text"] == NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS
-            ),
-            None,
-        )
-
-        self.assertIsNotNone(rollout_warning)
-        self.assertEqual(rollout_warning["variant"], "danger")
-        self.assertEqual(rollout_warning["slugs"], [])
-        self.assertEqual(
-            rollout_warning["learn_more_link"], NimbusUIConstants.ROLLOUT_BUCKET_WARNING
-        )
-
-    def test_rollout_conflict_warning_returns_none_when_no_conflict(self):
-        test_feature = NimbusFeatureConfigFactory.create(
-            slug="test-feature",
-            name="test-feature",
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
-            is_rollout=True,
-            channels=[NimbusExperiment.Channel.BETA],
-            application=NimbusExperiment.Application.DESKTOP,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
-            feature_configs=[test_feature],
-        )
-
-        self.assertIsNone(experiment.rollout_conflict_warning)
-
-    def test_rollout_feature_overlap_with_live_rollout_different_targeting(self):
-        shared_feature = NimbusFeatureConfigFactory.create(
-            slug="shared-feature",
-            name="shared-feature",
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        extra_feature = NimbusFeatureConfigFactory.create(
-            slug="extra-feature",
-            name="extra-feature",
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-
-        live_blocker = NimbusExperimentFactory.create_with_lifecycle(
+        live = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            slug="live-blocker",
-            is_rollout=True,
+            slug="no-version-live",
+            is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
-            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
-            feature_configs=[shared_feature],
+            feature_configs=[feature],
         )
-
-        draft_rollout = NimbusExperimentFactory.create_with_lifecycle(
+        draft = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            slug="draft-rollout",
+            slug="no-version-draft",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        slugs = [d["slug"] for d in draft.collision_warnings["deliveries"]]
+        self.assertEqual(slugs, [live.slug])
+
+    def test_collision_warnings_publish_date_would_block(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="would-block-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        # Self started before the live competitor, so self would block it.
+        self_rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="self-rollout",
             is_rollout=True,
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            feature_configs=[shared_feature, extra_feature],
+            feature_configs=[feature],
         )
+        self_rollout._start_date = datetime.date(2026, 1, 1)
+        self_rollout.status = NimbusExperiment.Status.DRAFT
+        self_rollout.save()
+        newer_live = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="newer-live",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        newer_live._start_date = datetime.date(2026, 4, 1)
+        newer_live.save()
 
-        warnings = draft_rollout.audience_overlap_warnings
-        feature_overlap_warning = next(
-            (
-                w
-                for w in warnings
-                if w["text"] == NimbusUIConstants.LIVE_ROLLOUT_FEATURE_OVERLAP_WARNING
-            ),
-            None,
-        )
+        deliveries = self_rollout.collision_warnings["deliveries"]
+        newer_entry = next(d for d in deliveries if d["slug"] == newer_live.slug)
+        self.assertEqual(newer_entry["publish_date_relation"], "would_block")
+        # would_block contributes 0 estimated loss (the live one loses)
+        self.assertEqual(newer_entry["estimated_loss"], Decimal(0))
 
-        self.assertIsNotNone(
-            feature_overlap_warning,
-            "Expected a warning naming the live single-feature rollout that holds "
-            "the shared feature slot",
-        )
-        self.assertEqual(feature_overlap_warning["variant"], "warning")
-        self.assertEqual(list(feature_overlap_warning["slugs"]), [live_blocker.slug])
-        self.assertEqual(
-            feature_overlap_warning["details"],
-            [{"slug": live_blocker.slug, "shared_features": [shared_feature.slug]}],
-        )
-
-    def test_experiment_does_not_warn_on_live_rollout_sharing_feature(self):
-        shared_feature = NimbusFeatureConfigFactory.create(
-            slug="shared-feature",
-            name="shared-feature",
+    def test_collision_warnings_pref_no_set_pref_features_returns_empty(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="non-pref-feature",
             application=NimbusExperiment.Application.DESKTOP,
         )
-
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            slug="live-rollout",
+            slug="non-pref-live-rollout",
             is_rollout=True,
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
-            feature_configs=[shared_feature],
+            feature_configs=[feature],
         )
-
-        draft_experiment = NimbusExperimentFactory.create_with_lifecycle(
+        draft = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            slug="draft-experiment",
+            slug="non-pref-draft",
             is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
-            feature_configs=[shared_feature],
-        )
-
-        self.assertEqual(
-            list(draft_experiment.feature_has_live_overlapping_deliveries), []
-        )
-
-    @mock_valid_features
-    def test_pref_targeting_rollout_collision_warning(self):
-        Features.clear_cache()
-        call_command("load_feature_configs")
-
-        feature = NimbusFeatureConfig.objects.get(
-            application=NimbusExperiment.Application.DESKTOP,
-            slug="setPrefFeature",
-        )
-
-        rollout = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            application=NimbusExperiment.Application.DESKTOP,
-            is_rollout=True,
-            channels=[NimbusExperiment.Channel.RELEASE],
             feature_configs=[feature],
-        )
-
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            channels=[NimbusExperiment.Channel.RELEASE],
-            feature_configs=[feature],
-            is_rollout=False,
             prevent_pref_conflicts=True,
         )
-
-        warnings = experiment.audience_overlap_warnings
-        self.assertEqual(len(warnings), 1)
-        self.assertEqual(warnings[0]["text"], NimbusUIConstants.PREF_TARGETING_WARNING)
-        self.assertEqual(warnings[0]["slugs"], [rollout.slug])
+        # Cross-polarity collision is not surfaced because the shared feature
+        # doesn't set a pref.
+        self.assertEqual(draft.collision_warnings["deliveries"], [])
 
     def test_multichannel_experiments_warning(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -4668,118 +4828,6 @@ class TestNimbusExperiment(TestCase):
             ],
         )
 
-    @parameterized.expand(
-        [
-            (NimbusExperiment.Application.FENIX, NimbusExperiment.Application.FENIX, 3),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Application.DESKTOP,
-                0,
-            ),
-        ]
-    )
-    def test_get_live_overlapping_deliveries_for_feature(
-        self,
-        application1,
-        application2,
-        expected_matches,
-    ):
-        feature1 = NimbusFeatureConfigFactory.create()
-        feature2 = NimbusFeatureConfigFactory.create()
-
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            application=application1,
-            feature_configs=[feature1, feature2],
-        )
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            application=application1,
-            feature_configs=[feature1, feature2],
-        )
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            application=application1,
-            feature_configs=[feature1, feature2],
-        )
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application1,
-            feature_configs=[feature1, feature2],
-        )
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=application2,
-            feature_configs=[feature1],
-        )
-
-        experiments = experiment.feature_has_live_overlapping_deliveries
-        self.assertEqual(len(experiments), expected_matches)
-
-    def test_get_live_overlapping_deliveries_for_feature_no_live(self):
-        feature1 = NimbusFeatureConfigFactory.create()
-        feature2 = NimbusFeatureConfigFactory.create()
-
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            feature_configs=[feature1, feature2],
-        )
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            feature_configs=[feature1, feature2],
-        )
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            feature_configs=[feature1, feature2],
-        )
-
-        experiments = experiment.feature_has_live_overlapping_deliveries
-        self.assertEqual(len(experiments), 0)
-
-    def test_get_live_overlapping_deliveries_for_feature_single_feature_live(self):
-        feature1 = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP
-        )
-        feature2 = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP
-        )
-
-        live_single_feature = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            slug="live-single-feature",
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[feature1],
-        )
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[feature1, feature2],
-        )
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[feature1],
-        )
-
-        self.assertEqual(
-            list(experiment.feature_has_live_overlapping_deliveries),
-            [{"slug": live_single_feature.slug, "shared_features": [feature1.slug]}],
-        )
-
-    def test_get_live_overlapping_deliveries_none(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[
-                NimbusFeatureConfigFactory.create(
-                    application=NimbusExperiment.Application.DESKTOP
-                )
-            ],
-        )
-
-        experiments = experiment.feature_has_live_overlapping_deliveries
-        self.assertEqual(len(experiments), 0)
-
     def test_get_live_excluded_experiments(self):
         experiments = {
             slug: NimbusExperimentFactory.create_with_lifecycle(
@@ -4825,123 +4873,6 @@ class TestNimbusExperiment(TestCase):
         excluded_live_experiments = experiment.excluded_live_deliveries
         self.assertEqual(len(excluded_live_experiments), 0)
         self.assertEqual(excluded_live_experiments, [])
-
-    def test_get_live_experiments_in_previous_namespaces(self):
-        feature = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP
-        )
-        experiments = {
-            slug: NimbusExperimentFactory.create_with_lifecycle(
-                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-                slug=slug,
-                application=NimbusExperiment.Application.DESKTOP,
-                channels=[NimbusExperiment.Channel.RELEASE],
-                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
-                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-                feature_configs=[feature],
-            )
-            for slug in ("foo", "bar", "baz")
-        }
-
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            channels=[NimbusExperiment.Channel.RELEASE],
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-            feature_configs=[feature],
-        )
-
-        self.assertEqual(
-            list(experiment.live_experiments_in_namespace),
-            [
-                experiments["bar"].slug,
-                experiments["baz"].slug,
-                experiments["foo"].slug,
-            ],
-        )
-
-    def test_get_live_experiments_do_not_exist_in_previous_namespaces(self):
-        feature = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP
-        )
-
-        for slug in ("foo", "bar", "baz"):
-            NimbusExperimentFactory.create_with_lifecycle(
-                NimbusExperimentFactory.Lifecycles.CREATED,
-                slug=slug,
-                application=NimbusExperiment.Application.DESKTOP,
-                channels=[NimbusExperiment.Channel.RELEASE],
-                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
-                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-                feature_configs=[feature],
-            )
-
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            slug="slug2",
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-            channels=[NimbusExperiment.Channel.RELEASE],
-            feature_configs=[feature],
-        )
-
-        matching_experiments = experiment.live_experiments_in_namespace
-        self.assertEqual(len(matching_experiments), 0)
-
-    def test_get_live_experiments_in_different_namespaces(self):
-        feature1 = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP
-        )
-        feature2 = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP
-        )
-
-        for slug in ("foo", "bar", "baz"):
-            NimbusExperimentFactory.create_with_lifecycle(
-                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-                slug=slug,
-                application=NimbusExperiment.Application.DESKTOP,
-                channels=[NimbusExperiment.Channel.RELEASE],
-                firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
-                firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
-                targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-                feature_configs=[feature1],
-            )
-
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            slug="slug2",
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-            channels=[NimbusExperiment.Channel.RELEASE],
-            feature_configs=[feature2],
-        )
-
-        matching_experiments = experiment.live_experiments_in_namespace
-        self.assertEqual(len(matching_experiments), 0)
-
-    def test_get_live_experiments_in_different_namespaces_excludes_self(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            application=NimbusExperiment.Application.DESKTOP,
-            slug="slug2",
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-            channels=[NimbusExperiment.Channel.RELEASE],
-            feature_configs=[NimbusFeatureConfigFactory.create()],
-        )
-
-        matching_experiments = experiment.live_experiments_in_namespace
-        self.assertEqual(len(matching_experiments), 0)
 
     @parameterized.expand(
         [
@@ -5062,102 +4993,34 @@ class TestNimbusExperiment(TestCase):
             ("language", LanguageFactory, "languages", "en", "fr"),
         ]
     )
-    def test_live_experiments_in_namespace_skips_disjoint_audience(
+    def test_collision_warnings_skips_disjoint_audience(
         self, _name, factory, field, live_code, draft_code
     ):
         feature = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP
+            slug="disjoint-audience-feature",
+            application=NimbusExperiment.Application.DESKTOP,
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
             slug="peer",
+            is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             feature_configs=[feature],
             **{field: [factory.create(code=live_code)]},
         )
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
+        draft = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             slug="draft",
+            is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
             channels=[NimbusExperiment.Channel.RELEASE],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
-            firefox_max_version=NimbusExperiment.Version.FIREFOX_130,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             feature_configs=[feature],
             **{field: [factory.create(code=draft_code)]},
         )
-        self.assertEqual(list(experiment.live_experiments_in_namespace), [])
-
-    @parameterized.expand(
-        [
-            ("locale", LocaleFactory, "locales", "en-US", "fr"),
-            ("country", CountryFactory, "countries", "US", "DE"),
-            ("language", LanguageFactory, "languages", "en", "fr"),
-        ]
-    )
-    def test_feature_has_live_overlapping_deliveries_skips_disjoint_audience(
-        self, _name, factory, field, live_code, draft_code
-    ):
-        feature1 = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP
-        )
-        feature2 = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP
-        )
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            slug="live-multi",
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[feature1, feature2],
-            **{field: [factory.create(code=live_code)]},
-        )
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            slug="draft",
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[feature1],
-            **{field: [factory.create(code=draft_code)]},
-        )
-        self.assertEqual(list(experiment.feature_has_live_overlapping_deliveries), [])
-
-    @parameterized.expand(
-        [
-            ("locale", LocaleFactory, "locales", "en-US", "fr"),
-            ("country", CountryFactory, "countries", "US", "DE"),
-            ("language", LanguageFactory, "languages", "en", "fr"),
-        ]
-    )
-    def test_rollout_conflict_warning_skips_disjoint_audience(
-        self, _name, factory, field, live_code, draft_code
-    ):
-        feature = NimbusFeatureConfigFactory.create(
-            slug="test-feature",
-            name="test-feature",
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.LIVE,
-            is_rollout=True,
-            application=NimbusExperiment.Application.DESKTOP,
-            channels=[NimbusExperiment.Channel.BETA],
-            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
-            feature_configs=[feature],
-            **{field: [factory.create(code=live_code)]},
-        )
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
-            is_rollout=True,
-            application=NimbusExperiment.Application.DESKTOP,
-            channels=[NimbusExperiment.Channel.BETA],
-            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
-            feature_configs=[feature],
-            **{field: [factory.create(code=draft_code)]},
-        )
-        self.assertIsNone(experiment.rollout_conflict_warning)
+        self.assertEqual(draft.collision_warnings["deliveries"], [])
 
     @parameterized.expand(
         [
