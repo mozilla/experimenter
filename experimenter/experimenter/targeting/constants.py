@@ -35,6 +35,7 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
         "userId",
         "searchEngines",
         "isBackgroundTaskMode",
+        "isNonStubFirstRun",
         "localeLanguageCode",
         "attachedFxAOAuthClients",
     },
@@ -288,6 +289,21 @@ MSIX_FIRST_RUN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NON_STUB_FIRST_RUN = NimbusTargetingConfig(
+    name="First start-up users (first Nimbus update)",
+    slug="non_stub_first_run",
+    description=(
+        "Users on their first Nimbus update pass, before nimbus.firstUpdateComplete "
+        "is set. Intended for about:welcome enrollment on Mac, Linux, and MSIX builds "
+        "where isFirstStartup is always false."
+    ),
+    targeting="isNonStubFirstRun",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FIRST_RUN_NEW_PROFILE = NimbusTargetingConfig(
     name="First start-up new users",
     slug="first_run_new_profile",
@@ -537,10 +553,8 @@ FIRST_RUN_MACOS = NimbusTargetingConfig(
     name="First start-up users on MacOS",
     slug="first_run_macos",
     description="First start-up users (e.g. for about:welcome) on MacOS",
-    targeting=f"{FIRST_RUN.targeting} && os.isMac",
-    desktop_telemetry=(
-        f"{FIRST_RUN.desktop_telemetry} AND environment.system.os.name = 'Darwin'"
-    ),
+    targeting=f"{NON_STUB_FIRST_RUN.targeting} && os.isMac",
+    desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
