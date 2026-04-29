@@ -2760,8 +2760,6 @@ class TestNimbusExperiment(TestCase):
             [f["slug"] for f in feature_reason["shared_features"]], [feature_a.slug]
         )
         self.assertIsNone(delivery["publish_date_relation"])
-        # Single live experiment at 50% → 50% loss
-        self.assertEqual(result["estimated_loss_percent"], 50)
 
     def test_collision_warnings_shares_feature_rollout_blocked_by(self):
         shared_feature = NimbusFeatureConfigFactory.create(
@@ -2792,8 +2790,6 @@ class TestNimbusExperiment(TestCase):
         delivery = result["deliveries"][0]
         self.assertEqual(delivery["slug"], live_blocker.slug)
         self.assertEqual(delivery["publish_date_relation"], "blocked_by")
-        # Single colliding rollout that published earlier → draft loses entire overlap
-        self.assertEqual(result["estimated_loss_percent"], 100)
 
     def test_collision_warnings_includes_same_namespace(self):
         feature = NimbusFeatureConfigFactory.create(
@@ -2961,32 +2957,6 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(draft_experiment.collision_warnings["deliveries"], [])
 
-    def test_collision_warnings_estimated_loss_caps_at_100_percent(self):
-        feature = NimbusFeatureConfigFactory.create(
-            slug="cap-feature",
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        for slug, pop in (("live-a", "60"), ("live-b", "60")):
-            NimbusExperimentFactory.create_with_lifecycle(
-                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-                slug=slug,
-                is_rollout=False,
-                application=NimbusExperiment.Application.DESKTOP,
-                channels=[NimbusExperiment.Channel.RELEASE],
-                feature_configs=[feature],
-                population_percent=Decimal(pop),
-            )
-        draft = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            slug="draft-cap",
-            is_rollout=False,
-            application=NimbusExperiment.Application.DESKTOP,
-            channels=[NimbusExperiment.Channel.RELEASE],
-            feature_configs=[feature],
-        )
-        # 60% + 60% would be 120%; capped at 100%
-        self.assertEqual(draft.collision_warnings["estimated_loss_percent"], 100)
-
     def test_collision_warnings_returns_empty_for_complete_experiment(self):
         feature = NimbusFeatureConfigFactory.create(
             slug="complete-feature",
@@ -3077,8 +3047,6 @@ class TestNimbusExperiment(TestCase):
                 same_namespace_live.slug,
             ],
         )
-        # 25% + 25% = 50% estimated loss
-        self.assertEqual(warning["estimated_loss_percent"], 50)
 
     def test_audience_overlap_warnings_combines_collisions_and_self_issues(self):
         feature = NimbusFeatureConfigFactory.create(
@@ -3170,8 +3138,6 @@ class TestNimbusExperiment(TestCase):
         deliveries = self_rollout.collision_warnings["deliveries"]
         newer_entry = next(d for d in deliveries if d["slug"] == newer_live.slug)
         self.assertEqual(newer_entry["publish_date_relation"], "would_block")
-        # would_block contributes 0 estimated loss (the live one loses)
-        self.assertEqual(newer_entry["estimated_loss"], Decimal(0))
 
     def test_collision_warnings_pref_no_set_pref_features_returns_empty(self):
         feature = NimbusFeatureConfigFactory.create(

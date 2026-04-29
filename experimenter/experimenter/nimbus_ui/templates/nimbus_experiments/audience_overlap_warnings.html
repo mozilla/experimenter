@@ -5,9 +5,6 @@
       <p class="mb-1">
         <i class="fa-solid fa-triangle-exclamation me-1"></i>
         {{ warning.text }}
-        {% if warning.estimated_loss_percent %}
-          <span class="fw-semibold">Estimated loss: up to {{ warning.estimated_loss_percent }}% of eligible audience.</span>
-        {% endif %}
       </p>
       <ul class="mb-1">
         {% for entry in warning.entries %}

@@ -1796,20 +1796,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 else:
                     publish_date_relation = "would_block"
 
-            if self.is_rollout:
-                # Rollout slot is exclusive: an earlier-published rollout claims
-                # the entire overlapping audience.
-                estimated_loss = (
-                    Decimal(1) if publish_date_relation == "blocked_by" else Decimal(0)
-                )
-            else:
-                # Experiments contend by bucket fraction: each colliding live
-                # experiment claims roughly its population_percent of the shared
-                # bucket-eligible audience.
-                estimated_loss = (candidate.population_percent or Decimal(0)) / Decimal(
-                    100
-                )
-
             collisions.append(
                 {
                     "slug": candidate.slug,
@@ -1817,7 +1803,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "same_namespace": same_namespace,
                     "matching_configuration": matching_configuration,
                     "publish_date_relation": publish_date_relation,
-                    "estimated_loss": estimated_loss,
                 }
             )
 
@@ -1850,7 +1835,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def collision_warnings(self):
         if self.status not in (self.Status.DRAFT, self.Status.PREVIEW):
-            return {"deliveries": [], "estimated_loss_percent": 0}
+            return {"deliveries": []}
 
         features_url = reverse("nimbus-ui-features")
 
@@ -1872,7 +1857,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "slug": slug,
                     "reasons": [],
                     "publish_date_relation": None,
-                    "estimated_loss": Decimal(0),
                 },
             )
             entry["reasons"].append(
@@ -1902,9 +1886,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 },
             )
             entry["publish_date_relation"] = collision["publish_date_relation"]
-            entry["estimated_loss"] = max(
-                entry["estimated_loss"], collision["estimated_loss"]
-            )
 
             entry["reasons"].append(
                 {
@@ -1958,7 +1939,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "slug": slug,
                     "reasons": [],
                     "publish_date_relation": None,
-                    "estimated_loss": Decimal(0),
                 },
             )
             entry["reasons"].append(
@@ -1974,16 +1954,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
 
         deliveries = sorted(deliveries_by_slug.values(), key=lambda d: d["slug"])
-
-        total_loss = sum((d["estimated_loss"] for d in deliveries), start=Decimal(0))
-        if total_loss > Decimal(1):
-            total_loss = Decimal(1)
-        estimated_loss_percent = int((total_loss * Decimal(100)).to_integral_value())
-
-        return {
-            "deliveries": deliveries,
-            "estimated_loss_percent": estimated_loss_percent,
-        }
+        return {"deliveries": deliveries}
 
     @property
     def can_edit(self):
@@ -2241,7 +2212,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "text": self._collision_card_header(entries, self_issues),
                 "entries": entries,
                 "self_issues": self_issues,
-                "estimated_loss_percent": collisions["estimated_loss_percent"],
                 "variant": "warning",
                 "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
             }
