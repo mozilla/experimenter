@@ -2684,6 +2684,34 @@ LAPSED_USER_WINDOWS_ONLY_NO_DEFAULT_PROMPT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+LAPSED_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
+    name="Lapsed users eligible for VPN promotions",
+    slug="lapsed_user_vpn",
+    description=(
+        "Users with a profile age of 28 days and 0 days of activity in the past 28 days, "
+        "with CFRs enabled, with FxA enabled, without enterprise policies, enrolled in a "
+        "VPN feature rollout, and not enrolled in the VPN holdback branch"
+    ),
+    targeting=(
+        "(currentDate|date - defaultProfile.profileAgeCreated|date) / 86400000 >= 28 && "
+        "(currentDate|date - defaultProfile.currentDate|date) / 86400000 >= 28 && "
+        "defaultProfile.userPrefs.cfrFeatures && "
+        "defaultProfile.userPrefs.cfrAddons && "
+        "defaultProfile.isFxAEnabled && "
+        "!defaultProfile.hasActiveEnterprisePolicies && "
+        "('vpn-mvp-beta-rollout-2' in defaultProfile.activeRollouts || "
+        "  'vpn-limited-rollout' in defaultProfile.activeRollouts || "
+        "  'vpn-mvp-beta-rollout-2-in-canada' in defaultProfile.activeRollouts || "
+        "  'vpn-mvp-beta-rollout-in-canada' in defaultProfile.activeRollouts) && "
+        "!('vpn-mvp-beta-holdback' in defaultProfile.activeExperiments && "
+        "  defaultProfile.enrollmentsMap['vpn-mvp-beta-holdback'] == 'control')"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION = NimbusTargetingConfig(
     name="Returning users who have lapsed a second time",
     slug="returning_churned_user_48_hr",
