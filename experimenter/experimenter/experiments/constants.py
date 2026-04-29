@@ -922,7 +922,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     DAILY_ACTIVE_USERS = "client_level_daily_active_users_v2"
     DAYS_OF_USE = "days_of_use"
     RETENTION = "retained"
-    RETENTION_3_DAYS = "active_in_last_3_days_legacy"
+    RETENTION_3_DAYS = "active_in_last_3_days"
+    RETENTION_3_DAYS_DESKTOP = "active_in_last_3_days_legacy"
     SEARCH_COUNT = "search_count"
 
     DAU_METRIC = {

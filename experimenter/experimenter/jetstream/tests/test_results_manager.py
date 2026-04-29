@@ -2642,33 +2642,53 @@ class TestExperimentResultsManager(TestCase):
             expected,
         )
 
-    def test_get_kpi_metrics_excludes_3day_retention_for_non_desktop(self):
-        fenix_outcome = Outcomes.get_by_slug_and_application(
-            "fenix_outcome", NimbusExperiment.Application.FENIX
-        )
-        fenix_experiment = NimbusExperimentFactory.create(
-            application=NimbusExperiment.Application.FENIX,
-            primary_outcomes=[fenix_outcome.slug],
-            secondary_outcomes=[],
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                [
+                    "client_level_daily_active_users_v2",
+                    "retained",
+                    "search_count",
+                    "active_in_last_3_days_legacy",
+                ],
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                [
+                    "client_level_daily_active_users_v2",
+                    "retained",
+                    "search_count",
+                    "active_in_last_3_days",
+                ],
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                [
+                    "client_level_daily_active_users_v2",
+                    "retained",
+                    "search_count",
+                    "active_in_last_3_days",
+                ],
+            ),
+        ]
+    )
+    def test_get_kpi_metrics_by_application(self, application, expected_metric_slugs):
+        experiment = NimbusExperimentFactory.create(
+            application=application,
         )
         NimbusBranchFactory.create(
-            experiment=fenix_experiment, name="Branch A", slug="branch-a"
+            experiment=experiment, name="Branch A", slug="branch-a"
         )
         NimbusBranchFactory.create(
-            experiment=fenix_experiment, name="Branch B", slug="branch-b"
+            experiment=experiment, name="Branch B", slug="branch-b"
         )
 
-        fenix_results_manager = ExperimentResultsManager(fenix_experiment)
-        kpi_metrics = fenix_results_manager.get_kpi_metrics(
-            "enrollments", "all", "branch-a"
-        )
+        results_manager = ExperimentResultsManager(experiment)
+        kpi_metrics = results_manager.get_kpi_metrics("enrollments", "all", "branch-a")
 
         slugs = [metric["slug"] for metric in kpi_metrics]
-        self.assertNotIn("active_in_last_3_days_legacy", slugs)
-
-        # Verify base KPI metrics are still present
-        self.assertIn("retained", slugs)
-        self.assertIn("search_count", slugs)
+        self.assertEqual(set(slugs), set(expected_metric_slugs))
 
     @parameterized.expand(
         [
