@@ -1794,24 +1794,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 and same_namespace
             )
 
-            # Within polarity the SDK sorts by publish date and the earlier
-            # recipe claims the feature slot — the loser gets FeatureConflict.
-            # Applies identically to experiments and rollouts.
-            publish_date_relation = None
-            if candidate._start_date and (
-                not self._start_date or candidate._start_date < self._start_date
-            ):
-                publish_date_relation = "blocked_by"
-            elif candidate._start_date:
-                publish_date_relation = "would_block"
-
             collisions.append(
                 {
                     "slug": candidate.slug,
                     "shared_features": shared_features,
                     "same_namespace": same_namespace,
                     "matching_configuration": matching_configuration,
-                    "publish_date_relation": publish_date_relation,
                 }
             )
 
@@ -1865,7 +1853,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 {
                     "slug": slug,
                     "reasons": [],
-                    "publish_date_relation": None,
                 },
             )
             entry["reasons"].append(
@@ -1890,10 +1877,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 {
                     "slug": collision["slug"],
                     "reasons": [],
-                    "publish_date_relation": None,
                 },
             )
-            entry["publish_date_relation"] = collision["publish_date_relation"]
 
             entry["reasons"].append(
                 {
@@ -1902,10 +1887,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         _feature_link(f) for f in collision["shared_features"]
                     ],
                     "detail": (
-                        "Both deliveries use this feature. The earlier-"
-                        "published delivery claims the feature slot for "
-                        "any contested client; the later one will not "
-                        "enroll those clients."
+                        "This live delivery already holds the feature slot "
+                        "for contested clients; this delivery will not "
+                        "enroll them."
                     ),
                 }
             )
@@ -1942,7 +1926,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 {
                     "slug": slug,
                     "reasons": [],
-                    "publish_date_relation": None,
                 },
             )
             entry["reasons"].append(
@@ -2182,12 +2165,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         collisions = self.collision_warnings
         entries = [
-            {
-                "slug": d["slug"],
-                "reasons": d["reasons"],
-                "publish_date_relation": d["publish_date_relation"],
-            }
-            for d in collisions["deliveries"]
+            {"slug": d["slug"], "reasons": d["reasons"]} for d in collisions["deliveries"]
         ]
 
         self_issues = []

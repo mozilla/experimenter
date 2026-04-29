@@ -9,13 +9,6 @@
       <ul class="mb-1">
         {% for entry in warning.entries %}
           <li>
-            {% if entry.publish_date_relation == "blocked_by" %}
-              <span class="text-muted me-1"
-                    title="This live delivery published earlier and claims the feature slot for contested clients first.">↳ blocked by</span>
-            {% elif entry.publish_date_relation == "would_block" %}
-              <span class="text-muted me-1"
-                    title="This delivery published earlier than the live one; it claims the feature slot for contested clients.">↰ would block</span>
-            {% endif %}
             <a target="_blank" href="{% url "nimbus-ui-detail" slug=entry.slug %}">{{ entry.slug }}</a>
             <span class="text-muted">
               (
