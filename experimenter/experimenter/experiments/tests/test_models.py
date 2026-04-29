@@ -4983,6 +4983,130 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(draft.collision_warnings["deliveries"], [])
 
+    def test_collision_warnings_skips_disjoint_channels_non_desktop(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="fenix-disjoint-channels-feature",
+            application=NimbusExperiment.Application.FENIX,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="fenix-nightly-live",
+            is_rollout=False,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.NIGHTLY,
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="fenix-release-draft",
+            is_rollout=False,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[feature],
+        )
+        self.assertEqual(draft.collision_warnings["deliveries"], [])
+
+    def test_collision_warnings_empty_channels_intersects_anything(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="empty-channels-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        live = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="release-only-live",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="all-channels-draft",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[],
+            feature_configs=[feature],
+        )
+        slugs = [d["slug"] for d in draft.collision_warnings["deliveries"]]
+        self.assertIn(live.slug, slugs)
+
+    def test_collision_warnings_skips_disjoint_channels(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="disjoint-channels-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="release-only-live",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="nightly-only-draft",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            feature_configs=[feature],
+        )
+        self.assertEqual(draft.collision_warnings["deliveries"], [])
+
+    def test_collision_warnings_skips_disjoint_targeting_configs(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="disjoint-targeting-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="mac-only-live",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="first-run-draft",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            feature_configs=[feature],
+        )
+        # Different non-empty targeting_config_slug — treated as disjoint.
+        self.assertEqual(draft.collision_warnings["deliveries"], [])
+
+    def test_collision_warnings_targeting_config_no_targeting_intersects_anything(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="no-targeting-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        live = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="mac-only-live",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="no-targeting-draft",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            feature_configs=[feature],
+        )
+        # Draft has no targeting constraint → its audience is a superset, so
+        # the live recipe's audience is wholly contained.
+        slugs = [d["slug"] for d in draft.collision_warnings["deliveries"]]
+        self.assertIn(live.slug, slugs)
+
     @parameterized.expand(
         [
             (

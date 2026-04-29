@@ -1712,6 +1712,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
         ]
 
+    def _channels_overlap(self, candidate):
+        no_channel = NimbusExperiment.Channel.NO_CHANNEL
+        if self.is_desktop:
+            self_channels = set(self.channels) - {"", no_channel}
+            candidate_channels = set(candidate.channels) - {"", no_channel}
+        else:
+            self_channels = {self.channel} - {"", no_channel}
+            candidate_channels = {candidate.channel} - {"", no_channel}
+        if not self_channels or not candidate_channels:
+            return True
+        return bool(self_channels & candidate_channels)
+
+    def _targeting_configs_overlap(self, candidate):
+        no_targeting = NimbusExperiment.TargetingConfig.NO_TARGETING
+        self_slug = self.targeting_config_slug
+        candidate_slug = candidate.targeting_config_slug
+        self_has = self_slug and self_slug != no_targeting
+        candidate_has = candidate_slug and candidate_slug != no_targeting
+        if not self_has or not candidate_has:
+            return True
+        return self_slug == candidate_slug
+
     @property
     def excluded_live_deliveries(self):
         matching = []
@@ -1777,6 +1799,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         self_namespace = self.bucket_namespace
         collisions = []
         for candidate in candidates.filter(slug__in=overlapping_slugs):
+            if not self._channels_overlap(candidate):
+                continue
+            if not self._targeting_configs_overlap(candidate):
+                continue
             candidate_feature_ids = set(
                 candidate.feature_configs.values_list("id", flat=True)
             )
