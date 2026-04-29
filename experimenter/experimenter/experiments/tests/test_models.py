@@ -2759,7 +2759,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             [f["slug"] for f in feature_reason["shared_features"]], [feature_a.slug]
         )
-        self.assertIsNone(delivery["publish_date_relation"])
+        # Live experiment published before this draft → draft is blocked.
+        self.assertEqual(delivery["publish_date_relation"], "blocked_by")
 
     def test_collision_warnings_shares_feature_rollout_blocked_by(self):
         shared_feature = NimbusFeatureConfigFactory.create(
@@ -3138,6 +3139,34 @@ class TestNimbusExperiment(TestCase):
         deliveries = self_rollout.collision_warnings["deliveries"]
         newer_entry = next(d for d in deliveries if d["slug"] == newer_live.slug)
         self.assertEqual(newer_entry["publish_date_relation"], "would_block")
+
+    def test_collision_warnings_publish_date_directionality_for_experiments(self):
+        # Publish-date ordering applies to experiments, not just rollouts —
+        # the SDK uses the same machinery for both polarities.
+        feature = NimbusFeatureConfigFactory.create(
+            slug="exp-pubdate-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        live_blocker = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="live-experiment-blocker",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="draft-experiment",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+
+        deliveries = draft.collision_warnings["deliveries"]
+        entry = next(d for d in deliveries if d["slug"] == live_blocker.slug)
+        self.assertEqual(entry["publish_date_relation"], "blocked_by")
 
     def test_collision_warnings_pref_no_set_pref_features_returns_empty(self):
         feature = NimbusFeatureConfigFactory.create(

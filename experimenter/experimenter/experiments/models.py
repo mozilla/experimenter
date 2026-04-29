@@ -1754,6 +1754,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         contesting_ids = [fc.id for fc in contesting_features]
         feature_by_id = {fc.id: fc for fc in contesting_features}
 
+        # Same-polarity only: cross-polarity (rollout-vs-experiment) is a
+        # value-override case at value-resolution time
+        # (map_features_by_feature_id in enrollment.rs) and does not produce
+        # a FeatureConflict — both deliveries still enroll. We only warn on
+        # the case where one side fully refuses to enroll.
         candidates = (
             NimbusExperiment.objects.filter(
                 status=self.Status.LIVE,
@@ -1789,12 +1794,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 and same_namespace
             )
 
+            # Within polarity the SDK sorts by publish date and the earlier
+            # recipe claims the feature slot — the loser gets FeatureConflict.
+            # Applies identically to experiments and rollouts.
             publish_date_relation = None
-            if self.is_rollout and candidate._start_date:
-                if not self._start_date or candidate._start_date < self._start_date:
-                    publish_date_relation = "blocked_by"
-                else:
-                    publish_date_relation = "would_block"
+            if candidate._start_date and (
+                not self._start_date or candidate._start_date < self._start_date
+            ):
+                publish_date_relation = "blocked_by"
+            elif candidate._start_date:
+                publish_date_relation = "would_block"
 
             collisions.append(
                 {
@@ -1882,7 +1891,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "slug": collision["slug"],
                     "reasons": [],
                     "publish_date_relation": None,
-                    "estimated_loss": Decimal(0),
                 },
             )
             entry["publish_date_relation"] = collision["publish_date_relation"]
@@ -1894,14 +1902,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         _feature_link(f) for f in collision["shared_features"]
                     ],
                     "detail": (
-                        "Rollouts share feature slots — the earliest-published "
-                        "rollout claims the slot, and this rollout will not enroll "
-                        "any clients eligible for both."
-                        if self.is_rollout
-                        else "Both deliveries use this feature, contending for the "
-                        "same eligible population, which may reduce statistical "
-                        "power and precision. Verify the configured population "
-                        "proportion accounts for this."
+                        "Both deliveries use this feature. The earlier-"
+                        "published delivery claims the feature slot for "
+                        "any contested client; the later one will not "
+                        "enroll those clients."
                     ),
                 }
             )
