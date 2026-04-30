@@ -475,10 +475,6 @@ toolbar-refactor-feature:
       enum:
       - number
       - screenshot
-    toolbar_update_hint:
-      type: boolean
-      description: |
-        If true, enables the toolbar update contextual hint.
     unified_search:
       type: boolean
       description: |
@@ -562,6 +558,10 @@ world-cup-widget-feature:
   hasExposure: true
   exposureDescription: ''
   variables:
+    countdown-target-date:
+      type: string
+      description: |
+        The ISO 8601 date string for the World Cup countdown target
     enabled:
       type: boolean
       description: |

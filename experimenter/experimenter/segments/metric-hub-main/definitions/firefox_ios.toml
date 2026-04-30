@@ -127,6 +127,12 @@ description = """
 owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
 deprecated = false
 
+[metrics.active_in_last_3_days]
+select_expression = "COALESCE(MIN(days_since_active), 30) < 3"
+data_source = "firefox_ios_active_users_view"
+friendly_name = "3 Days Retention"
+description = "Records whether a client submitted any pings (i.e. used Firefox) on any of the last 3 days."
+
 ## search metrics
 
 [metrics.organic_search_count]
@@ -645,6 +651,7 @@ from_expression = """(
 )"""
 submission_date_column = "submission_date"
 client_id_column = "client_id"
+experiments_column_type = "native"
 deprecated = false
 
 [data_sources.clients_daily]
