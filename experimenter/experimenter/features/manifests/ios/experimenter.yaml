@@ -475,10 +475,6 @@ toolbar-refactor-feature:
       enum:
       - number
       - screenshot
-    toolbar_update_hint:
-      type: boolean
-      description: |
-        If true, enables the toolbar update contextual hint.
     unified_search:
       type: boolean
       description: |
