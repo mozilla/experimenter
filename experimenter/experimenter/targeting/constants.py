@@ -4346,6 +4346,24 @@ FX_151_3_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_151_3_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
+    name="Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop",
+    slug="newtab-151-0419-trainhop-win10-existing-users",
+    description=(
+        "Windows 10 existing users with profiles older than 28 days, "
+        "having the New Tab 151.3.20260419.192959 train hop, "
+        "which includes users of Fx150"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && {FX_151_3_TRAINHOP.targeting} && "
+        f"{WIN10_NOT_WIN11.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FX_151_2_TRAINHOP_NEW_USERS = NimbusTargetingConfig(
     name="New users with New Tab Fx151 Mar-28 Trainhop",
     slug="newtab-151-0328-trainhop-new-users",
