@@ -346,6 +346,10 @@ features:
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
+      data-limit-gigabyte:
+        description: Specifies the VPN data limit for unpaid users in GB (e.g. 50 GB).
+        type: Int
+        default: 50
       enabled:
         description: If true, IP Protection feature is enabled.
         type: Boolean
@@ -354,6 +358,10 @@ features:
         description: If true, a BETA badge is shown next to the IP Protection entry in the settings list.
         type: Boolean
         default: true
+      show-onboarding-bottom-sheet:
+        description: If true, the IP Protection onboarding bottom sheet is shown to the user.
+        type: Boolean
+        default: false
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
@@ -1341,6 +1349,11 @@ enums:
         description: The synced tabs section of the homepage.
       top-sites:
         description: The frecency and pinned sites.
+  MarketingCardVariant:
+    description: An enum to describe a marketing card variation.
+    variants:
+      default:
+        description: The default marketing card variation.
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
@@ -1527,6 +1540,10 @@ objects:
         description: The text for line two of the body.
         type: Text
         default: ''
+      marketing-card-variant:
+        description: Which marketing card variant to use.
+        type: MarketingCardVariant
+        default: default
   MessageData:
     description: |
       An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.

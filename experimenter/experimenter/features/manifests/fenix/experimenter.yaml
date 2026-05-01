@@ -328,12 +328,18 @@ ip-protection:
   hasExposure: true
   exposureDescription: ''
   variables:
+    data-limit-gigabyte:
+      type: int
+      description: Specifies the VPN data limit for unpaid users in GB (e.g. 50 GB).
     enabled:
       type: boolean
       description: If true, IP Protection feature is enabled.
     show-beta-badge:
       type: boolean
       description: If true, a BETA badge is shown next to the IP Protection entry in the settings list.
+    show-onboarding-bottom-sheet:
+      type: boolean
+      description: If true, the IP Protection onboarding bottom sheet is shown to the user.
 isolated-content-processes:
   description: Feature that controls content process isolation.
   hasExposure: true
