@@ -346,6 +346,10 @@ features:
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
+      data-limit-gigabyte:
+        description: Specifies the VPN data limit for unpaid users in GB (e.g. 50 GB).
+        type: Int
+        default: 50
       enabled:
         description: If true, IP Protection feature is enabled.
         type: Boolean
@@ -354,6 +358,10 @@ features:
         description: If true, a BETA badge is shown next to the IP Protection entry in the settings list.
         type: Boolean
         default: true
+      show-onboarding-bottom-sheet:
+        description: If true, the IP Protection onboarding bottom sheet is shown to the user.
+        type: Boolean
+        default: false
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
