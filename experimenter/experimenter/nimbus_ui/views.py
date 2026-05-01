@@ -2,6 +2,7 @@ import json
 
 from deepdiff import DeepDiff
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
@@ -1237,3 +1238,158 @@ class NimbusRolloutDetailView(
     DetailView,
 ):
     template_name = "nimbus_experiments/new_rollout_detail.html"
+
+
+# ── New UI views (shared across rollouts and experiments) ──────────────────────
+
+
+class OverviewCardMixin:
+    """Returns the overview edit form after any sub-action (add/remove tag,
+    subscriber, or documentation link).
+
+    Preserves an OverviewForm already in kwargs (e.g. one carrying field errors
+    from form_invalid) so error messages are not lost.
+
+    cancel_url_name controls the URL the Cancel button points at. Override in
+    subclasses when this card is reused outside the rollout detail page.
+    """
+
+    template_name = "nimbus_experiments/overview/edit_form.html"
+    cancel_url_name = "new-nimbus-ui-rollout-detail"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not isinstance(kwargs.get("form"), OverviewForm):
+            context["form"] = OverviewForm(instance=self.object)
+        context["cancel_url"] = reverse(
+            self.cancel_url_name, kwargs={"slug": self.object.slug}
+        )
+        return context
+
+
+class NewOverviewUpdateView(OverviewCardMixin, OverviewUpdateView):
+    display_template = "nimbus_experiments/overview/card.html"
+
+    def form_valid(self, form):
+        self.object = form.save()
+        context = self.get_context_data()
+        context["hx_swap_oob"] = True
+        return self.response_class(
+            request=self.request,
+            template=self.display_template,
+            context=context,
+        )
+
+
+class NewDocumentationLinkCreateView(RenderParentDBResponseMixin, NewOverviewUpdateView):
+    form_class = DocumentationLinkCreateForm
+
+
+class NewDocumentationLinkDeleteView(RenderParentDBResponseMixin, NewOverviewUpdateView):
+    form_class = DocumentationLinkDeleteForm
+
+
+class NewM2MSearchView(NimbusExperimentViewMixin, DetailView):
+    """Base for search-as-you-type views that find items not yet assigned to an
+    experiment M2M relation.
+
+    Subclasses must define:
+      m2m_attr   - experiment attribute to read already-assigned IDs from
+      context_key - template variable name for the results list
+      get_search_results(q, excluded_ids) - return the filtered queryset
+    """
+
+    m2m_attr = None
+    context_key = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        q = self.request.GET.get("q", "").strip()
+        excluded_ids = getattr(self.object, self.m2m_attr).values_list("id", flat=True)
+        context[self.context_key] = self.get_search_results(q, excluded_ids)
+        return context
+
+
+class NewTagSearchView(NewM2MSearchView):
+    template_name = "nimbus_experiments/overview/tag_search_results.html"
+    m2m_attr = "tags"
+    context_key = "tags"
+
+    def get_search_results(self, q, excluded_ids):
+        return (
+            Tag.objects.filter(name__icontains=q)
+            .order_by("name")
+            .exclude(id__in=excluded_ids)[:15]
+        )
+
+
+class NewM2MDeltaMixin:
+    """Handles per-item add/remove for an M2M field, injecting the full new set
+    into the form so the existing batch form classes work unchanged."""
+
+    item_id_key = None  # POST key for the item being toggled
+    m2m_attr = None  # attribute on experiment (e.g. "tags", "subscribers")
+    form_field = None  # form field name (e.g. "tags", "collaborators")
+    add = True  # True = add item, False = remove item
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        item_id = self.request.POST.get(self.item_id_key)
+        if item_id:
+            current_ids = set(
+                getattr(self.object, self.m2m_attr).values_list("id", flat=True)
+            )
+            item_id = int(item_id)
+            new_ids = current_ids | {item_id} if self.add else current_ids - {item_id}
+            data = self.request.POST.copy()
+            data.setlist(self.form_field, [str(i) for i in new_ids])
+            kwargs["data"] = data
+        return kwargs
+
+
+class NewTagView(NewM2MDeltaMixin, OverviewCardMixin, TagAssignView):
+    item_id_key = "tag_id"
+    m2m_attr = "tags"
+    form_field = "tags"
+
+
+class NewAddTagView(NewTagView):
+    add = True
+
+
+class NewRemoveTagView(NewTagView):
+    add = False
+
+
+class NewSubscriberSearchView(NewM2MSearchView):
+    template_name = "nimbus_experiments/overview/subscriber_search_results.html"
+    m2m_attr = "subscribers"
+    context_key = "users"
+
+    def get_search_results(self, q, excluded_ids):
+        User = get_user_model()
+        if not q:
+            return User.objects.none()
+        return (
+            User.objects.filter(
+                Q(first_name__icontains=q)
+                | Q(last_name__icontains=q)
+                | Q(email__icontains=q)
+            )
+            .order_by("email")
+            .exclude(id__in=excluded_ids)[:15]
+        )
+
+
+class NewSubscriberView(NewM2MDeltaMixin, OverviewCardMixin, CollaboratorsUpdateView):
+    item_id_key = "user_id"
+    m2m_attr = "subscribers"
+    form_field = "collaborators"
+
+
+class NewAddSubscriberView(NewSubscriberView):
+    add = True
+
+
+class NewRemoveSubscriberView(NewSubscriberView):
+    add = False

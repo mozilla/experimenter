@@ -27,6 +27,15 @@ from experimenter.nimbus_ui.views import (
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
     MetricsUpdateView,
+    NewAddSubscriberView,
+    NewAddTagView,
+    NewDocumentationLinkCreateView,
+    NewDocumentationLinkDeleteView,
+    NewOverviewUpdateView,
+    NewRemoveSubscriberView,
+    NewRemoveTagView,
+    NewSubscriberSearchView,
+    NewTagSearchView,
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
@@ -110,11 +119,6 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/summary/$",
         NimbusExperimentDetailView.as_view(),
         name="nimbus-ui-detail",
-    ),
-    re_path(
-        r"^new/rollouts/(?P<slug>[\w-]+)/$",
-        NimbusRolloutDetailView.as_view(),
-        name="new-nimbus-ui-rollout-detail",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/update_qa_status/$",
@@ -315,5 +319,56 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/branches/(?P<branch_slug>[\w-]+)/leading-screenshot/",
         BranchLeadingScreenshotView.as_view(),
         name="nimbus-ui-branch-leading-screenshot-upload",
+    ),
+    # ── New UI URLs (shared across rollouts and experiments) ───────────────────
+    re_path(
+        r"^new/rollouts/(?P<slug>[\w-]+)/$",
+        NimbusRolloutDetailView.as_view(),
+        name="new-nimbus-ui-rollout-detail",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/update_overview/$",
+        NewOverviewUpdateView.as_view(),
+        name="nimbus-ui-new-update-overview",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/create_documentation_link/$",
+        NewDocumentationLinkCreateView.as_view(),
+        name="nimbus-ui-new-create-documentation-link",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/delete_documentation_link/$",
+        NewDocumentationLinkDeleteView.as_view(),
+        name="nimbus-ui-new-delete-documentation-link",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/search_tags/$",
+        NewTagSearchView.as_view(),
+        name="nimbus-ui-new-search-tags",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/add_tag/$",
+        NewAddTagView.as_view(),
+        name="nimbus-ui-new-add-tag",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/remove_tag/$",
+        NewRemoveTagView.as_view(),
+        name="nimbus-ui-new-remove-tag",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/search_subscribers/$",
+        NewSubscriberSearchView.as_view(),
+        name="nimbus-ui-new-search-subscribers",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/add_subscriber/$",
+        NewAddSubscriberView.as_view(),
+        name="nimbus-ui-new-add-subscriber",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/remove_subscriber/$",
+        NewRemoveSubscriberView.as_view(),
+        name="nimbus-ui-new-remove-subscriber",
     ),
 ]
