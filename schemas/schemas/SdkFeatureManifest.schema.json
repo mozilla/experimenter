@@ -16,6 +16,13 @@
       ],
       "type": "string"
     },
+    "PrefBranch": {
+      "enum": [
+        "default",
+        "user"
+      ],
+      "type": "string"
+    },
     "SdkFeature": {
       "description": "A feature.",
       "if": {
@@ -85,6 +92,10 @@
           },
           "type": "array"
         },
+        "setPref": {
+          "$ref": "#/$defs/SetPref",
+          "description": "A pref that should be set to the value of this variable when enrolling. Only supported in Firefox for Android 152+. "
+        },
         "type": {
           "$ref": "#/$defs/FeatureVariableType",
           "description": "The field type."
@@ -93,6 +104,23 @@
       "required": [
         "description",
         "type"
+      ],
+      "type": "object"
+    },
+    "SetPref": {
+      "properties": {
+        "branch": {
+          "$ref": "#/$defs/PrefBranch",
+          "description": "The branch the pref will be set on. Prefs set on the user branch persists through restarts."
+        },
+        "pref": {
+          "description": "The name of the pref to set.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "branch",
+        "pref"
       ],
       "type": "object"
     }

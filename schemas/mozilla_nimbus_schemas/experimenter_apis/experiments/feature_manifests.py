@@ -57,6 +57,16 @@ class SdkFeatureVariable(BaseFeatureVariable):
         default=None,
     )
 
+    set_pref: SetPref | SkipJsonSchema[None] = Field(
+        alias="setPref",
+        description=(
+            "A pref that should be set to the value of this variable when enrolling.\n"
+            "\n"
+            "Only supported in Firefox for Android 152+.\n"
+        ),
+        default=None,
+    )
+
     model_config = ConfigDict(
         json_schema_extra={
             "dependentSchemas": {
