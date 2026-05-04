@@ -262,6 +262,9 @@ integration_test_nimbus_fenix:
 	mkdir -p experimenter/tests/integration/test-reports
 	cd experimenter/tests && poetry run pytest -m fenix_enrollment -o addopts= -p no:rerunfailures --junitxml=integration/test-reports/fenix_enrollment.xml integration/nimbus/android $(PYTEST_ARGS)
 
+integration_test_nimbus_ios:
+	cd experimenter/tests && poetry run pytest -m ios_enrollment -o addopts= -p no:rerunfailures integration/nimbus/ios $(PYTEST_ARGS)
+
 # cirrus
 CIRRUS_ENABLE = export CIRRUS=1 &&
 CIRRUS_RUFF_FORMAT_CHECK = ruff format --check --diff .

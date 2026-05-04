@@ -8,8 +8,8 @@ CURLFLAGS=("--proto" "=https" "--tlsv1.2" "-sS")
 # Parse command line arguments
 if [ $# -ne 2 ]; then
     echo "Usage: $0 <application> <channel>"
-    echo "  application: desktop|fenix|fennec"
-    echo "  channel: release|beta"
+    echo "  application: desktop|fenix|fennec|ios"
+    echo "  channel: release|beta|main"
     exit 1
 fi
 
@@ -69,6 +69,13 @@ fetch_task_info() {
             mv firefox_fennec_release_build.env experimenter/tests
             return
             ;;
+        ios_main)
+            ios_sha=$(curl "${CURLFLAGS[@]}" "${FENNEC_GITHUB_API}/commits/main" | jq -r '.sha')
+            echo "FIREFOX_IOS_SHA ${ios_sha}"
+            echo "FIREFOX_IOS_SHA=\"${ios_sha}\"" > firefox_ios_main_build.env
+            mv firefox_ios_main_build.env experimenter/tests
+            return
+            ;;
         *)
             echo "Unknown variant: ${variant}. Please specify a valid variant."
             return
@@ -90,11 +97,11 @@ fetch_task_info() {
 
 for name in "${firefox_types[@]}"
 do
-    CURRENT_BUILD_ID=$(cat experimenter/tests/firefox_${name}_build.env | grep -oP '(?<=TASK_ID=).*|(?<=VERSION_ID=).*')
+    CURRENT_BUILD_ID=$(cat experimenter/tests/firefox_${name}_build.env | grep -oP '(?<=TASK_ID=).*|(?<=VERSION_ID=).*|(?<=SHA=).*')
     fetch_task_info $name
-    LATEST_BUILD_ID=$(cat experimenter/tests/firefox_${name}_build.env | grep -oP '(?<=TASK_ID=).*|(?<=VERSION_ID=).*')
+    LATEST_BUILD_ID=$(cat experimenter/tests/firefox_${name}_build.env | grep -oP '(?<=TASK_ID=).*|(?<=VERSION_ID=).*|(?<=SHA=).*')
     if [[ "${CURRENT_BUILD_ID}" != "${LATEST_BUILD_ID}" ]]; then
-        echo "Adding firefox_${name}_build.env" 
+        echo "Adding firefox_${name}_build.env"
     fi
 done
 
@@ -107,6 +114,7 @@ if (($(git status --porcelain | wc -c) > 0)); then
             desktop) APP_DISPLAY_NAME="Firefox Desktop" ;;
             fenix) APP_DISPLAY_NAME="Firefox Fenix" ;;
             fennec) APP_DISPLAY_NAME="Firefox iOS (Fennec)" ;;
+            ios) APP_DISPLAY_NAME="Firefox iOS" ;;
         esac
         CHANNEL_DISPLAY_NAME="${CHANNEL^}" # Capitalize first letter
         COMMIT_MSG="chore(nimbus): Update ${APP_DISPLAY_NAME} ${CHANNEL_DISPLAY_NAME}"

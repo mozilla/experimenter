@@ -1,0 +1,200 @@
+name: iOS Enrollment Integration Test
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "3 12 * * *"
+  push:
+    branches:
+      - main
+      - update_firefox_ios_main
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  create-recipe:
+    name: "Create iOS recipe"
+    runs-on: ubuntu-24.04
+    outputs:
+      should-run: ${{ steps.check-paths.outputs.should-run }}
+    env:
+      INTEGRATION_TEST_NGINX_URL: https://localhost
+      IOS_CHANNEL: developer
+      IOS_RECIPE_PATH: ${{ github.workspace }}/ios_recipe.json
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/tests/integration/nimbus/ios/ experimenter/tests/firefox_ios_main_build.env"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - name: Set up Python
+        if: steps.check-paths.outputs.should-run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install poetry
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: pipx install poetry
+
+      - name: Bring up Experimenter stack
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: |
+          cp .env.integration-tests .env
+          make refresh SKIP_DUMMY=1 up_prod_detached
+
+      - name: Wait for Experimenter backend to be ready
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: curl --retry 60 --retry-delay 5 --retry-all-errors -sfk -o /dev/null https://localhost/__lbheartbeat__
+
+      - name: Install test deps
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: poetry -C experimenter/tests install --no-root
+
+      - name: Create recipe
+        if: steps.check-paths.outputs.should-run == 'true'
+        working-directory: experimenter/tests
+        run: poetry run pytest -m ios_create_recipe -o addopts= -p no:rerunfailures integration/nimbus/ios
+
+      - name: Upload recipe artifact
+        if: steps.check-paths.outputs.should-run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-recipe
+          path: ${{ github.workspace }}/ios_recipe.json
+          if-no-files-found: error
+          retention-days: 1
+
+  ios-test:
+    name: "iOS Enrollment"
+    needs: create-recipe
+    if: needs.create-recipe.outputs.should-run == 'true'
+    runs-on: macos-15
+    env:
+      IOS_CHANNEL: developer
+      XCODE_VERSION: "26.2"
+      IOS_VERSION: "26.2"
+      IOS_SIMULATOR: "iPhone 17"
+      IOS_RECIPE_PATH: ${{ github.workspace }}/ios_recipe.json
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Read firefox-ios SHA
+        run: |
+          . experimenter/tests/firefox_ios_main_build.env
+          if [ -z "$FIREFOX_IOS_SHA" ]; then
+            echo "::error::FIREFOX_IOS_SHA is empty in experimenter/tests/firefox_ios_main_build.env."
+            exit 1
+          fi
+          echo "FIREFOX_IOS_SHA=$FIREFOX_IOS_SHA" >> "$GITHUB_ENV"
+
+      - name: Checkout firefox-ios
+        uses: actions/checkout@v6
+        with:
+          repository: mozilla-mobile/firefox-ios
+          ref: ${{ env.FIREFOX_IOS_SHA }}
+          path: firefox-ios-checkout
+
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: |
+          sudo rm -rf /Applications/Xcode.app
+          sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
+
+      - name: Bootstrap firefox-ios
+        working-directory: firefox-ios-checkout
+        run: ./bootstrap.sh firefox --force
+
+      - name: Build Fennec scheme
+        working-directory: firefox-ios-checkout/firefox-ios
+        run: |
+          xcodebuild -resolvePackageDependencies -onlyUsePackageVersionsFromResolvedFile
+          xcodebuild build \
+            -project Client.xcodeproj \
+            -scheme Fennec \
+            -destination "platform=iOS Simulator,name=${IOS_SIMULATOR},OS=${IOS_VERSION}" \
+            -derivedDataPath ./DerivedData \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            ENABLE_USER_SCRIPT_SANDBOXING=NO \
+            ARCHS="arm64"
+
+      - name: Locate and ad-hoc sign Client.app
+        run: |
+          APP_PATH=$(find firefox-ios-checkout/firefox-ios/DerivedData/Build/Products -path "*iphonesimulator*/Client.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "::error::Could not locate Client.app in DerivedData"
+            find firefox-ios-checkout/firefox-ios/DerivedData/Build/Products -maxdepth 3 -type d || true
+            exit 1
+          fi
+          # Sign leaves-to-root. --deep is deprecated and doesn't always
+          # reach every embedded binary (dylibs, extensions, nested
+          # frameworks) reliably on macOS 15.
+          find "$APP_PATH" -name '*.dylib' -print0 | xargs -0 -I{} codesign --force --sign - --preserve-metadata=entitlements {}
+          find "$APP_PATH" -type d -name '*.framework' -print0 | xargs -0 -I{} codesign --force --sign - --preserve-metadata=entitlements {}
+          find "$APP_PATH" -type d -name '*.appex' -print0 | xargs -0 -I{} codesign --force --sign - --preserve-metadata=entitlements {}
+          # Apply a minimal entitlements plist with just the app group
+          # (group.org.mozilla.ios.Fennec) declaration so containerURL
+          # (forSecurityApplicationGroupIdentifier:) resolves to a real
+          # path. Without it, Nimbus refuses to init ("Nimbus didn't get
+          # to create, because of a nil dbPath"). The full Fennec
+          # entitlements plist has com.apple.developer.* keys that
+          # require a provisioning profile — SpringBoard rejects launch
+          # of ad-hoc-signed apps that claim them.
+          ENTITLEMENTS=$(mktemp -t simulator-entitlements-XXXXXX).plist
+          cat > "$ENTITLEMENTS" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>com.apple.security.application-groups</key>
+            <array>
+              <string>group.org.mozilla.ios.Fennec</string>
+            </array>
+          </dict>
+          </plist>
+          EOF
+          codesign --force --sign - --entitlements "$ENTITLEMENTS" "$APP_PATH"
+          echo "IOS_APP_PATH=${GITHUB_WORKSPACE}/${APP_PATH}" >> "$GITHUB_ENV"
+
+      - name: Install nimbus-cli
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh -o /tmp/install-nimbus-cli.sh
+          sudo bash /tmp/install-nimbus-cli.sh --directory /usr/local/bin
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Install test deps
+        run: poetry -C experimenter/tests install --no-root
+
+      - name: Download recipe artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-recipe
+          path: ${{ github.workspace }}
+
+      - name: Boot iOS simulator
+        run: |
+          xcrun simctl boot "${IOS_SIMULATOR}"
+          xcrun simctl bootstatus "${IOS_SIMULATOR}" -b
+          # Launch Simulator.app so there's a real SpringBoard to foreground
+          # the app — without it, simctl-launched apps can be stuck in a
+          # background-ish state where AppDelegate never finishes launching.
+          open -ga Simulator
+          sleep 15
+
+      - name: Run iOS enrollment test
+        run: make integration_test_nimbus_ios
