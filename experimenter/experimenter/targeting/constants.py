@@ -4355,8 +4355,7 @@ FX_151_3_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
         "which includes users of Fx150"
     ),
     targeting=(
-        f"{PROFILE28DAYS} && {FX_151_3_TRAINHOP.targeting} && "
-        f"{WIN10_NOT_WIN11.targeting}"
+        f"{PROFILE28DAYS} && {FX_151_3_TRAINHOP.targeting} && {WIN10_NOT_WIN11.targeting}"
     ),
     desktop_telemetry="",
     sticky_required=False,
