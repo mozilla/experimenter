@@ -2489,6 +2489,33 @@ friendly_name = "Mexico"
 description = "Clients in Mexico"
 select_expression = "COALESCE(LOGICAL_OR(country = 'MX'), FALSE)"
 
+[segments.profile_age_0_to_7_days]
+data_source = "clients_last_seen"
+friendly_name = "Profile age 0-6 days at enrollment"
+description = "Clients whose first_seen_date is 0-6 days before enrollment"
+select_expression = """COALESCE(
+    DATE_DIFF(MIN(e.enrollment_date), ANY_VALUE(first_seen_date), DAY) BETWEEN 0 AND 6,
+    FALSE
+)"""
+
+[segments.profile_age_7_to_28_days]
+data_source = "clients_last_seen"
+friendly_name = "Profile age 7-27 days at enrollment"
+description = "Clients whose first_seen_date is 7-27 days before enrollment"
+select_expression = """COALESCE(
+    DATE_DIFF(MIN(e.enrollment_date), ANY_VALUE(first_seen_date), DAY) BETWEEN 7 AND 27,
+    FALSE
+)"""
+
+[segments.profile_age_more_than_28_days]
+data_source = "clients_last_seen"
+friendly_name = "Profile age 28+ days at enrollment"
+description = "Clients whose first_seen_date is 28 or more days before enrollment"
+select_expression = """COALESCE(
+    DATE_DIFF(MIN(e.enrollment_date), ANY_VALUE(first_seen_date), DAY) >= 28,
+    FALSE
+)"""
+
 
 [segments.data_sources]
 
