@@ -1212,8 +1212,7 @@ EXISTING_USERS_PDF_PROMO_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10+ users eligible for Split PDF promo",
     slug="win10_pdf_split_promo",
     description=(
-        "Windows 10 users at least 7 days old, not first run,"
-        "no enterprise, CFRs enabled"
+        "Windows 10 users at least 7 days old, not first run,no enterprise, CFRs enabled"
     ),
     targeting=(
         "os.isWindows && os.windowsVersion >= 10 && "
