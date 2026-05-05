@@ -2,7 +2,6 @@ import json
 
 from deepdiff import DeepDiff
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
@@ -33,6 +32,8 @@ from experimenter.nimbus_ui.filtersets import (
     NimbusExperimentsHomeFilter,
     SortChoices,
     StatusChoices,
+    TagSearchFilterSet,
+    UserSearchFilterSet,
 )
 from experimenter.nimbus_ui.forms import (
     ApproveEndEnrollmentForm,
@@ -1244,16 +1245,6 @@ class NimbusRolloutDetailView(
 
 
 class OverviewCardMixin:
-    """Returns the overview edit form after any sub-action (add/remove tag,
-    subscriber, or documentation link).
-
-    Preserves an OverviewForm already in kwargs (e.g. one carrying field errors
-    from form_invalid) so error messages are not lost.
-
-    cancel_url_name controls the URL the Cancel button points at. Override in
-    subclasses when this card is reused outside the rollout detail page.
-    """
-
     template_name = "nimbus_experiments/overview/edit_form.html"
     cancel_url_name = "new-nimbus-ui-rollout-detail"
 
@@ -1294,19 +1285,30 @@ class NewM2MSearchView(NimbusExperimentViewMixin, DetailView):
     experiment M2M relation.
 
     Subclasses must define:
-      m2m_attr   - experiment attribute to read already-assigned IDs from
-      context_key - template variable name for the results list
-      get_search_results(q, excluded_ids) - return the filtered queryset
+      m2m_attr        - experiment attribute to read already-assigned IDs from
+      context_key     - template variable name for the results list
+      filterset_class - FilterSet used to filter the queryset
+      ordering        - field name to order results by
+      require_query   - if True, return empty queryset when no query is provided
     """
 
     m2m_attr = None
     context_key = None
+    filterset_class: type
+    ordering = None
+    require_query = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         q = self.request.GET.get("q", "").strip()
         excluded_ids = getattr(self.object, self.m2m_attr).values_list("id", flat=True)
-        context[self.context_key] = self.get_search_results(q, excluded_ids)
+        if self.require_query and not q:
+            context[self.context_key] = self.filterset_class.Meta.model.objects.none()
+            return context
+        base_qs = self.filterset_class.Meta.model.objects.exclude(id__in=excluded_ids)
+        fs = self.filterset_class(self.request.GET, queryset=base_qs)
+        qs = fs.qs.order_by(self.ordering) if self.ordering else fs.qs
+        context[self.context_key] = qs[:15]
         return context
 
 
@@ -1314,13 +1316,8 @@ class NewTagSearchView(NewM2MSearchView):
     template_name = "nimbus_experiments/overview/tag_search_results.html"
     m2m_attr = "tags"
     context_key = "tags"
-
-    def get_search_results(self, q, excluded_ids):
-        return (
-            Tag.objects.filter(name__icontains=q)
-            .order_by("name")
-            .exclude(id__in=excluded_ids)[:15]
-        )
+    filterset_class = TagSearchFilterSet
+    ordering = "name"
 
 
 class NewM2MDeltaMixin:
@@ -1365,20 +1362,9 @@ class NewSubscriberSearchView(NewM2MSearchView):
     template_name = "nimbus_experiments/overview/subscriber_search_results.html"
     m2m_attr = "subscribers"
     context_key = "users"
-
-    def get_search_results(self, q, excluded_ids):
-        User = get_user_model()
-        if not q:
-            return User.objects.none()
-        return (
-            User.objects.filter(
-                Q(first_name__icontains=q)
-                | Q(last_name__icontains=q)
-                | Q(email__icontains=q)
-            )
-            .order_by("email")
-            .exclude(id__in=excluded_ids)[:15]
-        )
+    filterset_class = UserSearchFilterSet
+    ordering = "email"
+    require_query = True
 
 
 class NewSubscriberView(NewM2MDeltaMixin, OverviewCardMixin, CollaboratorsUpdateView):
