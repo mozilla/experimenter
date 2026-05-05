@@ -1208,6 +1208,25 @@ WIN10_VPN_PROMOTION_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_USERS_PDF_PROMO_ELIGIBLE = NimbusTargetingConfig(
+    name="Windows 10+ users eligible for Split PDF promo",
+    slug="win10_pdf_split_promo",
+    description=(
+        "Windows 10 users at least 7 days old, not first run,no enterprise, CFRs enabled"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && "
+        f"{NO_ENTERPRISE.targeting} && "
+        f"{PROFILEMORETHAN7DAYS} && "
+        "!isFirstStartup && "
+        "('browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIN10_EOS_SYNC_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10 users eligible for Windows 10 EoS Sync promotion",
     slug="win10_eos_sync_promotion_eligible",
