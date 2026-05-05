@@ -1681,12 +1681,14 @@ class TestToggleReviewSlackNotificationsView(AuthTestCase):
 
 
 class TestOverviewUpdateView(AuthTestCase):
+    url_name = "nimbus-ui-update-overview"
+
     def test_get_renders_for_draft_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
         )
         response = self.client.get(
-            reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug})
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 200)
 
@@ -1700,7 +1702,7 @@ class TestOverviewUpdateView(AuthTestCase):
     def test_get_non_draft_redirects_to_summary(self, lifecycle):
         experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
         response = self.client.get(
-            reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug})
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -1717,7 +1719,7 @@ class TestOverviewUpdateView(AuthTestCase):
     def test_post_non_draft_hx_redirects_to_summary(self, lifecycle):
         experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
         response = self.client.post(
-            reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug}), {}
+            reverse(self.url_name, kwargs={"slug": experiment.slug}), {}
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -1736,7 +1738,7 @@ class TestOverviewUpdateView(AuthTestCase):
         )
 
         response = self.client.post(
-            reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug}),
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
                 "name": "new name",
                 "hypothesis": "new hypothesis",
@@ -1779,7 +1781,7 @@ class TestOverviewUpdateView(AuthTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             documentation_links=[documentation_link],
         )
-        base_url = reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug})
+        base_url = reverse(self.url_name, kwargs={"slug": experiment.slug})
         response = self.client.post(
             f"{base_url}?show_errors=true",
             {
@@ -1825,7 +1827,7 @@ class TestOverviewUpdateView(AuthTestCase):
             documentation_links=[documentation_link],
         )
         response = self.client.post(
-            reverse("nimbus-ui-update-overview", kwargs={"slug": experiment.slug}),
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
                 "name": "test-experiment",
                 "hypothesis": "",
@@ -1851,6 +1853,8 @@ class TestOverviewUpdateView(AuthTestCase):
 
 
 class TestDocumentationLinkCreateView(AuthTestCase):
+    url_name = "nimbus-ui-create-documentation-link"
+
     def test_post_creates_documentation_link(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1858,9 +1862,7 @@ class TestDocumentationLinkCreateView(AuthTestCase):
         )
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-create-documentation-link", kwargs={"slug": experiment.slug}
-            ),
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
                 "name": "new name",
                 "hypothesis": "new hypothesis",
@@ -1880,6 +1882,8 @@ class TestDocumentationLinkCreateView(AuthTestCase):
 
 
 class TestDocumentationLinkDeleteView(AuthTestCase):
+    url_name = "nimbus-ui-delete-documentation-link"
+
     def test_post_deletes_documentation_link(self):
         documentation_link = NimbusDocumentationLinkFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1888,9 +1892,7 @@ class TestDocumentationLinkDeleteView(AuthTestCase):
         )
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-delete-documentation-link", kwargs={"slug": experiment.slug}
-            ),
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
                 "name": "new name",
                 "hypothesis": "new hypothesis",
@@ -5452,13 +5454,15 @@ class TestTagSaveView(AuthTestCase):
 
 
 class TestTagAssignView(AuthTestCase):
+    url_name = "nimbus-ui-assign-tags"
+
     def test_post_assigns_tags_to_experiment(self):
         experiment = NimbusExperimentFactory.create()
         tag1 = TagFactory.create(name="Tag 1")
         tag2 = TagFactory.create(name="Tag 2")
 
         response = self.client.post(
-            reverse("nimbus-ui-assign-tags", kwargs={"slug": experiment.slug}),
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {"tags": [tag1.id, tag2.id]},
         )
         self.assertEqual(response.status_code, 200)
@@ -5472,7 +5476,7 @@ class TestTagAssignView(AuthTestCase):
         experiment.tags.add(tag1, tag2)
 
         response = self.client.post(
-            reverse("nimbus-ui-assign-tags", kwargs={"slug": experiment.slug}),
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {"tags": [tag1.id]},
         )
         self.assertEqual(response.status_code, 200)
@@ -5486,10 +5490,307 @@ class TestTagAssignView(AuthTestCase):
         experiment.tags.add(tag1)
 
         response = self.client.post(
-            reverse("nimbus-ui-assign-tags", kwargs={"slug": experiment.slug}),
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {},
         )
         self.assertEqual(response.status_code, 200)
 
         experiment.refresh_from_db()
         self.assertEqual(experiment.tags.count(), 0)
+
+
+class TestNewOverviewUpdateView(AuthTestCase):
+    url_name = "nimbus-ui-new-update-overview"
+
+    def test_get_returns_edit_form_for_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_get_non_draft_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_post_non_draft_hx_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}), {}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers.get("HX-Redirect"),
+            (
+                f"{reverse('nimbus-ui-detail', kwargs={'slug': experiment.slug})}"
+                "?save_failed=true"
+            ),
+        )
+
+    def test_post_valid_saves_and_returns_display_card(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "name": "updated name",
+                "hypothesis": "updated hypothesis",
+                "risk_brand": True,
+                "risk_message": True,
+                "public_description": "updated description",
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
+                "documentation_links-0-link": "https://www.example.com",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/overview/card.html")
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.name, "updated name")
+        self.assertEqual(experiment.hypothesis, "updated hypothesis")
+        self.assertTrue(response.context["hx_swap_oob"])
+
+    def test_post_invalid_returns_edit_form_with_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "name": "",  # name is required
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertTrue(response.context["form"].errors)
+
+
+class TestNewDocumentationLinkCreateView(AuthTestCase):
+    url_name = "nimbus-ui-new-create-documentation-link"
+
+    def test_post_creates_link_and_returns_edit_form(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[],
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "name": experiment.name,
+                "hypothesis": experiment.hypothesis,
+                "risk_brand": True,
+                "risk_message": True,
+                "public_description": experiment.public_description,
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertEqual(experiment.documentation_links.count(), 1)
+
+
+class TestNewDocumentationLinkDeleteView(AuthTestCase):
+    url_name = "nimbus-ui-new-delete-documentation-link"
+
+    def test_post_deletes_link_and_returns_edit_form(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "name": experiment.name,
+                "hypothesis": experiment.hypothesis,
+                "risk_brand": True,
+                "risk_message": True,
+                "public_description": experiment.public_description,
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
+                "documentation_links-0-link": "https://www.example.com",
+                "link_id": documentation_link.id,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertEqual(experiment.documentation_links.count(), 0)
+
+
+class TestNewTagSearchView(AuthTestCase):
+    def test_get_returns_matching_unassigned_tags(self):
+        experiment = NimbusExperimentFactory.create()
+        tag1 = TagFactory.create(name="Alpha")
+        TagFactory.create(name="Beta")
+        experiment.tags.add(tag1)
+
+        response = self.client.get(
+            reverse("nimbus-ui-new-search-tags", kwargs={"slug": experiment.slug}),
+            {"q": ""},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Beta")
+        self.assertNotContains(response, "Alpha")
+
+    def test_get_filters_by_query(self):
+        experiment = NimbusExperimentFactory.create()
+        TagFactory.create(name="Alpha")
+        TagFactory.create(name="Beta")
+
+        response = self.client.get(
+            reverse("nimbus-ui-new-search-tags", kwargs={"slug": experiment.slug}),
+            {"q": "alp"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Alpha")
+        self.assertNotContains(response, "Beta")
+
+
+class TestNewAddTagView(AuthTestCase):
+    def test_post_adds_tag_to_experiment(self):
+        experiment = NimbusExperimentFactory.create()
+        tag = TagFactory.create(name="MyTag")
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-add-tag", kwargs={"slug": experiment.slug}),
+            {"tag_id": tag.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertIn(tag, experiment.tags.all())
+
+
+class TestNewRemoveTagView(AuthTestCase):
+    def test_post_removes_tag_from_experiment(self):
+        experiment = NimbusExperimentFactory.create()
+        tag = TagFactory.create(name="MyTag")
+        experiment.tags.add(tag)
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-remove-tag", kwargs={"slug": experiment.slug}),
+            {"tag_id": tag.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertNotIn(tag, experiment.tags.all())
+
+
+class TestNewSubscriberSearchView(AuthTestCase):
+    def test_get_returns_matching_users(self):
+        experiment = NimbusExperimentFactory.create()
+        user = UserFactory.create(email="findme@example.com")
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-new-search-subscribers",
+                kwargs={"slug": experiment.slug},
+            ),
+            {"q": "findme"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, user.email)
+
+    def test_get_excludes_already_subscribed(self):
+        experiment = NimbusExperimentFactory.create()
+        user = UserFactory.create(email="already@example.com")
+        experiment.subscribers.add(user)
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-new-search-subscribers",
+                kwargs={"slug": experiment.slug},
+            ),
+            {"q": "already"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, user.email)
+
+    def test_get_returns_empty_when_no_query(self):
+        experiment = NimbusExperimentFactory.create()
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-new-search-subscribers",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+
+
+class TestNewAddSubscriberView(AuthTestCase):
+    def test_post_adds_subscriber(self):
+        experiment = NimbusExperimentFactory.create()
+        user = UserFactory.create()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-add-subscriber",
+                kwargs={"slug": experiment.slug},
+            ),
+            {"user_id": user.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertIn(user, experiment.subscribers.all())
+
+
+class TestNewRemoveSubscriberView(AuthTestCase):
+    def test_post_removes_subscriber(self):
+        experiment = NimbusExperimentFactory.create()
+        user = UserFactory.create()
+        experiment.subscribers.add(user)
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-remove-subscriber",
+                kwargs={"slug": experiment.slug},
+            ),
+            {"user_id": user.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertNotIn(user, experiment.subscribers.all())

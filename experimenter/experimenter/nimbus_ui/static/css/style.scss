@@ -344,3 +344,12 @@
 .info-cards-container > *:last-child:nth-child(odd) {
   grid-column: 1 / -1;
 }
+
+// Rollout card collapse/expand chevron rotation
+.rollout-card-toggle .chevron-icon {
+  transition: transform 0.2s ease;
+}
+
+.rollout-card-toggle[aria-expanded="true"] .chevron-icon {
+  transform: rotate(90deg);
+}

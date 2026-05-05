@@ -1,0 +1,19 @@
+{% if tags %}
+  <div class="border rounded-2 bg-body shadow-sm mt-1">
+    {% for tag in tags %}
+      <div class="px-3 py-2 small d-flex align-items-center gap-2 {% if not forloop.last %}border-bottom{% endif %}"
+           role="button"
+           style="cursor: pointer"
+           hx-post="{% url 'nimbus-ui-new-add-tag' experiment.slug %}"
+           hx-vals='{"tag_id": "{{ tag.id }}"}'
+           hx-target="#rollout-card-overview"
+           hx-swap="outerHTML">
+        {% csrf_token %}
+        <span style="color: {{ tag.color }}">
+          <i class="fa-solid fa-circle" style="font-size: 8px;"></i>
+        </span>
+        {{ tag.name }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

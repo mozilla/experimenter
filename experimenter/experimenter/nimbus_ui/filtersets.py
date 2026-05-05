@@ -641,3 +641,26 @@ class FeaturesPageSortChoices(models.TextChoices):
                 headers.append((field, choice.label))
                 seen.add(field)
         return headers
+
+
+class TagSearchFilterSet(django_filters.FilterSet):
+    q = django_filters.CharFilter(field_name="name", lookup_expr="icontains")
+
+    class Meta:
+        model = Tag
+        fields = ["q"]
+
+
+class UserSearchFilterSet(django_filters.FilterSet):
+    q = django_filters.CharFilter(method="filter_q")
+
+    class Meta:
+        model = User
+        fields = ["q"]
+
+    def filter_q(self, queryset, name, value):
+        return queryset.filter(
+            Q(first_name__icontains=value)
+            | Q(last_name__icontains=value)
+            | Q(email__icontains=value)
+        )

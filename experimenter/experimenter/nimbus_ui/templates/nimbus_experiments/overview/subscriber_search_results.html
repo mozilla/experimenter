@@ -1,0 +1,17 @@
+{% if users %}
+  <div class="border rounded-2 bg-body shadow-sm mt-1">
+    {% for user in users %}
+      <div class="px-3 py-2 small d-flex align-items-center gap-2 {% if not forloop.last %}border-bottom{% endif %}"
+           role="button"
+           style="cursor: pointer"
+           hx-post="{% url 'nimbus-ui-new-add-subscriber' experiment.slug %}"
+           hx-vals='{"user_id": "{{ user.id }}"}'
+           hx-target="#rollout-card-overview"
+           hx-swap="outerHTML">
+        {% csrf_token %}
+        <i class="fa-solid fa-user fa-sm text-secondary"></i>
+        {{ user.email }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
