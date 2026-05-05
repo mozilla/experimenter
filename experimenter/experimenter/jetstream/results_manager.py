@@ -100,6 +100,9 @@ class ExperimentResultsManager:
                     lower = data_point.get("lower")
                     upper = data_point.get("upper")
 
+                    if lower is None or upper is None:
+                        continue
+
                     max_value = max(max_value, abs(lower), abs(upper))
 
         return max_value
