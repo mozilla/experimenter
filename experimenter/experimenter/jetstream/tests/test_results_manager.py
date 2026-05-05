@@ -1559,24 +1559,8 @@ class TestExperimentResultsManager(TestCase):
                                                 "retained": {
                                                     "relative_uplift": {
                                                         "branch-a": {"all": []},
-                                                        "branch-b": {
-                                                            "all": [
-                                                                {
-                                                                    "lower": None,
-                                                                    "upper": None,
-                                                                    "point": 0.02,
-                                                                }
-                                                            ]
-                                                        },
-                                                        "branch-c": {
-                                                            "all": [
-                                                                {
-                                                                    "lower": -0.5,
-                                                                    "upper": 0.7,
-                                                                    "point": 0.1,
-                                                                }
-                                                            ]
-                                                        },
+                                                        "branch-b": {"all": [{}]},
+                                                        "branch-c": {"all": [{}]},
                                                     },
                                                 }
                                             }
@@ -1587,7 +1571,15 @@ class TestExperimentResultsManager(TestCase):
                                             "other_metrics": {
                                                 "retained": {
                                                     "relative_uplift": {
-                                                        "branch-a": {"all": [{}]},
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": None,
+                                                                    "upper": None,
+                                                                    "point": 0.02,
+                                                                }
+                                                            ]
+                                                        },
                                                         "branch-b": {"all": []},
                                                         "branch-c": {"all": [{}]},
                                                     }
@@ -1600,7 +1592,15 @@ class TestExperimentResultsManager(TestCase):
                                             "other_metrics": {
                                                 "retained": {
                                                     "relative_uplift": {
-                                                        "branch-a": {"all": [{}]},
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.5,
+                                                                    "upper": 0.7,
+                                                                    "point": 0.1,
+                                                                }
+                                                            ]
+                                                        },
                                                         "branch-b": {"all": [{}]},
                                                         "branch-c": {"all": []},
                                                     },
