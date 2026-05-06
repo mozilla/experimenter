@@ -4441,6 +4441,20 @@ FX_151_3_TRAINHOP_WIN10_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_152_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx152 May-04 Trainhop",
+    slug="newtab-152-0504-trainhop",
+    description=(
+        "Desktop users having the New Tab 152.0.20260504.33143 train hop, "
+        "which includes users of Fx150"
+    ),
+    targeting="newtabAddonVersion|versionCompare('152.0.20260504.33143') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
