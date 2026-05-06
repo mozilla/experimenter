@@ -1547,6 +1547,74 @@ class TestExperimentResultsManager(TestCase):
                 },
                 0,
             ),
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {"all": []},
+                                                        "branch-b": {"all": [{}]},
+                                                        "branch-c": {"all": [{}]},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": None,
+                                                                    "upper": None,
+                                                                    "point": 0.02,
+                                                                }
+                                                            ]
+                                                        },
+                                                        "branch-b": {"all": []},
+                                                        "branch-c": {"all": [{}]},
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.5,
+                                                                    "upper": 0.7,
+                                                                    "point": 0.1,
+                                                                }
+                                                            ]
+                                                        },
+                                                        "branch-b": {"all": [{}]},
+                                                        "branch-c": {"all": []},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                },
+                0.7,
+            ),
         ]
     )
     def test_get_max_metric_value(self, results_data, expected_max_value):
