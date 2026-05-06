@@ -346,6 +346,15 @@ features:
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
+      allowed-regions:
+        description: Country codes whose users are eligible for IP Protection.
+        type: List<String>
+        default:
+        - US
+        - CA
+        - DE
+        - FR
+        - GB
       data-limit-gigabyte:
         description: Specifies the VPN data limit for unpaid users in GB (e.g. 50 GB).
         type: Int

@@ -228,9 +228,15 @@ gecko-nimbus-validation:
     test-preference:
       type: string
       description: A test gecko preference
+      setPref:
+        pref: gecko.nimbus.test
+        branch: default
     test-preference-2:
       type: int
       description: A second test gecko preference
+      setPref:
+        pref: gecko.nimbus.test.two
+        branch: user
 glean:
   description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
   hasExposure: true
@@ -328,6 +334,9 @@ ip-protection:
   hasExposure: true
   exposureDescription: ''
   variables:
+    allowed-regions:
+      type: json
+      description: Country codes whose users are eligible for IP Protection.
     data-limit-gigabyte:
       type: int
       description: Specifies the VPN data limit for unpaid users in GB (e.g. 50 GB).
@@ -530,6 +539,9 @@ nimbus-qa-bool-default:
     value:
       type: boolean
       description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-bool-default
+        branch: default
 nimbus-qa-bool-user:
   description: A feature for testing boolean pref-setting on the user branch.
   hasExposure: true
@@ -538,6 +550,9 @@ nimbus-qa-bool-user:
     value:
       type: boolean
       description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-bool-user
+        branch: user
 nimbus-qa-int-default:
   description: A feature for testing int pref-setting on the default branch.
   hasExposure: true
@@ -546,6 +561,9 @@ nimbus-qa-int-default:
     value:
       type: int
       description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-int-default
+        branch: default
 nimbus-qa-int-user:
   description: A feature for testing int pref-setting on the user branch.
   hasExposure: true
@@ -554,6 +572,9 @@ nimbus-qa-int-user:
     value:
       type: int
       description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-int-user
+        branch: user
 nimbus-qa-string-default:
   description: A feature for testing string pref-setting on the default branch.
   hasExposure: true
@@ -562,6 +583,9 @@ nimbus-qa-string-default:
     value:
       type: string
       description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-string-default
+        branch: default
 nimbus-qa-string-user:
   description: A feature for testing string pref-setting on the user branch.
   hasExposure: true
@@ -570,6 +594,9 @@ nimbus-qa-string-user:
     value:
       type: string
       description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-string-user
+        branch: user
 nimbus-system:
   description: |
     Configuration of the Nimbus System in Android.
