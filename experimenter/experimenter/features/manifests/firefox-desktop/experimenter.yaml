@@ -1741,6 +1741,10 @@ newtabWidgets:
       type: boolean
       description: >-
         Enable Focus Timer widget
+    clocksEnabled:
+      type: boolean
+      description: >-
+        Enable Clocks widget
     listsBadgeEnabled:
       type: boolean
       description: >-
