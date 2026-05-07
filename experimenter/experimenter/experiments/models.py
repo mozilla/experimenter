@@ -21,7 +21,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Case, Count, F, Q, QuerySet, When
+from django.db.models import Case, Count, F, Prefetch, Q, QuerySet, When
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -62,6 +62,14 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
                 "countries",
                 "bucket_range",
                 "bucket_range__isolation_group",
+                Prefetch(
+                    "bucket_range__isolation_group__bucket_ranges",
+                    queryset=NimbusBucketRange.objects.filter(
+                        experiment__use_group_id=True,
+                        experiment__application=NimbusExperiment.Application.DESKTOP,
+                    ),
+                    to_attr="desktop_group_id_ranges",
+                ),
                 "reference_branch",
                 "branches",
                 "branches__feature_values",
@@ -2549,10 +2557,15 @@ class NimbusIsolationGroup(models.Model):
 
     @property
     def randomization_unit(self):
-        if self.bucket_ranges.filter(
-            experiment__use_group_id=True,
-            experiment__application=NimbusExperiment.Application.DESKTOP,
-        ).exists():
+        prefetched = getattr(self, "desktop_group_id_ranges", None)
+        if prefetched is not None:
+            has_desktop_group_id = bool(prefetched)
+        else:
+            has_desktop_group_id = self.bucket_ranges.filter(
+                experiment__use_group_id=True,
+                experiment__application=NimbusExperiment.Application.DESKTOP,
+            ).exists()
+        if has_desktop_group_id:
             return BucketRandomizationUnit.GROUP_ID
         return NimbusExperiment.APPLICATION_CONFIGS[self.application].randomization_unit
 
