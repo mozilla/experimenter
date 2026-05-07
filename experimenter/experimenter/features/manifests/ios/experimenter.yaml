@@ -139,6 +139,10 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the jump back in homepage section by default
+    pinned-header-enabled:
+      type: boolean
+      description: |
+        If true, enables the pinned newsfeed header on homepage.
     search-bar:
       type: boolean
       description: |
