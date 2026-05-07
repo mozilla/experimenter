@@ -3366,7 +3366,415 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/results-fragment.html")
 
-    def test_results_view_relative_ui_properties(self):
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "overall": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 100,
+                                                                "lower": 90,
+                                                                "upper": 110,
+                                                            }
+                                                        ],
+                                                        "first": {
+                                                            "point": 100,
+                                                            "lower": 90,
+                                                            "upper": 110,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"first": {}},
+                                                        "branch-b": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.12,
+                                                                    "upper": 0.15,
+                                                                    "point": 0.02,
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                            },
+                                                        },
+                                                        "branch-c": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.1,
+                                                                    "upper": 0.2,
+                                                                    "point": 0.03,
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": -0.1,
+                                                                "upper": 0.2,
+                                                                "point": 0.03,
+                                                            },
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 100,
+                                                                "lower": 80,
+                                                                "upper": 120,
+                                                            }
+                                                        ],
+                                                        "first": {
+                                                            "point": 100,
+                                                            "lower": 80,
+                                                            "upper": 120,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": 1,
+                                                                    "upper": 2,
+                                                                    "point": 1.5,
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": 1,
+                                                                "upper": 2,
+                                                                "point": 1.5,
+                                                            },
+                                                        },
+                                                        "branch-b": {"first": {}},
+                                                        "branch-c": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.25,
+                                                                    "upper": 0.45,
+                                                                    "point": 0.1,
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": -0.25,
+                                                                "upper": 0.45,
+                                                                "point": 0.1,
+                                                            },
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 100,
+                                                                "lower": 80,
+                                                                "upper": 120,
+                                                            }
+                                                        ],
+                                                        "first": {
+                                                            "point": 100,
+                                                            "lower": 80,
+                                                            "upper": 120,
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": 10,
+                                                                    "upper": 20,
+                                                                    "point": 15,
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": 10,
+                                                                "upper": 20,
+                                                                "point": 15,
+                                                            },
+                                                        },
+                                                        "branch-b": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.25,
+                                                                    "upper": 0.45,
+                                                                    "point": 0.1,
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": -0.25,
+                                                                "upper": 0.45,
+                                                                "point": 0.1,
+                                                            },
+                                                        },
+                                                        "branch-c": {
+                                                            "all": [],
+                                                            "first": {},
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "urlbar_amazon_search_count": {
+                        "branch-b": {
+                            "bar_width": 2.5,
+                            "bounds_width": 40,
+                            "left_bounds_percent": 33.75,
+                            "left_percent": 52.5,
+                        },
+                        "branch-c": {
+                            "bar_width": 25.0,
+                            "bounds_width": 49.0,
+                            "left_bounds_percent": 63.0,
+                            "left_percent": 75.0,
+                        },
+                    }
+                },
+            ),
+            # Test that missing values in the relative uplift data are handled gracefully
+            # and don't cause errors in UI property calculations
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 100,
+                                                                "lower": 90,
+                                                                "upper": 110,
+                                                                "window_index": "1",
+                                                            }
+                                                        ],
+                                                        "first": {
+                                                            "point": 100,
+                                                            "lower": 90,
+                                                            "upper": 110,
+                                                            "window_index": "1",
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {"first": {}},
+                                                        "branch-b": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.12,
+                                                                    "upper": 0.15,
+                                                                    "point": 0.02,
+                                                                    "window_index": "1",
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": -0.12,
+                                                                "upper": 0.15,
+                                                                "point": 0.02,
+                                                                "window_index": "1",
+                                                            },
+                                                        },
+                                                        "branch-c": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.1,
+                                                                    "upper": 0.2,
+                                                                    "point": 0.03,
+                                                                    "window_index": "1",
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": -0.1,
+                                                                "upper": 0.2,
+                                                                "point": 0.03,
+                                                                "window_index": "1",
+                                                            },
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 100,
+                                                                "lower": 80,
+                                                                "upper": 120,
+                                                                "window_index": "1",
+                                                            }
+                                                        ],
+                                                        "first": {
+                                                            "point": 100,
+                                                            "lower": 80,
+                                                            "upper": 120,
+                                                            "window_index": "1",
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": 1,
+                                                                    "upper": 2,
+                                                                    "point": 1.5,
+                                                                    "window_index": "1",
+                                                                },
+                                                                # This erroneous second
+                                                                # window data point
+                                                                # should be ignored in UI
+                                                                # calculations and not
+                                                                # cause errors
+                                                                {
+                                                                    "window_index": "0",
+                                                                },
+                                                            ],
+                                                            "first": {
+                                                                "lower": 1,
+                                                                "upper": 2,
+                                                                "point": 1.5,
+                                                                "window_index": "1",
+                                                            },
+                                                        },
+                                                        "branch-b": {"first": {}},
+                                                        "branch-c": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.25,
+                                                                    "upper": 0.45,
+                                                                    "point": 0.1,
+                                                                    "window_index": "1",
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": -0.25,
+                                                                "upper": 0.45,
+                                                                "point": 0.1,
+                                                                "window_index": "1",
+                                                            },
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-c": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "urlbar_amazon_search_count": {
+                                                    "absolute": {
+                                                        "all": [
+                                                            {
+                                                                "point": 100,
+                                                                "lower": 80,
+                                                                "upper": 120,
+                                                                "window_index": "1",
+                                                            }
+                                                        ],
+                                                        "first": {
+                                                            "point": 100,
+                                                            "lower": 80,
+                                                            "upper": 120,
+                                                            "window_index": "1",
+                                                        },
+                                                    },
+                                                    "relative_uplift": {
+                                                        "branch-a": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": 10,
+                                                                    "upper": 20,
+                                                                    "point": 15,
+                                                                    "window_index": "1",
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": 10,
+                                                                "upper": 20,
+                                                                "point": 15,
+                                                                "window_index": "1",
+                                                            },
+                                                        },
+                                                        "branch-b": {
+                                                            "all": [
+                                                                {
+                                                                    "lower": -0.25,
+                                                                    "upper": 0.45,
+                                                                    "point": 0.1,
+                                                                    "window_index": "1",
+                                                                }
+                                                            ],
+                                                            "first": {
+                                                                "lower": -0.25,
+                                                                "upper": 0.45,
+                                                                "point": 0.1,
+                                                                "window_index": "1",
+                                                            },
+                                                        },
+                                                        "branch-c": {
+                                                            "all": [],
+                                                            "first": {},
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "urlbar_amazon_search_count": {
+                        "branch-c": {
+                            "bar_width": 25.0,
+                            "bounds_width": 49.0,
+                            "left_bounds_percent": 63.0,
+                            "left_percent": 75.0,
+                        },
+                    }
+                },
+            ),
+        ]
+    )
+    def test_results_view_relative_ui_properties(
+        self, results_data, expected_relative_change_ui_properties
+    ):
         application = NimbusExperiment.Application.DESKTOP
         desktop_outcome_1 = Outcomes.get_by_slug_and_application(
             "desktop_outcome_1", application
@@ -3387,175 +3795,7 @@ class TestResultsView(AuthTestCase):
             experiment=experiment, name="Branch C", slug="branch-c"
         )
 
-        experiment.results_data = {
-            "v3": {
-                "overall": {
-                    "enrollments": {
-                        "all": {
-                            "branch-a": {
-                                "branch_data": {
-                                    "other_metrics": {
-                                        "urlbar_amazon_search_count": {
-                                            "absolute": {
-                                                "all": [
-                                                    {
-                                                        "point": 100,
-                                                        "lower": 90,
-                                                        "upper": 110,
-                                                    }
-                                                ],
-                                                "first": {
-                                                    "point": 100,
-                                                    "lower": 90,
-                                                    "upper": 110,
-                                                },
-                                            },
-                                            "relative_uplift": {
-                                                "branch-a": {"first": {}},
-                                                "branch-b": {
-                                                    "all": [
-                                                        {
-                                                            "lower": -0.12,
-                                                            "upper": 0.15,
-                                                            "point": 0.02,
-                                                        }
-                                                    ],
-                                                    "first": {
-                                                        "lower": -0.12,
-                                                        "upper": 0.15,
-                                                        "point": 0.02,
-                                                    },
-                                                },
-                                                "branch-c": {
-                                                    "all": [
-                                                        {
-                                                            "lower": -0.1,
-                                                            "upper": 0.2,
-                                                            "point": 0.03,
-                                                        }
-                                                    ],
-                                                    "first": {
-                                                        "lower": -0.1,
-                                                        "upper": 0.2,
-                                                        "point": 0.03,
-                                                    },
-                                                },
-                                            },
-                                        }
-                                    }
-                                }
-                            },
-                            "branch-b": {
-                                "branch_data": {
-                                    "other_metrics": {
-                                        "urlbar_amazon_search_count": {
-                                            "absolute": {
-                                                "all": [
-                                                    {
-                                                        "point": 100,
-                                                        "lower": 80,
-                                                        "upper": 120,
-                                                    }
-                                                ],
-                                                "first": {
-                                                    "point": 100,
-                                                    "lower": 80,
-                                                    "upper": 120,
-                                                },
-                                            },
-                                            "relative_uplift": {
-                                                "branch-a": {
-                                                    "all": [
-                                                        {
-                                                            "lower": 1,
-                                                            "upper": 2,
-                                                            "point": 1.5,
-                                                        }
-                                                    ],
-                                                    "first": {
-                                                        "lower": 1,
-                                                        "upper": 2,
-                                                        "point": 1.5,
-                                                    },
-                                                },
-                                                "branch-b": {"first": {}},
-                                                "branch-c": {
-                                                    "all": [
-                                                        {
-                                                            "lower": -0.25,
-                                                            "upper": 0.45,
-                                                            "point": 0.1,
-                                                        }
-                                                    ],
-                                                    "first": {
-                                                        "lower": -0.25,
-                                                        "upper": 0.45,
-                                                        "point": 0.1,
-                                                    },
-                                                },
-                                            },
-                                        }
-                                    }
-                                }
-                            },
-                            "branch-c": {
-                                "branch_data": {
-                                    "other_metrics": {
-                                        "urlbar_amazon_search_count": {
-                                            "absolute": {
-                                                "all": [
-                                                    {
-                                                        "point": 100,
-                                                        "lower": 80,
-                                                        "upper": 120,
-                                                    }
-                                                ],
-                                                "first": {
-                                                    "point": 100,
-                                                    "lower": 80,
-                                                    "upper": 120,
-                                                },
-                                            },
-                                            "relative_uplift": {
-                                                "branch-a": {
-                                                    "all": [
-                                                        {
-                                                            "lower": 10,
-                                                            "upper": 20,
-                                                            "point": 15,
-                                                        }
-                                                    ],
-                                                    "first": {
-                                                        "lower": 10,
-                                                        "upper": 20,
-                                                        "point": 15,
-                                                    },
-                                                },
-                                                "branch-b": {
-                                                    "all": [
-                                                        {
-                                                            "lower": -0.25,
-                                                            "upper": 0.45,
-                                                            "point": 0.1,
-                                                        }
-                                                    ],
-                                                    "first": {
-                                                        "lower": -0.25,
-                                                        "upper": 0.45,
-                                                        "point": 0.1,
-                                                    },
-                                                },
-                                                "branch-c": {"all": [], "first": {}},
-                                            },
-                                        }
-                                    }
-                                }
-                            },
-                        }
-                    }
-                }
-            }
-        }
+        experiment.results_data = results_data
 
         experiment.save()
 
@@ -3566,23 +3806,6 @@ class TestResultsView(AuthTestCase):
                 query={"reference_branch": "branch-a"},
             ),
         )
-
-        expected_relative_change_ui_properties = {
-            "urlbar_amazon_search_count": {
-                "branch-b": {
-                    "bar_width": 2.5,
-                    "bounds_width": 40,
-                    "left_bounds_percent": 33.75,
-                    "left_percent": 52.5,
-                },
-                "branch-c": {
-                    "bar_width": 25.0,
-                    "bounds_width": 49.0,
-                    "left_bounds_percent": 63.0,
-                    "left_percent": 75.0,
-                },
-            }
-        }
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
