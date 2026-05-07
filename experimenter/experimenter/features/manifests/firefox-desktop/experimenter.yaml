@@ -1745,6 +1745,10 @@ newtabWidgets:
       type: boolean
       description: >-
         Enable Clocks widget
+    sportsWidgetEnabled:
+      type: boolean
+      description: >-
+        Enable Sports widget
     listsBadgeEnabled:
       type: boolean
       description: >-
@@ -3073,6 +3077,18 @@ networkingConnections:
       setPref:
         branch: default
         pref: "network.http.happy_eyeballs_enabled"
+    happyEyeballsResolutionDelay:
+      description: Time in ms to wait after the first DNS response before starting connections
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.happy_eyeballs_resolution_delay"
+    happyEyeballsConnectionAttemptDelay:
+      description: Time in ms between successive connection attempts
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.happy_eyeballs_connection_attempt_delay"
 
 
 networkingSendOnDataFinished:
