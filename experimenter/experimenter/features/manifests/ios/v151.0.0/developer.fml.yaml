@@ -138,6 +138,11 @@ features:
           If true, enables the jump back in homepage section by default
         type: Boolean
         default: false
+      pinned-header-enabled:
+        description: |
+          If true, enables the pinned newsfeed header on homepage.
+        type: Boolean
+        default: false
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
