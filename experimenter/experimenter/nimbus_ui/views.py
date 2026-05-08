@@ -866,8 +866,14 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
                     if not (relative := branch_data.get("relative")):
                         continue
 
-                    lower = relative[0].get("lower") * 100
-                    upper = relative[0].get("upper") * 100
+                    if not (lower := relative[0].get("lower")) or not (
+                        upper := relative[0].get("upper")
+                    ):
+                        continue
+
+                    lower *= 100
+                    upper *= 100
+
                     confidence_range = round(extreme_bound * 1000) / 10
                     full_width = confidence_range * 2 if confidence_range != 0 else 1
                     bar_width = ((upper - lower) / full_width) * 100
