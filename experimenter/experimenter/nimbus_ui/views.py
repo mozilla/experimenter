@@ -1258,8 +1258,36 @@ class OverviewCardMixin:
         return context
 
 
+class RisksCardMixin:
+    template_name = "nimbus_experiments/risks/edit_form.html"
+    cancel_url_name = "new-nimbus-ui-rollout-detail"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not isinstance(kwargs.get("form"), OverviewForm):
+            context["form"] = OverviewForm(instance=self.object)
+        context["cancel_url"] = reverse(
+            self.cancel_url_name, kwargs={"slug": self.object.slug}
+        )
+        return context
+
+
 class NewOverviewUpdateView(OverviewCardMixin, OverviewUpdateView):
     display_template = "nimbus_experiments/overview/card.html"
+
+    def form_valid(self, form):
+        self.object = form.save()
+        context = self.get_context_data()
+        context["hx_swap_oob"] = True
+        return self.response_class(
+            request=self.request,
+            template=self.display_template,
+            context=context,
+        )
+
+
+class NewRisksUpdateView(RisksCardMixin, OverviewUpdateView):
+    display_template = "nimbus_experiments/risks/card.html"
 
     def form_valid(self, form):
         self.object = form.save()
