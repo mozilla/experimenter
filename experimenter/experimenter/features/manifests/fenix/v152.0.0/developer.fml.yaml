@@ -794,6 +794,30 @@ features:
           When the feature is enabled then the user will see the new navigation toolbar.
         type: Boolean
         default: true
+  networking-happy-eyeballs:
+    description: Networking (Necko) Happy Eyeballs V3 configuration
+    variables:
+      connection-attempt-delay:
+        description: Time in ms between successive connection attempts
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: network.http.happy_eyeballs_connection_attempt_delay
+          branch: default
+      enabled:
+        description: Whether to enable the Happy Eyeballs v3 algorithm for connection establishment
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: network.http.happy_eyeballs_enabled
+          branch: default
+      resolution-delay:
+        description: Time in ms to wait after the first DNS response before starting connections
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: network.http.happy_eyeballs_resolution_delay
+          branch: default
   networkingBannedPorts:
     description: Networking (Necko) Banned Ports
     variables:
