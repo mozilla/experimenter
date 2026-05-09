@@ -511,7 +511,7 @@ features:
             prerequisites:
             - ALWAYS
             primary-button-label: nova_onboarding_continue_button
-            secondary-button-label: ''
+            secondary-button-label: nova_onboarding_marketing_secondary_button_text
             title: nova_onboarding_marketing_title
         string-alias: OnboardingCardKey
       conditions:
@@ -604,6 +604,7 @@ features:
           VIEW_HOMESCREEN: ://home
           OPEN_SETTINGS_ACCESSIBILITY: ://settings_accessibility
           OPEN_SETTINGS_ADDON_MANAGER: ://settings_addon_manager
+          OPEN_SETTINGS_AI_CONTROLS: ://settings_ai_controls
           OPEN_SETTINGS_DELETE_BROWSING_DATA: ://settings_delete_browsing_data
           OPEN_SETTINGS_LOGINS: ://settings_logins
           OPEN_SETTINGS_NOTIFICATIONS: ://settings_notifications
@@ -794,6 +795,30 @@ features:
           When the feature is enabled then the user will see the new navigation toolbar.
         type: Boolean
         default: true
+  networking-happy-eyeballs:
+    description: Networking (Necko) Happy Eyeballs V3 configuration
+    variables:
+      connection-attempt-delay:
+        description: Time in ms between successive connection attempts
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: network.http.happy_eyeballs_connection_attempt_delay
+          branch: default
+      enabled:
+        description: Whether to enable the Happy Eyeballs v3 algorithm for connection establishment
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: network.http.happy_eyeballs_enabled
+          branch: default
+      resolution-delay:
+        description: Time in ms to wait after the first DNS response before starting connections
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: network.http.happy_eyeballs_resolution_delay
+          branch: default
   networkingBannedPorts:
     description: Networking (Necko) Banned Ports
     variables:
@@ -1363,6 +1388,12 @@ enums:
     variants:
       default:
         description: The default marketing card variation.
+      treatment-a:
+        description: The Treatment A marketing card variation.
+      treatment-b:
+        description: The Treatment B marketing card variation.
+      treatment-c:
+        description: The Treatment C marketing card variation.
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:

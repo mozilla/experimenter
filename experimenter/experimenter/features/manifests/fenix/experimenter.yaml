@@ -514,6 +514,29 @@ navigation-toolbar:
       type: boolean
       description: |
         When the feature is enabled then the user will see the new navigation toolbar.
+networking-happy-eyeballs:
+  description: Networking (Necko) Happy Eyeballs V3 configuration
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    connection-attempt-delay:
+      type: int
+      description: Time in ms between successive connection attempts
+      setPref:
+        pref: network.http.happy_eyeballs_connection_attempt_delay
+        branch: default
+    enabled:
+      type: boolean
+      description: Whether to enable the Happy Eyeballs v3 algorithm for connection establishment
+      setPref:
+        pref: network.http.happy_eyeballs_enabled
+        branch: default
+    resolution-delay:
+      type: int
+      description: Time in ms to wait after the first DNS response before starting connections
+      setPref:
+        pref: network.http.happy_eyeballs_resolution_delay
+        branch: default
 networkingBannedPorts:
   description: Networking (Necko) Banned Ports
   hasExposure: true
