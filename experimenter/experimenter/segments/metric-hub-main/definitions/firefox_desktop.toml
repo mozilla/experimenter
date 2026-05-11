@@ -1189,9 +1189,9 @@ Client performed any Newtab Handoff searches during the experiment
 [metrics.newtab_gt4_searches]
 data_source = "newtab_clients_daily"
 select_expression = 'COALESCE(CASE WHEN SUM(search_interaction_count) > 4 THEN 1 ELSE 0 END, 0)'
-friendly_name = "Any Newtab Searches"
+friendly_name = "Greater Than 4 Newtab Searches"
 description = """
-Client performed any Newtab Handoff searches during the experiment
+Client performed at least 5 Newtab Handoff searches during the experiment
 """
 
 [metrics.newtab_searches_with_ads]

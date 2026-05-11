@@ -505,7 +505,7 @@ features:
             prerequisites:
             - ALWAYS
             primary-button-label: nova_onboarding_continue_button
-            secondary-button-label: ''
+            secondary-button-label: nova_onboarding_marketing_secondary_button_text
             title: nova_onboarding_marketing_title
         string-alias: OnboardingCardKey
       conditions:
@@ -1326,6 +1326,17 @@ enums:
         description: The synced tabs section of the homepage.
       top-sites:
         description: The frecency and pinned sites.
+  MarketingCardVariant:
+    description: An enum to describe a marketing card variation.
+    variants:
+      default:
+        description: The default marketing card variation.
+      treatment-a:
+        description: The Treatment A marketing card variation.
+      treatment-b:
+        description: The Treatment B marketing card variation.
+      treatment-c:
+        description: The Treatment C marketing card variation.
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
@@ -1512,6 +1523,10 @@ objects:
         description: The text for line two of the body.
         type: Text
         default: ''
+      marketing-card-variant:
+        description: Which marketing card variant to use.
+        type: MarketingCardVariant
+        default: default
   MessageData:
     description: |
       An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.
