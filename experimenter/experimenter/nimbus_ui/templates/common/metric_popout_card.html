@@ -13,11 +13,11 @@
         {% if display_type == "percentage" %}
           <span class="mb-0 me-1"
                 data-bs-toggle="tooltip"
-                data-bs-title="{{ absolute_lower|to_percentage }}">{{ absolute_lower|to_percentage:1 }}</span>
+                data-bs-title="{{ absolute_lower|to_percentage:6 }}">{{ absolute_lower|to_percentage:1 }}</span>
           -
           <p class="mb-0 ms-1"
              data-bs-toggle="tooltip"
-             data-bs-title="{{ absolute_upper|to_percentage }}">
+             data-bs-title="{{ absolute_upper|to_percentage:6 }}">
             {{ absolute_upper|to_percentage:1 }}
           </span>
         {% else %}
@@ -45,10 +45,10 @@
                     left: {{ branch_relative_ui_properties.left_bounds_percent }}%">
           <small class="fw-semibold"
                  data-bs-toggle="tooltip"
-                 data-bs-title="{{ lower_relative|to_percentage }}">{{ lower_relative|to_percentage:1 }}</small>
+                 data-bs-title="{{ lower_relative|to_percentage:6 }}">{{ lower_relative|to_percentage:1 }}</small>
           <small class="fw-semibold"
                  data-bs-toggle="tooltip"
-                 data-bs-title="{{ upper_relative|to_percentage }}">{{ upper_relative|to_percentage:1 }}</small>
+                 data-bs-title="{{ upper_relative|to_percentage:6 }}">{{ upper_relative|to_percentage:1 }}</small>
         </div>
         <div class="position-absolute border border-2 border-top-0 {% if sig == "positive" %}border-success{% elif sig == "negative" %}border-danger{% else %}border-light-subtle{% endif %}"
              style="height: 10px;
