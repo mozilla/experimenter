@@ -1249,7 +1249,7 @@ Count of clicks on Sponsored content.
 
 [metrics.organic_content_impressions]
 data_source = "newtab_clients_daily"
-select_expression = "COALESCE(SUM(sponsored_content_click_count), 0)"
+select_expression = "COALESCE(SUM(organic_content_impression_count), 0)"
 friendly_name = "Organic Content Impressions"
 type = "scalar"
 description = """
