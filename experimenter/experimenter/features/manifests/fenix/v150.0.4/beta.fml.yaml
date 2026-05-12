@@ -4,13 +4,6 @@ about:
 channels:
 - beta
 features:
-  add-shortcuts-improvement:
-    description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Add Shortcuts improvement is enabled.
-        type: Boolean
-        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -63,6 +56,14 @@ features:
         description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
         type: String
         default: ''
+  composable-toolbar:
+    description: Use a composable toolbar instead of the View based one.
+    variables:
+      enabled:
+        description: |
+          When the feature is enabled the user will see a new composable toolbar instead the previous View based one.
+        type: Boolean
+        default: true
   continuous-onboarding:
     description: |
       Feature to enable the continuous onboarding flow. This feature reduces the number of upfront onboarding cards and distributes the cards and other prompts progressively over a number of days.
@@ -241,23 +242,6 @@ features:
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
         default: false
-  gecko-nimbus-validation:
-    description: Feature for validating Nimbus Gecko functionality
-    variables:
-      test-preference:
-        description: A test gecko preference
-        type: Option<String>
-        default: null
-        gecko-pref:
-          pref: gecko.nimbus.test
-          branch: default
-      test-preference-2:
-        description: A second test gecko preference
-        type: Option<Int>
-        default: null
-        gecko-pref:
-          pref: gecko.nimbus.test.two
-          branch: user
   glean:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
@@ -285,13 +269,6 @@ features:
         type: Int
         default: 1000
     allow-coenrollment: true
-  google-lens-integration:
-    description: A feature that enables Google Lens integration for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Google Lens integration is enabled.
-        type: Boolean
-        default: false
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -323,13 +300,6 @@ features:
           Whether or not to enable the homepage search bar.
         type: Boolean
         default: false
-  homepage-sports-widget:
-    description: Feature to enable Homepage Sports Widget for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Homepage Sports Widget is enabled.
-        type: Boolean
-        default: false
   homescreen:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
@@ -352,17 +322,6 @@ features:
     variables:
       enabled:
         description: Enables the feature
-        type: Boolean
-        default: true
-  ip-protection:
-    description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, IP Protection feature is enabled.
-        type: Boolean
-        default: false
-      show-beta-badge:
-        description: If true, a BETA badge is shown next to the IP Protection entry in the settings list.
         type: Boolean
         default: true
   isolated-content-processes:
@@ -505,7 +464,7 @@ features:
             prerequisites:
             - ALWAYS
             primary-button-label: nova_onboarding_continue_button
-            secondary-button-label: nova_onboarding_marketing_secondary_button_text
+            secondary-button-label: ''
             title: nova_onboarding_marketing_title
         string-alias: OnboardingCardKey
       conditions:
@@ -556,13 +515,6 @@ features:
         description: If true, Merino Client is enabled.
         type: Boolean
         default: false
-  merino-manifest:
-    description: Feature to enable the Merino Manifest for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Merino Manifest is enabled.
-        type: Boolean
-        default: false
   messaging:
     description: |
       The in-app messaging system.
@@ -598,7 +550,6 @@ features:
           VIEW_HOMESCREEN: ://home
           OPEN_SETTINGS_ACCESSIBILITY: ://settings_accessibility
           OPEN_SETTINGS_ADDON_MANAGER: ://settings_addon_manager
-          OPEN_SETTINGS_AI_CONTROLS: ://settings_ai_controls
           OPEN_SETTINGS_DELETE_BROWSING_DATA: ://settings_delete_browsing_data
           OPEN_SETTINGS_LOGINS: ://settings_logins
           OPEN_SETTINGS_NOTIFICATIONS: ://settings_notifications
@@ -778,66 +729,6 @@ features:
         description: The number of events that should be sent.
         type: Int
         default: 1
-  nimbus-qa-bool-default:
-    description: A feature for testing boolean pref-setting on the default branch.
-    variables:
-      value:
-        description: The value to set for the pref.
-        type: Option<Boolean>
-        default: null
-        gecko-pref:
-          pref: nimbus.qa.pref-bool-default
-          branch: default
-  nimbus-qa-bool-user:
-    description: A feature for testing boolean pref-setting on the user branch.
-    variables:
-      value:
-        description: The value to set for the pref.
-        type: Option<Boolean>
-        default: null
-        gecko-pref:
-          pref: nimbus.qa.pref-bool-user
-          branch: user
-  nimbus-qa-int-default:
-    description: A feature for testing int pref-setting on the default branch.
-    variables:
-      value:
-        description: The value to set for the pref.
-        type: Option<Int>
-        default: null
-        gecko-pref:
-          pref: nimbus.qa.pref-int-default
-          branch: default
-  nimbus-qa-int-user:
-    description: A feature for testing int pref-setting on the user branch.
-    variables:
-      value:
-        description: The value to set for the pref.
-        type: Option<Int>
-        default: null
-        gecko-pref:
-          pref: nimbus.qa.pref-int-user
-          branch: user
-  nimbus-qa-string-default:
-    description: A feature for testing string pref-setting on the default branch.
-    variables:
-      value:
-        description: The value to set for the pref.
-        type: Option<String>
-        default: null
-        gecko-pref:
-          pref: nimbus.qa.pref-string-default
-          branch: default
-  nimbus-qa-string-user:
-    description: A feature for testing string pref-setting on the user branch.
-    variables:
-      value:
-        description: The value to set for the pref.
-        type: Option<String>
-        default: null
-        gecko-pref:
-          pref: nimbus.qa.pref-string-user
-          branch: user
   nimbus-system:
     description: |
       Configuration of the Nimbus System in Android.
@@ -957,41 +848,6 @@ features:
           Whether the feature to close synced tabs is enabled. When enabled, this device will allow other devices to close tabs that are open on this device, and show a "close" button for tabs that are currently open on other supported devices in the synced tabs tray.
         type: Boolean
         default: true
-  safe-browsing-real-time:
-    description: Control Safe Browsing real-time lookup and simulation.
-    variables:
-      feature-enabled:
-        description: If true, this feature is enabled and the below settings override the Gecko defaults. Otherwise, the Gecko defaults are used.
-        type: Boolean
-        default: false
-      global-cache-enabled:
-        description: Enables / disables the Safe Browsing Global Cache.
-        type: Boolean
-        default: false
-      real-time-enabled:
-        description: Enables / disables Safe Browsing real-time lookup.
-        type: Boolean
-        default: false
-      simulation-cache-ttl-sec:
-        description: Cache TTL in seconds for the real-time request simulator.
-        type: Int
-        default: 300
-      simulation-enabled:
-        description: Enables / disables the real-time request simulator.
-        type: Boolean
-        default: false
-      simulation-hit-probability:
-        description: Hit probability for the real-time request simulator.
-        type: Int
-        default: 5
-      simulation-negative-cache-enabled:
-        description: Enables / disables the negative cache for the real-time request simulator.
-        type: Boolean
-        default: false
-      simulation-negative-cache-ttl-sec:
-        description: Negative cache TTL in seconds for the real-time request simulator.
-        type: Int
-        default: 300
   safe-browsing-v5:
     description: Control Safe Browsing V5.
     variables:
@@ -1106,7 +962,7 @@ features:
       enabled:
         description: If true, shake to summarize will be enabled
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
@@ -1145,14 +1001,6 @@ features:
           Whether or not to enable the tab groups feature.
         type: Boolean
         default: false
-  tab-groups-drag-and-drop:
-    description: Control the visibility of drag and drop for tab groups.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable drag and drop for tab groups.
-        type: Boolean
-        default: false
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
@@ -1167,7 +1015,7 @@ features:
         description: |
           Whether or not to enable the tab search feature.
         type: Boolean
-        default: true
+        default: false
   tab-strip:
     description: Enables tab strip.
     variables:
@@ -1327,17 +1175,6 @@ enums:
         description: The synced tabs section of the homepage.
       top-sites:
         description: The frecency and pinned sites.
-  MarketingCardVariant:
-    description: An enum to describe a marketing card variation.
-    variants:
-      default:
-        description: The default marketing card variation.
-      treatment-a:
-        description: The Treatment A marketing card variation.
-      treatment-b:
-        description: The Treatment B marketing card variation.
-      treatment-c:
-        description: The Treatment C marketing card variation.
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
@@ -1524,10 +1361,6 @@ objects:
         description: The text for line two of the body.
         type: Text
         default: ''
-      marketing-card-variant:
-        description: Which marketing card variant to use.
-        type: MarketingCardVariant
-        default: default
   MessageData:
     description: |
       An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.
