@@ -403,6 +403,14 @@ lna-blocking:
       type: boolean
       description: |
         Whether or not to turn on local network / device access blocking
+marketing-onboarding-card:
+  description: A temporary feature to control the marketing onboarding card shown during the onboarding flow.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If false, the marketing onboarding card will never be shown.
 menu-redesign:
   description: Control the new menu redesign.
   hasExposure: true
@@ -942,15 +950,6 @@ tab-management-enhancements:
     opening_animation_enabled:
       type: boolean
       description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
-tab-search:
-  description: Control the visibility of the tab search feature.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the tab search feature.
 tab-strip:
   description: Enables tab strip.
   hasExposure: true
