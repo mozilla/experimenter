@@ -271,26 +271,13 @@ urlbar:
     autoFillAdaptiveHistoryUseCountThreshold:
       type: string
       description: This value assumes float expression like "0.47". Threshold for use count of input history that we handle as adaptive history autofill. If the use count is this value or more, it will be a candidate.
-    autoFillBackspaceBlockDurationMs:
+    autoFillAdaptiveHistoryBackspaceBlockDurationMs:
       type: int
-      setPref:
-        pref: browser.urlbar.autoFill.backspaceBlockDurationMs
-        branch: user
+      fallbackPref: browser.urlbar.autoFill.adaptiveHistory.backspaceBlockDurationMs
       description: Duration in ms to temporarily block autofill after backspace penalty.
-    autoFillBackspaceThreshold:
+    autoFillAdaptiveHistoryDismissalBlockDurationMs:
       type: int
-      setPref:
-        pref: browser.urlbar.autoFill.backspaceThreshold
-        branch: user
-      description: >-
-        How many times the user must consecutively backspace away an autofill
-        suggestion before we penalize and temporarily suppress it from
-        autofilling. The result may still appear as a regular history result.
-    autoFillDismissalBlockDurationMs:
-      type: int
-      setPref:
-        pref: browser.urlbar.autoFill.dismissalBlockDurationMs
-        branch: user
+      fallbackPref: browser.urlbar.autoFill.adaptiveHistory.dismissalBlockDurationMs
       description: Duration in ms to block an origin or URL after user dismissal.
     deduplicationEnabled:
       type: boolean
@@ -381,6 +368,13 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.merino.timeoutMs
       description: Timeout for Merino fetches (ms)
+    novaFeatureGate:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.urlbar.nova.featureGate
+      description: >-
+        Feature gate that enables Nova UI.
     exposureResults:
       type: string
       setPref:
@@ -595,12 +589,6 @@ urlbar:
         branch: default
         pref: browser.urlbar.recentsearches.maxResults
       description: The maximum number of recent searches to show.
-    resultExplanationsFeatureGate:
-      type: boolean
-      fallbackPref: browser.urlbar.resultExplanations.featureGate
-      description: >-
-        When selecting and hovering over certain types of urlbar results,
-        replace their URLs with strings that explain why they're shown.
     semanticHistoryEnable:
       type: boolean
       setPref:
@@ -1920,6 +1908,12 @@ pocketNewtab:
         pref: browser.newtabpage.activity-stream.weather.locationSearchEnabled
       description: >-
         Turns on and off location search for newtab weather widget
+    discoveryStreamConfig:
+      description: A JSON blob of discovery stream configuration.
+      type: string
+      setPref:
+        branch: user
+        pref: "browser.newtabpage.activity-stream.discoverystream.config"
     spocsEndpoint:
       description: The URL for the spocs endpoint.
       type: string
@@ -2111,12 +2105,6 @@ shellService:
       type: boolean
       fallbackPref: browser.shell.setDefaultGuidanceNotifications
       description: Whether or not the user should see the guidance notifications when setting Firefox as their default browser.
-    focusSetDefaultBrowserButton:
-      description: Focus the set default browser button in Windows Settings.
-      setPref:
-        branch: user
-        pref: browser.shell.focusSetDefaultBrowserButton
-      type: boolean
 upgradeDialog:
   description: The dialog shown for major upgrades
   owner: omc-core@mozilla.com
@@ -3086,12 +3074,6 @@ networkingConnections:
       setPref:
         branch: default
         pref: "network.http.speculative-parallel-limit"
-    happyEyeballsEnabled:
-      description: Whether to enable the Happy Eyeballs v3 algorithm for connection establishment
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.http.happy_eyeballs_enabled"
 
 
 networkingSendOnDataFinished:
@@ -4393,6 +4375,18 @@ scriptloader:
         branch: user
         pref: "dom.script_loader.experimental.navigation_cache"
 
+raceCacheWithNetwork:
+  description: Prefs to toggle the race cache with network.
+  owner: dpalmeiro@mozilla.com, acreskey@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: True to enable the rcwn feature.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.rcwn.enabled"
+
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
   owner: farre@mozilla.com
@@ -4565,6 +4559,12 @@ cookieBannerHandling:
         When set to true, cookie banners are detected and detection events are
         dispatched, but they will not be handled.
         This pref applies to both normal and private browsing windows.
+    enableFirefoxDesktopUI:
+      type: boolean
+      setPref:
+        branch: default
+        pref: cookiebanners.ui.desktop.enabled
+      description: Enables the cookie banner desktop UI.
     enablePromo:
       type: boolean
       setPref:
@@ -5117,6 +5117,12 @@ sidebar:
   owner: elee@mozilla.com
   hasExposure: false
   variables:
+    defaultLauncherVisible:
+      type: boolean
+      setPref:
+        branch: user
+        pref: sidebar.revamp.defaultLauncherVisible
+      description: Change the initial visibleness of the sidebar launcher with horizontal tabs; true to make the launcher visible by default
     minVersion:
       type: string
       description: Minimum Firefox version to apply prefs
@@ -5527,13 +5533,6 @@ ipProtection:
         pref: browser.ipProtection.enabled
       description: >-
         Enables the IP Protection feature.
-    bandwidthMax:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.ipProtection.bandwidth.maxInGb
-      description: >-
-        Maximum bandwidth allowance in GB for messaging.
 
 webApps:
   description: Enables or disables web apps.
