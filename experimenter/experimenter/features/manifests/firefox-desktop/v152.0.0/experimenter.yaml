@@ -5423,6 +5423,18 @@ partitioned-cookie-attribute:
         branch: default
         pref: "network.cookie.CHIPS.affectsTCP"
 
+trackingProtectionExperimentation:
+  description: Experimental controls for tracking protection behavior
+  owner: bvandersloot@mozilla.com
+  hasExposure: false
+  variables:
+    deferAnnotationEnabled:
+      description: Whether to defer tracking protection classification annotation
+      type: boolean
+      setPref:
+        branch: default
+        pref: "privacy.trackingprotection.defer_annotation.enabled"
+
 auto-pip:
   description: "Automatic Picture-in-Picture"
   owner: mconley@mozilla.com
