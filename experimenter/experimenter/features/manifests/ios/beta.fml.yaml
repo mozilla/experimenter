@@ -246,6 +246,7 @@ features:
             title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
             text: How satisfied are you with your Firefox homepage?
             button-label: Microsurvey/Microsurvey.Prompt.Button.v127
+            should-randomize-options: false
             microsurveyConfig:
               utm-content: homepage
               icon: homeLarge
@@ -1071,6 +1072,11 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: false
+      milestone-2-enable-date:
+        description: |
+          The ISO 8601 date string for when milestone 2 (country picker) becomes available. Defaults to 10 days before the World Cup countdown target date.
+        type: String
+        default: 2026-06-01T19:00:00Z
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
@@ -1410,6 +1416,11 @@ objects:
         description: Optional configuration data for a microsurvey.
         type: Option<MicrosurveyConfig>
         default: null
+      should-randomize-options:
+        description: |
+          Will randomize the provided MicrosurveyConfig options
+        type: Boolean
+        default: false
       style:
         description: |
           The style as described in a `StyleData` from the styles table.
