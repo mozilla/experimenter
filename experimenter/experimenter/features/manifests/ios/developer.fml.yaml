@@ -132,7 +132,7 @@ features:
         description: |
           If true, enables the categories flow in the stories
         type: Boolean
-        default: false
+        default: true
       jbi-section-default:
         description: |
           If true, enables the jump back in homepage section by default
@@ -142,7 +142,7 @@ features:
         description: |
           If true, enables the pinned newsfeed header on homepage.
         type: Boolean
-        default: false
+        default: true
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
@@ -1081,6 +1081,11 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: false
+      milestone-2-enable-date:
+        description: |
+          The ISO 8601 date string for when milestone 2 (country picker) becomes available. Defaults to 10 days before the World Cup countdown target date.
+        type: String
+        default: 2026-06-01T19:00:00Z
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
