@@ -544,6 +544,13 @@ features:
           Whether or not to turn on local network / device access blocking
         type: Boolean
         default: false
+  marketing-onboarding-card:
+    description: A temporary feature to control the marketing onboarding card shown during the onboarding flow.
+    variables:
+      enabled:
+        description: If false, the marketing onboarding card will never be shown.
+        type: Boolean
+        default: true
   menu-redesign:
     description: Control the new menu redesign.
     variables:
@@ -1213,14 +1220,6 @@ features:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
         default: true
-  tab-search:
-    description: Control the visibility of the tab search feature.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the tab search feature.
-        type: Boolean
-        default: true
   tab-strip:
     description: Enables tab strip.
     variables:
@@ -1268,19 +1267,6 @@ features:
       enabled-private:
         description: |
           Enables / disables third-party cookie blocking in private browsing mode.
-        type: Boolean
-        default: true
-  toolbar-redesign-option:
-    description: Control the visibility of toolbar redesign option in settings.
-    variables:
-      show-customization:
-        description: |
-          Whether or not the simple/expanded toolbar customization option is visible to the user.
-        type: Boolean
-        default: true
-      show-options:
-        description: |
-          Whether or not the toolbar redesign option is visible to the user.  This allows the user to switch between simple and expanded toolbar.
         type: Boolean
         default: true
   translations:
