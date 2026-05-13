@@ -2,8 +2,8 @@
      class="rollout-card accordion accordion-flush rounded-3 border bg-body">
   <div class="accordion-item border-0 bg-transparent">
     <h2 class="accordion-header">
-      <div class="d-flex align-items-center">
-        <button class="accordion-button bg-transparent shadow-none fw-semibold small text-body collapsed px-4 py-4"
+      <div class="d-flex align-items-center justify-content-between pe-4">
+        <button class="accordion-button bg-transparent shadow-none fw-semibold small text-body collapsed px-4 py-4 rollout-card-toggle"
                 style="--bs-accordion-btn-icon: none;
                        --bs-accordion-btn-active-icon: none;
                        --bs-accordion-btn-active-color: var(--bs-body-color);
@@ -11,22 +11,36 @@
                 type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#collapse-{{ card_id }}"
-                aria-expanded="false"
+                aria-expanded="true"
                 aria-controls="collapse-{{ card_id }}">
-          <i class="fa-solid fa-chevron-right small text-secondary flex-shrink-0 me-2 align-self-start mt-1"></i>
+          <i class="fa-solid fa-chevron-right chevron-icon small text-secondary flex-shrink-0 me-2 align-self-start mt-1"></i>
           <span>
             {{ title }}
             {% if subtitle %}<div class="text-secondary fw-normal mt-2 small">{{ subtitle }}</div>{% endif %}
           </span>
         </button>
-        <button class="btn p-0 border-0 text-secondary flex-shrink-0 me-3"
-                aria-label="More options">
-          <i class="fa-solid fa-ellipsis"></i>
-        </button>
+        {% if show_edit_btn %}
+          {% with 'nimbus-ui-new-update-'|add:card_id as url_name %}
+            <button class="btn p-0 border-0 text-secondary"
+                    type="button"
+                    aria-label="Edit {{ card_id }}"
+                    hx-get="{% url url_name experiment.slug %}"
+                    hx-target="#rollout-{{ card_id }}-body"
+                    hx-swap="outerHTML">
+              <i class="fa-regular fa-pen-to-square"></i>
+            </button>
+          {% endwith %}
+        {% endif %}
       </div>
     </h2>
-    <div class="accordion-collapse collapse" id="collapse-{{ card_id }}">
-      <div class="accordion-body">{# Card content goes here #}</div>
+    <div class="accordion-collapse collapse show" id="collapse-{{ card_id }}">
+      <hr class="m-0 text-body-tertiary">
+      <div class="accordion-body">
+        {% if body_template %}
+          {% include body_template %}
+
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>

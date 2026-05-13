@@ -1,73 +1,64 @@
-<div id="rollout-card-overview"
-     class="rollout-card rounded-3 border bg-body">
-  {# ── Card header ── #}
-  {% include "nimbus_experiments/overview/_header.html" with collapse_target="overview-body" show_edit_btn=True %}
-
-  {# ── Collapsible body ── #}
-  <div id="overview-body" class="collapse show">
-    <div class="px-4 py-3 d-flex flex-column gap-3">
-      {# Name #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Name</div>
-        <div class="small text-body">{{ experiment.name|default:"—" }}</div>
-      </div>
-      {# Observations & Problem space #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Observations &amp; Problem space</div>
-        <div class="small text-body" style="white-space: pre-wrap;">{{ experiment.hypothesis|default:"—" }}</div>
-      </div>
-      {# Important Links #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Important Links</div>
-        {% if experiment.documentation_links.exists %}
-          <div class="d-flex flex-column gap-1">
-            {% for link in experiment.documentation_links.all %}
-              <div class="small">
-                <a href="{{ link.link }}"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   class="text-primary text-decoration-none">
-                  {{ link.get_title_display|default:link.link }}
-                  <i class="fa-solid fa-arrow-up-right-from-square fa-2xs ms-1"></i>
-                </a>
-              </div>
-            {% endfor %}
+<div class="d-flex flex-column gap-3" id="rollout-overview-body">
+  {# Name #}
+  <div>
+    <div class="text-secondary mb-1" style="font-size: 12px;">Name</div>
+    <div class="small text-body">{{ experiment.name|default:"—" }}</div>
+  </div>
+  {# Observations & Problem space #}
+  <div>
+    <div class="text-secondary mb-1" style="font-size: 12px;">Observations &amp; Problem space</div>
+    <div class="small text-body" style="white-space: pre-wrap;">{{ experiment.hypothesis|default:"—" }}</div>
+  </div>
+  {# Important Links #}
+  <div>
+    <div class="text-secondary mb-1" style="font-size: 12px;">Important Links</div>
+    {% if experiment.documentation_links.exists %}
+      <div class="d-flex flex-column gap-1">
+        {% for link in experiment.documentation_links.all %}
+          <div class="small">
+            <a href="{{ link.link }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="text-primary text-decoration-none">
+              {{ link.get_title_display|default:link.link }}
+              <i class="fa-solid fa-arrow-up-right-from-square fa-2xs ms-1"></i>
+            </a>
           </div>
-        {% else %}
-          <div class="small text-body">—</div>
-        {% endif %}
+        {% endfor %}
       </div>
-      {# Project Tags #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Project Tags</div>
-        {% if experiment.tags.exists %}
-          <div class="d-flex flex-wrap gap-1">
-            {% for tag in experiment.tags.all %}
-              <span class="badge rounded-pill small fw-normal"
-                    style="background-color: {{ tag.color }};
-                           color: white">{{ tag.name }}</span>
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="small text-body">—</div>
-        {% endif %}
+    {% else %}
+      <div class="small text-body">—</div>
+    {% endif %}
+  </div>
+  {# Project Tags #}
+  <div>
+    <div class="text-secondary mb-1" style="font-size: 12px;">Project Tags</div>
+    {% if experiment.tags.exists %}
+      <div class="d-flex flex-wrap gap-1">
+        {% for tag in experiment.tags.all %}
+          <span class="badge rounded-pill small fw-normal"
+                style="background-color: {{ tag.color }};
+                       color: white">{{ tag.name }}</span>
+        {% endfor %}
       </div>
-      {# Subscribers #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Subscribers</div>
-        {% if experiment.subscribers.exists %}
-          <div class="d-flex flex-wrap gap-1">
-            {% for subscriber in experiment.subscribers.all %}
-              <span class="badge rounded-pill fw-normal small text-body"
-                    style="background-color: var(--bs-secondary-bg);
-                           border: 1px solid var(--bs-border-color)">{{ subscriber.email }}</span>
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="small text-body">—</div>
-        {% endif %}
+    {% else %}
+      <div class="small text-body">—</div>
+    {% endif %}
+  </div>
+  {# Subscribers #}
+  <div>
+    <div class="text-secondary mb-1" style="font-size: 12px;">Subscribers</div>
+    {% if experiment.subscribers.exists %}
+      <div class="d-flex flex-wrap gap-1">
+        {% for subscriber in experiment.subscribers.all %}
+          <span class="badge rounded-pill fw-normal small text-body"
+                style="background-color: var(--bs-secondary-bg);
+                       border: 1px solid var(--bs-border-color)">{{ subscriber.email }}</span>
+        {% endfor %}
       </div>
-    </div>
+    {% else %}
+      <div class="small text-body">—</div>
+    {% endif %}
   </div>
 </div>
 {# ── Out-of-band: keep the page header name in sync after a save ── #}

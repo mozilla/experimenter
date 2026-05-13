@@ -1,0 +1,73 @@
+{# ── Edit form ── #}
+<div id="rollout-risks-body">
+  <form hx-post="{% url 'nimbus-ui-new-update-risks' experiment.slug %}"
+        hx-target="#rollout-risks-body"
+        hx-swap="outerHTML"
+        class="d-flex flex-column gap-4">
+    {% csrf_token %}
+    {% comment %} These hidden fields are required for the form to submit correctly {% endcomment %}
+    <input type="hidden" name="name" value="{{ experiment.name }}">
+    {{ form.documentation_links.management_form }}
+    {% for documentation_link_form in form.documentation_links %}
+      {{ documentation_link_form.id.as_hidden }}
+      {{ documentation_link_form.title.as_hidden }}
+      {{ documentation_link_form.link.as_hidden }}
+    {% endfor %}
+    <div class="d-flex flex-column gap-4">
+      {#  Brand perception impact  #}
+      <div>
+        <label for="id_name" class="small text-body mb-2">
+          Brand perception impact <span class="d-block text-secondary fw-normal">If the public, users, or press were to discover this experiment and description, could it negatively impact their perception of our brand? <a target="_blank"
+    href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.risk_link }}">Learn more</a></span>
+        </label>
+        {{ form.risk_brand }}
+        {% if form.risk_brand.errors %}
+          <div class="text-danger small mt-1">{{ form.risk_brand.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+      {# Revenue impact #}
+      <div>
+        <label for="id_name" class="small text-body mb-2">
+          Revenue impact <span class="d-block text-secondary fw-normal">Could this experiment impact revenue? (e.g., experiments related to Search, New Tab, Ads, Pocket, etc)? <a target="_blank"
+    href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.revenue_risk_link }}">Learn more</a></span>
+        </label>
+        {{ form.risk_revenue }}
+        {% if form.risk_revenue.errors %}
+          <div class="text-danger small mt-1">{{ form.risk_revenue.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+      {# External vendor impact #}
+      <div>
+        <label for="id_name" class="small text-body mb-2">
+          External vendor impact <span class="d-block text-secondary fw-normal">Does this experiment impact or rely on an external vendor, partner, or company (e.g., Google, Amazon) or deliver any encryption or VPN? <a target="_blank"
+    href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.partner_related_risk_link }}">Learn more</a></span>
+        </label>
+        {{ form.risk_partner_related }}
+        {% if form.risk_partner_related.errors %}
+          <div class="text-danger small mt-1">{{ form.risk_partner_related.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+      {# Messaging impact #}
+      <div>
+        <label for="id_name" class="small text-body mb-2">
+          Messaging impact <span class="d-block text-secondary fw-normal">Does your experiment include any messaging? If yes, this experiment requires a Message Consultation. <a target="_blank"
+    href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.message_consult_link }}">Learn more</a></span>
+        </label>
+        {{ form.risk_message }}
+        {% if form.risk_message.errors %}
+          <div class="text-danger small mt-1">{{ form.risk_message.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+    </div>
+    {# Action buttons #}
+    <div class="d-flex align-items-center gap-2">
+      <button type="submit" class="btn btn-primary btn-sm">Save</button>
+      <button type="button"
+              class="btn btn-outline-secondary btn-sm"
+              hx-get="{{ cancel_url }}"
+              hx-select="#rollout-card-risks"
+              hx-target="#rollout-card-risks"
+              hx-swap="outerHTML">Cancel</button>
+    </div>
+  </form>
+</div>

@@ -1851,6 +1851,38 @@ class TestOverviewUpdateView(AuthTestCase):
         validation_errors = response.context["validation_errors"]
         self.assertEqual(validation_errors, {})
 
+    def test_post_updates_overview_risks(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            risk_brand=False,
+            risk_message=False,
+            risk_revenue=False,
+            risk_partner_related=False,
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-update-risks", kwargs={"slug": experiment.slug}),
+            {
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "public_description": "new description",
+                "risk_brand": True,
+                "risk_message": True,
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                # Management form data for the inline formset
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertTrue(experiment.risk_brand)
+        self.assertTrue(experiment.risk_message)
+        self.assertTrue(experiment.risk_revenue)
+        self.assertTrue(experiment.risk_partner_related)
+
 
 class TestDocumentationLinkCreateView(AuthTestCase):
     url_name = "nimbus-ui-create-documentation-link"
