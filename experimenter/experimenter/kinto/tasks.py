@@ -505,10 +505,22 @@ def nimbus_synchronize_preview_experiments_in_kinto():
             kinto_client.create_record(data)
 
             with transaction.atomic():
-                experiment.published_dto = data
-                experiment.published_date = timezone.now()
-                experiment.save()
+                updated = NimbusExperiment.objects.filter(
+                    pk=experiment.pk,
+                    status=NimbusExperiment.Status.PREVIEW,
+                ).update(
+                    published_dto=data,
+                    published_date=timezone.now(),
+                )
 
+                if not updated:
+                    logger.info(
+                        f"{experiment.slug} left Preview during push; "
+                        f"next sync will reconcile Kinto"
+                    )
+                    continue
+
+                experiment.refresh_from_db()
                 generate_nimbus_changelog(
                     experiment,
                     get_kinto_user(),
@@ -525,11 +537,20 @@ def nimbus_synchronize_preview_experiments_in_kinto():
 
         for experiment in expired_experiments:
             with transaction.atomic():
-                experiment.status = NimbusExperiment.Status.DRAFT
-                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-                experiment.published_date = None
-                experiment.save()
+                updated = NimbusExperiment.objects.filter(
+                    pk=experiment.pk,
+                    status=NimbusExperiment.Status.PREVIEW,
+                ).update(
+                    status=NimbusExperiment.Status.DRAFT,
+                    publish_status=NimbusExperiment.PublishStatus.IDLE,
+                    published_date=None,
+                )
 
+                if not updated:
+                    logger.info(f"{experiment.slug} left Preview before expiry; skipping")
+                    continue
+
+                experiment.refresh_from_db()
                 generate_nimbus_changelog(
                     experiment,
                     get_kinto_user(),
@@ -545,12 +566,15 @@ def nimbus_synchronize_preview_experiments_in_kinto():
             kinto_client.delete_record(experiment.slug)
 
             with transaction.atomic():
-                experiment.refresh_from_db()
-                if experiment.status == NimbusExperiment.Status.DRAFT:
-                    experiment.published_date = None
-                    experiment.published_dto = None
-                    experiment.save()
+                NimbusExperiment.objects.filter(
+                    pk=experiment.pk,
+                    status=NimbusExperiment.Status.DRAFT,
+                ).update(
+                    published_date=None,
+                    published_dto=None,
+                )
 
+                experiment.refresh_from_db()
                 generate_nimbus_changelog(
                     experiment,
                     get_kinto_user(),

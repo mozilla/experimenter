@@ -1666,6 +1666,65 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(
         with self.assertRaises(Exception):
             tasks.nimbus_synchronize_preview_experiments_in_kinto()
 
+    def test_does_not_revert_user_transition_during_concurrent_preview_push(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            published_date=None,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        self.setup_kinto_get_main_records([])
+
+        def simulate_user_request_launch(*args, **kwargs):
+            NimbusExperiment.objects.filter(pk=experiment.pk).update(
+                status=NimbusExperiment.Status.DRAFT,
+                status_next=NimbusExperiment.Status.LIVE,
+                publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            )
+
+        self.mock_kinto_client.create_record.side_effect = simulate_user_request_launch
+
+        tasks.nimbus_synchronize_preview_experiments_in_kinto()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertFalse(
+            experiment.changes.filter(
+                message=NimbusChangeLog.Messages.PUSHED_TO_PREVIEW,
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+            ).exists()
+        )
+
+    def test_does_not_expire_experiment_no_longer_in_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            published_date=timezone.now(),
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        NimbusExperiment.objects.filter(id=experiment.id).update(
+            _updated_date_time=timezone.now() - timezone.timedelta(days=31),
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
+
+        self.setup_kinto_get_main_records([experiment.slug])
+
+        tasks.nimbus_synchronize_preview_experiments_in_kinto()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertFalse(
+            experiment.changes.filter(
+                message=NimbusChangeLog.Messages.EXPIRED_FROM_PREVIEW,
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+            ).exists()
+        )
+
 
 class TestNimbusSendEmails(MockKintoClientMixin, TestCase):
     def setUp(self):
