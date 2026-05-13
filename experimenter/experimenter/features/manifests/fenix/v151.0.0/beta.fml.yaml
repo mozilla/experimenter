@@ -538,6 +538,13 @@ features:
           Whether or not to turn on local network / device access blocking
         type: Boolean
         default: false
+  marketing-onboarding-card:
+    description: A temporary feature to control the marketing onboarding card shown during the onboarding flow.
+    variables:
+      enabled:
+        description: If false, the marketing onboarding card will never be shown.
+        type: Boolean
+        default: true
   menu-redesign:
     description: Control the new menu redesign.
     variables:
