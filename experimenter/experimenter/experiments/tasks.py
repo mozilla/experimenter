@@ -13,11 +13,6 @@ def _start_date_sort_key(experiment):
 
 
 def _get_warm_cache_endpoints():
-    """Return the list of (key_prefix, queryset, serializer_class, kwargs) to warm.
-
-    Imports are deferred so the module can be loaded before Django is fully
-    initialised (Celery auto-discovery).
-    """
     from experimenter.experiments.api.v5 import serializers as v5_ser
     from experimenter.experiments.api.v5 import views as v5_views
     from experimenter.experiments.api.v6 import serializers as v6_ser
@@ -70,20 +65,36 @@ def _get_warm_cache_endpoints():
     ]
 
 
+def _get_warm_cache_endpoint(key_prefix):
+    for entry in _get_warm_cache_endpoints():
+        if entry[0] == key_prefix:
+            return entry
+    return None
+
+
 @app.task
-@metrics.timer_decorator("warm_api_caches")
-def warm_api_caches():
-    """Pre-populate the API list cache so requests are always served instantly."""
-    metrics.incr("warm_api_caches.started")
+@metrics.timer_decorator("warm_api_cache_endpoint")
+def warm_api_cache_endpoint(key_prefix):
+    metrics.incr(f"warm_api_cache_endpoint.{key_prefix}.started")
+    entry = _get_warm_cache_endpoint(key_prefix)
+    if entry is None:
+        metrics.incr(f"warm_api_cache_endpoint.{key_prefix}.unknown")
+        logger.error("Unknown cache endpoint: %s", key_prefix)
+        return
 
+    _, queryset, serializer_class, kwargs = entry
     try:
-        for key_prefix, queryset, serializer_class, kwargs in _get_warm_cache_endpoints():
-            warm_api_cache(key_prefix, queryset, serializer_class, **kwargs)
-            logger.info("Warmed %s", key_prefix)
-
-        metrics.incr("warm_api_caches.completed")
-
+        warm_api_cache(key_prefix, queryset, serializer_class, **kwargs)
+        logger.info("Warmed %s", key_prefix)
+        metrics.incr(f"warm_api_cache_endpoint.{key_prefix}.completed")
     except Exception as e:
-        metrics.incr("warm_api_caches.failed")
-        logger.exception("warm_api_caches failed: %s", e)
+        metrics.incr(f"warm_api_cache_endpoint.{key_prefix}.failed")
+        logger.exception("Failed to warm %s: %s", key_prefix, e)
         raise
+
+
+@app.task
+def warm_api_caches():
+    metrics.incr("warm_api_caches.dispatched")
+    for key_prefix, _, _, _ in _get_warm_cache_endpoints():
+        warm_api_cache_endpoint.delay(key_prefix)
