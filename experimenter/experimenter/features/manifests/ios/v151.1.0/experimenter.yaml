@@ -570,3 +570,7 @@ world-cup-widget-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+    milestone-2-enable-date:
+      type: string
+      description: |
+        The ISO 8601 date string for when milestone 2 (country picker) becomes available. Defaults to 10 days before the World Cup countdown target date.
