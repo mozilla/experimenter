@@ -29,6 +29,7 @@ from experimenter.nimbus_ui.views import (
     MetricsUpdateView,
     NewAddSubscriberView,
     NewAddTagView,
+    NewAudienceUpdateView,
     NewDocumentationLinkCreateView,
     NewDocumentationLinkDeleteView,
     NewOverviewUpdateView,
@@ -336,6 +337,11 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/update_risks/$",
         NewRisksUpdateView.as_view(),
         name="nimbus-ui-new-update-risks",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/update_audience/$",
+        NewAudienceUpdateView.as_view(),
+        name="nimbus-ui-new-update-audience",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/create_documentation_link/$",

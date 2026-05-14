@@ -3143,6 +3143,31 @@ class TestAudienceUpdateView(AuthTestCase):
         experiment.refresh_from_db()
         self.assertTrue(experiment.is_rollout_dirty)
 
+    def test_post_updates_overview_risks(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            required_experiments_branches=[],
+            excluded_experiments_branches=[],
+            is_sticky=False,
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-update-audience", kwargs={"slug": experiment.slug}),
+            {
+                "targeting_config_slug": NimbusExperiment.TargetingConfig.FIRST_RUN,
+                "is_sticky": True,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertEqual(
+            experiment.targeting_config_slug, NimbusExperiment.TargetingConfig.FIRST_RUN
+        )
+        self.assertTrue(experiment.is_sticky)
+
 
 class TestSaveAndContinueMixin(AuthTestCase):
     @parameterized.expand(

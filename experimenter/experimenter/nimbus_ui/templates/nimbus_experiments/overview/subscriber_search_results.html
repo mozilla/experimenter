@@ -6,7 +6,7 @@
            style="cursor: pointer"
            hx-post="{% url 'nimbus-ui-new-add-subscriber' experiment.slug %}"
            hx-vals='{"user_id": "{{ user.id }}"}'
-           hx-target="#rollout-card-overview"
+           hx-target="#rollout-overview-body"
            hx-swap="outerHTML">
         {% csrf_token %}
         <i class="fa-solid fa-user fa-sm text-secondary"></i>

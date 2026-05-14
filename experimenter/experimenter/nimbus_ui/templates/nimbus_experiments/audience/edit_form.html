@@ -1,0 +1,151 @@
+{% load static %}
+{% load widget_tweaks %}
+
+<div id="rollout-audience-body">
+  <form hx-post="{% url 'nimbus-ui-new-update-audience' experiment.slug %}"
+        hx-target="#rollout-audience-body"
+        hx-swap="outerHTML"
+        class="d-flex flex-column gap-4">
+    {% csrf_token %}
+    <div class="row g-3">
+      <div class="col">
+        <label for="id_channels" class="small text-body mb-2">Channels</label>
+        {% if experiment.is_desktop %}
+          {{ form.channels|add_class:"form-control"|add_error_class:"is-invalid" }}
+          {% for error in form.channels.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          {% for error in validation_errors.channels %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+        {% else %}
+          {{ form.channel|add_class:"form-control"|add_error_class:"is-invalid" }}
+          {% for error in form.channel.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          {% for error in validation_errors.channel %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+        {% endif %}
+      </div>
+      <div class="col">
+        <label for="id_firefox_min_version" class="small text-body mb-2">Minimum Version</label>
+        {{ form.firefox_min_version|add_class:"form-control"|add_error_class:"is-invalid" }}
+        {% for error in form.firefox_min_version.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        {% for error in validation_errors.firefox_min_version %}
+          <div class="form-text text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+      <div class="col">
+        <label for="id_firefox_max_version" class="small text-body mb-2">Maximum Version</label>
+        {{ form.firefox_max_version|add_class:"form-control"|add_error_class:"is-invalid" }}
+        {% for error in form.firefox_max_version.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        {% for error in validation_errors.firefox_max_version %}
+          <div class="form-text text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col">
+        {% if experiment.is_desktop %}
+          <label for="id_locales" class="small text-body mb-2">Locales</label>
+          {{ form.locales|add_class:"form-control"|add_error_class:"is-invalid" }}
+          <label for="id_exclude_locales" class="form-label mt-2">
+            {{ form.exclude_locales|add_error_class:"is-invalid" }}
+            Exclude selected locales
+          </label>
+          {% for error in form.locales.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          {% for error in validation_errors.locales %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+        {% else %}
+          <label for="id_languages" class="small text-body mb-2">Languages</label>
+          {{ form.languages|add_class:"form-control"|add_error_class:"is-invalid" }}
+          <label for="id_exclude_languages" class="form-label mt-2">
+            {{ form.exclude_languages|add_error_class:"is-invalid" }}
+            Exclude selected languages
+          </label>
+          {% for error in form.languages.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          {% for error in validation_errors.languages %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+        {% endif %}
+      </div>
+      <div class="col">
+        <label for="id_countries" class="small text-body mb-2">Countries</label>
+        {{ form.countries|add_class:"form-control"|add_error_class:"is-invalid" }}
+        <label for="id_exclude_countries" class="form-label mt-2">
+          {{ form.exclude_countries|add_error_class:"is-invalid" }}
+          Exclude selected countries
+        </label>
+        {% for error in form.countries.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        {% for error in validation_errors.countries %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+      </div>
+    </div>
+    <div class="d-flex flex-column gap-4">
+      <div>
+        <div class="d-flex justify-content-between">
+          <label for="id_name" class="small text-body mb-2">
+            Advanced targeting <i class="fa-regular fa-circle-question fa-sm ms-1 text-muted"
+    data-bs-toggle="tooltip"
+    data-bs-placement="right"
+    title="{{ NimbusUIConstants.TARGETING_CRITERIA_REQUEST_INFO }}">
+          </i>
+        </label>
+        <a target="_blank"
+           href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.targeting_criteria_request_url }}"
+           class="ms-2"
+           style="font-size: 0.9em">Add targeting criteria <i class="fs-6 fa-solid fa-arrow-up-right-from-square ms-1"></i></a>
+      </div>
+      {{ form.targeting_config_slug }}
+      {% if form.targeting_config_slug.errors %}
+        <div class="text-danger small mt-1">{{ form.targeting_config_slug.errors|join:", " }}</div>
+      {% endif %}
+      {% for error in validation_errors.targeting_config_slug %}
+        <div class="form-text text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div>
+      <label for="id_name" class="small text-body mb-2">Include users from existing experiments</label>
+      {{ form.required_experiments_branches }}
+      {% if form.required_experiments_branches.errors %}
+        <div class="text-danger small mt-1">{{ form.required_experiments_branches.errors|join:", " }}</div>
+      {% endif %}
+      {% for error in validation_errors.required_experiments_branches %}
+        <div class="form-text text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div>
+      <label for="id_name" class="small text-body mb-2">Exclude users from other experiments/rollouts</label>
+      {{ form.excluded_experiments_branches }}
+      {% if form.excluded_experiments_branches.errors %}
+        <div class="text-danger small mt-1">{{ form.excluded_experiments_branches.errors|join:", " }}</div>
+      {% endif %}
+      {% for error in validation_errors.excluded_experiments_branches %}
+        <div class="form-text text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div>
+      <label for="id_is_sticky" class="small text-body mb-2">
+        Apply sticky enrollment?
+        <span class="d-block text-secondary fw-normal">
+          If applied, users continue to get the experience even after the experiment is done.
+          <a target="_blank"
+             href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.sticky_targeting_url }}">Learn more</a>
+        </span>
+      </label>
+      {{ form.is_sticky }}
+      {% for error in form.is_sticky.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+      {% for error in validation_errors.is_sticky %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+    </div>
+    <div>
+      <label class="small text-body mb-2">Localization Substitutions</label>
+      {{ form.localizations|add_error_class:"is-invalid" }}
+      {% for error in form.localizations.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      {% for error in validation_errors.localizations %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+    </div>
+  </div>
+  {# Action buttons #}
+  <div class="d-flex align-items-center gap-2">
+    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+    <button type="button"
+            class="btn btn-outline-secondary btn-sm"
+            hx-get="{{ cancel_url }}"
+            hx-select="#rollout-card-audience"
+            hx-target="#rollout-card-audience"
+            hx-swap="outerHTML">Cancel</button>
+  </div>
+</form>
+</div>
+{% block extrascripts %}
+  {% if branch_form_data %}{{ branch_form_data|json_script:"branch-form-data" }}{% endif %}
+  <script src="{% static 'nimbus_ui/edit_branches.bundle.js' %}"></script>
+{% endblock extrascripts %}
