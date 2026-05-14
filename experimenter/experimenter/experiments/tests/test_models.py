@@ -2979,6 +2979,23 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(complete.collision_warnings["deliveries"], [])
 
+    def test_audience_overlap_warnings_empty_when_no_collisions_or_self_issues(self):
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="clean-draft",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="clean-feature",
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
+        )
+
+        self.assertEqual(draft.audience_overlap_warnings, [])
+
     def test_audience_overlap_warnings_aggregates_collision_warnings(self):
         feature_a = NimbusFeatureConfigFactory.create(
             slug="agg-feature-a",
