@@ -19,7 +19,9 @@ from experimenter.experiments.tests.factories import (
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         }
-    }
+    },
+    CELERY_TASK_ALWAYS_EAGER=True,
+    CELERY_TASK_EAGER_PROPAGATES=False,
 )
 class CachedViewSetTest(TestCase):
     def setUp(self):

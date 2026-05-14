@@ -3,9 +3,22 @@ from unittest import mock
 
 from django.core.cache import cache
 from django.test import TestCase, override_settings
+from rest_framework.renderers import JSONRenderer
 
-from experimenter.experiments.api.cache import get_api_cache_key
-from experimenter.experiments.tasks import _get_warm_cache_endpoints, warm_api_caches
+from experimenter.experiments.api.cache import (
+    get_api_cache_key,
+    stream_render_queryset,
+)
+from experimenter.experiments.api.cache import warm_api_cache as real_warm_api_cache
+from experimenter.experiments.api.v8.serializers import (
+    NimbusExperimentSerializer as V8NimbusExperimentSerializer,
+)
+from experimenter.experiments.api.v8.views import NimbusExperimentViewSet as V8ViewSet
+from experimenter.experiments.tasks import (
+    _get_warm_cache_endpoints,
+    warm_api_cache_endpoint,
+    warm_api_caches,
+)
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 
 
@@ -14,7 +27,9 @@ from experimenter.experiments.tests.factories import NimbusExperimentFactory
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         }
-    }
+    },
+    CELERY_TASK_ALWAYS_EAGER=True,
+    CELERY_TASK_EAGER_PROPAGATES=False,
 )
 class TestWarmApiCaches(TestCase):
     def setUp(self):
@@ -126,7 +141,51 @@ class TestWarmApiCaches(TestCase):
         content = cached.decode("utf-8") if isinstance(cached, bytes) else cached
         self.assertIn("csv-experiment", content)
 
-    def test_warm_api_caches_raises_on_error(self):
+    def test_warm_api_caches_dispatches_one_subtask_per_endpoint(self):
+        with mock.patch(
+            "experimenter.experiments.tasks.warm_api_cache_endpoint.delay"
+        ) as mock_delay:
+            warm_api_caches()
+
+        dispatched_keys = [call.args[0] for call in mock_delay.call_args_list]
+        expected_keys = [entry[0] for entry in _get_warm_cache_endpoints()]
+        self.assertEqual(sorted(dispatched_keys), sorted(expected_keys))
+
+    def test_warm_api_caches_failed_subtask_does_not_block_other_subtasks(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="live-experiment",
+        )
+
+        def fake_warm(key_prefix, *args, **kwargs):
+            if key_prefix == "v6:experiments":
+                raise RuntimeError("simulated OOM for v6")
+            return real_warm_api_cache(key_prefix, *args, **kwargs)
+
+        with mock.patch(
+            "experimenter.experiments.tasks.warm_api_cache", side_effect=fake_warm
+        ):
+            warm_api_caches()
+
+        self.assertIsNone(cache.get(get_api_cache_key("v6:experiments")))
+        for key_prefix in (
+            "v5:csv",
+            "v6:draft-experiments",
+            "v7:experiments",
+            "v8:experiments",
+            "v8:draft-experiments",
+        ):
+            self.assertIsNotNone(
+                cache.get(get_api_cache_key(key_prefix)),
+                f"{key_prefix} should still be warmed when v6:experiments fails",
+            )
+
+    def test_warm_api_cache_endpoint_unknown_key_logs_and_returns(self):
+        with self.assertLogs("experimenter.experiments.tasks", level="ERROR") as captured:
+            warm_api_cache_endpoint("does-not-exist")
+        self.assertTrue(any("Unknown cache endpoint" in line for line in captured.output))
+
+    def test_warm_api_cache_endpoint_raises_on_warm_failure(self):
         with (
             mock.patch(
                 "experimenter.experiments.tasks.warm_api_cache",
@@ -134,4 +193,20 @@ class TestWarmApiCaches(TestCase):
             ),
             self.assertRaises(Exception),
         ):
-            warm_api_caches()
+            warm_api_cache_endpoint("v6:experiments")
+
+    def test_stream_render_queryset_matches_drf_json_renderer(self):
+        for slug in ("eq-experiment-1", "eq-experiment-2", "eq-experiment-3"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+                slug=slug,
+            )
+
+        queryset = V8ViewSet.queryset
+        streamed = stream_render_queryset(queryset, V8NimbusExperimentSerializer)
+
+        rendered = JSONRenderer().render(
+            V8NimbusExperimentSerializer(queryset.all(), many=True).data
+        )
+
+        self.assertEqual(streamed, rendered)
