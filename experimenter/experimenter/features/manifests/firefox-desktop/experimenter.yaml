@@ -5840,3 +5840,14 @@ walletCustomSchemes:
         pref: privacy.wallet_schemes
       description: >-
         Comma separated lists of schemes
+
+macAppMenuSetAsDefault:
+  description: >-
+    Controls whether or not a Set as Default Browser menu item is added to macOS app menu
+  owner: rfambro@mozilla.com
+  hasExposure: false
+  variables:
+    shown:
+      type: boolean
+      description: >-
+        Whether or not the macOS app menu contains "Set as Default Browser" item
