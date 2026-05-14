@@ -56,6 +56,58 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     AUDIENCE_OVERLAP_WARNING = (
         "https://experimenter.info/advanced/warnings#audience-overlap"
     )
+
+    # --- collision_warnings card headers ---
+    COLLISION_CARD_HEADER_COLLISIONS_ONLY = (
+        "WARNING: The following live {target}s may conflict with this {target}:"
+    )
+    COLLISION_CARD_HEADER_SELF_AND_COLLISIONS = (
+        "WARNING: Issues that may affect enrollment for this {target}:"
+    )
+    COLLISION_CARD_HEADER_SELF_ONLY = "WARNING: Issues with this {target}:"
+
+    # --- collision_warnings reason labels ---
+    COLLISION_LABEL_EXCLUDED_BY_ROLLOUT = "Excluded by this rollout"
+    COLLISION_LABEL_EXCLUDED_BY_EXPERIMENT = "Excluded by this experiment"
+    COLLISION_LABEL_SHARES_FEATURE = "Shares feature"
+    COLLISION_LABEL_SHARES_AUDIENCE = "Shares an audience"
+    COLLISION_LABEL_MATCHING_CONFIGURATION = "Has matching configuration"
+    COLLISION_LABEL_SETS_SAME_PREFERENCE = "Sets the same preference"
+
+    # --- collision_warnings reason detail tooltips ---
+    COLLISION_DETAIL_EXCLUDED = (
+        "Clients enrolled in this delivery are filtered out of the eligible "
+        "population, which may reduce statistical power and precision. Verify "
+        "the configured population proportion accounts for this."
+    )
+    COLLISION_DETAIL_SHARES_FEATURE = (
+        "This live delivery already holds the feature slot for contested "
+        "clients; this delivery will not enroll them."
+    )
+    COLLISION_DETAIL_SHARES_AUDIENCE = (
+        "This live delivery shares the same audience, so each client can only "
+        "be enrolled in one of these. This reduces the eligible population "
+        "and may reduce statistical power and precision. Verify the "
+        "configured population proportion accounts for this."
+    )
+    COLLISION_DETAIL_MATCHING_CONFIGURATION = (
+        "A live rollout already exists with the same application, feature, "
+        "channel, and advanced targeting. Clients meeting the targeting will "
+        "enroll in one or the other, and the sizing for this rollout cannot "
+        "be adjusted."
+    )
+    COLLISION_DETAIL_SETS_SAME_PREFERENCE = (
+        "This live rollout sets the same Firefox preference as this "
+        "delivery. The collision may reduce the eligible population or "
+        "prevent enrollment entirely. Verify the configured population "
+        "proportion accounts for this."
+    )
+
+    # --- collision_warnings self-issue labels ---
+    COLLISION_SELF_ISSUE_VERSION_BELOW_MINIMUM = (
+        "Firefox version below the rollout minimum"
+    )
+    COLLISION_SELF_ISSUE_MULTICHANNEL = "Targeting multiple channels"
     TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
     targeting list - file a new targeting request with this link, and share the created
     request with either your feature engineering team or in #ask-experimenter

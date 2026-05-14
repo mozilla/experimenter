@@ -1873,6 +1873,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         deliveries_by_slug = {}
 
+        excluded_reason = {
+            "label": (
+                NimbusUIConstants.COLLISION_LABEL_EXCLUDED_BY_ROLLOUT
+                if self.is_rollout
+                else NimbusUIConstants.COLLISION_LABEL_EXCLUDED_BY_EXPERIMENT
+            ),
+            "detail": NimbusUIConstants.COLLISION_DETAIL_EXCLUDED,
+        }
         for slug in self.excluded_live_deliveries:
             entry = deliveries_by_slug.setdefault(
                 slug,
@@ -1881,21 +1889,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "reasons": [],
                 },
             )
-            entry["reasons"].append(
-                {
-                    "label": (
-                        "Excluded by this rollout"
-                        if self.is_rollout
-                        else "Excluded by this experiment"
-                    ),
-                    "detail": (
-                        "Clients enrolled in this delivery are filtered out of "
-                        "the eligible population, which may reduce statistical "
-                        "power and precision. Verify the configured population "
-                        "proportion accounts for this."
-                    ),
-                }
-            )
+            entry["reasons"].append(excluded_reason)
 
         for collision in self._slot_collisions():
             entry = deliveries_by_slug.setdefault(
@@ -1908,44 +1902,36 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
             entry["reasons"].append(
                 {
-                    "label_prefix": "Shares feature",
+                    "label_prefix": NimbusUIConstants.COLLISION_LABEL_SHARES_FEATURE,
                     "shared_features": [
                         _feature_link(f) for f in collision["shared_features"]
                     ],
-                    "detail": (
-                        "This live delivery already holds the feature slot "
-                        "for contested clients; this delivery will not "
-                        "enroll them."
-                    ),
+                    "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_FEATURE,
                 }
             )
             if collision["same_namespace"]:
                 entry["reasons"].append(
                     {
-                        "label": "Shares an audience",
-                        "detail": (
-                            "This live delivery shares the same audience, so "
-                            "each client can only be enrolled in one of these. "
-                            "This reduces the eligible population and may reduce "
-                            "statistical power and precision. Verify the "
-                            "configured population proportion accounts for this."
-                        ),
+                        "label": NimbusUIConstants.COLLISION_LABEL_SHARES_AUDIENCE,
+                        "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_AUDIENCE,
                     }
                 )
             if collision["matching_configuration"]:
                 entry["reasons"].append(
                     {
-                        "label": "Has matching configuration",
+                        "label": (
+                            NimbusUIConstants.COLLISION_LABEL_MATCHING_CONFIGURATION
+                        ),
                         "detail": (
-                            "A live rollout already exists with the same "
-                            "application, feature, channel, and advanced "
-                            "targeting. Clients meeting the targeting will enroll "
-                            "in one or the other, and the sizing for this rollout "
-                            "cannot be adjusted."
+                            NimbusUIConstants.COLLISION_DETAIL_MATCHING_CONFIGURATION
                         ),
                     }
                 )
 
+        pref_reason = {
+            "label": NimbusUIConstants.COLLISION_LABEL_SETS_SAME_PREFERENCE,
+            "detail": NimbusUIConstants.COLLISION_DETAIL_SETS_SAME_PREFERENCE,
+        }
         for slug in self._pref_collision_slugs():
             entry = deliveries_by_slug.setdefault(
                 slug,
@@ -1954,17 +1940,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     "reasons": [],
                 },
             )
-            entry["reasons"].append(
-                {
-                    "label": "Sets the same preference",
-                    "detail": (
-                        "This live rollout sets the same Firefox preference as "
-                        "this delivery. The collision may reduce the eligible "
-                        "population or prevent enrollment entirely. Verify the "
-                        "configured population proportion accounts for this."
-                    ),
-                }
-            )
+            entry["reasons"].append(pref_reason)
 
         deliveries = sorted(deliveries_by_slug.values(), key=lambda d: d["slug"])
         return {"deliveries": deliveries}
@@ -2199,7 +2175,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if version_warning := self.rollout_version_warning:
             self_issues.append(
                 {
-                    "label": "Firefox version below the rollout minimum",
+                    "label": (
+                        NimbusUIConstants.COLLISION_SELF_ISSUE_VERSION_BELOW_MINIMUM
+                    ),
                     "detail": version_warning["text"],
                 }
             )
@@ -2207,7 +2185,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.is_desktop and not self.is_rollout and len(self.channels) > 1:
             self_issues.append(
                 {
-                    "label": "Targeting multiple channels",
+                    "label": NimbusUIConstants.COLLISION_SELF_ISSUE_MULTICHANNEL,
                     "detail": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
                 }
             )
@@ -2228,12 +2206,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def _collision_card_header(self, entries, self_issues):
         target = "rollout" if self.is_rollout else "experiment"
         if entries and self_issues:
-            return f"WARNING: Issues that may affect enrollment for this {target}:"
-        if entries:
-            return (
-                f"WARNING: The following live {target}s may conflict with this {target}:"
+            return NimbusUIConstants.COLLISION_CARD_HEADER_SELF_AND_COLLISIONS.format(
+                target=target
             )
-        return f"WARNING: Issues with this {target}:"
+        if entries:
+            return NimbusUIConstants.COLLISION_CARD_HEADER_COLLISIONS_ONLY.format(
+                target=target
+            )
+        return NimbusUIConstants.COLLISION_CARD_HEADER_SELF_ONLY.format(target=target)
 
     @property
     def has_results_errors(self):
