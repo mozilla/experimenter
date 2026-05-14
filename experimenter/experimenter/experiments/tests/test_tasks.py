@@ -65,11 +65,13 @@ class TestWarmApiCaches(TestCase):
 
         warm_api_caches()
 
+        # v6:experiments should contain the live experiment but not the draft
         v6_data = json.loads(cache.get(get_api_cache_key("v6:experiments")))
         v6_slugs = [exp["slug"] for exp in v6_data]
         self.assertIn("live-experiment", v6_slugs)
         self.assertNotIn("draft-experiment", v6_slugs)
 
+        # v6:draft-experiments should contain the draft but not the live
         v6_draft_data = json.loads(cache.get(get_api_cache_key("v6:draft-experiments")))
         v6_draft_slugs = [exp["slug"] for exp in v6_draft_data]
         self.assertIn("draft-experiment", v6_draft_slugs)
@@ -86,6 +88,7 @@ class TestWarmApiCaches(TestCase):
         v6_data = json.loads(cache.get(get_api_cache_key("v6:experiments")))
         self.assertEqual(len([e for e in v6_data if e["slug"] == "experiment-1"]), 1)
 
+        # Add another experiment and re-warm
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             slug="experiment-2",

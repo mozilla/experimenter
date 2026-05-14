@@ -15,6 +15,7 @@ DEFAULT_STREAM_CHUNK_SIZE = 25
 
 
 def get_api_cache_key(view_name, query_params=None):
+    """Build a deterministic cache key from the view name and query parameters."""
     if query_params:
         params = sorted(query_params.lists())
         param_str = urlencode(params, doseq=True)
@@ -24,6 +25,10 @@ def get_api_cache_key(view_name, query_params=None):
 
 
 class _StreamArray(list[object]):
+    """Lets ``stream_render_queryset`` actually stream the queryset, rather than
+    holding the whole serialised graph in memory.
+    """
+
     def __init__(self, gen):
         super().__init__()
         self._iter = iter(gen)
@@ -42,6 +47,9 @@ class _StreamArray(list[object]):
 
 
 def _drf_compatible_encoder():
+    """Keeps the warm cache and a fresh on-miss render byte-identical for the
+    same data.
+    """
     return DRFJSONEncoder(
         ensure_ascii=JSONRenderer.ensure_ascii,
         allow_nan=not JSONRenderer.strict,
@@ -54,6 +62,9 @@ def stream_render_queryset(
     serializer_class,
     chunk_size=DEFAULT_STREAM_CHUNK_SIZE,
 ):
+    """Streams the warm-cache JSON in bounded memory — materialising it all at
+    once OOM-kills the worker (#15621).
+    """
     items = (
         serializer_class(obj).data for obj in queryset.iterator(chunk_size=chunk_size)
     )
@@ -64,6 +75,7 @@ def stream_render_queryset(
 
 
 def warm_api_cache(key_prefix, queryset, serializer_class, renderer=None, sort_key=None):
+    """Query the DB, serialize, and store the rendered response in the cache."""
     if renderer is None:
         renderer = JSONRenderer()
 
@@ -80,6 +92,13 @@ def warm_api_cache(key_prefix, queryset, serializer_class, renderer=None, sort_k
 
 
 class CachedListMixin:
+    """Mixin that serves list responses from an application-level Redis cache.
+
+    Set ``cache_key_prefix`` on each viewset (e.g. "v6:experiments").
+    The Celery task ``warm_api_caches`` pre-populates the cache for unfiltered
+    requests.  Filtered requests are cached on first hit.
+    """
+
     cache_key_prefix = ""
     cache_content_type = "application/json"
 

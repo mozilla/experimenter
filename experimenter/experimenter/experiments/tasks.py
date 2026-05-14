@@ -13,6 +13,11 @@ def _start_date_sort_key(experiment):
 
 
 def _get_warm_cache_endpoints():
+    """Return the list of (key_prefix, queryset, serializer_class, kwargs) to warm.
+
+    Imports are deferred so the module can be loaded before Django is fully
+    initialised (Celery auto-discovery).
+    """
     from experimenter.experiments.api.v5 import serializers as v5_ser
     from experimenter.experiments.api.v5 import views as v5_views
     from experimenter.experiments.api.v6 import serializers as v6_ser
