@@ -33,16 +33,6 @@ ai-kill-switch-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
-app-icon-selection-feature:
-  description: |
-    Controls which app icons users can select as their default app icon from the App Icon Selection screen in Settings.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    funIconsEnabled:
-      type: boolean
-      description: |
-        Controls whether users see the fun icons in the app icon settings.
 appearance-menu-feature:
   description: |
     This property determines if we show the new appearance menu entry or the old theme settings
