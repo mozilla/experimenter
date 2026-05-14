@@ -1880,6 +1880,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 else NimbusUIConstants.COLLISION_LABEL_EXCLUDED_BY_EXPERIMENT
             ),
             "detail": NimbusUIConstants.COLLISION_DETAIL_EXCLUDED,
+            "learn_more_url": NimbusUIConstants.COLLISION_LEARN_MORE_EXCLUDED,
         }
         for slug in self.excluded_live_deliveries:
             entry = deliveries_by_slug.setdefault(
@@ -1907,6 +1908,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         _feature_link(f) for f in collision["shared_features"]
                     ],
                     "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_FEATURE,
+                    "learn_more_url": (
+                        NimbusUIConstants.COLLISION_LEARN_MORE_SHARES_FEATURE
+                    ),
                 }
             )
             if collision["same_namespace"]:
@@ -1914,6 +1918,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     {
                         "label": NimbusUIConstants.COLLISION_LABEL_SHARES_AUDIENCE,
                         "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_AUDIENCE,
+                        "learn_more_url": (
+                            NimbusUIConstants.COLLISION_LEARN_MORE_SHARES_AUDIENCE
+                        ),
                     }
                 )
             if collision["matching_configuration"]:
@@ -1925,12 +1932,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         "detail": (
                             NimbusUIConstants.COLLISION_DETAIL_MATCHING_CONFIGURATION
                         ),
+                        "learn_more_url": (
+                            NimbusUIConstants.COLLISION_LEARN_MORE_MATCHING_CONFIGURATION
+                        ),
                     }
                 )
 
         pref_reason = {
             "label": NimbusUIConstants.COLLISION_LABEL_SETS_SAME_PREFERENCE,
             "detail": NimbusUIConstants.COLLISION_DETAIL_SETS_SAME_PREFERENCE,
+            "learn_more_url": NimbusUIConstants.COLLISION_LEARN_MORE_SETS_SAME_PREFERENCE,
         }
         for slug in self._pref_collision_slugs():
             entry = deliveries_by_slug.setdefault(
@@ -2179,6 +2190,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         NimbusUIConstants.COLLISION_SELF_ISSUE_VERSION_BELOW_MINIMUM
                     ),
                     "detail": version_warning["text"],
+                    "learn_more_url": (
+                        NimbusUIConstants.COLLISION_LEARN_MORE_VERSION_BELOW_MINIMUM
+                    ),
                 }
             )
 
@@ -2187,6 +2201,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 {
                     "label": NimbusUIConstants.COLLISION_SELF_ISSUE_MULTICHANNEL,
                     "detail": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
+                    "learn_more_url": (
+                        NimbusUIConstants.COLLISION_LEARN_MORE_MULTICHANNEL
+                    ),
                 }
             )
 

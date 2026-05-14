@@ -26,6 +26,13 @@
                    data-bs-toggle="tooltip"
                    data-bs-placement="top"
                    title="{{ reason.detail }}"></i>
+                {% if reason.learn_more_url %}
+                  <a href="{{ reason.learn_more_url }}"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     class="text-decoration-none"
+                     title="Learn more">↗</a>
+                {% endif %}
                 {% if not forloop.last %},{% endif %}
               {% endfor %}
               )
@@ -39,6 +46,13 @@
                data-bs-toggle="tooltip"
                data-bs-placement="top"
                title="{{ issue.detail }}"></i>
+            {% if issue.learn_more_url %}
+              <a href="{{ issue.learn_more_url }}"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="text-decoration-none"
+                 title="Learn more">↗</a>
+            {% endif %}
           </li>
         {% endfor %}
       </ul>
