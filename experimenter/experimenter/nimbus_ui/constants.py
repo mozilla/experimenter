@@ -110,15 +110,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     COLLISION_SELF_ISSUE_MULTICHANNEL = "Targeting multiple channels"
 
     # --- collision_warnings per-reason learn-more URLs ---
+    # Only set where the doc page directly addresses the warning. Reasons
+    # without a tight-fit doc page (Shares feature, Shares an audience,
+    # Targeting multiple channels) have no link until the docs are updated.
     COLLISION_LEARN_MORE_EXCLUDED = (
         "https://experimenter.info/advanced/warnings"
         "#an-experiment-excludes-other-live-deliveries"
-    )
-    COLLISION_LEARN_MORE_SHARES_FEATURE = (
-        "https://experimenter.info/advanced/enrollment-state-machine#feature-conflict"
-    )
-    COLLISION_LEARN_MORE_SHARES_AUDIENCE = (
-        "https://experimenter.info/data-analysis/data-topics/bucketing"
     )
     COLLISION_LEARN_MORE_MATCHING_CONFIGURATION = (
         "https://experimenter.info/advanced/warnings#rollout-bucketing-warning"
@@ -131,7 +128,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "https://experimenter.info/advanced/rollouts"
         "#supported-platforms-and-minimum-versions"
     )
-    COLLISION_LEARN_MORE_MULTICHANNEL = "https://experimenter.info/workflow/experiments"
     TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
     targeting list - file a new targeting request with this link, and share the created
     request with either your feature engineering team or in #ask-experimenter

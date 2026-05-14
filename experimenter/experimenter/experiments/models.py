@@ -1908,9 +1908,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         _feature_link(f) for f in collision["shared_features"]
                     ],
                     "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_FEATURE,
-                    "learn_more_url": (
-                        NimbusUIConstants.COLLISION_LEARN_MORE_SHARES_FEATURE
-                    ),
                 }
             )
             if collision["same_namespace"]:
@@ -1918,9 +1915,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     {
                         "label": NimbusUIConstants.COLLISION_LABEL_SHARES_AUDIENCE,
                         "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_AUDIENCE,
-                        "learn_more_url": (
-                            NimbusUIConstants.COLLISION_LEARN_MORE_SHARES_AUDIENCE
-                        ),
                     }
                 )
             if collision["matching_configuration"]:
@@ -2201,9 +2195,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 {
                     "label": NimbusUIConstants.COLLISION_SELF_ISSUE_MULTICHANNEL,
                     "detail": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
-                    "learn_more_url": (
-                        NimbusUIConstants.COLLISION_LEARN_MORE_MULTICHANNEL
-                    ),
                 }
             )
 
