@@ -334,7 +334,7 @@ features:
           pocket-sponsored-stories: true
           synced-tabs: true
           collections: true
-          privacy-report: false
+          privacy-report: true
   homescreen-edge-to-edge-background:
     description: |
       Feature that sets an edge to edge background on the Home Screen if the user hasn't selected a custom wallpaper
@@ -1212,7 +1212,7 @@ features:
         description: |
           Whether or not to enable drag and drop for tab groups.
         type: Boolean
-        default: false
+        default: true
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
