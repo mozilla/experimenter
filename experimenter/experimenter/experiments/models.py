@@ -1908,6 +1908,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                         _feature_link(f) for f in collision["shared_features"]
                     ],
                     "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_FEATURE,
+                    "learn_more_url": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
                 }
             )
             if collision["same_namespace"]:
@@ -1915,6 +1916,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     {
                         "label": NimbusUIConstants.COLLISION_LABEL_SHARES_AUDIENCE,
                         "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_AUDIENCE,
+                        "learn_more_url": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
                     }
                 )
             if collision["matching_configuration"]:
