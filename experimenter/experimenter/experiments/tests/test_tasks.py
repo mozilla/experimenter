@@ -3,9 +3,17 @@ from unittest import mock
 
 from django.core.cache import cache
 from django.test import TestCase, override_settings
+from rest_framework.renderers import JSONRenderer
 
-from experimenter.experiments.api.cache import get_api_cache_key
+from experimenter.experiments.api.cache import (
+    get_api_cache_key,
+    stream_render_queryset,
+)
 from experimenter.experiments.api.cache import warm_api_cache as real_warm_api_cache
+from experimenter.experiments.api.v8.serializers import (
+    NimbusExperimentSerializer as V8NimbusExperimentSerializer,
+)
+from experimenter.experiments.api.v8.views import NimbusExperimentViewSet as V8ViewSet
 from experimenter.experiments.tasks import (
     _get_warm_cache_endpoints,
     warm_api_cache_endpoint,
@@ -183,3 +191,19 @@ class TestWarmApiCaches(TestCase):
             self.assertRaises(Exception),
         ):
             warm_api_cache_endpoint("v6:experiments")
+
+    def test_stream_render_queryset_matches_drf_json_renderer(self):
+        for slug in ("eq-experiment-1", "eq-experiment-2", "eq-experiment-3"):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+                slug=slug,
+            )
+
+        queryset = V8ViewSet.queryset
+        streamed = stream_render_queryset(queryset, V8NimbusExperimentSerializer)
+
+        rendered = JSONRenderer().render(
+            V8NimbusExperimentSerializer(queryset.all(), many=True).data
+        )
+
+        self.assertEqual(streamed, rendered)

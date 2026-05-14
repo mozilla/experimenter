@@ -1,12 +1,13 @@
 import hashlib
-import io
 import logging
 from urllib.parse import urlencode
 
 from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse
+from rest_framework.compat import SHORT_SEPARATORS
 from rest_framework.renderers import JSONRenderer
+from rest_framework.utils.encoders import JSONEncoder as DRFJSONEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -22,26 +23,44 @@ def get_api_cache_key(view_name, query_params=None):
     return f"nimbus:api:{view_name}"
 
 
+class _StreamArray(list[object]):
+    def __init__(self, gen):
+        super().__init__()
+        self._iter = iter(gen)
+        try:
+            self._first = next(self._iter)
+            self._empty = False
+        except StopIteration:
+            self._empty = True
+
+    def __iter__(self):
+        yield self._first
+        yield from self._iter
+
+    def __len__(self):
+        return 0 if self._empty else 1
+
+
+def _drf_compatible_encoder():
+    return DRFJSONEncoder(
+        ensure_ascii=JSONRenderer.ensure_ascii,
+        allow_nan=not JSONRenderer.strict,
+        separators=SHORT_SEPARATORS,
+    )
+
+
 def stream_render_queryset(
     queryset,
     serializer_class,
-    renderer,
     chunk_size=DEFAULT_STREAM_CHUNK_SIZE,
 ):
-    buf = io.BytesIO()
-    buf.write(b"[")
-    first = True
-    for obj in queryset.iterator(chunk_size=chunk_size):
-        item = serializer_class(obj).data
-        rendered = renderer.render(item)
-        if first:
-            first = False
-        else:
-            buf.write(b",")
-        buf.write(rendered)
-        del item, rendered
-    buf.write(b"]")
-    return buf.getvalue()
+    items = (
+        serializer_class(obj).data for obj in queryset.iterator(chunk_size=chunk_size)
+    )
+    encoder = _drf_compatible_encoder()
+    return b"".join(
+        chunk.encode("utf-8") for chunk in encoder.iterencode(_StreamArray(items))
+    )
 
 
 def warm_api_cache(key_prefix, queryset, serializer_class, renderer=None, sort_key=None):
@@ -53,7 +72,7 @@ def warm_api_cache(key_prefix, queryset, serializer_class, renderer=None, sort_k
         data = serializer_class(qs, many=True).data
         rendered = renderer.render(data)
     else:
-        rendered = stream_render_queryset(queryset, serializer_class, renderer)
+        rendered = stream_render_queryset(queryset, serializer_class)
 
     cache_key = get_api_cache_key(key_prefix)
     cache.set(cache_key, rendered, timeout=settings.API_CACHE_WARMING_TTL)
