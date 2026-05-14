@@ -1712,7 +1712,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
         ]
 
-    def _channels_overlap(self, candidate):
+    def channels_overlap(self, candidate):
         no_channel = NimbusExperiment.Channel.NO_CHANNEL
         if self.is_desktop:
             self_channels = set(self.channels) - {"", no_channel}
@@ -1724,15 +1724,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return True
         return bool(self_channels & candidate_channels)
 
-    def _targeting_configs_overlap(self, candidate):
-        no_targeting = NimbusExperiment.TargetingConfig.NO_TARGETING
-        self_slug = self.targeting_config_slug
-        candidate_slug = candidate.targeting_config_slug
-        self_has = self_slug and self_slug != no_targeting
-        candidate_has = candidate_slug and candidate_slug != no_targeting
-        if not self_has or not candidate_has:
-            return True
-        return self_slug == candidate_slug
+    def targeting_configs_overlap(self, candidate):
+        matches_all = {"", NimbusExperiment.TargetingConfig.NO_TARGETING}
+        return (
+            self.targeting_config_slug in matches_all
+            or candidate.targeting_config_slug in matches_all
+            or self.targeting_config_slug == candidate.targeting_config_slug
+        )
 
     @property
     def excluded_live_deliveries(self):
@@ -1750,7 +1748,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
         return matching
 
-    def _feature_allows_coenrollment(self, feature_config):
+    def feature_allows_coenrollment(self, feature_config):
         if not self.firefox_min_version:
             return False
         min_version = NimbusExperiment.Version.parse(self.firefox_min_version)
@@ -1764,11 +1762,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ).schemas
         return bool(schemas) and all(schema.allow_coenrollment for schema in schemas)
 
-    def _slot_collisions(self):
+    def slot_collisions(self):
         contesting_features = [
             fc
             for fc in self.feature_configs.all()
-            if not self._feature_allows_coenrollment(fc)
+            if not self.feature_allows_coenrollment(fc)
         ]
         if not contesting_features:
             return []
@@ -1799,9 +1797,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         self_namespace = self.bucket_namespace
         collisions = []
         for candidate in candidates.filter(slug__in=overlapping_slugs):
-            if not self._channels_overlap(candidate):
+            if not self.channels_overlap(candidate):
                 continue
-            if not self._targeting_configs_overlap(candidate):
+            if not self.targeting_configs_overlap(candidate):
                 continue
             candidate_feature_ids = set(
                 candidate.feature_configs.values_list("id", flat=True)
@@ -1831,7 +1829,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return collisions
 
-    def _pref_collision_slugs(self):
+    def pref_collision_slugs(self):
         if not (self.is_desktop and not self.is_rollout and self.prevent_pref_conflicts):
             return []
         pref_setting_feature_ids = (
@@ -1855,25 +1853,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             .values_list("slug", flat=True)
         )
 
-    @property
-    def collision_warnings(self):
-        if self.status not in (self.Status.DRAFT, self.Status.PREVIEW):
-            return {"deliveries": []}
-
-        features_url = reverse("nimbus-ui-features")
-
-        def _feature_link(feature):
-            return {
-                "slug": feature["slug"],
-                "url": (
-                    f"{features_url}?application={self.application}"
-                    f"&feature_configs={feature['id']}"
-                ),
-            }
-
-        deliveries_by_slug = {}
-
-        excluded_reason = {
+    def excluded_collision_reasons(self):
+        reason = {
             "label": (
                 NimbusUIConstants.COLLISION_LABEL_EXCLUDED_BY_ROLLOUT
                 if self.is_rollout
@@ -1882,72 +1863,87 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             "detail": NimbusUIConstants.COLLISION_DETAIL_EXCLUDED,
             "learn_more_url": NimbusUIConstants.COLLISION_LEARN_MORE_EXCLUDED,
         }
-        for slug in self.excluded_live_deliveries:
-            entry = deliveries_by_slug.setdefault(
-                slug,
-                {
-                    "slug": slug,
-                    "reasons": [],
-                },
-            )
-            entry["reasons"].append(excluded_reason)
+        return [(slug, reason) for slug in self.excluded_live_deliveries]
 
-        for collision in self._slot_collisions():
-            entry = deliveries_by_slug.setdefault(
-                collision["slug"],
-                {
-                    "slug": collision["slug"],
-                    "reasons": [],
-                },
-            )
+    def slot_collision_reasons(self):
+        features_url = reverse("nimbus-ui-features")
 
-            entry["reasons"].append(
-                {
-                    "label_prefix": NimbusUIConstants.COLLISION_LABEL_SHARES_FEATURE,
-                    "shared_features": [
-                        _feature_link(f) for f in collision["shared_features"]
-                    ],
-                    "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_FEATURE,
-                    "learn_more_url": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
-                }
+        def feature_link(feature):
+            return {
+                "slug": feature["slug"],
+                "url": (
+                    f"{features_url}?application={self.application}"
+                    f"&feature_configs={feature['id']}"
+                ),
+            }
+
+        pairs = []
+        for collision in self.slot_collisions():
+            slug = collision["slug"]
+            pairs.append(
+                (
+                    slug,
+                    {
+                        "label_prefix": NimbusUIConstants.COLLISION_LABEL_SHARES_FEATURE,
+                        "shared_features": [
+                            feature_link(f) for f in collision["shared_features"]
+                        ],
+                        "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_FEATURE,
+                        "learn_more_url": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                    },
+                )
             )
             if collision["same_namespace"]:
-                entry["reasons"].append(
-                    {
-                        "label": NimbusUIConstants.COLLISION_LABEL_SHARES_AUDIENCE,
-                        "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_AUDIENCE,
-                        "learn_more_url": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
-                    }
+                pairs.append(
+                    (
+                        slug,
+                        {
+                            "label": NimbusUIConstants.COLLISION_LABEL_SHARES_AUDIENCE,
+                            "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_AUDIENCE,
+                            "learn_more_url": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                        },
+                    )
                 )
             if collision["matching_configuration"]:
-                entry["reasons"].append(
-                    {
-                        "label": (
-                            NimbusUIConstants.COLLISION_LABEL_MATCHING_CONFIGURATION
-                        ),
-                        "detail": (
-                            NimbusUIConstants.COLLISION_DETAIL_MATCHING_CONFIGURATION
-                        ),
-                        "learn_more_url": (
-                            NimbusUIConstants.COLLISION_LEARN_MORE_MATCHING_CONFIGURATION
-                        ),
-                    }
+                pairs.append(
+                    (
+                        slug,
+                        {
+                            "label": (
+                                NimbusUIConstants.COLLISION_LABEL_MATCHING_CONFIGURATION
+                            ),
+                            "detail": (
+                                NimbusUIConstants.COLLISION_DETAIL_MATCHING_CONFIGURATION
+                            ),
+                            "learn_more_url": (
+                                NimbusUIConstants.COLLISION_LEARN_MORE_MATCHING_CONFIGURATION
+                            ),
+                        },
+                    )
                 )
+        return pairs
 
-        pref_reason = {
+    def pref_collision_reasons(self):
+        reason = {
             "label": NimbusUIConstants.COLLISION_LABEL_SETS_SAME_PREFERENCE,
             "detail": NimbusUIConstants.COLLISION_DETAIL_SETS_SAME_PREFERENCE,
             "learn_more_url": NimbusUIConstants.COLLISION_LEARN_MORE_SETS_SAME_PREFERENCE,
         }
-        for slug in self._pref_collision_slugs():
-            entry = deliveries_by_slug.setdefault(
-                slug,
-                {
-                    "slug": slug,
-                    "reasons": [],
-                },
-            )
-            entry["reasons"].append(pref_reason)
+        return [(slug, reason) for slug in self.pref_collision_slugs()]
+
+    @property
+    def collision_warnings(self):
+        if self.status not in (self.Status.DRAFT, self.Status.PREVIEW):
+            return {"deliveries": []}
+
+        deliveries_by_slug = {}
+        for slug, reason in (
+            *self.excluded_collision_reasons(),
+            *self.slot_collision_reasons(),
+            *self.pref_collision_reasons(),
+        ):
+            entry = deliveries_by_slug.setdefault(slug, {"slug": slug, "reasons": []})
+            entry["reasons"].append(reason)
 
         deliveries = sorted(deliveries_by_slug.values(), key=lambda d: d["slug"])
         return {"deliveries": deliveries}
@@ -2205,7 +2201,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return [
             {
-                "text": self._collision_card_header(entries, self_issues),
+                "text": self.collision_card_header(entries, self_issues),
                 "entries": entries,
                 "self_issues": self_issues,
                 "variant": "warning",
@@ -2213,7 +2209,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             }
         ]
 
-    def _collision_card_header(self, entries, self_issues):
+    def collision_card_header(self, entries, self_issues):
         target = "rollout" if self.is_rollout else "experiment"
         if entries and self_issues:
             return NimbusUIConstants.COLLISION_CARD_HEADER_SELF_AND_COLLISIONS.format(
