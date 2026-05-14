@@ -21,7 +21,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Case, Count, F, Prefetch, Q, QuerySet, When
+from django.db.models import Case, F, Prefetch, Q, QuerySet, When
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -1713,13 +1713,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ]
 
     def channels_overlap(self, candidate):
-        no_channel = NimbusExperiment.Channel.NO_CHANNEL
+        matches_all = {"", NimbusExperiment.Channel.NO_CHANNEL}
         if self.is_desktop:
-            self_channels = set(self.channels) - {"", no_channel}
-            candidate_channels = set(candidate.channels) - {"", no_channel}
+            self_channels = set(self.channels) - matches_all
+            candidate_channels = set(candidate.channels) - matches_all
         else:
-            self_channels = {self.channel} - {"", no_channel}
-            candidate_channels = {candidate.channel} - {"", no_channel}
+            self_channels = {self.channel} - matches_all
+            candidate_channels = {candidate.channel} - matches_all
         if not self_channels or not candidate_channels:
             return True
         return bool(self_channels & candidate_channels)
