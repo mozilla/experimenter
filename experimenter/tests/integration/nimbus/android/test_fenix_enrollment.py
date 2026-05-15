@@ -9,7 +9,8 @@ from nimbus.models.base_dataclass import BaseExperimentApplications
 
 FENIX_APP = BaseExperimentApplications.FIREFOX_FENIX.value
 APP_APPLY_WAIT = 15
-LOG_STATE_WAIT = 5
+LOG_STATE_TIMEOUT = 60
+LOG_STATE_POLL_INTERVAL = 1
 
 
 @pytest.mark.fenix_enrollment
@@ -59,17 +60,24 @@ def test_fenix_enrollment(
     subprocess.check_call(
         ["nimbus-cli", "--app", FENIX_APP, "--channel", fenix_channel, "log-state"]
     )
-    time.sleep(LOG_STATE_WAIT)
-
-    logcat = subprocess.check_output(["adb", "logcat", "-d"], text=True)
 
     pattern = re.compile(
         rf"nimbus_client:\s*{re.escape(experiment_slug)}\s+\|\s*\S+\s+\|\s*(\S+)"
     )
-    match = pattern.search(logcat)
+
+    logcat = ""
+    match = None
+    deadline = time.monotonic() + LOG_STATE_TIMEOUT
+    while time.monotonic() < deadline:
+        logcat = subprocess.check_output(["adb", "logcat", "-d"], text=True)
+        match = pattern.search(logcat)
+        if match is not None:
+            break
+        time.sleep(LOG_STATE_POLL_INTERVAL)
+
     nimbus_lines = [line for line in logcat.splitlines() if "nimbus_client" in line]
     assert match is not None, (
-        f"No log-state row found for {experiment_slug}.\n"
+        f"No log-state row found for {experiment_slug} after {LOG_STATE_TIMEOUT}s.\n"
         f"--- last 30 nimbus_client lines ---\n" + "\n".join(nimbus_lines[-30:])
     )
     enrolled_branch = match.group(1)
