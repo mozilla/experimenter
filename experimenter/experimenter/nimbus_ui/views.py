@@ -1,5 +1,6 @@
 import json
 import re
+from urllib.parse import parse_qs, urlparse
 
 import requests
 from deepdiff import DeepDiff
@@ -1141,12 +1142,6 @@ class NimbusFeaturesView(TemplateView):
         return context
 
 
-class NimbusFeatureMonitoringView(DetailView):
-    template_name = "nimbus_experiments/feature_monitoring.html"
-    model = NimbusFeatureConfig
-    context_object_name = "feature_config"
-
-
 # Grafana is behind Google IAP, which blocks third-party cookies in iframes.
 # Both Experimenter and Grafana run in the same k8s cluster, so the backend
 # can reach Grafana via internal DNS (bypassing IAP) and proxy it to the browser.
@@ -1156,6 +1151,28 @@ _SAFE_RESPONSE_HEADERS = ("Cache-Control", "ETag", "Last-Modified", "Content-Typ
 
 class GrafanaProxyView(LoginRequiredMixin, View):
     def get(self, request, path=""):
+        if not path:
+            # Dashboard request: validate slug against the DB and construct the
+            # Grafana URL server-side so user-supplied input never reaches the
+            # upstream target directly.
+            slug = request.GET.get("slug")
+            if not slug:
+                return HttpResponse("Missing slug parameter", status=400)
+            try:
+                feature_config = NimbusFeatureConfig.objects.get(slug=slug)
+            except NimbusFeatureConfig.DoesNotExist:
+                return HttpResponse("Feature not found", status=404)
+            parsed = urlparse(feature_config.feature_monitoring_url)
+            path = parsed.path.lstrip("/")
+            # Merge the monitoring URL's own query params with any extra params
+            # from the request (e.g. kiosk), excluding the slug itself.
+            params = parse_qs(parsed.query, keep_blank_values=True)
+            for key, value in request.GET.items():
+                if key != "slug":
+                    params[key] = [value]
+        else:
+            params = request.GET
+
         target = f"{settings.GRAFANA_INTERNAL_URL.rstrip('/')}/{path}"
         headers = {}
         if settings.GRAFANA_SERVICE_ACCOUNT_TOKEN:
@@ -1164,7 +1181,7 @@ class GrafanaProxyView(LoginRequiredMixin, View):
         try:
             upstream = requests.get(
                 target,
-                params=request.GET,
+                params=params,
                 headers=headers,
                 timeout=30,
             )

@@ -23,7 +23,6 @@ from experimenter.nimbus_ui.views import (
     DraftToReviewView,
     EditOutcomeSummaryView,
     FeatureSubscribersUpdateView,
-    GrafanaProxyView,
     LiveToCompleteView,
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
@@ -35,7 +34,6 @@ from experimenter.nimbus_ui.views import (
     NewOverviewUpdateView,
     NewRemoveSubscriberView,
     NewRemoveTagView,
-    NewRisksUpdateView,
     NewSubscriberSearchView,
     NewTagSearchView,
     NimbusChangeLogsView,
@@ -44,7 +42,6 @@ from experimenter.nimbus_ui.views import (
     NimbusExperimentsListTableView,
     NimbusExperimentsPromoteToRolloutView,
     NimbusExperimentsSidebarCloneView,
-    NimbusFeatureMonitoringView,
     NimbusFeaturesView,
     NimbusRolloutDetailView,
     OverviewUpdateView,
@@ -81,16 +78,6 @@ urlpatterns = [
         r"^features/",
         NimbusFeaturesView.as_view(),
         name="nimbus-ui-features",
-    ),
-    re_path(
-        r"^feature-monitoring/(?P<pk>\d+)/$",
-        NimbusFeatureMonitoringView.as_view(),
-        name="nimbus-ui-feature-monitoring",
-    ),
-    re_path(
-        r"^grafana-proxy/(?P<path>.*)$",
-        GrafanaProxyView.as_view(),
-        name="nimbus-ui-grafana-proxy",
     ),
     re_path(
         r"^tags/manage/$",
@@ -327,7 +314,6 @@ urlpatterns = [
         BranchLeadingScreenshotView.as_view(),
         name="nimbus-ui-branch-leading-screenshot-upload",
     ),
-    # ── New UI URLs (shared across rollouts and experiments) ───────────────────
     re_path(
         r"^new/rollouts/(?P<slug>[\w-]+)/$",
         NimbusRolloutDetailView.as_view(),
@@ -337,11 +323,6 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/update_overview/$",
         NewOverviewUpdateView.as_view(),
         name="nimbus-ui-new-update-overview",
-    ),
-    re_path(
-        r"^new/(?P<slug>[\w-]+)/update_risks/$",
-        NewRisksUpdateView.as_view(),
-        name="nimbus-ui-new-update-risks",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/create_documentation_link/$",

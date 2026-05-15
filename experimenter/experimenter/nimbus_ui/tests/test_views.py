@@ -5755,7 +5755,121 @@ class TestTagAssignView(AuthTestCase):
         self.assertEqual(experiment.tags.count(), 0)
 
 
-<<<<<<< HEAD
+class TestGrafanaProxyView(AuthTestCase):
+    def _dashboard_url(self, slug):
+        return (
+            reverse("nimbus-ui-grafana-proxy", kwargs={"path": ""}) + f"?slug={slug}"
+        )
+
+    @patch("experimenter.nimbus_ui.views.requests.get")
+    def test_proxy_returns_grafana_html(self, mock_get):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="my-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.headers = {"Content-Type": "text/html; charset=utf-8"}
+        mock_get.return_value.text = (
+            '<html><head><base href="/"></head><body></body></html>'
+        )
+
+        response = self.client.get(self._dashboard_url(feature.slug))
+
+        self.assertEqual(response.status_code, 200)
+        mock_get.assert_called_once()
+        call_url = mock_get.call_args[0][0]
+        self.assertIn("nimbus-feature-monitoring", call_url)
+
+    @patch("experimenter.nimbus_ui.views.requests.get")
+    def test_proxy_rewrites_base_href(self, mock_get):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="my-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.headers = {"Content-Type": "text/html"}
+        mock_get.return_value.text = '<base href="/">'
+
+        response = self.client.get(self._dashboard_url(feature.slug))
+
+        self.assertIn(b"/nimbus/grafana-proxy/", response.content)
+        self.assertNotIn(b'base href="/"', response.content)
+
+    @patch("experimenter.nimbus_ui.views.requests.get")
+    def test_proxy_rewrites_app_url_in_boot_data(self, mock_get):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="my-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.headers = {"Content-Type": "text/html"}
+        mock_get.return_value.text = '"appUrl":"https://yardstick.mozilla.org/"'
+
+        response = self.client.get(self._dashboard_url(feature.slug))
+
+        self.assertIn(b"/nimbus/grafana-proxy/", response.content)
+        self.assertNotIn(b"yardstick.mozilla.org", response.content)
+
+    @patch("experimenter.nimbus_ui.views.requests.get")
+    def test_proxy_returns_binary_content_unchanged(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.headers = {"Content-Type": "application/javascript"}
+        mock_get.return_value.content = b"console.log('hello');"
+
+        response = self.client.get(
+            reverse("nimbus-ui-grafana-proxy", kwargs={"path": "public/build/app.js"}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b"console.log('hello');")
+
+    @patch(
+        "experimenter.nimbus_ui.views.requests.get",
+        side_effect=requests.exceptions.ConnectionError("connection refused"),
+    )
+    def test_proxy_returns_503_when_grafana_unavailable(self, mock_get):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="my-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        response = self.client.get(self._dashboard_url(feature.slug))
+
+        self.assertEqual(response.status_code, 503)
+
+    def test_proxy_requires_login(self):
+        self.client.defaults.pop(settings.OPENIDC_EMAIL_HEADER)
+        response = self.client.get(
+            reverse("nimbus-ui-grafana-proxy", kwargs={"path": "d/abc/my-dashboard"}),
+        )
+        self.assertNotEqual(response.status_code, 200)
+
+    @override_settings(GRAFANA_SERVICE_ACCOUNT_TOKEN="test-token")
+    @patch("experimenter.nimbus_ui.views.requests.get")
+    def test_proxy_sends_service_account_token(self, mock_get):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="my-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.headers = {"Content-Type": "text/html"}
+        mock_get.return_value.text = ""
+
+        self.client.get(self._dashboard_url(feature.slug))
+
+        call_headers = mock_get.call_args[1]["headers"]
+        self.assertEqual(call_headers["Authorization"], "Bearer test-token")
+
+    def test_proxy_returns_400_when_slug_missing(self):
+        response = self.client.get(
+            reverse("nimbus-ui-grafana-proxy", kwargs={"path": ""}),
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_proxy_returns_404_when_slug_invalid(self):
+        response = self.client.get(self._dashboard_url("nonexistent-feature"))
+        self.assertEqual(response.status_code, 404)
+
+
 class TestNewOverviewUpdateView(AuthTestCase):
     url_name = "nimbus-ui-new-update-overview"
 
