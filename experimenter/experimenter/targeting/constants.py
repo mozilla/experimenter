@@ -2449,10 +2449,7 @@ EXISTING_USER_NEED_DEFAULT_WIN1903 = NimbusTargetingConfig(
 EXISTING_USER_ONLY_WIN10 = NimbusTargetingConfig(
     name="Existing user on Windows 10 only",
     slug="existing_user_win10",
-    description=(
-        "Users with profiles older than 28 days "
-        "who are on Windows 10"
-    ),
+    description=("Users with profiles older than 28 days who are on Windows 10"),
     targeting=f"{PROFILE28DAYS} && {WIN10_NOT_WIN11.targeting}",
     desktop_telemetry="",
     sticky_required=True,
