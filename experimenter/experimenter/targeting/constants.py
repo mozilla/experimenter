@@ -1168,9 +1168,7 @@ WIN10_NEED_DEFAULT = NimbusTargetingConfig(
 WIN10_EXISTING_USERS_NEED_DEFAULT = NimbusTargetingConfig(
     name="Windows 10 existing users needing default",
     slug="win10_existing_users_need_default",
-    description=(
-        "Windows 10 users with profiles older than 28 days needing default"
-    ),
+    description=("Windows 10 users with profiles older than 28 days needing default"),
     targeting=f"{PROFILE28DAYS} && {WIN10_NEED_DEFAULT.targeting}",
     desktop_telemetry="",
     sticky_required=False,
