@@ -1165,6 +1165,17 @@ WIN10_NEED_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN10_EXISTING_USERS_NEED_DEFAULT = NimbusTargetingConfig(
+    name="Windows 10 existing users needing default",
+    slug="win10_existing_users_need_default",
+    description=("Windows 10 users with profiles older than 28 days needing default"),
+    targeting=f"{PROFILE28DAYS} && {WIN10_NEED_DEFAULT.targeting}",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 GUIDANCE_NOTIFICATION_GIF_EXPERIMENT = NimbusTargetingConfig(
     name="Guidance notification GIF experiment",
     slug="guidance_notification_gif_experiment",
