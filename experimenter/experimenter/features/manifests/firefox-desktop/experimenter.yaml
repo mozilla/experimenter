@@ -2290,6 +2290,18 @@ pdfjs:
         branch: default
         pref: pdfjs.enableSignatureEditor
 
+fxms-message:
+  description: A messaging channel that supports multiple simultaneous enrollments
+  owner: omc@mozilla.com
+  allowCoenrollment: true
+  hasExposure: true
+  exposureDescription: >-
+    "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
+  schema:
+    uri: "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json"
+    path: "browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json"
+  variables: {}
+
 # fxms-message-* placeholder feature ids
 #
 # https://docs.google.com/spreadsheets/d/119YbeKStLL0Fg2QkK-yN93mrtD1rlneGZGTl_jAwtyw/edit#gid=1903378504
@@ -2964,11 +2976,23 @@ networking:
         branch: default
         pref: "network.http.http3.cc_algorithm"
     http3SlowStartAlgorithm:
-      description: The slow start algorithm with which to configure neqo. Use 0 for Classic, 1 for HyStart++.
+      description: The slow start algorithm with which to configure neqo. Use 0 for Classic, 1 for HyStart++, 2 for SEARCH.
       type: int
       setPref:
         branch: default
         pref: "network.http.http3.slow_start_algorithm"
+    http3HyStartAlternativeCssBaseline:
+      description: Whether the HyStart++ alternative CSS baseline value should be used. Has no effect if HyStart++ is not used.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.hystart_alternative_css_baseline"
+    http3SpuriousRecovery:
+      description: Whether Spurious Congestion Event Recovery is turned on.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.spurious_recovery"
     enableOffMainThreadStreamDecompression:
       description: Whether to enable decompression of network streams off-main-thread
       type: boolean
