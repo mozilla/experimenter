@@ -23,6 +23,7 @@ from experimenter.nimbus_ui.views import (
     DraftToReviewView,
     EditOutcomeSummaryView,
     FeatureSubscribersUpdateView,
+    GrafanaProxyView,
     LiveToCompleteView,
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
@@ -78,6 +79,11 @@ urlpatterns = [
         r"^features/",
         NimbusFeaturesView.as_view(),
         name="nimbus-ui-features",
+    ),
+    re_path(
+        r"^grafana-proxy/$",
+        GrafanaProxyView.as_view(),
+        name="nimbus-ui-grafana-proxy",
     ),
     re_path(
         r"^tags/manage/$",

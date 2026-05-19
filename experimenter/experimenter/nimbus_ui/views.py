@@ -1,6 +1,5 @@
 import json
-import re
-from urllib.parse import parse_qs, urlparse
+from django.shortcuts import get_object_or_404
 
 import requests
 from deepdiff import DeepDiff
@@ -1171,35 +1170,35 @@ class NimbusFeaturesView(TemplateView):
 # Grafana is behind Google IAP, which blocks third-party cookies in iframes.
 # Both Experimenter and Grafana run in the same k8s cluster, so the backend
 # can reach Grafana via internal DNS (bypassing IAP) and proxy it to the browser.
-_GRAFANA_PROXY_PREFIX = "/nimbus/grafana-proxy/"
 _SAFE_RESPONSE_HEADERS = ("Cache-Control", "ETag", "Last-Modified", "Content-Type")
 
 
 class GrafanaProxyView(LoginRequiredMixin, View):
-    def get(self, request, path=""):
-        if not path:
-            # Dashboard request: validate slug against the DB and construct the
-            # Grafana URL server-side so user-supplied input never reaches the
-            # upstream target directly.
-            slug = request.GET.get("slug")
-            if not slug:
-                return HttpResponse("Missing slug parameter", status=400)
-            try:
-                feature_config = NimbusFeatureConfig.objects.get(slug=slug)
-            except NimbusFeatureConfig.DoesNotExist:
-                return HttpResponse("Feature not found", status=404)
-            parsed = urlparse(feature_config.feature_monitoring_url)
-            path = parsed.path.lstrip("/")
-            # Merge the monitoring URL's own query params with any extra params
-            # from the request (e.g. kiosk), excluding the slug itself.
-            params = parse_qs(parsed.query, keep_blank_values=True)
-            for key, value in request.GET.items():
-                if key != "slug":
-                    params[key] = [value]
-        else:
-            params = request.GET
+    def get(self, request):
+        slug = request.GET.get("slug")
+        if not slug:
+            return HttpResponse("Missing slug parameter", status=400)
 
-        target = f"{settings.GRAFANA_INTERNAL_URL.rstrip('/')}/{path}"
+        feature_config = get_object_or_404(NimbusFeatureConfig, slug=slug)
+
+        # Construct the Grafana URL entirely from known-safe components.
+        # User input (slug) is validated against the DB before use;
+        # the host and dashboard path come from settings only.
+        application = (feature_config.application or "").replace("-", "_")
+        target = "{base}/{path}".format(
+            base=settings.GRAFANA_INTERNAL_URL.rstrip("/"),
+            path=settings.GRAFANA_FEATURE_MONITORING_DASHBOARD_PATH,
+        )
+        params = {
+            "orgId": "1",
+            "from": "now-7d",
+            "to": "now",
+            "timezone": "utc",
+            "var-application": application,
+            "var-feature": feature_config.slug,
+            "kiosk": "",
+        }
+
         headers = {}
         if settings.GRAFANA_SERVICE_ACCOUNT_TOKEN:
             headers["Authorization"] = (
@@ -1216,17 +1215,13 @@ class GrafanaProxyView(LoginRequiredMixin, View):
         except requests.exceptions.RequestException:
             return HttpResponse("Grafana is unavailable", status=503)
 
-        content_type = upstream.headers.get("Content-Type", "application/octet-stream")
-
-        if "text/html" in content_type:
-            body = self._rewrite_html(upstream.text)
-            response = HttpResponse(
-                body, content_type=content_type, status=upstream.status_code
-            )
-        else:
-            response = HttpResponse(
-                upstream.content, content_type=content_type, status=upstream.status_code
-            )
+        response = HttpResponse(
+            upstream.content,
+            content_type=upstream.headers.get(
+                "Content-Type", "application/octet-stream"
+            ),
+            status=upstream.status_code,
+        )
 
         for header in _SAFE_RESPONSE_HEADERS:
             if value := upstream.headers.get(header):
@@ -1234,23 +1229,6 @@ class GrafanaProxyView(LoginRequiredMixin, View):
 
         response["X-Frame-Options"] = "SAMEORIGIN"
         return response
-
-    def _rewrite_html(self, html):
-        # Rewrite <base href> so relative asset paths (JS, CSS, fonts) resolve
-        # through our proxy instead of directly to Grafana's public URL.
-        html = re.sub(
-            r'(<base\s+href=")[^"]*(")',
-            rf"\g<1>{_GRAFANA_PROXY_PREFIX}\2",
-            html,
-        )
-        # Rewrite appUrl in window.grafanaBootData so Grafana's JS routes
-        # API calls (datasources, dashboards) through our proxy too.
-        html = re.sub(
-            r'("appUrl"\s*:\s*")[^"]*(")',
-            rf"\g<1>{_GRAFANA_PROXY_PREFIX}\2",
-            html,
-        )
-        return html
 
 
 class NimbusExperimentsHomeView(FilterView):
