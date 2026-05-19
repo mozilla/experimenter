@@ -312,6 +312,10 @@ homepage-sports-widget:
     enabled:
       type: boolean
       description: If true, Homepage Sports Widget is enabled.
+    force-one-week-to-world-cup:
+      type: boolean
+      description: |
+        If true, treat the user as being within one week of the World Cup kickoff regardless of the device date. Used to roll out the pre-tournament pager (follow your team + view-schedule cards) ahead of the calendar date for testing or staggered launches. The natural date-based check still applies when this is false (the default).
 homescreen:
   description: The homescreen that the user goes to when they press home or new tab.
   hasExposure: true
