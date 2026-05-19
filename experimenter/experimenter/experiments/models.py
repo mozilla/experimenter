@@ -21,7 +21,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Case, Count, F, Prefetch, Q, QuerySet, When
+from django.db.models import Case, F, Prefetch, Q, QuerySet, When
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -1712,24 +1712,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
         ]
 
-    @property
-    def feature_has_live_multifeature_experiments(self):
-        matching = []
-        live_experiments = NimbusExperiment.objects.filter(
-            status=self.Status.LIVE,
-            application=self.application,
+    def channels_overlap(self, candidate):
+        matches_all = {"", NimbusExperiment.Channel.NO_CHANNEL}
+        if self.is_desktop:
+            self_channels = set(self.channels) - matches_all
+            candidate_channels = set(candidate.channels) - matches_all
+        else:
+            self_channels = {self.channel} - matches_all
+            candidate_channels = {candidate.channel} - matches_all
+        if not self_channels or not candidate_channels:
+            return True
+        return bool(self_channels & candidate_channels)
+
+    def targeting_configs_overlap(self, candidate):
+        matches_all = {"", NimbusExperiment.TargetingConfig.NO_TARGETING}
+        return (
+            self.targeting_config_slug in matches_all
+            or candidate.targeting_config_slug in matches_all
+            or self.targeting_config_slug == candidate.targeting_config_slug
         )
-        if live_experiments.exists():
-            feature_slugs = self.feature_configs.all().values_list("slug", flat=True)
-            candidates = (
-                live_experiments.annotate(n_feature_configs=Count("feature_configs"))
-                .filter(n_feature_configs__gt=1)
-                .filter(feature_configs__slug__in=feature_slugs)
-                .exclude(id=self.id)
-                .order_by("slug")
-            )
-            matching = self.audience_overlap(candidates)
-        return matching
 
     @property
     def excluded_live_deliveries(self):
@@ -1747,21 +1748,205 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             )
         return matching
 
-    @property
-    def live_experiments_in_namespace(self):
-        experiment_ids = NimbusBucketRange.objects.filter(
-            isolation_group__name=self.bucket_namespace,
-            isolation_group__application=self.application,
-        ).values_list("experiment_id", flat=True)
+    def feature_allows_coenrollment(self, feature_config):
+        if not self.firefox_min_version:
+            return False
+        min_version = NimbusExperiment.Version.parse(self.firefox_min_version)
+        max_version = (
+            NimbusExperiment.Version.parse(self.firefox_max_version)
+            if self.firefox_max_version
+            else None
+        )
+        schemas = feature_config.get_versioned_schema_range(
+            min_version, max_version
+        ).schemas
+        return bool(schemas) and all(schema.allow_coenrollment for schema in schemas)
+
+    def slot_collisions(self):
+        contesting_features = [
+            fc
+            for fc in self.feature_configs.all()
+            if not self.feature_allows_coenrollment(fc)
+        ]
+        if not contesting_features:
+            return []
+
+        contesting_ids = [fc.id for fc in contesting_features]
+        feature_by_id = {fc.id: fc for fc in contesting_features}
+
+        # Same-polarity only: cross-polarity (rollout-vs-experiment) is a
+        # value-override case at value-resolution time
+        # (map_features_by_feature_id in enrollment.rs) and does not produce
+        # a FeatureConflict — both deliveries still enroll. We only warn on
+        # the case where one side fully refuses to enroll.
         candidates = (
             NimbusExperiment.objects.filter(
-                id__in=experiment_ids,
-                status=NimbusExperiment.Status.LIVE,
+                status=self.Status.LIVE,
+                application=self.application,
+                is_rollout=self.is_rollout,
+                feature_configs__id__in=contesting_ids,
             )
             .exclude(id=self.id)
+            .distinct()
             .order_by("slug")
         )
-        return self.audience_overlap(candidates)
+        overlapping_slugs = set(self.audience_overlap(candidates))
+        if not overlapping_slugs:
+            return []
+
+        self_namespace = self.bucket_namespace
+        collisions = []
+        for candidate in candidates.filter(slug__in=overlapping_slugs):
+            if not self.channels_overlap(candidate):
+                continue
+            if not self.targeting_configs_overlap(candidate):
+                continue
+            candidate_feature_ids = set(
+                candidate.feature_configs.values_list("id", flat=True)
+            )
+            shared_ids = sorted(set(contesting_ids) & candidate_feature_ids)
+            shared_features = [
+                {"slug": feature_by_id[fid].slug, "id": fid} for fid in shared_ids
+            ]
+
+            same_namespace = candidate.bucket_namespace == self_namespace
+            matching_configuration = bool(
+                self.is_rollout
+                and self.targeting_config_slug
+                and candidate.targeting_config_slug == self.targeting_config_slug
+                and candidate.channel == self.channel
+                and same_namespace
+            )
+
+            collisions.append(
+                {
+                    "slug": candidate.slug,
+                    "shared_features": shared_features,
+                    "same_namespace": same_namespace,
+                    "matching_configuration": matching_configuration,
+                }
+            )
+
+        return collisions
+
+    def pref_collision_slugs(self):
+        if not (self.is_desktop and not self.is_rollout and self.prevent_pref_conflicts):
+            return []
+        pref_setting_feature_ids = (
+            self.feature_configs.exclude(schemas__set_pref_vars={})
+            .distinct()
+            .values_list("id", flat=True)
+        )
+        if not pref_setting_feature_ids:
+            return []
+        return list(
+            NimbusExperiment.objects.filter(
+                status=self.Status.LIVE,
+                application=self.application,
+                channels__overlap=self.channels,
+                feature_configs__id__in=pref_setting_feature_ids,
+                is_rollout=True,
+            )
+            .exclude(id=self.id)
+            .distinct()
+            .order_by("slug")
+            .values_list("slug", flat=True)
+        )
+
+    def excluded_collision_reasons(self):
+        reason = {
+            "label": (
+                NimbusUIConstants.COLLISION_LABEL_EXCLUDED_BY_ROLLOUT
+                if self.is_rollout
+                else NimbusUIConstants.COLLISION_LABEL_EXCLUDED_BY_EXPERIMENT
+            ),
+            "detail": NimbusUIConstants.COLLISION_DETAIL_EXCLUDED,
+            "learn_more_url": NimbusUIConstants.COLLISION_LEARN_MORE_EXCLUDED,
+        }
+        return [(slug, reason) for slug in self.excluded_live_deliveries]
+
+    def slot_collision_reasons(self):
+        features_url = reverse("nimbus-ui-features")
+
+        def feature_link(feature):
+            return {
+                "slug": feature["slug"],
+                "url": (
+                    f"{features_url}?application={self.application}"
+                    f"&feature_configs={feature['id']}"
+                ),
+            }
+
+        pairs = []
+        for collision in self.slot_collisions():
+            slug = collision["slug"]
+            pairs.append(
+                (
+                    slug,
+                    {
+                        "label_prefix": NimbusUIConstants.COLLISION_LABEL_SHARES_FEATURE,
+                        "shared_features": [
+                            feature_link(f) for f in collision["shared_features"]
+                        ],
+                        "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_FEATURE,
+                        "learn_more_url": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                    },
+                )
+            )
+            if collision["same_namespace"]:
+                pairs.append(
+                    (
+                        slug,
+                        {
+                            "label": NimbusUIConstants.COLLISION_LABEL_SHARES_AUDIENCE,
+                            "detail": NimbusUIConstants.COLLISION_DETAIL_SHARES_AUDIENCE,
+                            "learn_more_url": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                        },
+                    )
+                )
+            if collision["matching_configuration"]:
+                pairs.append(
+                    (
+                        slug,
+                        {
+                            "label": (
+                                NimbusUIConstants.COLLISION_LABEL_MATCHING_CONFIGURATION
+                            ),
+                            "detail": (
+                                NimbusUIConstants.COLLISION_DETAIL_MATCHING_CONFIGURATION
+                            ),
+                            "learn_more_url": (
+                                NimbusUIConstants.COLLISION_LEARN_MORE_MATCHING_CONFIGURATION
+                            ),
+                        },
+                    )
+                )
+        return pairs
+
+    def pref_collision_reasons(self):
+        reason = {
+            "label": NimbusUIConstants.COLLISION_LABEL_SETS_SAME_PREFERENCE,
+            "detail": NimbusUIConstants.COLLISION_DETAIL_SETS_SAME_PREFERENCE,
+            "learn_more_url": NimbusUIConstants.COLLISION_LEARN_MORE_SETS_SAME_PREFERENCE,
+        }
+        return [(slug, reason) for slug in self.pref_collision_slugs()]
+
+    @property
+    def collision_warnings(self):
+        if self.status not in (self.Status.DRAFT, self.Status.PREVIEW):
+            return {"deliveries": []}
+
+        deliveries_by_slug = {}
+        for slug, reason in (
+            *self.excluded_collision_reasons(),
+            *self.slot_collision_reasons(),
+            *self.pref_collision_reasons(),
+        ):
+            entry = deliveries_by_slug.setdefault(slug, {"slug": slug, "reasons": []})
+            entry["reasons"].append(reason)
+
+        deliveries = sorted(deliveries_by_slug.values(), key=lambda d: d["slug"])
+        return {"deliveries": deliveries}
 
     @property
     def can_edit(self):
@@ -1951,28 +2136,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.publish_status == self.PublishStatus.WAITING and review_expired
 
     @property
-    def rollout_conflict_warning(self):
-        if not self.is_rollout:
-            return None
-
-        duplicate_rollouts = NimbusExperiment.objects.filter(
-            status=self.Status.LIVE,
-            channel=self.channel,
-            application=self.application,
-            targeting_config_slug=self.targeting_config_slug,
-            feature_configs__in=self.feature_configs.all(),
-            is_rollout=True,
-        ).exclude(id=self.id)
-
-        if self.audience_overlap(duplicate_rollouts):
-            return {
-                "text": NimbusUIConstants.ERROR_ROLLOUT_BUCKET_EXISTS,
-                "variant": "danger",
-                "slugs": [],
-                "learn_more_link": NimbusUIConstants.ROLLOUT_BUCKET_WARNING,
-            }
-
-    @property
     def rollout_version_warning(self):
         if not self.is_rollout or not self.firefox_min_version:
             return None
@@ -1998,102 +2161,65 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             }
 
     @property
-    def pref_targeting_rollout_collision_warning(self):
-        if self.is_desktop and not self.is_rollout and self.prevent_pref_conflicts:
-            colliding_experiments = NimbusExperiment.objects.filter(
-                status=self.Status.LIVE,
-                application=self.application,
-                channels__overlap=self.channels,
-                feature_configs__id__in=self.feature_configs.exclude(
-                    schemas__set_pref_vars={}
-                )
-                .distinct()
-                .values_list("id", flat=True),
-                is_rollout=True,
-            ).values_list("slug", flat=True)
-
-            if colliding_experiments:
-                return {
-                    "text": NimbusUIConstants.PREF_TARGETING_WARNING,
-                    "variant": "warning",
-                    "slugs": list(colliding_experiments),
-                    "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
-                }
-
-    @property
     def audience_overlap_warnings(self):
-        warnings = []
-        excluded_live_deliveries = ""
-        if self.excluded_live_deliveries:
-            excluded_live_deliveries = ", ".join(self.excluded_live_deliveries)
+        if self.status not in [
+            NimbusConstants.Status.DRAFT,
+            NimbusConstants.Status.PREVIEW,
+        ]:
+            return []
 
-        feature_has_live_multifeature_experiments = ""
-        if self.feature_has_live_multifeature_experiments:
-            feature_has_live_multifeature_experiments = ", ".join(
-                self.feature_has_live_multifeature_experiments
+        collisions = self.collision_warnings
+        entries = [
+            {"slug": d["slug"], "reasons": d["reasons"]} for d in collisions["deliveries"]
+        ]
+
+        self_issues = []
+
+        if version_warning := self.rollout_version_warning:
+            self_issues.append(
+                {
+                    "label": (
+                        NimbusUIConstants.COLLISION_SELF_ISSUE_VERSION_BELOW_MINIMUM
+                    ),
+                    "detail": version_warning["text"],
+                    "learn_more_url": (
+                        NimbusUIConstants.COLLISION_LEARN_MORE_VERSION_BELOW_MINIMUM
+                    ),
+                }
             )
 
-        live_experiments_in_namespace = ""
-        if self.live_experiments_in_namespace:
-            live_experiments_in_namespace = ", ".join(self.live_experiments_in_namespace)
+        if self.is_desktop and not self.is_rollout and len(self.channels) > 1:
+            self_issues.append(
+                {
+                    "label": NimbusUIConstants.COLLISION_SELF_ISSUE_MULTICHANNEL,
+                    "detail": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
+                }
+            )
 
-        overlapping_warnings = (
-            feature_has_live_multifeature_experiments
-            and live_experiments_in_namespace
-            and feature_has_live_multifeature_experiments in live_experiments_in_namespace
-        )
+        if not entries and not self_issues:
+            return []
 
-        if self.status in [NimbusConstants.Status.DRAFT, NimbusConstants.Status.PREVIEW]:
-            if excluded_live_deliveries:
-                warnings.append(
-                    {
-                        "text": NimbusUIConstants.EXCLUDING_EXPERIMENTS_WARNING,
-                        "slugs": self.excluded_live_deliveries,
-                        "variant": "warning",
-                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
-                    }
-                )
+        return [
+            {
+                "text": self.collision_card_header(entries, self_issues),
+                "entries": entries,
+                "self_issues": self_issues,
+                "variant": "warning",
+                "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+            }
+        ]
 
-            if live_experiments_in_namespace and not overlapping_warnings:
-                warnings.append(
-                    {
-                        "text": NimbusUIConstants.LIVE_EXPERIMENTS_BUCKET_WARNING,
-                        "slugs": self.live_experiments_in_namespace,
-                        "variant": "warning",
-                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
-                    }
-                )
-
-            if feature_has_live_multifeature_experiments:
-                warnings.append(
-                    {
-                        "text": NimbusUIConstants.LIVE_MULTIFEATURE_WARNING,
-                        "slugs": self.feature_has_live_multifeature_experiments,
-                        "variant": "warning",
-                        "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
-                    }
-                )
-
-            if rollout_conflict_warning := self.rollout_conflict_warning:
-                warnings.append(rollout_conflict_warning)
-
-            if rollout_version_warning := self.rollout_version_warning:
-                warnings.append(rollout_version_warning)
-
-            if pref_collision_warning := self.pref_targeting_rollout_collision_warning:
-                warnings.append(pref_collision_warning)
-
-            if self.is_desktop and not self.is_rollout and len(self.channels) > 1:
-                warnings.append(
-                    {
-                        "text": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
-                        "slugs": [],
-                        "variant": "warning",
-                        "learn_more_link": "",
-                    }
-                )
-
-        return warnings
+    def collision_card_header(self, entries, self_issues):
+        target = "rollout" if self.is_rollout else "experiment"
+        if entries and self_issues:
+            return NimbusUIConstants.COLLISION_CARD_HEADER_SELF_AND_COLLISIONS.format(
+                target=target
+            )
+        if entries:
+            return NimbusUIConstants.COLLISION_CARD_HEADER_COLLISIONS_ONLY.format(
+                target=target
+            )
+        return NimbusUIConstants.COLLISION_CARD_HEADER_SELF_ONLY.format(target=target)
 
     @property
     def has_results_errors(self):

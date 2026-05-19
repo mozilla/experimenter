@@ -48,28 +48,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "within a healthy range — below the alert threshold."
     )
 
-    EXCLUDING_EXPERIMENTS_WARNING = """The following experiments are being excluded by
-    your experiment and may reduce the eligible population for your experiment which
-    may result in reduced statistical power and precision. Please check that the
-    configured population proportion has accounted for this:"""
-    LIVE_EXPERIMENTS_BUCKET_WARNING = """The following experiments are LIVE on a
-    previous namespace and may reduce the eligible population for your experiment
-    which may result in reduced statistical power and precision. Please check that
-    the configured population proportion has accounted for this:"""
-    LIVE_MULTIFEATURE_WARNING = """The following multi-feature experiments are LIVE
-    and may reduce the eligible population for your experiment which may result in
-    reduced statistical power and precision. Please check that the configured population
-    proportion has accounted for this:"""
-    ERROR_ROLLOUT_BUCKET_EXISTS = """WARNING: A rollout already exists for this
-    combination of application, feature, channel, and advanced targeting!
-        If this rollout is launched, a client meeting the advanced
-        targeting criteria will be enrolled in one and not the other and
-        you will not be able to adjust the sizing for this rollout."""
-    PREF_TARGETING_WARNING = """WARNING: The following rollouts are LIVE
-    that set the same prefs and may reduce the eligible population for your experiment
-    which may result in reduced statistical power and precision or prevent enrollment
-    entirely. Please check that the configured population proportion has accounted for
-    this:"""
     EXPERIMENT_MULTICHANNEL_WARNING = """WARNING: This experiment is targeting multiple
     channels.  Each channel has significantly different population sizes and user
     behaviour.  Running an experiment on multiple channels can create misleading or
@@ -78,8 +56,77 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     AUDIENCE_OVERLAP_WARNING = (
         "https://experimenter.info/advanced/warnings#audience-overlap"
     )
-    ROLLOUT_BUCKET_WARNING = (
+
+    # --- collision_warnings card headers ---
+    COLLISION_CARD_HEADER_COLLISIONS_ONLY = (
+        "WARNING: The following live {target}s may conflict with this {target}:"
+    )
+    COLLISION_CARD_HEADER_SELF_AND_COLLISIONS = (
+        "WARNING: Issues that may affect enrollment for this {target}:"
+    )
+    COLLISION_CARD_HEADER_SELF_ONLY = "WARNING: Issues with this {target}:"
+
+    # --- collision_warnings reason labels ---
+    COLLISION_LABEL_EXCLUDED_BY_ROLLOUT = "Excluded by this rollout"
+    COLLISION_LABEL_EXCLUDED_BY_EXPERIMENT = "Excluded by this experiment"
+    COLLISION_LABEL_SHARES_FEATURE = "Shares feature"
+    COLLISION_LABEL_SHARES_AUDIENCE = "Shares an audience"
+    COLLISION_LABEL_MATCHING_CONFIGURATION = "Has matching configuration"
+    COLLISION_LABEL_SETS_SAME_PREFERENCE = "Sets the same preference"
+
+    # --- collision_warnings reason detail tooltips ---
+    COLLISION_DETAIL_EXCLUDED = (
+        "Clients enrolled in this delivery are filtered out of the eligible "
+        "population, which may reduce statistical power and precision. Verify "
+        "the configured population proportion accounts for this."
+    )
+    COLLISION_DETAIL_SHARES_FEATURE = (
+        "This live delivery already holds the feature slot for contested "
+        "clients; this delivery will not enroll them."
+    )
+    COLLISION_DETAIL_SHARES_AUDIENCE = (
+        "This live delivery shares the same audience, so each client can only "
+        "be enrolled in one of these. This reduces the eligible population "
+        "and may reduce statistical power and precision. Verify the "
+        "configured population proportion accounts for this."
+    )
+    COLLISION_DETAIL_MATCHING_CONFIGURATION = (
+        "A live rollout already exists with the same application, feature, "
+        "channel, and advanced targeting. Clients meeting the targeting will "
+        "enroll in one or the other, and the sizing for this rollout cannot "
+        "be adjusted."
+    )
+    COLLISION_DETAIL_SETS_SAME_PREFERENCE = (
+        "This live rollout sets the same Firefox preference as this "
+        "delivery. The collision may reduce the eligible population or "
+        "prevent enrollment entirely. Verify the configured population "
+        "proportion accounts for this."
+    )
+
+    # --- collision_warnings self-issue labels ---
+    COLLISION_SELF_ISSUE_VERSION_BELOW_MINIMUM = (
+        "Firefox version below the rollout minimum"
+    )
+    COLLISION_SELF_ISSUE_MULTICHANNEL = "Targeting multiple channels"
+
+    # --- collision_warnings per-reason learn-more URLs ---
+    # Only set where the doc page directly addresses the warning. Reasons
+    # without a tight-fit doc page (Shares feature, Shares an audience,
+    # Targeting multiple channels) have no link until the docs are updated.
+    COLLISION_LEARN_MORE_EXCLUDED = (
+        "https://experimenter.info/advanced/warnings"
+        "#an-experiment-excludes-other-live-deliveries"
+    )
+    COLLISION_LEARN_MORE_MATCHING_CONFIGURATION = (
         "https://experimenter.info/advanced/warnings#rollout-bucketing-warning"
+    )
+    COLLISION_LEARN_MORE_SETS_SAME_PREFERENCE = (
+        "https://experimenter.info/advanced/warnings"
+        "#rollouts-and-setpref-interaction-(desktop)"
+    )
+    COLLISION_LEARN_MORE_VERSION_BELOW_MINIMUM = (
+        "https://experimenter.info/advanced/rollouts"
+        "#supported-platforms-and-minimum-versions"
     )
     TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
     targeting list - file a new targeting request with this link, and share the created

@@ -2,11 +2,55 @@
   {% for warning in experiment.audience_overlap_warnings %}
     <div class="alert alert-{{ warning.variant|default:'warning' }}"
          role="alert">
-      <p class="mb-1">{{ warning.text }}</p>
+      <p class="mb-1">
+        <i class="fa-solid fa-triangle-exclamation me-1"></i>
+        {{ warning.text }}
+      </p>
       <ul class="mb-1">
-        {% for slug in warning.slugs %}
+        {% for entry in warning.entries %}
           <li>
-            <a target="_blank" href="{% url "nimbus-ui-detail" slug=slug %}">{{ slug }}</a>
+            <a target="_blank" href="{% url "nimbus-ui-detail" slug=entry.slug %}">{{ entry.slug }}</a>
+            <span class="text-muted">
+              (
+              {% for reason in entry.reasons %}
+                {% if reason.shared_features %}
+                  {{ reason.label_prefix }}
+                  {% for feature in reason.shared_features %}
+                    <a target="_blank" href="{{ feature.url }}">{{ feature.slug }}</a>
+                    {% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                {% else %}
+                  {{ reason.label }}
+                {% endif %}
+                <i class="fa-regular fa-circle-question fa-sm"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   title="{{ reason.detail }}"></i>
+                {% if reason.learn_more_url %}
+                  <a href="{{ reason.learn_more_url }}"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     class="ms-1">Learn more</a>
+                {% endif %}
+                {% if not forloop.last %},{% endif %}
+              {% endfor %}
+              )
+            </span>
+          </li>
+        {% endfor %}
+        {% for issue in warning.self_issues %}
+          <li>
+            <span>{{ issue.label }}</span>
+            <i class="fa-regular fa-circle-question fa-sm"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               title="{{ issue.detail }}"></i>
+            {% if issue.learn_more_url %}
+              <a href="{{ issue.learn_more_url }}"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="ms-1">Learn more</a>
+            {% endif %}
           </li>
         {% endfor %}
       </ul>
