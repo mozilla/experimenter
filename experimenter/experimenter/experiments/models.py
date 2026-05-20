@@ -138,9 +138,7 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
 
     def waiting_to_end_queue(self, applications, collection):
         return self.for_collection(
-            self.filter(
-                NimbusExperiment.Filters.IS_ENDING, application__in=applications
-            ),
+            self.filter(NimbusExperiment.Filters.IS_ENDING, application__in=applications),
             collection,
         )
 
@@ -174,15 +172,11 @@ class NimbusExperimentBranchThrough(models.Model):
         unique_together = ("parent_experiment", "child_experiment", "branch_slug")
 
 
-class NimbusExperimentBranchThroughRequired(
-    NimbusExperimentBranchThrough
-):  # noqa: DJ008
+class NimbusExperimentBranchThroughRequired(NimbusExperimentBranchThrough):  # noqa: DJ008
     pass
 
 
-class NimbusExperimentBranchThroughExcluded(
-    NimbusExperimentBranchThrough
-):  # noqa: DJ008
+class NimbusExperimentBranchThroughExcluded(NimbusExperimentBranchThrough):  # noqa: DJ008
     pass
 
 
@@ -415,9 +409,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     # Cached dates
     _updated_date_time = models.DateTimeField(auto_now=True)
     _start_date = models.DateField("Start Date", blank=True, null=True)
-    _enrollment_end_date = models.DateField(
-        "Enrollment End Date", blank=True, null=True
-    )
+    _enrollment_end_date = models.DateField("Enrollment End Date", blank=True, null=True)
     _computed_end_date = models.DateField("Computed End Date", blank=True, null=True)
     _end_date = models.DateField("End Date", blank=True, null=True)
 
@@ -969,9 +961,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def should_show_end_enrollment(self):
         # If these conditions change then you must update
         # `LiveToEndEnrollmentForm.clean`.
-        return self.is_enrolling and (
-            not self.is_rollout or self.is_firefox_labs_opt_in
-        )
+        return self.is_enrolling and (not self.is_rollout or self.is_firefox_labs_opt_in)
 
     @property
     def should_show_end_experiment(self):
@@ -1026,8 +1016,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def review_date(self):
         if change := (
             self.changes.filter(
-                new_status=self.Status.DRAFT,
-                new_publish_status=self.PublishStatus.REVIEW,
+                new_status=self.Status.DRAFT, new_publish_status=self.PublishStatus.REVIEW
             )
             .order_by("changed_on")
             .first()
@@ -1090,10 +1079,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def enrollment_percent_completion(self):
-        if (
-            self.days_since_enrollment_start is not None
-            and self.computed_enrollment_days
-        ):
+        if self.days_since_enrollment_start is not None and self.computed_enrollment_days:
             percent = (
                 self.days_since_enrollment_start / self.computed_enrollment_days
             ) * 100
@@ -1131,16 +1117,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def proposed_end_date(self):
-        if (
-            self.proposed_duration is not None
-            and self.enrollment_start_date is not None
-        ):
+        if self.proposed_duration is not None and self.enrollment_start_date is not None:
             proposed_observation_duration = (
                 self.proposed_duration - self.proposed_enrollment
             )
-            total_duration = (
-                self.computed_enrollment_days + proposed_observation_duration
-            )
+            total_duration = self.computed_enrollment_days + proposed_observation_duration
             return self.enrollment_start_date + datetime.timedelta(days=total_duration)
 
     @property
@@ -1199,10 +1180,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return None
 
         if self._computed_end_date:
-            if (
-                self.start_date is not None
-                and self._computed_end_date >= self.start_date
-            ):
+            if self.start_date is not None and self._computed_end_date >= self.start_date:
                 return self._computed_end_date
 
         end_date = self._get_computed_end_date()
@@ -1450,9 +1428,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return (
             self.is_review
             or self.is_missing_takeaway_info
-            or (
-                not self.is_complete and (self.should_end_enrollment or self.should_end)
-            )
+            or (not self.is_complete and (self.should_end_enrollment or self.should_end))
         )
 
     @property
@@ -1479,9 +1455,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         total_enrollments = self.monitoring_data.get("total_enrollments", 0)
         total_unenrollments = self.monitoring_data.get("total_unenrollments", 0)
         unenrollment_rate = (
-            (total_unenrollments / total_enrollments) * 100
-            if total_enrollments
-            else 0.0
+            (total_unenrollments / total_enrollments) * 100 if total_enrollments else 0.0
         )
 
         reasons_by_branch = self.monitoring_data.get("reasons_by_branch", {})
@@ -1561,9 +1535,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 or (
                     self.end_date
                     > datetime.date.today()
-                    - datetime.timedelta(
-                        days=settings.ROLLOUT_MONITORING_EXPIRATION_DAYS
-                    )
+                    - datetime.timedelta(days=settings.ROLLOUT_MONITORING_EXPIRATION_DAYS)
                 )
             )
         ):
@@ -1677,9 +1649,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.bucket_namespace,
             self,
             int(
-                self.population_percent
-                / Decimal("100.0")
-                * NimbusExperiment.BUCKET_TOTAL
+                self.population_percent / Decimal("100.0") * NimbusExperiment.BUCKET_TOTAL
             ),
         )
 
@@ -2177,9 +2147,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
         parsed_required_version = NimbusExperiment.Version.parse(min_required_version)
-        parsed_current_version = NimbusExperiment.Version.parse(
-            self.firefox_min_version
-        )
+        parsed_current_version = NimbusExperiment.Version.parse(self.firefox_min_version)
 
         if parsed_current_version < parsed_required_version:
             return {
@@ -2354,9 +2322,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         for (
             required_experiment_branch
-        ) in NimbusExperimentBranchThroughRequired.objects.filter(
-            parent_experiment=self
-        ):
+        ) in NimbusExperimentBranchThroughRequired.objects.filter(parent_experiment=self):
             NimbusExperimentBranchThroughRequired.objects.create(
                 parent_experiment=cloned,
                 child_experiment=required_experiment_branch.child_experiment,
@@ -2365,9 +2331,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         for (
             excluded_experiment_branch
-        ) in NimbusExperimentBranchThroughExcluded.objects.filter(
-            parent_experiment=self
-        ):
+        ) in NimbusExperimentBranchThroughExcluded.objects.filter(parent_experiment=self):
             NimbusExperimentBranchThroughExcluded.objects.create(
                 parent_experiment=cloned,
                 child_experiment=excluded_experiment_branch.child_experiment,
@@ -2491,9 +2455,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def recipe_json(self):
-        from experimenter.experiments.api.v6.serializers import (
-            NimbusExperimentSerializer,
-        )
+        from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 
         return json.dumps(
             self.published_dto or NimbusExperimentSerializer(self).data,
@@ -2880,9 +2842,7 @@ class NimbusFeatureConfig(models.Model):
         if min_supported_version := NimbusConstants.MIN_VERSIONED_FEATURE_VERSION.get(
             self.application
         ):
-            min_supported_version = NimbusExperiment.Version.parse(
-                min_supported_version
-            )
+            min_supported_version = NimbusExperiment.Version.parse(min_supported_version)
 
             if min_supported_version > min_version:
                 if max_version is not None and min_supported_version > max_version:
@@ -3019,11 +2979,7 @@ class NimbusFeatureVersionManager(models.Manager["NimbusFeatureVersion"]):
                 Q(**prefixed(major=max_version.major))
                 & (
                     Q(**prefixed(minor__lt=max_version.minor))
-                    | Q(
-                        **prefixed(
-                            minor=max_version.minor, patch__lte=max_version.micro
-                        )
-                    )
+                    | Q(**prefixed(minor=max_version.minor, patch__lte=max_version.micro))
                 )
             )
 
@@ -3056,9 +3012,7 @@ class NimbusVersionedSchemaManager(models.Manager["NimbusVersionedSchema"]):
     def with_version_ordering(self, descending=False):
         """Order schemas by semantic version (major.minor.patch)."""
         if descending:
-            return self.order_by(
-                "-version__major", "-version__minor", "-version__patch"
-            )
+            return self.order_by("-version__major", "-version__minor", "-version__patch")
         return self.order_by("version__major", "version__minor", "version__patch")
 
 
@@ -3157,9 +3111,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         null=True,
         choices=NimbusExperiment.PublishStatus.choices,
     )
-    new_status = models.CharField(
-        max_length=255, choices=NimbusExperiment.Status.choices
-    )
+    new_status = models.CharField(max_length=255, choices=NimbusExperiment.Status.choices)
     new_status_next = models.CharField(
         max_length=255, blank=True, null=True, choices=NimbusExperiment.Status.choices
     )
@@ -3277,9 +3229,7 @@ class NimbusAlert(models.Model):
         help_text="Category of alert",
     )
     message = models.TextField(help_text="Alert message text sent to Slack")
-    sent_on = models.DateTimeField(
-        auto_now_add=True, help_text="When the alert was sent"
-    )
+    sent_on = models.DateTimeField(auto_now_add=True, help_text="When the alert was sent")
     slack_thread_id = models.CharField(
         max_length=255,
         null=True,
