@@ -1327,6 +1327,13 @@ features:
         description: The current collection version of the user characteristics.
         type: Int
         default: 0
+  webcompat-reporter-enhancements:
+    description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
+    variables:
+      enabled:
+        description: If true, WebCompat Reporter enhancements is enabled.
+        type: Boolean
+        default: false
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
