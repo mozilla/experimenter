@@ -16,12 +16,20 @@ import $ from "jquery";
 
 const BRANCHES_FORM_ID = "branches-form";
 const CONTENT_WITH_SIDEBAR_ID = "content-with-sidebar";
+const ROLLOUT_FEATURES_BODY_ID = "rollout-rollout-features-body";
+const EDIT_BRANCHES_INIT_FLAG = "__nimbusEditBranchesInitialized";
 
 const setupCodemirror = (selector, textarea, extraExtensions) => {
-  if (!textarea) {
+  if (!textarea || textarea.dataset.codemirrorRendered === "true") {
+    if (textarea && textarea.dataset.codemirrorRendered === "true") {
+      return;
+    }
+
     console.warn(`No textarea found for selector: ${selector}`);
     return;
   }
+
+  textarea.dataset.codemirrorRendered = "true";
 
   const extensions = [
     basicSetup,
@@ -141,15 +149,20 @@ const initializeAllEditors = () => {
 };
 
 $(() => {
-  initializeAllEditors();
-  observeThemeChanges(updateAllViewThemes);
+  if (!window[EDIT_BRANCHES_INIT_FLAG]) {
+    window[EDIT_BRANCHES_INIT_FLAG] = true;
 
-  document.body.addEventListener("htmx:afterSwap", function (event) {
-    if (
-      event.detail.target.id === BRANCHES_FORM_ID ||
-      event.detail.target.id === CONTENT_WITH_SIDEBAR_ID
-    ) {
-      initializeAllEditors();
-    }
-  });
+    initializeAllEditors();
+    observeThemeChanges(updateAllViewThemes);
+
+    document.body.addEventListener("htmx:afterSwap", function (event) {
+      if (
+        event.detail.target.id === BRANCHES_FORM_ID ||
+        event.detail.target.id === ROLLOUT_FEATURES_BODY_ID ||
+        event.detail.target.id === CONTENT_WITH_SIDEBAR_ID
+      ) {
+        initializeAllEditors();
+      }
+    });
+  }
 });

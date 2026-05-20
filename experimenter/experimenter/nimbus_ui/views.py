@@ -73,6 +73,7 @@ from experimenter.nimbus_ui.forms import (
     QAStatusForm,
     ReviewToApproveForm,
     ReviewToDraftForm,
+    RolloutFeaturesForm,
     SignoffForm,
     SubscribeForm,
     TagAssignForm,
@@ -1334,6 +1335,33 @@ class RisksCardMixin:
         return context
 
 
+class RolloutFeaturesCardMixin:
+    template_name = "nimbus_experiments/rollout_features/edit_form.html"
+    cancel_url_name = "new-nimbus-ui-rollout-detail"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not isinstance(kwargs.get("form"), RolloutFeaturesForm):
+            context["form"] = RolloutFeaturesForm(instance=self.object)
+        context["cancel_url"] = reverse(
+            self.cancel_url_name, kwargs={"slug": self.object.slug}
+        )
+        return context
+
+
+class NewOverviewUpdateView(OverviewCardMixin, OverviewUpdateView):
+    display_template = "nimbus_experiments/overview/card.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not isinstance(kwargs.get("form"), QAStatusForm):
+            context["form"] = QAStatusForm(instance=self.object)
+        context["cancel_url"] = reverse(
+            self.cancel_url_name, kwargs={"slug": self.object.slug}
+        )
+        return context
+
+
 class QACardMixin:
     template_name = "nimbus_experiments/qa/edit_form.html"
     cancel_url_name = "new-nimbus-ui-rollout-detail"
@@ -1377,6 +1405,30 @@ class NewCardUpdateView(OverviewUpdateView):
             template=self.display_template,
             context=context,
         )
+
+
+class NewRolloutFeaturesUpdateView(RolloutFeaturesCardMixin, OverviewUpdateView):
+    form_class = RolloutFeaturesForm
+    display_template = "nimbus_experiments/rollout_features/card.html"
+
+    def form_valid(self, form):
+        self.object = form.save()
+        self.object = NimbusExperiment.objects.get(pk=self.object.pk)
+
+        # If the request came from the explicit Save button, return the read-only card
+        # view so the UI swaps back to the card. When the form is posted for intermediate
+        # updates (e.g. feature_configs changed via hx-post on change), return the
+        # editable form so the user can continue editing.
+        if self.request.POST.get("save"):
+            context = self.get_context_data()
+            context["hx_swap_oob"] = True
+            return self.response_class(
+                request=self.request,
+                template=self.display_template,
+                context=context,
+            )
+
+        return self.render_to_response(self.get_context_data())
 
 
 class NewOverviewUpdateView(OverviewCardMixin, NewCardUpdateView):
