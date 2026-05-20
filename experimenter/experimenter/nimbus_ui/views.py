@@ -1,5 +1,4 @@
 import json
-from django.shortcuts import get_object_or_404
 
 import requests
 from deepdiff import DeepDiff
@@ -8,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, DetailView, TemplateView
@@ -412,9 +411,7 @@ class NimbusExperimentsCreateView(
         return response
 
 
-class NimbusExperimentsCloneView(
-    NimbusExperimentViewMixin, RequestFormMixin, UpdateView
-):
+class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["data"] = kwargs["data"].copy()
@@ -644,9 +641,7 @@ class FeatureSubscribersUpdateView(
         )
 
 
-class StatusUpdateView(
-    RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView
-):
+class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
     fields = None
 
     def get_template_names(self):
@@ -748,9 +743,7 @@ class BranchLeadingScreenshotView(
 
     def get_branch(self):
         return (
-            self.get_object()
-            .branches.filter(slug=self.kwargs.get("branch_slug"))
-            .first()
+            self.get_object().branches.filter(slug=self.kwargs.get("branch_slug")).first()
         )
 
     def get_form_kwargs(self):
@@ -800,11 +793,9 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
 
         analysis_basis = self.request.GET.get(
             "analysis_basis",
-            (
-                "exposures"
-                if experiment.has_exposures == NimbusUIConstants.ExposuresStatus.VALID
-                else "enrollments"
-            ),
+            "exposures"
+            if experiment.has_exposures == NimbusUIConstants.ExposuresStatus.VALID
+            else "enrollments",
         )
         context["selected_analysis_basis"] = analysis_basis
 
@@ -829,14 +820,10 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
             analysis_basis, selected_segment, window=displayed_window
         )
 
-        context["edit_outcome_summary_form"] = EditOutcomeSummaryForm(
-            instance=experiment
-        )
+        context["edit_outcome_summary_form"] = EditOutcomeSummaryForm(instance=experiment)
 
         branch_leading_screenshot_forms = {
-            branch.slug: BranchLeadingScreenshotForm(
-                instance=branch.screenshots.first()
-            )
+            branch.slug: BranchLeadingScreenshotForm(instance=branch.screenshots.first())
             for branch in experiment.branches.all()
         }
         context["branch_leading_screenshot_forms"] = branch_leading_screenshot_forms
@@ -853,9 +840,7 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
 
         relative_metric_changes = {}
 
-        context["overall_exposure_rate"] = results_manager.exposure_rate(
-            selected_segment
-        )
+        context["overall_exposure_rate"] = results_manager.exposure_rate(selected_segment)
 
         for metric_data in all_metrics.values():
             metadata = metric_data.get("metrics", {})
@@ -895,9 +880,7 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
                     confidence_range = round(extreme_bound * 1000) / 10
                     full_width = confidence_range * 2 if confidence_range != 0 else 1
                     bar_width = ((upper - lower) / full_width) * 100
-                    left_percent = (
-                        abs(lower - confidence_range * -1) / full_width
-                    ) * 100
+                    left_percent = (abs(lower - confidence_range * -1) / full_width) * 100
                     left_bounds_percent = left_percent
 
                     num_digits = len(str(round(lower, 1)).replace(".", "")) + len(
@@ -905,9 +888,7 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
                     )
 
                     if bar_width < METRICS_MIN_BOUNDS_WIDTH:
-                        left_bounds_percent -= (
-                            METRICS_MIN_BOUNDS_WIDTH - bar_width
-                        ) / 2
+                        left_bounds_percent -= (METRICS_MIN_BOUNDS_WIDTH - bar_width) / 2
 
                     metric_ui_properties[branch_slug] = {
                         "bar_width": bar_width,
@@ -923,15 +904,11 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
                     )
 
         context["relative_metric_changes"] = relative_metric_changes
-        context["all_weekly_metric_data"] = (
-            results_manager.build_window_metric_breakdown(
-                analysis_basis, selected_segment, selected_reference_branch, "weekly"
-            )
+        context["all_weekly_metric_data"] = results_manager.build_window_metric_breakdown(
+            analysis_basis, selected_segment, selected_reference_branch, "weekly"
         )
-        context["all_daily_metric_data"] = (
-            results_manager.build_window_metric_breakdown(
-                analysis_basis, selected_segment, selected_reference_branch, "daily"
-            )
+        context["all_daily_metric_data"] = results_manager.build_window_metric_breakdown(
+            analysis_basis, selected_segment, selected_reference_branch, "daily"
         )
 
         return context
@@ -1032,9 +1009,7 @@ class NimbusFeaturesView(TemplateView):
             + qa_runs_sortable_headers
             + qa_runs_non_sortable_headers[1:]
         )
-        qa_runs_non_sortable_fields = {
-            field for field, _ in qa_runs_non_sortable_headers
-        }
+        qa_runs_non_sortable_fields = {field for field, _ in qa_runs_non_sortable_headers}
 
         feature_changes_sortable_headers = FeaturesPageSortChoices.sortable_headers(
             FeaturesPageSortChoices.FeatureChanges
@@ -1078,9 +1053,7 @@ class NimbusFeaturesView(TemplateView):
             # Pair each schema with its previous version
             for i, schema in enumerate(schemas):
                 current_json = schema.schema
-                previous_json = (
-                    schemas[i + 1].schema if i + 1 < len(schemas) else '"{}"'
-                )
+                previous_json = schemas[i + 1].schema if i + 1 < len(schemas) else '"{}"'
 
                 if i + 1 < len(schemas):
                     diff = DeepDiff(
@@ -1394,15 +1367,11 @@ class NewRisksUpdateView(RisksCardMixin, OverviewUpdateView):
         )
 
 
-class NewDocumentationLinkCreateView(
-    RenderParentDBResponseMixin, NewOverviewUpdateView
-):
+class NewDocumentationLinkCreateView(RenderParentDBResponseMixin, NewOverviewUpdateView):
     form_class = DocumentationLinkCreateForm
 
 
-class NewDocumentationLinkDeleteView(
-    RenderParentDBResponseMixin, NewOverviewUpdateView
-):
+class NewDocumentationLinkDeleteView(RenderParentDBResponseMixin, NewOverviewUpdateView):
     form_class = DocumentationLinkDeleteForm
 
 
