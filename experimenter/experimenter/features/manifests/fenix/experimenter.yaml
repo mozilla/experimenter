@@ -1054,3 +1054,11 @@ user-characteristics:
     currentVersion:
       type: int
       description: The current collection version of the user characteristics.
+webcompat-reporter-enhancements:
+  description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, WebCompat Reporter enhancements is enabled.

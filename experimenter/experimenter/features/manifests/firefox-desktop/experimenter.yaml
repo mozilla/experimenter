@@ -4113,18 +4113,6 @@ mixedContentUpgrading:
         branch: default
         pref: security.mixed_content.upgrade_display_content
 
-unexpectedScriptLoadNotificationBar:
-  description: Pref to control whether we show the Unexpected Script Load Notification Bar
-  owner: tritter@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      description: True if we want to disable the notification bar
-      type: boolean
-      setPref:
-        branch: default
-        pref: security.hide_parent_unrestricted_js_loads_warning.temporary
-
 gc:
   description: Prefs that control gc heuristics.
   owner: dpalmeiro@mozilla.com

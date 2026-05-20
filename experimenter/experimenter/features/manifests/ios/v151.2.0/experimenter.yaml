@@ -1,3 +1,13 @@
+ad-blocker-feature:
+  description: |
+    The feature flag to manage the roll out of the Ad Blocker badge in the Site Menu and the corresponding Block Ads toggle in Browsing settings.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 address-autofill-edit:
   description: This property defines if the address editing is enabled in Settings
   hasExposure: true
