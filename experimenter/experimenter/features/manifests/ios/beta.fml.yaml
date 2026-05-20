@@ -123,6 +123,11 @@ features:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.
     variables:
+      add-shortcut-tile:
+        description: |
+          If true, enables the add shortcut tile on homepage.
+        type: Boolean
+        default: false
       bookmarks-section-default:
         description: |
           If true, enables the bookmarks homepage section by default
