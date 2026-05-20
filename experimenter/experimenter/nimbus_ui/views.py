@@ -1174,9 +1174,7 @@ class GrafanaProxyView(LoginRequiredMixin, View):
 
         headers = {}
         if settings.GRAFANA_SERVICE_ACCOUNT_TOKEN:
-            headers["Authorization"] = (
-                f"Bearer {settings.GRAFANA_SERVICE_ACCOUNT_TOKEN}"
-            )
+            headers["Authorization"] = f"Bearer {settings.GRAFANA_SERVICE_ACCOUNT_TOKEN}"
 
         try:
             upstream = requests.get(
@@ -1190,9 +1188,7 @@ class GrafanaProxyView(LoginRequiredMixin, View):
 
         response = HttpResponse(
             upstream.content,
-            content_type=upstream.headers.get(
-                "Content-Type", "application/octet-stream"
-            ),
+            content_type=upstream.headers.get("Content-Type", "application/octet-stream"),
             status=upstream.status_code,
         )
 
