@@ -127,6 +127,10 @@ homepage-redesign-feature:
   hasExposure: true
   exposureDescription: ''
   variables:
+    add-shortcut-tile:
+      type: boolean
+      description: |
+        If true, enables the add shortcut tile on homepage.
     bookmarks-section-default:
       type: boolean
       description: |
