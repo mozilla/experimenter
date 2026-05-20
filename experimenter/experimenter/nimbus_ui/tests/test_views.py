@@ -74,18 +74,14 @@ class LiveToEndEnrollmentViewTests(AuthTestCase):
         )
 
         response = self.client.get(
-            reverse(
-                "nimbus-ui-live-to-end-enrollment", kwargs={"slug": experiment.slug}
-            ),
+            reverse("nimbus-ui-live-to-end-enrollment", kwargs={"slug": experiment.slug}),
             {"fragment": "progress_card"},
             HTTP_HX_REQUEST="true",
         )
 
         self.assertEqual(response.status_code, 200)
 
-        template_names = [
-            t.name for t in response.templates if getattr(t, "name", None)
-        ]
+        template_names = [t.name for t in response.templates if getattr(t, "name", None)]
         self.assertIn("nimbus_experiments/launch_controls_v2.html", template_names)
 
     def test_invalid_submission(self):
@@ -94,9 +90,7 @@ class LiveToEndEnrollmentViewTests(AuthTestCase):
         )
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-live-to-end-enrollment", kwargs={"slug": experiment.slug}
-            )
+            reverse("nimbus-ui-live-to-end-enrollment", kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn(
@@ -233,10 +227,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
                 [NimbusExperiment.Status.LIVE, "live-review-experiment"],
             ),
             (StatusChoices.COMPLETE, [NimbusExperiment.Status.COMPLETE]),
-            (
-                StatusChoices.REVIEW,
-                ["draft-review-experiment", "live-review-experiment"],
-            ),
+            (StatusChoices.REVIEW, ["draft-review-experiment", "live-review-experiment"]),
             (StatusChoices.ARCHIVED, ["archived-experiment"]),
             (StatusChoices.MY_EXPERIMENTS, ["my-experiment", "subscribed-experiment"]),
         )
@@ -365,9 +356,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
         )
 
         for kwargs in other_experiments:
-            NimbusExperimentFactory.create(
-                status=NimbusExperiment.Status.LIVE, **kwargs
-            )
+            NimbusExperimentFactory.create(status=NimbusExperiment.Status.LIVE, **kwargs)
 
         response = self.client.get(
             reverse("nimbus-list"),
@@ -1231,9 +1220,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
 
     def test_qa_edit_mode_get_form(self):
         response = self.client.get(
-            reverse(
-                "nimbus-ui-update-qa-status", kwargs={"slug": self.experiment.slug}
-            ),
+            reverse("nimbus-ui-update-qa-status", kwargs={"slug": self.experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.context["form"], QAStatusForm)
@@ -1244,9 +1231,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             "qa_comment": "Everything looks good.",
         }
         response = self.client.post(
-            reverse(
-                "nimbus-ui-update-qa-status", kwargs={"slug": self.experiment.slug}
-            ),
+            reverse("nimbus-ui-update-qa-status", kwargs={"slug": self.experiment.slug}),
             data,
         )
         self.assertEqual(response.status_code, 200)
@@ -1260,9 +1245,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             "qa_comment": "Invalid status.",
         }
         response = self.client.post(
-            reverse(
-                "nimbus-ui-update-qa-status", kwargs={"slug": self.experiment.slug}
-            ),
+            reverse("nimbus-ui-update-qa-status", kwargs={"slug": self.experiment.slug}),
             data,
         )
         self.assertEqual(response.status_code, 200)
@@ -1305,9 +1288,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
 
     def test_takeaways_edit_mode_get(self):
         response = self.client.get(
-            reverse(
-                "nimbus-ui-update-takeaways", kwargs={"slug": self.experiment.slug}
-            ),
+            reverse("nimbus-ui-update-takeaways", kwargs={"slug": self.experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.context["form"], TakeawaysForm)
@@ -1324,9 +1305,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             ],
         }
         response = self.client.post(
-            reverse(
-                "nimbus-ui-update-takeaways", kwargs={"slug": self.experiment.slug}
-            ),
+            reverse("nimbus-ui-update-takeaways", kwargs={"slug": self.experiment.slug}),
             data,
         )
         self.assertEqual(response.status_code, 200)  # renders template
@@ -1352,9 +1331,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             ],
         }
         response = self.client.post(
-            reverse(
-                "nimbus-ui-update-takeaways", kwargs={"slug": self.experiment.slug}
-            ),
+            reverse("nimbus-ui-update-takeaways", kwargs={"slug": self.experiment.slug}),
             data,
         )
         self.assertEqual(response.status_code, 200)
@@ -1701,9 +1678,7 @@ class TestToggleReviewSlackNotificationsView(AuthTestCase):
         )
 
         updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
-        self.assertEqual(
-            updated_experiment.enable_review_slack_notifications, new_value
-        )
+        self.assertEqual(updated_experiment.enable_review_slack_notifications, new_value)
 
 
 class TestOverviewUpdateView(AuthTestCase):
@@ -1841,9 +1816,7 @@ class TestOverviewUpdateView(AuthTestCase):
         self.assertIn(
             "This question may not be blank.", validation_errors["risk_revenue"]
         )
-        self.assertIn(
-            "This question may not be blank.", validation_errors["risk_brand"]
-        )
+        self.assertIn("This question may not be blank.", validation_errors["risk_brand"])
         self.assertIn(
             "This question may not be blank.", validation_errors["risk_message"]
         )
@@ -2124,9 +2097,7 @@ class TestBranchesUpdateViews(AuthTestCase):
             "localizations": json.dumps({"localization-key": "localization-value"}),
         }
 
-        response = self.client.post(
-            reverse(url, kwargs={"slug": experiment.slug}), data
-        )
+        response = self.client.post(reverse(url, kwargs={"slug": experiment.slug}), data)
 
         self.assertEqual(response.status_code, 200)
         experiment = NimbusExperiment.objects.get(slug=experiment.slug)
@@ -2473,9 +2444,7 @@ class TestLaunchViews(AuthTestCase):
         experiment.refresh_from_db()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
-        self.assertEqual(
-            experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
-        )
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
 
     def test_preview_to_review(self):
         experiment = NimbusExperimentFactory.create(
@@ -2491,9 +2460,7 @@ class TestLaunchViews(AuthTestCase):
         experiment.refresh_from_db()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
-        self.assertEqual(
-            experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
-        )
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
 
     def test_preview_to_draft(self):
         experiment = NimbusExperimentFactory.create(
@@ -2564,17 +2531,13 @@ class TestLaunchViews(AuthTestCase):
         )
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-live-to-end-enrollment", kwargs={"slug": experiment.slug}
-            ),
+            reverse("nimbus-ui-live-to-end-enrollment", kwargs={"slug": experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
-        self.assertEqual(
-            experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
-        )
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
         self.assertTrue(experiment.is_paused)
 
     @parameterized.expand(
@@ -2599,9 +2562,7 @@ class TestLaunchViews(AuthTestCase):
         experiment.refresh_from_db()
         self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
-        self.assertEqual(
-            experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
-        )
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
 
     def test_approve_end_enrollment_view(self):
         experiment = NimbusExperimentFactory.create(
@@ -2612,9 +2573,7 @@ class TestLaunchViews(AuthTestCase):
         )
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-approve-end-enrollment", kwargs={"slug": experiment.slug}
-            ),
+            reverse("nimbus-ui-approve-end-enrollment", kwargs={"slug": experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
@@ -2641,9 +2600,7 @@ class TestLaunchViews(AuthTestCase):
         )
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-approve-end-experiment", kwargs={"slug": experiment.slug}
-            ),
+            reverse("nimbus-ui-approve-end-experiment", kwargs={"slug": experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
@@ -2801,16 +2758,12 @@ class TestLaunchViews(AuthTestCase):
         )
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-live-to-update-rollout", kwargs={"slug": experiment.slug}
-            ),
+            reverse("nimbus-ui-live-to-update-rollout", kwargs={"slug": experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
-        self.assertEqual(
-            experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
-        )
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
 
         changelog = experiment.changes.latest("changed_on")
         self.assertIn("requested review to update Audience", changelog.message)
@@ -2824,9 +2777,7 @@ class TestLaunchViews(AuthTestCase):
         )
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-cancel-update-rollout", kwargs={"slug": experiment.slug}
-            ),
+            reverse("nimbus-ui-cancel-update-rollout", kwargs={"slug": experiment.slug}),
             data={
                 "changelog_message": "Update not required.",
                 "action_type": "update_rollout",
@@ -2850,9 +2801,7 @@ class TestLaunchViews(AuthTestCase):
 
         cancel_msg = NimbusUIConstants.CancelRequestMessages.UPDATE_ROLLOUT.value
         response = self.client.post(
-            reverse(
-                "nimbus-ui-cancel-update-rollout", kwargs={"slug": experiment.slug}
-            ),
+            reverse("nimbus-ui-cancel-update-rollout", kwargs={"slug": experiment.slug}),
             data={
                 "cancel_message": cancel_msg,
                 "action_type": "update_rollout",
@@ -2875,9 +2824,7 @@ class TestLaunchViews(AuthTestCase):
         )
 
         response = self.client.post(
-            reverse(
-                "nimbus-ui-approve-update-rollout", kwargs={"slug": experiment.slug}
-            ),
+            reverse("nimbus-ui-approve-update-rollout", kwargs={"slug": experiment.slug}),
         )
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
@@ -3063,17 +3010,13 @@ class TestAudienceUpdateView(AuthTestCase):
         self.assertEqual(experiment.excluded_experiments.get(), excluded)
         self.assertTrue(
             NimbusExperimentBranchThroughExcluded.objects.filter(
-                parent_experiment=experiment,
-                child_experiment=excluded,
-                branch_slug=None,
+                parent_experiment=experiment, child_experiment=excluded, branch_slug=None
             ).exists()
         )
         self.assertEqual(experiment.required_experiments.get(), required)
         self.assertTrue(
             NimbusExperimentBranchThroughRequired.objects.filter(
-                parent_experiment=experiment,
-                child_experiment=required,
-                branch_slug=None,
+                parent_experiment=experiment, child_experiment=required, branch_slug=None
             ).exists()
         )
 
@@ -3096,9 +3039,7 @@ class TestAudienceUpdateView(AuthTestCase):
             locales=[],
             languages=[],
         )
-        base_url = reverse(
-            "nimbus-ui-update-audience", kwargs={"slug": experiment.slug}
-        )
+        base_url = reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
         response = self.client.post(
             f"{base_url}?show_errors=true",
             {
@@ -3319,9 +3260,7 @@ class TestResultsView(AuthTestCase):
                     "v3": {
                         "other_metrics": {"group": {"metricA": "Metric A"}},
                         "metadata": {
-                            "metrics": {
-                                "metricA": {"friendlyName": "Friendly Metric A"}
-                            },
+                            "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
                         },
                         "overall": {
                             "enrollments": {"all": {}},
@@ -3365,9 +3304,7 @@ class TestResultsView(AuthTestCase):
                     "v3": {
                         "other_metrics": {"group": {"metricA": "Metric A"}},
                         "metadata": {
-                            "metrics": {
-                                "metricA": {"friendlyName": "Friendly Metric A"}
-                            },
+                            "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
                         },
                         "overall": {"enrollments": {"all": {}}},
                     }
@@ -3379,9 +3316,7 @@ class TestResultsView(AuthTestCase):
                     "v3": {
                         "other_metrics": {"group": {"metricA": "Metric A"}},
                         "metadata": {
-                            "metrics": {
-                                "metricA": {"friendlyName": "Friendly Metric A"}
-                            },
+                            "metrics": {"metricA": {"friendlyName": "Friendly Metric A"}},
                         },
                         "overall": {
                             "enrollments": {"all": {}},
@@ -3943,12 +3878,8 @@ class TestResultsView(AuthTestCase):
 
     def test_experiment_outcome_links(self):
         application = NimbusExperiment.Application.DESKTOP
-        outcome_1 = Outcomes.get_by_slug_and_application(
-            "desktop_outcome_1", application
-        )
-        outcome_2 = Outcomes.get_by_slug_and_application(
-            "desktop_outcome_2", application
-        )
+        outcome_1 = Outcomes.get_by_slug_and_application("desktop_outcome_1", application)
+        outcome_2 = Outcomes.get_by_slug_and_application("desktop_outcome_2", application)
         experiment = NimbusExperimentFactory.create(
             application=application,
             primary_outcomes=[outcome_1.slug],
@@ -4178,9 +4109,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
     def test_home_view_shows_owned_and_subscribed_experiments(self):
         # Owned by current user
         owned_exp = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            owner=self.user,
-            slug="owned-exp",
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
         )
 
         # Subscribed experiment
@@ -4212,9 +4141,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
 
     def test_home_view_filter_archived_experiments(self):
         non_archived_exp = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            owner=self.user,
-            slug="owned-exp",
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
         )
         archived_exp = NimbusExperimentFactory.create(is_archived=True, owner=self.user)
         response = self.client.get(reverse("nimbus-ui-home"))
@@ -4311,9 +4238,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
             takeaways_summary="takeaway",
         )
         draft_exp = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            owner=self.user,
-            slug="draft-exp",
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="draft-exp"
         )
 
         response = self.client.get(reverse("nimbus-ui-home"))
@@ -4358,9 +4283,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         response = self.client.get(reverse("nimbus-ui-home"))
         self.assertEqual(response.status_code, 200)
 
-        all_my_experiments_page = response.context[
-            "all_my_experiments_page"
-        ].object_list
+        all_my_experiments_page = response.context["all_my_experiments_page"].object_list
 
         for exp in owned + subscribed:
             self.assertIn(exp, all_my_experiments_page)
@@ -4372,9 +4295,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
 
     def test_my_deliveries_filter_options_all_deliveries_default(self):
         owned = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            owner=self.user,
-            slug="owned-exp",
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
         )
         other_user = UserFactory.create()
         subscribed = NimbusExperimentFactory.create_with_lifecycle(
@@ -4399,9 +4320,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         )
         subscribed_feature.subscribers.add(self.user)
         owned = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            owner=self.user,
-            slug="owned-exp",
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
         )
         other_user = UserFactory.create()
         subscribed = NimbusExperimentFactory.create_with_lifecycle(
@@ -4451,9 +4370,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
 
     def test_my_deliveries_filter_options_owned(self):
         owned = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            owner=self.user,
-            slug="owned-exp",
+            NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"
         )
 
         unrelated = NimbusExperimentFactory.create_with_lifecycle(
@@ -4529,9 +4446,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
     def test_home_type_display_returns_only_emoji(
         self, experiment_kwargs, expected_label
     ):
-        experiment = NimbusExperimentFactory.create(
-            owner=self.user, **experiment_kwargs
-        )
+        experiment = NimbusExperimentFactory.create(owner=self.user, **experiment_kwargs)
         self.assertEqual(experiment.home_type_choice, expected_label)
 
 
@@ -6202,93 +6117,3 @@ class TestNewRemoveSubscriberView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertNotIn(user, experiment.subscribers.all())
-
-
-class TestGrafanaProxyView(AuthTestCase):
-    @patch("experimenter.nimbus_ui.views.requests.get")
-    def test_proxy_returns_grafana_html(self, mock_get):
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.headers = {"Content-Type": "text/html; charset=utf-8"}
-        mock_get.return_value.text = (
-            '<html><head><base href="/"></head><body></body></html>'
-        )
-
-        response = self.client.get(
-            reverse("nimbus-ui-grafana-proxy", kwargs={"path": "d/abc/my-dashboard"}),
-        )
-
-        self.assertEqual(response.status_code, 200)
-        mock_get.assert_called_once()
-        call_url = mock_get.call_args[0][0]
-        self.assertIn("d/abc/my-dashboard", call_url)
-
-    @patch("experimenter.nimbus_ui.views.requests.get")
-    def test_proxy_rewrites_base_href(self, mock_get):
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.headers = {"Content-Type": "text/html"}
-        mock_get.return_value.text = '<base href="/">'
-
-        response = self.client.get(
-            reverse("nimbus-ui-grafana-proxy", kwargs={"path": "d/abc/my-dashboard"}),
-        )
-
-        self.assertIn(b"/nimbus/grafana-proxy/", response.content)
-        self.assertNotIn(b'base href="/"', response.content)
-
-    @patch("experimenter.nimbus_ui.views.requests.get")
-    def test_proxy_rewrites_app_url_in_boot_data(self, mock_get):
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.headers = {"Content-Type": "text/html"}
-        mock_get.return_value.text = '"appUrl":"https://yardstick.mozilla.org/"'
-
-        response = self.client.get(
-            reverse("nimbus-ui-grafana-proxy", kwargs={"path": "d/abc/my-dashboard"}),
-        )
-
-        self.assertIn(b"/nimbus/grafana-proxy/", response.content)
-        self.assertNotIn(b"yardstick.mozilla.org", response.content)
-
-    @patch("experimenter.nimbus_ui.views.requests.get")
-    def test_proxy_returns_binary_content_unchanged(self, mock_get):
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.headers = {"Content-Type": "application/javascript"}
-        mock_get.return_value.content = b"console.log('hello');"
-
-        response = self.client.get(
-            reverse("nimbus-ui-grafana-proxy", kwargs={"path": "public/build/app.js"}),
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b"console.log('hello');")
-
-    @patch(
-        "experimenter.nimbus_ui.views.requests.get",
-        side_effect=requests.exceptions.ConnectionError("connection refused"),
-    )
-    def test_proxy_returns_503_when_grafana_unavailable(self, mock_get):
-        response = self.client.get(
-            reverse("nimbus-ui-grafana-proxy", kwargs={"path": "d/abc/my-dashboard"}),
-        )
-
-        self.assertEqual(response.status_code, 503)
-
-    def test_proxy_requires_login(self):
-        self.client.defaults.pop(settings.OPENIDC_EMAIL_HEADER)
-        response = self.client.get(
-            reverse("nimbus-ui-grafana-proxy", kwargs={"path": "d/abc/my-dashboard"}),
-        )
-        self.assertNotEqual(response.status_code, 200)
-
-    @override_settings(GRAFANA_SERVICE_ACCOUNT_TOKEN="test-token")
-    @patch("experimenter.nimbus_ui.views.requests.get")
-    def test_proxy_sends_service_account_token(self, mock_get):
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.headers = {"Content-Type": "text/html"}
-        mock_get.return_value.text = ""
-
-        self.client.get(
-            reverse("nimbus-ui-grafana-proxy", kwargs={"path": "d/abc/dashboard"}),
-        )
-
-        call_headers = mock_get.call_args[1]["headers"]
-        self.assertEqual(call_headers["Authorization"], "Bearer test-token")
