@@ -293,11 +293,10 @@ NON_STUB_FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users (first Nimbus update)",
     slug="non_stub_first_run",
     description=(
-        "Users on their first Nimbus update pass, before nimbus.firstUpdateComplete "
-        "is set. Intended for about:welcome enrollment on Mac, Linux, and MSIX builds "
-        "where isFirstStartup is always false."
+        "Users on their first Nimbus update pass where isFirstStartup is always false "
+        "(e.g. for about:welcome enrollment on Mac/Linux/MSIX Windows)"
     ),
-    targeting="isNonStubFirstRun",
+    targeting=f"isNonStubFirstRun && {PROFILELESSTHAN1HOUR}",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
