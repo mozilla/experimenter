@@ -4697,6 +4697,27 @@ TOPSITES_1ROW_NON_EDITORIAL_FX151_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NON_CORE_USER_NEED_DEFAULT_EXCLUDE_WIN10 = NimbusTargetingConfig(
+    name="Non-core users excluding Windows 10 (need default)",
+    slug="non_core_user_need_default_exclude_win10",
+    description=(
+        "Profile 7+ days, 1-20 days of activity in past 28 days, "
+        "Firefox not default, not first startup, excluding Windows 10 users"
+    ),
+    targeting=(
+        f"{NEED_DEFAULT}"
+        " && !isFirstStartup"
+        f" && {PROFILEMORETHAN7DAYS}"
+        " && userMonthlyActivity|length >= 1"
+        " && userMonthlyActivity|length <= 20"
+        " && (!os.isWindows || os.windowsBuildNumber >= 22000)"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
