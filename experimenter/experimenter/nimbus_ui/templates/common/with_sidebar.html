@@ -2,6 +2,10 @@
 
 {% load static %}
 
+{% block header %}
+  {% include "common/header.html" with has_sidebar=True %}
+
+{% endblock header %}
 {% block content %}
   <div id="content" class="container-fluid">
     <div id="content-with-sidebar" class="row">

@@ -4,14 +4,16 @@
 
 <nav class="navbar navbar-expand-xl">
   <div class="container-fluid">
-    <button class="navbar-toggler"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasSidebar"
-            aria-controls="offcanvasSidebar"
-            aria-label="Toggle sidebar">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    {% if has_sidebar %}
+      <button class="navbar-toggler"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasSidebar"
+              aria-controls="offcanvasSidebar"
+              aria-label="Toggle sidebar">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    {% endif %}
     <a class="navbar-brand align-items-center fs-3"
        href="{% url 'nimbus-ui-home' %}">
       <img src="{% static 'assets/logo.svg' %}"
