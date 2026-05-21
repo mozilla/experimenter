@@ -5,23 +5,16 @@
 <nav class="navbar navbar-expand-xl">
   <div class="container-fluid">
     {% if has_sidebar %}
-      <button class="navbar-toggler"
-              type="button"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#offcanvasSidebar"
-              aria-controls="offcanvasSidebar"
-              aria-label="Toggle sidebar">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-    {% else %}
-      <button class="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navigation"
-              aria-controls="navigation"
-              aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <div class="w-100 d-xl-none mb-2">
+        <button class="btn btn-outline-secondary"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasSidebar"
+                aria-controls="offcanvasSidebar"
+                aria-label="Toggle sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
     {% endif %}
     <a class="navbar-brand align-items-center fs-3"
        href="{% url 'nimbus-ui-home' %}">
@@ -32,8 +25,9 @@
            class="me-2 mb-2">
       Nimbus Experiments
     </a>
-    <div class="collapse navbar-collapse" id="navigation">
-      <ul class="navbar-nav me-auto align-items-center">
+    <div class="navbar-collapse flex-column flex-xl-row gap-2 gap-xl-0"
+         id="navigation">
+      <ul class="navbar-nav me-auto align-items-xl-center gap-1 gap-xl-0">
         <li class="nav-item">
           <a href="{% url 'nimbus-ui-home' %}"
              class="nav-link link-primary py-0 mt-1 fw-semibold">
@@ -56,8 +50,8 @@
           </a>
         </li>
       </ul>
-      <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item me-2">
+      <ul class="navbar-nav ms-xl-auto align-items-xl-center gap-1 gap-xl-0 mt-3 mt-xl-0">
+        <li class="nav-item me-xl-2">
           <button id="create-new-button"
                   class="btn btn-primary"
                   data-bs-toggle="modal"
