@@ -331,23 +331,25 @@
                             type="button"
                             data-bs-toggle="modal"
                             data-bs-target="#{{ experiment.slug }}-{{ metric.slug }}-{{ area|slugify }}"
-                            style="height: 100px;
-                                   {% if not metric.has_data %}cursor: default;{% endif %}">
-                      {% if metric.has_data %}
-                        <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
-                      {% endif %}
+                            style="height: 100px">
+                      <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
                       <p class=" metric-text mb-0">{{ metric.friendly_name }}</p>
                     </button>
-                    {% for curr_metric_slug, metric_data in metric_data.items %}
-                      {% if curr_metric_slug == metric.slug %}
-                        {% for metric_ui_properties, ui_properties in relative_metric_changes.items %}
-                          {% if metric_ui_properties == curr_metric_slug %}
-                            {% include "common/metric_popout.html" with experiment_slug=experiment.slug metric_info=metric metric_data=metric_data branches=branch_data reference_branch=selected_reference_branch ui_properties=ui_properties display_type=metric.display_type %}
+                    {% if metric.has_data %}
+                      {% for curr_metric_slug, metric_data in metric_data.items %}
+                        {% if curr_metric_slug == metric.slug %}
+                          {% for metric_ui_properties, ui_properties in relative_metric_changes.items %}
+                            {% if metric_ui_properties == curr_metric_slug %}
+                              {% include "common/metric_popout.html" with experiment_slug=experiment.slug metric_info=metric metric_data=metric_data branches=branch_data reference_branch=selected_reference_branch ui_properties=ui_properties display_type=metric.display_type %}
 
-                          {% endif %}
-                        {% endfor %}
-                      {% endif %}
-                    {% endfor %}
+                            {% endif %}
+                          {% endfor %}
+                        {% endif %}
+                      {% endfor %}
+                    {% else %}
+                      {% include "common/metric_popout.html" with experiment_slug=experiment.slug metric_info=metric %}
+
+                    {% endif %}
                   {% endfor %}
                 </div>
                 <div class="col position-relative w-25 d-flex flex-column">
