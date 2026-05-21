@@ -1,12 +1,15 @@
 import json
 
+import requests
 from deepdiff import DeepDiff
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.views import View
 from django.views.generic import CreateView, DetailView, TemplateView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
@@ -1137,10 +1140,63 @@ class NimbusFeaturesView(TemplateView):
         return context
 
 
-class NimbusFeatureMonitoringView(DetailView):
-    template_name = "nimbus_experiments/feature_monitoring.html"
-    model = NimbusFeatureConfig
-    context_object_name = "feature_config"
+# Grafana is behind Google IAP, which blocks third-party cookies in iframes.
+# Both Experimenter and Grafana run in the same k8s cluster, so the backend
+# can reach Grafana via internal DNS (bypassing IAP) and proxy it to the browser.
+class GrafanaProxyView(LoginRequiredMixin, View):
+    _SAFE_RESPONSE_HEADERS = ("Cache-Control", "ETag", "Last-Modified", "Content-Type")
+
+    def get(self, request):
+        slug = request.GET.get("slug")
+        if not slug:
+            return HttpResponse("Missing slug parameter", status=400)
+
+        feature_config = get_object_or_404(NimbusFeatureConfig, slug=slug)
+
+        # Construct the Grafana URL entirely from known-safe components.
+        # User input (slug) is validated against the DB before use;
+        # the host and dashboard path come from settings only.
+        application = (feature_config.application or "").replace("-", "_")
+        target = "{base}/{path}".format(
+            base=settings.GRAFANA_INTERNAL_URL.rstrip("/"),
+            path=settings.GRAFANA_FEATURE_MONITORING_DASHBOARD_PATH,
+        )
+        params = {
+            "orgId": "1",
+            "from": "now-30d",
+            "to": "now",
+            "timezone": "utc",
+            "var-application": application,
+            "var-feature": feature_config.slug,
+            "kiosk": "",
+        }
+
+        headers = {}
+        if settings.GRAFANA_SERVICE_ACCOUNT_TOKEN:
+            headers["Authorization"] = f"Bearer {settings.GRAFANA_SERVICE_ACCOUNT_TOKEN}"
+
+        try:
+            upstream = requests.get(
+                target,
+                params=params,
+                headers=headers,
+                timeout=30,
+            )
+        except requests.exceptions.RequestException:
+            return HttpResponse("Grafana is unavailable", status=503)
+
+        response = HttpResponse(
+            upstream.content,
+            content_type=upstream.headers.get("Content-Type", "application/octet-stream"),
+            status=upstream.status_code,
+        )
+
+        for header in self._SAFE_RESPONSE_HEADERS:
+            if value := upstream.headers.get(header):
+                response[header] = value
+
+        response["X-Frame-Options"] = "SAMEORIGIN"
+        return response
 
 
 class NimbusExperimentsHomeView(FilterView):
