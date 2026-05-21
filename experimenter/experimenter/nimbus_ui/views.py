@@ -1143,10 +1143,9 @@ class NimbusFeaturesView(TemplateView):
 # Grafana is behind Google IAP, which blocks third-party cookies in iframes.
 # Both Experimenter and Grafana run in the same k8s cluster, so the backend
 # can reach Grafana via internal DNS (bypassing IAP) and proxy it to the browser.
-_SAFE_RESPONSE_HEADERS = ("Cache-Control", "ETag", "Last-Modified", "Content-Type")
-
-
 class GrafanaProxyView(LoginRequiredMixin, View):
+    _SAFE_RESPONSE_HEADERS = ("Cache-Control", "ETag", "Last-Modified", "Content-Type")
+
     def get(self, request):
         slug = request.GET.get("slug")
         if not slug:
@@ -1164,7 +1163,7 @@ class GrafanaProxyView(LoginRequiredMixin, View):
         )
         params = {
             "orgId": "1",
-            "from": "now-7d",
+            "from": "now-30d",
             "to": "now",
             "timezone": "utc",
             "var-application": application,
@@ -1192,7 +1191,7 @@ class GrafanaProxyView(LoginRequiredMixin, View):
             status=upstream.status_code,
         )
 
-        for header in _SAFE_RESPONSE_HEADERS:
+        for header in self._SAFE_RESPONSE_HEADERS:
             if value := upstream.headers.get(header):
                 response[header] = value
 
