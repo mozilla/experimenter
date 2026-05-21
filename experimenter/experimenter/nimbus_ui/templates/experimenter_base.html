@@ -22,8 +22,10 @@
   {# djlint:on #}
   class="bg-body-tertiary">
   <div class="container-fluid bg-body border-bottom border-1 py-1">
-    {% include "common/header.html" %}
+    {% block header %}
+      {% include "common/header.html" %}
 
+    {% endblock header %}
   </div>
   <div class="container-fluid">
     {% block content %}
