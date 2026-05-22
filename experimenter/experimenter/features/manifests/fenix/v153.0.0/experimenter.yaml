@@ -415,17 +415,6 @@ marketing-onboarding-card:
     enabled:
       type: boolean
       description: If false, the marketing onboarding card will never be shown.
-menu-redesign:
-  description: Control the new menu redesign.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    menu-banner:
-      type: boolean
-      description: If true, the menu banner is visible.
-    report-site-issue:
-      type: boolean
-      description: If true, report site issue menu item and preview is available.
 merino-client:
   description: Feature to enable the Merino Client for users on Firefox on Android.
   hasExposure: true
@@ -517,15 +506,6 @@ native-share-sheet:
     enabled:
       type: boolean
       description: If true, Native Share Sheet is enabled.
-navigation-toolbar:
-  description: Feature for navigation toolbar.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        When the feature is enabled then the user will see the new navigation toolbar.
 networking-happy-eyeballs:
   description: Networking (Necko) Happy Eyeballs V3 configuration
   hasExposure: true
@@ -706,17 +686,6 @@ pqcrypto:
       type: boolean
       description: |
         Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.
-print:
-  description: A feature for printing from the share or browser menu.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    browser-print-enabled:
-      type: boolean
-      description: If true, a print button from the browser menu is available.
-    share-print-enabled:
-      type: boolean
-      description: If true, a print button from the share menu is available.
 private-browsing-lock:
   description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
   hasExposure: true
@@ -866,15 +835,6 @@ sent-from-firefox:
     template-message:
       type: string
       description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
-settings-search:
-  description: Feature to allow users to search for settings.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables the user to search for settings.
 setup-checklist:
   description: A feature on the home page that allows the user to track onboarding setup progress.
   hasExposure: true
