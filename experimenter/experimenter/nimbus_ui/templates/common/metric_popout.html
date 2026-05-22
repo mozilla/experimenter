@@ -17,6 +17,36 @@
                 data-bs-dismiss="modal"
                 aria-label="Close"></button>
       </div>
+      {% if experiment.results_data.v3.errors %}
+        {% for error_group, error_list in experiment.results_data.v3.errors.items %}
+          {% with error=error_list|last %}
+            {% if error.metric == metric_info.slug %}
+              <div class="modal-body pt-0">
+                <div class="alert alert-warning rounded-4 mb-0 text-start small">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <strong>Metric error</strong>
+                  </div>
+                  <dl class="row mb-0">
+                    <dt class="col-sm-4 mb-1">Type</dt>
+                    <dd class="col-sm-8 mb-1">
+                      {{ error.exception_type|default:"Unknown error" }}
+                    </dd>
+                    <dt class="col-sm-4 mb-1">Timestamp</dt>
+                    <dd class="col-sm-8 mb-1">
+                      {{ error.timestamp|parse_date|date:"N j, Y g:i A"|default:"N/A" }}
+                    </dd>
+                    <dt class="col-sm-4 mb-0">Message</dt>
+                    <dd class="col-sm-8 mb-0 text-break">
+                      {{ error.message|default:"N/A" }}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+      {% endif %}
       {% if metric_info.has_data %}
         <div class="modal-body d-flex flex-column gap-4"
              id="{{ experiment_slug }}-{{ metric_info.slug }}-accordion">
