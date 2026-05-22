@@ -47,6 +47,16 @@
           {% endwith %}
         {% endfor %}
       {% endif %}
+      {% if not metric_info.has_data %}
+        <div class="modal-body pt-0">
+          <div class="alert alert-warning rounded-4 mb-0 text-start small">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <strong>Results for this metric are unavailable because some or all of the required metric data is missing.</strong>
+            </div>
+          </div>
+        </div>
+      {% endif %}
       {% if metric_info.has_data %}
         <div class="modal-body d-flex flex-column gap-4"
              id="{{ experiment_slug }}-{{ metric_info.slug }}-accordion">
