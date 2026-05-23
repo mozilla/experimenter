@@ -556,17 +556,6 @@ features:
         description: If false, the marketing onboarding card will never be shown.
         type: Boolean
         default: true
-  menu-redesign:
-    description: Control the new menu redesign.
-    variables:
-      menu-banner:
-        description: If true, the menu banner is visible.
-        type: Boolean
-        default: true
-      report-site-issue:
-        description: If true, report site issue menu item and preview is available.
-        type: Boolean
-        default: true
   merino-client:
     description: Feature to enable the Merino Client for users on Firefox on Android.
     variables:
@@ -773,14 +762,6 @@ features:
         description: If true, Native Share Sheet is enabled.
         type: Boolean
         default: false
-  navigation-toolbar:
-    description: Feature for navigation toolbar.
-    variables:
-      enabled:
-        description: |
-          When the feature is enabled then the user will see the new navigation toolbar.
-        type: Boolean
-        default: false
   networking-happy-eyeballs:
     description: Networking (Necko) Happy Eyeballs V3 configuration
     variables:
@@ -956,17 +937,6 @@ features:
           Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.
         type: Option<Boolean>
         default: null
-  print:
-    description: A feature for printing from the share or browser menu.
-    variables:
-      browser-print-enabled:
-        description: If true, a print button from the browser menu is available.
-        type: Boolean
-        default: true
-      share-print-enabled:
-        description: If true, a print button from the share menu is available.
-        type: Boolean
-        default: true
   private-browsing-lock:
     description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
     variables:
@@ -1123,14 +1093,6 @@ features:
         description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
         type: Text
         default: ''
-  settings-search:
-    description: Feature to allow users to search for settings.
-    variables:
-      enabled:
-        description: |
-          Enables the user to search for settings.
-        type: Boolean
-        default: true
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
