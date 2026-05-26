@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.test import TestCase
 from parameterized.parameterized import parameterized
 
@@ -1040,6 +1042,174 @@ class TestExperimentResultsManager(TestCase):
         self.assertIn("KPI Metrics", metric_areas)
         self.assertIn("Engagement", metric_areas)
         self.assertIn("Other Metrics", metric_areas)
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "significance": {
+                                                        "branch-a": {"overall": {}},
+                                                        "branch-b": {
+                                                            "overall": {"1": "negative"}
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {"1": "positive"}
+                                                        },
+                                                        "branch-b": {"overall": {}},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                ["retained"],
+            ),
+            (
+                # This test case ensure that even if previous windows have significance,
+                # if the most recent window doesn't, the metric shouldn't be notable
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "significance": {
+                                                        "branch-a": {"overall": {}},
+                                                        "branch-b": {
+                                                            "overall": {
+                                                                "1": "negative",
+                                                                "2": "negative",
+                                                                "3": "neutral",
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {
+                                                                "1": "negative",
+                                                                "2": "negative",
+                                                                "3": "neutral",
+                                                            }
+                                                        },
+                                                        "branch-b": {"overall": {}},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                [],
+            ),
+            # This test case ensures that if there are significant changes in the most
+            # recent window, the metric is notable, even if the significance is different
+            # across windows
+            (
+                {
+                    "v3": {
+                        "weekly": {
+                            "enrollments": {
+                                "all": {
+                                    "branch-a": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "significance": {
+                                                        "branch-a": {"overall": {}},
+                                                        "branch-b": {
+                                                            "overall": {
+                                                                "1": "neutral",
+                                                                "2": "neutral",
+                                                                "3": "positive",
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "branch-b": {
+                                        "branch_data": {
+                                            "other_metrics": {
+                                                "retained": {
+                                                    "significance": {
+                                                        "branch-a": {
+                                                            "overall": {
+                                                                "1": "neutral",
+                                                                "2": "neutral",
+                                                                "3": "negative",
+                                                            }
+                                                        },
+                                                        "branch-b": {"overall": {}},
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+                ["retained"],
+            ),
+        ]
+    )
+    def test_notable_metrics_correctly_identified(
+        self, results_data, expected_notable_metrics
+    ):
+        self.experiment.results_data = results_data
+        self.experiment.save()
+
+        with mock.patch.object(
+            self.results_manager,
+            "metric_has_data",
+            side_effect=lambda metric_slug, *args, **kwargs: metric_slug == "retained",
+        ):
+            notable_metrics = (
+                self.results_manager.get_metric_areas("enrollments", "all", "branch-a")
+                .get("Notable Changes", {})
+                .get("metrics", [])
+            )
+
+        for notable_metric, metric_slug in zip(notable_metrics, expected_notable_metrics):
+            self.assertEqual(notable_metric.get("slug"), metric_slug)
 
     def test_get_branch_data_returns_correct_data(self):
         self.experiment.results_data = {

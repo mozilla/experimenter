@@ -571,10 +571,14 @@ class ExperimentResultsManager:
                     .get(window, {})
                 )
 
-                if (
-                    MetricSignificance.POSITIVE in significance_data.values()
-                    or MetricSignificance.NEGATIVE in significance_data.values()
-                ):
+                latest_window_index_significance = significance_data.get(
+                    str(len(significance_data.keys())), MetricSignificance.UNKNOWN
+                )
+
+                if latest_window_index_significance in [
+                    MetricSignificance.POSITIVE,
+                    MetricSignificance.NEGATIVE,
+                ]:
                     return True
             return False
 

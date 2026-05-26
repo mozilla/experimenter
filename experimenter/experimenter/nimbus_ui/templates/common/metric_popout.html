@@ -37,25 +37,29 @@
               <div class="col">
                 <p class="fw-bold text-center">Absolute count</p>
                 {% for branch_slug, branch_data in metric_data.items %}
-                  {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=branch_data.absolute.0.lower absolute_upper=branch_data.absolute.0.upper significance=branch_data.absolute.0.significance reference_branch=reference_branch branch_slug=branch_slug %}
+                  {% with abs_last=branch_data.absolute|last %}
+                    {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=abs_last.lower absolute_upper=abs_last.upper significance=abs_last.significance reference_branch=reference_branch branch_slug=branch_slug %}
 
+                  {% endwith %}
                 {% endfor %}
               </div>
               <div class="col">
                 <p class="fw-bold text-center">Relative change</p>
                 <div class="d-flex flex-column">
                   {% for branch_slug, branch_data in metric_data.items %}
-                    {% for branch_relative_ui, branch_relative_ui_properties in ui_properties.items %}
-                      {% if branch_slug == branch_relative_ui %}
-                        {% include "common/metric_popout_card.html" with type="relative" lower_confidence=branch_data.relative.0.lower upper_confidence=branch_data.relative.0.upper significance=branch_data.relative.0.significance reference_branch=reference_branch branch_slug=branch_slug branch_relative_ui_properties=branch_relative_ui_properties lower_relative=branch_data.relative.0.lower upper_relative=branch_data.relative.0.upper %}
+                    {% with rel_last=branch_data.relative|last %}
+                      {% for branch_relative_ui, branch_relative_ui_properties in ui_properties.items %}
+                        {% if branch_slug == branch_relative_ui %}
+                          {% include "common/metric_popout_card.html" with type="relative" lower_confidence=rel_last.lower upper_confidence=rel_last.upper significance=rel_last.significance reference_branch=reference_branch branch_slug=branch_slug branch_relative_ui_properties=branch_relative_ui_properties lower_relative=rel_last.lower upper_relative=rel_last.upper %}
+
+                        {% endif %}
+                      {% endfor %}
+                      {% comment %} the reference branch does not have relative comparision data therefore it must be separately rendered {% endcomment %}
+                      {% if branch_slug == reference_branch %}
+                        {% include "common/metric_popout_card.html" with type="relative" lower_confidence=rel_last.lower upper_confidence=rel_last.upper significance=rel_last.significance reference_branch=reference_branch branch_slug=branch_slug %}
 
                       {% endif %}
-                    {% endfor %}
-                    {% comment %} the reference branch does not have relative comparision data therefore it must be separately rendered {% endcomment %}
-                    {% if branch_slug == reference_branch %}
-                      {% include "common/metric_popout_card.html" with type="relative" lower_confidence=branch_data.relative.0.lower upper_confidence=branch_data.relative.0.upper significance=branch_data.relative.0.significance reference_branch=reference_branch branch_slug=branch_slug %}
-
-                    {% endif %}
+                    {% endwith %}
                   {% endfor %}
                 </div>
               </div>
