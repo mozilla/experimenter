@@ -3441,6 +3441,26 @@ def mock_monitoring_data(request):
     return data
 
 
+SAMPLE_FUNNEL_ENTRIES = [
+    {
+        "app_name": "firefox_desktop",
+        "branch": "control",
+        "status": "Enrolled",
+        "reason": "Qualified",
+        "conflict_slug": None,
+        "client_count": 750000,
+    },
+    {
+        "app_name": "firefox_desktop",
+        "branch": None,
+        "status": "NotEnrolled",
+        "reason": "NotTargeted",
+        "conflict_slug": None,
+        "client_count": 5000000,
+    },
+]
+
+
 @pytest.mark.usefixtures("mock_monitoring_data")
 class TestFetchMonitoringDataTask(TestCase):
     def setUp(self):
@@ -3448,6 +3468,13 @@ class TestFetchMonitoringDataTask(TestCase):
         patcher = patch("experimenter.jetstream.tasks.get_monitoring_data")
         self.mock_get_monitoring_data = patcher.start()
         self.addCleanup(patcher.stop)
+
+        funnel_patcher = patch(
+            "experimenter.jetstream.tasks.get_enrollment_funnel_data"
+        )
+        self.mock_get_funnel_data = funnel_patcher.start()
+        self.mock_get_funnel_data.return_value = {"v1": {}}
+        self.addCleanup(funnel_patcher.stop)
 
     @parameterized.expand([(None,), ({},)])
     def test_fetch_monitoring_data_no_data(self, return_value):
@@ -3469,8 +3496,61 @@ class TestFetchMonitoringDataTask(TestCase):
         tasks.fetch_monitoring_data()
 
         experiment.refresh_from_db()
-        self.assertEqual(experiment.monitoring_data, self.monitoring_data)
+        self.assertEqual(
+            experiment.monitoring_data,
+            {**self.monitoring_data, "enrollment_funnel": []},
+        )
         self.assertIsNotNone(experiment.monitoring_data_updated_at)
+
+    def test_fetch_monitoring_data_merges_funnel_data(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            monitoring_data={},
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+        self.mock_get_funnel_data.return_value = {
+            "v1": {experiment.slug: SAMPLE_FUNNEL_ENTRIES}
+        }
+
+        tasks.fetch_monitoring_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(
+            experiment.monitoring_data,
+            {**self.monitoring_data, "enrollment_funnel": SAMPLE_FUNNEL_ENTRIES},
+        )
+
+    def test_fetch_monitoring_data_funnel_defaults_to_empty_list_when_missing(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            monitoring_data={},
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+        self.mock_get_funnel_data.return_value = {"v1": {}}
+
+        tasks.fetch_monitoring_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.monitoring_data["enrollment_funnel"], [])
+
+    def test_fetch_monitoring_data_continues_if_funnel_fetch_fails(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            monitoring_data={},
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+        self.mock_get_funnel_data.side_effect = Exception("GCS unavailable")
+
+        tasks.fetch_monitoring_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.monitoring_data["enrollment_funnel"], [])
 
     @parameterized.expand(
         [
@@ -3558,8 +3638,8 @@ class TestFetchMonitoringDataTask(TestCase):
 
         exp1.refresh_from_db()
         exp2.refresh_from_db()
-        self.assertEqual(exp1.monitoring_data, data1)
-        self.assertEqual(exp2.monitoring_data, data2)
+        self.assertEqual(exp1.monitoring_data, {**data1, "enrollment_funnel": []})
+        self.assertEqual(exp2.monitoring_data, {**data2, "enrollment_funnel": []})
 
     def test_fetch_monitoring_data_fatal_error(self):
         self.mock_get_monitoring_data.side_effect = Exception("GCS connection failed")

@@ -11,6 +11,7 @@ from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.jetstream.client import (
+    get_enrollment_funnel_data,
     get_experiment_data,
     get_monitoring_data,
     get_population_sizing_data,
@@ -144,6 +145,14 @@ def fetch_monitoring_data():
             return
 
         alert_data = data.get("v1")
+
+        try:
+            funnel_data = get_enrollment_funnel_data()
+            funnel_by_slug = funnel_data.get("v1", {}) if funnel_data else {}
+        except Exception as e:
+            logger.warning(f"Could not fetch enrollment funnel data: {e}")
+            funnel_by_slug = {}
+
         updated_count = 0
 
         for exp_slug, monitoring_data in alert_data.items():
@@ -153,9 +162,13 @@ def fetch_monitoring_data():
                     status=NimbusConstants.Status.LIVE,
                 )
 
-                # Only update if data has changed
-                if experiment.monitoring_data != monitoring_data:
-                    experiment.monitoring_data = monitoring_data
+                merged = {
+                    **monitoring_data,
+                    "enrollment_funnel": funnel_by_slug.get(exp_slug, []),
+                }
+
+                if experiment.monitoring_data != merged:
+                    experiment.monitoring_data = merged
                     experiment.monitoring_data_updated_at = timezone.now()
                     experiment.save()
                     generate_nimbus_changelog(
