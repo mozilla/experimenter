@@ -1274,14 +1274,6 @@ features:
           Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
-  unified-trust-panel:
-    description: Enables the unified trust panel.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the unified trust panel.
-        type: Boolean
-        default: true
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
