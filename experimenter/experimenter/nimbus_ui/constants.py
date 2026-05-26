@@ -305,6 +305,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     monitoring period is complete.
     <a href="https://experimenter.info/workflow/monitoring">Learn more</a>"""
 
+    MISSING_METRIC_DATA_MESSAGE = """Results for this metric are unavailable because
+    some or all of the required metric data is missing."""
+
     class MetricAreaType:
         PRIMARY = {
             "label": "Primary Metric",
