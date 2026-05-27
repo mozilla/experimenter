@@ -308,6 +308,15 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     MISSING_METRIC_DATA_MESSAGE = """Results for this metric are unavailable because
     some or all of the required metric data is missing."""
 
+    HIDDEN_DAILY_METRICS = [
+        NimbusConstants.RETENTION_3_DAYS,
+        NimbusConstants.RETENTION_3_DAYS_DESKTOP,
+    ]
+    HIDDEN_WEEKLY_METRICS = [
+        NimbusConstants.RETENTION_3_DAYS,
+        NimbusConstants.RETENTION_3_DAYS_DESKTOP,
+    ]
+
     class MetricAreaType:
         PRIMARY = {
             "label": "Primary Metric",

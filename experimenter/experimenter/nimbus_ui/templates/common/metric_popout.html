@@ -106,7 +106,7 @@
             </div>
           </div>
           {% with weekly_metric_data=all_weekly_metric_data|dict_get:metric_info.slug %}
-            {% if weekly_metric_data.has_weekly_data and not metric_info.slug == experiment.RETENTION_3_DAYS %}
+            {% if weekly_metric_data.has_weekly_data and not metric_info.slug in NimbusUIConstants.HIDDEN_WEEKLY_METRICS %}
               <div class="border border-1 rounded py-4 px-5 rounded-4">
                 <h2 class="fs-6 fw-bold">Weekly breakdown</h2>
                 <div class="d-flex mt-3">
@@ -168,7 +168,7 @@
             {% endif %}
           {% endwith %}
           {% with daily_metric_data=all_daily_metric_data|dict_get:metric_info.slug %}
-            {% if daily_metric_data.has_daily_data and not metric_info.slug == experiment.RETENTION_3_DAYS %}
+            {% if daily_metric_data.has_daily_data and not metric_info.slug in NimbusUIConstants.HIDDEN_DAILY_METRICS %}
               <div class="border border-1 rounded py-4 px-5 rounded-4">
                 <h2 class="fs-6 fw-bold">Daily breakdown</h2>
                 <div class="d-flex mt-3">
