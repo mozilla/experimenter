@@ -7,7 +7,7 @@
           <label>{{ group }}</label>
         {% endif %}
         {% for option in options %}
-          <div class="form-check form-check-inline ms-3 me-0">
+          <div class="form-check form-check-inline {% if not forloop.parentloop.first %}ms-3{% endif %} me-0">
             {% include option.template_name with widget=option %}
 
           </div>

@@ -1334,32 +1334,53 @@ class RisksCardMixin:
         return context
 
 
-class NewOverviewUpdateView(OverviewCardMixin, OverviewUpdateView):
+class AudienceCardMixin:
+    template_name = "nimbus_experiments/audience/edit_form.html"
+    cancel_url_name = "new-nimbus-ui-rollout-detail"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not isinstance(kwargs.get("form"), AudienceForm):
+            context["form"] = AudienceForm(
+                instance=self.object,
+                rollout_card_view=True,
+            )
+        context["cancel_url"] = reverse(
+            self.cancel_url_name, kwargs={"slug": self.object.slug}
+        )
+        return context
+
+
+class NewCardUpdateView(OverviewUpdateView):
+    display_template = None
+
+    def form_valid(self, form):
+        self.object = form.save()
+        context = self.get_context_data()
+        context["hx_swap_oob"] = True
+        return self.response_class(
+            request=self.request,
+            template=self.display_template,
+            context=context,
+        )
+
+
+class NewOverviewUpdateView(OverviewCardMixin, NewCardUpdateView):
     display_template = "nimbus_experiments/overview/card.html"
 
-    def form_valid(self, form):
-        self.object = form.save()
-        context = self.get_context_data()
-        context["hx_swap_oob"] = True
-        return self.response_class(
-            request=self.request,
-            template=self.display_template,
-            context=context,
-        )
 
-
-class NewRisksUpdateView(RisksCardMixin, OverviewUpdateView):
+class NewRisksUpdateView(RisksCardMixin, NewCardUpdateView):
     display_template = "nimbus_experiments/risks/card.html"
 
-    def form_valid(self, form):
-        self.object = form.save()
-        context = self.get_context_data()
-        context["hx_swap_oob"] = True
-        return self.response_class(
-            request=self.request,
-            template=self.display_template,
-            context=context,
-        )
+
+class NewAudienceUpdateView(AudienceCardMixin, NewCardUpdateView):
+    form_class = AudienceForm
+    display_template = "nimbus_experiments/audience/card.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["rollout_card_view"] = True
+        return kwargs
 
 
 class NewDocumentationLinkCreateView(RenderParentDBResponseMixin, NewOverviewUpdateView):
@@ -1434,10 +1455,12 @@ class NewM2MDeltaMixin:
         return kwargs
 
 
-class NewTagView(NewM2MDeltaMixin, OverviewCardMixin, TagAssignView):
+class NewTagView(NewM2MDeltaMixin, OverviewCardMixin, NewCardUpdateView):
     item_id_key = "tag_id"
     m2m_attr = "tags"
     form_field = "tags"
+    form_class = TagAssignForm
+    display_template = "nimbus_experiments/overview/card.html"
 
 
 class NewAddTagView(NewTagView):
@@ -1457,10 +1480,12 @@ class NewSubscriberSearchView(NewM2MSearchView):
     require_query = True
 
 
-class NewSubscriberView(NewM2MDeltaMixin, OverviewCardMixin, CollaboratorsUpdateView):
+class NewSubscriberView(NewM2MDeltaMixin, OverviewCardMixin, NewCardUpdateView):
     item_id_key = "user_id"
     m2m_attr = "subscribers"
     form_field = "collaborators"
+    form_class = CollaboratorsForm
+    display_template = "nimbus_experiments/overview/card.html"
 
 
 class NewAddSubscriberView(NewSubscriberView):

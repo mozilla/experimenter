@@ -3,6 +3,7 @@ import io
 import json
 from unittest.mock import patch
 
+from django import forms
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
@@ -3139,6 +3140,21 @@ class TestAudienceForm(RequestFormTestCase):
             expected_channels,
             msg="Channel choices did not match for desktop",
         )
+
+    def test_rollouts_audience_form_updated_is_sticky_widget(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+
+        form = AudienceForm(
+            instance=experiment, request=self.request, rollout_card_view=True
+        )
+
+        self.assertIn("is_sticky", form.fields)
+        is_sticky_field = form.fields["is_sticky"]
+        self.assertIsInstance(is_sticky_field, forms.TypedChoiceField)
 
 
 class TestNimbusBranchesForm(RequestFormTestCase):

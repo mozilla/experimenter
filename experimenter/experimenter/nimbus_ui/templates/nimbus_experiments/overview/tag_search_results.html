@@ -6,7 +6,7 @@
            style="cursor: pointer"
            hx-post="{% url 'nimbus-ui-new-add-tag' experiment.slug %}"
            hx-vals='{"tag_id": "{{ tag.id }}"}'
-           hx-target="#rollout-card-overview"
+           hx-target="#rollout-overview-body"
            hx-swap="outerHTML">
         {% csrf_token %}
         <span style="color: {{ tag.color }}">
