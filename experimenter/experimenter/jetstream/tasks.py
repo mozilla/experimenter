@@ -170,7 +170,9 @@ def fetch_monitoring_data():
                 if experiment.monitoring_data != merged:
                     experiment.monitoring_data = merged
                     experiment.monitoring_data_updated_at = timezone.now()
-                    experiment.save()
+                    experiment.save(
+                        update_fields=["monitoring_data", "monitoring_data_updated_at"]
+                    )
                     generate_nimbus_changelog(
                         experiment,
                         get_kinto_user(),
