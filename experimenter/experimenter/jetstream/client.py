@@ -105,6 +105,12 @@ def get_monitoring_data():
     return load_data_from_gcs(str(path))
 
 
+def get_enrollment_funnel_data():
+    filename = "enrollment_funnel_v1_latest.json"
+    path = Path(ENROLLMENT_COUNTS_FOLDER, filename)
+    return load_data_from_gcs(str(path))
+
+
 def get_results_metrics_map(
     data: JetstreamData,
     primary_outcome_slugs: list[str],

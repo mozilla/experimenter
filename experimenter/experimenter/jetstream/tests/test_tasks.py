@@ -13,7 +13,11 @@ from parameterized import parameterized
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.jetstream import tasks
-from experimenter.jetstream.client import get_data, get_monitoring_data
+from experimenter.jetstream.client import (
+    get_data,
+    get_enrollment_funnel_data,
+    get_monitoring_data,
+)
 from experimenter.jetstream.models import AnalysisWindow, Group
 from experimenter.jetstream.tests import mock_valid_outcomes
 from experimenter.jetstream.tests.constants import (
@@ -3441,13 +3445,47 @@ def mock_monitoring_data(request):
     return data
 
 
-@pytest.mark.usefixtures("mock_monitoring_data")
+@pytest.fixture
+def mock_funnel_entries(request):
+    data = [
+        {
+            "app_name": "firefox_desktop",
+            "branch": "control",
+            "status": "Enrolled",
+            "reason": "Qualified",
+            "conflict_slug": None,
+            "client_count": 750000,
+        },
+        {
+            "app_name": "firefox_desktop",
+            "branch": None,
+            "status": "NotEnrolled",
+            "reason": "NotTargeted",
+            "conflict_slug": None,
+            "client_count": 5000000,
+        },
+    ]
+    if request.instance:
+        request.instance.funnel_entries = data
+    return data
+
+
+@pytest.mark.usefixtures("mock_monitoring_data", "mock_funnel_entries")
 class TestFetchMonitoringDataTask(TestCase):
     def setUp(self):
         super().setUp()
         patcher = patch("experimenter.jetstream.tasks.get_monitoring_data")
         self.mock_get_monitoring_data = patcher.start()
         self.addCleanup(patcher.stop)
+
+        self._funnel_patcher = patch(
+            "experimenter.jetstream.tasks.get_enrollment_funnel_data"
+        )
+        self.mock_get_funnel_data = self._funnel_patcher.start()
+        self.mock_get_funnel_data.return_value = {"v1": {}}
+
+    def tearDown(self):
+        self._funnel_patcher.stop()
 
     @parameterized.expand([(None,), ({},)])
     def test_fetch_monitoring_data_no_data(self, return_value):
@@ -3469,8 +3507,61 @@ class TestFetchMonitoringDataTask(TestCase):
         tasks.fetch_monitoring_data()
 
         experiment.refresh_from_db()
-        self.assertEqual(experiment.monitoring_data, self.monitoring_data)
+        self.assertEqual(
+            experiment.monitoring_data,
+            {**self.monitoring_data, "enrollment_funnel": []},
+        )
         self.assertIsNotNone(experiment.monitoring_data_updated_at)
+
+    def test_fetch_monitoring_data_merges_funnel_data(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            monitoring_data={},
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+        self.mock_get_funnel_data.return_value = {
+            "v1": {experiment.slug: self.funnel_entries}
+        }
+
+        tasks.fetch_monitoring_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(
+            experiment.monitoring_data,
+            {**self.monitoring_data, "enrollment_funnel": self.funnel_entries},
+        )
+
+    def test_fetch_monitoring_data_funnel_defaults_to_empty_list_when_missing(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            monitoring_data={},
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+        self.mock_get_funnel_data.return_value = {"v1": {}}
+
+        tasks.fetch_monitoring_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.monitoring_data["enrollment_funnel"], [])
+
+    def test_fetch_monitoring_data_continues_if_funnel_fetch_fails(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            monitoring_data={},
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+        self.mock_get_funnel_data.side_effect = Exception("GCS unavailable")
+
+        tasks.fetch_monitoring_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.monitoring_data["enrollment_funnel"], [])
 
     @parameterized.expand(
         [
@@ -3558,8 +3649,8 @@ class TestFetchMonitoringDataTask(TestCase):
 
         exp1.refresh_from_db()
         exp2.refresh_from_db()
-        self.assertEqual(exp1.monitoring_data, data1)
-        self.assertEqual(exp2.monitoring_data, data2)
+        self.assertEqual(exp1.monitoring_data, {**data1, "enrollment_funnel": []})
+        self.assertEqual(exp2.monitoring_data, {**data2, "enrollment_funnel": []})
 
     def test_fetch_monitoring_data_fatal_error(self):
         self.mock_get_monitoring_data.side_effect = Exception("GCS connection failed")
@@ -3586,7 +3677,9 @@ class TestGetMonitoringData(TestCase):
         result = get_monitoring_data()
 
         self.assertEqual(result, data)
-        mock_load.assert_called_once()
+        mock_load.assert_called_once_with(
+            "enrollment_counts/enrollment_counts_latest.json"
+        )
 
     @patch("experimenter.jetstream.client.load_data_from_gcs")
     def test_get_monitoring_data_no_data(self, mock_load):
@@ -3598,7 +3691,37 @@ class TestGetMonitoringData(TestCase):
 
     @patch("experimenter.jetstream.client.load_data_from_gcs")
     def test_get_monitoring_data_exception(self, mock_load):
-        mock_load.side_effect = Exception("GCS error")
+        mock_load.side_effect = RuntimeError("GCS error")
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(RuntimeError):
             get_monitoring_data()
+
+
+@pytest.mark.usefixtures("mock_funnel_entries")
+class TestGetEnrollmentFunnelData(TestCase):
+    @patch("experimenter.jetstream.client.load_data_from_gcs")
+    def test_get_enrollment_funnel_data_success(self, mock_load):
+        data = {"v1": {"experiment-1": self.funnel_entries}}
+        mock_load.return_value = data
+
+        result = get_enrollment_funnel_data()
+
+        self.assertEqual(result, data)
+        mock_load.assert_called_once_with(
+            "enrollment_counts/enrollment_funnel_v1_latest.json"
+        )
+
+    @patch("experimenter.jetstream.client.load_data_from_gcs")
+    def test_get_enrollment_funnel_data_no_data(self, mock_load):
+        mock_load.return_value = None
+
+        result = get_enrollment_funnel_data()
+
+        self.assertIsNone(result)
+
+    @patch("experimenter.jetstream.client.load_data_from_gcs")
+    def test_get_enrollment_funnel_data_exception(self, mock_load):
+        mock_load.side_effect = RuntimeError("GCS error")
+
+        with self.assertRaises(RuntimeError):
+            get_enrollment_funnel_data()
