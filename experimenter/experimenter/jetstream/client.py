@@ -106,9 +106,7 @@ def get_monitoring_data():
 
 
 def get_enrollment_funnel_data():
-    filename = "enrollment_funnel_v1_latest.json"
-    path = Path(ENROLLMENT_COUNTS_FOLDER, filename)
-    return load_data_from_gcs(str(path))
+    return load_data_from_gcs(os.path.join(ENROLLMENT_COUNTS_FOLDER, "enrollment_funnel_v1_latest.json"))
 
 
 def get_results_metrics_map(
