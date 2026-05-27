@@ -3445,27 +3445,32 @@ def mock_monitoring_data(request):
     return data
 
 
-SAMPLE_FUNNEL_ENTRIES = [
-    {
-        "app_name": "firefox_desktop",
-        "branch": "control",
-        "status": "Enrolled",
-        "reason": "Qualified",
-        "conflict_slug": None,
-        "client_count": 750000,
-    },
-    {
-        "app_name": "firefox_desktop",
-        "branch": None,
-        "status": "NotEnrolled",
-        "reason": "NotTargeted",
-        "conflict_slug": None,
-        "client_count": 5000000,
-    },
-]
+@pytest.fixture
+def mock_funnel_entries(request):
+    data = [
+        {
+            "app_name": "firefox_desktop",
+            "branch": "control",
+            "status": "Enrolled",
+            "reason": "Qualified",
+            "conflict_slug": None,
+            "client_count": 750000,
+        },
+        {
+            "app_name": "firefox_desktop",
+            "branch": None,
+            "status": "NotEnrolled",
+            "reason": "NotTargeted",
+            "conflict_slug": None,
+            "client_count": 5000000,
+        },
+    ]
+    if request.instance:
+        request.instance.funnel_entries = data
+    return data
 
 
-@pytest.mark.usefixtures("mock_monitoring_data")
+@pytest.mark.usefixtures("mock_monitoring_data", "mock_funnel_entries")
 class TestFetchMonitoringDataTask(TestCase):
     def setUp(self):
         super().setUp()
@@ -3513,7 +3518,7 @@ class TestFetchMonitoringDataTask(TestCase):
             "v1": {experiment.slug: self.monitoring_data}
         }
         self.mock_get_funnel_data.return_value = {
-            "v1": {experiment.slug: SAMPLE_FUNNEL_ENTRIES}
+            "v1": {experiment.slug: self.funnel_entries}
         }
 
         tasks.fetch_monitoring_data()
@@ -3521,7 +3526,7 @@ class TestFetchMonitoringDataTask(TestCase):
         experiment.refresh_from_db()
         self.assertEqual(
             experiment.monitoring_data,
-            {**self.monitoring_data, "enrollment_funnel": SAMPLE_FUNNEL_ENTRIES},
+            {**self.monitoring_data, "enrollment_funnel": self.funnel_entries},
         )
 
     def test_fetch_monitoring_data_funnel_defaults_to_empty_list_when_missing(self):
@@ -3688,10 +3693,11 @@ class TestGetMonitoringData(TestCase):
             get_monitoring_data()
 
 
+@pytest.mark.usefixtures("mock_funnel_entries")
 class TestGetEnrollmentFunnelData(TestCase):
     @patch("experimenter.jetstream.client.load_data_from_gcs")
     def test_get_enrollment_funnel_data_success(self, mock_load):
-        data = {"v1": {"experiment-1": SAMPLE_FUNNEL_ENTRIES}}
+        data = {"v1": {"experiment-1": self.funnel_entries}}
         mock_load.return_value = data
 
         result = get_enrollment_funnel_data()
