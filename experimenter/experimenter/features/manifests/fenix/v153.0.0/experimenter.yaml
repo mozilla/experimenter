@@ -18,14 +18,6 @@ alternative-app-launcher-icon:
       type: boolean
       description: |
         If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.
-app-icon-selection:
-  description: Allows the user to set an alternative app launcher icon.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: Whether or not the feature is available for the user.
 app-links:
   description: Control behavior of app links handling in the browser.
   hasExposure: true
@@ -997,15 +989,6 @@ translations:
       type: boolean
       description: |
         Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
-unified-trust-panel:
-  description: Enables the unified trust panel.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the unified trust panel.
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true

@@ -239,11 +239,15 @@ urlbar:
         in the Rust component coerced to a 1-based integer value).
     autoFillAdaptiveHistoryEnabled:
       type: boolean
-      fallbackPref: browser.urlbar.autoFill.adaptiveHistory.enabled
+      setPref:
+        pref: browser.urlbar.autoFill.adaptiveHistory.enabled
+        branch: user
       description: Whether enabling adaptive history autofill.
     autoFillAdaptiveHistoryMinCharsThreshold:
       type: int
-      fallbackPref: browser.urlbar.autoFill.adaptiveHistory.minCharsThreshold
+      setPref:
+        pref: browser.urlbar.autoFill.adaptiveHistory.minCharsThreshold
+        branch: user
       description: Minimum char length of the user's search string to trigger adaptive history autofill.
     autoFillAdaptiveHistoryUseCountThreshold:
       type: string
