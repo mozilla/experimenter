@@ -3478,10 +3478,12 @@ class TestFetchMonitoringDataTask(TestCase):
         self.mock_get_monitoring_data = patcher.start()
         self.addCleanup(patcher.stop)
 
-        funnel_patcher = patch("experimenter.jetstream.tasks.get_enrollment_funnel_data")
-        self.mock_get_funnel_data = funnel_patcher.start()
+        self._funnel_patcher = patch("experimenter.jetstream.tasks.get_enrollment_funnel_data")
+        self.mock_get_funnel_data = self._funnel_patcher.start()
         self.mock_get_funnel_data.return_value = {"v1": {}}
-        self.addCleanup(funnel_patcher.stop)
+        
+    def tearDown(self):
+        self._funnel_patcher.stop()
 
     @parameterized.expand([(None,), ({},)])
     def test_fetch_monitoring_data_no_data(self, return_value):
