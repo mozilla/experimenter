@@ -1482,7 +1482,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "text_color": stage_info[2] if stage_info else "dark",
                 "conflict_slugs": sorted(data["conflict_slugs"]),
                 "has_null_conflict": (
-                    reason == "FeatureConflict"
+                    reason == NimbusConstants.FunnelReason.FEATURE_CONFLICT
                     and not data["conflict_slugs"]
                     and any(a in {"firefox_ios", "fenix"} for a in data["apps"])
                 ),

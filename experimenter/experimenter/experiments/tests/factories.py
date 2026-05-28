@@ -461,11 +461,11 @@ UNENROLLMENT_REASONS = [
 
 FUNNEL_APPS = ["firefox_desktop", "firefox_ios", "fenix"]
 FUNNEL_NOT_ENROLLED_REASONS = [
-    "NotTargeted",
-    "EnrollmentsPaused",
-    "OptOut",
-    "FeatureConflict",
-    "NotSelected",
+    NimbusExperiment.FunnelReason.NOT_TARGETED,
+    NimbusExperiment.FunnelReason.ENROLLMENTS_PAUSED,
+    NimbusExperiment.FunnelReason.OPT_OUT,
+    NimbusExperiment.FunnelReason.FEATURE_CONFLICT,
+    NimbusExperiment.FunnelReason.NOT_SELECTED,
 ]
 
 
@@ -480,8 +480,8 @@ def build_random_funnel_data(branches):
             {
                 "app_name": app,
                 "branch": branch,
-                "status": "Enrolled",
-                "reason": "Qualified",
+                "status": NimbusExperiment.FunnelStatus.ENROLLED,
+                "reason": NimbusExperiment.FunnelReason.QUALIFIED,
                 "conflict_slug": None,
                 "client_count": random.randint(50000, 500000) * 100,
             }
@@ -489,13 +489,15 @@ def build_random_funnel_data(branches):
 
     for reason in random.sample(FUNNEL_NOT_ENROLLED_REASONS, k=random.randint(1, 3)):
         conflict_slug = (
-            "some-blocking-experiment-rollout" if reason == "FeatureConflict" else None
+            "some-blocking-experiment-rollout"
+            if reason == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
+            else None
         )
         rows.append(
             {
                 "app_name": app,
                 "branch": None,
-                "status": "NotEnrolled",
+                "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
                 "reason": reason,
                 "conflict_slug": conflict_slug,
                 "client_count": random.randint(1000, 100000) * 100,

@@ -1200,6 +1200,27 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     OVERALL_WINDOW_INDEX = "1"
 
+    class FunnelStatus(models.TextChoices):
+        ENROLLED = "Enrolled"
+        NOT_ENROLLED = "NotEnrolled"
+        DISQUALIFIED = "Disqualified"
+        WAS_ENROLLED = "WasEnrolled"
+
+    class FunnelReason(models.TextChoices):
+        QUALIFIED = "Qualified"
+        OPT_IN = "OptIn"
+        NOT_TARGETED = "NotTargeted"
+        ENROLLMENTS_PAUSED = "EnrollmentsPaused"
+        OPT_OUT = "OptOut"
+        FEATURE_CONFLICT = "FeatureConflict"
+        NOT_SELECTED = "NotSelected"
+        UNENROLLED_IN_ANOTHER_PROFILE = "UnenrolledInAnotherProfile"
+        ERROR = "Error"
+        CHANGED_PREF = "ChangedPref"
+        FORCE_ENROLLMENT = "ForceEnrollment"
+        MIGRATION = "Migration"
+        GRADUATED = ""
+
 
 EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/workflow/risk-mitigation#qa-sign-off",
@@ -1208,44 +1229,57 @@ EXTERNAL_URLS = {
 }
 
 
+_S = NimbusConstants.FunnelStatus
+_R = NimbusConstants.FunnelReason
+
+# Maps (status, reason) → (label, bg_color, text_color). Insertion order defines display
+# order. Statuses/reasons mirror Nimbus SDK enrollment.rs enums.
 ENROLLMENT_FUNNEL_STAGES = {
-    ("Enrolled", "Qualified"): ("Enrolled", "success", "white"),
-    ("Enrolled", "OptIn"): ("Enrolled (Opt-In)", "success", "white"),
-    ("NotEnrolled", "NotTargeted"): ("Not Targeted", "secondary", "white"),
-    ("NotEnrolled", "EnrollmentsPaused"): ("Enrollments Paused", "secondary", "white"),
-    ("NotEnrolled", "OptOut"): ("Opted Out", "warning", "dark"),
-    ("NotEnrolled", "FeatureConflict"): ("Feature Conflict", "danger", "white"),
-    ("NotEnrolled", "NotSelected"): ("Not Selected", "secondary", "white"),
-    ("NotEnrolled", "UnenrolledInAnotherProfile"): (
+    (_S.ENROLLED, _R.QUALIFIED): ("Enrolled", "success", "white"),
+    (_S.ENROLLED, _R.OPT_IN): ("Enrolled (Opt-In)", "success", "white"),
+    (_S.NOT_ENROLLED, _R.NOT_TARGETED): ("Not Targeted", "secondary", "white"),
+    (_S.NOT_ENROLLED, _R.ENROLLMENTS_PAUSED): (
+        "Enrollments Paused",
+        "secondary",
+        "white",
+    ),
+    (_S.NOT_ENROLLED, _R.OPT_OUT): ("Opted Out", "warning", "dark"),
+    (_S.NOT_ENROLLED, _R.FEATURE_CONFLICT): ("Feature Conflict", "danger", "white"),
+    (_S.NOT_ENROLLED, _R.NOT_SELECTED): ("Not Selected", "secondary", "white"),
+    (_S.NOT_ENROLLED, _R.UNENROLLED_IN_ANOTHER_PROFILE): (
         "Unenrolled in Another Profile",
         "dark",
         "white",
     ),
-    ("Disqualified", "Error"): ("Disqualified — Error", "danger", "white"),
-    ("Disqualified", "OptOut"): ("Disqualified — Opted Out", "warning", "dark"),
-    ("Disqualified", "ChangedPref"): ("Disqualified — Changed Pref", "warning", "dark"),
-    ("Disqualified", "NotTargeted"): (
+    (_S.DISQUALIFIED, _R.ERROR): ("Disqualified — Error", "danger", "white"),
+    (_S.DISQUALIFIED, _R.OPT_OUT): ("Disqualified — Opted Out", "warning", "dark"),
+    (_S.DISQUALIFIED, _R.CHANGED_PREF): (
+        "Disqualified — Changed Pref",
+        "warning",
+        "dark",
+    ),
+    (_S.DISQUALIFIED, _R.NOT_TARGETED): (
         "Disqualified — Not Targeted",
         "secondary",
         "white",
     ),
-    ("Disqualified", "NotSelected"): (
+    (_S.DISQUALIFIED, _R.NOT_SELECTED): (
         "Disqualified — Not Selected",
         "secondary",
         "white",
     ),
-    ("Disqualified", "UnenrolledInAnotherProfile"): (
+    (_S.DISQUALIFIED, _R.UNENROLLED_IN_ANOTHER_PROFILE): (
         "Disqualified — Another Profile",
         "dark",
         "white",
     ),
-    ("Disqualified", "ForceEnrollment"): (
+    (_S.DISQUALIFIED, _R.FORCE_ENROLLMENT): (
         "Disqualified — Force Enrollment",
         "secondary",
         "white",
     ),
-    ("WasEnrolled", ""): ("Graduated", "secondary", "white"),
-    ("WasEnrolled", "Migration"): ("Graduated — Migration", "secondary", "white"),
+    (_S.WAS_ENROLLED, _R.GRADUATED): ("Graduated", "secondary", "white"),
+    (_S.WAS_ENROLLED, _R.MIGRATION): ("Graduated — Migration", "secondary", "white"),
 }
 
 RISK_QUESTIONS = {
