@@ -25,6 +25,8 @@ from experimenter.base.tests.factories import (
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants import (
+    APPLICATION_CONFIG_DESKTOP,
+    APPLICATION_CONFIG_IOS,
     ApplicationConfig,
     BucketRandomizationUnit,
     ChangeEventType,
@@ -5648,18 +5650,18 @@ class TestNimbusExperiment(TestCase):
             monitoring_data={
                 "enrollment_funnel": [
                     {
-                        "app_name": "firefox_desktop",
+                        "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
                         "branch": "control",
-                        "status": "Enrolled",
-                        "reason": "Qualified",
+                        "status": NimbusExperiment.FunnelStatus.ENROLLED,
+                        "reason": NimbusExperiment.FunnelReason.QUALIFIED,
                         "conflict_slug": None,
                         "client_count": 750000,
                     },
                     {
-                        "app_name": "firefox_desktop",
+                        "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
                         "branch": None,
-                        "status": "NotEnrolled",
-                        "reason": "NotTargeted",
+                        "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+                        "reason": NimbusExperiment.FunnelReason.NOT_TARGETED,
                         "conflict_slug": None,
                         "client_count": 250000,
                     },
@@ -5681,10 +5683,10 @@ class TestNimbusExperiment(TestCase):
             monitoring_data={
                 "enrollment_funnel": [
                     {
-                        "app_name": "firefox_desktop",
+                        "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
                         "branch": None,
-                        "status": "NotEnrolled",
-                        "reason": "FeatureConflict",
+                        "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+                        "reason": NimbusExperiment.FunnelReason.FEATURE_CONFLICT,
                         "conflict_slug": "other-experiment",
                         "client_count": 100000,
                     },
@@ -5693,7 +5695,9 @@ class TestNimbusExperiment(TestCase):
         )
         result = experiment.enrollment_funnel_stages
         conflict_stage = next(
-            s for s in result["stages"] if s["reason"] == "FeatureConflict"
+            s
+            for s in result["stages"]
+            if s["reason"] == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
         )
         self.assertIn("other-experiment", conflict_stage["conflict_slugs"])
         self.assertFalse(conflict_stage["has_null_conflict"])
@@ -5703,10 +5707,10 @@ class TestNimbusExperiment(TestCase):
             monitoring_data={
                 "enrollment_funnel": [
                     {
-                        "app_name": "firefox_ios",
+                        "app_name": APPLICATION_CONFIG_IOS.app_name,
                         "branch": None,
-                        "status": "NotEnrolled",
-                        "reason": "FeatureConflict",
+                        "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+                        "reason": NimbusExperiment.FunnelReason.FEATURE_CONFLICT,
                         "conflict_slug": None,
                         "client_count": 50000,
                     },
@@ -5715,7 +5719,9 @@ class TestNimbusExperiment(TestCase):
         )
         result = experiment.enrollment_funnel_stages
         conflict_stage = next(
-            s for s in result["stages"] if s["reason"] == "FeatureConflict"
+            s
+            for s in result["stages"]
+            if s["reason"] == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
         )
         self.assertTrue(conflict_stage["has_null_conflict"])
         self.assertEqual(conflict_stage["conflict_slugs"], [])

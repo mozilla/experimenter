@@ -20,6 +20,11 @@ from experimenter.experiments.changelog_utils import (
     NimbusExperimentChangeLogSerializer,
     generate_nimbus_changelog,
 )
+from experimenter.experiments.constants import (
+    APPLICATION_CONFIG_DESKTOP,
+    APPLICATION_CONFIG_FENIX,
+    APPLICATION_CONFIG_IOS,
+)
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -459,7 +464,11 @@ UNENROLLMENT_REASONS = [
     "unknown",
 ]
 
-FUNNEL_APPS = ["firefox_desktop", "firefox_ios", "fenix"]
+FUNNEL_APPS = [
+    APPLICATION_CONFIG_DESKTOP.app_name,
+    APPLICATION_CONFIG_IOS.app_name,
+    APPLICATION_CONFIG_FENIX.app_name,
+]
 FUNNEL_NOT_ENROLLED_REASONS = [
     NimbusExperiment.FunnelReason.NOT_TARGETED,
     NimbusExperiment.FunnelReason.ENROLLMENTS_PAUSED,
