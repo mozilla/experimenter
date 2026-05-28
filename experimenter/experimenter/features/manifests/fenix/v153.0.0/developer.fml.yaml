@@ -1277,6 +1277,13 @@ features:
         description: The current collection version of the user characteristics.
         type: Int
         default: 0
+  voice-search-in-display-mode:
+    description: Controls whether the voice search entry point is shown in the display-mode browser toolbar.
+    variables:
+      enabled:
+        description: If true, voice search is shown in the display toolbar.
+        type: Boolean
+        default: true
   webcompat-reporter-enhancements:
     description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
     variables:
