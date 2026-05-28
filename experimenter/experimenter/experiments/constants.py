@@ -1208,6 +1208,46 @@ EXTERNAL_URLS = {
 }
 
 
+ENROLLMENT_FUNNEL_STAGES = {
+    ("Enrolled", "Qualified"): ("Enrolled", "success", "white"),
+    ("Enrolled", "OptIn"): ("Enrolled (Opt-In)", "success", "white"),
+    ("NotEnrolled", "NotTargeted"): ("Not Targeted", "secondary", "white"),
+    ("NotEnrolled", "EnrollmentsPaused"): ("Enrollments Paused", "secondary", "white"),
+    ("NotEnrolled", "OptOut"): ("Opted Out", "warning", "dark"),
+    ("NotEnrolled", "FeatureConflict"): ("Feature Conflict", "danger", "white"),
+    ("NotEnrolled", "NotSelected"): ("Not Selected", "secondary", "white"),
+    ("NotEnrolled", "UnenrolledInAnotherProfile"): (
+        "Unenrolled in Another Profile",
+        "dark",
+        "white",
+    ),
+    ("Disqualified", "Error"): ("Disqualified — Error", "danger", "white"),
+    ("Disqualified", "OptOut"): ("Disqualified — Opted Out", "warning", "dark"),
+    ("Disqualified", "ChangedPref"): ("Disqualified — Changed Pref", "warning", "dark"),
+    ("Disqualified", "NotTargeted"): (
+        "Disqualified — Not Targeted",
+        "secondary",
+        "white",
+    ),
+    ("Disqualified", "NotSelected"): (
+        "Disqualified — Not Selected",
+        "secondary",
+        "white",
+    ),
+    ("Disqualified", "UnenrolledInAnotherProfile"): (
+        "Disqualified — Another Profile",
+        "dark",
+        "white",
+    ),
+    ("Disqualified", "ForceEnrollment"): (
+        "Disqualified — Force Enrollment",
+        "secondary",
+        "white",
+    ),
+    ("WasEnrolled", ""): ("Graduated", "secondary", "white"),
+    ("WasEnrolled", "Migration"): ("Graduated — Migration", "secondary", "white"),
+}
+
 RISK_QUESTIONS = {
     "BRAND": (
         "If the public, users or press, were to discover this experiment and "

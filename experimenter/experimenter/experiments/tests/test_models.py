@@ -5633,6 +5633,93 @@ class TestNimbusExperiment(TestCase):
         branch = summary["branches"][0]
         self.assertEqual(branch["top_reason"], "targeting_mismatch")
 
+    def test_enrollment_funnel_stages_returns_none_when_no_monitoring_data(self):
+        experiment = NimbusExperimentFactory.create(monitoring_data=None)
+        self.assertIsNone(experiment.enrollment_funnel_stages)
+
+    def test_enrollment_funnel_stages_returns_none_when_funnel_empty(self):
+        experiment = NimbusExperimentFactory.create(
+            monitoring_data={"enrollment_funnel": []}
+        )
+        self.assertIsNone(experiment.enrollment_funnel_stages)
+
+    def test_enrollment_funnel_stages_aggregates_counts(self):
+        experiment = NimbusExperimentFactory.create(
+            monitoring_data={
+                "enrollment_funnel": [
+                    {
+                        "app_name": "firefox_desktop",
+                        "branch": "control",
+                        "status": "Enrolled",
+                        "reason": "Qualified",
+                        "conflict_slug": None,
+                        "client_count": 750000,
+                    },
+                    {
+                        "app_name": "firefox_desktop",
+                        "branch": None,
+                        "status": "NotEnrolled",
+                        "reason": "NotTargeted",
+                        "conflict_slug": None,
+                        "client_count": 250000,
+                    },
+                ]
+            }
+        )
+        result = experiment.enrollment_funnel_stages
+        self.assertIsNotNone(result)
+        self.assertEqual(result["total"], 1000000)
+        labels = {s["label"] for s in result["stages"]}
+        self.assertIn("Enrolled", labels)
+        self.assertIn("Not Targeted", labels)
+        enrolled = next(s for s in result["stages"] if s["label"] == "Enrolled")
+        self.assertEqual(enrolled["client_count"], 750000)
+        self.assertAlmostEqual(enrolled["pct"], 75.0)
+
+    def test_enrollment_funnel_stages_links_conflict_slugs(self):
+        experiment = NimbusExperimentFactory.create(
+            monitoring_data={
+                "enrollment_funnel": [
+                    {
+                        "app_name": "firefox_desktop",
+                        "branch": None,
+                        "status": "NotEnrolled",
+                        "reason": "FeatureConflict",
+                        "conflict_slug": "other-experiment",
+                        "client_count": 100000,
+                    },
+                ]
+            }
+        )
+        result = experiment.enrollment_funnel_stages
+        conflict_stage = next(
+            s for s in result["stages"] if s["reason"] == "FeatureConflict"
+        )
+        self.assertIn("other-experiment", conflict_stage["conflict_slugs"])
+        self.assertFalse(conflict_stage["has_null_conflict"])
+
+    def test_enrollment_funnel_stages_flags_null_conflict_on_mobile(self):
+        experiment = NimbusExperimentFactory.create(
+            monitoring_data={
+                "enrollment_funnel": [
+                    {
+                        "app_name": "firefox_ios",
+                        "branch": None,
+                        "status": "NotEnrolled",
+                        "reason": "FeatureConflict",
+                        "conflict_slug": None,
+                        "client_count": 50000,
+                    },
+                ]
+            }
+        )
+        result = experiment.enrollment_funnel_stages
+        conflict_stage = next(
+            s for s in result["stages"] if s["reason"] == "FeatureConflict"
+        )
+        self.assertTrue(conflict_stage["has_null_conflict"])
+        self.assertEqual(conflict_stage["conflict_slugs"], [])
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):

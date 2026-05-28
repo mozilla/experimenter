@@ -30,6 +30,7 @@ from prose.fields import RichTextField
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import (
+    ENROLLMENT_FUNNEL_STAGES,
     BucketRandomizationUnit,
     ChangeEventType,
     NimbusConstants,
@@ -1446,6 +1447,52 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             and self.status_next == self.Status.LIVE
             and self.is_enrollment_pause_pending
         )
+
+    @property
+    def enrollment_funnel_stages(self):
+        funnel = (self.monitoring_data or {}).get("enrollment_funnel", [])
+        if not funnel:
+            return None
+
+        by_key = defaultdict(
+            lambda: {"client_count": 0, "conflict_slugs": set(), "apps": set()}
+        )
+        total = 0
+
+        for row in funnel:
+            total += row["client_count"]
+            key = (row["status"], row.get("reason") or "")
+            by_key[key]["client_count"] += row["client_count"]
+            by_key[key]["apps"].add(row["app_name"])
+            if row.get("conflict_slug"):
+                by_key[key]["conflict_slugs"].add(row["conflict_slug"])
+
+        def _build_stage(key, data):
+            status, reason = key
+            stage_info = ENROLLMENT_FUNNEL_STAGES.get(key)
+            return {
+                "status": status,
+                "reason": reason,
+                "label": stage_info[0]
+                if stage_info
+                else (f"{status} — {reason}" if reason else status),
+                "client_count": data["client_count"],
+                "pct": (data["client_count"] / total * 100) if total else 0.0,
+                "color": stage_info[1] if stage_info else "secondary",
+                "text_color": stage_info[2] if stage_info else "dark",
+                "conflict_slugs": sorted(data["conflict_slugs"]),
+                "has_null_conflict": (
+                    reason == "FeatureConflict"
+                    and not data["conflict_slugs"]
+                    and any(a in {"firefox_ios", "fenix"} for a in data["apps"])
+                ),
+            }
+
+        ordered_keys = [k for k in ENROLLMENT_FUNNEL_STAGES if k in by_key]
+        unknown_keys = [k for k in by_key if k not in ENROLLMENT_FUNNEL_STAGES]
+        stages = [_build_stage(k, by_key[k]) for k in ordered_keys + unknown_keys]
+
+        return {"total": total, "stages": stages}
 
     @property
     def monitoring_summary(self):

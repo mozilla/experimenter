@@ -3454,7 +3454,7 @@ def mock_funnel_entries(request):
             "status": "Enrolled",
             "reason": "Qualified",
             "conflict_slug": None,
-            "client_count": 750000,
+            "client_count": 11100,
         },
         {
             "app_name": "firefox_desktop",
@@ -3462,7 +3462,31 @@ def mock_funnel_entries(request):
             "status": "NotEnrolled",
             "reason": "NotTargeted",
             "conflict_slug": None,
-            "client_count": 5000000,
+            "client_count": 67677700,
+        },
+        {
+            "app_name": "firefox_desktop",
+            "branch": None,
+            "status": "NotEnrolled",
+            "reason": "OptOut",
+            "conflict_slug": None,
+            "client_count": 2009500,
+        },
+        {
+            "app_name": "firefox_desktop",
+            "branch": None,
+            "status": "NotEnrolled",
+            "reason": "NotSelected",
+            "conflict_slug": None,
+            "client_count": 6205100,
+        },
+        {
+            "app_name": "firefox_desktop",
+            "branch": None,
+            "status": "NotEnrolled",
+            "reason": "FeatureConflict",
+            "conflict_slug": "us-billboard-rollout-2026",
+            "client_count": 49800,
         },
     ]
     if request.instance:

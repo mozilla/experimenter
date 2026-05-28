@@ -459,6 +459,51 @@ UNENROLLMENT_REASONS = [
     "unknown",
 ]
 
+FUNNEL_APPS = ["firefox_desktop", "firefox_ios", "fenix"]
+FUNNEL_NOT_ENROLLED_REASONS = [
+    "NotTargeted",
+    "EnrollmentsPaused",
+    "OptOut",
+    "FeatureConflict",
+    "NotSelected",
+]
+
+
+def build_random_funnel_data(branches):
+    """Generate realistic enrollment funnel rows for a set of branch names."""
+    branch_names = [b.slug for b in branches] if branches else ["control", "treatment"]
+    app = random.choice(FUNNEL_APPS)
+    rows = []
+
+    for branch in branch_names:
+        rows.append(
+            {
+                "app_name": app,
+                "branch": branch,
+                "status": "Enrolled",
+                "reason": "Qualified",
+                "conflict_slug": None,
+                "client_count": random.randint(50000, 500000) * 100,
+            }
+        )
+
+    for reason in random.sample(FUNNEL_NOT_ENROLLED_REASONS, k=random.randint(1, 3)):
+        conflict_slug = (
+            "some-blocking-experiment-rollout" if reason == "FeatureConflict" else None
+        )
+        rows.append(
+            {
+                "app_name": app,
+                "branch": None,
+                "status": "NotEnrolled",
+                "reason": reason,
+                "conflict_slug": conflict_slug,
+                "client_count": random.randint(1000, 100000) * 100,
+            }
+        )
+
+    return rows
+
 
 def build_random_monitoring_data(branches):
     """Generate realistic monitoring data for a set of branch names."""
@@ -491,6 +536,7 @@ def build_random_monitoring_data(branches):
         "total_unenrollments": total_unenrollments,
         "branches": branch_data,
         "reasons_by_branch": reasons_by_branch,
+        "enrollment_funnel": build_random_funnel_data(branches),
     }
 
 
