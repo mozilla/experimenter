@@ -997,6 +997,14 @@ user-characteristics:
     currentVersion:
       type: int
       description: The current collection version of the user characteristics.
+voice-search-in-display-mode:
+  description: Controls whether the voice search entry point is shown in the display-mode browser toolbar.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, voice search is shown in the display toolbar.
 webcompat-reporter-enhancements:
   description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
   hasExposure: true
