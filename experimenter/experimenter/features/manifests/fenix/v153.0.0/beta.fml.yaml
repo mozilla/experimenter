@@ -153,7 +153,8 @@ features:
         type: Boolean
         default: true
       in-app-messages-enabled:
-        description: When true, non CFR popups will show
+        description: |
+          Enables non-CFR in-app messaging surfaces. Currently includes: - Wallpaper onboarding bottom sheet - PWA onboarding ("Add to Home screen") dialog - "Open links in apps" banner
         type: Boolean
         default: true
   fingerprinting-protection:
