@@ -4490,6 +4490,40 @@ FX_152_2_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_152_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
+    name="Existing Windows 10 users with New Tab Fx152 May-04 Trainhop",
+    slug="newtab-152-0504-trainhop-win10-existing-users",
+    description=(
+        "Windows 10 existing users with profiles older than 28 days, "
+        "having the New Tab 152.0.20260504.33143 train hop, "
+        "which includes users of Fx150"
+    ),
+    targeting=(
+        f"{FX_152_TRAINHOP.targeting} && {PROFILE28DAYS} && {WIN10_NOT_WIN11.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_152_2_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
+    name="Existing Windows 10 users with New Tab Fx152 May-15 Trainhop",
+    slug="newtab-152-0515-trainhop-win10-existing-users",
+    description=(
+        "Windows 10 existing users with profiles older than 28 days, "
+        "having the New Tab 152.2.20260515.174901 train hop, "
+        "which includes users of Fx151"
+    ),
+    targeting=(
+        f"{FX_152_2_TRAINHOP.targeting} && {PROFILE28DAYS} && {WIN10_NOT_WIN11.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
