@@ -5895,3 +5895,21 @@ smartWindow:
       description: >-
         If true, Firefox opens as a Smart Window by default on startup for
         eligible users. Set to false (or unenroll) to disable the rollout.
+
+contentSharing:
+  description: Controls the content sharing feature, which allows users to share browser content.
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.contentsharing.enabled
+      description: Whether the content sharing feature is enabled.
+    serverUrl:
+      type: string
+      setPref:
+        branch: default
+        pref: browser.contentsharing.server.url
+      description: The URL of the content sharing server.
