@@ -1,0 +1,111 @@
+{# ── Edit form ── #}
+<div id="rollout-qa-body">
+  <form hx-post="{% url 'nimbus-ui-new-update-qa' experiment.slug %}"
+        hx-target="#rollout-qa-body"
+        hx-swap="outerHTML"
+        class="d-flex flex-column gap-4">
+    {% csrf_token %}
+    {% with qa_status=form.qa_status.value %}
+      <div class="d-flex flex-column gap-4">
+        {# QA method #}
+        <div>
+          <label class="small text-body mb-1">Choose your QA method</label>
+          <div class="text-secondary small">
+            Before launch, confirm your experiment or rollout works as expected. QA ensures your setup
+            runs correctly through Nimbus and targets the right users.
+          </div>
+        </div>
+        {# QA review option #}
+        <div class="bg-body-tertiary rounded-3 p-4">
+          <div class="d-flex align-items-start gap-2">
+            <input id="qa-method-review"
+                   type="radio"
+                   name="qa_method"
+                   value="qa_review"
+                   class="form-check-input mt-1 flex-shrink-0"
+                   {% if qa_status != "SELF RED" and qa_status != "SELF YELLOW" and qa_status != "SELF GREEN" %}checked{% endif %}>
+            <div class="flex-grow-1">
+              <div class="mb-4">
+                <label for="qa-method-review" class="fw-semibold text-body mb-0">QA review</label>
+                <div class="small text-secondary">
+                  For new or complex work, request a QA review from the team. Submit a Jira
+                  ticket so QA can validate your setup and catch issues early.
+                </div>
+              </div>
+              <div class="row g-4 align-items-end">
+                <div class="col-md-6">
+                  <label class="small text-body mb-1">Request QA review</label>
+                  <a href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10212&issuetype=11290"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-1">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    Submit Jira ticket
+                  </a>
+                </div>
+                <div class="col-md-6">
+                  <label for="id_qa_status" class="small text-body mb-1">QA status</label>
+                  <select name="qa_status" id="id_qa_status" class="form-select">
+                    <option value="NOT SET" {% if qa_status == "NOT SET" %}selected{% endif %}>Not set</option>
+                    <option value="RED" {% if qa_status == "RED" %}selected{% endif %}>QA: Red</option>
+                    <option value="YELLOW" {% if qa_status == "YELLOW" %}selected{% endif %}>QA: Yellow</option>
+                    <option value="GREEN" {% if qa_status == "GREEN" %}selected{% endif %}>QA: Green</option>
+                    <option value="SELF RED" {% if qa_status == "SELF RED" %}selected{% endif %}>Self QA: Red</option>
+                    <option value="SELF YELLOW"
+                            {% if qa_status == "SELF YELLOW" %}selected{% endif %}>Self QA: Yellow</option>
+                    <option value="SELF GREEN"
+                            {% if qa_status == "SELF GREEN" %}selected{% endif %}>Self QA: Green</option>
+                  </select>
+                  {% if form.qa_status.errors %}
+                    <div class="text-danger small mt-1">{{ form.qa_status.errors|join:", " }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="mt-4">
+                <label for="id_qa_comment" class="small text-body mb-1">QA notes</label>
+                <textarea name="qa_comment"
+                          id="id_qa_comment"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Add QA comment or attach relevant links">{{ form.qa_comment.value|default_if_none:"" }}</textarea>
+                {% if form.qa_comment.errors %}
+                  <div class="text-danger small mt-1">{{ form.qa_comment.errors|join:", " }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {# Self QA review option #}
+        <div class="bg-body-tertiary rounded-3 p-4">
+          <div class="d-flex align-items-start gap-2">
+            <input id="qa-method-self-review"
+                   type="radio"
+                   name="qa_method"
+                   value="self_qa_review"
+                   class="form-check-input mt-1 flex-shrink-0"
+                   {% if qa_status == "SELF RED" or qa_status == "SELF YELLOW" or qa_status == "SELF GREEN" %}checked{% endif %}>
+            <div class="flex-grow-1">
+              <div>
+                <label for="qa-method-self-review" class="fw-semibold text-body mb-0">Self QA review</label>
+                <div class="small text-secondary">
+                  For smaller or low-risk changes, you can run your own check using the QA
+                  checklist.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endwith %}
+    {# Action buttons #}
+    <div class="d-flex align-items-center gap-2">
+      <button type="submit" class="btn btn-primary btn-sm">Save</button>
+      <button type="button"
+              class="btn btn-outline-secondary btn-sm"
+              hx-get="{{ cancel_url }}"
+              hx-select="#rollout-card-qa"
+              hx-target="#rollout-card-qa"
+              hx-swap="outerHTML">Cancel</button>
+    </div>
+  </form>
+</div>

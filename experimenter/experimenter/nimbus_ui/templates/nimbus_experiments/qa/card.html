@@ -1,0 +1,16 @@
+<div class="d-flex flex-column gap-3" id="rollout-qa-body">
+  {# QA status #}
+  <div>
+    <div class="text-secondary mb-1" style="font-size: 12px;">QA status</div>
+    {% with qa_status=experiment.get_qa_status_display|default:"Not set" %}
+      <span class=" badge rounded-pill small fw-normal {% if qa_status == 'QA: Green' or qa_status == 'Self QA: Green' %} text-bg-success {% elif qa_status == 'QA: Yellow' or qa_status == 'Self QA: Yellow' %} text-bg-warning {% elif qa_status == 'QA: Red' or qa_status == 'Self QA: Red' %} text-bg-danger {% else %} text-bg-light {% endif %}">
+        {{ experiment.get_qa_status_display }}
+      </span>
+    {% endwith %}
+  </div>
+  {# QA notes #}
+  <div>
+    <div class="text-secondary mb-1" style="font-size: 12px;">QA notes</div>
+    <div class="small text-body" style="white-space: pre-wrap;">{{ experiment.qa_comment|default:"—" }}</div>
+  </div>
+</div>

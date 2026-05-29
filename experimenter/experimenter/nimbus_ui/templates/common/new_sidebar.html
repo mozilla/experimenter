@@ -46,19 +46,21 @@
                class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">5</span>Rollout experience</a>
             <a href="#rollout-card-schedule"
                class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">6</span>Rollout schedule</a>
+            <a href="#rollout-card-qa"
+               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">7</span>QA</a>
           {% endfor %}
-          {# Preview & QA CTA — disabled until setup complete — EXP-6687 #}
+          {# Preview CTA — disabled until setup complete — EXP-6687 #}
           <div class="d-flex align-items-center justify-content-center gap-2 rounded-2 mt-2 py-2 px-3 fw-semibold small text-white bg-primary opacity-50"
                style="cursor: not-allowed">
             <i class="fa-regular fa-eye"></i>
-            Preview &amp; QA
+            Preview
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-{# Preview & QA nav card — EXP-6687 #}
+{# Preview nav card — EXP-6687 #}
 <div class="accordion accordion-flush rounded-3 bg-body-secondary"
      style="--bs-accordion-btn-active-color: var(--bs-body-color);
             --bs-accordion-btn-active-bg: transparent;
@@ -73,13 +75,13 @@
               aria-expanded="false"
               aria-controls="sidebar-preview">
         <i class="fa-regular fa-eye text-secondary me-2"></i>
-        Preview &amp; QA
+        Preview
       </button>
     </h2>
     <div class="accordion-collapse collapse"
          id="sidebar-preview"
          data-bs-parent="#accordion-preview">
-      <div class="accordion-body pt-0 px-3 pb-3">{# TODO EXP-6687: Preview & QA content #}</div>
+      <div class="accordion-body pt-0 px-3 pb-3">{# TODO EXP-6687: Preview content #}</div>
     </div>
   </div>
 </div>

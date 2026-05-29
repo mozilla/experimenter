@@ -1884,6 +1884,26 @@ class TestOverviewUpdateView(AuthTestCase):
         self.assertTrue(experiment.risk_revenue)
         self.assertTrue(experiment.risk_partner_related)
 
+    def test_post_updates_overview_qa(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_status=NimbusExperiment.QAStatus.NOT_SET,
+            qa_comment="",
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-update-qa", kwargs={"slug": experiment.slug}),
+            {
+                "qa_status": NimbusExperiment.QAStatus.SELF_GREEN,
+                "qa_comment": "QA testing completed",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.qa_status, NimbusExperiment.QAStatus.SELF_GREEN)
+        self.assertEqual(experiment.qa_comment, "QA testing completed")
+
 
 class TestDocumentationLinkCreateView(AuthTestCase):
     url_name = "nimbus-ui-create-documentation-link"
