@@ -155,7 +155,8 @@ enable-popups:
       description: When true, CFR popups will show
     in-app-messages-enabled:
       type: boolean
-      description: When true, non CFR popups will show
+      description: |
+        Enables non-CFR in-app messaging surfaces. Currently includes: - Wallpaper onboarding bottom sheet - PWA onboarding ("Add to Home screen") dialog - "Open links in apps" banner
 encourage-search-cfr:
   description: A feature that shows a CFR on first launch to encourage users to make a search
   hasExposure: true

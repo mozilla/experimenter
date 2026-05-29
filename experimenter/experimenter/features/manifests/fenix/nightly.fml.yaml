@@ -153,7 +153,8 @@ features:
         type: Boolean
         default: true
       in-app-messages-enabled:
-        description: When true, non CFR popups will show
+        description: |
+          Enables non-CFR in-app messaging surfaces. Currently includes: - Wallpaper onboarding bottom sheet - PWA onboarding ("Add to Home screen") dialog - "Open links in apps" banner
         type: Boolean
         default: true
   fingerprinting-protection:
@@ -1173,6 +1174,14 @@ features:
           Whether or not to enable drag and drop for tab groups.
         type: Boolean
         default: true
+  tab-groups-onboarding:
+    description: Control the visibility of onboarding for tab groups.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable onboarding for tab groups.
+        type: Boolean
+        default: false
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
