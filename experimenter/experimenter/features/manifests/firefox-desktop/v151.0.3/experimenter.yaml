@@ -5792,3 +5792,19 @@ walletCustomSchemes:
         pref: privacy.wallet_schemes
       description: >-
         Comma separated lists of schemes
+
+smartWindow:
+  description: >-
+    Controls whether Smart Window can become the default browser window on
+    startup. Existing Smart Window eligibility checks still apply.
+  owner: echa@mozilla.com
+  hasExposure: false
+  variables:
+    isDefault:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.smartwindow.isDefaultWindow
+      description: >-
+        If true, Firefox opens as a Smart Window by default on startup for
+        eligible users. Set to false (or unenroll) to disable the rollout.
