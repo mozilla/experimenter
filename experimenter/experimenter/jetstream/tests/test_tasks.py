@@ -10,6 +10,7 @@ from django.utils import timezone
 from mozilla_nimbus_schemas.jetstream import SampleSizes, SampleSizesFactory
 from parameterized import parameterized
 
+from experimenter.experiments.constants import APPLICATION_CONFIG_DESKTOP
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.jetstream import tasks
@@ -3449,42 +3450,42 @@ def mock_monitoring_data(request):
 def mock_funnel_entries(request):
     data = [
         {
-            "app_name": "firefox_desktop",
+            "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
             "branch": "control",
-            "status": "Enrolled",
-            "reason": "Qualified",
+            "status": NimbusExperiment.FunnelStatus.ENROLLED,
+            "reason": NimbusExperiment.FunnelReason.QUALIFIED,
             "conflict_slug": None,
             "client_count": 11100,
         },
         {
-            "app_name": "firefox_desktop",
+            "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
             "branch": None,
-            "status": "NotEnrolled",
-            "reason": "NotTargeted",
+            "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+            "reason": NimbusExperiment.FunnelReason.NOT_TARGETED,
             "conflict_slug": None,
             "client_count": 67677700,
         },
         {
-            "app_name": "firefox_desktop",
+            "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
             "branch": None,
-            "status": "NotEnrolled",
-            "reason": "OptOut",
+            "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+            "reason": NimbusExperiment.FunnelReason.OPT_OUT,
             "conflict_slug": None,
             "client_count": 2009500,
         },
         {
-            "app_name": "firefox_desktop",
+            "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
             "branch": None,
-            "status": "NotEnrolled",
-            "reason": "NotSelected",
+            "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+            "reason": NimbusExperiment.FunnelReason.NOT_SELECTED,
             "conflict_slug": None,
             "client_count": 6205100,
         },
         {
-            "app_name": "firefox_desktop",
+            "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
             "branch": None,
-            "status": "NotEnrolled",
-            "reason": "FeatureConflict",
+            "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+            "reason": NimbusExperiment.FunnelReason.FEATURE_CONFLICT,
             "conflict_slug": "us-billboard-rollout-2026",
             "client_count": 49800,
         },
