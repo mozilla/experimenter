@@ -479,7 +479,6 @@ FUNNEL_NOT_ENROLLED_REASONS = [
 
 
 def build_random_funnel_data(branches):
-    """Generate realistic enrollment funnel rows for a set of branch names."""
     branch_names = [b.slug for b in branches] if branches else ["control", "treatment"]
     app = random.choice(FUNNEL_APPS)
     rows = []
