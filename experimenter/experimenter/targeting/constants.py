@@ -4535,6 +4535,19 @@ BUILDID_20251006095753 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+BUILDID_20260601084312 = NimbusTargetingConfig(
+    name="Build 2026-06-01 (20260601084312) or higher",
+    slug="buildid-20260601084312",
+    description=(
+        "Desktop users having the Build ID 20260601084312 (Nightly 2026-06-01) or higher"
+    ),
+    targeting="buildId >= 20260601084312",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 PROFILES_NUM_ZERO = NimbusTargetingConfig(
     name="Number of Profiles is Zero",
     slug="number_of_profiles_is_zero",
