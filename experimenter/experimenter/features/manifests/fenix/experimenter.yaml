@@ -147,7 +147,8 @@ enable-popups:
       description: When true, CFR popups will show
     in-app-messages-enabled:
       type: boolean
-      description: When true, non CFR popups will show
+      description: |
+        Enables non-CFR in-app messaging surfaces. Currently includes: - Wallpaper onboarding bottom sheet - PWA onboarding ("Add to Home screen") dialog - "Open links in apps" banner
 fingerprinting-protection:
   description: Control Fingerprinting Protection
   hasExposure: true
@@ -898,6 +899,15 @@ tab-groups-drag-and-drop:
       type: boolean
       description: |
         Whether or not to enable drag and drop for tab groups.
+tab-groups-onboarding:
+  description: Control the visibility of onboarding for tab groups.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable onboarding for tab groups.
 tab-management-enhancements:
   description: Control the visibility of the tab management enhancements.
   hasExposure: true
@@ -997,6 +1007,14 @@ user-characteristics:
     currentVersion:
       type: int
       description: The current collection version of the user characteristics.
+voice-search-in-display-mode:
+  description: Controls whether the voice search entry point is shown in the display-mode browser toolbar.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, voice search is shown in the display toolbar.
 webcompat-reporter-enhancements:
   description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
   hasExposure: true

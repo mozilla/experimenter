@@ -625,6 +625,18 @@ urlbar:
         The format is like: '[["AU",["en-*"]],["CA",["en-*"]], …]' where `-*`
         can be used as a wildcard to match any locale that starts with the given
         prefix.
+    semanticHistoryEmbeddingType:
+      type: string
+      setPref:
+        branch: user
+        pref: places.semanticHistory.embeddingType
+      description: >-
+        Embedding family used by Places semantic history: "static" (default,
+        lightweight) or "contextual" (transformer-based, larger). Changing
+        this on a live profile drops the embedding tables and rebuilds them
+        on next startup. Contextual model details (dimension, modelId,
+        wasm fallback) are controlled by the browser.ml.embedGen.* prefs and
+        are intentionally not exposed via Nimbus.
     showDebuggingIcons:
       type: boolean
       setPref:
@@ -5867,3 +5879,37 @@ macAppMenuSetAsDefault:
       type: boolean
       description: >-
         Whether or not the macOS app menu contains "Set as Default Browser" item
+
+smartWindow:
+  description: >-
+    Controls whether Smart Window can become the default browser window on
+    startup. Existing Smart Window eligibility checks still apply.
+  owner: echa@mozilla.com
+  hasExposure: false
+  variables:
+    isDefault:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.smartwindow.isDefaultWindow
+      description: >-
+        If true, Firefox opens as a Smart Window by default on startup for
+        eligible users. Set to false (or unenroll) to disable the rollout.
+
+contentSharing:
+  description: Controls the content sharing feature, which allows users to share browser content.
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.contentsharing.enabled
+      description: Whether the content sharing feature is enabled.
+    serverUrl:
+      type: string
+      setPref:
+        branch: default
+        pref: browser.contentsharing.server.url
+      description: The URL of the content sharing server.
