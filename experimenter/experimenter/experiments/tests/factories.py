@@ -20,6 +20,11 @@ from experimenter.experiments.changelog_utils import (
     NimbusExperimentChangeLogSerializer,
     generate_nimbus_changelog,
 )
+from experimenter.experiments.constants import (
+    APPLICATION_CONFIG_DESKTOP,
+    APPLICATION_CONFIG_FENIX,
+    APPLICATION_CONFIG_IOS,
+)
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -459,6 +464,56 @@ UNENROLLMENT_REASONS = [
     "unknown",
 ]
 
+FUNNEL_APPS = [
+    APPLICATION_CONFIG_DESKTOP.app_name,
+    APPLICATION_CONFIG_IOS.app_name,
+    APPLICATION_CONFIG_FENIX.app_name,
+]
+FUNNEL_NOT_ENROLLED_REASONS = [
+    NimbusExperiment.FunnelReason.NOT_TARGETED,
+    NimbusExperiment.FunnelReason.ENROLLMENTS_PAUSED,
+    NimbusExperiment.FunnelReason.OPT_OUT,
+    NimbusExperiment.FunnelReason.FEATURE_CONFLICT,
+    NimbusExperiment.FunnelReason.NOT_SELECTED,
+]
+
+
+def build_random_funnel_data(branches):
+    branch_names = [b.slug for b in branches] if branches else ["control", "treatment"]
+    app = random.choice(FUNNEL_APPS)
+    rows = []
+
+    for branch in branch_names:
+        rows.append(
+            {
+                "app_name": app,
+                "branch": branch,
+                "status": NimbusExperiment.FunnelStatus.ENROLLED,
+                "reason": NimbusExperiment.FunnelReason.QUALIFIED,
+                "conflict_slug": None,
+                "client_count": random.randint(50000, 500000) * 100,
+            }
+        )
+
+    for reason in random.sample(FUNNEL_NOT_ENROLLED_REASONS, k=random.randint(1, 3)):
+        conflict_slug = (
+            "some-blocking-experiment-rollout"
+            if reason == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
+            else None
+        )
+        rows.append(
+            {
+                "app_name": app,
+                "branch": None,
+                "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+                "reason": reason,
+                "conflict_slug": conflict_slug,
+                "client_count": random.randint(1000, 100000) * 100,
+            }
+        )
+
+    return rows
+
 
 def build_random_monitoring_data(branches):
     """Generate realistic monitoring data for a set of branch names."""
@@ -491,6 +546,7 @@ def build_random_monitoring_data(branches):
         "total_unenrollments": total_unenrollments,
         "branches": branch_data,
         "reasons_by_branch": reasons_by_branch,
+        "enrollment_funnel": build_random_funnel_data(branches),
     }
 
 

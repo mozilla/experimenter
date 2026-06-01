@@ -1200,6 +1200,41 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     OVERALL_WINDOW_INDEX = "1"
 
+    class FunnelStatus(models.TextChoices):
+        ENROLLED = "Enrolled", "Enrolled"
+        NOT_ENROLLED = "NotEnrolled", "Not Enrolled"
+        DISQUALIFIED = "Disqualified", "Disqualified"
+        WAS_ENROLLED = "WasEnrolled", "Graduated"
+
+    class FunnelReason(models.TextChoices):
+        QUALIFIED = "Qualified", "Qualified"
+        OPT_IN = "OptIn", "Opt-In"
+        NOT_TARGETED = "NotTargeted", "Not Targeted"
+        ENROLLMENTS_PAUSED = "EnrollmentsPaused", "Enrollments Paused"
+        OPT_OUT = "OptOut", "Opted Out"
+        FEATURE_CONFLICT = "FeatureConflict", "Feature Conflict"
+        NOT_SELECTED = "NotSelected", "Not Selected"
+        UNENROLLED_IN_ANOTHER_PROFILE = (
+            "UnenrolledInAnotherProfile",
+            "Unenrolled in Another Profile",
+        )
+        ERROR = "Error", "Error"
+        CHANGED_PREF = "ChangedPref", "Changed Pref"
+        FORCE_ENROLLMENT = "ForceEnrollment", "Force Enrollment"
+        MIGRATION = "Migration", "Migration"
+        GRADUATED = "", "Graduated"
+
+    class FunnelBgColor(models.TextChoices):
+        SUCCESS = "success"
+        SECONDARY = "secondary"
+        WARNING = "warning"
+        DANGER = "danger"
+        DARK = "dark"
+
+    class FunnelTextColor(models.TextChoices):
+        WHITE = "white"
+        DARK = "dark"
+
 
 EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/workflow/risk-mitigation#qa-sign-off",
@@ -1207,6 +1242,81 @@ EXTERNAL_URLS = {
     "PREVIEW_LAUNCH_DOC": "https://experimenter.info/platform-guides/desktop/preview",
 }
 
+
+_S = NimbusConstants.FunnelStatus
+_R = NimbusConstants.FunnelReason
+_BG = NimbusConstants.FunnelBgColor
+_TC = NimbusConstants.FunnelTextColor
+
+# Maps (status, reason) → (label, bg_color, text_color). Insertion order defines display
+# order. Statuses/reasons mirror Nimbus SDK enrollment.rs enums.
+ENROLLMENT_FUNNEL_STAGES = {
+    (_S.ENROLLED, _R.QUALIFIED): (_S.ENROLLED.label, _BG.SUCCESS, _TC.WHITE),
+    (_S.ENROLLED, _R.OPT_IN): (
+        f"{_S.ENROLLED.label} ({_R.OPT_IN.label})",
+        _BG.SUCCESS,
+        _TC.WHITE,
+    ),
+    (_S.NOT_ENROLLED, _R.NOT_TARGETED): (_R.NOT_TARGETED.label, _BG.SECONDARY, _TC.WHITE),
+    (_S.NOT_ENROLLED, _R.ENROLLMENTS_PAUSED): (
+        _R.ENROLLMENTS_PAUSED.label,
+        _BG.SECONDARY,
+        _TC.WHITE,
+    ),
+    (_S.NOT_ENROLLED, _R.OPT_OUT): (_R.OPT_OUT.label, _BG.WARNING, _TC.DARK),
+    (_S.NOT_ENROLLED, _R.FEATURE_CONFLICT): (
+        _R.FEATURE_CONFLICT.label,
+        _BG.DANGER,
+        _TC.WHITE,
+    ),
+    (_S.NOT_ENROLLED, _R.NOT_SELECTED): (_R.NOT_SELECTED.label, _BG.SECONDARY, _TC.WHITE),
+    (_S.NOT_ENROLLED, _R.UNENROLLED_IN_ANOTHER_PROFILE): (
+        _R.UNENROLLED_IN_ANOTHER_PROFILE.label,
+        _BG.DARK,
+        _TC.WHITE,
+    ),
+    (_S.DISQUALIFIED, _R.ERROR): (
+        f"{_S.DISQUALIFIED.label} — {_R.ERROR.label}",
+        _BG.DANGER,
+        _TC.WHITE,
+    ),
+    (_S.DISQUALIFIED, _R.OPT_OUT): (
+        f"{_S.DISQUALIFIED.label} — {_R.OPT_OUT.label}",
+        _BG.WARNING,
+        _TC.DARK,
+    ),
+    (_S.DISQUALIFIED, _R.CHANGED_PREF): (
+        f"{_S.DISQUALIFIED.label} — {_R.CHANGED_PREF.label}",
+        _BG.WARNING,
+        _TC.DARK,
+    ),
+    (_S.DISQUALIFIED, _R.NOT_TARGETED): (
+        f"{_S.DISQUALIFIED.label} — {_R.NOT_TARGETED.label}",
+        _BG.SECONDARY,
+        _TC.WHITE,
+    ),
+    (_S.DISQUALIFIED, _R.NOT_SELECTED): (
+        f"{_S.DISQUALIFIED.label} — {_R.NOT_SELECTED.label}",
+        _BG.SECONDARY,
+        _TC.WHITE,
+    ),
+    (_S.DISQUALIFIED, _R.UNENROLLED_IN_ANOTHER_PROFILE): (
+        f"{_S.DISQUALIFIED.label} — {_R.UNENROLLED_IN_ANOTHER_PROFILE.label}",
+        _BG.DARK,
+        _TC.WHITE,
+    ),
+    (_S.DISQUALIFIED, _R.FORCE_ENROLLMENT): (
+        f"{_S.DISQUALIFIED.label} — {_R.FORCE_ENROLLMENT.label}",
+        _BG.SECONDARY,
+        _TC.WHITE,
+    ),
+    (_S.WAS_ENROLLED, _R.GRADUATED): (_S.WAS_ENROLLED.label, _BG.SECONDARY, _TC.WHITE),
+    (_S.WAS_ENROLLED, _R.MIGRATION): (
+        f"{_S.WAS_ENROLLED.label} — {_R.MIGRATION.label}",
+        _BG.SECONDARY,
+        _TC.WHITE,
+    ),
+}
 
 RISK_QUESTIONS = {
     "BRAND": (
