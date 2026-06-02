@@ -4524,6 +4524,20 @@ FX_152_2_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_153_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx153 May-28 Trainhop",
+    slug="newtab-153-0528-trainhop",
+    description=(
+        "Desktop users having the New Tab 153.1.20260528.133333 train hop, "
+        "which includes users of Fx151"
+    ),
+    targeting="newtabAddonVersion|versionCompare('153.1.20260528.133333') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
