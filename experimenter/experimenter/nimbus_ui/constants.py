@@ -324,6 +324,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     team by submitting a Jira ticket so QA can validate your setup and catch issues
     early. For smaller or low-risk changes, you can run your own check using the QA
     checklist."""
+    QA_TICKET_URL = "https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10212&issuetype=11290"
 
     class MetricAreaType:
         PRIMARY = {
