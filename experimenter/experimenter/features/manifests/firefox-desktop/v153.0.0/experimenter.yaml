@@ -3721,18 +3721,6 @@ thirdPartyCookieBlocking:
         branch: default
         pref: "network.cookie.cookieBehavior.optInPartitioning.pbmode"
 
-thirdPartyTrackerCookieBlocking:
-  description: Prefs to control third-party tracker cookie blocking
-  owner: tihuang@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      description: Whether to enable third-party tracker cookie blocking.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.cookie.cookieBehavior.trackerCookieBlocking"
-
 googleSafeBrowsingV5:
   description: Control Google Safe Browsing V5 protocol
   owner: tihuang@mozilla.com
@@ -4692,28 +4680,6 @@ reportBrokenSite:
         0 = do not show the "reason" dropdown
         1 = show an optional "reason" dropdown
         2 = show a required "reason" dropdown
-
-feltPrivacy:
-  description: Prefs for Felt Privacy v1 experiments
-  owner: cmeador@mozilla.com
-  hasExposure: true
-  exposureDescription: Exposure when user opens a private browsing window.
-  variables:
-    feltPrivacy:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.privatebrowsing.felt-privacy-v1
-      description: >-
-        When true, new styles and copy enabled on about:privatebrowsing. When true,
-        a toggle for showing or hiding quick suggestions appears in about:preferences.
-    resetPBMAction:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.privatebrowsing.resetPBM.enabled
-      description: >-
-        Enables the reset PBM feature button and confirmation panel.
 
 phc:
   description: Prefs to control the Probabalistic Heap Checker (PHC)
@@ -5913,3 +5879,54 @@ contentSharing:
         branch: default
         pref: browser.contentsharing.server.url
       description: The URL of the content sharing server.
+
+webNotificationsPermissionUi:
+  description: >-
+    Overrides the copy and optional logo of the native Web Notifications
+    permission prompt. Not a separate messaging surface.
+  owner: omc-core@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Recorded when the permission prompt is rendered with at least one
+    treatment variable applied and the activationTargeting expression
+    (if set) evaluated truthy.
+  variables:
+    headline:
+      type: string
+      description: >-
+        Overrides the prompt headline. Must contain "<>" for site-name
+        substitution. Falls back to the default copy when unset.
+    body:
+      type: string
+      description: >-
+        Optional secondary text shown below the headline as the popup's
+        hint text.
+    primaryCtaLabel:
+      type: string
+      description: Overrides the Allow button label.
+    primaryCtaAccessKey:
+      type: string
+      description: Optional access key paired with primaryCtaLabel.
+    secondaryCtaLabel:
+      type: string
+      description: >-
+        Overrides the (Always) Block button label. Applied uniformly across
+        normal and private browsing modes; the underlying BLOCK action and
+        scope are unchanged.
+    secondaryCtaAccessKey:
+      type: string
+      description: Optional access key paired with secondaryCtaLabel.
+    logoUrl:
+      type: string
+      description: >-
+        Optional logo URL used as the prompt's icon. Must be a chrome://,
+        resource:// or https:// URL; any other scheme is rejected and the
+        default icon is shown.
+    activationTargeting:
+      type: string
+      description: >-
+        JEXL expression evaluated at prompt-shown time with the per-call
+        webNotificationSiteCategory targeting attribute available. When
+        unset or empty the treatment applies to every prompt the enrolled
+        user sees; when set and falsy the prompt falls back to the default
+        copy and no exposure event is recorded.

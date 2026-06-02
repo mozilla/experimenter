@@ -1063,6 +1063,35 @@
               "type": "boolean",
               "description": "Should we hide the default promo after the experiment promo is dismissed."
             },
+            "infoEnabled": {
+              "type": "boolean",
+              "description": "Should we show the info section."
+            },
+            "infoIcon": {
+              "type": "string",
+              "description": "Icon shown in the left side of the info section. Default is the private browsing icon."
+            },
+            "infoTitle": {
+              "type": "string",
+              "description": "Is the title in the info section enabled."
+            },
+            "infoTitleEnabled": {
+              "type": "boolean",
+              "description": "Is the title in the info section enabled."
+            },
+            "infoBody": {
+              "type": "string",
+              "description": "Text content in the info section."
+            },
+            "infoLinkText": {
+              "type": "string",
+              "description": "Text for the link in the info section."
+            },
+            "infoLinkUrl": {
+              "type": "string",
+              "description": "URL for the info section link.",
+              "format": "moz-url-format"
+            },
             "promoEnabled": {
               "type": "boolean",
               "description": "Should we show the promo section."
@@ -1164,6 +1193,38 @@
                   "promoButton"
                 ]
               }
+            },
+            {
+              "if": {
+                "properties": {
+                  "infoEnabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "infoEnabled"
+                ]
+              },
+              "then": {
+                "required": [
+                  "infoLinkText"
+                ],
+                "if": {
+                  "properties": {
+                    "infoTitleEnabled": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "infoTitleEnabled"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "infoTitle"
+                  ]
+                }
+              }
             }
           ]
         },
@@ -1211,119 +1272,6 @@
       "required": [
         "targeting"
       ]
-    },
-    "SmartWindowNewtabPromo": {
-      "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "$id": "file:///SmartWindowNewtabPromo.schema.json",
-      "title": "SmartWindowNewtabPromo",
-      "description": "A template for promo messages that appear on the Smart Window new tab page.",
-      "allOf": [
-        {
-          "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Message"
-        }
-      ],
-      "type": "object",
-      "properties": {
-        "content": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "description": "The visual style of the promo (passed through to moz-promo)."
-            },
-            "heading": {
-              "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText",
-              "description": "The heading text of the promo."
-            },
-            "message": {
-              "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText",
-              "description": "The body text of the promo."
-            },
-            "imageSrc": {
-              "type": "string",
-              "description": "URL of the image to display."
-            },
-            "imageAlignment": {
-              "type": "string",
-              "description": "Alignment of the image within the promo."
-            },
-            "imageWidth": {
-              "type": "string",
-              "description": "Width preset for the image."
-            },
-            "imageDisplay": {
-              "type": "string",
-              "description": "Display style for the image."
-            },
-            "primary_button": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText",
-                  "description": "The label for the primary action button."
-                },
-                "action": {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "description": "Action dispatched by the button."
-                    },
-                    "data": {
-                      "type": "object"
-                    }
-                  },
-                  "required": [
-                    "type"
-                  ],
-                  "additionalProperties": true,
-                  "description": "The action to take upon clicking the primary button."
-                }
-              },
-              "required": [
-                "label",
-                "action"
-              ]
-            },
-            "additional_button": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText",
-                  "description": "The label for the additional action button."
-                },
-                "action": {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "description": "Action dispatched by the button."
-                    },
-                    "data": {
-                      "type": "object"
-                    }
-                  },
-                  "required": [
-                    "type"
-                  ],
-                  "additionalProperties": true,
-                  "description": "The action to take upon clicking the additional button."
-                }
-              },
-              "required": [
-                "label",
-                "action"
-              ]
-            }
-          },
-          "additionalProperties": true
-        },
-        "template": {
-          "type": "string",
-          "const": "smart_window_newtab_promo"
-        }
-      },
-      "additionalProperties": true
     },
     "Spotlight": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1442,21 +1390,6 @@
             },
             "image_url": {
               "description": "The URL of an image to be displayed as part of the notification.",
-              "type": "string",
-              "format": "moz-url-format"
-            },
-            "dark_mode_image_url": {
-              "description": "The URL of an image to be displayed as part of the notification in dark mode.",
-              "type": "string",
-              "format": "moz-url-format"
-            },
-            "reduced_motion_image_url": {
-              "description": "The URL of an image to be displayed as part of the notification when the user prefers reduced motion.",
-              "type": "string",
-              "format": "moz-url-format"
-            },
-            "dark_mode_reduced_motion_image_url": {
-              "description": "The URL of an image to be displayed as part of the notification in dark mode with reduced motion.",
               "type": "string",
               "format": "moz-url-format"
             },
@@ -1699,7 +1632,6 @@
             "menu_message",
             "pb_newtab",
             "newtab_message",
-            "smart_window_newtab_promo",
             "spotlight",
             "feature_callout",
             "toast_notification",
@@ -1962,25 +1894,6 @@
           },
           "then": {
             "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/NewtabMessage"
-          }
-        },
-        {
-          "if": {
-            "type": "object",
-            "properties": {
-              "template": {
-                "type": "string",
-                "enum": [
-                  "smart_window_newtab_promo"
-                ]
-              }
-            },
-            "required": [
-              "template"
-            ]
-          },
-          "then": {
-            "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/SmartWindowNewtabPromo"
           }
         },
         {
