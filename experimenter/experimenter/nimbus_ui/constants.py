@@ -317,6 +317,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         NimbusConstants.RETENTION_3_DAYS_DESKTOP,
     ]
 
+    QA_CARD_DESCRIPTION = """Before launch, confirm your experiment or rollout works
+    as expected. QA ensures your setup runs correctly through Nimbus and targets the
+    right users."""
+    QA_METHOD_DESCRIPTION = """For new or complex work, request a QA review from the
+    team by submitting a Jira ticket so QA can validate your setup and catch issues
+    early. For smaller or low-risk changes, you can run your own check using the QA
+    checklist."""
+
     class MetricAreaType:
         PRIMARY = {
             "label": "Primary Metric",

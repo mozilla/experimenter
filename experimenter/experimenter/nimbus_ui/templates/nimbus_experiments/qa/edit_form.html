@@ -9,21 +9,14 @@
       <div class="d-flex flex-column gap-4">
         {# QA method #}
         <div>
-          <div class="text-secondary small">
-            Before launch, confirm your experiment or rollout works as expected. QA ensures your setup
-            runs correctly through Nimbus and targets the right users.
-          </div>
+          <div class="text-secondary small">{{ NimbusUIConstants.QA_CARD_DESCRIPTION }}</div>
         </div>
         {# QA review option #}
         <div class="bg-body-tertiary rounded-3 p-4">
           <div class="flex-grow-1">
             <div class="mb-4">
               <div class="fw-semibold text-body mb-0">QA review</div>
-              <div class="small text-secondary">
-                For new or complex work, request a QA review from the team by submitting a Jira
-                ticket so QA can validate your setup and catch issues early. For smaller or low-risk changes, you can run your own check using the QA
-                checklist.
-              </div>
+              <div class="small text-secondary">{{ NimbusUIConstants.QA_METHOD_DESCRIPTION }}</div>
             </div>
             <div class="row g-4 align-items-end">
               <div class="col-md-6">
@@ -39,15 +32,9 @@
               <div class="col-md-6">
                 <label for="id_qa_status" class="small text-body mb-1">QA status</label>
                 <select name="qa_status" id="id_qa_status" class="form-select">
-                  <option value="NOT SET" {% if qa_status == "NOT SET" %}selected{% endif %}>Not set</option>
-                  <option value="RED" {% if qa_status == "RED" %}selected{% endif %}>QA: Red</option>
-                  <option value="YELLOW" {% if qa_status == "YELLOW" %}selected{% endif %}>QA: Yellow</option>
-                  <option value="GREEN" {% if qa_status == "GREEN" %}selected{% endif %}>QA: Green</option>
-                  <option value="SELF RED" {% if qa_status == "SELF RED" %}selected{% endif %}>Self QA: Red</option>
-                  <option value="SELF YELLOW"
-                          {% if qa_status == "SELF YELLOW" %}selected{% endif %}>Self QA: Yellow</option>
-                  <option value="SELF GREEN"
-                          {% if qa_status == "SELF GREEN" %}selected{% endif %}>Self QA: Green</option>
+                  {% for value, label in form.qa_status.field.choices %}
+                    <option value="{{ value }}" {% if qa_status == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
                 </select>
                 {% if form.qa_status.errors %}
                   <div class="text-danger small mt-1">{{ form.qa_status.errors|join:", " }}</div>
