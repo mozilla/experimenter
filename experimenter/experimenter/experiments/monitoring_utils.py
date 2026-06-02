@@ -57,3 +57,13 @@ def check_srm_mismatch(monitoring_data):
 
     p_value = compute_srm_p_value(branches)
     return p_value < SRM_MISMATCH_P_VALUE_THRESHOLD, p_value
+
+
+def check_zero_enrollment(
+    monitoring_data, days_since_start, threshold_days, client_threshold
+):
+    if days_since_start < threshold_days:
+        return False
+
+    total_enrollments = monitoring_data.get("total_enrollments", 0)
+    return total_enrollments < client_threshold

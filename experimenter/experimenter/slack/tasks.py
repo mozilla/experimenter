@@ -11,6 +11,7 @@ from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.experiments.monitoring_utils import (
     check_srm_mismatch,
     check_unenrollment_spike,
+    check_zero_enrollment,
     get_top_unenrollment_reason,
 )
 from experimenter.slack.constants import SlackConstants
@@ -319,21 +320,13 @@ def _send_error_alert(experiment, error_items):
         raise
 
 
-def _send_unenrollment_spike_alert(experiment, rate, reason, days):
-    if NimbusAlert.objects.filter(
-        experiment=experiment,
-        alert_type=NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
-    ).exists():
+def _send_monitoring_alert(
+    experiment, alert_type, message, log_sent, log_failed, metric_prefix
+):
+    if NimbusAlert.objects.filter(experiment=experiment, alert_type=alert_type).exists():
         return
 
     try:
-        message = SlackConstants.SLACK_UNENROLLMENT_SPIKE_MESSAGE.format(
-            experiment=experiment.name,
-            reason=reason,
-            rate=rate,
-            threshold=SlackConstants.UNENROLLMENT_SPIKE_THRESHOLD,
-            days=days,
-        )
         email_addresses = [experiment.owner.email] if experiment.owner else []
         launch_alert = get_launch_request_thread(experiment.id)
         thread_ts = launch_alert.slack_thread_id if launch_alert else None
@@ -347,7 +340,7 @@ def _send_unenrollment_spike_alert(experiment, rate, reason, days):
 
         alert_kwargs = {
             "experiment": experiment,
-            "alert_type": NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+            "alert_type": alert_type,
             "message": message,
         }
         if result:
@@ -356,69 +349,62 @@ def _send_unenrollment_spike_alert(experiment, rate, reason, days):
             alert_kwargs["slack_channel_id"] = channel_id
 
         NimbusAlert.objects.create(**alert_kwargs)
-
-        logger.info(
-            SlackConstants.SLACK_LOG_UNENROLLMENT_SPIKE_SENT.format(
-                experiment=experiment.slug
-            )
-        )
-        metrics.incr("unenrollment_spike_alert.sent")
+        logger.info(log_sent.format(experiment=experiment.slug))
+        metrics.incr(f"{metric_prefix}.sent")
 
     except Exception as e:
-        msg = SlackConstants.SLACK_LOG_FAILED_SEND_UNENROLLMENT_SPIKE.format(
-            experiment=experiment.slug
-        )
-        logger.error(f"{msg}: {e}")
-        metrics.incr("unenrollment_spike_alert.failed")
+        logger.error(f"{log_failed.format(experiment=experiment.slug)}: {e}")
+        metrics.incr(f"{metric_prefix}.failed")
         raise
+
+
+def _send_unenrollment_spike_alert(experiment, rate, reason, days):
+    message = SlackConstants.SLACK_UNENROLLMENT_SPIKE_MESSAGE.format(
+        experiment=experiment.name,
+        reason=reason,
+        rate=rate,
+        threshold=SlackConstants.UNENROLLMENT_SPIKE_THRESHOLD,
+        days=days,
+    )
+    _send_monitoring_alert(
+        experiment,
+        NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+        message,
+        SlackConstants.SLACK_LOG_UNENROLLMENT_SPIKE_SENT,
+        SlackConstants.SLACK_LOG_FAILED_SEND_UNENROLLMENT_SPIKE,
+        "unenrollment_spike_alert",
+    )
 
 
 def _send_srm_mismatch_alert(experiment, p_value):
-    if NimbusAlert.objects.filter(
-        experiment=experiment,
-        alert_type=NimbusConstants.AlertType.SRM_MISMATCH,
-    ).exists():
-        return
+    message = SlackConstants.SLACK_SRM_MISMATCH_MESSAGE.format(
+        experiment=experiment.name,
+    )
+    _send_monitoring_alert(
+        experiment,
+        NimbusConstants.AlertType.SRM_MISMATCH,
+        message,
+        SlackConstants.SLACK_LOG_SRM_MISMATCH_SENT,
+        SlackConstants.SLACK_LOG_FAILED_SEND_SRM_MISMATCH,
+        "srm_mismatch_alert",
+    )
 
-    try:
-        message = SlackConstants.SLACK_SRM_MISMATCH_MESSAGE.format(
-            experiment=experiment.name,
-        )
-        email_addresses = [experiment.owner.email] if experiment.owner else []
-        launch_alert = get_launch_request_thread(experiment.id)
-        thread_ts = launch_alert.slack_thread_id if launch_alert else None
-        result = send_slack_notification(
-            experiment_id=experiment.id,
-            email_addresses=email_addresses,
-            action_text=message,
-            link_url=experiment.experiment_url,
-            thread_ts=thread_ts,
-        )
 
-        alert_kwargs = {
-            "experiment": experiment,
-            "alert_type": NimbusConstants.AlertType.SRM_MISMATCH,
-            "message": message,
-        }
-        if result:
-            message_ts, channel_id = result
-            alert_kwargs["slack_thread_id"] = message_ts
-            alert_kwargs["slack_channel_id"] = channel_id
-
-        NimbusAlert.objects.create(**alert_kwargs)
-
-        logger.info(
-            SlackConstants.SLACK_LOG_SRM_MISMATCH_SENT.format(experiment=experiment.slug)
-        )
-        metrics.incr("srm_mismatch_alert.sent")
-
-    except Exception as e:
-        msg = SlackConstants.SLACK_LOG_FAILED_SEND_SRM_MISMATCH.format(
-            experiment=experiment.slug
-        )
-        logger.error(f"{msg}: {e}")
-        metrics.incr("srm_mismatch_alert.failed")
-        raise
+def _send_zero_enrollment_alert(experiment, monitoring_data, days):
+    message = SlackConstants.SLACK_ZERO_ENROLLMENT_MESSAGE.format(
+        experiment=experiment.name,
+        days=days,
+        client_threshold=NimbusConstants.ZERO_ENROLLMENT_CLIENT_THRESHOLD,
+        total_enrollments=monitoring_data.get("total_enrollments", 0),
+    )
+    _send_monitoring_alert(
+        experiment,
+        NimbusConstants.AlertType.ZERO_ENROLLMENT,
+        message,
+        SlackConstants.SLACK_LOG_ZERO_ENROLLMENT_SENT,
+        SlackConstants.SLACK_LOG_FAILED_SEND_ZERO_ENROLLMENT,
+        "zero_enrollment_alert",
+    )
 
 
 def _check_monitoring_alerts(experiment):
@@ -445,6 +431,17 @@ def _check_monitoring_alerts(experiment):
             is_srm, p_value = check_srm_mismatch(experiment.monitoring_data)
             if is_srm:
                 _send_srm_mismatch_alert(experiment, p_value)
+
+        is_zero = check_zero_enrollment(
+            experiment.monitoring_data,
+            days_since_start,
+            NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD,
+            NimbusConstants.ZERO_ENROLLMENT_CLIENT_THRESHOLD,
+        )
+        if is_zero:
+            _send_zero_enrollment_alert(
+                experiment, experiment.monitoring_data, days_since_start
+            )
 
     except Exception as e:
         msg = SlackConstants.SLACK_LOG_MONITORING_ALERTS_ERROR.format(

@@ -88,6 +88,11 @@ class SlackConstants:
         "Enrollment is not at the expected ratio across branches — "
         "something may be wrong. Please review the experiment results"
     )
+    SLACK_ZERO_ENROLLMENT_MESSAGE = (
+        "⚠️ *{experiment}* has enrolled fewer than {client_threshold:,} clients "
+        "after {days} days (current: {total_enrollments:,}).\n"
+        "Please review targeting, rollout percentage, and feature conflicts."
+    )
 
     # Slack notification log messages
     SLACK_LOG_NOT_CONFIGURED = "Slack not configured, skipping {operation}"
@@ -155,11 +160,17 @@ class SlackConstants:
         "Sent unenrollment spike alert for experiment {experiment}"
     )
     SLACK_LOG_SRM_MISMATCH_SENT = "Sent SRM mismatch alert for experiment {experiment}"
+    SLACK_LOG_ZERO_ENROLLMENT_SENT = (
+        "Sent zero enrollment alert for experiment {experiment}"
+    )
     SLACK_LOG_FAILED_SEND_UNENROLLMENT_SPIKE = (
         "Failed to send unenrollment spike alert for experiment {experiment}"
     )
     SLACK_LOG_FAILED_SEND_SRM_MISMATCH = (
         "Failed to send SRM mismatch alert for experiment {experiment}"
+    )
+    SLACK_LOG_FAILED_SEND_ZERO_ENROLLMENT = (
+        "Failed to send zero enrollment alert for experiment {experiment}"
     )
     SLACK_LOG_MONITORING_ALERTS_ERROR = (
         "Error checking monitoring alerts for experiment {experiment}"

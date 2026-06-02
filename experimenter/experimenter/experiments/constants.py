@@ -827,6 +827,7 @@ class NimbusConstants:
         END_EXPERIMENT_REQUEST = "end_experiment_request", "End Experiment Request"
         UNENROLLMENT_SPIKE = "unenrollment_spike", "Unenrollment Spike"
         SRM_MISMATCH = "srm_mismatch", "SRM Mismatch"
+        ZERO_ENROLLMENT = "zero_enrollment", "Zero Enrollment"
 
     # Error types from Jetstream that are expected for non-analysis reasons and
     # don't want alerting
@@ -1197,6 +1198,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     EXPOSURE_CLIENT_CUTOFF = 10
 
     MONITORING_ALERT_MINIMUM_DAYS = 1
+    ZERO_ENROLLMENT_DAYS_THRESHOLD = 3
+    ZERO_ENROLLMENT_CLIENT_THRESHOLD = 1000
 
     OVERALL_WINDOW_INDEX = "1"
 
