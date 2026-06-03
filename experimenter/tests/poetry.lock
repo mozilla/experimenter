@@ -386,14 +386,14 @@ files = [
 
 [[package]]
 name = "idna"
-version = "3.16"
+version = "3.18"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "idna-3.16-py3-none-any.whl", hash = "sha256:cc246e3a3f89580c3a951b5ad298ca4638078b2cdd4f115654332b5c26daded5"},
-    {file = "idna-3.16.tar.gz", hash = "sha256:d7a6da03db833450fca25d2358ac9ff06cd624577a4aea3a596d5c0f77b8e03d"},
+    {file = "idna-3.18-py3-none-any.whl", hash = "sha256:7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2"},
+    {file = "idna-3.18.tar.gz", hash = "sha256:ffb385a7e039654cef1ab9ef32c6fafe283c0c0467bba1d9029738ce4a14a848"},
 ]
 
 [package.extras]
@@ -463,14 +463,14 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "kinto-http"
-version = "11.9.0"
+version = "11.10.0"
 description = "Kinto client"
 optional = false
-python-versions = "*"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "kinto_http-11.9.0-py3-none-any.whl", hash = "sha256:f5175441d6c88d3ff642bfd889c643e75e31c172fdbd636a566fe351ba62601d"},
-    {file = "kinto_http-11.9.0.tar.gz", hash = "sha256:2dac1ad51e01ead49e0e950bb12bb11d791235fd3252ba52e9adcaf864243e51"},
+    {file = "kinto_http-11.10.0-py3-none-any.whl", hash = "sha256:c2870e004864b7bb44449e5ca1157bb36fad47376043bee0992c0fa14efd9748"},
+    {file = "kinto_http-11.10.0.tar.gz", hash = "sha256:50bac5234ac7a98e45f5bac4bd92860dbaa5a8957fed744eb5c8be13fc37b920"},
 ]
 
 [package.dependencies]
@@ -1212,14 +1212,14 @@ websocket-client = ">=1.8,<2.0"
 
 [[package]]
 name = "sentry-sdk"
-version = "2.60.0"
+version = "2.61.1"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "sentry_sdk-2.60.0-py3-none-any.whl", hash = "sha256:28a536c03291c8bcb363cf35c611b32738ec118ff64d8d6383b096448ac4c803"},
-    {file = "sentry_sdk-2.60.0.tar.gz", hash = "sha256:0bd25e54e78ca02d0be512529fa644bbbf9e8470d7b26371294012d4ca93c978"},
+    {file = "sentry_sdk-2.61.1-py3-none-any.whl", hash = "sha256:fa36eaf4b8ad708f718500d4bdcc1532637526a22beb874d88cbc0a46458b5ae"},
+    {file = "sentry_sdk-2.61.1.tar.gz", hash = "sha256:9c6adccb3feefa9ba032c8d295ca477575c2f11896046a2b0ad686c47c4af555"},
 ]
 
 [package.dependencies]
