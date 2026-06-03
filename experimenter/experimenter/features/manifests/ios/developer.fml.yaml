@@ -153,6 +153,15 @@ features:
           If true, enables the search bar feature on homepage for users.
         type: Boolean
         default: false
+  homepage-tracker-blocker-module-feature:
+    description: |
+      Controls the Tracker Blocker module feature
+    variables:
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: true
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
