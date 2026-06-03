@@ -71,6 +71,8 @@ ACCEPTED_TOU_V4 = "'termsofuse.acceptedVersion'|preferenceValue == 4"
 
 ACCEPTED_TOU_V4_OR_HIGHER = "'termsofuse.acceptedVersion'|preferenceValue >= 4"
 
+TASKBAR_TABS_ENABLED = "'browser.taskbarTabs.enabled'|preferenceValue == true"
+
 # From this point forward, TOU accepted version will remain at 4 and acceptance
 # date will be used to determine what variations of the TOU/privacy notice was
 # accepted.
@@ -4771,6 +4773,19 @@ NON_CORE_USER_NEED_DEFAULT_EXCLUDE_WIN10 = NimbusTargetingConfig(
         " && userMonthlyActivity|length >= 1"
         " && userMonthlyActivity|length <= 20"
         " && (!os.isWindows || os.windowsBuildNumber >= 22000)"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED = NimbusTargetingConfig(
+    name="Existing windows users with Taskbar Tabs enabled",
+    slug="existing_windows_user_taskbar_tabs_enabled",
+    description="Profile 7+ days, Windows only, has Taskbar Tabs enabled",
+    targeting=(
+        f"{PROFILEMORETHAN7DAYS} && {WINDOWS_ONLY.targeting} && {TASKBAR_TABS_ENABLED}"
     ),
     desktop_telemetry="",
     sticky_required=True,
