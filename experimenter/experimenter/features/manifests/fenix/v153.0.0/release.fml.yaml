@@ -144,7 +144,7 @@ features:
       enabled:
         description: If true, Email Mask feature is enabled.
         type: Boolean
-        default: false
+        default: true
   enable-popups:
     description: A feature that enables or disables in app popups
     variables:
@@ -298,14 +298,6 @@ features:
         description: The default option for the homepage opening screen.
         type: OpeningScreenOption
         default: homepage-four-hours
-  homepage-search-bar:
-    description: Enables the homepage search bar.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the homepage search bar.
-        type: Boolean
-        default: false
   homepage-sports-widget:
     description: Feature to enable Homepage Sports Widget for users on Firefox on Android.
     variables:
