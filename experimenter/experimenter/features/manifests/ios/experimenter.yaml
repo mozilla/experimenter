@@ -151,6 +151,16 @@ homepage-redesign-feature:
       type: boolean
       description: |
         If true, enables the search bar feature on homepage for users.
+homepage-tracker-blocker-module-feature:
+  description: |
+    Controls the Tracker Blocker module feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 hosted-summarizer-feature:
   description: |
     This feature enables the hosted summarizer feature.

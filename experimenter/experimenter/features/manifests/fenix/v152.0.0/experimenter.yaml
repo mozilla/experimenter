@@ -296,15 +296,6 @@ homepage-opening-screen-default:
       - homepage
       - homepage-four-hours
       - last-tab
-homepage-search-bar:
-  description: Enables the homepage search bar.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the homepage search bar.
 homepage-sports-widget:
   description: Feature to enable Homepage Sports Widget for users on Firefox on Android.
   hasExposure: true
