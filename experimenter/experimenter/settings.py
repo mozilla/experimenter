@@ -422,6 +422,9 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": config("API_CACHE_WARMING_INTERVAL", default=3600, cast=int),
     },
 }
+CELERY_TASK_ROUTES = {
+    "experimenter.kinto.tasks.*": {"queue": "remote_settings"},
+}
 
 # Recipe Configuration
 RECIPE_SLUG_MAX_LEN = 80

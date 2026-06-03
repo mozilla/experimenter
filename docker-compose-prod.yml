@@ -25,7 +25,7 @@ services:
     depends_on:
       - db
       - redis
-    command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l DEBUG"
+    command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -Q celery,remote_settings -l DEBUG"
 
   beat:
     image: experimenter:deploy
