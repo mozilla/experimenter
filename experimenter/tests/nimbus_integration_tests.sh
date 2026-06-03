@@ -12,7 +12,7 @@ install_firefox() {
     local firefox_version="$1"
     echo $firefox_version
     sudo apt-get update -qqy
-    sudo apt-get install xz-utils
+    sudo apt-get install -qqy xz-utils
     sudo rm -rf /var/lib/apt/lists/* /var/cache/apt/*
     sudo wget --no-verbose -O /tmp/firefox $firefox_version
     sudo rm -rf /opt/firefox-latest
