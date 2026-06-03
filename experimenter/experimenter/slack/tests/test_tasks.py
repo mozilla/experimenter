@@ -11,6 +11,7 @@ from experimenter.experiments.models import NimbusAlert
 from experimenter.experiments.monitoring_utils import (
     check_srm_mismatch,
     check_unenrollment_spike,
+    check_zero_enrollment,
     compute_srm_p_value,
     compute_unenrollment_rate,
     get_top_unenrollment_reason,
@@ -50,6 +51,16 @@ _NORMAL_MONITORING_DATA = {
     "branches": {
         "control": {"enrollments": 500},
         "treatment": {"enrollments": 500},
+    },
+    "reasons_by_branch": {},
+}
+
+_ZERO_ENROLLMENT_MONITORING_DATA = {
+    "total_enrollments": 0,
+    "total_unenrollments": 0,
+    "branches": {
+        "control": {"enrollments": 0},
+        "treatment": {"enrollments": 0},
     },
     "reasons_by_branch": {},
 }
@@ -1013,6 +1024,45 @@ class TestCheckSrmMismatch(TestCase):
         self.assertEqual(p_value, 1.0)
 
 
+class TestCheckZeroEnrollment(TestCase):
+    def _check(self, monitoring_data, days_since_start):
+        return check_zero_enrollment(
+            monitoring_data,
+            days_since_start=days_since_start,
+            threshold_days=NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD,
+            client_threshold=NimbusConstants.ZERO_ENROLLMENT_CLIENT_THRESHOLD,
+        )
+
+    def test_returns_true_when_below_client_threshold_and_past_days_threshold(self):
+        self.assertTrue(
+            self._check(
+                _ZERO_ENROLLMENT_MONITORING_DATA,
+                NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD,
+            )
+        )
+
+    def test_returns_false_when_enrollments_above_client_threshold(self):
+        self.assertFalse(
+            self._check(
+                _SPIKE_MONITORING_DATA, NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD
+            )
+        )
+
+    def test_returns_false_when_below_days_threshold(self):
+        self.assertFalse(
+            self._check(
+                _ZERO_ENROLLMENT_MONITORING_DATA,
+                NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD - 1,
+            )
+        )
+
+    def test_returns_true_when_below_client_threshold_and_no_funnel_data(self):
+        monitoring_data = {"total_enrollments": 0, "enrollment_funnel": []}
+        self.assertTrue(
+            self._check(monitoring_data, NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD)
+        )
+
+
 class TestCheckMonitoringAlerts(TestCase):
     def test_skips_non_live_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1186,6 +1236,11 @@ class TestCheckMonitoringAlerts(TestCase):
                 _SRM_MONITORING_DATA,
                 NimbusConstants.AlertType.SRM_MISMATCH,
             ),
+            (
+                "zero_enrollment",
+                _ZERO_ENROLLMENT_MONITORING_DATA,
+                NimbusConstants.AlertType.ZERO_ENROLLMENT,
+            ),
         ]
     )
     def test_does_not_create_duplicate_alert(self, _, monitoring_data, alert_type):
@@ -1221,6 +1276,11 @@ class TestCheckMonitoringAlerts(TestCase):
                 "srm_mismatch",
                 _SRM_MONITORING_DATA,
                 NimbusConstants.AlertType.SRM_MISMATCH,
+            ),
+            (
+                "zero_enrollment",
+                _ZERO_ENROLLMENT_MONITORING_DATA,
+                NimbusConstants.AlertType.ZERO_ENROLLMENT,
             ),
         ]
     )
@@ -1274,10 +1334,57 @@ class TestCheckMonitoringAlerts(TestCase):
         self.assertIn("branch ratio mismatch", alert.message)
         self.assertIn("Please review", alert.message)
 
+    def test_sends_zero_enrollment_alert(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_ZERO_ENROLLMENT_MONITORING_DATA,
+            start_date=datetime.date.today()
+            - datetime.timedelta(days=NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD),
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_called_once()
+            action_text = mock_send_slack.call_args[1]["action_text"]
+            self.assertIn("fewer than", action_text)
+            self.assertIn(
+                str(NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD), action_text
+            )
+
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ZERO_ENROLLMENT,
+            ).exists()
+        )
+
+    def test_no_zero_enrollment_alert_when_below_threshold_days(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_ZERO_ENROLLMENT_MONITORING_DATA,
+            start_date=datetime.date.today()
+            - datetime.timedelta(days=NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD - 1),
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_not_called()
+
+        self.assertFalse(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.ZERO_ENROLLMENT,
+            ).exists()
+        )
+
     @parameterized.expand(
         [
             ("unenrollment_spike", _SPIKE_MONITORING_DATA),
             ("srm_mismatch", _SRM_MONITORING_DATA),
+            ("zero_enrollment", _ZERO_ENROLLMENT_MONITORING_DATA),
         ]
     )
     def test_handles_slack_failure_gracefully(self, _, monitoring_data):
