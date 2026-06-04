@@ -5534,6 +5534,13 @@ ipProtection:
         pref: browser.ipProtection.bandwidth.maxInGb
       description: >-
         Maximum bandwidth allowance in GB for messaging.
+    upgradeNotAvailable:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.ipProtection.upgradeNotAvailable
+      description: >-
+        Hides Mozilla VPN promotions for users in regions where it is unavailable
 
 webApps:
   description: Enables or disables web apps.

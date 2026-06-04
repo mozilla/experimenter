@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- beta
+- release
 features:
   ad-blocker-feature:
     description: |
@@ -34,7 +34,7 @@ features:
       status:
         description: If true, we will enable the rust ads client
         type: Boolean
-        default: true
+        default: false
   ai-kill-switch-feature:
     description: |
       Configuration feature for AI features
@@ -78,7 +78,7 @@ features:
         description: |
           If true, the download live activities feature is enabled
         type: Boolean
-        default: true
+        default: false
   firefox-jp-guide-default-site:
     description: |
       This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
@@ -111,7 +111,7 @@ features:
         description: This property defines whether or not the feature is enabled
         type: GeneralFeature
         default:
-          status: true
+          status: false
   hnt-sponsored-shortcuts-feature:
     description: This feature manages the visibility of sponsored shortcuts on the homepage
     variables:
@@ -153,15 +153,6 @@ features:
           If true, enables the search bar feature on homepage for users.
         type: Boolean
         default: false
-  homepage-tracker-blocker-module-feature:
-    description: |
-      Controls the Tracker Blocker module feature
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
-        type: Boolean
-        default: false
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
@@ -170,17 +161,17 @@ features:
         description: |
           Enables the hosted summarizer feature.
         type: Boolean
-        default: true
+        default: false
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
   https-upgrade-feature:
     description: |
       This feature enables automatic https upgrade. This is only available for 18.2+.
@@ -189,7 +180,7 @@ features:
         description: |
           Enables automatic https upgrade.
         type: Boolean
-        default: true
+        default: false
   improved-app-store-review-trigger-feature:
     description: |
       The feature flag to manage the App Store review request trigger.
@@ -251,26 +242,7 @@ features:
         description: |
           A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
         type: Map<MessageKey, MessageData>
-        default:
-          homepage-microsurvey-message:
-            surface: microsurvey
-            style: MICROSURVEY
-            trigger-if-all:
-            - SECOND_HOMEPAGE_VIEW
-            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
-            text: How satisfied are you with your Firefox homepage?
-            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
-            should-randomize-options: false
-            microsurveyConfig:
-              utm-content: homepage
-              icon: homeLarge
-              options:
-              - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
-              - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+        default: {}
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -381,7 +353,7 @@ features:
         description: |
           Whether or not this refactor is enabled
         type: Boolean
-        default: true
+        default: false
   onboarding-framework-feature:
     description: |
       The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
@@ -842,7 +814,7 @@ features:
         description: |
           Enables the feature
         type: Boolean
-        default: true
+        default: false
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
@@ -874,7 +846,7 @@ features:
       enabled:
         description: If true the SnapKit removal refactor version will be used
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: |
       A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
@@ -955,7 +927,7 @@ features:
         description: |
           Enables permissive guardrails for the summarizer.
         type: Boolean
-        default: true
+        default: false
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.
@@ -1058,7 +1030,7 @@ features:
         description: |
           Whether or not to enable the translations language picker (Phase 2).
         type: Boolean
-        default: true
+        default: false
   trending-searches-feature:
     description: |
       Enables trending searches.
