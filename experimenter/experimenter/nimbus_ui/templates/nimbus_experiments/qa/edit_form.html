@@ -1,3 +1,5 @@
+{% load widget_tweaks %}
+
 {# ── Edit form ── #}
 <div id="rollout-qa-body">
   <form hx-post="{% url 'nimbus-ui-new-update-qa' experiment.slug %}"
@@ -31,11 +33,7 @@
               </div>
               <div class="col-md-6">
                 <label for="id_qa_status" class="small text-body mb-1">QA status</label>
-                <select name="qa_status" id="id_qa_status" class="form-select">
-                  {% for value, label in form.qa_status.field.choices %}
-                    <option value="{{ value }}" {% if qa_status == value %}selected{% endif %}>{{ label }}</option>
-                  {% endfor %}
-                </select>
+                {{ form.qa_status|add_class:"form-select"|add_error_class:"is-invalid" }}
                 {% if form.qa_status.errors %}
                   <div class="text-danger small mt-1">{{ form.qa_status.errors|join:", " }}</div>
                 {% endif %}
@@ -43,11 +41,7 @@
             </div>
             <div class="mt-4">
               <label for="id_qa_comment" class="small text-body mb-1">QA notes</label>
-              <textarea name="qa_comment"
-                        id="id_qa_comment"
-                        class="form-control"
-                        rows="4"
-                        placeholder="Add QA comment or attach relevant links">{{ form.qa_comment.value|default_if_none:"" }}</textarea>
+              {{ form.qa_comment|add_class:"form-control"|add_error_class:"is-invalid" }}
               {% if form.qa_comment.errors %}
                 <div class="text-danger small mt-1">{{ form.qa_comment.errors|join:", " }}</div>
               {% endif %}
