@@ -6,9 +6,14 @@ from django.test import TestCase
 from django.utils import timezone
 from parameterized import parameterized
 
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.constants import (
+    APPLICATION_CONFIG_DESKTOP,
+    APPLICATION_CONFIG_FENIX,
+    NimbusConstants,
+)
 from experimenter.experiments.models import NimbusAlert
 from experimenter.experiments.monitoring_utils import (
+    check_feature_conflict,
     check_srm_mismatch,
     check_unenrollment_spike,
     check_zero_enrollment,
@@ -63,6 +68,33 @@ _ZERO_ENROLLMENT_MONITORING_DATA = {
         "treatment": {"enrollments": 0},
     },
     "reasons_by_branch": {},
+}
+
+_FEATURE_CONFLICT_MONITORING_DATA = {
+    "total_enrollments": 1000,
+    "total_unenrollments": 0,
+    "branches": {
+        "control": {"enrollments": 1000},
+    },
+    "reasons_by_branch": {},
+    "enrollment_funnel": [
+        {
+            "status": NimbusConstants.FunnelStatus.NOT_ENROLLED,
+            "reason": NimbusConstants.FunnelReason.FEATURE_CONFLICT,
+            "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
+            "branch": "control",
+            "conflict_slug": "blocking-recipe-slug",
+            "client_count": 800,
+        },
+        {
+            "status": NimbusConstants.FunnelStatus.ENROLLED,
+            "reason": NimbusConstants.FunnelReason.QUALIFIED,
+            "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
+            "branch": "control",
+            "conflict_slug": None,
+            "client_count": 200,
+        },
+    ],
 }
 
 
@@ -1063,6 +1095,129 @@ class TestCheckZeroEnrollment(TestCase):
         )
 
 
+class TestCheckFeatureConflict(TestCase):
+    def _check(self, monitoring_data):
+        return check_feature_conflict(
+            monitoring_data,
+            threshold=NimbusConstants.FEATURE_CONFLICT_THRESHOLD,
+        )
+
+    def _funnel_row(self, status, reason, app_name, client_count, conflict_slug=None):
+        return {
+            "status": status,
+            "reason": reason,
+            "app_name": app_name,
+            "branch": "control",
+            "conflict_slug": conflict_slug,
+            "client_count": client_count,
+        }
+
+    def test_returns_true_when_conflict_rate_exceeds_threshold(self):
+        is_conflict, rate, slugs = self._check(_FEATURE_CONFLICT_MONITORING_DATA)
+        self.assertTrue(is_conflict)
+        self.assertAlmostEqual(rate, 0.80)
+        self.assertEqual(slugs, ["blocking-recipe-slug"])
+
+    def test_returns_false_when_conflict_rate_below_threshold(self):
+        monitoring_data = {
+            "enrollment_funnel": [
+                self._funnel_row(
+                    NimbusConstants.FunnelStatus.NOT_ENROLLED,
+                    NimbusConstants.FunnelReason.FEATURE_CONFLICT,
+                    APPLICATION_CONFIG_DESKTOP.app_name,
+                    100,
+                    conflict_slug="some-slug",
+                ),
+                self._funnel_row(
+                    NimbusConstants.FunnelStatus.ENROLLED,
+                    NimbusConstants.FunnelReason.QUALIFIED,
+                    APPLICATION_CONFIG_DESKTOP.app_name,
+                    900,
+                ),
+            ]
+        }
+        is_conflict, rate, _ = self._check(monitoring_data)
+        self.assertFalse(is_conflict)
+        self.assertAlmostEqual(rate, 0.10)
+
+    @parameterized.expand(
+        [
+            ("no_funnel_key", {}),
+            ("empty_funnel", {"enrollment_funnel": []}),
+            (
+                "all_zero_counts",
+                {
+                    "enrollment_funnel": [
+                        {
+                            "status": NimbusConstants.FunnelStatus.NOT_ENROLLED,
+                            "reason": NimbusConstants.FunnelReason.FEATURE_CONFLICT,
+                            "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
+                            "branch": "control",
+                            "conflict_slug": "some-slug",
+                            "client_count": 0,
+                        }
+                    ]
+                },
+            ),
+        ]
+    )
+    def test_returns_false_for_empty_or_zero_population(self, _, monitoring_data):
+        is_conflict, rate, slugs = self._check(monitoring_data)
+        self.assertFalse(is_conflict)
+        self.assertEqual(rate, 0.0)
+        self.assertEqual(slugs, [])
+
+    def test_collects_conflict_slugs(self):
+        monitoring_data = {
+            "enrollment_funnel": [
+                self._funnel_row(
+                    NimbusConstants.FunnelStatus.NOT_ENROLLED,
+                    NimbusConstants.FunnelReason.FEATURE_CONFLICT,
+                    APPLICATION_CONFIG_DESKTOP.app_name,
+                    400,
+                    conflict_slug="recipe-a",
+                ),
+                self._funnel_row(
+                    NimbusConstants.FunnelStatus.NOT_ENROLLED,
+                    NimbusConstants.FunnelReason.FEATURE_CONFLICT,
+                    APPLICATION_CONFIG_DESKTOP.app_name,
+                    200,
+                    conflict_slug="recipe-b",
+                ),
+                self._funnel_row(
+                    NimbusConstants.FunnelStatus.ENROLLED,
+                    NimbusConstants.FunnelReason.QUALIFIED,
+                    APPLICATION_CONFIG_DESKTOP.app_name,
+                    100,
+                ),
+            ]
+        }
+        is_conflict, _, slugs = self._check(monitoring_data)
+        self.assertTrue(is_conflict)
+        self.assertEqual(slugs, ["recipe-a", "recipe-b"])
+
+    def test_no_conflict_slug_for_mobile(self):
+        monitoring_data = {
+            "enrollment_funnel": [
+                self._funnel_row(
+                    NimbusConstants.FunnelStatus.NOT_ENROLLED,
+                    NimbusConstants.FunnelReason.FEATURE_CONFLICT,
+                    APPLICATION_CONFIG_FENIX.app_name,
+                    800,
+                ),
+                self._funnel_row(
+                    NimbusConstants.FunnelStatus.ENROLLED,
+                    NimbusConstants.FunnelReason.QUALIFIED,
+                    APPLICATION_CONFIG_FENIX.app_name,
+                    200,
+                ),
+            ]
+        }
+        is_conflict, _, slugs = self._check(monitoring_data)
+        self.assertTrue(is_conflict)
+        self.assertEqual(slugs, [])
+
+
 class TestCheckMonitoringAlerts(TestCase):
     def test_skips_non_live_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1241,6 +1396,11 @@ class TestCheckMonitoringAlerts(TestCase):
                 _ZERO_ENROLLMENT_MONITORING_DATA,
                 NimbusConstants.AlertType.ZERO_ENROLLMENT,
             ),
+            (
+                "feature_conflict",
+                _FEATURE_CONFLICT_MONITORING_DATA,
+                NimbusConstants.AlertType.FEATURE_CONFLICT,
+            ),
         ]
     )
     def test_does_not_create_duplicate_alert(self, _, monitoring_data, alert_type):
@@ -1281,6 +1441,11 @@ class TestCheckMonitoringAlerts(TestCase):
                 "zero_enrollment",
                 _ZERO_ENROLLMENT_MONITORING_DATA,
                 NimbusConstants.AlertType.ZERO_ENROLLMENT,
+            ),
+            (
+                "feature_conflict",
+                _FEATURE_CONFLICT_MONITORING_DATA,
+                NimbusConstants.AlertType.FEATURE_CONFLICT,
             ),
         ]
     )
@@ -1380,11 +1545,78 @@ class TestCheckMonitoringAlerts(TestCase):
             ).exists()
         )
 
+    def test_sends_feature_conflict_alert_with_slug_when_available(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_FEATURE_CONFLICT_MONITORING_DATA,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_called_once()
+            action_text = mock_send_slack.call_args[1]["action_text"]
+            self.assertIn("feature conflict", action_text)
+            self.assertIn("blocking-recipe-slug", action_text)
+
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.FEATURE_CONFLICT,
+            ).exists()
+        )
+
+    def test_sends_feature_conflict_alert_with_empty_slug_when_unavailable(self):
+        mobile_funnel = [
+            {
+                "status": NimbusConstants.FunnelStatus.NOT_ENROLLED,
+                "reason": NimbusConstants.FunnelReason.FEATURE_CONFLICT,
+                "app_name": APPLICATION_CONFIG_FENIX.app_name,
+                "branch": "control",
+                "conflict_slug": None,
+                "client_count": 800,
+            },
+            {
+                "status": NimbusConstants.FunnelStatus.ENROLLED,
+                "reason": NimbusConstants.FunnelReason.QUALIFIED,
+                "app_name": APPLICATION_CONFIG_FENIX.app_name,
+                "branch": "control",
+                "conflict_slug": None,
+                "client_count": 200,
+            },
+        ]
+        monitoring_data = {
+            **_FEATURE_CONFLICT_MONITORING_DATA,
+            "enrollment_funnel": mobile_funnel,
+        }
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=monitoring_data,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_called_once()
+            action_text = mock_send_slack.call_args[1]["action_text"]
+            self.assertIn("feature conflict", action_text)
+            self.assertIn("Blocking recipe:", action_text)
+
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.FEATURE_CONFLICT,
+            ).exists()
+        )
+
     @parameterized.expand(
         [
             ("unenrollment_spike", _SPIKE_MONITORING_DATA),
             ("srm_mismatch", _SRM_MONITORING_DATA),
             ("zero_enrollment", _ZERO_ENROLLMENT_MONITORING_DATA),
+            ("feature_conflict", _FEATURE_CONFLICT_MONITORING_DATA),
         ]
     )
     def test_handles_slack_failure_gracefully(self, _, monitoring_data):

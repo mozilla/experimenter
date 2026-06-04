@@ -828,6 +828,7 @@ class NimbusConstants:
         UNENROLLMENT_SPIKE = "unenrollment_spike", "Unenrollment Spike"
         SRM_MISMATCH = "srm_mismatch", "SRM Mismatch"
         ZERO_ENROLLMENT = "zero_enrollment", "Zero Enrollment"
+        FEATURE_CONFLICT = "feature_conflict", "Feature Conflict"
 
     # Error types from Jetstream that are expected for non-analysis reasons and
     # don't want alerting
@@ -1200,6 +1201,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     MONITORING_ALERT_MINIMUM_DAYS = 1
     ZERO_ENROLLMENT_DAYS_THRESHOLD = 3
     ZERO_ENROLLMENT_CLIENT_THRESHOLD = 1000
+    FEATURE_CONFLICT_THRESHOLD = 0.25
 
     OVERALL_WINDOW_INDEX = "1"
 

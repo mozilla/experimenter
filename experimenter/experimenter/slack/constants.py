@@ -91,7 +91,12 @@ class SlackConstants:
     SLACK_ZERO_ENROLLMENT_MESSAGE = (
         "⚠️ *{experiment}* has enrolled fewer than {client_threshold:,} clients "
         "after {days} days (current: {total_enrollments:,}).\n"
-        "Please review targeting, rollout percentage, and feature conflicts."
+        "Please review targeting, percentage, and feature conflicts."
+    )
+    SLACK_FEATURE_CONFLICT_MESSAGE = (
+        "⚠️ *{experiment}* has a feature conflict affecting {rate:.1%} of the "
+        "evaluated population.\n"
+        "Blocking recipe: {conflict_slugs}"
     )
 
     # Slack notification log messages
@@ -171,6 +176,12 @@ class SlackConstants:
     )
     SLACK_LOG_FAILED_SEND_ZERO_ENROLLMENT = (
         "Failed to send zero enrollment alert for experiment {experiment}"
+    )
+    SLACK_LOG_FEATURE_CONFLICT_SENT = (
+        "Sent feature conflict alert for experiment {experiment}"
+    )
+    SLACK_LOG_FAILED_SEND_FEATURE_CONFLICT = (
+        "Failed to send feature conflict alert for experiment {experiment}"
     )
     SLACK_LOG_MONITORING_ALERTS_ERROR = (
         "Error checking monitoring alerts for experiment {experiment}"

@@ -1,0 +1,35 @@
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ("experiments", "0330_alter_nimbusalert_alert_type"),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name="nimbusalert",
+            name="alert_type",
+            field=models.CharField(
+                choices=[
+                    ("analysis_error", "Analysis Error"),
+                    ("analysis_ready_daily", "Daily Analysis Ready"),
+                    ("analysis_ready_weekly", "Weekly Analysis Ready"),
+                    ("analysis_ready_overall", "Overall Analysis Ready"),
+                    ("experiment_launched", "Experiment Launched"),
+                    ("enrollment_healthy", "Enrollment Healthy"),
+                    ("launch_request", "Launch Request"),
+                    ("update_request", "Update Request"),
+                    ("end_enrollment_request", "End Enrollment Request"),
+                    ("end_experiment_request", "End Experiment Request"),
+                    ("unenrollment_spike", "Unenrollment Spike"),
+                    ("srm_mismatch", "SRM Mismatch"),
+                    ("zero_enrollment", "Zero Enrollment"),
+                    ("feature_conflict", "Feature Conflict"),
+                ],
+                help_text="Category of alert",
+                max_length=64,
+            ),
+        ),
+    ]
