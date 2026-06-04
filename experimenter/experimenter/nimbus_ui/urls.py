@@ -34,6 +34,7 @@ from experimenter.nimbus_ui.views import (
     NewDocumentationLinkCreateView,
     NewDocumentationLinkDeleteView,
     NewOverviewUpdateView,
+    NewQAUpdateView,
     NewRemoveSubscriberView,
     NewRemoveTagView,
     NewRisksUpdateView,
@@ -342,6 +343,11 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/update_audience/$",
         NewAudienceUpdateView.as_view(),
         name="nimbus-ui-new-update-audience",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/update_qa/$",
+        NewQAUpdateView.as_view(),
+        name="nimbus-ui-new-update-qa",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/create_documentation_link/$",

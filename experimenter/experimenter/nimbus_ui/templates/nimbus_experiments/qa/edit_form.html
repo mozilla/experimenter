@@ -1,0 +1,64 @@
+{% load widget_tweaks %}
+
+{# ── Edit form ── #}
+<div id="rollout-qa-body">
+  <form hx-post="{% url 'nimbus-ui-new-update-qa' experiment.slug %}"
+        hx-target="#rollout-qa-body"
+        hx-swap="outerHTML"
+        class="d-flex flex-column gap-4">
+    {% csrf_token %}
+    {% with qa_status=form.qa_status.value %}
+      <div class="d-flex flex-column gap-4">
+        {# QA method #}
+        <div>
+          <div class="text-secondary small">{{ NimbusUIConstants.QA_CARD_DESCRIPTION }}</div>
+        </div>
+        {# QA review option #}
+        <div class="bg-body-tertiary rounded-3 p-4">
+          <div class="flex-grow-1">
+            <div class="mb-4">
+              <div class="fw-semibold text-body mb-0">QA review</div>
+              <div class="small text-secondary">{{ NimbusUIConstants.QA_METHOD_DESCRIPTION }}</div>
+            </div>
+            <div class="row g-4 align-items-end">
+              <div class="col-md-6">
+                <label class="small text-body mb-1">Request QA review</label>
+                <a href="{{ NimbusUIConstants.QA_TICKET_URL }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-1">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  Submit Jira ticket
+                </a>
+              </div>
+              <div class="col-md-6">
+                <label for="id_qa_status" class="small text-body mb-1">QA status</label>
+                {{ form.qa_status|add_class:"form-select"|add_error_class:"is-invalid" }}
+                {% if form.qa_status.errors %}
+                  <div class="text-danger small mt-1">{{ form.qa_status.errors|join:", " }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="mt-4">
+              <label for="id_qa_comment" class="small text-body mb-1">QA notes</label>
+              {{ form.qa_comment|add_class:"form-control"|add_error_class:"is-invalid" }}
+              {% if form.qa_comment.errors %}
+                <div class="text-danger small mt-1">{{ form.qa_comment.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endwith %}
+    {# Action buttons #}
+    <div class="d-flex align-items-center gap-2">
+      <button type="submit" class="btn btn-primary btn-sm">Save</button>
+      <button type="button"
+              class="btn btn-outline-secondary btn-sm"
+              hx-get="{{ cancel_url }}"
+              hx-select="#rollout-card-qa"
+              hx-target="#rollout-card-qa"
+              hx-swap="outerHTML">Cancel</button>
+    </div>
+  </form>
+</div>

@@ -1334,6 +1334,20 @@ class RisksCardMixin:
         return context
 
 
+class QACardMixin:
+    template_name = "nimbus_experiments/qa/edit_form.html"
+    cancel_url_name = "new-nimbus-ui-rollout-detail"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not isinstance(kwargs.get("form"), QAStatusForm):
+            context["form"] = QAStatusForm(instance=self.object)
+        context["cancel_url"] = reverse(
+            self.cancel_url_name, kwargs={"slug": self.object.slug}
+        )
+        return context
+
+
 class AudienceCardMixin:
     template_name = "nimbus_experiments/audience/edit_form.html"
     cancel_url_name = "new-nimbus-ui-rollout-detail"
@@ -1381,6 +1395,11 @@ class NewAudienceUpdateView(AudienceCardMixin, NewCardUpdateView):
         kwargs = super().get_form_kwargs()
         kwargs["rollout_card_view"] = True
         return kwargs
+
+
+class NewQAUpdateView(QACardMixin, NewCardUpdateView):
+    form_class = QAStatusForm
+    display_template = "nimbus_experiments/qa/card.html"
 
 
 class NewDocumentationLinkCreateView(RenderParentDBResponseMixin, NewOverviewUpdateView):

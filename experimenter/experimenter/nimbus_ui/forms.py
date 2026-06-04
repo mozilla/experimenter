@@ -258,6 +258,13 @@ class QAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         ]
         widgets = {
             "qa_status": forms.Select(choices=NimbusExperiment.QAStatus),
+            "qa_comment": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Add QA comment or attach relevant links",
+                }
+            ),
             "qa_run_test_plan_url": forms.URLInput(attrs={"class": "form-control"}),
             "qa_run_testrail_url": forms.URLInput(attrs={"class": "form-control"}),
         }
