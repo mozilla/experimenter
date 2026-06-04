@@ -333,6 +333,13 @@
                             data-bs-target="#{{ experiment.slug }}-{{ metric.slug }}-{{ area|slugify }}"
                             style="height: 100px">
                       <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 end-0 p-3 px-2"></i>
+                      <small class="position-absolute bottom-0 end-0 p-2 fw-medium">
+                        {% if metric.displayed_window %}
+                          {{ metric.displayed_window|upper }}
+                        {% else %}
+                          {{ displayed_window|upper }}
+                        {% endif %}
+                      </small>
                       <p class=" metric-text mb-0">{{ metric.friendly_name }}</p>
                     </button>
                     {% if metric.has_data %}
