@@ -34,7 +34,7 @@ features:
       status:
         description: If true, we will enable the rust ads client
         type: Boolean
-        default: false
+        default: true
   ai-kill-switch-feature:
     description: |
       Configuration feature for AI features
@@ -362,7 +362,7 @@ features:
         description: |
           Whether or not this refactor is enabled
         type: Boolean
-        default: false
+        default: true
   onboarding-framework-feature:
     description: |
       The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
@@ -1039,7 +1039,7 @@ features:
         description: |
           Whether or not to enable the translations language picker (Phase 2).
         type: Boolean
-        default: false
+        default: true
   trending-searches-feature:
     description: |
       Enables trending searches.
