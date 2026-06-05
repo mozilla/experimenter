@@ -34,7 +34,7 @@ features:
       status:
         description: If true, we will enable the rust ads client
         type: Boolean
-        default: true
+        default: false
   ai-kill-switch-feature:
     description: |
       Configuration feature for AI features
@@ -151,15 +151,6 @@ features:
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
-        type: Boolean
-        default: false
-  homepage-tracker-blocker-module-feature:
-    description: |
-      Controls the Tracker Blocker module feature
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
         type: Boolean
         default: false
   hosted-summarizer-feature:
@@ -842,7 +833,7 @@ features:
         description: |
           Enables the feature
         type: Boolean
-        default: true
+        default: false
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
@@ -874,7 +865,7 @@ features:
       enabled:
         description: If true the SnapKit removal refactor version will be used
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: |
       A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
@@ -1058,7 +1049,7 @@ features:
         description: |
           Whether or not to enable the translations language picker (Phase 2).
         type: Boolean
-        default: true
+        default: false
   trending-searches-feature:
     description: |
       Enables trending searches.
