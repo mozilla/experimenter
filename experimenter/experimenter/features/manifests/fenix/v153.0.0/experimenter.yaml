@@ -296,6 +296,10 @@ homepage-sports-widget:
     enabled:
       type: boolean
       description: If true, Homepage Sports Widget is enabled.
+    fetch-throttle-seconds:
+      type: int
+      description: |
+        Minimum interval, in seconds, that the client will wait between Sports Widget fetches. Guards the upstream Merino endpoint against refresh-button spam and Home/onResume thrash. The default aligns with the upstream cache TTL — a shorter interval just returns the same payload at the cost of battery and bandwidth. Lower this remotely only if the upstream cache TTL is also lowered, otherwise users will see no fresher data.
     force-one-week-to-world-cup:
       type: boolean
       description: |
@@ -475,13 +479,13 @@ minimal-addressbar:
       description: |
         Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
 mozilla-ads-client:
-  description: Feature to enable the Mozilla Ads Client for users on Firefox on Android.
+  description: Feature to enable the Mozilla Ads Client support for Top Sites for users on Firefox on Android.
   hasExposure: true
   exposureDescription: ''
   variables:
     enabled:
       type: boolean
-      description: If true, Mozilla Ads Client is enabled.
+      description: If true, Mozilla Ads Client support for Top Sites is enabled.
 native-share-sheet:
   description: Feature to enable the Native Share Sheet for users on Firefox on Android.
   hasExposure: true
