@@ -148,7 +148,8 @@ def test_compute_feature_configurations_targeting_doesnt_match(fml_setup):
         "appId": "test_app_id",
         "appName": "test_app_name",
         "channel": "developer",
-        "targeting": '(is_already_enrolled) || (username in ["test", "test2"])',
+        "targeting": "('experiment-slug' in active_experiments) "
+        "|| (username in ['test', 'test2'])",
         "bucketConfig": bucket_config,
         "isRollout": False,
         "isEnrollmentPaused": False,
