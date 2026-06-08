@@ -9,6 +9,7 @@ from django.utils import timezone
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.experiments.monitoring_utils import (
+    check_feature_conflict,
     check_srm_mismatch,
     check_unenrollment_spike,
     check_zero_enrollment,
@@ -407,6 +408,26 @@ def _send_zero_enrollment_alert(experiment, monitoring_data, days):
     )
 
 
+def _send_feature_conflict_alert(experiment, rate, conflict_slugs):
+    slug_links = ", ".join(
+        f"<{experiment.experiment_url.replace(experiment.slug, slug)}|{slug}>"
+        for slug in conflict_slugs
+    )
+    message = SlackConstants.SLACK_FEATURE_CONFLICT_MESSAGE.format(
+        experiment=experiment.name,
+        rate=rate,
+        conflict_slugs=slug_links,
+    )
+    _send_monitoring_alert(
+        experiment,
+        NimbusConstants.AlertType.FEATURE_CONFLICT,
+        message,
+        SlackConstants.SLACK_LOG_FEATURE_CONFLICT_SENT,
+        SlackConstants.SLACK_LOG_FAILED_SEND_FEATURE_CONFLICT,
+        "feature_conflict_alert",
+    )
+
+
 def _check_monitoring_alerts(experiment):
     if experiment.status != NimbusConstants.Status.LIVE:
         return
@@ -442,6 +463,13 @@ def _check_monitoring_alerts(experiment):
             _send_zero_enrollment_alert(
                 experiment, experiment.monitoring_data, days_since_start
             )
+
+        result = check_feature_conflict(
+            experiment.monitoring_data,
+            NimbusConstants.FEATURE_CONFLICT_THRESHOLD,
+        )
+        if result.is_conflict:
+            _send_feature_conflict_alert(experiment, result.rate, result.slugs)
 
     except Exception as e:
         msg = SlackConstants.SLACK_LOG_MONITORING_ALERTS_ERROR.format(
