@@ -395,6 +395,14 @@ lna-blocking:
       type: boolean
       description: |
         Whether or not to turn on local network / device access blocking
+longfox:
+  description: Flag to enable Longfox for users on Firefox Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, users will see a CTA for launching Longfox on the home screen.
 marketing-onboarding-card:
   description: A temporary feature to control the marketing onboarding card shown during the onboarding flow.
   hasExposure: true
