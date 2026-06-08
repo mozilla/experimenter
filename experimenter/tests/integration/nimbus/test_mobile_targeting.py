@@ -93,7 +93,6 @@ def test_check_mobile_targeting(
     # and must be encoded as JSON before being passed to the evaluator
     custom_targeting_attributes = json.dumps(
         {
-            "is_already_enrolled": True,
             "days_since_update": 1,
             "days_since_install": 1,
             "isFirstRun": "true",

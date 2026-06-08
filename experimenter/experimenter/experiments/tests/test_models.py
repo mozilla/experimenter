@@ -1137,7 +1137,7 @@ class TestNimbusExperiment(TestCase):
 
         sticky_expression = (
             "("
-            "(is_already_enrolled) "
+            f"('{experiment.slug}' in active_experiments) "
             "|| "
             "("
             "(days_since_install < 7) "

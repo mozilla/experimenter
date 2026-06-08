@@ -17,7 +17,6 @@
     "installation_date": 1612674000,
     "custom_targeting_attributes": {},
     "additional_targeting": {
-        "is_already_enrolled": true,
         "days_since_install": 5,
         "days_since_update": 2
     }

@@ -781,7 +781,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.is_sticky and sticky_expressions:
             expressions.append(
                 make_sticky_targeting_expression(
-                    self.is_desktop, self.is_rollout, sticky_expressions
+                    self.is_desktop, self.is_rollout, sticky_expressions, self.slug
                 )
             )
         else:
@@ -793,6 +793,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     self.is_desktop,
                     self.is_rollout,
                     (f"!('{pref}'|preferenceIsUserSet)" for pref in sorted(prefs)),
+                    self.slug,
                 )
             )
 
@@ -3301,14 +3302,14 @@ class NimbusAlert(models.Model):
         ).exists()
 
 
-def make_sticky_targeting_expression(is_desktop, is_rollout, expressions):
+def make_sticky_targeting_expression(is_desktop, is_rollout, expressions, slug):
     if is_desktop:
         if is_rollout:
             sticky_clause = "experiment.slug in activeRollouts"
         else:
             sticky_clause = "experiment.slug in activeExperiments"
     else:
-        sticky_clause = "is_already_enrolled"
+        sticky_clause = f"'{slug}' in active_experiments"
 
     expressions_joined = " && ".join(f"({expression})" for expression in expressions)
 

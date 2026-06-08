@@ -52,7 +52,6 @@ def validate_jexl_expr(expression, application):
 
         custom_targeting_attributes = json.dumps(
             {
-                "is_already_enrolled": True,
                 "days_since_update": 1,
                 "days_since_install": 1,
                 "isFirstRun": "true",
