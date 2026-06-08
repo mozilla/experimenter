@@ -9,8 +9,8 @@ from nimbus.models.base_dataclass import BaseExperimentApplications
 
 FENIX_APP = BaseExperimentApplications.FIREFOX_FENIX.value
 APP_APPLY_WAIT = 15
-LOG_STATE_TIMEOUT = 60
-LOG_STATE_POLL_INTERVAL = 1
+LOG_STATE_TIMEOUT = 120
+LOG_STATE_POLL_INTERVAL = 5
 
 
 @pytest.mark.fenix_enrollment
@@ -57,10 +57,6 @@ def test_fenix_enrollment(
     )
     time.sleep(APP_APPLY_WAIT)
 
-    subprocess.check_call(
-        ["nimbus-cli", "--app", FENIX_APP, "--channel", fenix_channel, "log-state"]
-    )
-
     pattern = re.compile(
         rf"nimbus_client:\s*{re.escape(experiment_slug)}\s+\|\s*\S+\s+\|\s*(\S+)"
     )
@@ -69,11 +65,15 @@ def test_fenix_enrollment(
     match = None
     deadline = time.monotonic() + LOG_STATE_TIMEOUT
     while time.monotonic() < deadline:
+        subprocess.check_call(["adb", "logcat", "-c"])
+        subprocess.check_call(
+            ["nimbus-cli", "--app", FENIX_APP, "--channel", fenix_channel, "log-state"]
+        )
+        time.sleep(LOG_STATE_POLL_INTERVAL)
         logcat = subprocess.check_output(["adb", "logcat", "-d"], text=True)
         match = pattern.search(logcat)
         if match is not None:
             break
-        time.sleep(LOG_STATE_POLL_INTERVAL)
 
     nimbus_lines = [line for line in logcat.splitlines() if "nimbus_client" in line]
     assert match is not None, (
