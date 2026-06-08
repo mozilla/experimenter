@@ -464,12 +464,12 @@ def _check_monitoring_alerts(experiment):
                 experiment, experiment.monitoring_data, days_since_start
             )
 
-        is_conflict, conflict_rate, conflict_slugs = check_feature_conflict(
+        result = check_feature_conflict(
             experiment.monitoring_data,
             NimbusConstants.FEATURE_CONFLICT_THRESHOLD,
         )
-        if is_conflict:
-            _send_feature_conflict_alert(experiment, conflict_rate, conflict_slugs)
+        if result.is_conflict:
+            _send_feature_conflict_alert(experiment, result.rate, result.slugs)
 
     except Exception as e:
         msg = SlackConstants.SLACK_LOG_MONITORING_ALERTS_ERROR.format(

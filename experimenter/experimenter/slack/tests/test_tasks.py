@@ -1113,10 +1113,10 @@ class TestCheckFeatureConflict(TestCase):
         }
 
     def test_returns_true_when_conflict_rate_exceeds_threshold(self):
-        is_conflict, rate, slugs = self._check(_FEATURE_CONFLICT_MONITORING_DATA)
-        self.assertTrue(is_conflict)
-        self.assertAlmostEqual(rate, 0.80)
-        self.assertEqual(slugs, ["blocking-recipe-slug"])
+        result = self._check(_FEATURE_CONFLICT_MONITORING_DATA)
+        self.assertTrue(result.is_conflict)
+        self.assertAlmostEqual(result.rate, 0.80)
+        self.assertEqual(result.slugs, ["blocking-recipe-slug"])
 
     def test_returns_false_when_conflict_rate_below_threshold(self):
         monitoring_data = {
@@ -1136,9 +1136,9 @@ class TestCheckFeatureConflict(TestCase):
                 ),
             ]
         }
-        is_conflict, rate, _ = self._check(monitoring_data)
-        self.assertFalse(is_conflict)
-        self.assertAlmostEqual(rate, 0.10)
+        result = self._check(monitoring_data)
+        self.assertFalse(result.is_conflict)
+        self.assertAlmostEqual(result.rate, 0.10)
 
     @parameterized.expand(
         [
@@ -1162,10 +1162,10 @@ class TestCheckFeatureConflict(TestCase):
         ]
     )
     def test_returns_false_for_empty_or_zero_population(self, _, monitoring_data):
-        is_conflict, rate, slugs = self._check(monitoring_data)
-        self.assertFalse(is_conflict)
-        self.assertEqual(rate, 0.0)
-        self.assertEqual(slugs, [])
+        result = self._check(monitoring_data)
+        self.assertFalse(result.is_conflict)
+        self.assertEqual(result.rate, 0.0)
+        self.assertEqual(result.slugs, [])
 
     def test_collects_conflict_slugs(self):
         monitoring_data = {
@@ -1192,9 +1192,9 @@ class TestCheckFeatureConflict(TestCase):
                 ),
             ]
         }
-        is_conflict, _, slugs = self._check(monitoring_data)
-        self.assertTrue(is_conflict)
-        self.assertEqual(slugs, ["recipe-a", "recipe-b"])
+        result = self._check(monitoring_data)
+        self.assertTrue(result.is_conflict)
+        self.assertEqual(result.slugs, ["recipe-a", "recipe-b"])
 
     def test_no_conflict_slug_for_mobile(self):
         monitoring_data = {
@@ -1213,9 +1213,9 @@ class TestCheckFeatureConflict(TestCase):
                 ),
             ]
         }
-        is_conflict, _, slugs = self._check(monitoring_data)
-        self.assertTrue(is_conflict)
-        self.assertEqual(slugs, [])
+        result = self._check(monitoring_data)
+        self.assertTrue(result.is_conflict)
+        self.assertEqual(result.slugs, [])
 
 
 class TestCheckMonitoringAlerts(TestCase):

@@ -1,6 +1,16 @@
+from dataclasses import dataclass, field
+
 from scipy.stats import chisquare
 
 from experimenter.experiments.constants import NimbusConstants
+
+
+@dataclass
+class FeatureConflictResult:
+    is_conflict: bool
+    rate: float
+    slugs: list[str] = field(default_factory=list)
+
 
 UNENROLLMENT_SPIKE_THRESHOLD = 0.10
 SRM_MISMATCH_P_VALUE_THRESHOLD = 0.001
@@ -74,11 +84,11 @@ def check_zero_enrollment(
 def check_feature_conflict(monitoring_data, threshold):
     funnel = monitoring_data.get("enrollment_funnel", [])
     if not funnel:
-        return False, 0.0, []
+        return FeatureConflictResult(is_conflict=False, rate=0.0, slugs=[])
 
     total = sum(row.get("client_count", 0) for row in funnel)
     if total == 0:
-        return False, 0.0, []
+        return FeatureConflictResult(is_conflict=False, rate=0.0, slugs=[])
 
     conflict_count = 0
     conflict_slugs = set()
@@ -91,4 +101,8 @@ def check_feature_conflict(monitoring_data, threshold):
                 conflict_slugs.add(slug)
 
     rate = conflict_count / total
-    return rate >= threshold, rate, sorted(conflict_slugs)
+    return FeatureConflictResult(
+        is_conflict=rate >= threshold,
+        rate=rate,
+        slugs=sorted(conflict_slugs),
+    )
