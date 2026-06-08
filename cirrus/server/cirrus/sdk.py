@@ -49,6 +49,7 @@ class EnrollmentChangeEvent(TypedDict):
     branch_slug: str
     reason: str | None
     change: EnrollmentChangeEventType
+    feature_ids: list[str]
 
 
 # N.B.: This type is much looser than the actual EnrollmentResponse type because

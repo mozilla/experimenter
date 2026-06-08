@@ -283,6 +283,7 @@ def test_compute_feature_configurations_targeting_locale(
                 "change": "Enrollment",
                 "experiment_slug": "experiment-slug",
                 "reason": None,
+                "feature_ids": ["example-feature"],
             }
         ],
     }
