@@ -128,28 +128,10 @@ def test_sdk_experiment_fixtures_are_valid(
     sdk_nimbus_experiment_schema_validator.validate(experiment_json)
 
 
-def test_desktop_nimbus_expirement_with_fxlabs_opt_in_is_not_rollout(
-    validate_desktop_experiment,
-):
-    experiment_json = _desktop_nimbus_experiment(isRollout=False)
-    experiment_json.update(
-        {
-            "isFirefoxLabsOptIn": True,
-            "firefoxLabsTitle": "test-title",
-            "firefoxLabsDescription": "test-desc",
-            "firefoxLabsDescriptionLinks": None,
-            "firefoxLabsGroup": "test-group",
-        }
-    )
-    experiment_json["branches"][0]["firefoxLabsTitle"] = "branch-one-fx-labs-title"
-    experiment_json["branches"][1]["firefoxLabsTitle"] = "branch-two-fx-labs-title"
-    validate_desktop_experiment(experiment_json)
-
-
 def test_desktop_nimbus_experiment_with_fxlabs_opt_in_is_rollout(
     validate_desktop_experiment,
 ):
-    experiment_json = _desktop_nimbus_experiment(isRollout=True)
+    experiment_json = _desktop_nimbus_experiment(is_rollout=True)
     experiment_json.update(
         {
             "isFirefoxLabsOptIn": True,
@@ -163,7 +145,7 @@ def test_desktop_nimbus_experiment_with_fxlabs_opt_in_is_rollout(
 
 
 def test_desktop_nimbus_experiment_without_fxlabs_opt_in(validate_desktop_experiment):
-    experiment_json = _desktop_nimbus_experiment(isRollout=False)
+    experiment_json = _desktop_nimbus_experiment()
     experiment_json["isFirefoxLabsOptIn"] = False
     validate_desktop_experiment(experiment_json)
 
@@ -172,7 +154,7 @@ def test_desktop_nimbus_experiment_with_fxlabs_opt_in_but_missing_required_field
     validate_desktop_experiment,
     desktop_all_versions_nimbus_experiment_schema_validator,
 ):
-    experiment_json = _desktop_nimbus_experiment(isRollout=False)
+    experiment_json = _desktop_nimbus_experiment()
     experiment_json["isFirefoxLabsOptIn"] = True
     validate_desktop_experiment(experiment_json, valid=False, valid_all_versions=False)
 
@@ -183,12 +165,9 @@ def test_desktop_nimbus_experiment_with_fxlabs_opt_in_but_missing_required_field
         )
     ]
 
-    assert len(error_messages) == 6
+    assert len(error_messages) == 5
     assert error_messages.count("'firefoxLabsTitle' is a required property") == 3
     assert error_messages.count("'firefoxLabsDescription' is a required property") == 1
-    assert (
-        error_messages.count("'firefoxLabsDescriptionLinks' is a required property") == 1
-    )
     assert error_messages.count("'firefoxLabsGroup' is a required property") == 1
 
 
@@ -196,7 +175,7 @@ def test_desktop_nimbus_experiment_with_fxlabs_opt_in_invalid_description_links(
     validate_desktop_experiment,
     desktop_all_versions_nimbus_experiment_schema_validator,
 ):
-    experiment_json = _desktop_nimbus_experiment(isRollout=True)
+    experiment_json = _desktop_nimbus_experiment(is_rollout=True)
     experiment_json.update(
         {
             "isFirefoxLabsOptIn": True,
@@ -224,14 +203,102 @@ def test_desktop_experiment_feature_ids_required(
     validate_desktop_experiment,
 ):
     """Testing the featureIds field is required."""
-    experiment_json = _desktop_nimbus_experiment(False)
+    experiment_json = _desktop_nimbus_experiment(is_rollout=False)
     del experiment_json["featureIds"]
 
     validate_desktop_experiment(experiment_json, valid=False, valid_all_versions=False)
 
 
-def _desktop_nimbus_experiment(isRollout: bool) -> dict[str, Any]:
-    return {
+def test_sdk_nimbus_experiment_with_fxlabs_optin_is_not_rollout(
+    sdk_nimbus_experiment_schema_validator,
+):
+    experiment_json = {
+        **_sdk_nimbus_experiment(),
+        "isFirefoxLabsOptIn": True,
+        "firefoxLabsTitle": "test-title",
+        "firefoxLabsDescription": "test-desc",
+        "firefoxLabsDescriptionLinks": None,
+    }
+
+    with pytest.raises(pydantic.ValidationError) as exc_info:
+        SdkNimbusExperiment.model_validate(experiment_json)
+
+    pydantic_errors = [str(e["ctx"]["error"]) for e in exc_info.value.errors()]
+
+    assert len(pydantic_errors) == 1
+    assert "isFirefoxLabsOptIn requires isRollout" in pydantic_errors
+
+    schema_errors = list(
+        sdk_nimbus_experiment_schema_validator.iter_errors(experiment_json)
+    )
+
+    assert len(schema_errors) == 1
+    assert list(schema_errors[0].path) == ["isRollout"]
+    assert schema_errors[0].message == "True was expected"
+
+
+def test_sdk_nimbus_experiment_with_fxlabs_optin_but_missing_required_title(
+    sdk_nimbus_experiment_schema_validator,
+):
+    experiment_json = {
+        **_sdk_nimbus_experiment(is_rollout=True),
+        "isFirefoxLabsOptIn": True,
+        "firefoxLabsDescription": "description",
+        "firefoxLabsDescriptionLinks": None,
+    }
+
+    with pytest.raises(pydantic.ValidationError) as exc_info:
+        SdkNimbusExperiment.model_validate(experiment_json)
+
+    pydantic_errors = [str(e["ctx"]["error"]) for e in exc_info.value.errors()]
+
+    assert len(pydantic_errors) == 1
+    assert (
+        "missing field firefoxLabsTitle (required because isFirefoxLabsOptIn is True)"
+        in pydantic_errors
+    )
+
+    schema_errors = [
+        e.message
+        for e in sdk_nimbus_experiment_schema_validator.iter_errors(experiment_json)
+    ]
+
+    assert len(schema_errors) == 1
+    assert "'firefoxLabsTitle' is a required property" in schema_errors
+
+
+def test_sdk_nimbus_experiment_with_fxlabs_optin_but_missing_required_description(
+    sdk_nimbus_experiment_schema_validator,
+):
+    experiment_json = {
+        **_sdk_nimbus_experiment(is_rollout=True),
+        "isFirefoxLabsOptIn": True,
+        "firefoxLabsTitle": "description",
+        "firefoxLabsDescriptionLinks": None,
+    }
+
+    with pytest.raises(pydantic.ValidationError) as exc_info:
+        SdkNimbusExperiment.model_validate(experiment_json)
+
+    pydantic_errors = [str(e["ctx"]["error"]) for e in exc_info.value.errors()]
+
+    assert len(pydantic_errors) == 1
+    assert (
+        "missing field firefoxLabsDescription (required because isFirefoxLabsOptIn "
+        "is True)"
+    ) in pydantic_errors
+
+    schema_errors = [
+        e.message
+        for e in sdk_nimbus_experiment_schema_validator.iter_errors(experiment_json)
+    ]
+
+    assert len(schema_errors) == 1
+    assert "'firefoxLabsDescription' is a required property" in schema_errors
+
+
+def _desktop_nimbus_experiment(*, is_rollout: bool = False) -> dict[str, Any]:
+    recipe = {
         "appId": "firefox-desktop",
         "appName": "firefox_desktop",
         "application": "firefox-desktop",
@@ -296,5 +363,50 @@ def _desktop_nimbus_experiment(isRollout: bool) -> dict[str, Any]:
         "targeting": "true",
         "userFacingDescription": "Test user facing description",
         "userFacingName": "MR2 Upgrade Spotlight Holdback",
-        "isRollout": bool(isRollout),
+        "isRollout": bool(is_rollout),
+    }
+
+    if is_rollout:
+        recipe["branches"] = [recipe["branches"][0]]
+
+    return recipe
+
+
+def _sdk_nimbus_experiment(*, is_rollout: bool = False) -> dict[str, Any]:
+    return {
+        "appId": "org.mozilla.firefox",
+        "appName": "fenix",
+        "application": "org.mozilla.fenix",
+        "branches": [
+            {
+                "features": [{"featureId": "no-feature-fenix", "value": {}}],
+                "ratio": 1,
+                "slug": "control",
+            }
+        ],
+        "bucketConfig": {
+            "count": 10000,
+            "namespace": "firefox-android-test",
+            "randomizationUnit": "nimbus_id",
+            "start": 0,
+            "total": 10000,
+        },
+        "channel": "nightly",
+        "endDate": None,
+        "featureIds": ["no-feature-fenix"],
+        "id": "firefox-android-test",
+        "isEnrollmentPaused": False,
+        "outcomes": [{"priority": "secondary", "slug": "default-browser"}],
+        "probeSets": [],
+        "proposedDuration": 28,
+        "proposedEnrollment": 7,
+        "referenceBranch": "control",
+        "schemaVersion": "1.6.2",
+        "slug": "firefox-android-test",
+        "startDate": "2021-11-01",
+        "targeting": "true",
+        "userFacingDescription": "firefox-android-test",
+        "userFacingName": "firefox-android-test",
+        "isRollout": is_rollout,
+        "firefoxLabsOptIn": True,
     }
