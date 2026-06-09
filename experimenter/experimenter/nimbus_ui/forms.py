@@ -1035,11 +1035,6 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             key=lambda choice: choice[1].lower(),
         )
 
-    YES_NO_CHOICES = (
-        (True, "Yes"),
-        (False, "No"),
-    )
-
     channel = forms.ChoiceField(
         required=False,
         label="",
@@ -1108,7 +1103,6 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         required=False,
         widget=MultiSelectWidget(),
     )
-    localizations = forms.CharField(required=False, widget=forms.HiddenInput())
     is_sticky = forms.BooleanField(required=False)
     is_first_run = forms.BooleanField(required=False)
     population_percent = forms.DecimalField(
@@ -1144,7 +1138,6 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "is_sticky",
             "languages",
             "locales",
-            "localizations",
             "population_percent",
             "proposed_duration",
             "proposed_enrollment",
@@ -1155,9 +1148,6 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        # Accept an optional keyword-only flag to render simple boolean radios.
-        rollout_card_view = kwargs.pop("rollout_card_view", False)
-
         super().__init__(*args, **kwargs)
         self.fields["targeting_config_slug"].choices = self.get_targeting_config_choices()
         self.setup_experiment_branch_choices()
@@ -1175,16 +1165,6 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 "hx-target": "#first-run-fields",
             }
         )
-
-        # We use a different widget for the is_sticky field when rendering this input
-        # as part of the new rollout form designs
-        if rollout_card_view and "is_sticky" in self.fields:
-            self.fields["is_sticky"] = forms.TypedChoiceField(
-                required=False,
-                choices=self.YES_NO_CHOICES,
-                widget=InlineRadioSelect,
-                coerce=lambda x: x == "True",
-            )
 
         # If this is a live rollout, restrict edits to only population_percent
         if self.instance.is_live_rollout:
@@ -1313,6 +1293,32 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated audience"
+
+
+class RolloutAudienceForm(AudienceForm):
+    YES_NO_CHOICES = (
+        (True, "Yes"),
+        (False, "No"),
+    )
+    localizations = forms.CharField(required=False, widget=forms.HiddenInput())
+
+    class Meta:
+        model = NimbusExperiment
+
+        fields = (
+            *AudienceForm.Meta.fields,
+            "localizations",
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["is_sticky"] = forms.TypedChoiceField(
+            required=False,
+            choices=self.YES_NO_CHOICES,
+            widget=InlineRadioSelect,
+            coerce=lambda x: x == "True",
+        )
 
 
 class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):

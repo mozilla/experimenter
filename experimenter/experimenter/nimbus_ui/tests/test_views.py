@@ -3164,6 +3164,34 @@ class TestAudienceUpdateView(AuthTestCase):
         experiment.refresh_from_db()
         self.assertTrue(experiment.is_rollout_dirty)
 
+    def test_post_does_not_update_localizations(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            localizations=json.dumps({"localization-key": "localization-value"}),
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug}),
+            {
+                "targeting_config_slug": NimbusExperiment.TargetingConfig.FIRST_RUN,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+
+        # Localizations should not be updated when an instance of AudienceForm is used
+        # in the view, so we check that the localizations field remains unchanged after
+        # the POST request.
+        self.assertEqual(
+            experiment.localizations,
+            json.dumps({"localization-key": "localization-value"}),
+        )
+        self.assertEqual(
+            experiment.targeting_config_slug, NimbusExperiment.TargetingConfig.FIRST_RUN
+        )
+
     def test_post_updates_overview_risks(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
