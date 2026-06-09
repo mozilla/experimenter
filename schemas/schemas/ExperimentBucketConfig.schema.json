@@ -3,19 +3,19 @@
   "title": "ExperimentBucketConfig",
   "type": "object",
   "properties": {
-    "randomizationUnit": {
-      "$ref": "#/$defs/RandomizationUnit"
+    "count": {
+      "description": "Number of buckets in the range.",
+      "type": "integer"
     },
     "namespace": {
       "description": "Additional inputs to the hashing function.",
       "type": "string"
     },
+    "randomizationUnit": {
+      "$ref": "#/$defs/RandomizationUnit"
+    },
     "start": {
       "description": "Index of the starting bucket of the range.",
-      "type": "integer"
-    },
-    "count": {
-      "description": "Number of buckets in the range.",
       "type": "integer"
     },
     "total": {

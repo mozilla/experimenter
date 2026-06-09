@@ -4,98 +4,28 @@
   "description": "A Nimbus experiment for Firefox Desktop. This schema is less strict than DesktopAllVersionsNimbusExperiment and is intended for use in Firefox Desktop.",
   "type": "object",
   "properties": {
-    "schemaVersion": {
-      "description": "Version of the NimbusExperiment schema this experiment refers to",
-      "type": "string"
-    },
-    "slug": {
-      "description": "Unique identifier for the experiment",
-      "type": "string"
-    },
-    "id": {
-      "description": "Unique identifier for the experiiment. This is a duplicate of slug, but is required field for all Remote Settings records.",
+    "appId": {
+      "description": "The platform identifier for the targeted app. This should match app's identifier exactly as it appears in the relevant app store listing (for relevant platforms) or the app's Glean initialization (for other platforms). Examples are \"org.mozilla.firefox_beta\" and \"firefox-desktop\".",
       "type": "string"
     },
     "appName": {
       "description": "A slug identifying the targeted product of this experiment. It should be a lowercased_with_underscores name that is short and unambiguous and it should match the app_name found in https://probeinfo.telemetry.mozilla.org/glean/repositories. Examples are \"fenix\" and \"firefox_desktop\".",
       "type": "string"
     },
-    "appId": {
-      "description": "The platform identifier for the targeted app. This should match app's identifier exactly as it appears in the relevant app store listing (for relevant platforms) or the app's Glean initialization (for other platforms). Examples are \"org.mozilla.firefox_beta\" and \"firefox-desktop\".",
-      "type": "string"
-    },
-    "channel": {
-      "description": "A specific channel of an application such as \"nightly\", \"beta\", or \"release\".",
-      "type": "string"
-    },
-    "userFacingName": {
-      "description": "Public name of the experiment that will be displayed on \"about:studies\".",
-      "type": "string"
-    },
-    "userFacingDescription": {
-      "description": "Short public description of the experiment that will be displayed on \"about:studies\".",
-      "type": "string"
-    },
-    "isEnrollmentPaused": {
-      "description": "When this property is set to true, the SDK should not enroll new users into the experiment that have not already been enrolled.",
-      "type": "boolean"
-    },
-    "isRollout": {
-      "description": "When this property is set to true, treat this experiment as a rollout. Rollouts are currently handled as single-branch experiments separated from the bucketing namespace for normal experiments. See-also: https://mozilla-hub.atlassian.net/browse/SDK-405",
-      "type": "boolean"
+    "branches": {
+      "description": "Branch configuration for the experiment.",
+      "items": {
+        "$ref": "#/$defs/DesktopExperimentBranch"
+      },
+      "type": "array"
     },
     "bucketConfig": {
       "$ref": "#/$defs/ExperimentBucketConfig",
       "description": "Bucketing configuration."
     },
-    "outcomes": {
-      "description": "A list of outcomes relevant to the experiment analysis.",
-      "items": {
-        "$ref": "#/$defs/ExperimentOutcome"
-      },
-      "type": "array"
-    },
-    "featureIds": {
-      "description": "A list of featureIds the experiment contains configurations for.",
-      "items": {
-        "type": "string"
-      },
-      "type": "array"
-    },
-    "targeting": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "A JEXL targeting expression used to filter out experiments."
-    },
-    "startDate": {
-      "anyOf": [
-        {
-          "format": "date",
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Actual publish date of the experiment. Note that this value is expected to be null in Remote Settings."
-    },
-    "enrollmentEndDate": {
-      "anyOf": [
-        {
-          "format": "date",
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Actual enrollment end date of the experiment. Note that this value is expected to be null in Remote Settings."
+    "channel": {
+      "description": "A specific channel of an application such as \"nightly\", \"beta\", or \"release\".",
+      "type": "string"
     },
     "endDate": {
       "anyOf": [
@@ -109,93 +39,28 @@
       ],
       "description": "Actual end date of this experiment. Note that this field is expected to be null in Remote Settings."
     },
-    "proposedDuration": {
-      "description": "Duration of the experiment from the start date in days. Note that this property is only used during the analysis phase (i.e., not by the SDK).",
-      "type": "integer"
-    },
-    "proposedEnrollment": {
-      "description": "This represents the number of days that we expect to enroll new users. Note that this property is only used during the analysis phase (i.e., not by the SDK).",
-      "type": "integer"
-    },
-    "referenceBranch": {
+    "enrollmentEndDate": {
       "anyOf": [
         {
+          "format": "date",
           "type": "string"
         },
         {
           "type": "null"
         }
       ],
-      "description": "The slug of the reference branch (i.e., the branch we consider \"control\")."
+      "description": "Actual enrollment end date of the experiment. Note that this value is expected to be null in Remote Settings."
     },
-    "locales": {
-      "anyOf": [
-        {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "The list of locale codes (e.g., \"en-US\" or \"fr\") that this experiment is targeting. If null, all locales are targeted."
-    },
-    "localizations": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/ExperimentLocalizations"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "publishedDate": {
-      "anyOf": [
-        {
-          "format": "date-time",
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "The date that this experiment was first published to Remote Settings. If null, it has not yet been published."
-    },
-    "branches": {
-      "description": "Branch configuration for the experiment.",
+    "featureIds": {
+      "description": "A list of featureIds the experiment contains configurations for.",
       "items": {
-        "$ref": "#/$defs/DesktopExperimentBranch"
+        "type": "string"
       },
       "type": "array"
     },
-    "isFirefoxLabsOptIn": {
-      "description": "When this property is set to true, treat this experiment as aFirefox Labs experiment",
+    "featureValidationOptOut": {
+      "description": "Opt out of feature schema validation.",
       "type": "boolean"
-    },
-    "firefoxLabsGroup": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "The group this should appear under in Firefox Labs"
-    },
-    "firefoxLabsTitle": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "The title shown in Firefox Labs (Fluent ID)"
     },
     "firefoxLabsDescription": {
       "anyOf": [
@@ -225,13 +90,148 @@
       ],
       "description": "Links that will be used with the firefoxLabsDescription Fluent ID. May be null for Firefox Labs Opt-In recipes that do not use links."
     },
-    "featureValidationOptOut": {
-      "description": "Opt out of feature schema validation.",
+    "firefoxLabsGroup": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The group this should appear under in Firefox Labs"
+    },
+    "firefoxLabsTitle": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The title shown in Firefox Labs (Fluent ID)"
+    },
+    "id": {
+      "description": "Unique identifier for the experiiment. This is a duplicate of slug, but is required field for all Remote Settings records.",
+      "type": "string"
+    },
+    "isEnrollmentPaused": {
+      "description": "When this property is set to true, the SDK should not enroll new users into the experiment that have not already been enrolled.",
       "type": "boolean"
+    },
+    "isFirefoxLabsOptIn": {
+      "description": "When this property is set to true, treat this experiment as aFirefox Labs experiment",
+      "type": "boolean"
+    },
+    "isRollout": {
+      "description": "When this property is set to true, treat this experiment as a rollout. Rollouts are currently handled as single-branch experiments separated from the bucketing namespace for normal experiments. See-also: https://mozilla-hub.atlassian.net/browse/SDK-405",
+      "type": "boolean"
+    },
+    "locales": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The list of locale codes (e.g., \"en-US\" or \"fr\") that this experiment is targeting. If null, all locales are targeted."
+    },
+    "localizations": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExperimentLocalizations"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "outcomes": {
+      "description": "A list of outcomes relevant to the experiment analysis.",
+      "items": {
+        "$ref": "#/$defs/ExperimentOutcome"
+      },
+      "type": "array"
+    },
+    "proposedDuration": {
+      "description": "Duration of the experiment from the start date in days. Note that this property is only used during the analysis phase (i.e., not by the SDK).",
+      "type": "integer"
+    },
+    "proposedEnrollment": {
+      "description": "This represents the number of days that we expect to enroll new users. Note that this property is only used during the analysis phase (i.e., not by the SDK).",
+      "type": "integer"
+    },
+    "publishedDate": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The date that this experiment was first published to Remote Settings. If null, it has not yet been published."
+    },
+    "referenceBranch": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The slug of the reference branch (i.e., the branch we consider \"control\")."
     },
     "requiresRestart": {
       "description": "Does the experiment require a restart to take effect? Only used by Firefox Labs Opt-Ins.",
       "type": "boolean"
+    },
+    "schemaVersion": {
+      "description": "Version of the NimbusExperiment schema this experiment refers to",
+      "type": "string"
+    },
+    "slug": {
+      "description": "Unique identifier for the experiment",
+      "type": "string"
+    },
+    "startDate": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Actual publish date of the experiment. Note that this value is expected to be null in Remote Settings."
+    },
+    "targeting": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "A JEXL targeting expression used to filter out experiments."
+    },
+    "userFacingDescription": {
+      "description": "Short public description of the experiment that will be displayed on \"about:studies\".",
+      "type": "string"
+    },
+    "userFacingName": {
+      "description": "Public name of the experiment that will be displayed on \"about:studies\".",
+      "type": "string"
     }
   },
   "required": [
@@ -296,14 +296,6 @@
     "DesktopExperimentBranch": {
       "description": "The branch definition supported on Firefox Desktop 95+.",
       "properties": {
-        "slug": {
-          "description": "Identifier for the branch.",
-          "type": "string"
-        },
-        "ratio": {
-          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.",
-          "type": "integer"
-        },
         "features": {
           "description": "An array of feature configurations.",
           "items": {
@@ -321,6 +313,14 @@
             }
           ],
           "description": "The branch title shown in Firefox Labs (Fluent ID)"
+        },
+        "ratio": {
+          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.",
+          "type": "integer"
+        },
+        "slug": {
+          "description": "Identifier for the branch.",
+          "type": "string"
         }
       },
       "required": [
@@ -332,19 +332,19 @@
     },
     "ExperimentBucketConfig": {
       "properties": {
-        "randomizationUnit": {
-          "$ref": "#/$defs/RandomizationUnit"
+        "count": {
+          "description": "Number of buckets in the range.",
+          "type": "integer"
         },
         "namespace": {
           "description": "Additional inputs to the hashing function.",
           "type": "string"
         },
+        "randomizationUnit": {
+          "$ref": "#/$defs/RandomizationUnit"
+        },
         "start": {
           "description": "Index of the starting bucket of the range.",
-          "type": "integer"
-        },
-        "count": {
-          "description": "Number of buckets in the range.",
           "type": "integer"
         },
         "total": {
@@ -391,12 +391,12 @@
     },
     "ExperimentOutcome": {
       "properties": {
-        "slug": {
-          "description": "Identifier for the outcome.",
-          "type": "string"
-        },
         "priority": {
           "description": "e.g., \"primary\" or \"secondary\".",
+          "type": "string"
+        },
+        "slug": {
+          "description": "Identifier for the outcome.",
           "type": "string"
         }
       },
