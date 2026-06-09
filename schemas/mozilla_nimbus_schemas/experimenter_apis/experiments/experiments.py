@@ -1,6 +1,7 @@
+from copy import deepcopy
 from typing import Any, Literal
 
-from pydantic import ConfigDict, Field, HttpUrl, model_validator
+from pydantic import ConfigDict, Field, model_validator
 from pydantic.json_schema import SkipJsonSchema
 from typing_extensions import Self
 
@@ -54,6 +55,41 @@ class DesktopAllVersionsExperimentBranch(DesktopExperimentBranch):
     )
 
 
+def desktop_nimbus_experiment_json_schema_extras():
+    extras = deepcopy(BaseExperiment.model_config["json_schema_extra"])
+
+    firefox_labs_schema = extras["dependentSchemas"]["isFirefoxLabsOptIn"]
+    firefox_labs_schema["then"].update(
+        {
+            # On Desktop, firefoxLabsGroup is also required.
+            "required": sorted(
+                [
+                    *firefox_labs_schema["then"]["required"],
+                    "firefoxLabsGroup",
+                ]
+            ),
+            # Additionally, Desktop validates multi-branch Firefox Labs opt-ins.
+            "if": {
+                "properties": {
+                    "isRollout": {"const": False},
+                },
+                "required": ["isRollout"],
+            },
+            "then": {
+                "properties": {
+                    "branches": {
+                        "items": {
+                            "required": ["firefoxLabsTitle"],
+                        },
+                    },
+                },
+            },
+        }
+    )
+
+    return extras
+
+
 class DesktopNimbusExperiment(BaseExperiment):
     """A Nimbus experiment for Firefox Desktop.
 
@@ -68,65 +104,29 @@ class DesktopNimbusExperiment(BaseExperiment):
         description="Branch configuration for the experiment."
     )
 
-    isFirefoxLabsOptIn: bool = Field(
-        description=(
-            "When this property is set to true, treat this experiment as a"
-            "Firefox Labs experiment"
-        ),
-        default=None,
-    )
-    firefoxLabsGroup: str | None = Field(
-        description="The group this should appear under in Firefox Labs",
-        default=None,
-    )
-    firefoxLabsTitle: str | None = Field(
-        description="The title shown in Firefox Labs (Fluent ID)",
-        default=None,
-    )
-    firefoxLabsDescription: str | None = Field(
-        description="The description shown in Firefox Labs (Fluent ID)",
-        default=None,
-    )
-    firefoxLabsDescriptionLinks: dict[str, HttpUrl] | None = Field(
-        description=(
-            "Links that will be used with the firefoxLabsDescription Fluent ID. May be "
-            "null for Firefox Labs Opt-In recipes that do not use links."
-        ),
-        default=None,
-    )
     featureValidationOptOut: bool | SkipJsonSchema[None] = Field(
         description="Opt out of feature schema validation.",
         default=None,
     )
-    requiresRestart: bool | SkipJsonSchema[None] = Field(
-        description=(
-            "Does the experiment require a restart to take effect?\n"
-            "\n"
-            "Only used by Firefox Labs Opt-Ins."
-        ),
-        default=False,
-    )
+
     localizations: ExperimentLocalizations | None = Field(default=None)
+
+    # Only Desktop labs supports groups.
+    firefoxLabsGroup: str | None = Field(
+        description="The group this should appear under in Firefox Labs",
+        default=None,
+    )
 
     @model_validator(mode="after")
     @classmethod
-    def validate_firefox_labs(cls, data: Self) -> Self:
+    def validate_firefox_labs_desktop(cls, data: Self) -> Self:
         if data.isFirefoxLabsOptIn:
-            if data.firefoxLabsTitle is None:
-                raise ValueError(
-                    "missing field firefoxLabsTitle (required because isFirefoxLabsOptIn "
-                    "is True)"
-                )
-            if data.firefoxLabsDescription is None:
-                raise ValueError(
-                    "missing field firefoxLabsDescription (required because "
-                    "isFirefoxLabsOptIn is True)"
-                )
             if data.firefoxLabsGroup is None:
                 raise ValueError(
                     "missing field firefoxLabsGroup (required because isFirefoxLabsOptIn "
                     "is True)"
                 )
+
             if not data.isRollout:
                 for branch in data.branches:
                     if branch.firefoxLabsTitle is None:
@@ -139,40 +139,8 @@ class DesktopNimbusExperiment(BaseExperiment):
         return data
 
     model_config = ConfigDict(
-        json_schema_extra={
-            "dependentSchemas": {
-                "isFirefoxLabsOptIn": {
-                    "if": {
-                        "properties": {
-                            "isFirefoxLabsOptIn": {"const": True},
-                        },
-                    },
-                    "then": {
-                        "required": [
-                            "firefoxLabsDescription",
-                            "firefoxLabsDescriptionLinks",
-                            "firefoxLabsGroup",
-                            "firefoxLabsTitle",
-                        ],
-                        "if": {
-                            "properties": {
-                                "isRollout": {"const": False},
-                            },
-                            "required": ["isRollout"],
-                        },
-                        "then": {
-                            "properties": {
-                                "branches": {
-                                    "items": {
-                                        "required": ["firefoxLabsTitle"],
-                                    },
-                                },
-                            },
-                        },
-                    },
-                }
-            }
-        }
+        use_enum_values=True,
+        json_schema_extra=desktop_nimbus_experiment_json_schema_extras(),
     )
 
 
@@ -192,9 +160,42 @@ class DesktopAllVersionsNimbusExperiment(DesktopNimbusExperiment):
     )
 
 
+def sdk_nimbus_experiment_json_schema_extras():
+    extras = deepcopy(BaseExperiment.model_config["json_schema_extra"])
+
+    firefox_labs_schema = extras["dependentSchemas"]["isFirefoxLabsOptIn"]
+    firefox_labs_schema["then"].update(
+        {
+            # For the SDK, isRollout is also required and must be true
+            "required": sorted(
+                [
+                    *firefox_labs_schema["then"]["required"],
+                    "isRollout",
+                ]
+            ),
+            "type": "object",
+            "properties": {"isRollout": {"const": True}},
+        }
+    )
+
+    return extras
+
+
 class SdkNimbusExperiment(BaseExperiment):
     """A Nimbus experiment for Nimbus SDK-based applications."""
 
     branches: list[SdkExperimentBranch] = Field(
         description="Branch configuration for the SDK experiment."
+    )
+
+    @model_validator(mode="after")
+    @classmethod
+    def validate_firefox_labs_desktop(cls, data: Self) -> Self:
+        if data.isFirefoxLabsOptIn and not data.isRollout:
+            raise ValueError("isFirefoxLabsOptIn requires isRollout")
+
+        return data
+
+    model_config = ConfigDict(
+        use_enum_values=True, json_schema_extra=sdk_nimbus_experiment_json_schema_extras()
     )

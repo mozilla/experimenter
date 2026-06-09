@@ -2,8 +2,9 @@ import datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, RootModel
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, RootModel, model_validator
 from pydantic.json_schema import SkipJsonSchema
+from typing_extensions import Self
 
 
 class RandomizationUnit(str, Enum):
@@ -26,9 +27,7 @@ class ExperimentBucketConfig(BaseModel):
     count: int = Field(description="Number of buckets in the range.")
     total: int = Field(
         description=(
-            "The total number of buckets.\n"
-            "\n"
-            "You can assume this will always be 10000."
+            "The total number of buckets.\n\nYou can assume this will always be 10000."
         )
     )
 
@@ -225,4 +224,73 @@ class BaseExperiment(BaseModel):
         default=None,
     )
 
-    model_config = ConfigDict(use_enum_values=True)
+    # Firefox Labs-related fields.
+
+    isFirefoxLabsOptIn: bool = Field(
+        description=(
+            "When this property is set to true, treat this experiment as a "
+            "Firefox Labs experiment"
+        ),
+        default=None,
+    )
+    firefoxLabsTitle: str | None = Field(
+        description="The title shown in Firefox Labs (Fluent ID or Resource ID)",
+        default=None,
+    )
+    firefoxLabsDescription: str | None = Field(
+        description="The description shown in Firefox Labs (Fluent ID or Resource ID)",
+        default=None,
+    )
+    firefoxLabsDescriptionLinks: dict[str, HttpUrl] | None = Field(
+        description=(
+            "Links that will be used with the firefoxLabsDescription Fluent ID. May be "
+            "null for Firefox Labs Opt-In recipes that do not use links."
+        ),
+        default=None,
+    )
+    requiresRestart: bool | SkipJsonSchema[None] = Field(
+        description=(
+            "Does the experiment require a restart to take effect?\n"
+            "\n"
+            "Only used by Firefox Labs Opt-Ins."
+        ),
+        default=False,
+    )
+
+    @model_validator(mode="after")
+    @classmethod
+    def validate_firefox_labs_base(cls, data: Self) -> Self:
+        if data.isFirefoxLabsOptIn:
+            if data.firefoxLabsTitle is None:
+                raise ValueError(
+                    "missing field firefoxLabsTitle (required because isFirefoxLabsOptIn "
+                    "is True)"
+                )
+            if data.firefoxLabsDescription is None:
+                raise ValueError(
+                    "missing field firefoxLabsDescription (required because "
+                    "isFirefoxLabsOptIn is True)"
+                )
+
+        return data
+
+    model_config = ConfigDict(
+        use_enum_values=True,
+        json_schema_extra={
+            "dependentSchemas": {
+                "isFirefoxLabsOptIn": {
+                    "if": {
+                        "properties": {
+                            "isFirefoxLabsOptIn": {"const": True},
+                        },
+                    },
+                    "then": {
+                        "required": [
+                            "firefoxLabsDescription",
+                            "firefoxLabsTitle",
+                        ],
+                    },
+                }
+            }
+        },
+    )
