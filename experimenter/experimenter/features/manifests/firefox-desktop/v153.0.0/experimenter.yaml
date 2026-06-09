@@ -4787,7 +4787,7 @@ nimbusIsReady:
 
 nimbusTelemetry:
   description: A feature that enables or disables Nimbus telemetry.
-  owner: nimbus-team@mozilla.com
+  owner: project-nimbus@mozilla.com
   hasExposure: false
   applications:
     - firefox-desktop
@@ -5428,6 +5428,60 @@ trackingProtectionExperimentation:
       setPref:
         branch: default
         pref: "privacy.trackingprotection.defer_annotation.enabled"
+
+contentClassifier:
+  description: Controls the content classifier service used by tracking protection.
+  owner: bvandersloot@mozilla.com
+  hasExposure: false
+  variables:
+    protectionEnabled:
+      description: Whether the content classifier service blocks requests.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "privacy.trackingprotection.content.protection.enabled"
+    protectionEngines:
+      description: >-
+        Comma-separated content classifier feature names whose engines are
+        used for blocking in non-private browsing contexts. Defined feature
+        names are in ContentClassifierService.cpp, kFeatures.
+      type: string
+      setPref:
+        branch: default
+        pref: "privacy.trackingprotection.content.protection.engines"
+    protectionEnginesPbmode:
+      description: >-
+        Comma-separated content classifier feature names whose engines are
+        used for blocking in private browsing contexts. Defined feature
+        names are in ContentClassifierService.cpp, kFeatures.
+      type: string
+      setPref:
+        branch: default
+        pref: "privacy.trackingprotection.content.protection.engines.pbmode"
+    annotationEnabled:
+      description: Whether the content classifier service annotates requests.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "privacy.trackingprotection.content.annotation.enabled"
+    annotationEngines:
+      description: >-
+        Comma-separated content classifier feature names whose engines are
+        used for annotation in non-private browsing contexts. Defined
+        feature names are in ContentClassifierService.cpp, kFeatures.
+      type: string
+      setPref:
+        branch: default
+        pref: "privacy.trackingprotection.content.annotation.engines"
+    annotationEnginesPbmode:
+      description: >-
+        Comma-separated content classifier feature names whose engines are
+        used for annotation in private browsing contexts. Defined feature
+        names are in ContentClassifierService.cpp, kFeatures.
+      type: string
+      setPref:
+        branch: default
+        pref: "privacy.trackingprotection.content.annotation.engines.pbmode"
 
 auto-pip:
   description: "Automatic Picture-in-Picture"
