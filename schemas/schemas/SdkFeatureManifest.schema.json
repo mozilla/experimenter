@@ -26,17 +26,21 @@
         }
       },
       "properties": {
+        "allow-coenrollment": {
+          "description": "If true, clients can enroll in multiple experiments and rollouts that use this feature.",
+          "type": "boolean"
+        },
         "description": {
           "description": "The description of the feature.",
+          "type": "string"
+        },
+        "exposureDescription": {
+          "description": "A description of the exposure telemetry collected by this feature. Only required if hasExposure is true.",
           "type": "string"
         },
         "hasExposure": {
           "description": "Whether or not this feature records exposure telemetry.",
           "type": "boolean"
-        },
-        "exposureDescription": {
-          "description": "A description of the exposure telemetry collected by this feature. Only required if hasExposure is true.",
-          "type": "string"
         },
         "variables": {
           "additionalProperties": {
@@ -44,10 +48,6 @@
           },
           "description": "The variables that this feature can set.",
           "type": "object"
-        },
-        "allow-coenrollment": {
-          "description": "If true, clients can enroll in multiple experiments and rollouts that use this feature.",
-          "type": "boolean"
         }
       },
       "required": [
@@ -78,16 +78,16 @@
           "description": "A description of the feature.",
           "type": "string"
         },
-        "type": {
-          "$ref": "#/$defs/FeatureVariableType",
-          "description": "The field type."
-        },
         "enum": {
           "description": "An optional list of possible string values. Only allowed when type is string.",
           "items": {
             "type": "string"
           },
           "type": "array"
+        },
+        "type": {
+          "$ref": "#/$defs/FeatureVariableType",
+          "description": "The field type."
         }
       },
       "required": [

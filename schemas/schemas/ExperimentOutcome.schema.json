@@ -3,12 +3,12 @@
   "title": "ExperimentOutcome",
   "type": "object",
   "properties": {
-    "slug": {
-      "description": "Identifier for the outcome.",
-      "type": "string"
-    },
     "priority": {
       "description": "e.g., \"primary\" or \"secondary\".",
+      "type": "string"
+    },
+    "slug": {
+      "description": "Identifier for the outcome.",
       "type": "string"
     }
   },

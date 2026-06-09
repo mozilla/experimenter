@@ -173,6 +173,11 @@ def prettify_json_schema(schema: dict[str, Any]) -> dict[str, Any]:
         match obj.get("type"):
             case "object":
                 if properties := obj.get("properties"):
+                    # Sort the properties of generated schemas. This will make
+                    # schema changes easier to review.
+                    properties = obj["properties"] = {
+                        key: properties[key] for key in sorted(properties)
+                    }
                     _walk_objects(properties.values())
 
             case "array":
@@ -183,9 +188,10 @@ def prettify_json_schema(schema: dict[str, Any]) -> dict[str, Any]:
             if group := obj.get(group_key):
                 _walk_objects(group)
 
+        if defs := obj.get("$defs"):
+            _walk_objects(defs.values())
+
     _walk_object(pretty_schema, top_level=True)
-    if defs := pretty_schema.get("$defs"):
-        _walk_objects(defs.values())
 
     return pretty_schema
 
