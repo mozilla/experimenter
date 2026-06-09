@@ -61,6 +61,15 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: false
+  custom-reader-mode-scheme-feature:
+    description: |
+      Use a custom WKURLSchemeHandler for reader mode
+    variables:
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: true
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
