@@ -280,6 +280,7 @@
           "type": "string"
         },
         "value": {
+          "additionalProperties": true,
           "description": "The values that define the feature configuration. This should be validated against a schema.",
           "type": "object"
         }

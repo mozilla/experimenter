@@ -325,8 +325,18 @@ SCHEMAS_RUN = docker run --rm $(DOCKER_RUN_INTERACTIVE) $(SCHEMAS_ENV) -v ./sche
 SCHEMAS_BLACK = black --check --diff .
 SCHEMAS_RUFF = ruff check .
 SCHEMAS_DIFF_PYDANTIC = \
-	poetry run python generate_json_schema.py --output /tmp/test_index.d.ts &&\
-	diff /tmp/test_index.d.ts index.d.ts || (echo nimbus-schemas typescript package is out of sync please run make schemas_build;exit 1) &&\
+	mkdir -p /tmp/schemas-diff/ && \
+	poetry run python generate_json_schema.py \
+		--output /tmp/schemas-diff/index.d.ts \
+		--json-schemas /tmp/schemas-diff/schemas/ \
+		--python-package-dir /tmp/schemas-diff/mozilla_nimbus_schemas/ && \
+	( \
+		diff index.d.ts /tmp/schemas-diff/index.d.ts && \
+		diff -r ./schemas /tmp/schemas-diff/schemas/ \
+	) || ( \
+		echo schemas packages are out of out of sync\: run make schemas_build; \
+		exit 1 \
+	) && \
 	echo 'Done. No problems found in schemas.'
 SCHEMAS_TEST = pytest
 SCHEMAS_FORMAT = ruff check --fix . && black .
@@ -350,7 +360,7 @@ schemas_format: schemas_docker_build  ## Format schemas source tree
 	$(SCHEMAS_RUN) "$(SCHEMAS_FORMAT)"
 
 schemas_lint: schemas_docker_build  ## Lint schemas source tree
-	$(SCHEMAS_RUN) "$(SCHEMAS_BLACK)&&$(SCHEMAS_RUFF)&&$(SCHEMAS_DIFF_PYDANTIC)&&$(SCHEMAS_TEST)"
+	$(SCHEMAS_RUN) "$(SCHEMAS_BLACK) && $(SCHEMAS_RUFF) && $(SCHEMAS_DIFF_PYDANTIC) && $(SCHEMAS_GENERATE) && $(SCHEMAS_TEST)"
 
 schemas_check: schemas_lint
 
