@@ -62,6 +62,16 @@ bookmarks-search-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+custom-reader-mode-scheme-feature:
+  description: |
+    Use a custom WKURLSchemeHandler for reader mode
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 deeplink-optimization-refactor-feature:
   description: |
     The feature flag to manage the rollout of deeplink optimization feature.
