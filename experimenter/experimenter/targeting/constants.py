@@ -1703,7 +1703,7 @@ PIP_NEVER_USED_7DAYS = NimbusTargetingConfig(
         "'media.videocontrols.picture-in-picture.enabled'|preferenceValue && "
         "'media.videocontrols.picture-in-picture.video-toggle.enabled'|preferenceValue && "
         f"{PROFILEMORETHAN7DAYS}"
-    )
+    ),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
