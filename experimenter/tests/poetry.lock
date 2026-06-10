@@ -463,14 +463,14 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "kinto-http"
-version = "11.10.0"
+version = "11.11.0"
 description = "Kinto client"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "kinto_http-11.10.0-py3-none-any.whl", hash = "sha256:c2870e004864b7bb44449e5ca1157bb36fad47376043bee0992c0fa14efd9748"},
-    {file = "kinto_http-11.10.0.tar.gz", hash = "sha256:50bac5234ac7a98e45f5bac4bd92860dbaa5a8957fed744eb5c8be13fc37b920"},
+    {file = "kinto_http-11.11.0-py3-none-any.whl", hash = "sha256:1604943c8626eed4859c9813a3b35494282cd12c206992ecfa45c21bddde9c68"},
+    {file = "kinto_http-11.11.0.tar.gz", hash = "sha256:f33d5659fff78e82608bc60bd5139993ef537423a5eed4bc90108de8eeafe1a8"},
 ]
 
 [package.dependencies]
@@ -479,7 +479,7 @@ requests = "*"
 Unidecode = "*"
 
 [package.extras]
-dev = ["kinto", "kinto-attachment", "pytest", "pytest-asyncio", "pytest-cache", "pytest-cov", "pytest-mock", "pytest-xdist", "ruff"]
+dev = ["kinto", "kinto-attachment", "pytest", "pytest-asyncio", "pytest-cache", "pytest-cov", "pytest-mock", "pytest-xdist", "ruff", "ty"]
 
 [[package]]
 name = "markupsafe"
