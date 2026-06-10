@@ -758,6 +758,14 @@ export interface SdkFeatureVariable {
    * Only allowed when type is string.
    */
   enum?: string[];
+  setPref?: SetPref1;
+}
+export interface SetPref1 {
+  branch: PrefBranch;
+  /**
+   * The name of the pref to set.
+   */
+  pref: string;
 }
 export interface AnalysisError {
   analysis_basis?: AnalysisBasis | null;

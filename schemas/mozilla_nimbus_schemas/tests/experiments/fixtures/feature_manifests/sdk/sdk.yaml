@@ -311,3 +311,27 @@ zoom-feature:
     status:
       type: boolean
       description: "Whether the page zoom feature is enabled or not\n"
+pref-feature:
+  description: A feature with prefs
+  hasExposure: false
+  variables:
+    foo:
+      type: boolean
+      description: bool variable
+      setPref:
+        pref: test.foo
+        branch: user
+
+    bar:
+      type: string
+      description: string variable
+      setPref:
+        pref: test.bar
+        branch: default
+
+    baz:
+      type: int
+      description: int variable
+      setPref:
+        pref: test.baz
+        branch: user
