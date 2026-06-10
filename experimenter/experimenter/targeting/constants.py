@@ -1699,9 +1699,11 @@ PIP_NEVER_USED_7DAYS = NimbusTargetingConfig(
         "Users that have never used Picture in Picture "
         "and Profile age more than 7 days"),
     targeting=(
-        "!'media.videocontrols.picture-in-picture.video-toggle.has-used'|preferenceValue && "
+        "!'media.videocontrols.picture-in-picture.video-toggle.has-used'|"
+        "preferenceValue && "
         "'media.videocontrols.picture-in-picture.enabled'|preferenceValue && "
-        "'media.videocontrols.picture-in-picture.video-toggle.enabled'|preferenceValue && "
+        "'media.videocontrols.picture-in-picture.video-toggle.enabled'|"
+        "preferenceValue && "
         f"{PROFILEMORETHAN7DAYS}"
     ),
     desktop_telemetry="",
