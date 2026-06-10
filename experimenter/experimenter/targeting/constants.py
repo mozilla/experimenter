@@ -1696,8 +1696,8 @@ PIP_NEVER_USED_7DAYS = NimbusTargetingConfig(
     name="PiP Never Used and profile age more than 7 days",
     slug="pip_never_used_profile_7_days",
     description=(
-        "Users that have never used Picture in Picture "
-        "and Profile age more than 7 days"),
+        "Users that have never used Picture in Picture and Profile age more than 7 days"
+    ),
     targeting=(
         "!'media.videocontrols.picture-in-picture.video-toggle.has-used'|"
         "preferenceValue && "
