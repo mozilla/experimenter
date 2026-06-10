@@ -4554,6 +4554,50 @@ FX_153_3_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
+    name="New Tab Lists/Timer Interaction, Neither Widget Disabled",
+    slug="widgets-lists-timer-interacted-not-disabled",
+    description=(
+        "Users who have interacted with the Lists or Timer widget, and have "
+        "neither Lists nor Timer currently disabled"
+    ),
+    targeting=(
+        "(("
+        "'browser.newtabpage.activity-stream.widgets.lists.interaction'"
+        "|preferenceValue) || ("
+        "'browser.newtabpage.activity-stream.widgets.focusTimer.interaction'"
+        "|preferenceValue)) && ("
+        "'browser.newtabpage.activity-stream.widgets.lists.enabled'"
+        "|preferenceValue) && ("
+        "'browser.newtabpage.activity-stream.widgets.focusTimer.enabled'"
+        "|preferenceValue)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_3_TRAINHOP = NimbusTargetingConfig(
+    name=(
+        "New Tab Fx153 Jun-05 Trainhop, Lists/Timer Interaction, Neither Widget Disabled"
+    ),
+    slug="widgets-lists-timer-interacted-not-disabled-153-0605-trainhop",
+    description=(
+        "Users having the New Tab 153.3.20260605.21338 train hop, which includes "
+        "users of Fx151, who have interacted with the Lists or Timer widget and "
+        "have neither Lists nor Timer currently disabled"
+    ),
+    targeting=(
+        f"{FX_153_3_TRAINHOP.targeting} "
+        f"&& {WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
