@@ -56,6 +56,10 @@ jobs:
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
         working-directory: schemas
         run: |
-          npm install -g npm@latest
-          npm version --allow-same-version --no-git-tag-version "$(cat VERSION)"
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          FILE_VERSION="$(cat VERSION)"
+          if [ "$PKG_VERSION" != "$FILE_VERSION" ]; then
+            echo "package.json version ($PKG_VERSION) does not match VERSION ($FILE_VERSION); run 'make schemas_version' and commit" >&2
+            exit 1
+          fi
           npm publish --access public --provenance
