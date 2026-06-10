@@ -3215,6 +3215,85 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             )
             self.assertFalse(experiment.has_displayable_results)
 
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_invalid_exposure_data_does_not_override_other_metrics(self, lifecycle):
+        primary_outcomes = ["default-browser"]
+        secondary_outcomes = ["secondary_outcome"]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            primary_outcomes=primary_outcomes,
+            secondary_outcomes=secondary_outcomes,
+        )
+
+        (
+            DAILY_DATA,
+            _,
+            _,
+            _,
+            _,
+            SEGMENT_DATA,
+            _,
+            _,
+        ) = JetstreamTestData.get_test_data(primary_outcomes)
+
+        OTHER_METRICS = {
+            Group.OTHER.value: {
+                "some_count": "Some Count",
+                "another_count": "Another Count",
+                "some_dau_impact": "Some Dau Impact",
+                "some_ratio": "Some Ratio",
+            },
+        }
+
+        class File:
+            def __init__(self, filename):
+                self.name = filename
+
+            def read(self):
+                if "metadata" in self.name:
+                    return "{}"
+                if "errors" in self.name:
+                    return "[]"
+                return json.dumps(
+                    DAILY_DATA
+                    + SEGMENT_DATA
+                    + [
+                        # This list of exposure points is intentionally incomplete as we
+                        # want to test that other_metrics is not overridden even if some
+                        # expected data is missing
+                        {
+                            "metric": "identity",
+                            "statistic": "count",
+                            "branch": "control",
+                            "point": 10,
+                            "segment": "all",
+                            "analysis_basis": "exposures",
+                            "window_index": "1",
+                        }
+                    ]
+                )
+
+        def open_file(filename):
+            return File(filename)
+
+        with (
+            patch("experimenter.jetstream.client.analysis_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
+        ):
+            mock_open.side_effect = open_file
+            mock_exists.return_value = True
+
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+            self.assertEqual(
+                experiment.results_data.get("v3", {}).get("other_metrics"), OTHER_METRICS
+            )
+
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_data_fetch_in_loop(self, mock_delay):
         lifecycle = NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
