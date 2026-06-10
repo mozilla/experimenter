@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -46,7 +47,15 @@ jobs:
         run: |
           make schemas_deploy_pypi SCHEMAS_ENV="-e TWINE_USERNAME=${{ secrets.TWINE_USERNAME }} -e TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }}"
 
+      - uses: actions/setup-node@v6
+        if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
+        with:
+          node-version: 24
+
       - name: Upload to NPM
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
+        working-directory: schemas
         run: |
-          make schemas_deploy_npm SCHEMAS_ENV="-e NPM_TOKEN=${{ secrets.NPM_TOKEN }}"
+          npm install -g npm@latest
+          npm version --allow-same-version --no-git-tag-version "$(cat VERSION)"
+          npm publish --access public --provenance
