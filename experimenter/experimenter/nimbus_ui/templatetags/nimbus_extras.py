@@ -377,7 +377,6 @@ def sanitize_html(value):
     return mark_safe(nh3.clean(str(value)))
 
 
-
 @register.filter
 def format_p_value(value):
     try:

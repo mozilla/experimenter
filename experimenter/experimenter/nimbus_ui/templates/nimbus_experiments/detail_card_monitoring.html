@@ -27,9 +27,7 @@
         This experiment has ended. Monitoring data reflects the last update before the experiment concluded.
       </div>
     {% endif %}
-
     {% with funnel=experiment.enrollment_funnel_stages summary=experiment.monitoring_summary %}
-
       {% if funnel %}
         <section>
           <div class="d-flex align-items-center gap-2 border-bottom pb-1 mb-2">
@@ -55,7 +53,10 @@
               <tr class="table-secondary fw-semibold">
                 <td>Evaluated (total)</td>
                 <td class="text-end">{{ funnel.total }}</td>
-                <td class="text-end" style="background: linear-gradient(to left, rgba(var(--bs-secondary-rgb), 0.25) 100%, transparent 0%)">100%</td>
+                <td class="text-end"
+                    style="background: linear-gradient(to left, rgba(var(--bs-secondary-rgb), 0.25) 100%, transparent 0%)">
+                  100%
+                </td>
               </tr>
               {% for stage in funnel.stages %}
                 <tr>
@@ -65,7 +66,8 @@
                     {% if stage.conflict_slugs %}
                       —
                       {% for slug in stage.conflict_slugs %}
-                        <a href="{% url 'nimbus-ui-detail' slug=slug %}">{{ slug }}</a>{% if not forloop.last %},{% endif %}
+                        <a href="{% url 'nimbus-ui-detail' slug=slug %}">{{ slug }}</a>
+                        {% if not forloop.last %},{% endif %}
                       {% endfor %}
                     {% endif %}
                     {% if stage.has_null_conflict %}
@@ -74,14 +76,15 @@
                   </td>
                   <td class="text-end">{{ stage.client_count }}</td>
                   <td class="text-end"
-                      style="background: linear-gradient(to left, rgba(var(--bs-{{ stage.color }}-rgb), 0.25) {{ stage.pct|floatformat:1 }}%, transparent 0%)">{{ stage.pct|floatformat:1 }}%</td>
+                      style="background: linear-gradient(to left, rgba(var(--bs-{{ stage.color }}-rgb), 0.25) {{ stage.pct|floatformat:1 }}%, transparent 0%)">
+                    {{ stage.pct|floatformat:1 }}%
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         </section>
       {% endif %}
-
       {% if summary %}
         <section>
           <div class="d-flex align-items-center gap-2 border-bottom pb-1 mb-2">
@@ -132,7 +135,10 @@
                 <td class="text-end">{{ summary.total_enrollments }}</td>
                 <td class="text-end">{{ summary.total_unenrollments }}</td>
                 <td></td>
-                {% if not experiment.is_rollout %}<td></td><td></td>{% endif %}
+                {% if not experiment.is_rollout %}
+                  <td></td>
+                  <td></td>
+                {% endif %}
               </tr>
               {% for branch in summary.branches %}
                 <tr {% if not experiment.is_rollout and summary.is_srm %}class="table-warning"{% endif %}>
@@ -160,7 +166,6 @@
           </div>
         </section>
       {% endif %}
-
     {% endwith %}
   </div>
 {% endblock %}
