@@ -3278,16 +3278,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         mock_has_missing_expected_results.return_value = False
 
         tasks.fetch_jetstream_data()
-        mock_delay.assert_not_called()
 
-    @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_data_fetch_skip_preview(self, mock_delay):
-        lifecycle = NimbusExperimentFactory.Lifecycles.PREVIEW
-        offset = NimbusExperiment.DAYS_ANALYSIS_BUFFER + 1
-        _ = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=offset)
+        mock_get_latest_results_timestamp.assert_called_once_with(
+            experiment.slug, mock_get_results_filenames.return_value
         )
-        tasks.fetch_jetstream_data()
         mock_delay.assert_not_called()
 
     @patch("experimenter.jetstream.tasks.has_missing_expected_results")
@@ -3312,7 +3306,11 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         mock_get_latest_results_timestamp.return_value = latest_timestamp
         mock_has_missing_expected_results.return_value = False
         tasks.fetch_jetstream_data()
-        mock_delay.assert_not_called()
+
+        mock_get_latest_results_timestamp.assert_called_once_with(
+            experiment.slug, mock_get_results_filenames.return_value
+        )
+        mock_delay.assert_called_once_with(experiment.id, latest_timestamp)
 
     @patch("experimenter.jetstream.tasks.has_missing_expected_results")
     @patch("experimenter.jetstream.tasks.get_results_filenames")
@@ -3326,21 +3324,16 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         mock_has_missing_expected_results,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle,
-            end_date=datetime.date.today() - datetime.timedelta(days=offset),
-            results_data=None,
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
         )
 
         mock_get_latest_results_timestamp.return_value = None
         mock_has_missing_expected_results.return_value = False
         tasks.fetch_jetstream_data()
-        mock_delay.assert_called_once_with(experiment.id)
 
-    @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_no_data_fetch_in_loop(self, mock_delay):
-        lifecycle = NimbusExperimentFactory.Lifecycles.CREATED
-        NimbusExperimentFactory.create_with_lifecycle(lifecycle)
-        tasks.fetch_jetstream_data()
+        mock_get_latest_results_timestamp.assert_called_once_with(
+            experiment.slug, mock_get_results_filenames.return_value
+        )
         mock_delay.assert_not_called()
 
     @patch("experimenter.jetstream.tasks.has_missing_expected_results")
@@ -3608,6 +3601,20 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         self.assertEqual(
             expected_windows(experiment),
             [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY],
+        )
+
+    def test_expected_windows_includes_overall_after_end_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+        experiment._enrollment_end_date = datetime.date(2019, 5, 15)
+        experiment._end_date = datetime.date(2019, 8, 1)
+        experiment.save()
+
+        self.assertTrue(experiment.results_ready)
+        self.assertEqual(
+            expected_windows(experiment),
+            [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL],
         )
 
     def test_has_missing_expected_results_true_when_expected_file_absent(self):
