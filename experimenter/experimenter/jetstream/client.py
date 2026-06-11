@@ -1,13 +1,13 @@
 import functools
 import json
 import logging
-import tomllib
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from itertools import chain
 from pathlib import Path
 from typing import Any
 
+import tomllib
 from django.conf import settings
 from django.core.files.storage import storages
 from django.utils import timezone
@@ -214,7 +214,7 @@ def get_other_metrics_names_and_map(
     return other_metrics_map, other_metrics_names
 
 
-def get_experiment_data(experiment):
+def get_experiment_data(experiment: "NimbusExperiment"):
     recipe_slug = experiment.slug.replace("-", "_")
     windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
     raw_data = {
@@ -469,5 +469,3 @@ def get_featmon_slugs():
         )
     except (FileNotFoundError, OSError, tomllib.TOMLDecodeError):
         return frozenset()
-
-
