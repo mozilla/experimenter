@@ -1497,7 +1497,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def monitoring_health_warnings(self):
-        """Returns a list of active health warnings for display in the features page."""
         warnings = []
         if not self.monitoring_data:
             return warnings
