@@ -5637,7 +5637,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_monitoring_health_warnings_feature_conflict(self):
         experiment = NimbusExperimentFactory.create(
-            start_date=datetime.date.today()
+            _start_date=datetime.date.today()
             - datetime.timedelta(days=NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD),
             monitoring_data={
                 "total_enrollments": 2000,
@@ -5667,7 +5667,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_monitoring_health_warnings_low_enrollment(self):
         experiment = NimbusExperimentFactory.create(
-            start_date=datetime.date.today()
+            _start_date=datetime.date.today()
             - datetime.timedelta(days=NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD),
             monitoring_data={
                 "total_enrollments": 0,
