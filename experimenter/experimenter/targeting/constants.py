@@ -4618,6 +4618,29 @@ WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_3_TRAINHOP = NimbusTargeti
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_1_TRAINHOP_MAX = (
+    NimbusTargetingConfig(
+        name=(
+            "New Tab up to Fx153 May-28 Trainhop (max), Lists/Timer Interaction, "
+            "Neither Widget Disabled"
+        ),
+        slug="widgets-lists-timer-interacted-not-disabled-153-0528-trainhop-max",
+        description=(
+            "Users on the New Tab 153.1.20260528.133333 train hop or older "
+            "(153.1 as the maximum version), who have interacted with the Lists or "
+            "Timer widget and have neither Lists nor Timer currently disabled"
+        ),
+        targeting=(
+            "newtabAddonVersion|versionCompare('153.1.20260528.133333') <= 0 "
+            f"&& ({WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED.targeting})"
+        ),
+        desktop_telemetry="",
+        sticky_required=False,
+        is_first_run_required=False,
+        application_choice_names=(Application.DESKTOP.name,),
+    )
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
