@@ -44,8 +44,10 @@ jobs:
 
       - name: Upload to PyPI
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
-        run: |
-          make schemas_deploy_pypi SCHEMAS_ENV="-e TWINE_USERNAME=${{ secrets.TWINE_USERNAME }} -e TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }}"
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: schemas/dist/
+          skip-existing: true
 
       - uses: actions/setup-node@v6
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
