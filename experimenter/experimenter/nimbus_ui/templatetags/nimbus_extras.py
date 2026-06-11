@@ -377,12 +377,6 @@ def sanitize_html(value):
     return mark_safe(nh3.clean(str(value)))
 
 
-@register.filter
-def funnel_row_bg(stage):
-    color = stage.get("color", "secondary")
-    pct = stage.get("pct", 0)
-    return f"background: linear-gradient(to left, rgba(var(--bs-{color}-rgb), 0.25) {pct:.1f}%, transparent 0%)"
-
 
 @register.filter
 def format_p_value(value):

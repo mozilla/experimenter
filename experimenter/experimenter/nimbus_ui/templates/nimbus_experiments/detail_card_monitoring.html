@@ -73,7 +73,8 @@
                     {% endif %}
                   </td>
                   <td class="text-end">{{ stage.client_count }}</td>
-                  <td class="text-end" style="{{ stage|funnel_row_bg }}">{{ stage.pct|floatformat:1 }}%</td>
+                  <td class="text-end"
+                      style="background: linear-gradient(to left, rgba(var(--bs-{{ stage.color }}-rgb), 0.25) {{ stage.pct|floatformat:1 }}%, transparent 0%)">{{ stage.pct|floatformat:1 }}%</td>
                 </tr>
               {% endfor %}
             </tbody>
