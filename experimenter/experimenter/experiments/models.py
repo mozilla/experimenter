@@ -1510,14 +1510,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             (datetime.date.today() - self.start_date).days if self.start_date else 0
         )
 
-        is_conflict, conflict_rate, _ = check_feature_conflict(
+        conflict = check_feature_conflict(
             self.monitoring_data, NimbusConstants.FEATURE_CONFLICT_THRESHOLD
         )
-        if is_conflict:
+        if conflict.is_conflict:
             warnings.append(
                 {
                     "type": "feature_conflict",
-                    "label": f"Feature Conflict {conflict_rate:.0%}",
+                    "label": f"Feature Conflict {conflict.rate:.0%}",
                 }
             )
 
