@@ -121,6 +121,15 @@ features:
         type: GeneralFeature
         default:
           status: true
+  google-lens-feature:
+    description: |
+      The feature flag to manage the rollout of Google Lens entry points.
+    variables:
+      enabled:
+        description: |
+          Enables Google Lens entry points.
+        type: Boolean
+        default: false
   hnt-sponsored-shortcuts-feature:
     description: This feature manages the visibility of sponsored shortcuts on the homepage
     variables:

@@ -123,6 +123,16 @@ general-app-features:
     report-site-issue:
       type: json
       description: This property defines whether or not the feature is enabled
+google-lens-feature:
+  description: |
+    The feature flag to manage the rollout of Google Lens entry points.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables Google Lens entry points.
 hnt-sponsored-shortcuts-feature:
   description: This feature manages the visibility of sponsored shortcuts on the homepage
   hasExposure: true
