@@ -377,6 +377,23 @@ def sanitize_html(value):
     return mark_safe(nh3.clean(str(value)))
 
 
+_FUNNEL_COLOR_HEX = {
+    "success":   "#19875440",
+    "secondary": "#6c757d40",
+    "warning":   "#ffc10740",
+    "danger":    "#dc354540",
+    "dark":      "#21252940",
+}
+
+
+@register.filter
+def funnel_row_bg(stage):
+    """Return an inline CSS background gradient for a funnel table row."""
+    color = _FUNNEL_COLOR_HEX.get(stage.get("color", "secondary"), "#6c757d40")
+    pct = stage.get("pct", 0)
+    return f"background: linear-gradient(to left, {color} {pct:.1f}%, transparent 0%)"
+
+
 @register.filter
 def format_p_value(value):
     try:

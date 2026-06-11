@@ -27,27 +27,88 @@
         This experiment has ended. Monitoring data reflects the last update before the experiment concluded.
       </div>
     {% endif %}
-    {# ── Enrollment Funnel ── #}
-    {% with funnel=experiment.enrollment_funnel_stages %}
+
+    {% with funnel=experiment.enrollment_funnel_stages summary=experiment.monitoring_summary %}
+
+      {# ── Summary Header: key numbers + all alerts in one place ── #}
+      <section>
+        <div class="row g-3 mb-3">
+          {% if funnel %}
+            <div class="col-auto">
+              <div class="border rounded px-3 py-2 text-center">
+                <div class="fs-5 fw-semibold">{{ funnel.total }}</div>
+                <div class="text-muted small">Evaluated</div>
+              </div>
+            </div>
+          {% endif %}
+          {% if summary %}
+            <div class="col-auto">
+              <div class="border rounded px-3 py-2 text-center">
+                <div class="fs-5 fw-semibold">{{ summary.total_enrollments }}</div>
+                <div class="text-muted small">Enrolled</div>
+              </div>
+            </div>
+            <div class="col-auto">
+              <div class="border rounded px-3 py-2 text-center {% if summary.is_unenrollment_spike %}border-warning bg-warning-subtle{% endif %}">
+                <div class="fs-5 fw-semibold">{{ summary.unenrollment_rate|floatformat:1 }}%</div>
+                <div class="text-muted small">Unenrollment Rate</div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+
+        {# Active alerts — all in one row #}
+        {% if summary %}
+          <div class="d-flex flex-wrap gap-2">
+            {% if summary.is_unenrollment_spike %}
+              <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Unenrollment Spike {{ summary.unenrollment_rate|floatformat:1 }}%
+              </span>
+            {% else %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-circle-check"></i>
+                Unenrollment Healthy
+              </span>
+            {% endif %}
+            {% if not experiment.is_rollout %}
+              {% if summary.is_srm %}
+                <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1"
+                      data-bs-toggle="tooltip"
+                      title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: < {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  SRM Mismatch
+                </span>
+              {% else %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1">
+                  <i class="fa-solid fa-circle-check"></i>
+                  Branch Ratio Healthy
+                </span>
+              {% endif %}
+            {% endif %}
+            {% if funnel %}
+              {% for stage in funnel.stages %}
+                {% if stage.reason == "FeatureConflict" and stage.pct >= 25 %}
+                  <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    Feature Conflict {{ stage.pct|floatformat:0 }}%
+                  </span>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </div>
+        {% endif %}
+      </section>
+
+      {# ── Enrollment Funnel: who got in and why ── #}
       {% if funnel %}
         <section>
           <h6 class="text-uppercase text-muted small fw-semibold mb-2 border-bottom pb-1">Enrollment Funnel</h6>
-          <div class="progress mb-3" style="height:22px" role="progressbar">
-            {% for stage in funnel.stages %}
-              <div class="progress-bar bg-{{ stage.color }} text-{{ stage.text_color }}"
-                   style="width:{{ stage.pct }}%"
-                   title="{{ stage.label }}: {{ stage.client_count }} ({{ stage.pct|floatformat:1 }}%)">
-                {% if stage.pct >= 5 %}
-                  {{ stage.pct|floatformat:0 }}%
-                {% endif %}
-              </div>
-            {% endfor %}
-          </div>
           <table class="table table-sm table-bordered mb-0">
             <thead class="table-light">
               <tr>
                 <th>Stage</th>
-                <th class="text-end">Clients (est.)</th>
+                <th class="text-end">Clients</th>
                 <th class="text-end">% of Evaluated</th>
               </tr>
             </thead>
@@ -55,18 +116,17 @@
               <tr class="table-secondary fw-semibold">
                 <td>Evaluated (total)</td>
                 <td class="text-end">{{ funnel.total }}</td>
-                <td class="text-end">100%</td>
+                <td class="text-end" style="background: linear-gradient(to left, #6c757d40 100%, transparent 0%)">100%</td>
               </tr>
               {% for stage in funnel.stages %}
                 <tr>
-                  <td>
+                  <td {% if stage.reason == "FeatureConflict" and stage.pct >= 25 %}class="fw-semibold"{% endif %}>
                     <span class="badge bg-{{ stage.color }} text-{{ stage.text_color }} me-1">{{ stage.status }}</span>
                     {{ stage.label }}
                     {% if stage.conflict_slugs %}
                       —
                       {% for slug in stage.conflict_slugs %}
-                        <a href="{% url 'nimbus-ui-detail' slug=slug %}">{{ slug }}</a>
-                        {% if not forloop.last %},{% endif %}
+                        <a href="{% url 'nimbus-ui-detail' slug=slug %}">{{ slug }}</a>{% if not forloop.last %},{% endif %}
                       {% endfor %}
                     {% endif %}
                     {% if stage.has_null_conflict %}
@@ -74,122 +134,66 @@
                     {% endif %}
                   </td>
                   <td class="text-end">{{ stage.client_count }}</td>
-                  <td class="text-end">{{ stage.pct|floatformat:1 }}%</td>
+                  <td class="text-end" style="{{ stage|funnel_row_bg }}">{{ stage.pct|floatformat:1 }}%</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         </section>
       {% endif %}
-    {% endwith %}
-    {# ── Unenrollment Health ── #}
-    {% with summary=experiment.monitoring_summary %}
-      <section>
-        <h6 class="text-uppercase text-muted small fw-semibold mb-2 border-bottom pb-1">Unenrollment Health</h6>
-        {% if summary.is_unenrollment_spike %}
-          <div class="alert alert-warning mb-2" role="alert">
-            ⚠️ <strong>Unenrollment rate {{ summary.unenrollment_rate|floatformat:1 }}%</strong>
-            &ge; {{ NimbusUIConstants.UNENROLLMENT_SPIKE_THRESHOLD_DISPLAY }} alert threshold.
-            <a href="{{ experiment.monitoring_dashboard_url }}"
-               target="_blank"
-               rel="noopener noreferrer">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
-          </div>
-        {% else %}
-          <div class="alert alert-success mb-2" role="alert">
-            ✅ <strong>Unenrollment rate {{ summary.unenrollment_rate|floatformat:1 }}%</strong>
-            — {{ NimbusUIConstants.MONITORING_UNENROLLMENT_HEALTHY_DETAIL }}
-            <a href="{{ experiment.monitoring_dashboard_url }}"
-               target="_blank"
-               rel="noopener noreferrer">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
-          </div>
-        {% endif %}
-        <table class="table table-sm table-bordered mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Branch</th>
-              <th class="text-end">Enrollments</th>
-              <th class="text-end">Unenrollments</th>
-              <th>Top Unenrollment Reason</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="table-secondary fw-semibold">
-              <td>Total</td>
-              <td class="text-end">{{ summary.total_enrollments }}</td>
-              <td class="text-end">{{ summary.total_unenrollments }}</td>
-              <td></td>
-            </tr>
-            {% for branch in summary.branches %}
-              <tr>
-                <td>{{ branch.name }}</td>
-                <td class="text-end">{{ branch.enrollments }}</td>
-                <td class="text-end">{{ branch.unenrollments }}</td>
-                <td>{{ branch.top_reason|default:"—" }}</td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="4" class="text-muted">No branch data available</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </section>
-      {# ── Sample Ratio Mismatch ── #}
-      {% if not experiment.is_rollout %}
+
+      {# ── Branch Health: enrollments + unenrollments + ratios in one table ── #}
+      {% if summary %}
         <section>
-          <h6 class="text-uppercase text-muted small fw-semibold mb-2 border-bottom pb-1">Sample Ratio Mismatch</h6>
-          {% if summary.is_srm %}
-            <div class="alert alert-warning mb-2" role="alert">
-              ⚠️ <strong>{{ NimbusUIConstants.MONITORING_SECTION_SRM }}</strong>
-              <i class="fa-regular fa-circle-question"
-                 tabindex="0"
-                 data-bs-toggle="tooltip"
-                 data-bs-placement="top"
-                 title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: &lt; {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
-                 style="cursor: help"></i>
-              — {{ NimbusUIConstants.MONITORING_SRM_SPIKE_DETAIL }}
-              <a href="{{ experiment.monitoring_dashboard_url }}"
-                 target="_blank"
-                 rel="noopener noreferrer">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
-            </div>
-          {% else %}
-            <div class="alert alert-success mb-2" role="alert">
-              ✅ <strong>{{ NimbusUIConstants.MONITORING_SECTION_SRM }}</strong>
-              <i class="fa-regular fa-circle-question"
-                 tabindex="0"
-                 data-bs-toggle="tooltip"
-                 data-bs-placement="top"
-                 title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: &lt; {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})"
-                 style="cursor: help"></i>
-              — {{ NimbusUIConstants.MONITORING_SRM_HEALTHY_DETAIL }}
-            </div>
-          {% endif %}
+          <h6 class="text-uppercase text-muted small fw-semibold mb-2 border-bottom pb-1">Branch Health</h6>
           <table class="table table-sm table-bordered mb-0">
             <thead class="table-light">
               <tr>
                 <th>Branch</th>
-                <th class="text-end">Enrollments</th>
-                <th class="text-end text-nowrap">Expected Ratio</th>
-                <th class="text-end text-nowrap">Actual Ratio</th>
+                <th class="text-end">Enrolled</th>
+                <th class="text-end">Unenrolled</th>
+                <th class="text-end">Top Unenroll Reason</th>
+                {% if not experiment.is_rollout %}
+                  <th class="text-end text-nowrap">Expected Ratio</th>
+                  <th class="text-end text-nowrap">Actual Ratio</th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
+              <tr class="table-secondary fw-semibold">
+                <td>Total</td>
+                <td class="text-end">{{ summary.total_enrollments }}</td>
+                <td class="text-end">{{ summary.total_unenrollments }}</td>
+                <td></td>
+                {% if not experiment.is_rollout %}<td></td><td></td>{% endif %}
+              </tr>
               {% for branch in summary.branches %}
-                <tr>
+                <tr {% if not experiment.is_rollout and summary.is_srm %}class="table-warning"{% endif %}>
                   <td>{{ branch.name }}</td>
                   <td class="text-end">{{ branch.enrollments }}</td>
-                  <td class="text-end">{{ branch.expected_ratio|floatformat:1 }}%</td>
-                  <td class="text-end">{{ branch.actual_ratio|floatformat:1 }}%</td>
+                  <td class="text-end">{{ branch.unenrollments }}</td>
+                  <td class="text-end">{{ branch.top_reason|default:"—" }}</td>
+                  {% if not experiment.is_rollout %}
+                    <td class="text-end">{{ branch.expected_ratio|floatformat:1 }}%</td>
+                    <td class="text-end">{{ branch.actual_ratio|floatformat:1 }}%</td>
+                  {% endif %}
                 </tr>
               {% empty %}
                 <tr>
-                  <td colspan="4" class="text-muted">No branch data available</td>
+                  <td colspan="6" class="text-muted">No branch data available</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
+          <div class="d-flex gap-3 mt-2">
+            <a href="{{ experiment.monitoring_dashboard_url }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="small">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
+          </div>
         </section>
       {% endif %}
+
     {% endwith %}
   </div>
 {% endblock %}
