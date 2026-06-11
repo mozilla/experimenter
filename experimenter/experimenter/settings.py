@@ -441,7 +441,7 @@ ROLLOUT_MONITORING_URL = (
 ROLLOUT_MONITORING_EXPIRATION_DAYS = 90
 FEATURE_MONITORING_URL = (
     "https://yardstick.mozilla.org/d/dtfz7xv/nimbus-feature-monitoring"
-    "?orgId=1&var-feature_slug={slug}&var-application={application}&var-metric=All"
+    "?orgId=1&var-feature_slug={slug}&var-application={application}&var-metrics=All"
 )
 GRAFANA_INTERNAL_URL = config(
     "GRAFANA_INTERNAL_URL",
