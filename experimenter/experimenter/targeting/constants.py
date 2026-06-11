@@ -2801,7 +2801,7 @@ LAPSED_USER_VPN_AVAILABLE = NimbusTargetingConfig(
         "userPrefs.cfrFeatures && "
         "userPrefs.cfrAddons && "
         "isFxAEnabled && "
-        "hasActiveEnterprisePolicies && "
+        "!hasActiveEnterprisePolicies && "
         "'browser.ipProtection.enabled'|preferenceValue && "
         "((userMonthlyActivity|length == 0) || "
         "(userMonthlyActivity|length == 1 && "
