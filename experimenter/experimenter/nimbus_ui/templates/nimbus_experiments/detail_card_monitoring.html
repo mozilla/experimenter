@@ -30,80 +30,20 @@
 
     {% with funnel=experiment.enrollment_funnel_stages summary=experiment.monitoring_summary %}
 
-      {# ── Summary Header: key numbers + all alerts in one place ── #}
-      <section>
-        <div class="row g-3 mb-3">
-          {% if funnel %}
-            <div class="col-auto">
-              <div class="border rounded px-3 py-2 text-center">
-                <div class="fs-5 fw-semibold">{{ funnel.total }}</div>
-                <div class="text-muted small">Evaluated</div>
-              </div>
-            </div>
-          {% endif %}
-          {% if summary %}
-            <div class="col-auto">
-              <div class="border rounded px-3 py-2 text-center">
-                <div class="fs-5 fw-semibold">{{ summary.total_enrollments }}</div>
-                <div class="text-muted small">Enrolled</div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="border rounded px-3 py-2 text-center {% if summary.is_unenrollment_spike %}border-warning bg-warning-subtle{% endif %}">
-                <div class="fs-5 fw-semibold">{{ summary.unenrollment_rate|floatformat:1 }}%</div>
-                <div class="text-muted small">Unenrollment Rate</div>
-              </div>
-            </div>
-          {% endif %}
-        </div>
-
-        {# Active alerts — all in one row #}
-        {% if summary %}
-          <div class="d-flex flex-wrap gap-2">
-            {% if summary.is_unenrollment_spike %}
-              <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                Unenrollment Spike {{ summary.unenrollment_rate|floatformat:1 }}%
-              </span>
-            {% else %}
-              <span class="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1">
-                <i class="fa-solid fa-circle-check"></i>
-                Unenrollment Healthy
-              </span>
-            {% endif %}
-            {% if not experiment.is_rollout %}
-              {% if summary.is_srm %}
-                <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1"
-                      data-bs-toggle="tooltip"
-                      title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: < {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})">
-                  <i class="fa-solid fa-triangle-exclamation"></i>
-                  SRM Mismatch
-                </span>
-              {% else %}
-                <span class="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1">
-                  <i class="fa-solid fa-circle-check"></i>
-                  Branch Ratio Healthy
-                </span>
-              {% endif %}
-            {% endif %}
-            {% if funnel %}
-              {% for stage in funnel.stages %}
-                {% if stage.reason == "FeatureConflict" and stage.pct >= 25 %}
-                  <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    Feature Conflict {{ stage.pct|floatformat:0 }}%
-                  </span>
-                {% endif %}
-              {% endfor %}
-            {% endif %}
-          </div>
-        {% endif %}
-      </section>
-
-      {# ── Enrollment Funnel: who got in and why ── #}
+      {# ── Enrollment Funnel ── #}
       {% if funnel %}
         <section>
-          <h6 class="text-uppercase text-muted small fw-semibold mb-2 border-bottom pb-1">Enrollment Funnel</h6>
+          <div class="d-flex align-items-center gap-2 border-bottom pb-1 mb-2">
+            <h6 class="text-uppercase text-muted small fw-semibold mb-0">Enrollment Funnel</h6>
+            {% for stage in funnel.stages %}
+              {% if stage.reason == "FeatureConflict" and stage.pct >= 25 %}
+                <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  Feature Conflict {{ stage.pct|floatformat:0 }}%
+                </span>
+              {% endif %}
+            {% endfor %}
+          </div>
           <table class="table table-sm table-bordered mb-0">
             <thead class="table-light">
               <tr>
@@ -142,10 +82,38 @@
         </section>
       {% endif %}
 
-      {# ── Branch Health: enrollments + unenrollments + ratios in one table ── #}
+      {# ── Branch Health ── #}
       {% if summary %}
         <section>
-          <h6 class="text-uppercase text-muted small fw-semibold mb-2 border-bottom pb-1">Branch Health</h6>
+          <div class="d-flex align-items-center gap-2 border-bottom pb-1 mb-2">
+            <h6 class="text-uppercase text-muted small fw-semibold mb-0">Branch Health</h6>
+            {% if summary.is_unenrollment_spike %}
+              <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Unenrollment Spike {{ summary.unenrollment_rate|floatformat:1 }}%
+              </span>
+            {% else %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-circle-check"></i>
+                Unenrollment {{ summary.unenrollment_rate|floatformat:1 }}%
+              </span>
+            {% endif %}
+            {% if not experiment.is_rollout %}
+              {% if summary.is_srm %}
+                <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1"
+                      data-bs-toggle="tooltip"
+                      title="p-value {{ summary.srm_p_value|format_p_value }} (threshold: < {{ NimbusUIConstants.SRM_P_VALUE_THRESHOLD_DISPLAY }})">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  SRM Mismatch
+                </span>
+              {% else %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1">
+                  <i class="fa-solid fa-circle-check"></i>
+                  Branch Ratio Healthy
+                </span>
+              {% endif %}
+            {% endif %}
+          </div>
           <table class="table table-sm table-bordered mb-0">
             <thead class="table-light">
               <tr>
