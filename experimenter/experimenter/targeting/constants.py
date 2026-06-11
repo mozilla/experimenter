@@ -2788,6 +2788,39 @@ LAPSED_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+LAPSED_USER_VPN_AVAILABLE = NimbusTargetingConfig(
+    name="Lapsed users who have access to the VPN feature",
+    slug="lapsed_user_vpn_available",
+    description=(
+        "Users with a profile age of 28 days and 0 days of activity in the past 28 days, "
+        "with CFRs enabled, with FxA enabled, without enterprise policies, "
+        "with the VPN feature available"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && "
+        "userPrefs.cfrFeatures && "
+        "userPrefs.cfrAddons && "
+        "isFxAEnabled && "
+        "hasActiveEnterprisePolicies && "
+        "'browser.ipProtection.enabled'|preferenceValue && "
+        "((userMonthlyActivity|length == 0) || "
+        "(userMonthlyActivity|length == 1 && "
+        "(currentDate|date - userMonthlyActivity|mapToProperty('1')"
+        "[userMonthlyActivity|mapToProperty('1')|length - 1]|date < 86400000)) || "
+        "(userMonthlyActivity|mapToProperty('1')[userMonthlyActivity|length - 1]|date "
+        "<= currentDate|date - (86400000 * 28)) || "
+        "(((userMonthlyActivity|length > 1) && "
+        "(currentDate|date - userMonthlyActivity|mapToProperty('1')"
+        "[userMonthlyActivity|mapToProperty('1')|length - 1]|date < 86400000) && "
+        "(userMonthlyActivity|mapToProperty('1')[userMonthlyActivity|length - 2]|date "
+        "<= currentDate|date - (86400000 * 28)))))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION = NimbusTargetingConfig(
     name="Returning users who have lapsed a second time",
     slug="returning_churned_user_48_hr",
@@ -2802,6 +2835,28 @@ RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION = NimbusTargetingConfig(
         "&& (defaultProfile.enrollmentsMap"
         "['48hr-os-notification-for-resurrected-users-enrollment-rollout-v2'] "
         "== 'control') "
+        "&& ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 48)"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION_PRIVACY_CAMPAIGN = NimbusTargetingConfig(
+    name="Returning users, enrolled in the World Cup privacy campaign",
+    slug="returning_churned_user_48_hr_privacy_campaign",
+    description=(
+        "Users lapsed for 48 hours after returning to the browser after 28 days, "
+        "enrolled in the World Cup privacy campaign, "
+        "running a background task"
+    ),
+    targeting=(
+        "(os.isWindows && (os.windowsVersion >= 10)) "
+        "&& isBackgroundTaskMode "
+        "&& (defaultProfile.enrollmentsMap"
+        "['world-cup-start-of-tournament-privacy-campaign'] "
+        "== 'treatment-a') "
         "&& ((currentDate|date - defaultProfile.currentDate|date) / 3600000 >= 48)"
     ),
     desktop_telemetry="",
