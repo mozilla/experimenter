@@ -1507,7 +1507,30 @@ description = "Is the client signed in at any point during the experiment"
 select_expression = "COALESCE(SUM(pings_aggregated_by_this_row), 0) > 0"
 data_source = "clients_daily"
 friendly_name = "Retained"
-description = "Records whether a client submitted any pings (i.e. used Firefox)."
+description = """
+    Records whether a client submitted any pings (i.e. used Firefox).
+
+    Note: As of June 2026, this metric is being deprecated in favor of "Retained (DAU)", which better matches the conventional 
+    definition of Retention based on "active" instead of "seen" now recommended by Data Science team and used for reporting in
+    other contexts. 
+"""
+deprecated = true
+
+[metrics.retained_dau]
+# As of May 2026, Desktop DAU is still primarily measured with regard to Legacy telemetry. 
+# Once DAU tracking is transitioned to Glean, this metric should also be updated to use the Glean data source:
+# "firefox_desktop_baseline_active_users_view"
+data_source = "firefox_desktop_active_users_view"
+select_expression = "COALESCE(LOGICAL_OR(is_dau), FALSE)"
+friendly_name = "Retained (DAU)"
+description = """
+    Whether the client had at least one DAU-qualifying day in the analysis window (is_dau = TRUE on any day).
+
+    Conventionally expressed as a percentage rate: The percentage of clients from the originating cohort that were then active in the later period. 
+    
+    Most typically, this is measured as Week 2 Retention in order to balance timeliness and accuracy. 
+    But when time permits, Data Science recommends using Week 4 Retention as more representative of long-term effects.
+"""
 
 [metrics.active_in_last_3_days]
 select_expression = "COALESCE(MIN(days_since_desktop_active), 30) < 3"
