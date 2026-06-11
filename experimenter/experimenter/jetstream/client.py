@@ -5,10 +5,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from experimenter.experiments.models import NimbusExperiment
+from typing import Any
 
 import tomllib
 from django.conf import settings
@@ -33,6 +30,7 @@ from experimenter.jetstream.models import (
     Statistic,
     create_results_object_model,
 )
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.outcomes import Metric as OutcomeMetric
 from experimenter.outcomes import Outcomes
 
