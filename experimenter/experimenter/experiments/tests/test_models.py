@@ -47,7 +47,6 @@ from experimenter.experiments.models import (
     NimbusVersionedSchema,
     Tag,
 )
-from experimenter.jetstream.client import get_featmon_slugs
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
@@ -61,6 +60,7 @@ from experimenter.experiments.tests.factories import (
 from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
+from experimenter.jetstream.client import get_featmon_slugs
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory

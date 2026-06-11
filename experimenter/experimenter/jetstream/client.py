@@ -469,3 +469,5 @@ def get_featmon_slugs():
         )
     except (FileNotFoundError, OSError, tomllib.TOMLDecodeError):
         return frozenset()
+
+
