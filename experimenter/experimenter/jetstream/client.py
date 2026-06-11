@@ -5,7 +5,10 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from itertools import chain
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from experimenter.experiments.models import NimbusExperiment
 
 import tomllib
 from django.conf import settings
@@ -214,7 +217,7 @@ def get_other_metrics_names_and_map(
     return other_metrics_map, other_metrics_names
 
 
-def get_experiment_data(experiment: "NimbusExperiment"):
+def get_experiment_data(experiment: NimbusExperiment):
     recipe_slug = experiment.slug.replace("-", "_")
     windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
     raw_data = {
