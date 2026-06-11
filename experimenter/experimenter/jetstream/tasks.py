@@ -55,7 +55,6 @@ def fetch_experiment_data(experiment_id, results_data_last_updated=None):
 
         if old_results_data != new_results_data:
             experiment.results_data = new_results_data
-            experiment.save()
 
             old_normalized = strip_errors(old_results_data)
             new_normalized = strip_errors(new_results_data)
@@ -92,6 +91,7 @@ def fetch_experiment_data(experiment_id, results_data_last_updated=None):
 def fetch_jetstream_data():
     metrics.incr("fetch_jetstream_data.started")
     try:
+        results_filenames = get_results_filenames()
         for experiment in NimbusExperiment.objects.filter(
             status__in=[NimbusExperiment.Status.COMPLETE, NimbusExperiment.Status.LIVE]
         ):
@@ -115,7 +115,7 @@ def fetch_jetstream_data():
                 logger.info(
                     f"Fetching Jetstream data for {experiment.name} ({experiment.slug})"
                 )
-                fetch_experiment_data.delay(experiment.id)
+                fetch_experiment_data.delay(experiment.id, latest_results_timestamp)
                 metrics.incr("fetch_jetstream_data.completed")
             else:
                 logger.info(
