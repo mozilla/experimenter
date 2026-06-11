@@ -20,7 +20,6 @@ from mozilla_nimbus_schemas.jetstream import (
     Statistics,
 )
 
-from experimenter.experiments.models import NimbusExperiment
 from experimenter.jetstream.models import (
     METRIC_GROUP,
     AnalysisWindow,
@@ -215,7 +214,7 @@ def get_other_metrics_names_and_map(
     return other_metrics_map, other_metrics_names
 
 
-def get_experiment_data(experiment: NimbusExperiment):
+def get_experiment_data(experiment):
     recipe_slug = experiment.slug.replace("-", "_")
     windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
     raw_data = {
