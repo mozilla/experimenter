@@ -20,6 +20,7 @@ from mozilla_nimbus_schemas.jetstream import (
     Statistics,
 )
 
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.jetstream.models import (
     METRIC_GROUP,
     AnalysisWindow,
@@ -30,7 +31,6 @@ from experimenter.jetstream.models import (
     Statistic,
     create_results_object_model,
 )
-from experimenter.experiments.models import NimbusExperiment
 from experimenter.outcomes import Metric as OutcomeMetric
 from experimenter.outcomes import Outcomes
 
