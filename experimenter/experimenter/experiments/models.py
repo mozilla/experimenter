@@ -1527,10 +1527,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD,
             NimbusConstants.ZERO_ENROLLMENT_CLIENT_THRESHOLD,
         ):
+            total = self.monitoring_data.get("total_enrollments", 0)
             warnings.append(
                 {
                     "type": "low_enrollment",
-                    "label": f"Low Enrollment ({self.monitoring_data.get('total_enrollments', 0):,})",
+                    "label": f"Low Enrollment ({total:,})",
                 }
             )
 
