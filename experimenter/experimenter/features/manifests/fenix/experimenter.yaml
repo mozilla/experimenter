@@ -978,6 +978,17 @@ third-party-cookie-blocking:
       type: boolean
       description: |
         Enables / disables third-party cookie blocking in private browsing mode.
+tracking-protection-experimentation:
+  description: Experimental controls for tracking protection behavior
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    defer-annotation-enabled:
+      type: boolean
+      description: Whether to defer tracking protection classification annotation until the data is being handled
+      setPref:
+        pref: privacy.trackingprotection.defer_annotation.enabled
+        branch: default
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
