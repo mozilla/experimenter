@@ -1496,6 +1496,48 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return {"total": total, "stages": stages}
 
     @property
+    def monitoring_health_warnings(self):
+        """Returns a list of active health warnings for display in the features page."""
+        warnings = []
+        if not self.monitoring_data:
+            return warnings
+
+        from experimenter.experiments.monitoring_utils import (
+            check_feature_conflict,
+            check_zero_enrollment,
+        )
+
+        days_live = (
+            (datetime.date.today() - self.start_date).days if self.start_date else 0
+        )
+
+        is_conflict, conflict_rate, _ = check_feature_conflict(
+            self.monitoring_data, NimbusConstants.FEATURE_CONFLICT_THRESHOLD
+        )
+        if is_conflict:
+            warnings.append(
+                {
+                    "type": "feature_conflict",
+                    "label": f"Feature Conflict {conflict_rate:.0%}",
+                }
+            )
+
+        if check_zero_enrollment(
+            self.monitoring_data,
+            days_live,
+            NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD,
+            NimbusConstants.ZERO_ENROLLMENT_CLIENT_THRESHOLD,
+        ):
+            warnings.append(
+                {
+                    "type": "low_enrollment",
+                    "label": f"Low Enrollment ({self.monitoring_data.get('total_enrollments', 0):,})",
+                }
+            )
+
+        return warnings
+
+    @property
     def monitoring_summary(self):
         if not self.monitoring_data:
             return None
