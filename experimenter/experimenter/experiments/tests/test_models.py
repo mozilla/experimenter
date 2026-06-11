@@ -46,8 +46,8 @@ from experimenter.experiments.models import (
     NimbusIsolationGroup,
     NimbusVersionedSchema,
     Tag,
-    _get_featmon_slugs,
 )
+from experimenter.jetstream.client import get_featmon_slugs
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
@@ -6214,11 +6214,11 @@ class NimbusFeatureConfigTests(TestCase):
 
     def setUp(self):
         super().setUp()
-        _get_featmon_slugs.cache_clear()
+        get_featmon_slugs.cache_clear()
 
     def tearDown(self):
         super().tearDown()
-        _get_featmon_slugs.cache_clear()
+        get_featmon_slugs.cache_clear()
 
     def test_has_metric_hub_monitoring_true_when_slug_in_toml(self):
         toml = '[features.my_feature]\nslug = "my-feature"\n'

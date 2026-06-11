@@ -1,8 +1,6 @@
 import copy
 import datetime
-import functools
 import json
-import re
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -2850,7 +2848,9 @@ class NimbusFeatureConfig(models.Model):
 
     @property
     def has_metric_hub_monitoring(self):
-        return self.slug in _get_featmon_slugs()
+        from experimenter.jetstream.client import get_featmon_slugs
+
+        return self.slug in get_featmon_slugs()
 
     def schemas_between_versions(
         self,
@@ -2974,21 +2974,6 @@ class NimbusFeatureConfig(models.Model):
             unsupported_in_range=False,
             unsupported_versions=unsupported_versions,
         )
-
-
-@functools.lru_cache(maxsize=1)
-def _get_featmon_slugs():
-    path = settings.METRIC_HUB_FEATMON_DESKTOP_PATH
-    try:
-        content = Path(path).read_text()
-        slugs = set()
-        for match in re.finditer(r"\[features\.([^.\]]+)\][^\[]*", content, re.DOTALL):
-            key = match.group(1)
-            slug_match = re.search(r'slug\s*=\s*"([^"]+)"', match.group(0))
-            slugs.add(slug_match.group(1) if slug_match else key.replace("_", "-"))
-        return frozenset(slugs)
-    except (FileNotFoundError, OSError):
-        return frozenset()
 
 
 class NimbusFeatureVersionManager(models.Manager["NimbusFeatureVersion"]):
