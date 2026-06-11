@@ -30,7 +30,6 @@
 
     {% with funnel=experiment.enrollment_funnel_stages summary=experiment.monitoring_summary %}
 
-      {# ── Enrollment Funnel ── #}
       {% if funnel %}
         <section>
           <div class="d-flex align-items-center gap-2 border-bottom pb-1 mb-2">
@@ -56,7 +55,7 @@
               <tr class="table-secondary fw-semibold">
                 <td>Evaluated (total)</td>
                 <td class="text-end">{{ funnel.total }}</td>
-                <td class="text-end" style="background: linear-gradient(to left, #6c757d40 100%, transparent 0%)">100%</td>
+                <td class="text-end" style="background: linear-gradient(to left, rgba(var(--bs-secondary-rgb), 0.25) 100%, transparent 0%)">100%</td>
               </tr>
               {% for stage in funnel.stages %}
                 <tr>
@@ -82,7 +81,6 @@
         </section>
       {% endif %}
 
-      {# ── Branch Health ── #}
       {% if summary %}
         <section>
           <div class="d-flex align-items-center gap-2 border-bottom pb-1 mb-2">
