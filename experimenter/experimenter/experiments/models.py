@@ -350,6 +350,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     results_data = models.JSONField[dict[str, Any]](
         "Results Data", encoder=DjangoJSONEncoder, blank=True, null=True
     )
+    results_data_last_updated = models.DateTimeField(
+        "Results Data Last Updated",
+        blank=True,
+        null=True,
+    )
     monitoring_data = models.JSONField[dict[str, Any]](
         "Monitoring Data",
         encoder=DjangoJSONEncoder,
