@@ -357,7 +357,7 @@ def get_experiment_data(experiment: NimbusExperiment):
             )
 
             if segment == Segment.ALL:
-                experiment_data["other_metrics"] = other_metrics
+                experiment_data["other_metrics"].update(other_metrics)
 
             if data and window == AnalysisWindow.OVERALL:
                 # Append some values onto Jetstream data
