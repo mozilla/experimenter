@@ -5643,17 +5643,17 @@ class TestNimbusExperiment(TestCase):
                 "total_enrollments": 2000,
                 "enrollment_funnel": [
                     {
-                        "status": "NotEnrolled",
-                        "reason": "FeatureConflict",
-                        "app_name": "firefox_desktop",
+                        "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+                        "reason": NimbusExperiment.FunnelReason.FEATURE_CONFLICT,
+                        "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
                         "branch": "control",
                         "conflict_slug": "other-slug",
                         "client_count": 8000,
                     },
                     {
-                        "status": "Enrolled",
-                        "reason": "Qualified",
-                        "app_name": "firefox_desktop",
+                        "status": NimbusExperiment.FunnelStatus.ENROLLED,
+                        "reason": NimbusExperiment.FunnelReason.QUALIFIED,
+                        "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
                         "branch": "control",
                         "conflict_slug": None,
                         "client_count": 2000,
