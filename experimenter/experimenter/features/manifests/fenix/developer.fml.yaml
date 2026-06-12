@@ -367,6 +367,10 @@ features:
         description: If true, IP Protection feature is enabled.
         type: Boolean
         default: false
+      promo-deadline:
+        description: The final date for the promotion to end. This needs to be an ISO 8601 formatted date (i.e. YYYY-MM-DD).
+        type: String
+        default: 2026-08-31
       show-beta-badge:
         description: If true, a BETA badge is shown next to the IP Protection entry in the settings list.
         type: Boolean
@@ -1253,6 +1257,16 @@ features:
           Enables / disables third-party cookie blocking in private browsing mode.
         type: Boolean
         default: true
+  tracking-protection-experimentation:
+    description: Experimental controls for tracking protection behavior
+    variables:
+      defer-annotation-enabled:
+        description: Whether to defer tracking protection classification annotation until the data is being handled
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: privacy.trackingprotection.defer_annotation.enabled
+          branch: default
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
