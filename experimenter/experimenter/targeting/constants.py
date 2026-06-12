@@ -4560,6 +4560,20 @@ FX_153_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_153_TRAINHOP_MAX = NimbusTargetingConfig(
+    name="New Tab up to Fx153 May-28 Trainhop (max)",
+    slug="newtab-153-0528-trainhop-max",
+    description=(
+        "Desktop users on the New Tab 153.1.20260528.133333 train hop or older "
+        "(153.1 as the maximum version)"
+    ),
+    targeting="newtabAddonVersion|versionCompare('153.1.20260528.133333') <= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FX_153_3_TRAINHOP = NimbusTargetingConfig(
     name="New Tab Fx153 Jun-05 Trainhop",
     slug="newtab-153-0605-trainhop",
