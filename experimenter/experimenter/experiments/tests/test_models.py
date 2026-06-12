@@ -5635,6 +5635,49 @@ class TestNimbusExperiment(TestCase):
         branch = summary["branches"][0]
         self.assertEqual(branch["top_reason"], "targeting_mismatch")
 
+    def test_monitoring_health_warnings_feature_conflict(self):
+        experiment = NimbusExperimentFactory.create(
+            _start_date=datetime.date.today()
+            - datetime.timedelta(days=NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD),
+            monitoring_data={
+                "total_enrollments": 2000,
+                "enrollment_funnel": [
+                    {
+                        "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+                        "reason": NimbusExperiment.FunnelReason.FEATURE_CONFLICT,
+                        "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
+                        "branch": "control",
+                        "conflict_slug": "other-slug",
+                        "client_count": 8000,
+                    },
+                    {
+                        "status": NimbusExperiment.FunnelStatus.ENROLLED,
+                        "reason": NimbusExperiment.FunnelReason.QUALIFIED,
+                        "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
+                        "branch": "control",
+                        "conflict_slug": None,
+                        "client_count": 2000,
+                    },
+                ],
+            },
+        )
+        warnings = experiment.monitoring_health_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0]["type"], "feature_conflict")
+
+    def test_monitoring_health_warnings_low_enrollment(self):
+        experiment = NimbusExperimentFactory.create(
+            _start_date=datetime.date.today()
+            - datetime.timedelta(days=NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD),
+            monitoring_data={
+                "total_enrollments": 0,
+                "enrollment_funnel": [],
+            },
+        )
+        warnings = experiment.monitoring_health_warnings
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0]["type"], "low_enrollment")
+
     def test_enrollment_funnel_stages_returns_none_when_no_monitoring_data(self):
         experiment = NimbusExperimentFactory.create(monitoring_data=None)
         self.assertIsNone(experiment.enrollment_funnel_stages)
