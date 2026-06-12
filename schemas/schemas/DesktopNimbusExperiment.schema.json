@@ -71,7 +71,7 @@
           "type": "null"
         }
       ],
-      "description": "The description shown in Firefox Labs (Fluent ID)"
+      "description": "The description shown in Firefox Labs (Fluent ID or Resource ID)"
     },
     "firefoxLabsDescriptionLinks": {
       "anyOf": [
@@ -110,7 +110,7 @@
           "type": "null"
         }
       ],
-      "description": "The title shown in Firefox Labs (Fluent ID)"
+      "description": "The title shown in Firefox Labs (Fluent ID or Resource ID)"
     },
     "id": {
       "description": "Unique identifier for the experiiment. This is a duplicate of slug, but is required field for all Remote Settings records.",
@@ -121,7 +121,7 @@
       "type": "boolean"
     },
     "isFirefoxLabsOptIn": {
-      "description": "When this property is set to true, treat this experiment as aFirefox Labs experiment",
+      "description": "When this property is set to true, treat this experiment as a Firefox Labs experiment",
       "type": "boolean"
     },
     "isRollout": {
@@ -274,7 +274,6 @@
         },
         "required": [
           "firefoxLabsDescription",
-          "firefoxLabsDescriptionLinks",
           "firefoxLabsGroup",
           "firefoxLabsTitle"
         ],
