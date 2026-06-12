@@ -1,3 +1,4 @@
+import functools
 import json
 import logging
 from collections import defaultdict
@@ -6,6 +7,8 @@ from itertools import chain
 from pathlib import Path
 from typing import Any
 
+import tomllib
+from django.conf import settings
 from django.core.files.storage import storages
 from django.utils import timezone
 from mozilla_nimbus_schemas.jetstream import (
@@ -454,3 +457,16 @@ def get_population_sizing_data():
     sizing_data = get_sizing_data(suffix="latest")
     sizing = SampleSizes.model_validate(sizing_data) if sizing_data is not None else {}
     return {"v1": sizing}
+
+
+@functools.lru_cache(maxsize=1)
+def get_featmon_slugs():
+    path = settings.METRIC_HUB_FEATMON_DESKTOP_PATH
+    try:
+        data = tomllib.loads(Path(path).read_text())
+        return frozenset(
+            feature.get("slug", key.replace("_", "-"))
+            for key, feature in data.get("features", {}).items()
+        )
+    except (FileNotFoundError, OSError, tomllib.TOMLDecodeError):
+        return frozenset()

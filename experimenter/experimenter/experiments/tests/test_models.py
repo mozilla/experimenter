@@ -60,6 +60,7 @@ from experimenter.experiments.tests.factories import (
 from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
+from experimenter.jetstream.client import get_featmon_slugs
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
@@ -6210,6 +6211,37 @@ class NimbusFeatureConfigTests(TestCase):
                 slug="my-feature", application="firefox_desktop"
             ),
         )
+
+    def setUp(self):
+        super().setUp()
+        get_featmon_slugs.cache_clear()
+
+    def tearDown(self):
+        super().tearDown()
+        get_featmon_slugs.cache_clear()
+
+    def test_has_metric_hub_monitoring_true_when_slug_in_toml(self):
+        toml = '[features.my_feature]\nslug = "my-feature"\n'
+        feature = NimbusFeatureConfigFactory.create(slug="my-feature")
+        with mock.patch("pathlib.Path.read_text", return_value=toml):
+            self.assertTrue(feature.has_metric_hub_monitoring)
+
+    def test_has_metric_hub_monitoring_false_when_slug_not_in_toml(self):
+        toml = '[features.other_feature]\nslug = "other-feature"\n'
+        feature = NimbusFeatureConfigFactory.create(slug="my-feature")
+        with mock.patch("pathlib.Path.read_text", return_value=toml):
+            self.assertFalse(feature.has_metric_hub_monitoring)
+
+    def test_has_metric_hub_monitoring_false_when_file_not_found(self):
+        feature = NimbusFeatureConfigFactory.create(slug="my-feature")
+        with mock.patch("pathlib.Path.read_text", side_effect=FileNotFoundError):
+            self.assertFalse(feature.has_metric_hub_monitoring)
+
+    def test_has_metric_hub_monitoring_uses_key_as_slug_when_no_slug_field(self):
+        toml = "[features.my_feature]\n"
+        feature = NimbusFeatureConfigFactory.create(slug="my-feature")
+        with mock.patch("pathlib.Path.read_text", return_value=toml):
+            self.assertTrue(feature.has_metric_hub_monitoring)
 
     def test_schemas_between_versions(self):
         feature = NimbusFeatureConfigFactory.create()
