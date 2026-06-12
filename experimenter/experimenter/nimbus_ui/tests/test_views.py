@@ -5878,7 +5878,9 @@ class TestNewOverviewUpdateView(AuthTestCase):
             reverse(self.url_name, kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertTemplateUsed(
+            response, "nimbus_experiments/new_designs/rollouts/overview/edit_form.html"
+        )
 
     @parameterized.expand(
         [
@@ -5945,7 +5947,9 @@ class TestNewOverviewUpdateView(AuthTestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/overview/card.html")
+        self.assertTemplateUsed(
+            response, "nimbus_experiments/new_designs/rollouts/overview/card.html"
+        )
         experiment.refresh_from_db()
         self.assertEqual(experiment.name, "updated name")
         self.assertEqual(experiment.hypothesis, "updated hypothesis")
@@ -5964,7 +5968,9 @@ class TestNewOverviewUpdateView(AuthTestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertTemplateUsed(
+            response, "nimbus_experiments/new_designs/rollouts/overview/edit_form.html"
+        )
         self.assertTrue(response.context["form"].errors)
 
 
@@ -5991,7 +5997,9 @@ class TestNewDocumentationLinkCreateView(AuthTestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertTemplateUsed(
+            response, "nimbus_experiments/new_designs/rollouts/overview/edit_form.html"
+        )
         self.assertEqual(experiment.documentation_links.count(), 1)
 
 
@@ -6025,7 +6033,9 @@ class TestNewDocumentationLinkDeleteView(AuthTestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertTemplateUsed(
+            response, "nimbus_experiments/new_designs/rollouts/overview/edit_form.html"
+        )
         self.assertEqual(experiment.documentation_links.count(), 0)
 
 
