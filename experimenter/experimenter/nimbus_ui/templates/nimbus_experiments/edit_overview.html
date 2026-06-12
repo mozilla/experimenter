@@ -77,8 +77,12 @@
             </div>
             <div class="col-2 text-end">
               {{ form.risk_ai|add_error_class:"is-invalid" }}
-              {% for error in form.risk_ai.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in validation_errors.risk_ai %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              {% for error in form.risk_ai.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+              {% for error in validation_errors.risk_ai %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
             </div>
           </div>
           <div class="row mb-3">
@@ -91,8 +95,12 @@
             </div>
             <div class="col-2 text-end">
               {{ form.risk_brand|add_error_class:"is-invalid" }}
-              {% for error in form.risk_brand.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in validation_errors.risk_brand %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              {% for error in form.risk_brand.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+              {% for error in validation_errors.risk_brand %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
             </div>
           </div>
           <div class="row mb-3">
@@ -105,8 +113,12 @@
             </div>
             <div class="col-2 text-end">
               {{ form.risk_revenue|add_error_class:"is-invalid" }}
-              {% for error in form.risk_revenue.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in validation_errors.risk_revenue %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              {% for error in form.risk_revenue.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+              {% for error in validation_errors.risk_revenue %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
             </div>
           </div>
           <div class="row mb-3">
@@ -119,7 +131,9 @@
             </div>
             <div class="col-2 text-end">
               {{ form.risk_partner_related|add_error_class:"is-invalid" }}
-              {% for error in form.risk_partner_related.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              {% for error in form.risk_partner_related.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
               {% for error in validation_errors.risk_partner_related %}
                 <div class="form-text text-danger">{{ error }}</div>
               {% endfor %}
@@ -135,8 +149,12 @@
             </div>
             <div class="col-2 text-end">
               {{ form.risk_message|add_error_class:"is-invalid" }}
-              {% for error in form.risk_message.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in validation_errors.risk_message %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              {% for error in form.risk_message.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+              {% for error in validation_errors.risk_message %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
             </div>
           </div>
           <div class="row mb-2">
@@ -158,12 +176,16 @@
                 <div class="row mb-3">
                   <div class="col-4">
                     {{ link_form.title|add_class:"form-control"|add_error_class:"is-invalid" }}
-                    {% for error in link_form.title.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    {% for error in link_form.title.errors %}
+                      <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
                   </div>
                   <div class="col-8 d-flex align-items-start">
                     <div class="flex-grow-1 me-2">
                       {{ link_form.link|add_class:"form-control"|add_error_class:"is-invalid" }}
-                      {% for error in link_form.link.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                      {% for error in link_form.link.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                      {% endfor %}
                     </div>
                     <button type="button"
                             class="btn btn-link ms-3 px-0"

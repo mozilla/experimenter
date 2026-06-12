@@ -54,7 +54,9 @@
             <div class="col-4">
               <label for="id_firefox_max_version" class="form-label">Max Version</label>
               {{ form.firefox_max_version|add_class:"form-control"|add_error_class:"is-invalid" }}
-              {% for error in form.firefox_max_version.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              {% for error in form.firefox_max_version.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
               {% for error in validation_errors.firefox_max_version %}
                 <div class="form-text text-danger">{{ error }}</div>
               {% endfor %}
@@ -69,8 +71,12 @@
                   {{ form.exclude_locales|add_error_class:"is-invalid" }}
                   Exclude selected locales
                 </label>
-                {% for error in form.locales.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-                {% for error in validation_errors.locales %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                {% for error in form.locales.errors %}
+                  <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                {% for error in validation_errors.locales %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
               {% else %}
                 <label for="id_languages" class="form-label">Languages</label>
                 {{ form.languages|add_class:"form-control"|add_error_class:"is-invalid" }}
@@ -78,8 +84,12 @@
                   {{ form.exclude_languages|add_error_class:"is-invalid" }}
                   Exclude selected languages
                 </label>
-                {% for error in form.languages.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-                {% for error in validation_errors.languages %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                {% for error in form.languages.errors %}
+                  <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                {% for error in validation_errors.languages %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
               {% endif %}
             </div>
             <div data-testid="countries" class="col-6">
@@ -89,8 +99,12 @@
                 {{ form.exclude_countries|add_error_class:"is-invalid" }}
                 Exclude selected countries
               </label>
-              {% for error in form.countries.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in validation_errors.countries %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              {% for error in form.countries.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+              {% for error in validation_errors.countries %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
             </div>
           </div>
           <div class="row mb-3">
@@ -113,7 +127,9 @@
                    style="font-size: 0.9em">(guidance)</a>
               </label>
               {{ form.targeting_config_slug|add_class:"form-control"|add_error_class:"is-invalid" }}
-              {% for error in form.targeting_config_slug.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              {% for error in form.targeting_config_slug.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
               {% for error in validation_errors.targeting_config_slug %}
                 <div class="form-text text-danger">{{ error }}</div>
               {% endfor %}
@@ -153,8 +169,12 @@
               <label for="id_is_sticky">Sticky Targeting (Clients remain enrolled even if they no longer meet the targeting)</label>
               <a target="_blank"
                  href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.sticky_targeting_url }}">Learn more</a>
-              {% for error in form.is_sticky.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in validation_errors.is_sticky %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              {% for error in form.is_sticky.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+              {% for error in validation_errors.is_sticky %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
             </div>
           </div>
           {% if experiment.is_mobile %}
@@ -163,8 +183,12 @@
                 <div class="col">
                   {{ form.is_first_run|add_error_class:"is-invalid" }}
                   <label for="id_is_first_run">First run experiment</label>
-                  {% for error in form.is_first_run.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-                  {% for error in validation_errors.is_first_run %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                  {% for error in form.is_first_run.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                  {% endfor %}
+                  {% for error in validation_errors.is_first_run %}
+                    <div class="form-text text-danger">{{ error }}</div>
+                  {% endfor %}
                 </div>
               </div>
               <div class="row mb-4">
@@ -183,7 +207,9 @@
                   {% else %}
                     {{ form.proposed_release_date|add_error_class:"is-invalid"|attr:"disabled:disabled" }}
                   {% endif %}
-                  {% for error in form.proposed_release_date.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                  {% for error in form.proposed_release_date.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                  {% endfor %}
                   {% for error in validation_errors.proposed_release_date %}
                     <div class="form-text text-danger">{{ error }}</div>
                   {% endfor %}
@@ -222,7 +248,9 @@
                 <div class="input-group">
                   {{ form.population_percent|add_error_class:"is-invalid" }}
                   <span class="input-group-text">%</span>
-                  {% for error in form.population_percent.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                  {% for error in form.population_percent.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                  {% endfor %}
                 </div>
                 {% for error in validation_errors.population_percent %}
                   <div class="form-text text-danger">{{ error }}</div>
@@ -230,7 +258,9 @@
               </div>
               <div class="col">
                 {{ form.total_enrolled_clients|add_class:"form-control"|add_error_class:"is-invalid" }}
-                {% for error in form.total_enrolled_clients.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                {% for error in form.total_enrolled_clients.errors %}
+                  <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
                 {% for error in validation_errors.total_enrolled_clients %}
                   <div class="form-text text-danger">{{ error }}</div>
                 {% endfor %}
@@ -242,7 +272,9 @@
                 <div class="input-group">
                   {{ form.proposed_enrollment|add_class:"form-control"|add_error_class:"is-invalid" }}
                   <span class="input-group-text">days</span>
-                  {% for error in form.proposed_enrollment.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                  {% for error in form.proposed_enrollment.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                  {% endfor %}
                 </div>
                 {% for error in validation_errors.proposed_enrollment %}
                   <div class="form-text text-danger">{{ error }}</div>
@@ -253,9 +285,13 @@
                 <div class="input-group">
                   {{ form.proposed_duration|add_class:"form-control"|add_error_class:"is-invalid" }}
                   <span class="input-group-text">days</span>
-                  {% for error in form.proposed_duration.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                  {% for error in form.proposed_duration.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                  {% endfor %}
                 </div>
-                {% for error in validation_errors.proposed_duration %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                {% for error in validation_errors.proposed_duration %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
               </div>
             </div>
           </div>

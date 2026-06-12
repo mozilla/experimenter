@@ -168,7 +168,9 @@
                         {% endfor %}
                         {% get_branch_errors validation_errors forloop.parentloop.first forloop.parentloop.counter0|add:"-1" as branch_errors %}
                         {% with fv_error=branch_errors.feature_values|get_item:forloop.counter0 %}
-                          {% for error in fv_error.value %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                          {% for error in fv_error.value %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                          {% endfor %}
                         {% endwith %}
                         {% if branch_feature_values_form.instance.unversioned_schema %}
                           <div class="mt-2">
@@ -200,10 +202,14 @@
                         <div class="row mb-2 align-items-start">
                           <div class="col-4">
                             {{ screenshot_form.image|add_error_class:"is-invalid" }}
-                            {% for error in screenshot_form.image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            {% for error in screenshot_form.image.errors %}
+                              <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
                             {% get_branch_errors validation_errors forloop.parentloop.first forloop.parentloop.counter0|add:"-1" as branch_errors %}
                             {% with ss_error=branch_errors.screenshots|get_item:forloop.counter0 %}
-                              {% for error in ss_error.image %}<div class="invalid-feedback d-block">Image: {{ error }}</div>{% endfor %}
+                              {% for error in ss_error.image %}
+                                <div class="invalid-feedback d-block">Image: {{ error }}</div>
+                              {% endfor %}
                             {% endwith %}
                           </div>
                           <div class="col-8">
@@ -299,7 +305,9 @@
                 {{ form.is_localized }}
                 <label class="form-check-label" for="id_is_localized">Is this a localized experiment?</label>
               </div>
-              {% for error in validation_errors.is_localized %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+              {% for error in validation_errors.is_localized %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
             </div>
           </div>
           {% if experiment.is_localized %}
@@ -310,7 +318,9 @@
                   {{ form.localizations|add_error_class:"is-invalid" }}
                 </label>
                 {% for error in form.localizations.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                {% for error in validation_errors.localizations %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                {% for error in validation_errors.localizations %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
               </div>
             </div>
           {% endif %}
