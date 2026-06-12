@@ -2798,8 +2798,9 @@ LAPSED_USER_VPN_AVAILABLE = NimbusTargetingConfig(
     ),
     targeting=(
         f"{PROFILE28DAYS} && "
-        "userPrefs.cfrFeatures && "
-        "userPrefs.cfrAddons && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
+        " && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
         "isFxAEnabled && "
         "!hasActiveEnterprisePolicies && "
         "'browser.ipProtection.enabled'|preferenceValue && "
