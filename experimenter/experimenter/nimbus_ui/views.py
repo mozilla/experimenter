@@ -73,6 +73,7 @@ from experimenter.nimbus_ui.forms import (
     QAStatusForm,
     ReviewToApproveForm,
     ReviewToDraftForm,
+    RolloutAudienceForm,
     SignoffForm,
     SubscribeForm,
     TagAssignForm,
@@ -1354,10 +1355,9 @@ class AudienceCardMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if not isinstance(kwargs.get("form"), AudienceForm):
-            context["form"] = AudienceForm(
+        if not isinstance(kwargs.get("form"), RolloutAudienceForm):
+            context["form"] = RolloutAudienceForm(
                 instance=self.object,
-                rollout_card_view=True,
             )
         context["cancel_url"] = reverse(
             self.cancel_url_name, kwargs={"slug": self.object.slug}
@@ -1388,13 +1388,8 @@ class NewRisksUpdateView(RisksCardMixin, NewCardUpdateView):
 
 
 class NewAudienceUpdateView(AudienceCardMixin, NewCardUpdateView):
-    form_class = AudienceForm
+    form_class = RolloutAudienceForm
     display_template = "nimbus_experiments/audience/card.html"
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["rollout_card_view"] = True
-        return kwargs
 
 
 class NewQAUpdateView(QACardMixin, NewCardUpdateView):
