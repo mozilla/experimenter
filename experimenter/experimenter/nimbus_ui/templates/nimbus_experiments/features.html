@@ -36,7 +36,7 @@
             hx-select="#features-form"
             hx-target="#features-form"
             hx-swap="outerHTML"
-            hx-select-oob="#deliveries-card, #qa-runs-card, #feature-changes-card, #feature-subscribers-section"
+            hx-select-oob="#deliveries-card, #qa-runs-card, #feature-changes-card, #feature-subscribers-section, #feature-monitoring-card"
             hx-push-url="true">
         <div class="card mb-3">
           <div class="card-body bg-primary-subtle">
@@ -55,6 +55,55 @@
           </div>
         </div>
       </form>
+      {% if selected_feature_config %}
+        <div id="feature-monitoring-card"
+             class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle mb-4">
+          <div class="d-flex align-items-center justify-content-between mt-3 mb-2">
+            <h5 class="fw-semibold mb-0 d-flex align-items-center">
+              <i class="fa-solid fa-chart-line me-2"></i>
+              Feature Monitoring
+            </h5>
+            <a href="{{ EXTERNAL_URLS.FEATURE_MONITORING_DOC }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn btn-link btn-sm text-muted p-0 ms-2"
+               title="Learn about feature monitoring">
+              <i class="fa-solid fa-circle-info"></i>
+            </a>
+          </div>
+          {% if selected_feature_config.has_metric_hub_monitoring %}
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <a href="{{ selected_feature_config.feature_monitoring_url }}"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="btn btn-outline-primary btn-sm">
+                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>
+                Open Grafana Dashboard
+              </a>
+            </div>
+          {% else %}
+            <div class="alert alert-warning d-flex align-items-start gap-2 mb-3"
+                 role="alert">
+              <i class="fa-solid fa-triangle-exclamation mt-1"></i>
+              <div>
+                <strong>Grafana dashboard not available</strong> for
+                <code>{{ selected_feature_config.slug }}</code>.
+                To enable feature monitoring, add this feature to the
+                <a href="{{ EXTERNAL_URLS.METRIC_HUB_FEATMON_CONFIG }}"
+                   target="_blank"
+                   rel="noopener noreferrer">metric-hub featmon config</a>.
+                See the
+                <a href="{{ EXTERNAL_URLS.FEATURE_MONITORING_DOC }}"
+                   target="_blank"
+                   rel="noopener noreferrer">feature monitoring docs</a>
+                for instructions.
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      {% else %}
+        <div id="feature-monitoring-card"></div>
+      {% endif %}
       <!-- Feature Subscribers Section -->
       {% if subscribers_form %}
         {% include "nimbus_experiments/feature_subscribers.html" %}
@@ -526,34 +575,6 @@
           </div>
         </div>
       </div>
-      {% if selected_feature_config %}
-        <!-- Feature Monitoring Card -->
-        <div id="feature-monitoring-card"
-             class="card shadow-sm border-0 px-3 pt-3 h-100 rounded-3 bg-primary-subtle mb-4">
-          <div class="d-flex align-items-center justify-content-between mt-3 mb-2">
-            <h5 class="fw-semibold mb-0 d-flex align-items-center">
-              <i class="fa-solid fa-chart-line me-2"></i>
-              Feature Monitoring
-            </h5>
-            <a href="{{ selected_feature_config.feature_monitoring_url }}"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="btn btn-outline-primary btn-sm">
-              <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>
-              Open in Grafana
-            </a>
-          </div>
-          <div class="card shadow-sm border-0 rounded-3 mb-3">
-            <div class="card-body p-0">
-              <iframe src="/nimbus/grafana-proxy/?slug={{ selected_feature_config.slug }}"
-                      width="100%"
-                      height="800"
-                      frameborder="0"
-                      title="Feature Monitoring Dashboard"></iframe>
-            </div>
-          </div>
-        </div>
-      {% endif %}
     </div>
   </div>
 {% endblock %}

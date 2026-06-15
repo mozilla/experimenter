@@ -2846,6 +2846,12 @@ class NimbusFeatureConfig(models.Model):
             slug=self.slug, application=application
         )
 
+    @property
+    def has_metric_hub_monitoring(self):
+        from experimenter.jetstream.client import get_featmon_slugs
+
+        return self.slug in get_featmon_slugs()
+
     def schemas_between_versions(
         self,
         min_version: packaging.version.Version,

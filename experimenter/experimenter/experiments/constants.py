@@ -1245,6 +1245,8 @@ EXTERNAL_URLS = {
     "SIGNOFF_QA": "https://experimenter.info/workflow/risk-mitigation#qa-sign-off",
     "TRAINING_AND_PLANNING_DOC": "https://experimenter.info/getting-started/for-experiment-owners",
     "PREVIEW_LAUNCH_DOC": "https://experimenter.info/platform-guides/desktop/preview",
+    "FEATURE_MONITORING_DOC": "https://experimenter.info/feature-monitoring",
+    "METRIC_HUB_FEATMON_CONFIG": "https://github.com/mozilla/metric-hub/blob/main/featmon/firefox_desktop.toml",
 }
 
 
