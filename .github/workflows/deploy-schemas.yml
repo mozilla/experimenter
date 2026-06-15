@@ -10,6 +10,8 @@ jobs:
   deploy:
     name: Deploy Schemas
     runs-on: ubuntu-24.04
+    env:
+      DOCKER_RUN_INTERACTIVE: ""
     permissions:
       contents: read
       id-token: write
