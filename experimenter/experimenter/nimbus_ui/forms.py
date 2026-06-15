@@ -1295,32 +1295,6 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated audience"
 
 
-class RolloutAudienceForm(AudienceForm):
-    YES_NO_CHOICES = (
-        (True, "Yes"),
-        (False, "No"),
-    )
-    localizations = forms.CharField(required=False, widget=forms.HiddenInput())
-
-    class Meta:
-        model = NimbusExperiment
-
-        fields = (
-            *AudienceForm.Meta.fields,
-            "localizations",
-        )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["is_sticky"] = forms.TypedChoiceField(
-            required=False,
-            choices=self.YES_NO_CHOICES,
-            widget=InlineRadioSelect,
-            coerce=lambda x: x == "True",
-        )
-
-
 class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
     class Meta:
         model = NimbusExperiment
