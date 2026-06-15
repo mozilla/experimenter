@@ -5663,7 +5663,7 @@ class TestNimbusExperiment(TestCase):
         )
         warnings = experiment.monitoring_health_warnings
         self.assertEqual(len(warnings), 1)
-        self.assertEqual(warnings[0]["type"], "feature_conflict")
+        self.assertEqual(warnings[0]["type"], NimbusConstants.AlertType.FEATURE_CONFLICT)
 
     def test_monitoring_health_warnings_low_enrollment(self):
         experiment = NimbusExperimentFactory.create(
@@ -5676,7 +5676,7 @@ class TestNimbusExperiment(TestCase):
         )
         warnings = experiment.monitoring_health_warnings
         self.assertEqual(len(warnings), 1)
-        self.assertEqual(warnings[0]["type"], "low_enrollment")
+        self.assertEqual(warnings[0]["type"], NimbusConstants.AlertType.ZERO_ENROLLMENT)
 
     def test_enrollment_funnel_stages_returns_none_when_no_monitoring_data(self):
         experiment = NimbusExperimentFactory.create(monitoring_data=None)

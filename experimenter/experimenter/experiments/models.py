@@ -1516,7 +1516,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if conflict.is_conflict:
             warnings.append(
                 {
-                    "type": "feature_conflict",
+                    "type": NimbusConstants.AlertType.FEATURE_CONFLICT,
                     "label": f"Feature Conflict {conflict.rate:.0%}",
                 }
             )
@@ -1530,7 +1530,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             total = self.monitoring_data.get("total_enrollments", 0)
             warnings.append(
                 {
-                    "type": "low_enrollment",
+                    "type": NimbusConstants.AlertType.ZERO_ENROLLMENT,
                     "label": f"Low Enrollment ({total:,})",
                 }
             )
