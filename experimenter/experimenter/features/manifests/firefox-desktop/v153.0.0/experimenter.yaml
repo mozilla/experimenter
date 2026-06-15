@@ -1009,6 +1009,27 @@ abouthomecache:
         branch: user
         pref: browser.startup.homepage.abouthome_cache.enabled
 
+diskCache:
+  description: "The HTTP disk cache."
+  owner: vgosu@mozilla.com
+  hasExposure: false
+  variables:
+    diskCacheEnabled:
+      type: boolean
+      description: >-
+        Whether the HTTP disk cache is enabled.
+      setPref:
+        branch: user
+        pref: browser.cache.disk.enable
+    diskCacheEncryptionEnabled:
+      type: boolean
+      description: >-
+        Whether HTTP disk cache data is encrypted at rest with an in-memory key.
+        Takes effect on restart.
+      setPref:
+        branch: user
+        pref: browser.cache.disk.encryption.enabled
+
 newtab:
   description: "The about:newtab page"
   owner: omc-core@mozilla.com

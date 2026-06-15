@@ -16,15 +16,6 @@ address-autofill-edit:
     status:
       type: boolean
       description: If true, we will allow user to edit the address
-address-bar-menu-feature:
-  description: |
-    This property determines if we show the new address bar menu entry or the toolbar menu in settings
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    status:
-      type: boolean
-      description: If true, we will show the new address bar menu entry
 ads-client:
   description: This property defines if the rust ads client is enabled
   hasExposure: true
@@ -82,6 +73,16 @@ deeplink-optimization-refactor-feature:
       type: boolean
       description: |
         Variable description
+deeplink-overlay-feature:
+  description: |
+    Controls whether a privacy-style overlay is shown when the app moves to the background, regardless of tab privacy state. Used to mask the previously displayed tab while a deep link is being handled on resume.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, show the background overlay for all tabs (private and normal). If false, the overlay is only shown for private tabs.
 download-live-activities-feature:
   description: |
     Download Live Activities Feature

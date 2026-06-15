@@ -20,14 +20,6 @@ features:
         description: If true, we will allow user to edit the address
         type: Boolean
         default: true
-  address-bar-menu-feature:
-    description: |
-      This property determines if we show the new address bar menu entry or the toolbar menu in settings
-    variables:
-      status:
-        description: If true, we will show the new address bar menu entry
-        type: Boolean
-        default: true
   ads-client:
     description: This property defines if the rust ads client is enabled
     variables:
@@ -79,6 +71,15 @@ features:
           Variable description
         type: Boolean
         default: false
+  deeplink-overlay-feature:
+    description: |
+      Controls whether a privacy-style overlay is shown when the app moves to the background, regardless of tab privacy state. Used to mask the previously displayed tab while a deep link is being handled on resume.
+    variables:
+      enabled:
+        description: |
+          If true, show the background overlay for all tabs (private and normal). If false, the overlay is only shown for private tabs.
+        type: Boolean
+        default: true
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
