@@ -148,6 +148,7 @@
                       </th>
                     {% endif %}
                   {% endfor %}
+                  <th scope="col" class="fw-semibold text-decoration-none">Health</th>
                 </tr>
               </thead>
               <tbody>
@@ -179,6 +180,26 @@
                     <td id="delivery-min-version">{{ experiment.firefox_min_version|parse_version }}</td>
                     <td id="delivery-population-percent">{{ experiment.total_enrolled_clients|floatformat:"-1" }}</td>
                     <td id="delivery-brief">{{ experiment.delivery_brief|format_not_set }}</td>
+                    <td id="delivery-health">
+                      {% with warnings=experiment.monitoring_health_warnings %}
+                        {% if warnings %}
+                          <div class="d-flex flex-column gap-1">
+                            {% for warning in warnings %}
+                              <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                {{ warning.label }}
+                              </span>
+                            {% endfor %}
+                          </div>
+                        {% elif experiment.monitoring_data %}
+                          <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="fa-solid fa-circle-check me-1"></i>Healthy
+                          </span>
+                        {% else %}
+                          <span class="text-muted small">No data</span>
+                        {% endif %}
+                      {% endwith %}
+                    </td>
                   </tr>
                 {% empty %}
                   <tr>
