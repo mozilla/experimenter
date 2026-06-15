@@ -383,6 +383,27 @@ FIRST_RUN_NEW_PROFILE_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_NEW_PROFILE_WINDOWS_11_NEWER = NimbusTargetingConfig(
+    name=(
+        "First start-up users with a new profile, on Windows 11 (build 22621) or newer"
+    ),
+    slug="first_run_new_profile_win11_newer",
+    description=(
+        "First start-up users (e.g. for about:welcome), with a new profile, "
+        "on Windows 22621+"
+    ),
+    targeting=(
+        f"{FIRST_RUN.targeting} && {NEW_PROFILE} && os.windowsBuildNumber >= 22621"
+    ),
+    desktop_telemetry=(
+        f"{FIRST_RUN.desktop_telemetry} AND {NEW_PROFILE} "
+        "AND environment.system.os.windows_build_number >= 22621"
+    ),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FIRST_RUN_NEW_PROFILE_WINDOWS_11_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name=(
         "First start-up users with a new profile, "
