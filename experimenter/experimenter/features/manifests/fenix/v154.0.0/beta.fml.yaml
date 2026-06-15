@@ -573,13 +573,6 @@ features:
         description: If true, Merino Client is enabled.
         type: Boolean
         default: false
-  merino-manifest:
-    description: Feature to enable the Merino Manifest for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Merino Manifest is enabled.
-        type: Boolean
-        default: true
   messaging:
     description: |
       The in-app messaging system.
