@@ -39,12 +39,12 @@
                         </small>
                         <button class="btn btn-link p-0"
                                 data-bs-toggle="modal"
-                                data-bs-target="#{{ experiment.slug }}-error-{{ forloop.counter }}">
+                                data-bs-target="#{{ experiment.slug }}-error-{{ error_group|slugify }}-{{ forloop.counter }}">
                           <small>View details</small>
                         </button>
                       </li>
                       <div class="modal fade"
-                           id="{{ experiment.slug }}-error-{{ forloop.counter }}"
+                           id="{{ experiment.slug }}-error-{{ error_group|slugify }}-{{ forloop.counter }}"
                            tabindex="-1"
                            aria-labelledby="exampleModalLabel"
                            aria-hidden="true">
