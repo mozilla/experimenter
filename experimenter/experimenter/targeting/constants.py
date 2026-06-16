@@ -56,6 +56,7 @@ PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 
 PROFILELESSTHAN1HOUR = "(currentDate|date - profileAgeCreated|date) / 3600000 < 1"
 PROFILELESSTHAN2DAYS = "(currentDate|date - profileAgeCreated|date) / 3600000 < 48"
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
+PROFILEMORETHAN14DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 14"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
 NEW_NON_SELECTABLE_PROFILE = f"({NEW_PROFILE}) && profileGroupProfileCount == 0"
 WIN1903 = "os.windowsBuildNumber >= 18362"
@@ -4993,6 +4994,29 @@ EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED = NimbusTargetingConfig(
     description="Profile 7+ days, Windows only, has Taskbar Tabs enabled",
     targeting=(
         f"{PROFILEMORETHAN7DAYS} && {WINDOWS_ONLY.targeting} && {TASKBAR_TABS_ENABLED}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
+    name="Existing users eligible for VPN, profile 14+ days, no enterprise",
+    slug="existing_user_vpn_eligible",
+    description=(
+        "Existing users with a profile older than 14 days, "
+        "not on their first startup, "
+        "without active enterprise policies, "
+        "with IP Protection enabled, "
+        "and FxA enabled"
+    ),
+    targeting=(
+        f"{PROFILEMORETHAN14DAYS}"
+        " && !isFirstStartup"
+        f" && {NO_ENTERPRISE.targeting}"
+        " && 'browser.ipProtection.enabled'|preferenceValue"
+        " && isFxAEnabled"
     ),
     desktop_telemetry="",
     sticky_required=True,
