@@ -554,16 +554,6 @@ tou-feature:
       type: boolean
       description: |
         Enables the feature
-tracking-protection-refactor:
-  description: |
-    The Enhanced Tracking Protection refactor
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether the Enhanced Tracking Protection refactor is enabled or not
 translations-feature:
   description: |
     Enables translations feature.
