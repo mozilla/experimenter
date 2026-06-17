@@ -449,7 +449,12 @@ def _check_monitoring_alerts(experiment):
             _send_unenrollment_spike_alert(experiment, rate, reason, days_since_start)
 
         if not experiment.is_rollout:
-            is_srm, p_value = check_srm_mismatch(experiment.monitoring_data)
+            branch_ratios = {
+                b.slug: b.ratio for b in experiment.branches.all()
+            }
+            is_srm, p_value = check_srm_mismatch(
+                experiment.monitoring_data, branch_ratios
+            )
             if is_srm:
                 _send_srm_mismatch_alert(experiment, p_value)
 

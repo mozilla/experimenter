@@ -1022,6 +1022,31 @@ class TestCheckUnenrollmentSpike(TestCase):
 
 
 class TestCheckSrmMismatch(TestCase):
+    def test_returns_false_when_branches_match_expected_unequal_ratio(self):
+        # 95/5 split that exactly matches the configured branch ratios
+        # should not trigger SRM even though it looks imbalanced vs equal.
+        monitoring_data = {
+            "branches": {
+                "delivery": {"enrollments": 950000},
+                "holdback": {"enrollments": 50000},
+            }
+        }
+        branch_ratios = {"delivery": 95, "holdback": 5}
+        is_srm, _ = check_srm_mismatch(monitoring_data, branch_ratios)
+        self.assertFalse(is_srm)
+
+    def test_returns_true_when_unequal_ratio_deviates_from_config(self):
+        # Configured 95/5 but actual is significantly off
+        monitoring_data = {
+            "branches": {
+                "delivery": {"enrollments": 850000},
+                "holdback": {"enrollments": 150000},
+            }
+        }
+        branch_ratios = {"delivery": 95, "holdback": 5}
+        is_srm, _ = check_srm_mismatch(monitoring_data, branch_ratios)
+        self.assertTrue(is_srm)
+
     def test_returns_true_when_p_value_below_threshold(self):
         monitoring_data = {
             "branches": {
