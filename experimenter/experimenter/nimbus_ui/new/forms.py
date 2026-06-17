@@ -2,11 +2,13 @@ from collections import defaultdict
 
 import markus
 from django import forms
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.forms import inlineformset_factory
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
@@ -16,7 +18,9 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
+    Tag,
 )
+from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.targeting.constants import NimbusTargetingConfig
 
 metrics = markus.get_metrics("experimenter.nimbus_ui_forms")
@@ -102,6 +106,127 @@ class SingleSelectWidget(SelectedFirstMixin, forms.Select):
         super().__init__(*args, attrs=attrs, **kwargs)
 
 
+class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    owner = forms.ModelChoiceField(
+        User.objects.all(),
+        widget=forms.widgets.HiddenInput(),
+    )
+    name = forms.CharField(
+        label="",
+        widget=forms.widgets.TextInput(
+            attrs={
+                "placeholder": "Public Name",
+            }
+        ),
+    )
+    slug = forms.CharField(
+        required=False,
+        widget=forms.widgets.HiddenInput(),
+    )
+    hypothesis = forms.CharField(
+        label="",
+        widget=forms.widgets.Textarea(),
+        initial=NimbusUIConstants.HYPOTHESIS_PLACEHOLDER,
+    )
+    application = forms.ChoiceField(
+        label="",
+        choices=NimbusExperiment.Application.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "owner",
+            "name",
+            "slug",
+            "hypothesis",
+            "application",
+        ]
+
+    def get_changelog_message(self):
+        return f"{self.request.user} created {self.cleaned_data['name']}"
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+        if not slug:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if NimbusExperiment.objects.filter(slug=slug).exists():
+            raise forms.ValidationError(NimbusUIConstants.ERROR_SLUG_DUPLICATE)
+        return name
+
+    def clean_hypothesis(self):
+        hypothesis = self.cleaned_data["hypothesis"]
+        if hypothesis.strip() == NimbusUIConstants.HYPOTHESIS_PLACEHOLDER.strip():
+            raise forms.ValidationError(NimbusUIConstants.ERROR_HYPOTHESIS_PLACEHOLDER)
+        return hypothesis
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if "name" in cleaned_data:
+            cleaned_data["slug"] = slugify(cleaned_data["name"])
+        return cleaned_data
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+
+        if experiment.branches.count() == 0:
+            control = experiment.branches.create(name="Control", slug="control", ratio=1)
+            experiment.branches.create(name="Treatment A", slug="treatment-a", ratio=1)
+            experiment.reference_branch = control
+            experiment.save(update_fields=["reference_branch"])
+
+        return experiment
+
+
+class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    owner = forms.ModelChoiceField(
+        User.objects.all(),
+        widget=forms.widgets.HiddenInput(),
+    )
+    name = forms.CharField(
+        required=True, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    slug = forms.CharField(
+        required=False,
+        widget=forms.widgets.HiddenInput(),
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["owner", "name", "slug"]
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+        if not slug:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if NimbusExperiment.objects.filter(slug=slug).exists():
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG
+            )
+        return name
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if "name" in cleaned_data:
+            cleaned_data["slug"] = slugify(cleaned_data["name"])
+        return cleaned_data
+
+    def get_changelog_message(self):
+        return f"{self.request.user} cloned this experiment from {self.instance.name}"
+
+    @transaction.atomic
+    def save(self):
+        return self.instance.clone(self.cleaned_data["name"], self.cleaned_data["owner"])
+
+
 class RolloutOverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
     name = forms.CharField(
         required=True, widget=forms.TextInput(attrs={"class": "form-control"})
@@ -145,6 +270,35 @@ class RolloutOverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated rollouts overview"
+
+
+class DocumentationLinkCreateForm(RolloutOverviewForm):
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.instance.documentation_links.create()
+        return self.instance
+
+    def get_changelog_message(self):
+        return f"{self.request.user} added a documentation link"
+
+
+class DocumentationLinkDeleteForm(RolloutOverviewForm):
+    link_id = forms.ModelChoiceField(queryset=NimbusDocumentationLink.objects.all())
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [*RolloutOverviewForm.Meta.fields, "link_id"]
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        documentation_link = self.cleaned_data["link_id"]
+        documentation_link.delete()
+        return self.instance
+
+    def get_changelog_message(self):
+        return f"{self.request.user} deleted a documentation link"
 
 
 class RolloutRisksForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -472,3 +626,45 @@ class RolloutQAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated QA"
+
+
+class TagAssignForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = ["tags"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["tags"].queryset = Tag.objects.all().order_by("name")
+        self.fields["tags"].widget = forms.CheckboxSelectMultiple()
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated tags"
+
+
+class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    collaborators = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all().order_by("email"),
+        widget=MultiSelectWidget(),
+        required=False,
+        label="Collaborators",
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields["collaborators"].initial = self.instance.subscribers.all()
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        if commit:
+            experiment.subscribers.set(self.cleaned_data["collaborators"])
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated collaborators"

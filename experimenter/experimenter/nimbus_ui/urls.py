@@ -1,6 +1,21 @@
 from django.urls import re_path
 from django.views.generic import RedirectView
 
+from experimenter.nimbus_ui.new.views import (
+    NewAddSubscriberView,
+    NewAddTagView,
+    NewAudienceUpdateView,
+    NewDocumentationLinkCreateView,
+    NewDocumentationLinkDeleteView,
+    NewOverviewUpdateView,
+    NewQAUpdateView,
+    NewRemoveSubscriberView,
+    NewRemoveTagView,
+    NewRisksUpdateView,
+    NewSubscriberSearchView,
+    NewTagSearchView,
+    NimbusRolloutDetailView,
+)
 from experimenter.nimbus_ui.views import (
     ApproveEndEnrollmentView,
     ApproveEndExperimentView,
@@ -28,18 +43,6 @@ from experimenter.nimbus_ui.views import (
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
     MetricsUpdateView,
-    NewAddSubscriberView,
-    NewAddTagView,
-    NewAudienceUpdateView,
-    NewDocumentationLinkCreateView,
-    NewDocumentationLinkDeleteView,
-    NewOverviewUpdateView,
-    NewQAUpdateView,
-    NewRemoveSubscriberView,
-    NewRemoveTagView,
-    NewRisksUpdateView,
-    NewSubscriberSearchView,
-    NewTagSearchView,
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
     NimbusExperimentsCreateView,
@@ -47,7 +50,6 @@ from experimenter.nimbus_ui.views import (
     NimbusExperimentsPromoteToRolloutView,
     NimbusExperimentsSidebarCloneView,
     NimbusFeaturesView,
-    NimbusRolloutDetailView,
     OverviewUpdateView,
     PreviewToDraftView,
     PreviewToReviewView,
