@@ -412,6 +412,15 @@ features:
           Whether or not this refactor is enabled
         type: Boolean
         default: true
+  nova-design-feature:
+    description: |
+      The feature flag to manage the rollout of Nova design.
+    variables:
+      enabled:
+        description: |
+          Enables Nova design.
+        type: Boolean
+        default: false
   onboarding-framework-feature:
     description: |
       The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
