@@ -98,6 +98,7 @@ exclude = [
     "**/migrations",
     "experimenter/legacy",
     "**/tests",
+    "**/metric-hub-main",
 ]
 
 reportAttributeAccessIssue = false
