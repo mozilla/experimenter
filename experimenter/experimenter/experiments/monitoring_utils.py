@@ -33,9 +33,7 @@ def compute_srm_p_value(branches, branch_ratios=None):
 
     if branch_ratios and all(b in branch_ratios for b in branch_names):
         total_ratio = sum(branch_ratios[b] for b in branch_names) or 1
-        expected = [
-            total * branch_ratios[b] / total_ratio for b in branch_names
-        ]
+        expected = [total * branch_ratios[b] / total_ratio for b in branch_names]
     else:
         expected_per_branch = total / len(enrollments)
         expected = [expected_per_branch] * len(enrollments)
