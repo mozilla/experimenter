@@ -1,6 +1,7 @@
 import functools
 import json
 import logging
+import tomllib
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from itertools import chain
@@ -453,12 +454,6 @@ def get_experiment_data(experiment: NimbusExperiment):
     }
 
 
-def get_population_sizing_data():
-    sizing_data = get_sizing_data(suffix="latest")
-    sizing = SampleSizes.model_validate(sizing_data) if sizing_data is not None else {}
-    return {"v1": sizing}
-
-
 @functools.lru_cache(maxsize=1)
 def get_featmon_slugs():
     path = settings.METRIC_HUB_FEATMON_DESKTOP_PATH
@@ -470,3 +465,11 @@ def get_featmon_slugs():
         )
     except (FileNotFoundError, OSError, tomllib.TOMLDecodeError):
         return frozenset()
+
+
+def get_population_sizing_data():
+    sizing_data = get_sizing_data(suffix="latest")
+    sizing = SampleSizes.model_validate(sizing_data) if sizing_data is not None else {}
+    return {"v1": sizing}
+
+
