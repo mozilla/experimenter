@@ -14,10 +14,6 @@ class FeatureConflictResult:
 
 UNENROLLMENT_SPIKE_THRESHOLD = 0.10
 SRM_MISMATCH_P_VALUE_THRESHOLD = 0.001
-# Minimum absolute deviation from expected branch ratio before SRM alert fires.
-# Prevents false positives with large populations where tiny imbalances are
-# statistically significant but practically meaningless.
-SRM_MISMATCH_MIN_RATIO_DEVIATION = 0.05
 
 
 def compute_unenrollment_rate(total_enrollments, total_unenrollments):
@@ -74,24 +70,6 @@ def check_unenrollment_spike(monitoring_data):
     return rate > UNENROLLMENT_SPIKE_THRESHOLD, rate
 
 
-def compute_max_ratio_deviation(branches, branch_ratios=None):
-    """Return the largest absolute deviation from each branch's expected ratio."""
-    branch_names = list(branches.keys())
-    enrollments = [branches[b].get("enrollments", 0) for b in branch_names]
-    total = sum(enrollments)
-    if total == 0 or len(enrollments) < 2:
-        return 0.0
-
-    if branch_ratios and all(b in branch_ratios for b in branch_names):
-        total_ratio = sum(branch_ratios[b] for b in branch_names) or 1
-        expected_ratios = [branch_ratios[b] / total_ratio for b in branch_names]
-    else:
-        expected_ratios = [1.0 / len(enrollments)] * len(enrollments)
-
-    actual_ratios = [e / total for e in enrollments]
-    return max(abs(a - e) for a, e in zip(actual_ratios, expected_ratios))
-
-
 def check_srm_mismatch(monitoring_data, branch_ratios=None):
     branches = monitoring_data.get("branches", {})
 
@@ -99,13 +77,7 @@ def check_srm_mismatch(monitoring_data, branch_ratios=None):
         return False, 1.0
 
     p_value = compute_srm_p_value(branches, branch_ratios)
-    max_deviation = compute_max_ratio_deviation(branches, branch_ratios)
-
-    is_srm = (
-        p_value < SRM_MISMATCH_P_VALUE_THRESHOLD
-        and max_deviation >= SRM_MISMATCH_MIN_RATIO_DEVIATION
-    )
-    return is_srm, p_value
+    return p_value < SRM_MISMATCH_P_VALUE_THRESHOLD, p_value
 
 
 def check_zero_enrollment(
