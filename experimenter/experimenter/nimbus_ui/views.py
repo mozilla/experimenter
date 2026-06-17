@@ -73,7 +73,6 @@ from experimenter.nimbus_ui.forms import (
     QAStatusForm,
     ReviewToApproveForm,
     ReviewToDraftForm,
-    RolloutAudienceForm,
     SignoffForm,
     SubscribeForm,
     TagAssignForm,
@@ -82,6 +81,12 @@ from experimenter.nimbus_ui.forms import (
     ToggleArchiveForm,
     ToggleReviewSlackNotificationsForm,
     UnsubscribeForm,
+)
+from experimenter.nimbus_ui.new.forms import (
+    RolloutAudienceForm,
+    RolloutOverviewForm,
+    RolloutQAStatusForm,
+    RolloutRisksForm,
 )
 
 
@@ -1313,8 +1318,8 @@ class OverviewCardMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if not isinstance(kwargs.get("form"), OverviewForm):
-            context["form"] = OverviewForm(instance=self.object)
+        if not isinstance(kwargs.get("form"), RolloutOverviewForm):
+            context["form"] = RolloutOverviewForm(instance=self.object)
         context["cancel_url"] = reverse(
             self.cancel_url_name, kwargs={"slug": self.object.slug}
         )
@@ -1327,8 +1332,8 @@ class RisksCardMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if not isinstance(kwargs.get("form"), OverviewForm):
-            context["form"] = OverviewForm(instance=self.object)
+        if not isinstance(kwargs.get("form"), RolloutRisksForm):
+            context["form"] = RolloutRisksForm(instance=self.object)
         context["cancel_url"] = reverse(
             self.cancel_url_name, kwargs={"slug": self.object.slug}
         )
@@ -1341,8 +1346,8 @@ class QACardMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if not isinstance(kwargs.get("form"), QAStatusForm):
-            context["form"] = QAStatusForm(instance=self.object)
+        if not isinstance(kwargs.get("form"), RolloutQAStatusForm):
+            context["form"] = RolloutQAStatusForm(instance=self.object)
         context["cancel_url"] = reverse(
             self.cancel_url_name, kwargs={"slug": self.object.slug}
         )
@@ -1380,10 +1385,12 @@ class NewCardUpdateView(OverviewUpdateView):
 
 
 class NewOverviewUpdateView(OverviewCardMixin, NewCardUpdateView):
+    form_class = RolloutOverviewForm
     display_template = "nimbus_experiments/overview/card.html"
 
 
 class NewRisksUpdateView(RisksCardMixin, NewCardUpdateView):
+    form_class = RolloutRisksForm
     display_template = "nimbus_experiments/risks/card.html"
 
 
