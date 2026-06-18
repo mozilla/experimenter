@@ -5502,6 +5502,15 @@ contentClassifier:
       setPref:
         branch: default
         pref: "privacy.trackingprotection.content.annotation.engines.pbmode"
+    mirrorEnabled:
+      description: >-
+        Whether the tracking-protection prefs are mirrored onto the content
+        classifier engine prefs. While enabled the mirror derives (and
+        owns) the content classifier prefs from the ETP settings.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "privacy.trackingprotection.content.mirror.enabled"
 
 auto-pip:
   description: "Automatic Picture-in-Picture"

@@ -987,9 +987,17 @@
               "type": "string",
               "description": "URL for image to use with the content."
             },
+            "rtlImageURL": {
+              "type": "string",
+              "description": "URL for RTL images that have directionally dependent assets and cannot be flipped using 'directionalImage'."
+            },
             "imageWidth": {
               "type": "number",
               "description": "The image width in pixels. Default is 120px."
+            },
+            "directionalImage": {
+              "type": "boolean",
+              "description": "If true, the illustration has a left/right orientation and should be horizontally mirrored in RTL contexts. Defaults to false."
             },
             "logoURL": {
               "type": "string",
@@ -1017,16 +1025,26 @@
             },
             "layout": {
               "type": "string",
-              "description": "The layout of the message content and illustration. Row displays the image inline to the right of the text, column displays the image above the text. Simple layout only displays primary text and primary button on one row.",
+              "description": "The layout of the message content and illustration. Row displays the image inline to the right of the text, column displays the image above the text. Simple layout only displays primary text and primary button on one row. Split displays the illustration in one column and a stacked content column, use 'imagePosition' to swap which side the illustration sits on.",
               "enum": [
                 "row",
                 "column",
-                "simple"
+                "simple",
+                "split"
+              ]
+            },
+            "imagePosition": {
+              "type": "string",
+              "description": "Position of the illustration. For split layout, 'start' or 'end' selects which inline side the illustration sits on (defaults to 'end'). For both split and column layout, 'bottom' renders the illustration at the bottom of the card.",
+              "enum": [
+                "start",
+                "end",
+                "bottom"
               ]
             },
             "allowWhenSignedIn": {
               "type": "boolean",
-              "description": "If true, the message will be shown even when the user is signed in. For 'fxa_cta' messages. Defaults to false."
+              "description": "If true, the message will be shown even when the user is signed in. For 'fxa_cta' messages. Defaults to 'false'."
             }
           }
         },
