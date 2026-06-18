@@ -291,6 +291,16 @@ needs-reload-refactor:
       type: boolean
       description: |
         Whether or not this refactor is enabled
+nova-design-feature:
+  description: |
+    The feature flag to manage the rollout of Nova design.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables Nova design.
 onboarding-framework-feature:
   description: |
     The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
