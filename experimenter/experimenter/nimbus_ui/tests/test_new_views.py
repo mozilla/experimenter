@@ -1,0 +1,573 @@
+from django.conf import settings
+from django.test import TestCase
+from django.urls import reverse
+from parameterized import parameterized
+
+from experimenter.base.tests.factories import (
+    CountryFactory,
+    LanguageFactory,
+    LocaleFactory,
+)
+from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.tests.factories import (
+    NimbusDocumentationLinkFactory,
+    NimbusExperimentFactory,
+    TagFactory,
+)
+from experimenter.nimbus_ui.new.forms import (
+    NimbusExperimentCreateForm,
+    NimbusExperimentSidebarCloneForm,
+    RolloutAudienceForm,
+    RolloutOverviewForm,
+    RolloutQAStatusForm,
+    RolloutRisksForm,
+)
+from experimenter.openidc.tests.factories import UserFactory
+from experimenter.targeting.constants import NimbusTargetingConfig
+
+
+class AuthTestCase(TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory.create(email="user@example.com")
+        self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
+
+
+class NewViewTestMixin:
+    def assertResponseUsesForm(self, response, form_class):
+        self.assertIsInstance(response.context["form"], form_class)
+        self.assertEqual(
+            response.context["cancel_url"],
+            reverse(
+                "new-nimbus-ui-rollout-detail",
+                kwargs={"slug": response.context["experiment"].slug},
+            ),
+        )
+
+    def overview_data(self, experiment, documentation_link=None, **overrides):
+        data = {
+            "name": experiment.name,
+            "hypothesis": experiment.hypothesis,
+            "public_description": experiment.public_description,
+            "documentation_links-TOTAL_FORMS": "0",
+            "documentation_links-INITIAL_FORMS": "0",
+        }
+        if documentation_link:
+            data.update(
+                {
+                    "documentation_links-TOTAL_FORMS": "1",
+                    "documentation_links-INITIAL_FORMS": "1",
+                    "documentation_links-0-id": documentation_link.id,
+                    "documentation_links-0-title": (
+                        NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                    ),
+                    "documentation_links-0-link": "https://www.example.com",
+                }
+            )
+        data.update(overrides)
+        return data
+
+    def audience_data(
+        self, application=NimbusExperiment.Application.DESKTOP, **overrides
+    ):
+        targeting_config_slugs = [
+            targeting.slug
+            for targeting in NimbusTargetingConfig.targeting_configs
+            if application.name in targeting.application_choice_names
+        ]
+        data = {
+            "channel": NimbusExperiment.Channel.BETA,
+            "channels": [NimbusExperiment.Channel.BETA],
+            "countries": [],
+            "exclude_countries": False,
+            "exclude_languages": False,
+            "exclude_locales": False,
+            "excluded_experiments_branches": [],
+            "firefox_max_version": NimbusExperiment.Version.FIREFOX_84,
+            "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
+            "is_first_run": False,
+            "is_sticky": False,
+            "languages": [],
+            "locales": [],
+            "localizations": "",
+            "required_experiments_branches": [],
+            "targeting_config_slug": (
+                targeting_config_slugs[0]
+                if targeting_config_slugs
+                else NimbusExperiment.TargetingConfig.NO_TARGETING
+            ),
+        }
+        data.update(overrides)
+        return data
+
+
+class TestNimbusRolloutDetailView(AuthTestCase):
+    def test_get_returns_new_rollout_detail_context(self):
+        tag = TagFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/new_rollout_detail.html")
+        self.assertEqual(response.context["experiment"], experiment)
+        self.assertIsInstance(
+            response.context["clone_form"], NimbusExperimentSidebarCloneForm
+        )
+        self.assertIsInstance(response.context["create_form"], NimbusExperimentCreateForm)
+        self.assertIn(tag, response.context["all_tags"])
+        self.assertTrue(response.context["sidebar_links"])
+
+
+class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
+    url_name = "nimbus-ui-new-update-overview"
+
+    def test_get_returns_edit_form_for_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertResponseUsesForm(response, RolloutOverviewForm)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_get_non_draft_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    def test_post_non_draft_hx_redirects_to_summary(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}), {}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers.get("HX-Redirect"),
+            (
+                f"{reverse('nimbus-ui-detail', kwargs={'slug': experiment.slug})}"
+                "?save_failed=true"
+            ),
+        )
+
+    def test_post_valid_saves_and_returns_display_card(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.overview_data(
+                experiment,
+                documentation_link,
+                name="updated name",
+                hypothesis="updated hypothesis",
+                public_description="updated description",
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/overview/card.html")
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.name, "updated name")
+        self.assertEqual(experiment.hypothesis, "updated hypothesis")
+        self.assertTrue(response.context["hx_swap_oob"])
+
+    def test_post_invalid_returns_edit_form_with_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "name": "",
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertTrue(response.context["form"].errors)
+
+
+class TestNewRisksUpdateView(NewViewTestMixin, AuthTestCase):
+    url_name = "nimbus-ui-new-update-risks"
+
+    def test_get_returns_edit_form_for_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/risks/edit_form.html")
+        self.assertResponseUsesForm(response, RolloutRisksForm)
+
+    def test_post_valid_saves_and_returns_display_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            risk_ai=False,
+            risk_brand=False,
+            risk_message=False,
+            risk_revenue=False,
+            risk_partner_related=False,
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "risk_ai": True,
+                "risk_brand": True,
+                "risk_message": True,
+                "risk_revenue": True,
+                "risk_partner_related": True,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/risks/card.html")
+        experiment.refresh_from_db()
+        self.assertTrue(experiment.risk_ai)
+        self.assertTrue(experiment.risk_brand)
+        self.assertTrue(experiment.risk_message)
+        self.assertTrue(experiment.risk_revenue)
+        self.assertTrue(experiment.risk_partner_related)
+
+
+class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
+    url_name = "nimbus-ui-new-update-audience"
+
+    def test_get_returns_edit_form_for_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/audience/edit_form.html")
+        self.assertResponseUsesForm(response, RolloutAudienceForm)
+
+    def test_post_valid_saves_and_returns_display_card(self):
+        country = CountryFactory.create()
+        locale = LocaleFactory.create()
+        language = LanguageFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            countries=[],
+            locales=[],
+            languages=[],
+            is_sticky=False,
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.audience_data(
+                countries=[country.id],
+                exclude_countries=True,
+                languages=[language.id],
+                locales=[locale.id],
+                is_sticky=True,
+                targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/audience/card.html")
+        experiment.refresh_from_db()
+        self.assertEqual(list(experiment.countries.all()), [country])
+        self.assertEqual(list(experiment.locales.all()), [locale])
+        self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertTrue(experiment.exclude_countries)
+        self.assertTrue(experiment.is_sticky)
+        self.assertEqual(
+            experiment.targeting_config_slug, NimbusExperiment.TargetingConfig.FIRST_RUN
+        )
+
+
+class TestNewQAUpdateView(NewViewTestMixin, AuthTestCase):
+    url_name = "nimbus-ui-new-update-qa"
+
+    def test_get_returns_edit_form_for_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/qa/edit_form.html")
+        self.assertResponseUsesForm(response, RolloutQAStatusForm)
+
+    def test_post_valid_saves_and_returns_display_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_status=NimbusExperiment.QAStatus.NOT_SET,
+            qa_comment="",
+            qa_run_test_plan_url="",
+            qa_run_testrail_url="",
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "qa_status": NimbusExperiment.QAStatus.SELF_GREEN,
+                "qa_comment": "QA testing completed",
+                "qa_run_test_plan_url": "https://www.example.com/test-plan",
+                "qa_run_testrail_url": "https://www.example.com/testrail",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/qa/card.html")
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.qa_status, NimbusExperiment.QAStatus.SELF_GREEN)
+        self.assertEqual(experiment.qa_comment, "QA testing completed")
+        self.assertEqual(
+            experiment.qa_run_test_plan_url, "https://www.example.com/test-plan"
+        )
+        self.assertEqual(
+            experiment.qa_run_testrail_url, "https://www.example.com/testrail"
+        )
+
+
+class TestNewDocumentationLinkCreateView(AuthTestCase):
+    url_name = "nimbus-ui-new-create-documentation-link"
+
+    def test_post_creates_link_and_returns_edit_form(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[],
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "name": experiment.name,
+                "hypothesis": experiment.hypothesis,
+                "risk_brand": True,
+                "risk_message": True,
+                "public_description": experiment.public_description,
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertEqual(experiment.documentation_links.count(), 1)
+
+
+class TestNewDocumentationLinkDeleteView(AuthTestCase):
+    url_name = "nimbus-ui-new-delete-documentation-link"
+
+    def test_post_deletes_link_and_returns_edit_form(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "name": experiment.name,
+                "hypothesis": experiment.hypothesis,
+                "risk_brand": True,
+                "risk_message": True,
+                "public_description": experiment.public_description,
+                "risk_revenue": True,
+                "risk_partner_related": True,
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
+                "documentation_links-0-link": "https://www.example.com",
+                "link_id": documentation_link.id,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertEqual(experiment.documentation_links.count(), 0)
+
+
+class TestNewTagSearchView(AuthTestCase):
+    def test_get_returns_matching_unassigned_tags(self):
+        experiment = NimbusExperimentFactory.create()
+        tag1 = TagFactory.create(name="Alpha")
+        TagFactory.create(name="Beta")
+        experiment.tags.add(tag1)
+
+        response = self.client.get(
+            reverse("nimbus-ui-new-search-tags", kwargs={"slug": experiment.slug}),
+            {"q": ""},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Beta")
+        self.assertNotContains(response, "Alpha")
+
+    def test_get_filters_by_query(self):
+        experiment = NimbusExperimentFactory.create()
+        TagFactory.create(name="Alpha")
+        TagFactory.create(name="Beta")
+
+        response = self.client.get(
+            reverse("nimbus-ui-new-search-tags", kwargs={"slug": experiment.slug}),
+            {"q": "alp"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Alpha")
+        self.assertNotContains(response, "Beta")
+
+
+class TestNewAddTagView(AuthTestCase):
+    def test_post_adds_tag_to_experiment(self):
+        experiment = NimbusExperimentFactory.create()
+        tag = TagFactory.create(name="MyTag")
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-add-tag", kwargs={"slug": experiment.slug}),
+            {"tag_id": tag.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertIn(tag, experiment.tags.all())
+
+
+class TestNewRemoveTagView(AuthTestCase):
+    def test_post_removes_tag_from_experiment(self):
+        experiment = NimbusExperimentFactory.create()
+        tag = TagFactory.create(name="MyTag")
+        experiment.tags.add(tag)
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-remove-tag", kwargs={"slug": experiment.slug}),
+            {"tag_id": tag.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertNotIn(tag, experiment.tags.all())
+
+
+class TestNewSubscriberSearchView(AuthTestCase):
+    def test_get_returns_matching_users(self):
+        experiment = NimbusExperimentFactory.create()
+        user = UserFactory.create(email="findme@example.com")
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-new-search-subscribers",
+                kwargs={"slug": experiment.slug},
+            ),
+            {"q": "findme"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, user.email)
+
+    def test_get_excludes_already_subscribed(self):
+        experiment = NimbusExperimentFactory.create()
+        user = UserFactory.create(email="already@example.com")
+        experiment.subscribers.add(user)
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-new-search-subscribers",
+                kwargs={"slug": experiment.slug},
+            ),
+            {"q": "already"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, user.email)
+
+    def test_get_returns_empty_when_no_query(self):
+        experiment = NimbusExperimentFactory.create()
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-new-search-subscribers",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+
+
+class TestNewAddSubscriberView(AuthTestCase):
+    def test_post_adds_subscriber(self):
+        experiment = NimbusExperimentFactory.create()
+        user = UserFactory.create()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-add-subscriber",
+                kwargs={"slug": experiment.slug},
+            ),
+            {"user_id": user.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertIn(user, experiment.subscribers.all())
+
+
+class TestNewRemoveSubscriberView(AuthTestCase):
+    def test_post_removes_subscriber(self):
+        experiment = NimbusExperimentFactory.create()
+        user = UserFactory.create()
+        experiment.subscribers.add(user)
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-remove-subscriber",
+                kwargs={"slug": experiment.slug},
+            ),
+            {"user_id": user.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertNotIn(user, experiment.subscribers.all())
