@@ -1058,6 +1058,19 @@ class TestCheckSrmMismatch(TestCase):
         self.assertTrue(is_srm)
         self.assertLess(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
 
+    def test_returns_false_when_deviation_small_despite_large_population(self):
+        # 100M clients with a 0.2% deviation — statistically significant
+        # but not meaningful in practice. Should not trigger the alert.
+        monitoring_data = {
+            "branches": {
+                "control": {"enrollments": 50100000},
+                "treatment": {"enrollments": 49900000},
+            }
+        }
+        is_srm, p_value = check_srm_mismatch(monitoring_data)
+        self.assertFalse(is_srm)
+        self.assertLess(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
+
     def test_returns_false_when_branches_are_balanced(self):
         monitoring_data = {
             "branches": {
