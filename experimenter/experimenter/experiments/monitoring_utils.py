@@ -23,7 +23,7 @@ def compute_unenrollment_rate(total_enrollments, total_unenrollments):
     return total_unenrollments / total_enrollments
 
 
-def compute_srm_p_value(branches, branch_ratios=None):
+def compute_srm_p_value(branches, branch_ratios):
     branch_names = list(branches.keys())
     enrollments = [branches[b].get("enrollments", 0) for b in branch_names]
 
@@ -69,7 +69,7 @@ def check_unenrollment_spike(monitoring_data):
     return rate > UNENROLLMENT_SPIKE_THRESHOLD, rate
 
 
-def compute_max_ratio_deviation(branches, branch_ratios=None):
+def compute_max_ratio_deviation(branches, branch_ratios):
     branch_names = list(branches.keys())
     enrollments = [branches[b].get("enrollments", 0) for b in branch_names]
     total = sum(enrollments)
@@ -86,7 +86,7 @@ def compute_max_ratio_deviation(branches, branch_ratios=None):
     return max(abs(a - e) for a, e in zip(actual_ratios, expected_ratios))
 
 
-def check_srm_mismatch(monitoring_data, branch_ratios=None):
+def check_srm_mismatch(monitoring_data, branch_ratios):
     branches = monitoring_data.get("branches", {})
 
     if len(branches) < 2:
