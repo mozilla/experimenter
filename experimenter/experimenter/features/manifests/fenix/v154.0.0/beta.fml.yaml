@@ -586,6 +586,13 @@ features:
         description: If false, the marketing onboarding card will never be shown.
         type: Boolean
         default: true
+  media-notification-improvements:
+    description: Whether to show the media notification improvements
+    variables:
+      enabled:
+        description: enabled media notification improvements if true, else not enabled
+        type: Boolean
+        default: false
   merino-client:
     description: Feature to enable the Merino Client for users on Firefox on Android.
     variables:
