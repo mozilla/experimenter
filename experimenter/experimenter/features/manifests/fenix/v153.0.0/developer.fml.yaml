@@ -354,35 +354,7 @@ features:
         description: Country codes whose users are eligible for IP Protection.
         type: List<String>
         default:
-        - AU
-        - AT
-        - BE
-        - BG
-        - CA
-        - CL
-        - CO
-        - DK
-        - FI
-        - FR
-        - DE
-        - IE
-        - IT
-        - JP
-        - MY
-        - MX
-        - NL
-        - NZ
-        - NO
-        - PL
-        - PT
-        - SG
-        - ZA
-        - ES
-        - SE
-        - CH
-        - TH
-        - GB
-        - US
+        - XX
       data-limit-gigabyte:
         description: Specifies the VPN data limit for unpaid users in GB (e.g. 50 GB).
         type: Int
@@ -390,7 +362,7 @@ features:
       enabled:
         description: If true, IP Protection feature is enabled.
         type: Boolean
-        default: false
+        default: true
       promo-deadline:
         description: The final date for the promotion to end. This needs to be an ISO 8601 formatted date (i.e. YYYY-MM-DD).
         type: String
