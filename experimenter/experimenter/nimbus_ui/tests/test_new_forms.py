@@ -17,12 +17,20 @@ from experimenter.experiments.models import (
 from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
+    TagFactory,
 )
+from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.new.forms import (
+    CollaboratorsForm,
+    DocumentationLinkCreateForm,
+    DocumentationLinkDeleteForm,
+    NimbusExperimentCreateForm,
+    NimbusExperimentSidebarCloneForm,
     RolloutAudienceForm,
     RolloutOverviewForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
+    TagAssignForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.targeting.constants import NimbusTargetingConfig
@@ -35,6 +43,167 @@ class RequestFormTestCase(TestCase):
         request_factory = RequestFactory()
         self.request = request_factory.get(reverse("nimbus-ui-create"))
         self.request.user = self.user
+
+
+class TestNimbusExperimentCreateForm(RequestFormTestCase):
+    def test_valid_form_creates_experiment_with_changelog(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Experiment",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusExperimentCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.owner, self.user)
+        self.assertEqual(experiment.name, "Test Experiment")
+        self.assertEqual(experiment.slug, "test-experiment")
+        self.assertEqual(experiment.hypothesis, "test hypothesis")
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
+
+        changelog = experiment.changes.get()
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertEqual(changelog.message, "dev@example.com created Test Experiment")
+
+    def test_invalid_unsluggable_name(self):
+        data = {
+            "owner": self.user,
+            "name": "$.",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusExperimentCreateForm(data, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_NAME_INVALID])
+
+    def test_invalid_duplicate_slug(self):
+        NimbusExperimentFactory.create(slug="test-experiment")
+        data = {
+            "owner": self.user,
+            "name": "Test Experiment",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusExperimentCreateForm(data, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_SLUG_DUPLICATE])
+
+    def test_invalid_with_placeholder_hypothesis(self):
+        data = {
+            "owner": self.user,
+            "name": "$.",
+            "hypothesis": NimbusUIConstants.HYPOTHESIS_PLACEHOLDER,
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusExperimentCreateForm(data, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["hypothesis"], [NimbusUIConstants.ERROR_HYPOTHESIS_PLACEHOLDER]
+        )
+
+    def test_form_creates_default_branches(self):
+        data = {
+            "owner": self.user,
+            "name": "Branched Experiment",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusExperimentCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.branches.count(), 2)
+        self.assertIsNotNone(experiment.reference_branch)
+        self.assertEqual(experiment.reference_branch.name, "Control")
+
+        branch_names = set(experiment.branches.values_list("name", flat=True))
+        self.assertIn("Control", branch_names)
+        self.assertIn("Treatment A", branch_names)
+
+
+class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
+    def test_valid_clone_form_creates_experiment(self):
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "Cloned Experiment",
+            "slug": "cloned-experiment",
+        }
+        form = NimbusExperimentSidebarCloneForm(
+            data, instance=parent_experiment, request=self.request
+        )
+        changelog_message = form.get_changelog_message()
+        self.assertEqual(
+            changelog_message,
+            f"{self.user} cloned this experiment from Original Experiment",
+        )
+
+        self.assertTrue(form.is_valid())
+
+        cloned_experiment = form.save()
+
+        self.assertEqual(cloned_experiment.owner, self.user)
+        self.assertEqual(cloned_experiment.name, "Cloned Experiment")
+        self.assertEqual(cloned_experiment.slug, "cloned-experiment")
+        self.assertEqual(
+            cloned_experiment.application, NimbusExperiment.Application.DESKTOP
+        )
+
+    def test_invalid_unsluggable_name(self):
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "$.",
+            "slug": "",
+        }
+        form = NimbusExperimentSidebarCloneForm(
+            data, instance=parent_experiment, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_NAME_INVALID])
+
+    def test_invalid_duplicate_slug(self):
+        NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Cloned Experiment",
+            slug="cloned-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "Cloned Experiment.",
+            "slug": "cloned-experiment",
+        }
+        form = NimbusExperimentSidebarCloneForm(
+            data, instance=parent_experiment, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["name"], [NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG]
+        )
 
 
 class TestRolloutOverviewForm(RequestFormTestCase):
@@ -93,6 +262,73 @@ class TestRolloutOverviewForm(RequestFormTestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn("name", form.errors)
+
+
+class TestDocumentationLinkCreateForm(RequestFormTestCase):
+    def test_valid_form_adds_documentation_link(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[],
+        )
+
+        form = DocumentationLinkCreateForm(
+            instance=experiment,
+            data={
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "public_description": "new description",
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.documentation_links.all().count(), 1)
+        self.assertEqual(
+            form.get_changelog_message(),
+            f"{self.request.user} added a documentation link",
+        )
+
+
+class TestDocumentationLinkDeleteForm(RequestFormTestCase):
+    def test_valid_form_deletes_documentation_link(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+
+        form = DocumentationLinkDeleteForm(
+            instance=experiment,
+            data={
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "public_description": "new description",
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
+                "documentation_links-0-link": "https://www.example.com",
+                "link_id": documentation_link.id,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.documentation_links.all().count(), 0)
+        self.assertEqual(
+            form.get_changelog_message(),
+            f"{self.request.user} deleted a documentation link",
+        )
 
 
 class TestRolloutRisksForm(RequestFormTestCase):
@@ -379,3 +615,109 @@ class TestSelectedFirstMixin(TestCase):
         }
 
         self.assertEqual(first_two_ids, {locale1.id, locale2.id})
+
+
+class TestCollaboratorsForm(RequestFormTestCase):
+    def test_collaborators_form_updates_subscribers(self):
+        experiment = NimbusExperimentFactory.create()
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        form = CollaboratorsForm(
+            instance=experiment,
+            data={"collaborators": [user1.id, user2.id]},
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(set(experiment.subscribers.all()), {user1, user2})
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated collaborators", changelog.message)
+
+    def test_collaborators_form_removes_subscribers(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        experiment.subscribers.set([user1, user2])
+
+        form = CollaboratorsForm(
+            instance=experiment, data={"collaborators": [user1.id]}, request=self.request
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(list(experiment.subscribers.all()), [user1])
+
+    def test_collaborators_form_initial_value(self):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        experiment = NimbusExperimentFactory.create()
+        experiment.subscribers.set([user1, user2])
+
+        form = CollaboratorsForm(instance=experiment, request=self.request)
+        self.assertEqual(set(form.fields["collaborators"].initial), {user1, user2})
+
+
+class TestTagAssignForm(RequestFormTestCase):
+    def test_valid_form_assigns_tags(self):
+        experiment = NimbusExperimentFactory.create()
+        tag1 = TagFactory.create(name="Tag 1")
+        tag2 = TagFactory.create(name="Tag 2")
+
+        form = TagAssignForm(
+            instance=experiment, data={"tags": [tag1.id, tag2.id]}, request=self.request
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(set(experiment.tags.all()), {tag1, tag2})
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
+
+    def test_form_removes_tags(self):
+        tag1 = TagFactory.create(name="Tag 1")
+        tag2 = TagFactory.create(name="Tag 2")
+        experiment = NimbusExperimentFactory.create()
+        experiment.tags.set([tag1, tag2])
+
+        form = TagAssignForm(
+            instance=experiment, data={"tags": [tag1.id]}, request=self.request
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(list(experiment.tags.all()), [tag1])
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
+
+    def test_form_with_no_tags(self):
+        tag1 = TagFactory.create(name="Tag 1")
+        experiment = NimbusExperimentFactory.create()
+        experiment.tags.set([tag1])
+
+        form = TagAssignForm(instance=experiment, data={"tags": []}, request=self.request)
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(experiment.tags.count(), 0)
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("updated tags", changelog.message)
+
+    def test_form_queryset_ordered_by_name(self):
+        TagFactory.create(name="Z Tag")
+        TagFactory.create(name="A Tag")
+        TagFactory.create(name="M Tag")
+
+        experiment = NimbusExperimentFactory.create(tags=[])
+        form = TagAssignForm(instance=experiment)
+
+        tag_names = [tag.name for tag in form.fields["tags"].queryset]
+        self.assertEqual(tag_names, ["A Tag", "M Tag", "Z Tag"])

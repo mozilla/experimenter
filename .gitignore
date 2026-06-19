@@ -108,6 +108,7 @@ google-credentials.json
 
 # Jetstream config
 experimenter/experimenter/outcomes/metric-hub-main/*
+!experimenter/experimenter/outcomes/metric-hub-main/featmon/
 !experimenter/experimenter/outcomes/metric-hub-main/jetstream/
 experimenter/experimenter/outcomes/metric-hub-main/jetstream/*
 !experimenter/experimenter/outcomes/metric-hub-main/jetstream/outcomes/

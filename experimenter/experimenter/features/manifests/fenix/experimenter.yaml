@@ -387,9 +387,6 @@ juno-onboarding:
       type: json
       description: |
         A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
-    use-onboarding-redesign:
-      type: boolean
-      description: If true, use the onboarding redesign.
 lna-blocking:
   description: Feature that allows blocking local network or device access.
   hasExposure: true
@@ -906,6 +903,15 @@ tab-groups-drag-and-drop:
       type: boolean
       description: |
         Whether or not to enable drag and drop for tab groups.
+tab-groups-live-reorder:
+  description: Control whether reorder happens live during a drag and drop action for Tab Groups.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable live reorder for tab groups drag and drop.
 tab-groups-onboarding:
   description: Control the visibility of onboarding for tab groups.
   hasExposure: true

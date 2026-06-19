@@ -1185,6 +1185,78 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 experiment = NimbusExperiment.objects.get(id=experiment.id)
                 self.assertEqual(experiment.results_data, FULL_DATA)
 
+    def test_metric_errors_before_analysis_start_time_are_excluded(self):
+        experiment = NimbusExperimentFactory.create(
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+        fresh_error = {
+            "exception": "(<class 'MetricException'>)",
+            "exception_type": "MetricException",
+            "experiment": "test-experiment-slug",
+            "filename": "metrics.py",
+            "func_name": "execute",
+            "log_level": "ERROR",
+            "message": "test-experiment-slug -> metric error",
+            "metric": "custom_metric",
+            "statistic": None,
+            "timestamp": "2026-05-19T04:30:03+00:00",
+            "analysis_basis": "enrollments",
+            "segment": "all",
+        }
+        stale_error = {
+            "exception": "(<class 'MetricException'>)",
+            "exception_type": "MetricException",
+            "experiment": "test-experiment-slug",
+            "filename": "metrics.py",
+            "func_name": "execute",
+            "log_level": "ERROR",
+            "message": "test-experiment-slug -> stale metric error",
+            "metric": "custom_metric",
+            "statistic": None,
+            "timestamp": "2026-05-17T04:30:03+00:00",
+            "analysis_basis": "enrollments",
+            "segment": "all",
+        }
+        malformed_error = {
+            "exception": "(<class 'MetricException'>)",
+            "exception_type": "MetricException",
+            "experiment": "test-experiment-slug",
+            "filename": "metrics.py",
+            "func_name": "execute",
+            "log_level": "ERROR",
+            "message": "test-experiment-slug -> malformed metric error",
+            "metric": "malformed_metric",
+            "statistic": None,
+            "timestamp": "not-a-date",
+            "analysis_basis": "enrollments",
+            "segment": "all",
+        }
+
+        with (
+            patch("experimenter.jetstream.client.get_data") as mock_get_data,
+            patch("experimenter.jetstream.client.get_metadata") as mock_get_metadata,
+            patch("experimenter.jetstream.client.get_analysis_errors") as mock_get_errors,
+        ):
+            mock_get_data.return_value = []
+            mock_get_metadata.return_value = {
+                "analysis_start_time": "2026-05-18T04:30:03+00:00",
+                "outcomes": {},
+                "metrics": {},
+            }
+            mock_get_errors.return_value = [fresh_error, stale_error, malformed_error]
+            tasks.fetch_experiment_data(experiment.id)
+            experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+            self.assertEqual(
+                experiment.results_data["v3"]["errors"],
+                {
+                    "custom_metric": [fresh_error],
+                    "malformed_metric": [malformed_error],
+                    "experiment": [],
+                },
+            )
+
     @parameterized.expand(
         [
             (NimbusExperimentFactory.Lifecycles.CREATED,),

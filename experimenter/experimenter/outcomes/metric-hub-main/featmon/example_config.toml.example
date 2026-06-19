@@ -1,0 +1,67 @@
+# Example featmon config.  Copy this file, rename it to <application>.toml
+# (e.g. firefox_desktop.toml), and fill in the sections below.
+#
+# The BigQuery dataset is inferred from the filename stem — do NOT add a
+# `dataset` field inside the file.
+
+# ---------------------------------------------------------------------------
+# Data sources
+# ---------------------------------------------------------------------------
+# Each data_source maps to a BigQuery table.  The key is an arbitrary name
+# used to reference this source from feature definitions below.
+
+[data_sources.metrics]
+# Required: the BigQuery table name within the application dataset.
+table_name = "metrics"
+# Required: one of "metrics", "event_stream", or "clients_daily".
+type = "metrics"
+# Optional: field used to identify analysis units.
+# Default: "client_info.client_id"
+analysis_unit_id = "metrics.uuid.legacy_telemetry_profile_group_id"
+
+# Optional: dimensions to group metrics by.  Each key is a dimension name.
+# Use an empty table {} to derive the field name from the dimension name.
+# Use { field = "..." } when the BigQuery field path differs.
+# Use value_in + default_value to restrict to a known set of values.
+[data_sources.metrics.dimensions]
+normalized_channel = {}
+normalized_os = {}
+locale = { field = "client_info.locale" }
+normalized_country_code = { value_in = ["CA", "DE", "FR", "GB", "US"], default_value = "OTHER" }
+
+[data_sources.events_stream]
+table_name = "events_stream"
+type = "event_stream"
+analysis_unit_id = "profile_group_id"
+
+# ---------------------------------------------------------------------------
+# Features
+# ---------------------------------------------------------------------------
+# Each feature key must be a valid TOML bare key (snake_case recommended).
+# If the actual Nimbus feature slug contains hyphens, add a `slug` field.
+
+[features.my_feature]
+# Optional: set when the Nimbus slug differs from the TOML key (e.g. hyphens).
+slug = "my-feature"
+
+# Metrics from the "metrics" data source above.
+# Supported metric types: boolean, quantity, labeled_counter, labeled_boolean,
+#                         string, event.
+
+[features.my_feature.metrics_by_source.metrics.boolean]
+# An empty table {} uses sensible defaults (aggregator = count_true).
+my_boolean_metric = {}
+
+[features.my_feature.metrics_by_source.metrics.quantity]
+my_quantity_metric = {}
+
+[features.my_feature.metrics_by_source.metrics.labeled_counter.my_labeled_metric]
+# Optional: restrict to a subset of labels.
+aggregators = ["sum", "avg"]
+label_in = ["label_a", "label_b"]
+
+# Event metrics from the "events_stream" data source.
+# Events have an extra nesting level for the Glean category.
+[features.my_feature.metrics_by_source.events_stream.event.my_category]
+my_event = {}
+another_event = {}

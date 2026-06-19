@@ -56,6 +56,7 @@ PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 
 PROFILELESSTHAN1HOUR = "(currentDate|date - profileAgeCreated|date) / 3600000 < 1"
 PROFILELESSTHAN2DAYS = "(currentDate|date - profileAgeCreated|date) / 3600000 < 48"
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
+PROFILEMORETHAN14DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 14"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
 NEW_NON_SELECTABLE_PROFILE = f"({NEW_PROFILE}) && profileGroupProfileCount == 0"
 WIN1903 = "os.windowsBuildNumber >= 18362"
@@ -4680,6 +4681,20 @@ FX_153_4_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_153_5_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx153 Jun-15 Trainhop",
+    slug="newtab-153-0615-trainhop",
+    description=(
+        "Desktop users having the New Tab 153.5.20260615.213953 train hop, "
+        "which includes users of Fx151"
+    ),
+    targeting="newtabAddonVersion|versionCompare('153.5.20260615.213953') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
     name="New Tab Lists/Timer Interaction, Neither Widget Disabled",
     slug="widgets-lists-timer-interacted-not-disabled",
@@ -4745,6 +4760,59 @@ WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_1_TRAINHOP_MAX = (
         is_first_run_required=False,
         application_choice_names=(Application.DESKTOP.name,),
     )
+)
+
+WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+    name="Engaged with Sports/Clocks/Lists/Timer widget, that widget not disabled",
+    slug="widgets-any-four-engaged",
+    description=(
+        "Users who engaged with Sports, Lists, or Timer (interacted) or Clocks "
+        "(changed hour format, or added/removed/edited clocks), AND still have that "
+        "widget enabled. Clocks has no interaction pref, so customization is its "
+        "engagement signal."
+    ),
+    targeting=(
+        "(("
+        "'browser.newtabpage.activity-stream.widgets.lists.interaction'"
+        "|preferenceValue) && ("
+        "'browser.newtabpage.activity-stream.widgets.lists.enabled'"
+        "|preferenceValue)) || (("
+        "'browser.newtabpage.activity-stream.widgets.focusTimer.interaction'"
+        "|preferenceValue) && ("
+        "'browser.newtabpage.activity-stream.widgets.focusTimer.enabled'"
+        "|preferenceValue)) || (("
+        "'browser.newtabpage.activity-stream.widgets.sportsWidget.interaction'"
+        "|preferenceValue) && ("
+        "'browser.newtabpage.activity-stream.widgets.sportsWidget.enabled'"
+        "|preferenceValue)) || ((("
+        "'browser.newtabpage.activity-stream.widgets.clocks.zones'"
+        "|preferenceValue) || ("
+        "'browser.newtabpage.activity-stream.widgets.clocks.hourFormat'"
+        "|preferenceValue)) && ("
+        "'browser.newtabpage.activity-stream.widgets.clocks.enabled'"
+        "|preferenceValue))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_153_3_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+    name=(
+        "New Tab Fx153 Jun-05 Trainhop, engaged with any of 4 widgets, "
+        "that widget not disabled"
+    ),
+    slug="widgets-any-four-engaged-153-0605-trainhop",
+    description=(
+        "Users having the New Tab 153.3.20260605.21338 train hop who engaged with the "
+        "Sports, Clocks, Lists, or Timer widget and still have that widget enabled"
+    ),
+    targeting=f"{FX_153_3_TRAINHOP.targeting} && ({WIDGETS_ANY_FOUR_ENGAGED.targeting})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
 )
 
 BUILDID_20251006095753 = NimbusTargetingConfig(
@@ -4993,6 +5061,29 @@ EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED = NimbusTargetingConfig(
     description="Profile 7+ days, Windows only, has Taskbar Tabs enabled",
     targeting=(
         f"{PROFILEMORETHAN7DAYS} && {WINDOWS_ONLY.targeting} && {TASKBAR_TABS_ENABLED}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
+    name="Existing users eligible for VPN, profile 14+ days, no enterprise",
+    slug="existing_user_vpn_eligible",
+    description=(
+        "Existing users with a profile older than 14 days, "
+        "not on their first startup, "
+        "without active enterprise policies, "
+        "with IP Protection enabled, "
+        "and FxA enabled"
+    ),
+    targeting=(
+        f"{PROFILEMORETHAN14DAYS}"
+        " && !isFirstStartup"
+        f" && {NO_ENTERPRISE.targeting}"
+        " && 'browser.ipProtection.enabled'|preferenceValue"
+        " && isFxAEnabled"
     ),
     desktop_telemetry="",
     sticky_required=True,
