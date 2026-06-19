@@ -420,6 +420,14 @@ marketing-onboarding-card:
     enabled:
       type: boolean
       description: If false, the marketing onboarding card will never be shown.
+media-notification-improvements:
+  description: Whether to show the media notification improvements
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: enabled media notification improvements if true, else not enabled
 merino-client:
   description: Feature to enable the Merino Client for users on Firefox on Android.
   hasExposure: true

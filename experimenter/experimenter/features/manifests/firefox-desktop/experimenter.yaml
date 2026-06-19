@@ -636,6 +636,15 @@ urlbar:
         on next startup. Contextual model details (dimension, modelId,
         wasm fallback) are controlled by the browser.ml.embedGen.* prefs and
         are intentionally not exposed via Nimbus.
+    semanticHistoryInSeparateGroup:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.urlbar.suggest.semanticHistory.separateGroup
+      description: >-
+        Whether semantic history results are placed in their own result group
+        that fills only the space left after the other result groups, so
+        semantic results never evict non-semantic results. Off by default.
     showDebuggingIcons:
       type: boolean
       setPref:
@@ -2138,6 +2147,18 @@ shellService:
         branch: user
         pref: browser.shell.focusSetDefaultBrowserButton
       type: boolean
+    displayKitImageBehindSetDefaultBrowserButton:
+      description: >
+        Display a Kit image behind the set default browser button in Windows
+        Settings.
+      setPref:
+        branch: user
+        pref: browser.shell.displayKitImageBehindSetDefaultBrowserButton
+      type: string
+      enum:
+        - "off"
+        - "static"
+        - "animated"
 upgradeDialog:
   description: The dialog shown for major upgrades
   owner: omc-core@mozilla.com
@@ -5684,12 +5705,13 @@ defaultWindowsLaunchOnLogin:
   description: >-
     Controls whether or not new Windows users get defaulted to launch on login
   owner: drubino@mozilla.com
-  hasExposure: true
-  exposureDescription: >-
-    Exposure event is triggered if Windows policy allows launch on login.
+  hasExposure: false
   variables:
     enabled:
       type: boolean
+      setPref:
+        branch: default
+        pref: browser.startup.windowsLaunchOnLogin.defaultEnabled
       description: >-
         If true, and allowed by Windows policy, a new user will be defaulted
         to have Firefox launched when they log on.
