@@ -411,26 +411,31 @@ def get_experiment_data(experiment: NimbusExperiment):
 
     errors_by_metric = {}
     errors_experiment_overall = []
+
+    def include_error_after_analysis_start(err):
+        try:
+            analysis_start_time = datetime.fromisoformat(
+                experiment_metadata.get("analysis_start_time")
+                if experiment_metadata is not None
+                else ""
+            )
+            timestamp = datetime.fromisoformat(err.get("timestamp"))
+
+            return timestamp >= analysis_start_time
+        except (ValueError, TypeError, KeyError):
+            # ill-formatted/missing timestamp: default to including the error
+            return True
+
     if experiment_errors is not None:
         for err in experiment_errors:
             metric_slug = err.get("metric")
             if "metric" in err and metric_slug is not None:
-                if metric_slug not in errors_by_metric:
-                    errors_by_metric[metric_slug] = []
-                errors_by_metric[metric_slug].append(err)
+                if include_error_after_analysis_start(err):
+                    if metric_slug not in errors_by_metric:
+                        errors_by_metric[metric_slug] = []
+                    errors_by_metric[metric_slug].append(err)
             else:
-                try:
-                    analysis_start_time = datetime.fromisoformat(
-                        experiment_metadata.get("analysis_start_time")
-                        if experiment_metadata is not None
-                        else ""
-                    )
-                    timestamp = datetime.fromisoformat(err.get("timestamp"))
-
-                    if timestamp >= analysis_start_time:
-                        errors_experiment_overall.append(err)
-                except (ValueError, TypeError, KeyError):
-                    # ill-formatted/missing timestamp: default to including the error
+                if include_error_after_analysis_start(err):
                     errors_experiment_overall.append(err)
 
     for e in runtime_errors:
