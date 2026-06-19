@@ -11,10 +11,11 @@ from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.jetstream.client import (
     get_enrollment_funnel_data,
     get_experiment_data,
-    get_latest_results_timestamp,
+    get_latest_analysis_start_time,
     get_monitoring_data,
     get_population_sizing_data,
     get_results_filenames,
+    get_stored_analysis_start_time,
     has_missing_expected_results,
 )
 from experimenter.kinto.tasks import get_kinto_user
@@ -44,17 +45,17 @@ def strip_errors(data):
 
 @app.task
 @metrics.timer_decorator("fetch_experiment_data")
-def fetch_experiment_data(experiment_id, results_data_last_updated=None):
+def fetch_experiment_data(experiment_id):
     metrics.incr("fetch_experiment_data.started")
     experiment = None
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         old_results_data = experiment.results_data
-        old_results_data_last_updated = experiment.results_data_last_updated
         new_results_data = get_experiment_data(experiment)
 
         if old_results_data != new_results_data:
             experiment.results_data = new_results_data
+            experiment.save()
 
             old_normalized = strip_errors(old_results_data)
             new_normalized = strip_errors(new_results_data)
@@ -65,15 +66,6 @@ def fetch_experiment_data(experiment_id, results_data_last_updated=None):
                     get_kinto_user(),
                     message=NimbusChangeLog.Messages.RESULTS_UPDATED,
                 )
-
-        if results_data_last_updated is not None:
-            experiment.results_data_last_updated = results_data_last_updated
-
-        if (
-            old_results_data != new_results_data
-            or experiment.results_data_last_updated != old_results_data_last_updated
-        ):
-            experiment.save()
 
         metrics.incr("fetch_experiment_data.completed")
     except Exception as e:
@@ -95,27 +87,26 @@ def fetch_jetstream_data():
         for experiment in NimbusExperiment.objects.filter(
             status__in=[NimbusExperiment.Status.COMPLETE, NimbusExperiment.Status.LIVE]
         ):
-            latest_results_timestamp = get_latest_results_timestamp(
-                experiment.slug, results_filenames
-            )
+            latest_analysis_start_time = get_latest_analysis_start_time(experiment.slug)
             needs_missing_results = has_missing_expected_results(
                 experiment, results_filenames
             )
 
-            if latest_results_timestamp is None and not needs_missing_results:
+            if latest_analysis_start_time is None and not needs_missing_results:
                 metrics.incr("fetch_jetstream_data.skipped")
                 continue
 
-            has_newer_results = latest_results_timestamp is not None and (
-                experiment.results_data_last_updated is None
-                or experiment.results_data_last_updated < latest_results_timestamp
+            stored_analysis_start_time = get_stored_analysis_start_time(experiment)
+            has_newer_results = latest_analysis_start_time is not None and (
+                stored_analysis_start_time is None
+                or stored_analysis_start_time < latest_analysis_start_time
             )
 
             if has_newer_results or needs_missing_results:
                 logger.info(
                     f"Fetching Jetstream data for {experiment.name} ({experiment.slug})"
                 )
-                fetch_experiment_data.delay(experiment.id, latest_results_timestamp)
+                fetch_experiment_data.delay(experiment.id)
                 metrics.incr("fetch_jetstream_data.completed")
             else:
                 logger.info(

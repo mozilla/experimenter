@@ -122,29 +122,24 @@ def get_results_filenames():
     return filenames_by_folder
 
 
-def get_latest_results_timestamp(experiment_slug, results_filenames):
+def _parse_analysis_start_time(metadata):
+    start_time = metadata.get("analysis_start_time") if metadata else None
+    return datetime.fromisoformat(start_time) if start_time else None
+
+
+def get_latest_analysis_start_time(experiment_slug):
     recipe_slug = experiment_slug.replace("-", "_")
-    expected_filenames = {
-        STATISTICS_FOLDER: [
-            f"statistics_{recipe_slug}_{window}.json" for window in AnalysisWindow
-        ],
-        METADATA_FOLDER: [f"metadata_{recipe_slug}.json"],
-        ERRORS_FOLDER: [f"errors_{recipe_slug}.json"],
-    }
+    try:
+        metadata = get_metadata(recipe_slug)
+    except RuntimeError:
+        return None
+    return _parse_analysis_start_time(metadata)
 
-    latest_timestamp = None
-    for folder, filenames in expected_filenames.items():
-        for filename in filenames:
-            if filename not in results_filenames[folder]:
-                continue
 
-            path = Path(folder, filename)
-            file_timestamp = analysis_storage.get_modified_time(str(path))
-
-            if latest_timestamp is None or file_timestamp > latest_timestamp:
-                latest_timestamp = file_timestamp
-
-    return latest_timestamp
+def get_stored_analysis_start_time(experiment):
+    results_data = experiment.results_data or {}
+    metadata = (results_data.get("v3") or {}).get("metadata")
+    return _parse_analysis_start_time(metadata)
 
 
 def expected_windows(experiment):
