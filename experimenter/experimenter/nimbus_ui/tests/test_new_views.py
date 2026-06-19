@@ -115,7 +115,7 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/new_rollout_detail.html")
+        self.assertTemplateUsed(response, "new/rollouts/rollout_detail.html")
         self.assertEqual(response.context["experiment"], experiment)
         self.assertIsInstance(
             response.context["clone_form"], NimbusExperimentSidebarCloneForm
@@ -138,7 +138,7 @@ class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertTemplateUsed(response, "new/rollouts/overview/edit_form.html")
         self.assertResponseUsesForm(response, RolloutOverviewForm)
 
     @parameterized.expand(
@@ -203,7 +203,7 @@ class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/overview/card.html")
+        self.assertTemplateUsed(response, "new/rollouts/overview/card.html")
         experiment.refresh_from_db()
         self.assertEqual(experiment.name, "updated name")
         self.assertEqual(experiment.hypothesis, "updated hypothesis")
@@ -224,7 +224,7 @@ class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertTemplateUsed(response, "new/rollouts/overview/edit_form.html")
         self.assertTrue(response.context["form"].errors)
 
 
@@ -241,7 +241,7 @@ class TestNewRisksUpdateView(NewViewTestMixin, AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/risks/edit_form.html")
+        self.assertTemplateUsed(response, "new/rollouts/risks/edit_form.html")
         self.assertResponseUsesForm(response, RolloutRisksForm)
 
     def test_post_valid_saves_and_returns_display_card(self):
@@ -266,7 +266,7 @@ class TestNewRisksUpdateView(NewViewTestMixin, AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/risks/card.html")
+        self.assertTemplateUsed(response, "new/rollouts/risks/card.html")
         experiment.refresh_from_db()
         self.assertTrue(experiment.risk_ai)
         self.assertTrue(experiment.risk_brand)
@@ -288,7 +288,7 @@ class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/audience/edit_form.html")
+        self.assertTemplateUsed(response, "new/rollouts/audience/edit_form.html")
         self.assertResponseUsesForm(response, RolloutAudienceForm)
 
     def test_post_valid_saves_and_returns_display_card(self):
@@ -317,7 +317,7 @@ class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/audience/card.html")
+        self.assertTemplateUsed(response, "new/rollouts/audience/card.html")
         experiment.refresh_from_db()
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])
@@ -342,7 +342,7 @@ class TestNewQAUpdateView(NewViewTestMixin, AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/qa/edit_form.html")
+        self.assertTemplateUsed(response, "new/rollouts/qa/edit_form.html")
         self.assertResponseUsesForm(response, RolloutQAStatusForm)
 
     def test_post_valid_saves_and_returns_display_card(self):
@@ -365,7 +365,7 @@ class TestNewQAUpdateView(NewViewTestMixin, AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/qa/card.html")
+        self.assertTemplateUsed(response, "new/rollouts/qa/card.html")
         experiment.refresh_from_db()
         self.assertEqual(experiment.qa_status, NimbusExperiment.QAStatus.SELF_GREEN)
         self.assertEqual(experiment.qa_comment, "QA testing completed")
@@ -400,7 +400,7 @@ class TestNewDocumentationLinkCreateView(AuthTestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertTemplateUsed(response, "new/rollouts/overview/edit_form.html")
         self.assertEqual(experiment.documentation_links.count(), 1)
 
 
@@ -434,7 +434,7 @@ class TestNewDocumentationLinkDeleteView(AuthTestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/overview/edit_form.html")
+        self.assertTemplateUsed(response, "new/rollouts/overview/edit_form.html")
         self.assertEqual(experiment.documentation_links.count(), 0)
 
 

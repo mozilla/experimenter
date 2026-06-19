@@ -1291,14 +1291,3 @@ class TagAssignView(
 ):
     form_class = TagAssignForm
     template_name = "nimbus_experiments/assign_tags_response.html"
-
-
-class NimbusRolloutDetailView(
-    NimbusExperimentViewMixin,
-    CloneExperimentFormMixin,
-    DetailView,
-):
-    template_name = "nimbus_experiments/new_rollout_detail.html"
-
-
-# ── New UI views (shared across rollouts and experiments) ──────────────────────

@@ -90,7 +90,7 @@ class NimbusRolloutDetailView(
     CloneExperimentFormMixin,
     DetailView,
 ):
-    template_name = "nimbus_experiments/new_rollout_detail.html"
+    template_name = "new/rollouts/rollout_detail.html"
 
 
 class CardMixin:
@@ -132,26 +132,26 @@ class NewCardUpdateView(
 
 class NewOverviewUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutOverviewForm
-    display_template = "nimbus_experiments/overview/card.html"
-    template_name = "nimbus_experiments/overview/edit_form.html"
+    display_template = "new/rollouts/overview/card.html"
+    template_name = "new/rollouts/overview/edit_form.html"
 
 
 class NewRisksUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutRisksForm
-    display_template = "nimbus_experiments/risks/card.html"
-    template_name = "nimbus_experiments/risks/edit_form.html"
+    display_template = "new/rollouts/risks/card.html"
+    template_name = "new/rollouts/risks/edit_form.html"
 
 
 class NewAudienceUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutAudienceForm
-    display_template = "nimbus_experiments/audience/card.html"
-    template_name = "nimbus_experiments/audience/edit_form.html"
+    display_template = "new/rollouts/audience/card.html"
+    template_name = "new/rollouts/audience/edit_form.html"
 
 
 class NewQAUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutQAStatusForm
-    display_template = "nimbus_experiments/qa/card.html"
-    template_name = "nimbus_experiments/qa/edit_form.html"
+    display_template = "new/rollouts/qa/card.html"
+    template_name = "new/rollouts/qa/edit_form.html"
 
 
 class NewDocumentationLinkCreateView(RenderParentDBResponseMixin, NewOverviewUpdateView):
@@ -195,7 +195,7 @@ class NewM2MSearchView(NimbusExperimentViewMixin, DetailView):
 
 
 class NewTagSearchView(NewM2MSearchView):
-    template_name = "nimbus_experiments/overview/tag_search_results.html"
+    template_name = "new/rollouts/overview/tag_search_results.html"
     m2m_attr = "tags"
     context_key = "tags"
     filterset_class = TagSearchFilterSet
@@ -231,8 +231,8 @@ class NewTagView(NewM2MDeltaMixin, CardMixin, NewCardUpdateView):
     m2m_attr = "tags"
     form_field = "tags"
     form_class = TagAssignForm
-    display_template = "nimbus_experiments/overview/card.html"
-    template_name = "nimbus_experiments/overview/edit_form.html"
+    display_template = "new/rollouts/overview/card.html"
+    template_name = "new/rollouts/overview/edit_form.html"
 
 
 class NewAddTagView(NewTagView):
@@ -244,7 +244,7 @@ class NewRemoveTagView(NewTagView):
 
 
 class NewSubscriberSearchView(NewM2MSearchView):
-    template_name = "nimbus_experiments/overview/subscriber_search_results.html"
+    template_name = "new/rollouts/overview/subscriber_search_results.html"
     m2m_attr = "subscribers"
     context_key = "users"
     filterset_class = UserSearchFilterSet
@@ -257,8 +257,8 @@ class NewSubscriberView(NewM2MDeltaMixin, CardMixin, NewCardUpdateView):
     m2m_attr = "subscribers"
     form_field = "collaborators"
     form_class = CollaboratorsForm
-    display_template = "nimbus_experiments/overview/card.html"
-    template_name = "nimbus_experiments/overview/edit_form.html"
+    display_template = "new/rollouts/overview/card.html"
+    template_name = "new/rollouts/overview/edit_form.html"
 
 
 class NewAddSubscriberView(NewSubscriberView):
