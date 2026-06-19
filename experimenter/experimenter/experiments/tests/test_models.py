@@ -5615,6 +5615,30 @@ class TestNimbusExperiment(TestCase):
         self.assertFalse(summary["is_unenrollment_spike"])
         self.assertTrue(summary["is_srm"])
 
+    def test_monitoring_summary_no_srm_for_configured_unequal_ratio(self):
+        # A 95/5 split that matches the experiment's configured branch ratios
+        # must not be flagged as SRM, even though it looks imbalanced versus an
+        # equal distribution. Fails if branch_ratios isn't passed through.
+        experiment = NimbusExperimentFactory.create(
+            monitoring_data={
+                "total_enrollments": 1000000,
+                "total_unenrollments": 0,
+                "branches": {
+                    "control": {"enrollments": 950000},
+                    "treatment": {"enrollments": 50000},
+                },
+                "reasons_by_branch": {},
+            }
+        )
+        experiment.reference_branch.ratio = 95
+        experiment.reference_branch.save()
+        treatment = experiment.branches.get(slug="treatment")
+        treatment.ratio = 5
+        treatment.save()
+
+        summary = experiment.monitoring_summary
+        self.assertFalse(summary["is_srm"])
+
     def test_monitoring_summary_returns_top_reason_for_branches_with_reasons(self):
         experiment = NimbusExperimentFactory.create(
             monitoring_data={
