@@ -525,10 +525,6 @@ features:
           ALWAYS: 'true'
           NEVER: 'false'
         string-alias: ConditionName
-      use-onboarding-redesign:
-        description: If true, use the onboarding redesign.
-        type: Boolean
-        default: true
   lna-blocking:
     description: Feature that allows blocking local network or device access.
     variables:
@@ -1372,8 +1368,6 @@ enums:
         description: Allows user to sync with a Firefox account.
       terms-of-service:
         description: Page to display the terms of services.
-      theme-selection:
-        description: Allows user to choose between dark and light themes.
       toolbar-placement:
         description: Allows user to choose the toolbar position.
   OnboardingPanel:
@@ -1444,15 +1438,6 @@ enums:
           Uses the following copy:
           - Title: "A note from Firefox"
           - Learn more: "You can learn more here."
-  ThemeType:
-    description: An enum to describe a theme selection option.
-    variants:
-      theme-dark:
-        description: Sets the theme to dark mode.
-      theme-light:
-        description: Sets the theme to light mode.
-      theme-system:
-        description: Adapts the theme to match the device's system setting.
   ToolbarType:
     description: An enum to describe a toolbar placement option.
     variants:
@@ -1461,21 +1446,6 @@ enums:
       toolbar-top:
         description: Sets the toolbar placement on the top.
 objects:
-  CustomizationThemeData:
-    description: Defines an option for theme selection.
-    fields:
-      image-res:
-        description: The resource id of the image to be displayed.
-        type: Image
-        default: ic_pick_a_theme_system_auto
-      label:
-        description: Display text for the theme option (e.g., "Light Theme").
-        type: Text
-        default: ''
-      theme-type:
-        description: The type of the theming option.
-        type: ThemeType
-        default: theme-system
   CustomizationToolbarData:
     description: An object to describe the placement of the toolbar.
     fields:
@@ -1494,10 +1464,6 @@ objects:
   ExtraCardData:
     description: Holds data for cards that require additional data, e.g. toolbar placement cards.
     fields:
-      customization-theme-data:
-        description: An optional list of theme choices for the theme selection card.
-        type: List<CustomizationThemeData>
-        default: []
       customization-toolbar-data:
         description: |
           An optional list of toolbar placements for the toolbar placement card.
