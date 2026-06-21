@@ -330,6 +330,14 @@ homescreen-edge-to-edge-background:
     enabled:
       type: boolean
       description: Enables the feature
+import-bookmarks:
+  description: A feature that lets users import bookmarks from another browser.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the import bookmarks feature will be enabled.
 ip-protection:
   description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
   hasExposure: true
