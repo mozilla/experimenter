@@ -383,9 +383,6 @@ juno-onboarding:
       type: json
       description: |
         A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
-    use-onboarding-redesign:
-      type: boolean
-      description: If true, use the onboarding redesign.
 lna-blocking:
   description: Feature that allows blocking local network or device access.
   hasExposure: true

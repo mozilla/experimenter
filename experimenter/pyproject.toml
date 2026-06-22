@@ -8,7 +8,6 @@ package-mode = false
 [tool.poetry.dependencies]
 asgiref = "3.11.0"
 celery = "^5.6.0"
-chardet = "4.0.0"
 click = "8.1.6"
 coverage = "^7.14.0"
 datadog = "0.52.0"
@@ -29,7 +28,6 @@ django-types = "^0.24.0"
 django-widget-tweaks = "1.5.0"
 djangorestframework = "3.17.0"
 djangorestframework-csv = "2.1.1"
-djangorestframework-dataclasses = "^1.4.0"
 djlint = "^1.36.1"
 dockerflow = "^2024.4.1"
 factory_boy = "3.3.0"
@@ -55,13 +53,10 @@ pyparsing = "2.4.7"
 pyright = "^1.1.291"
 pytest-cov = "^6.3.0"
 pytest-django = "4.12.0"
-pytest-testmon = "^2.2.0"
-pytest-watch = "4.2.0"
 pytest-xdist = "2.5.0"
 python = "^3.11"
 python-decouple = "3.8"
 pyyaml = "^6.0.1"
-PyYAML = "^6.0"
 redis = "4.6.0"
 requests = { version = "2.34.0", extras = ["security"] }
 responses = "0.26.0"
@@ -82,9 +77,6 @@ markdown = "^3.10.2"
 nh3 = "^0.3"
 django-prose = "^2.1.0"
 scipy = "^1.15.0"
-
-[tool.poetry.dev-dependencies]
-rope = "^0.23.0"
 
 [build-system]
 requires = ["poetry>=2.1.1"]
