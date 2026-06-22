@@ -1,0 +1,129 @@
+{% load widget_tweaks %}
+
+{# ── Edit form ── #}
+<div id="rollout-schedule-body">
+  <form hx-post="{% url 'nimbus-ui-new-update-schedule' experiment.slug %}"
+        hx-target="#rollout-schedule-body"
+        hx-swap="outerHTML"
+        class="d-flex flex-column gap-4">
+    {% csrf_token %}
+    {# Choose rollout plan #}
+    <div>
+      <label for="id_rollout_plan" class="small text-body mb-1">Choose rollout plan</label>
+      <div class="d-flex align-items-stretch gap-2">
+        <div class="flex-grow-1">{{ form.rollout_plan|add_class:"form-select"|add_error_class:"is-invalid" }}</div>
+        <button type="button"
+                class="btn btn-outline-secondary px-3 flex-shrink-0 d-flex align-items-center"
+                data-bs-toggle="collapse"
+                data-bs-target="#new-rollout-plan-field">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+      <div class="collapse mt-2{% if form.template_name.errors %} show{% endif %}"
+           id="new-rollout-plan-field">
+        <div class="input-group has-validation">
+          {{ form.template_name|add_class:"form-control"|add_error_class:"is-invalid" }}
+          <button type="button"
+                  class="btn btn-outline-primary"
+                  hx-post="{% url 'nimbus-ui-new-create-rollout-plan' experiment.slug %}"
+                  hx-target="#rollout-schedule-body"
+                  hx-swap="outerHTML">Save plan</button>
+          {% if form.template_name.errors %}
+            <div class="text-danger small mt-1">{{ form.template_name.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {{ form.rollout_phases.management_form }}
+    <div class="d-flex flex-column gap-3">
+      {% for phase_form in form.rollout_phases %}
+        <div>
+          {{ phase_form.id }}
+          <div class="d-flex gap-4 align-items-end">
+            {# Phase Number #}
+            <span class="small fw-bold text-body flex-shrink-0 pb-2">Phase {{ forloop.counter }}</span>
+            {# Population in % #}
+            <div class="flex-shrink-0">
+              <label for="id_rollout_phases-{{ forloop.counter0 }}-population_percent"
+                     class="text-secondary mb-1"
+                     style="font-size: 12px">Population</label>
+              <div class="input-group">
+                {{ phase_form.population_percent|add_class:"form-control"|add_error_class:"is-invalid" }}
+                <span class="input-group-text">%</span>
+              </div>
+              {% if phase_form.population_percent.errors %}
+                <div class="text-danger small mt-1">{{ phase_form.population_percent.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+            {# Duration #}
+            <div class="flex-grow-1" style="min-width: 0">
+              <label class="text-secondary mb-1" style="font-size: 12px">Duration</label>
+              <div class="d-flex gap-2 align-items-center">
+                <div class="flex-grow-1" style="min-width: 0">
+                  {{ phase_form.start_date|add_class:"form-control"|add_error_class:"is-invalid" }}
+                </div>
+                <div class="flex-grow-1" style="min-width: 0">
+                  {{ phase_form.end_date|add_class:"form-control"|add_error_class:"is-invalid" }}
+                </div>
+              </div>
+              {% if phase_form.start_date.errors %}
+                <div class="text-danger small mt-1">{{ phase_form.start_date.errors|join:", " }}</div>
+              {% endif %}
+              {% if phase_form.end_date.errors %}
+                <div class="text-danger small mt-1">{{ phase_form.end_date.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+            <button type="button"
+                    class="btn p-0 border-0 text-secondary flex-shrink-0 pb-2 pe-1"
+                    hx-post="{% url 'nimbus-ui-new-delete-rollout-phase' experiment.slug %}"
+                    hx-vals='{"phase_id": "{{ phase_form.instance.pk }}"}'
+                    hx-target="#rollout-schedule-body"
+                    hx-swap="outerHTML">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+      <div>
+        <button type="button"
+                class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small mt-2"
+                hx-post="{% url 'nimbus-ui-new-create-rollout-phase' experiment.slug %}"
+                hx-target="#rollout-schedule-body"
+                hx-swap="outerHTML">
+          <i class="fa-solid fa-plus"></i>
+          Add phase
+        </button>
+      </div>
+    </div>
+    {# Move to next phase observations #}
+    <div>
+      <label for="id_rollout_advance_observations" class="small text-body mb-1">
+        {{ NimbusUIConstants.ROLLOUT_ADVANCE_OBSERVATIONS_LABEL }}
+      </label>
+      {{ form.rollout_advance_observations|add_class:"form-control"|add_error_class:"is-invalid" }}
+      {% if form.rollout_advance_observations.errors %}
+        <div class="text-danger small mt-1">{{ form.rollout_advance_observations.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+    {# Pause rollout observations #}
+    <div class="mb-2">
+      <label for="id_rollout_pause_observations" class="small text-body mb-1">
+        {{ NimbusUIConstants.ROLLOUT_PAUSE_OBSERVATIONS_LABEL }}
+      </label>
+      {{ form.rollout_pause_observations|add_class:"form-control"|add_error_class:"is-invalid" }}
+      {% if form.rollout_pause_observations.errors %}
+        <div class="text-danger small mt-1">{{ form.rollout_pause_observations.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+    {# Action buttons #}
+    <div class="d-flex align-items-center gap-2">
+      <button type="submit" class="btn btn-primary btn-sm">Save</button>
+      <button type="button"
+              class="btn btn-outline-secondary btn-sm"
+              hx-get="{{ cancel_url }}"
+              hx-select="#rollout-card-schedule"
+              hx-target="#rollout-card-schedule"
+              hx-swap="outerHTML">Cancel</button>
+    </div>
+  </form>
+</div>

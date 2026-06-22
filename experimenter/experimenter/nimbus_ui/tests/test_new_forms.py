@@ -1,15 +1,18 @@
 import datetime
 import json
+from unittest.mock import patch
 
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
+from parameterized import parameterized
 
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranchFeatureValue,
     NimbusExperiment,
@@ -31,14 +34,17 @@ from experimenter.nimbus_ui.new.forms import (
     NimbusBranchFeatureValueForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    ReviewToApproveForm,
     RolloutAudienceForm,
     RolloutFeaturesForm,
     RolloutOverviewForm,
+    RolloutPhaseForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
     TagAssignForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.slack.constants import SlackConstants
 from experimenter.targeting.constants import NimbusTargetingConfig
 
 
@@ -987,3 +993,173 @@ class TestTagAssignForm(RequestFormTestCase):
 
         tag_names = [tag.name for tag in form.fields["tags"].queryset]
         self.assertEqual(tag_names, ["A Tag", "M Tag", "Z Tag"])
+
+
+class SlackEmojiMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_emoji_task = patch(
+            "experimenter.slack.tasks.add_emoji_to_message_async.delay"
+        ).start()
+        self.mock_remove_emoji_task = patch(
+            "experimenter.slack.tasks.remove_emoji_from_message_async.delay"
+        ).start()
+        self.addCleanup(self.mock_emoji_task.stop)
+        self.addCleanup(self.mock_remove_emoji_task.stop)
+
+
+class KintoPushQueueMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_push_task = patch(
+            "experimenter.kinto.tasks.nimbus_check_kinto_push_queue_by_collection.apply_async"
+        ).start()
+        self.addCleanup(self.mock_push_task.stop)
+
+
+class AllocateBucketRangeMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_allocate_bucket_range = patch(
+            "experimenter.experiments.models.NimbusExperiment.allocate_bucket_range"
+        ).start()
+        self.addCleanup(self.mock_allocate_bucket_range.stop)
+
+
+class MetricsMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_metrics = patch("experimenter.nimbus_ui.new.forms.metrics").start()
+        self.addCleanup(self.mock_metrics.stop)
+
+
+class TestReviewToApproveForm(
+    KintoPushQueueMockMixin,
+    AllocateBucketRangeMockMixin,
+    SlackEmojiMockMixin,
+    MetricsMockMixin,
+    RequestFormTestCase,
+):
+    def test_valid_transition(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=False,
+        )
+        form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.assertFalse(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("approved the review.", changelog.message)
+        self.mock_push_task.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ),
+        ]
+    )
+    def test_invalid_transition(self, status, status_next, publish_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_paused=is_paused,
+        )
+        form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+    def test_review_timing_metric(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED
+        )
+
+        form = ReviewToApproveForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.mock_metrics.timing.assert_called_once()
+
+
+class TestRolloutPhaseForm(TestCase):
+    def test_end_date_before_start_date_is_invalid(self):
+        form = RolloutPhaseForm(
+            data={
+                "start_date": "2026-02-01",
+                "end_date": "2026-01-01",
+                "population_percent": "10",
+            }
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER,
+            form.errors["end_date"],
+        )
+
+    def test_end_date_equal_to_start_date_is_valid(self):
+        form = RolloutPhaseForm(
+            data={
+                "start_date": "2026-01-01",
+                "end_date": "2026-01-01",
+                "population_percent": "10",
+            }
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_dates_optional_so_blank_is_valid(self):
+        form = RolloutPhaseForm(data={"population_percent": "10"})
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_negative_population_percent_is_invalid(self):
+        form = RolloutPhaseForm(data={"population_percent": "-1"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)
+
+    def test_population_percent_over_100_is_invalid(self):
+        form = RolloutPhaseForm(data={"population_percent": "101"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)

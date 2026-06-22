@@ -1,0 +1,132 @@
+<div class="d-flex flex-column gap-3" id="rollout-schedule-body">
+  {% with phases=experiment.annotated_rollout_phases %}
+    {% if phases %}
+      <table class="table table-borderless align-middle mb-0"
+             style="table-layout: fixed">
+        <thead>
+          <tr style="font-size: 12px">
+            <th class="border-0 text-secondary fw-normal" style="width: 16%">Rollout Phase</th>
+            <th class="border-0 text-secondary fw-normal" style="width: 28%">Population Ratio</th>
+            <th class="border-0 text-secondary fw-normal" style="width: 40%">Estimated Duration</th>
+            <th class="border-0 text-secondary fw-normal" style="width: 16%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for phase in phases %}
+            <tr>
+              {# Rollout Phase #}
+              <td class="small fw-bold text-body">
+                <span class="d-inline-flex align-items-center gap-1">
+                  Phase {{ forloop.counter }}
+                  {% if phase.card_status == "in_progress" and experiment.is_paused %}
+                    <span class="badge rounded-pill fw-normal small text-secondary-emphasis bg-secondary-subtle ms-2">Paused</span>
+                  {% endif %}
+                </span>
+              </td>
+              {# Population Ratio #}
+              <td>
+                <div class="small text-body mb-1">{{ phase.population_percent|floatformat:"-2" }}%</div>
+                <div class="progress"
+                     style="height: 6px;
+                            max-width: 10rem"
+                     role="progressbar">
+                  <div class="progress-bar{% if phase.card_status == 'not_started' %} bg-secondary opacity-25{% endif %}"
+                       style="width: {{ phase.population_percent }}%"></div>
+                </div>
+              </td>
+              {# Estimated Duration #}
+              <td class="small">
+                {% if phase.card_status == "in_progress" %}
+                  <div class="d-flex align-items-center gap-1 text-secondary mb-1">
+                    <span>{{ phase.days_elapsed }}/{{ phase.duration_days }} days complete</span>
+                    <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                    <span>Ending on {{ phase.end_date|date:"M j, Y" }}</span>
+                  </div>
+                  <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
+                    <div class="progress-bar"
+                         style="width: {% widthratio phase.days_elapsed phase.duration_days 100 %}%"></div>
+                  </div>
+                {% elif phase.card_status == "complete" %}
+                  <div class="d-flex align-items-center gap-1 text-secondary mb-1">
+                    <span>Completed</span>
+                    {% if phase.start_date and phase.end_date %}
+                      <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                      <span>{{ phase.start_date|date:"M j" }} - {{ phase.end_date|date:"M j, Y" }}</span>
+                    {% endif %}
+                  </div>
+                  <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
+                    <div class="progress-bar" style="width: 100%"></div>
+                  </div>
+                {% else %}
+                  <div class="d-flex align-items-center gap-1 text-secondary mb-1">
+                    <span>Not started</span>
+                    {% if phase.duration_display %}
+                      <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                      <span>{{ phase.duration_display }}</span>
+                    {% endif %}
+                    {% if phase.start_date and phase.end_date %}
+                      <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                      <span>{{ phase.start_date|date:"M j" }} - {{ phase.end_date|date:"M j, Y" }}</span>
+                    {% endif %}
+                  </div>
+                  <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
+                    <div class="progress-bar bg-secondary opacity-25" style="width: 100%"></div>
+                  </div>
+                {% endif %}
+              </td>
+              {# Start / Resume / Pause buttons #}
+              <td class="text-end">
+                {% if phase.card_status == "not_started" or experiment.is_paused and phase.card_status == "in_progress" %}
+                  <form hx-post="{% url 'nimbus-ui-new-start-rollout-phase' experiment.slug %}"
+                        hx-target="#rollout-schedule-body"
+                        hx-swap="outerHTML"
+                        class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="phase_id" value="{{ phase.id }}">
+                    <button type="submit"
+                            class="btn btn-primary"
+                            style="width: 8rem"
+                            {% if not experiment.can_advance_rollout %}disabled{% endif %}>
+                      {% if experiment.is_paused and phase.card_status == "in_progress" %}
+                        Resume
+                      {% else %}
+                        Start
+                      {% endif %}
+                    </button>
+                  </form>
+                {% elif phase.card_status == "in_progress" %}
+                  <form hx-post="{% url 'nimbus-ui-new-pause-rollout' experiment.slug %}"
+                        hx-target="#rollout-schedule-body"
+                        hx-swap="outerHTML"
+                        class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="btn btn-outline-secondary"
+                            style="width: 8rem"
+                            {% if not experiment.can_advance_rollout %}disabled{% endif %}>Pause</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  {% endwith %}
+  <div class="d-flex gap-5">
+    {# Move to next phase observations #}
+    <div class="flex-fill">
+      <div class="text-secondary mb-1" style="font-size: 12px;">
+        {{ NimbusUIConstants.ROLLOUT_ADVANCE_OBSERVATIONS_LABEL }}
+      </div>
+      <div class="small text-body">{{ experiment.rollout_advance_observations|default:"—" }}</div>
+    </div>
+    {# Pause rollout observations #}
+    <div class="flex-fill">
+      <div class="text-secondary mb-1" style="font-size: 12px;">
+        {{ NimbusUIConstants.ROLLOUT_PAUSE_OBSERVATIONS_LABEL }}
+      </div>
+      <div class="small text-body">{{ experiment.rollout_pause_observations|default:"—" }}</div>
+    </div>
+  </div>
+</div>
