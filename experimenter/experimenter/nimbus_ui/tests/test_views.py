@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils.html import escape
 from parameterized import parameterized
 from PIL import Image
 
@@ -16,7 +17,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.constants import EXTERNAL_URLS, NimbusConstants
 from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
@@ -5706,6 +5707,40 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertIn(experiment_with_urls, qa_runs)
         self.assertNotIn(experiment_without_urls, qa_runs)
         self.assertIn(experiment_with_status, qa_runs)
+
+    def _features_url_for(self, slug):
+        feature = self.feature_configs[slug]
+        url = reverse("nimbus-ui-features")
+        return f"{url}?application={feature.application}&feature_configs={feature.pk}"
+
+    @patch("experimenter.jetstream.client.get_featmon_slugs")
+    def test_monitoring_card_shows_dashboard_and_info_when_monitored(self, mock_slugs):
+        mock_slugs.return_value = frozenset({"feature-desktop"})
+
+        response = self.client.get(self._features_url_for("feature-desktop"))
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn("Open Grafana Dashboard", content)
+        self.assertIn(NimbusUIConstants.FEATURE_MONITORING_DASHBOARD_INFO, content)
+        self.assertIn(
+            escape(self.feature_configs["feature-desktop"].feature_monitoring_url),
+            content,
+        )
+
+    @patch("experimenter.jetstream.client.get_featmon_slugs")
+    def test_monitoring_card_shows_docs_and_example_when_not_monitored(self, mock_slugs):
+        mock_slugs.return_value = frozenset()
+
+        response = self.client.get(self._features_url_for("feature-desktop"))
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn("Grafana dashboard not available", content)
+        self.assertIn(EXTERNAL_URLS["FEATURE_MONITORING_DOC"], content)
+        self.assertIn(EXTERNAL_URLS["METRIC_HUB_FEATMON_CONFIG"], content)
+        self.assertIn(escape(EXTERNAL_URLS["FEATURE_MONITORING_EXAMPLE"]), content)
+        self.assertIn(escape(NimbusUIConstants.FEATURE_MONITORING_EXAMPLE_TEXT), content)
 
 
 class TestTagsManageView(AuthTestCase):

@@ -72,6 +72,7 @@
             </a>
           </div>
           {% if selected_feature_config.has_metric_hub_monitoring %}
+            <p class="text-muted small mb-2">{{ NimbusUIConstants.FEATURE_MONITORING_DASHBOARD_INFO }}</p>
             <div class="d-flex align-items-center gap-2 mb-3">
               <a href="{{ selected_feature_config.feature_monitoring_url }}"
                  target="_blank"
@@ -97,6 +98,13 @@
                    target="_blank"
                    rel="noopener noreferrer">feature monitoring docs</a>
                 for instructions.
+                <hr class="my-2">
+                <span class="small">
+                  {{ NimbusUIConstants.FEATURE_MONITORING_EXAMPLE_TEXT }}
+                  <a href="{{ EXTERNAL_URLS.FEATURE_MONITORING_EXAMPLE }}"
+                     target="_blank"
+                     rel="noopener noreferrer">{{ NimbusUIConstants.FEATURE_MONITORING_EXAMPLE_LINK_TEXT }}</a>.
+                </span>
               </div>
             </div>
           {% endif %}

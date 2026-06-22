@@ -1108,6 +1108,7 @@ class NimbusFeaturesView(TemplateView):
 
         context = {
             "form": form,
+            "EXTERNAL_URLS": EXTERNAL_URLS,
             "application": self.request.GET.get("application"),
             "feature_configs": self.request.GET.get("feature_configs"),
             "selected_feature_config": selected_feature_config,
