@@ -1,0 +1,89 @@
+{% load static %}
+{% load nimbus_extras %}
+{% load widget_tweaks %}
+
+{# ── Edit form ── #}
+<div id="rollout-rollout-features-body">
+  <form id="branches-form"
+        hx-post="{% url 'nimbus-ui-new-update-rollout-features' experiment.slug %}"
+        hx-target="#rollout-rollout-features-body"
+        hx-swap="outerHTML"
+        class="d-flex flex-column gap-4">
+    {% csrf_token %}
+    <div class="d-flex flex-column gap-4">
+      {#  Brand perception impact  #}
+      <div>
+        <label for="id_name" class="small text-body mb-2">
+        Please describe the rollout experience. How can QA verify that the change has happened?</span>
+      </label>
+      {{ form.rollout_experience }}
+      {% if form.rollout_experience.errors %}
+        <div class="text-danger small mt-1">{{ form.rollout_experience.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+    <div>
+      {#  Feature config  #}
+      <div>
+        <label for="id_name" class="small text-body mb-2">
+        Feature configuration</span>
+      </label>
+      {{ form.feature_configs }}
+      {% for error in validation_errors.feature_configs %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+    </div>
+    {% with branch_feature_values=form.branch_feature_values %}
+      <div>
+        {{ branch_feature_values.management_form }}
+        {% for branch_feature_values_form in branch_feature_values %}
+          {{ branch_feature_values_form.id }}
+          <div class="row mt-2">
+            <div class="col">
+              <label class="small mb-2 text-secondary">
+                {{ branch_feature_values_form.instance.feature_config.name }}
+                {% if branch_feature_values_form.instance.allow_coenrollment %}
+                  <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
+                {% endif %}
+              </label>
+              <div class="feature-value-editor position-relative"
+                   data-nimbus-devtools-feature-editor
+                   data-feature-id="{{ branch_feature_values_form.instance.feature_config.slug }}">
+                {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
+                <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
+                  <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
+                    <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
+                            type="button"
+                            title="Preview with about:messagepreview"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                      <span class="fa fa-eye"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end text-nowrap">
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              {% for error in branch_feature_values_form.value.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endwith %}
+  </div>
+</div>
+{# Action buttons #}
+<div class="d-flex align-items-center gap-2">
+  <button type="submit" name="save" value="True" class="btn btn-primary btn-sm">Save</button>
+  <button type="button"
+          class="btn btn-outline-secondary btn-sm"
+          hx-get="{{ cancel_url }}"
+          hx-select="#rollout-card-rollout-features"
+          hx-target="#rollout-card-rollout-features"
+          hx-swap="outerHTML">Cancel</button>
+</div>
+</form>
+</div>
+{% block extrascripts %}
+  {% if branch_form_data %}{{ branch_form_data|json_script:"branch-form-data" }}{% endif %}
+  <script src="{% static 'nimbus_ui/edit_branches.bundle.js' %}"></script>
+{% endblock extrascripts %}

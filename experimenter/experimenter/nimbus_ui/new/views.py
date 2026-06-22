@@ -16,6 +16,7 @@ from experimenter.nimbus_ui.new.forms import (
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
     RolloutAudienceForm,
+    RolloutFeaturesForm,
     RolloutOverviewForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
@@ -121,6 +122,9 @@ class NewCardUpdateView(
 
     def form_valid(self, form):
         self.object = form.save()
+        return self.render_valid_response()
+
+    def render_valid_response(self):
         context = self.get_context_data()
         context["hx_swap_oob"] = True
         return self.response_class(
@@ -146,6 +150,24 @@ class NewAudienceUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutAudienceForm
     display_template = "new/rollouts/audience/card.html"
     template_name = "new/rollouts/audience/edit_form.html"
+
+
+class NewRolloutFeaturesUpdateView(CardMixin, NewCardUpdateView):
+    form_class = RolloutFeaturesForm
+    display_template = "new/rollouts/rollout_features/card.html"
+    template_name = "new/rollouts/rollout_features/edit_form.html"
+
+    def render_valid_response(self):
+        self.object.refresh_from_db()
+
+        # If the request came from the explicit Save button, return the read-only card
+        # view so the UI swaps back to the card. When the form is posted for intermediate
+        # updates (e.g. feature_configs changed via hx-post on change), return the
+        # editable form so the user can continue editing.
+        if "save" in self.request.POST:
+            return super().render_valid_response()
+
+        return self.render_to_response(self.get_context_data())
 
 
 class NewQAUpdateView(CardMixin, NewCardUpdateView):
