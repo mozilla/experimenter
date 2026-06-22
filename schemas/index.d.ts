@@ -153,23 +153,15 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   publishedDate?: string | null;
   /**
-   * Branch configuration for the experiment.
-   */
-  branches: DesktopAllVersionsExperimentBranch[];
-  /**
-   * When this property is set to true, treat this experiment as aFirefox Labs experiment
+   * When this property is set to true, treat this experiment as a Firefox Labs experiment
    */
   isFirefoxLabsOptIn?: boolean;
   /**
-   * The group this should appear under in Firefox Labs
-   */
-  firefoxLabsGroup?: string | null;
-  /**
-   * The title shown in Firefox Labs (Fluent ID)
+   * The title shown in Firefox Labs (Fluent ID or Resource ID)
    */
   firefoxLabsTitle?: string | null;
   /**
-   * The description shown in Firefox Labs (Fluent ID)
+   * The description shown in Firefox Labs (Fluent ID or Resource ID)
    */
   firefoxLabsDescription?: string | null;
   /**
@@ -179,15 +171,23 @@ export interface DesktopAllVersionsNimbusExperiment {
     [k: string]: string;
   } | null;
   /**
-   * Opt out of feature schema validation.
-   */
-  featureValidationOptOut?: boolean;
-  /**
    * Does the experiment require a restart to take effect?
    *
    * Only used by Firefox Labs Opt-Ins.
    */
   requiresRestart?: boolean;
+  /**
+   * Branch configuration for the experiment.
+   */
+  branches: DesktopAllVersionsExperimentBranch[];
+  /**
+   * Opt out of feature schema validation.
+   */
+  featureValidationOptOut?: boolean;
+  /**
+   * The group this should appear under in Firefox Labs
+   */
+  firefoxLabsGroup?: string | null;
 }
 export interface ExperimentBucketConfig {
   randomizationUnit: RandomizationUnit;
@@ -399,23 +399,15 @@ export interface DesktopNimbusExperiment {
    */
   publishedDate?: string | null;
   /**
-   * Branch configuration for the experiment.
-   */
-  branches: DesktopExperimentBranch[];
-  /**
-   * When this property is set to true, treat this experiment as aFirefox Labs experiment
+   * When this property is set to true, treat this experiment as a Firefox Labs experiment
    */
   isFirefoxLabsOptIn?: boolean;
   /**
-   * The group this should appear under in Firefox Labs
-   */
-  firefoxLabsGroup?: string | null;
-  /**
-   * The title shown in Firefox Labs (Fluent ID)
+   * The title shown in Firefox Labs (Fluent ID or Resource ID)
    */
   firefoxLabsTitle?: string | null;
   /**
-   * The description shown in Firefox Labs (Fluent ID)
+   * The description shown in Firefox Labs (Fluent ID or Resource ID)
    */
   firefoxLabsDescription?: string | null;
   /**
@@ -425,15 +417,23 @@ export interface DesktopNimbusExperiment {
     [k: string]: string;
   } | null;
   /**
-   * Opt out of feature schema validation.
-   */
-  featureValidationOptOut?: boolean;
-  /**
    * Does the experiment require a restart to take effect?
    *
    * Only used by Firefox Labs Opt-Ins.
    */
   requiresRestart?: boolean;
+  /**
+   * Branch configuration for the experiment.
+   */
+  branches: DesktopExperimentBranch[];
+  /**
+   * Opt out of feature schema validation.
+   */
+  featureValidationOptOut?: boolean;
+  /**
+   * The group this should appear under in Firefox Labs
+   */
+  firefoxLabsGroup?: string | null;
 }
 /**
  * The branch definition supported on Firefox Desktop 95+.
@@ -577,6 +577,30 @@ export interface SdkNimbusExperiment {
    * If null, it has not yet been published.
    */
   publishedDate?: string | null;
+  /**
+   * When this property is set to true, treat this experiment as a Firefox Labs experiment
+   */
+  isFirefoxLabsOptIn?: boolean;
+  /**
+   * The title shown in Firefox Labs (Fluent ID or Resource ID)
+   */
+  firefoxLabsTitle?: string | null;
+  /**
+   * The description shown in Firefox Labs (Fluent ID or Resource ID)
+   */
+  firefoxLabsDescription?: string | null;
+  /**
+   * Links that will be used with the firefoxLabsDescription Fluent ID. May be null for Firefox Labs Opt-In recipes that do not use links.
+   */
+  firefoxLabsDescriptionLinks?: {
+    [k: string]: string;
+  } | null;
+  /**
+   * Does the experiment require a restart to take effect?
+   *
+   * Only used by Firefox Labs Opt-Ins.
+   */
+  requiresRestart?: boolean;
   /**
    * Branch configuration for the SDK experiment.
    */

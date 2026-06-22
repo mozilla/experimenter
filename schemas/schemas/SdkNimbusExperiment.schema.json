@@ -58,12 +58,55 @@
       },
       "type": "array"
     },
+    "firefoxLabsDescription": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The description shown in Firefox Labs (Fluent ID or Resource ID)"
+    },
+    "firefoxLabsDescriptionLinks": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Links that will be used with the firefoxLabsDescription Fluent ID. May be null for Firefox Labs Opt-In recipes that do not use links."
+    },
+    "firefoxLabsTitle": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The title shown in Firefox Labs (Fluent ID or Resource ID)"
+    },
     "id": {
       "description": "Unique identifier for the experiiment. This is a duplicate of slug, but is required field for all Remote Settings records.",
       "type": "string"
     },
     "isEnrollmentPaused": {
       "description": "When this property is set to true, the SDK should not enroll new users into the experiment that have not already been enrolled.",
+      "type": "boolean"
+    },
+    "isFirefoxLabsOptIn": {
+      "description": "When this property is set to true, treat this experiment as a Firefox Labs experiment",
       "type": "boolean"
     },
     "isRollout": {
@@ -133,6 +176,10 @@
       ],
       "description": "The slug of the reference branch (i.e., the branch we consider \"control\")."
     },
+    "requiresRestart": {
+      "description": "Does the experiment require a restart to take effect? Only used by Firefox Labs Opt-Ins.",
+      "type": "boolean"
+    },
     "schemaVersion": {
       "description": "Version of the NimbusExperiment schema this experiment refers to",
       "type": "string"
@@ -191,6 +238,30 @@
     "referenceBranch",
     "branches"
   ],
+  "dependentSchemas": {
+    "isFirefoxLabsOptIn": {
+      "if": {
+        "properties": {
+          "isFirefoxLabsOptIn": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "isRollout": {
+            "const": true
+          }
+        },
+        "required": [
+          "firefoxLabsDescription",
+          "firefoxLabsTitle",
+          "isRollout"
+        ],
+        "type": "object"
+      }
+    }
+  },
   "$defs": {
     "ExperimentBucketConfig": {
       "properties": {
