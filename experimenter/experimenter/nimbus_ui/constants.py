@@ -221,6 +221,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     NOTABLE_CHANGES_ABSENT_TEXT = "There are no notable changes in this experiment"
     FEATURE_MONITORING_CARD_TITLE = "Feature Monitoring"
     FEATURE_MONITORING_OPEN_DASHBOARD_TEXT = "Open in Grafana"
+    FEATURE_MONITORING_DASHBOARD_INFO = (
+        "This dashboard shows aggregate health and enrollment metrics for this "
+        "feature across all live and completed rollouts."
+    )
+    FEATURE_MONITORING_EXAMPLE_TEXT = "Once configured, you'll get a dashboard like"
+    FEATURE_MONITORING_EXAMPLE_LINK_TEXT = "this example"
 
     FEATURE_PAGE_LINKS = {
         "feature_learn_more_url": "https://experimenter.info/getting-started/for-experiment-owners",

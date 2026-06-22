@@ -1247,6 +1247,7 @@ EXTERNAL_URLS = {
     "PREVIEW_LAUNCH_DOC": "https://experimenter.info/platform-guides/desktop/preview",
     "FEATURE_MONITORING_DOC": "https://experimenter.info/feature-monitoring",
     "METRIC_HUB_FEATMON_CONFIG": "https://github.com/mozilla/metric-hub/blob/main/featmon/firefox_desktop.toml",
+    "FEATURE_MONITORING_EXAMPLE": "https://yardstick.mozilla.org/d/dtfz7xv/nimbus-feature-monitoring?orgId=1&var-feature_slug=newtabSponsoredContent&var-application=firefox_desktop&var-metric=All",
 }
 
 
