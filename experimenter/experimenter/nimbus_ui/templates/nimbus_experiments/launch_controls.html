@@ -268,16 +268,18 @@
                     hx-target="#content"
                     hx-swap="outerHTML"
                     class="btn btn-primary m-1 end-enrollment_btn"
-                    {% if experiment.is_rollout_dirty %}disabled{% endif %}>End Enrollment</button>
+                    {% if experiment.is_rollout_dirty %}disabled{% endif %}>
+              <i class="fa-solid fa-user-slash me-1"></i>
+              End Enrollment
+            </button>
           {% endif %}
           {% if experiment.should_show_end_experiment %}
             <button type="button"
-                    hx-post="{% url 'nimbus-ui-live-to-complete' slug=experiment.slug %}"
-                    hx-select="#content"
-                    hx-target="#content"
-                    hx-swap="outerHTML"
-                    id="end-experiment"
-                    class="btn btn-primary m-1 end_experiment_btn">
+                    id="end-experiment-trigger"
+                    class="btn btn-danger m-1 end_experiment_btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#end-experiment-modal-{{ experiment.slug }}">
+              <i class="fa-solid fa-circle-stop me-1"></i>
               End
               {% if experiment.is_rollout %}
                 Rollout
@@ -297,6 +299,10 @@
                     {% if not experiment.is_rollout_dirty %}disabled{% endif %}>Request Update</button>
           {% endif %}
         </div>
+        {% if experiment.should_show_end_experiment %}
+          {% include "nimbus_experiments/end_experiment_modal.html" with experiment=experiment %}
+
+        {% endif %}
       {% endif %}
     {% endif %}
   </form>
