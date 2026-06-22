@@ -133,7 +133,6 @@ def test_check_telemetry_pref_flip(
             "is_rollout": True,
         },
     )
-    about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip(
         "nimbus.qa.pref-1", "default", action=trigger_experiment_loader
     )
@@ -151,7 +150,6 @@ def test_check_telemetry_pref_flip(
         if time.time() > timeout:
             raise AssertionError("Experiment enrollment was never seen in ping Data")
 
-    about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip(
         "nimbus.qa.pref-1", "test_string_automation", action=trigger_experiment_loader
     )
@@ -168,7 +166,6 @@ def test_check_telemetry_pref_flip(
         control = telemetry_event_check(experiment_slug, "unenrollment")
         if time.time() > timeout:
             raise AssertionError("Experiment unenrollment was never seen in ping Data")
-    about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip(
         "nimbus.qa.pref-1", "default", action=trigger_experiment_loader
     )
@@ -209,12 +206,11 @@ def test_check_telemetry_sticky_targeting(
             raise AssertionError("Experiment enrollment was never seen in ping Data")
 
     # flip pref
-    about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip(
         pref_name, True, action=trigger_experiment_loader, pref_type=bool
     )
     about_config.flip_pref(pref_name)
-    assert about_config.get_pref_value(pref_name) == "false"
+    assert about_config.get_pref_value(pref_name, pref_type=bool) is False
     # check experiment doesn't unenroll after pref flip
     control = False
     timeout = time.time() + 60
@@ -238,4 +234,4 @@ def test_check_telemetry_sticky_targeting(
         if time.time() > timeout:
             raise AssertionError("Experiment unenrollment was never seen in ping Data")
     # check pref still matches user change
-    assert about_config.get_pref_value(pref_name) == "false"
+    assert about_config.get_pref_value(pref_name, pref_type=bool) is False
