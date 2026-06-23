@@ -571,3 +571,40 @@ class TestNewRemoveSubscriberView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertNotIn(user, experiment.subscribers.all())
+
+
+class TestNewSubscribeView(AuthTestCase):
+    def test_post_subscribes_current_user(self):
+        experiment = NimbusExperimentFactory.create()
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-subscribe", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/common/subscribe_bell.html")
+        experiment.refresh_from_db()
+        self.assertIn(self.user, experiment.subscribers.all())
+        self.assertContains(
+            response,
+            reverse("nimbus-ui-new-unsubscribe", kwargs={"slug": experiment.slug}),
+        )
+
+
+class TestNewUnsubscribeView(AuthTestCase):
+    def test_post_unsubscribes_current_user(self):
+        experiment = NimbusExperimentFactory.create()
+        experiment.subscribers.add(self.user)
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-unsubscribe", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/common/subscribe_bell.html")
+        experiment.refresh_from_db()
+        self.assertNotIn(self.user, experiment.subscribers.all())
+        self.assertContains(
+            response,
+            reverse("nimbus-ui-new-subscribe", kwargs={"slug": experiment.slug}),
+        )

@@ -19,7 +19,9 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutOverviewForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
+    SubscribeForm,
     TagAssignForm,
+    UnsubscribeForm,
 )
 
 
@@ -267,3 +269,17 @@ class NewAddSubscriberView(NewSubscriberView):
 
 class NewRemoveSubscriberView(NewSubscriberView):
     add = False
+
+
+class NewSubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    model = NimbusExperiment
+    form_class = SubscribeForm
+    template_name = "new/common/subscribe_bell.html"
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return self.render_to_response(self.get_context_data())
+
+
+class NewUnsubscribeView(NewSubscribeView):
+    form_class = UnsubscribeForm

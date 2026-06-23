@@ -1,0 +1,25 @@
+{% if request.user in experiment.subscribers.all %}
+  <form id="subscribe-bell"
+        hx-post="{% url 'nimbus-ui-new-unsubscribe' experiment.slug %}"
+        hx-swap="outerHTML"
+        class="d-inline">
+    {% csrf_token %}
+    <button type="submit"
+            class="btn p-0 border-0 text-secondary"
+            aria-label="Unsubscribe from this experiment">
+      <i class="fa-solid fa-bell"></i>
+    </button>
+  </form>
+{% else %}
+  <form id="subscribe-bell"
+        hx-post="{% url 'nimbus-ui-new-subscribe' experiment.slug %}"
+        hx-swap="outerHTML"
+        class="d-inline">
+    {% csrf_token %}
+    <button type="submit"
+            class="btn p-0 border-0 text-secondary"
+            aria-label="Subscribe to this experiment">
+      <i class="fa-regular fa-bell"></i>
+    </button>
+  </form>
+{% endif %}

@@ -52,9 +52,8 @@
           <div>
             <div class="d-flex align-items-center gap-2">
               <h1 id="experiment-header-name" class="mb-0 fw-semibold fs-4 text-body">{{ experiment.name }}</h1>
-              <button class="btn p-0 border-0 text-secondary" aria-label="Notifications">
-                <i class="fa-solid fa-bell"></i>
-              </button>
+              {% include "new/common/subscribe_bell.html" %}
+
               <div class="dropdown">
                 <button class="btn p-0 border-0 text-secondary"
                         data-bs-toggle="dropdown"
