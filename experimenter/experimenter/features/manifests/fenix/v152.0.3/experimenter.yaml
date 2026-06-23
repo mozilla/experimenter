@@ -18,6 +18,14 @@ alternative-app-launcher-icon:
       type: boolean
       description: |
         If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.
+app-icon-selection:
+  description: Allows the user to set an alternative app launcher icon.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not the feature is available for the user.
 app-links:
   description: Control behavior of app links handling in the browser.
   hasExposure: true
@@ -108,15 +116,6 @@ default-browser-prompt:
     maxPromptsShown:
       type: int
       description: The maximum number of times the prompt can shown to the user.
-default-expanded-toolbar:
-  description: Default expanded (bottom navigation) toolbar state for new users.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether to default the expanded toolbar (bottom navigation bar with back/forward/share/bookmark/menu) to enabled. Only takes visible effect on tall, non-wide windows.
 doh:
   description: Feature controlling DNS over HTTPS (DoH).
   hasExposure: true
@@ -330,14 +329,6 @@ homescreen-edge-to-edge-background:
     enabled:
       type: boolean
       description: Enables the feature
-import-bookmarks:
-  description: A feature that lets users import bookmarks from another browser.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, the import bookmarks feature will be enabled.
 ip-protection:
   description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
   hasExposure: true
@@ -352,9 +343,6 @@ ip-protection:
     enabled:
       type: boolean
       description: If true, IP Protection feature is enabled.
-    promo-deadline:
-      type: string
-      description: The final date for the promotion to end. This needs to be an ISO 8601 formatted date (i.e. YYYY-MM-DD).
     show-beta-badge:
       type: boolean
       description: If true, a BETA badge is shown next to the IP Protection entry in the settings list.
@@ -412,14 +400,6 @@ lna-blocking:
       type: boolean
       description: |
         Whether or not to turn on local network / device access blocking
-longfox:
-  description: Flag to enable Longfox for users on Firefox Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, users will see a CTA for launching Longfox on the home screen.
 marketing-onboarding-card:
   description: A temporary feature to control the marketing onboarding card shown during the onboarding flow.
   hasExposure: true
@@ -428,6 +408,17 @@ marketing-onboarding-card:
     enabled:
       type: boolean
       description: If false, the marketing onboarding card will never be shown.
+menu-redesign:
+  description: Control the new menu redesign.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    menu-banner:
+      type: boolean
+      description: If true, the menu banner is visible.
+    report-site-issue:
+      type: boolean
+      description: If true, report site issue menu item and preview is available.
 merino-client:
   description: Feature to enable the Merino Client for users on Firefox on Android.
   hasExposure: true
@@ -504,13 +495,13 @@ minimal-addressbar:
       description: |
         Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
 mozilla-ads-client:
-  description: Feature to enable the Mozilla Ads Client support for Top Sites for users on Firefox on Android.
+  description: Feature to enable the Mozilla Ads Client for users on Firefox on Android.
   hasExposure: true
   exposureDescription: ''
   variables:
     enabled:
       type: boolean
-      description: If true, Mozilla Ads Client support for Top Sites is enabled.
+      description: If true, Mozilla Ads Client is enabled.
 native-share-sheet:
   description: Feature to enable the Native Share Sheet for users on Firefox on Android.
   hasExposure: true
@@ -519,6 +510,15 @@ native-share-sheet:
     enabled:
       type: boolean
       description: If true, Native Share Sheet is enabled.
+navigation-toolbar:
+  description: Feature for navigation toolbar.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        When the feature is enabled then the user will see the new navigation toolbar.
 networking-happy-eyeballs:
   description: Networking (Necko) Happy Eyeballs V3 configuration
   hasExposure: true
@@ -699,6 +699,17 @@ pqcrypto:
       type: boolean
       description: |
         Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.
+print:
+  description: A feature for printing from the share or browser menu.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    browser-print-enabled:
+      type: boolean
+      description: If true, a print button from the browser menu is available.
+    share-print-enabled:
+      type: boolean
+      description: If true, a print button from the share menu is available.
 private-browsing-lock:
   description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
   hasExposure: true
@@ -848,6 +859,15 @@ sent-from-firefox:
     template-message:
       type: string
       description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
+settings-search:
+  description: Feature to allow users to search for settings.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the user to search for settings.
 setup-checklist:
   description: A feature on the home page that allows the user to track onboarding setup progress.
   hasExposure: true
@@ -919,15 +939,6 @@ tab-groups-drag-and-drop:
       type: boolean
       description: |
         Whether or not to enable drag and drop for tab groups.
-tab-groups-onboarding:
-  description: Control the visibility of onboarding for tab groups.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable onboarding for tab groups.
 tab-management-enhancements:
   description: Control the visibility of the tab management enhancements.
   hasExposure: true
@@ -986,17 +997,6 @@ third-party-cookie-blocking:
       type: boolean
       description: |
         Enables / disables third-party cookie blocking in private browsing mode.
-tracking-protection-experimentation:
-  description: Experimental controls for tracking protection behavior
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    defer-annotation-enabled:
-      type: boolean
-      description: Whether to defer tracking protection classification annotation until the data is being handled
-      setPref:
-        pref: privacy.trackingprotection.defer_annotation.enabled
-        branch: default
 translations:
   description: The feature that allows on-device translations of web content.
   hasExposure: true
@@ -1030,6 +1030,15 @@ translations:
       type: boolean
       description: |
         Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
+unified-trust-panel:
+  description: Enables the unified trust panel.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable the unified trust panel.
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true
@@ -1038,19 +1047,3 @@ user-characteristics:
     currentVersion:
       type: int
       description: The current collection version of the user characteristics.
-voice-search-in-display-mode:
-  description: Controls whether the voice search entry point is shown in the display-mode browser toolbar.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, voice search is shown in the display toolbar.
-webcompat-reporter-enhancements:
-  description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, WebCompat Reporter enhancements is enabled.

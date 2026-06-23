@@ -347,6 +347,13 @@ features:
         description: Enables the feature
         type: Boolean
         default: true
+  import-bookmarks:
+    description: A feature that lets users import bookmarks from another browser.
+    variables:
+      enabled:
+        description: If true, the import bookmarks feature will be enabled.
+        type: Boolean
+        default: true
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
