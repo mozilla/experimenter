@@ -2826,6 +2826,12 @@ gleanInternalSdk:
       setPref:
         branch: user
         pref: telemetry.glean.internal.maxPingsPerMinute
+    enableFOGTransport:
+      type: "boolean"
+      description: "Enables FOGTransport parent/child for IPC"
+      setPref:
+        branch: user
+        pref: telemetry.fog.enable_fog_transport
 
 legacyTelemetry:
   description: "Controls for the Legacy Telemetry data collection system"
