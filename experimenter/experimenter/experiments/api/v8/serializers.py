@@ -97,6 +97,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     isEnrollmentPaused = serializers.ReadOnlyField(source="is_paused")
     isRollout = serializers.ReadOnlyField(source="is_rollout")
+    isHoldback = serializers.ReadOnlyField(source="is_holdback")
+    doRerun = serializers.ReadOnlyField(source="do_rerun")
+    doRerunTimestamp = serializers.ReadOnlyField(source="do_rerun_timestamp")
     bucketConfig = NimbusBucketRangeSerializer(source="bucket_range")
     featureIds = serializers.SerializerMethodField()
     probeSets = serializers.ReadOnlyField(default=[])
@@ -137,6 +140,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "userFacingDescription",
             "isEnrollmentPaused",
             "isRollout",
+            "isHoldback",
+            "doRerun",
+            "doRerunTimestamp",
             "bucketConfig",
             "featureIds",
             "probeSets",
