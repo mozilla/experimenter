@@ -931,7 +931,7 @@ class TestComputeSrmPValue(TestCase):
             "control": {"enrollments": 500},
             "treatment": {"enrollments": 500},
         }
-        self.assertGreater(compute_srm_p_value(branches), 0.05)
+        self.assertGreater(compute_srm_p_value(branches, {}), 0.05)
 
     def test_unequal_branches_returns_low_p_value(self):
         branches = {
@@ -939,7 +939,7 @@ class TestComputeSrmPValue(TestCase):
             "treatment": {"enrollments": 100},
         }
         self.assertLess(
-            compute_srm_p_value(branches),
+            compute_srm_p_value(branches, {}),
             SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD,
         )
 
@@ -953,7 +953,7 @@ class TestComputeSrmPValue(TestCase):
         ]
     )
     def test_returns_one_for_no_data(self, _, branches):
-        self.assertEqual(compute_srm_p_value(branches), 1.0)
+        self.assertEqual(compute_srm_p_value(branches, {}), 1.0)
 
 
 class TestGetTopUnenrollmentReason(TestCase):
@@ -1022,6 +1022,31 @@ class TestCheckUnenrollmentSpike(TestCase):
 
 
 class TestCheckSrmMismatch(TestCase):
+    def test_returns_false_when_branches_match_expected_unequal_ratio(self):
+        # 95/5 split that exactly matches the configured branch ratios
+        # should not trigger SRM even though it looks imbalanced vs equal.
+        monitoring_data = {
+            "branches": {
+                "delivery": {"enrollments": 950000},
+                "holdback": {"enrollments": 50000},
+            }
+        }
+        branch_ratios = {"delivery": 95, "holdback": 5}
+        is_srm, _ = check_srm_mismatch(monitoring_data, branch_ratios)
+        self.assertFalse(is_srm)
+
+    def test_returns_true_when_unequal_ratio_deviates_from_config(self):
+        # Configured 95/5 but actual is significantly off
+        monitoring_data = {
+            "branches": {
+                "delivery": {"enrollments": 850000},
+                "holdback": {"enrollments": 150000},
+            }
+        }
+        branch_ratios = {"delivery": 95, "holdback": 5}
+        is_srm, _ = check_srm_mismatch(monitoring_data, branch_ratios)
+        self.assertTrue(is_srm)
+
     def test_returns_true_when_p_value_below_threshold(self):
         monitoring_data = {
             "branches": {
@@ -1029,8 +1054,21 @@ class TestCheckSrmMismatch(TestCase):
                 "treatment": {"enrollments": 100},
             }
         }
-        is_srm, p_value = check_srm_mismatch(monitoring_data)
+        is_srm, p_value = check_srm_mismatch(monitoring_data, {})
         self.assertTrue(is_srm)
+        self.assertLess(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
+
+    def test_returns_false_when_deviation_small_despite_large_population(self):
+        # 100M clients with a 0.2% deviation — statistically significant
+        # but not meaningful in practice. Should not trigger the alert.
+        monitoring_data = {
+            "branches": {
+                "control": {"enrollments": 50100000},
+                "treatment": {"enrollments": 49900000},
+            }
+        }
+        is_srm, p_value = check_srm_mismatch(monitoring_data, {})
+        self.assertFalse(is_srm)
         self.assertLess(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
 
     def test_returns_false_when_branches_are_balanced(self):
@@ -1040,7 +1078,7 @@ class TestCheckSrmMismatch(TestCase):
                 "treatment": {"enrollments": 500},
             }
         }
-        is_srm, p_value = check_srm_mismatch(monitoring_data)
+        is_srm, p_value = check_srm_mismatch(monitoring_data, {})
         self.assertFalse(is_srm)
         self.assertGreater(p_value, SlackConstants.SRM_MISMATCH_P_VALUE_THRESHOLD)
 
@@ -1051,7 +1089,7 @@ class TestCheckSrmMismatch(TestCase):
         ]
     )
     def test_returns_false_for_insufficient_branches(self, _, monitoring_data):
-        is_srm, p_value = check_srm_mismatch(monitoring_data)
+        is_srm, p_value = check_srm_mismatch(monitoring_data, {})
         self.assertFalse(is_srm)
         self.assertEqual(p_value, 1.0)
 
