@@ -145,7 +145,7 @@ features:
       enabled:
         description: If true, custom download location is enabled.
         type: Boolean
-        default: false
+        default: true
   email-masks:
     description: Feature to enable Email Mask for users on Firefox on Android.
     variables:
