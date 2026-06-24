@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import UTC, datetime
 
 import markus
 from django import forms
@@ -12,6 +13,7 @@ from django.utils.text import slugify
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusDocumentationLink,
@@ -20,6 +22,7 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughRequired,
     Tag,
 )
+from experimenter.kinto.tasks import nimbus_synchronize_preview_experiments_in_kinto
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.targeting.constants import NimbusTargetingConfig
 
@@ -668,3 +671,207 @@ class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated collaborators"
+
+
+class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    status = None
+    status_next = None
+    publish_status = None
+    is_paused = None
+
+    required_status = None
+    required_status_next = None
+    required_publish_status = None
+    required_is_paused = None
+
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        required_state = (
+            self.required_status,
+            self.required_status_next,
+            self.required_publish_status,
+            self.required_is_paused,
+        )
+        current_state = (
+            self.instance.status,
+            self.instance.status_next,
+            self.instance.publish_status,
+            self.instance.is_paused,
+        )
+
+        state_mismatch = (
+            self.required_status != self.instance.status
+            or self.required_status_next != self.instance.status_next
+            or self.required_publish_status != self.instance.publish_status
+            or (
+                self.required_is_paused is not None
+                and self.required_is_paused != self.instance.is_paused
+            )
+        )
+
+        if state_mismatch:
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_INVALID_STATE_TRANSITION.format(
+                    required_state=required_state,
+                    current_state=current_state,
+                )
+            )
+
+        if not self.instance.is_rollout and NimbusConstants.Status.PAUSED in (
+            self.required_status,
+            self.required_status_next,
+            self.instance.status,
+            self.instance.status_next,
+            self.status,
+            self.status_next,
+        ):
+            raise forms.ValidationError(NimbusUIConstants.ERROR_INVALID_PAUSED_TRANSITION)
+
+        return cleaned_data
+
+    @transaction.atomic
+    def save(self, commit=True):
+        self.instance.status = self.status
+        self.instance.status_next = self.status_next
+        previous_publish_status = self.instance.publish_status
+        self.instance.publish_status = self.publish_status
+
+        if self.is_paused is not None:
+            self.instance.is_paused = self.is_paused
+
+        if self.status == NimbusExperiment.Status.DRAFT:
+            self.instance.published_dto = None
+
+        if (
+            previous_publish_status == NimbusExperiment.PublishStatus.REVIEW
+            and self.publish_status != NimbusExperiment.PublishStatus.REVIEW
+        ):
+            last_review_request = self.instance.changes.latest_review_request()
+            if last_review_request is not None:
+                delta = datetime.now(UTC) - last_review_request.changed_on
+                delta_ms = int(delta.total_seconds() * 1000)
+                metrics.timing(
+                    "review_timing",
+                    value=delta_ms,
+                    tags=[f"status:{self.publish_status}"],
+                )
+
+        return super().save(commit=commit)
+
+
+class DraftToPreviewRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DRAFT
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
+    status = NimbusExperiment.Status.PREVIEW
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    def get_changelog_message(self):
+        return f"{self.request.user} launched rollout to Preview"
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        experiment.allocate_bucket_range()
+        nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+        return experiment
+
+
+class DraftToLiveRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DRAFT
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+
+    def get_changelog_message(self):
+        return f"{self.request.user} launched rollout to Live"
+
+
+class PreviewToLiveRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.PREVIEW
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+
+    def get_changelog_message(self):
+        return f"{self.request.user} launched rollout to Live"
+
+
+class PreviewToDraftRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.PREVIEW
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
+    status = NimbusExperiment.Status.DRAFT
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    def get_changelog_message(self):
+        return f"{self.request.user} moved the rollout back to Draft"
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+        return experiment
+
+
+class LiveToUpdateRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated rollout population percentages"
+
+
+class LiveToPausedRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
+    status = NimbusExperiment.Status.PAUSED
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = True
+
+    def get_changelog_message(self):
+        return f"{self.request.user} paused rollout"
+
+
+class PausedToLiveRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.PAUSED
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = True
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+    is_paused = False
+
+    def get_changelog_message(self):
+        return f"{self.request.user} resumed rollout to Live"

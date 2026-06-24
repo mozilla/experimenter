@@ -177,7 +177,8 @@
                 "Draft",
                 "Preview",
                 "Live",
-                "Complete"
+                "Complete",
+                "Paused"
               ]
             }
           },
@@ -273,7 +274,8 @@
                 "Draft",
                 "Preview",
                 "Live",
-                "Complete"
+                "Complete",
+                "Paused"
               ]
             }
           },
@@ -621,7 +623,8 @@
                 "Draft",
                 "Preview",
                 "Live",
-                "Complete"
+                "Complete",
+                "Paused"
               ]
             }
           },
@@ -699,7 +702,8 @@
                 "Draft",
                 "Preview",
                 "Live",
-                "Complete"
+                "Complete",
+                "Paused"
               ]
             }
           },
@@ -783,7 +787,8 @@
                 "Draft",
                 "Preview",
                 "Live",
-                "Complete"
+                "Complete",
+                "Paused"
               ]
             }
           },
@@ -888,7 +893,8 @@
                 "Draft",
                 "Preview",
                 "Live",
-                "Complete"
+                "Complete",
+                "Paused"
               ]
             }
           },
@@ -1287,7 +1293,8 @@
               "Draft",
               "Preview",
               "Live",
-              "Complete"
+              "Complete",
+              "Paused"
             ],
             "type": "string"
           },

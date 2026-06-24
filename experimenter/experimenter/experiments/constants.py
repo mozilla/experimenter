@@ -330,6 +330,10 @@ class NimbusConstants:
         LIVE = "Live"
         COMPLETE = "Complete"
 
+        # This status applies only to rollouts, and indicates that the rollout has been
+        # paused. It is not a valid status for experiments.
+        PAUSED = "Paused"
+
     class PublishStatus(models.TextChoices):
         IDLE = "Idle"
         REVIEW = "Review"
