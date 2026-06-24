@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
@@ -10,6 +11,7 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.models import (
+    NimbusBranchFeatureValue,
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
@@ -17,6 +19,8 @@ from experimenter.experiments.models import (
 from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
+    NimbusVersionedSchemaFactory,
     TagFactory,
 )
 from experimenter.nimbus_ui.constants import NimbusUIConstants
@@ -24,9 +28,11 @@ from experimenter.nimbus_ui.new.forms import (
     CollaboratorsForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
+    NimbusBranchFeatureValueForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
     RolloutAudienceForm,
+    RolloutFeaturesForm,
     RolloutOverviewForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
@@ -540,6 +546,266 @@ class TestRolloutAudienceForm(RequestFormTestCase):
         self.assertEqual(
             form.initial["excluded_experiments_branches"],
             [f"{excluded.slug}:{excluded.reference_branch.slug}"],
+        )
+
+
+class TestNimbusBranchFeatureValueForm(RequestFormTestCase):
+    def test_initial_value_empty_when_instance_value_is_none_or_empty_dict(self):
+        instance_none = NimbusBranchFeatureValue(value=None)
+        form_none = NimbusBranchFeatureValueForm(instance=instance_none)
+        self.assertEqual(form_none.fields["value"].initial, "")
+
+        instance_empty = NimbusBranchFeatureValue(value={})
+        form_empty = NimbusBranchFeatureValueForm(instance=instance_empty)
+        self.assertEqual(form_empty.fields["value"].initial, "")
+
+    def test_initial_value_not_overridden_for_existing_value(self):
+        instance = NimbusBranchFeatureValue(value={"foo": "bar"})
+        form = NimbusBranchFeatureValueForm(instance=instance)
+        self.assertIsNone(form.fields["value"].initial)
+
+    def test_clean_value_defaults_empty_value_to_json_object(self):
+        form = NimbusBranchFeatureValueForm(data={"value": ""})
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["value"], "{}")
+
+    def test_clean_value_preserves_non_empty_value(self):
+        form = NimbusBranchFeatureValueForm(data={"value": '{"enabled": true}'})
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["value"], '{"enabled": true}')
+
+    def test_schemas(self):
+        feature_with_schema = NimbusFeatureConfigFactory.create(
+            name="with-schema",
+            application=NimbusExperiment.Application.IOS,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None)],
+        )
+
+        feature_without_schema = NimbusFeatureConfigFactory.create(
+            name="without-schema",
+            application=NimbusExperiment.Application.IOS,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(version=None, schema=None),
+            ],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.IOS,
+            feature_configs=[feature_with_schema, feature_without_schema],
+        )
+
+        forms = {
+            fv.feature_config.slug: NimbusBranchFeatureValueForm(instance=fv)
+            for fv in experiment.reference_branch.feature_values.all()
+        }
+
+        self.assertEqual(
+            forms["with-schema"].fields["value"].widget.attrs["data-experiment-slug"],
+            experiment.slug,
+        )
+        self.assertEqual(
+            forms["with-schema"].fields["value"].widget.attrs["data-feature-slug"],
+            feature_with_schema.slug,
+        )
+        self.assertEqual(
+            json.loads(forms["with-schema"].fields["value"].widget.attrs["data-schema"]),
+            {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "description": (
+                    "Fake schema that matches NimbusBranchFactory feature_value factory"
+                ),
+                "type": "object",
+                "patternProperties": {"^.*$": {"type": "string"}},
+                "additionalProperties": False,
+            },
+        )
+        self.assertNotIn(
+            "data-schema", forms["without-schema"].fields["value"].widget.attrs
+        )
+
+
+class TestRolloutFeaturesForm(RequestFormTestCase):
+    def test_feature_config_choices_use_name_and_description(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            name="Rollout feature",
+            description="Rollout feature description",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+
+        form = RolloutFeaturesForm(instance=experiment, request=self.request)
+        rendered_field = str(form["feature_configs"])
+
+        self.assertIn("Rollout feature", rendered_field)
+        self.assertIn('data-subtext="Rollout feature description"', rendered_field)
+
+    def test_form_sets_initial_rollout_experience_and_filters_feature_configs(self):
+        desktop_feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="desktop-rollout-feature",
+        )
+        # Add a feature config for a different application to verify that the form
+        # filters it out
+        NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.IOS,
+            slug="ios-rollout-feature",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            takeaways_summary="Existing rollout experience",
+            feature_configs=[desktop_feature],
+        )
+
+        form = RolloutFeaturesForm(instance=experiment, request=self.request)
+
+        self.assertEqual(
+            form.fields["rollout_experience"].initial,
+            "Existing rollout experience",
+        )
+        self.assertIn(desktop_feature, form.fields["feature_configs"].queryset)
+        self.assertTrue(
+            all(
+                feature_config.application == NimbusExperiment.Application.DESKTOP
+                for feature_config in form.fields["feature_configs"].queryset
+            )
+        )
+
+    def test_form_reports_branch_feature_value_errors(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-invalid",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        experiment.reference_branch.screenshots.all().delete()
+
+        form = RolloutFeaturesForm(
+            instance=experiment,
+            data={
+                "rollout_experience": "Updated rollout experience",
+                "feature_configs": [feature_config.id],
+                "branch-feature-value-TOTAL_FORMS": "1",
+                "branch-feature-value-INITIAL_FORMS": "1",
+                "branch-feature-value-MIN_NUM_FORMS": "0",
+                "branch-feature-value-MAX_NUM_FORMS": "1000",
+                "branch-feature-value-0-value": "{}",
+            },
+            request=self.request,
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("branch_feature_values", form.errors)
+        self.assertEqual(
+            form.errors["branch_feature_values"],
+            [{"id": ["This field is required."]}],
+        )
+
+    def test_form_saves_new_reference_branch_feature_values(self):
+        feature_config1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-1",
+        )
+        feature_config2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-2",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+            takeaways_summary="",
+        )
+
+        form = RolloutFeaturesForm(
+            instance=experiment,
+            data={
+                "rollout_experience": "Updated rollout experience",
+                "feature_configs": [feature_config1.id, feature_config2.id],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "branch-feature-value-MIN_NUM_FORMS": "0",
+                "branch-feature-value-MAX_NUM_FORMS": "1000",
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        experiment.refresh_from_db()
+
+        self.assertEqual(experiment.takeaways_summary, "Updated rollout experience")
+        self.assertEqual(
+            set(experiment.feature_configs.all()), {feature_config1, feature_config2}
+        )
+        self.assertEqual(
+            set(
+                experiment.reference_branch.feature_values.values_list(
+                    "feature_config", flat=True
+                )
+            ),
+            {feature_config1.id, feature_config2.id},
+        )
+        self.assertEqual(
+            experiment.changes.latest("changed_on").message,
+            f"{self.user} updated rollout features",
+        )
+
+    def test_form_deletes_removed_reference_branch_feature_values(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-delete",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+            takeaways_summary="Existing rollout experience",
+        )
+
+        reference_feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature_config
+        )
+
+        form = RolloutFeaturesForm(
+            instance=experiment,
+            data={
+                "rollout_experience": "Updated rollout experience",
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "1",
+                "branch-feature-value-INITIAL_FORMS": "1",
+                "branch-feature-value-MIN_NUM_FORMS": "0",
+                "branch-feature-value-MAX_NUM_FORMS": "1000",
+                "branch-feature-value-0-id": reference_feature_value.id,
+                "branch-feature-value-0-value": reference_feature_value.value,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        experiment.refresh_from_db()
+
+        self.assertEqual(experiment.takeaways_summary, "Updated rollout experience")
+        self.assertEqual(experiment.feature_configs.count(), 0)
+        self.assertFalse(
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config
+            ).exists()
+        )
+        self.assertEqual(
+            experiment.changes.latest("changed_on").message,
+            f"{self.user} updated rollout features",
         )
 
 

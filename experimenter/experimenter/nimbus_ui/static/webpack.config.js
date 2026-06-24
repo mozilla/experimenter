@@ -10,6 +10,7 @@ module.exports = {
     review_controls: "./js/review_controls.js",
     edit_audience: "./js/edit_audience.js",
     edit_branches: "./js/edit_branches.js",
+    new_edit_branches: "./js/new/edit_branches.js",
     experiment_detail: "./js/experiment_detail.js",
     branch_detail: "./js/branch_detail.js",
     features_page: "./js/features_page.js",

@@ -14,10 +14,12 @@ from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.models import (
     NimbusBranch,
+    NimbusBranchFeatureValue,
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
+    NimbusFeatureConfig,
     Tag,
 )
 from experimenter.nimbus_ui.constants import NimbusUIConstants
@@ -104,6 +106,22 @@ class SingleSelectWidget(SelectedFirstMixin, forms.Select):
         )
 
         super().__init__(*args, attrs=attrs, **kwargs)
+
+
+class FeatureConfigMultiSelectWidget(MultiSelectWidget):
+    def create_option(
+        self, name, value, label, selected, index, subindex=None, attrs=None
+    ):
+        option = super().create_option(
+            name, value, label, selected, index, subindex=subindex, attrs=attrs
+        )
+        option["attrs"]["data-subtext"] = value.instance.description
+        return option
+
+
+class FeatureConfigModelChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
 
 
 class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -225,6 +243,72 @@ class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm
     @transaction.atomic
     def save(self):
         return self.instance.clone(self.cleaned_data["name"], self.cleaned_data["owner"])
+
+
+class NimbusBranchFeatureValueForm(forms.ModelForm):
+    value = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"class": "value-editor"}),
+    )
+
+    class Meta:
+        model = NimbusBranchFeatureValue
+        fields = ("value",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance._state.adding and (
+            self.instance.value is None or self.instance.value == {}
+        ):
+            self.fields["value"].initial = ""
+
+        if (
+            self.instance is not None
+            and self.instance.branch_id is not None
+            and self.instance.branch.experiment
+            and self.instance.branch.experiment.application
+            != NimbusExperiment.Application.DESKTOP
+        ):
+            self.fields["value"].widget.attrs["data-experiment-slug"] = (
+                self.instance.branch.experiment.slug
+            )
+
+            if self.instance.feature_config:
+                self.fields["value"].widget.attrs["data-feature-slug"] = (
+                    self.instance.feature_config.slug
+                )
+
+        if (
+            self.instance.id is not None
+            and self.instance.feature_config
+            and (
+                schema := self.instance.feature_config.schemas.filter(
+                    version=None
+                ).first()
+            )
+            and schema is not None
+            and schema.schema is not None
+        ):
+            self.fields["value"].widget.attrs.update(
+                {
+                    "data-schema": schema.schema,
+                }
+            )
+
+    def clean_value(self):
+        value = self.cleaned_data.get("value")
+
+        if not value or value.strip() == "":
+            return "{}"
+        return value
+
+
+RolloutBranchFeatureValueFormSet = inlineformset_factory(
+    NimbusBranch,
+    NimbusBranchFeatureValue,
+    form=NimbusBranchFeatureValueForm,
+    extra=0,
+)
 
 
 class RolloutOverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -587,6 +671,100 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated audience"
+
+
+class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    rollout_experience = forms.CharField(
+        required=False,
+        label="",
+        widget=forms.widgets.Textarea(attrs={"class": "form-control"}),
+    )
+    feature_configs = FeatureConfigModelChoiceField(
+        required=False,
+        queryset=NimbusFeatureConfig.objects.all(),
+        widget=FeatureConfigMultiSelectWidget(attrs={}),
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ("feature_configs",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.branch_feature_values = RolloutBranchFeatureValueFormSet(
+            data=self.data or None,
+            instance=self.reference_branch,
+            prefix="branch-feature-value",
+        )
+
+        self.fields["feature_configs"].queryset = NimbusFeatureConfig.objects.filter(
+            application=self.instance.application
+        ).order_by("slug")
+
+        self.fields["feature_configs"].widget.attrs.update(
+            {
+                "hx-post": reverse(
+                    "nimbus-ui-new-update-rollout-features",
+                    kwargs={"slug": self.instance.slug},
+                ),
+                "hx-trigger": "change",
+                "hx-select": "#rollout-rollout-features-body",
+                "hx-target": "#rollout-rollout-features-body",
+            }
+        )
+        # We use the takeaways_summary to actually store the rollout experience since it
+        # will remain unused as rollouts donot have results data
+        self.fields["rollout_experience"].initial = self.instance.takeaways_summary
+
+    @property
+    def errors(self):
+        errors = super().errors
+        if any(self.branch_feature_values.errors):
+            errors["branch_feature_values"] = self.branch_feature_values.errors
+        return errors
+
+    def is_valid(self):
+        return super().is_valid() and self.branch_feature_values.is_valid()
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        self.branch_feature_values.save()
+        self.instance.takeaways_summary = self.cleaned_data.get("rollout_experience", "")
+
+        experiment = super().save(*args, **kwargs)
+
+        saved_experiment_feature_configs = set(experiment.feature_configs.all())
+        saved_branch_feature_configs = {
+            feature_value.feature_config
+            for feature_value in NimbusBranchFeatureValue.objects.filter(
+                branch__experiment=experiment
+            )
+        }
+        new_feature_configs = (
+            saved_experiment_feature_configs - saved_branch_feature_configs
+        )
+        deleted_feature_configs = (
+            saved_branch_feature_configs - saved_experiment_feature_configs
+        )
+
+        self.reference_branch.feature_values.filter(
+            feature_config__in=deleted_feature_configs
+        ).delete()
+
+        for feature_config in new_feature_configs:
+            self.reference_branch.feature_values.create(
+                feature_config=feature_config, value="{}"
+            )
+
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated rollout features"
+
+    @property
+    def reference_branch(self):
+        return self.instance.reference_branch or self.instance.branches.first()
 
 
 class RolloutQAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
