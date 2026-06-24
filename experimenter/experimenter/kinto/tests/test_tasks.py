@@ -19,6 +19,7 @@ from experimenter.experiments.models import (
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusRolloutPhaseFactory,
 )
 from experimenter.kinto import tasks
 from experimenter.kinto.client import KINTO_REVIEW_STATUS, KINTO_ROLLBACK_STATUS
@@ -1109,9 +1110,37 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertEqual(
             launching_experiment.computed_end_date, launching_experiment.proposed_end_date
         )
-        self.assertEqual(
-            launching_experiment.computed_end_date, launching_experiment.proposed_end_date
+
+    def test_remote_settings_launch_approval_commits_staged_rollout_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
         )
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=25
+        )
+        experiment.stage_rollout_phase_advance()
+
+        self.assertIsNone(experiment.rollout_phase)
+        self.assertEqual(experiment.rollout_phase_next, phase)
+
+        tasks.handle_launching_experiments(
+            [NimbusExperiment.Application.DESKTOP],
+            {
+                experiment.slug: {
+                    "id": experiment.slug,
+                    "last_modified": 1,
+                }
+            },
+            experiment.kinto_collection,
+        )
+
+        experiment.refresh_from_db()
+        phase.refresh_from_db()
+        self.assertEqual(experiment.rollout_phase, phase)
+        self.assertIsNone(experiment.rollout_phase_next)
+        self.assertEqual(phase.actual_start_date, timezone.now().date())
 
     @mock.patch("experimenter.kinto.tasks.send_threaded_success_message")
     def test_launching_experiment_live_handles_slack_notification_error(
@@ -1189,6 +1218,114 @@ class TestNimbusCheckKintoPushQueueByCollection(
             updating_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
         self.assertIn("updated_field", updating_experiment.published_dto)
+
+    def test_remote_settings_update_approval_commits_staged_rollout_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            published_dto={"id": "previous-record"},
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
+        next_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=25
+        )
+        experiment.rollout_phase = current_phase
+        experiment.population_percent = current_phase.population_percent
+        experiment.save()
+        experiment.stage_rollout_phase_advance()
+
+        self.assertEqual(experiment.rollout_phase, current_phase)
+        self.assertEqual(experiment.rollout_phase_next, next_phase)
+
+        tasks.handle_updating_experiments(
+            [NimbusExperiment.Application.DESKTOP],
+            {
+                experiment.slug: {
+                    "id": experiment.slug,
+                    "last_modified": 1,
+                }
+            },
+            experiment.kinto_collection,
+        )
+
+        experiment.refresh_from_db()
+        current_phase.refresh_from_db()
+        next_phase.refresh_from_db()
+        self.assertEqual(experiment.rollout_phase, next_phase)
+        self.assertIsNone(experiment.rollout_phase_next)
+        self.assertEqual(current_phase.end_date, timezone.now().date())
+        self.assertEqual(next_phase.actual_start_date, timezone.now().date())
+
+    def test_remote_settings_disable_approval_disables_and_ends_current_phase(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            published_dto={"id": "previous-record"},
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=25,
+            actual_start_date=timezone.now().date(),
+        )
+        experiment.rollout_phase = current_phase
+        experiment.save()
+
+        tasks.handle_ending_experiments(
+            [NimbusExperiment.Application.DESKTOP],
+            {},
+            experiment.kinto_collection,
+        )
+
+        experiment.refresh_from_db()
+        current_phase.refresh_from_db()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DISABLED)
+        self.assertIsNone(experiment.status_next)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertEqual(current_phase.end_date, timezone.now().date())
+
+    def test_remote_settings_reenable_approval_advances_phase_and_sets_live(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            published_dto={"id": "previous-record"},
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
+        next_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=25
+        )
+        experiment.rollout_phase = current_phase
+        experiment.rollout_phase_next = next_phase
+        experiment.save()
+
+        tasks.handle_launching_experiments(
+            [NimbusExperiment.Application.DESKTOP],
+            {
+                experiment.slug: {
+                    "id": experiment.slug,
+                    "last_modified": 1,
+                }
+            },
+            experiment.kinto_collection,
+        )
+
+        experiment.refresh_from_db()
+        next_phase.refresh_from_db()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertIsNone(experiment.status_next)
+        self.assertEqual(experiment.rollout_phase, next_phase)
+        self.assertIsNone(experiment.rollout_phase_next)
+        self.assertEqual(next_phase.actual_start_date, timezone.now().date())
 
     @mock.patch("experimenter.kinto.tasks.send_threaded_success_message")
     def test_updating_paused_experiment_sends_enrollment_ended_notification(
