@@ -4815,6 +4815,31 @@ FX_153_3_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_153_3_TRAINHOP_ANY_WIDGET_ENABLED = NimbusTargetingConfig(
+    name="New Tab Fx153 Jun-05 Trainhop, any of 4 widgets enabled",
+    slug="any-widget-enabled-153-0605-trainhop",
+    description=(
+        "Users having the New Tab 153.3.20260605.21338 train hop who still have at "
+        "least one of the Sports, Clocks, Lists, or Timer widgets enabled (i.e. they "
+        "have not disabled all four widgets)"
+    ),
+    targeting=(
+        f"{FX_153_3_TRAINHOP.targeting} && (("
+        "'browser.newtabpage.activity-stream.widgets.lists.enabled'"
+        "|preferenceValue == true) || ("
+        "'browser.newtabpage.activity-stream.widgets.focusTimer.enabled'"
+        "|preferenceValue == true) || ("
+        "'browser.newtabpage.activity-stream.widgets.sportsWidget.enabled'"
+        "|preferenceValue == true) || ("
+        "'browser.newtabpage.activity-stream.widgets.clocks.enabled'"
+        "|preferenceValue == true))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 BUILDID_20251006095753 = NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
