@@ -196,3 +196,52 @@ def fetch_monitoring_data():
         metrics.incr("fetch_monitoring_data.failed")
         logger.exception(f"Fatal error in fetch_monitoring_data task: {e}")
         raise
+
+
+@app.task
+@metrics.timer_decorator("update_holdback_enrollment_period")
+def update_holdback_enrollment_period():
+    metrics.incr("update_holdback_enrollment_period.started")
+    try:
+        today = timezone.now().date()
+        now = timezone.now()
+
+        experiments = NimbusExperiment.objects.filter(
+            is_holdback=True,
+            status=NimbusExperiment.Status.LIVE,
+        ).exclude(_start_date=None)
+
+        updated_count = 0
+        for experiment in experiments:
+            enrollment_end = experiment.actual_enrollment_end_date
+            if enrollment_end is None or today <= enrollment_end:
+                continue
+
+            days_since_end = (today - enrollment_end).days
+            weeks_elapsed = max(1, days_since_end // 7)
+            new_enrollment_period = min(
+                experiment.proposed_enrollment + (weeks_elapsed * 7),
+                experiment.proposed_duration,
+            )
+
+            experiment.proposed_enrollment = new_enrollment_period
+            experiment.do_rerun = True
+            experiment.do_rerun_timestamp = now
+            experiment.save(
+                update_fields=[
+                    "proposed_enrollment",
+                    "do_rerun",
+                    "do_rerun_timestamp",
+                ]
+            )
+            updated_count += 1
+
+        logger.info(
+            f"update_holdback_enrollment_period: updated {updated_count} experiments"
+        )
+        metrics.incr("update_holdback_enrollment_period.completed")
+
+    except Exception as e:
+        metrics.incr("update_holdback_enrollment_period.failed")
+        logger.exception(f"Fatal error in update_holdback_enrollment_period: {e}")
+        raise

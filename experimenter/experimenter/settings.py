@@ -421,6 +421,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.experiments.tasks.warm_api_caches",
         "schedule": config("API_CACHE_WARMING_INTERVAL", default=3600, cast=int),
     },
+    "update_holdback_enrollment_period": {
+        "task": "experimenter.jetstream.tasks.update_holdback_enrollment_period",
+        "schedule": crontab(minute=0, hour=7, day_of_week=1),
+    },
 }
 CELERY_TASK_ROUTES = {
     "experimenter.kinto.tasks.*": {"queue": "remote_settings"},
