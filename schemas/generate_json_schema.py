@@ -87,14 +87,16 @@ def clean_schema(schema: dict[str, Any]) -> None:
 
 
 def iterate_models() -> dict[str, Any]:
-    model_names = list(experiments.__all__) + list(jetstream.__all__)
-    models = []
-    for model_name_str in model_names:
-        for package in TS_SCHEMA_PACKAGES:
-            if model_name_str in package.__all__:
-                model = getattr(package, model_name_str)
-        if not issubclass(model, ModelFactory):
-            models.append(model)
+    models = [
+        model
+        for model in (
+            getattr(package, model_name)
+            for package in TS_SCHEMA_PACKAGES
+            for model_name in package.__all__
+        )
+        if not issubclass(model, ModelFactory)
+    ]
+
     top_model: BaseModel = create_model(
         "_TopModel_", **{m.__name__: (m, ...) for m in models}
     )

@@ -5,6 +5,7 @@
   "arguments": {},
   "branches": [
     {
+      "description": "control branch",
       "features": [
         {
           "featureId": "pocketNewtab",
@@ -18,9 +19,11 @@
         }
       ],
       "ratio": 1,
+      "screenshots": [],
       "slug": "control"
     },
     {
+      "description": "treatment branch",
       "features": [
         {
           "featureId": "pocketNewtab",
@@ -39,6 +42,7 @@
         }
       ],
       "ratio": 1,
+      "screenshots": [],
       "slug": "treatment"
     }
   ],
