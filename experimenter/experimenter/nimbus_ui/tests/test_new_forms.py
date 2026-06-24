@@ -1,8 +1,10 @@
 import datetime
+from unittest.mock import patch
 
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
+from parameterized import parameterized
 
 from experimenter.base.tests.factories import (
     CountryFactory,
@@ -24,8 +26,15 @@ from experimenter.nimbus_ui.new.forms import (
     CollaboratorsForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
+    DraftToLiveRolloutForm,
+    DraftToPreviewRolloutForm,
+    LiveToPausedRolloutForm,
+    LiveToUpdateRolloutForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    PausedToLiveRolloutForm,
+    PreviewToDraftRolloutForm,
+    PreviewToLiveRolloutForm,
     RolloutAudienceForm,
     RolloutOverviewForm,
     RolloutQAStatusForm,
@@ -721,3 +730,233 @@ class TestTagAssignForm(RequestFormTestCase):
 
         tag_names = [tag.name for tag in form.fields["tags"].queryset]
         self.assertEqual(tag_names, ["A Tag", "M Tag", "Z Tag"])
+
+
+class TestRolloutStatusForms(RequestFormTestCase):
+    def setUp(self):
+        super().setUp()
+        self.mock_preview_task = patch(
+            "experimenter.nimbus_ui.new.forms."
+            "nimbus_synchronize_preview_experiments_in_kinto.apply_async"
+        ).start()
+        self.mock_allocate_bucket_range = patch(
+            "experimenter.experiments.models.NimbusExperiment.allocate_bucket_range"
+        ).start()
+        self.addCleanup(self.mock_preview_task.stop)
+        self.addCleanup(self.mock_allocate_bucket_range.stop)
+
+    @parameterized.expand(
+        [
+            # Draft -> Preview
+            (
+                DraftToPreviewRolloutForm,
+                NimbusExperiment.Status.DRAFT,
+                False,
+                NimbusExperiment.Status.PREVIEW,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                "launched rollout to Preview",
+            ),
+            # Draft -> Live
+            (
+                DraftToLiveRolloutForm,
+                NimbusExperiment.Status.DRAFT,
+                False,
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+                "launched rollout to Live",
+            ),
+            # Preview -> Live
+            (
+                PreviewToLiveRolloutForm,
+                NimbusExperiment.Status.PREVIEW,
+                False,
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+                "launched rollout to Live",
+            ),
+            # Preview -> Draft
+            (
+                PreviewToDraftRolloutForm,
+                NimbusExperiment.Status.PREVIEW,
+                False,
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+                "moved the rollout back to Draft",
+            ),
+            # Live -> Live
+            (
+                LiveToUpdateRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                False,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+                "updated rollout population percentages",
+            ),
+            # Live -> Paused
+            (
+                LiveToPausedRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                False,
+                NimbusExperiment.Status.PAUSED,
+                None,
+                NimbusExperiment.PublishStatus.APPROVED,
+                True,
+                "paused rollout",
+            ),
+            # Paused -> Live
+            (
+                PausedToLiveRolloutForm,
+                NimbusExperiment.Status.PAUSED,
+                True,
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+                "resumed rollout to Live",
+            ),
+        ]
+    )
+    def test_valid_transition(
+        self,
+        form_class,
+        initial_status,
+        initial_is_paused,
+        expected_status,
+        expected_status_next,
+        expected_publish_status,
+        expected_is_paused,
+        expected_changelog_message,
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=initial_status,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=initial_is_paused,
+            is_rollout=True,
+        )
+        form = form_class(data={}, instance=experiment, request=self.request)
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, expected_status)
+        self.assertEqual(experiment.status_next, expected_status_next)
+        self.assertEqual(experiment.publish_status, expected_publish_status)
+        self.assertEqual(experiment.is_paused, expected_is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(expected_changelog_message, changelog.message)
+
+    @parameterized.expand(
+        [
+            # Draft -> Preview cannot start from Preview
+            (DraftToPreviewRolloutForm, NimbusExperiment.Status.PREVIEW, False),
+            # Draft -> Live cannot start from Preview
+            (DraftToLiveRolloutForm, NimbusExperiment.Status.PREVIEW, False),
+            # Preview -> Live cannot start from Draft
+            (PreviewToLiveRolloutForm, NimbusExperiment.Status.DRAFT, False),
+            # Preview -> Draft cannot start from Draft
+            (PreviewToDraftRolloutForm, NimbusExperiment.Status.DRAFT, False),
+            # Live -> Live cannot start from Paused
+            (LiveToUpdateRolloutForm, NimbusExperiment.Status.PAUSED, True),
+            # Live -> Paused cannot start from Paused
+            (LiveToPausedRolloutForm, NimbusExperiment.Status.PAUSED, True),
+            # Paused -> Live cannot start from Live
+            (PausedToLiveRolloutForm, NimbusExperiment.Status.LIVE, False),
+        ]
+    )
+    def test_invalid_transition(self, form_class, current_status, is_paused):
+        experiment = NimbusExperimentFactory.create(
+            status=current_status,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=is_paused,
+            is_rollout=True,
+        )
+        form = form_class(data={}, instance=experiment, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+    def test_paused_transition_rejected_for_experiment(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
+            is_rollout=False,
+        )
+        form = LiveToPausedRolloutForm(data={}, instance=experiment, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["__all__"],
+            [NimbusUIConstants.ERROR_INVALID_PAUSED_TRANSITION],
+        )
+
+    def test_draft_to_preview_side_effects(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
+            is_rollout=True,
+        )
+        form = DraftToPreviewRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_preview_task.assert_called_once_with(countdown=5)
+
+    def test_preview_to_draft_resets_published_dto_and_syncs_preview(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
+            is_rollout=True,
+            published_dto={"slug": "test-rollout"},
+        )
+        form = PreviewToDraftRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertIsNone(experiment.published_dto)
+        self.mock_preview_task.assert_called_once_with(countdown=5)
+
+    @patch("experimenter.nimbus_ui.new.forms.metrics")
+    def test_review_timing_metric(self, mock_metrics):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
+            is_rollout=True,
+        )
+        form = DraftToLiveRolloutForm(data={}, instance=experiment, request=self.request)
+        form.required_status_next = NimbusExperiment.Status.LIVE
+        form.required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        mock_metrics.timing.assert_called_once()

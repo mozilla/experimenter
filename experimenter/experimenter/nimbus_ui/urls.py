@@ -2,6 +2,9 @@ from django.urls import re_path
 from django.views.generic import RedirectView
 
 from experimenter.nimbus_ui.new.views import (
+    DraftToLiveRolloutView,
+    DraftToPreviewRolloutView,
+    LiveToPausedRolloutView,
     NewAddSubscriberView,
     NewAddTagView,
     NewAudienceUpdateView,
@@ -15,6 +18,12 @@ from experimenter.nimbus_ui.new.views import (
     NewSubscriberSearchView,
     NewTagSearchView,
     NimbusRolloutDetailView,
+    PausedToLiveRolloutView,
+    PreviewToDraftRolloutView,
+    PreviewToLiveRolloutView,
+)
+from experimenter.nimbus_ui.new.views import (
+    LiveToUpdateRolloutView as NewLiveToUpdateRolloutView,
 )
 from experimenter.nimbus_ui.views import (
     ApproveEndEnrollmentView,
@@ -299,6 +308,41 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/approve-update-rollout/$",
         ApproveUpdateRolloutView.as_view(),
         name="nimbus-ui-approve-update-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/draft-to-preview-rollout/$",
+        DraftToPreviewRolloutView.as_view(),
+        name="nimbus-ui-new-draft-to-preview-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/draft-to-live-rollout/$",
+        DraftToLiveRolloutView.as_view(),
+        name="nimbus-ui-new-draft-to-live-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/preview-to-live-rollout/$",
+        PreviewToLiveRolloutView.as_view(),
+        name="nimbus-ui-new-preview-to-live-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/preview-to-draft-rollout/$",
+        PreviewToDraftRolloutView.as_view(),
+        name="nimbus-ui-new-preview-to-draft-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/live-to-update-rollout/$",
+        NewLiveToUpdateRolloutView.as_view(),
+        name="nimbus-ui-new-live-to-update-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/live-to-paused-rollout/$",
+        LiveToPausedRolloutView.as_view(),
+        name="nimbus-ui-new-live-to-paused-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/paused-to-live-rollout/$",
+        PausedToLiveRolloutView.as_view(),
+        name="nimbus-ui-new-paused-to-live-rollout",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/results/$",
