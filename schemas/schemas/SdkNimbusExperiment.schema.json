@@ -12,6 +12,10 @@
       "description": "A slug identifying the targeted product of this experiment. It should be a lowercased_with_underscores name that is short and unambiguous and it should match the app_name found in https://probeinfo.telemetry.mozilla.org/glean/repositories. Examples are \"fenix\" and \"firefox_desktop\".",
       "type": "string"
     },
+    "application": {
+      "description": "A mirror of the appId field",
+      "type": "string"
+    },
     "branches": {
       "description": "Branch configuration for the SDK experiment.",
       "items": {
@@ -24,7 +28,7 @@
       "description": "Bucketing configuration."
     },
     "channel": {
-      "description": "A specific channel of an application such as \"nightly\", \"beta\", or \"release\".",
+      "description": "A specific channel of an application such as \"nightly\", \"beta\", or \"release\". This field is only respected by nimbus-sdk-based applications.",
       "type": "string"
     },
     "endDate": {
@@ -57,6 +61,17 @@
         "type": "string"
       },
       "type": "array"
+    },
+    "featureValidationOptOut": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "If true, clients should not perform feature validation. This field is only supported by Firefox Desktop."
     },
     "firefoxLabsDescription": {
       "anyOf": [
@@ -226,6 +241,7 @@
     "id",
     "appName",
     "appId",
+    "application",
     "channel",
     "userFacingName",
     "userFacingDescription",

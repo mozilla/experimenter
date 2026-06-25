@@ -80,6 +80,11 @@ class BaseExperiment(BaseModel):
     Experiment API.
     """
 
+    # The following present but obsolete fields are omitted:
+    #
+    # * arguments
+    # * probeSets
+
     schemaVersion: str = Field(
         description="Version of the NimbusExperiment schema this experiment refers to"
     )
@@ -113,10 +118,12 @@ class BaseExperiment(BaseModel):
             'Examples are "org.mozilla.firefox_beta" and "firefox-desktop".'
         )
     )
+    application: str = Field(description="A mirror of the appId field")
     channel: str = Field(
         description=(
             'A specific channel of an application such as "nightly", "beta", or '
-            '"release".'
+            '"release".\n\n'
+            "This field is only respected by nimbus-sdk-based applications."
         )
     )
     userFacingName: str = Field(
@@ -222,6 +229,15 @@ class BaseExperiment(BaseModel):
             "If null, it has not yet been published."
         ),
         default=None,
+    )
+
+    featureValidationOptOut: bool | None = Field(
+        description=(
+            "If true, clients should not perform feature validation.\n"
+            "\n"
+            "This field is only supported by Firefox Desktop."
+        ),
+        default=False,
     )
 
     # Firefox Labs-related fields.

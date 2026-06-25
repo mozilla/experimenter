@@ -5,6 +5,7 @@
   "arguments": {},
   "branches": [
     {
+      "description": "control branch",
       "features": [
         {
           "featureId": "fenix-default-browser",
@@ -24,9 +25,11 @@
         }
       ],
       "ratio": 1,
+      "screenshots": [],
       "slug": "control"
     },
     {
+      "description": "treatment branch",
       "features": [
         {
           "featureId": "fenix-default-browser",
@@ -46,6 +49,7 @@
         }
       ],
       "ratio": 1,
+      "screenshots": [],
       "slug": "default_browser_newtab_banner"
     }
   ],

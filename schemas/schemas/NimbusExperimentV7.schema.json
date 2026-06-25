@@ -12,10 +12,14 @@
       "description": "A slug identifying the targeted product of this experiment. It should be a lowercased_with_underscores name that is short and unambiguous and it should match the app_name found in https://probeinfo.telemetry.mozilla.org/glean/repositories. Examples are \"fenix\" and \"firefox_desktop\".",
       "type": "string"
     },
+    "application": {
+      "description": "A mirror of the appId field",
+      "type": "string"
+    },
     "branches": {
       "description": "Branch configuration for the experiment.",
       "items": {
-        "$ref": "#/$defs/BaseExperimentBranch"
+        "$ref": "#/$defs/ExperimentBranchV7"
       },
       "type": "array"
     },
@@ -24,8 +28,15 @@
       "description": "Bucketing configuration."
     },
     "channel": {
-      "description": "A specific channel of an application such as \"nightly\", \"beta\", or \"release\".",
+      "description": "A specific channel of an application such as \"nightly\", \"beta\", or \"release\". This field is only respected by nimbus-sdk-based applications.",
       "type": "string"
+    },
+    "channels": {
+      "description": "The channels available for the experiment. This field should be preferred over the channel field.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
     },
     "documentationLinks": {
       "description": "All documentation links associated with this experiment.",
@@ -64,6 +75,17 @@
         "type": "string"
       },
       "type": "array"
+    },
+    "featureValidationOptOut": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "If true, clients should not perform feature validation. This field is only supported by Firefox Desktop."
     },
     "firefoxLabsDescription": {
       "anyOf": [
@@ -233,6 +255,7 @@
     "id",
     "appName",
     "appId",
+    "application",
     "channel",
     "userFacingName",
     "userFacingDescription",
@@ -264,31 +287,6 @@
     }
   },
   "$defs": {
-    "BaseExperimentBranch": {
-      "properties": {
-        "features": {
-          "description": "An array of feature configurations.",
-          "items": {
-            "$ref": "#/$defs/ExperimentFeatureConfig"
-          },
-          "type": "array"
-        },
-        "ratio": {
-          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.",
-          "type": "integer"
-        },
-        "slug": {
-          "description": "Identifier for the branch.",
-          "type": "string"
-        }
-      },
-      "required": [
-        "slug",
-        "ratio",
-        "features"
-      ],
-      "type": "object"
-    },
     "DocumentationLink": {
       "properties": {
         "link": {
@@ -303,6 +301,44 @@
       "required": [
         "title",
         "link"
+      ],
+      "type": "object"
+    },
+    "ExperimentBranchV7": {
+      "properties": {
+        "description": {
+          "description": "A description of the branch.",
+          "type": "string"
+        },
+        "features": {
+          "description": "An array of feature configurations.",
+          "items": {
+            "$ref": "#/$defs/ExperimentFeatureConfig"
+          },
+          "type": "array"
+        },
+        "ratio": {
+          "description": "Relative ratio of population for the branch. e.g., if branch A=1 and branch B=3, then branch A would get 25% of the population.",
+          "type": "integer"
+        },
+        "screenshots": {
+          "description": "The URLs of any screenshots associated with the branch.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "slug": {
+          "description": "Identifier for the branch.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "ratio",
+        "features",
+        "description",
+        "screenshots"
       ],
       "type": "object"
     },
