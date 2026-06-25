@@ -1,7 +1,6 @@
 {
   "appId": "org.mozilla.firefox",
   "appName": "fenix",
-  "application": "org.mozilla.fenix",
   "arguments": {},
   "branches": [
     {

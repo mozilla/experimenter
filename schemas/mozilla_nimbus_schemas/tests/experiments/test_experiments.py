@@ -301,7 +301,6 @@ def _desktop_nimbus_experiment(*, is_rollout: bool = False) -> dict[str, Any]:
     recipe = {
         "appId": "firefox-desktop",
         "appName": "firefox_desktop",
-        "application": "firefox-desktop",
         "arguments": {},
         "branches": [
             {
@@ -376,7 +375,6 @@ def _sdk_nimbus_experiment(*, is_rollout: bool = False) -> dict[str, Any]:
     return {
         "appId": "org.mozilla.firefox",
         "appName": "fenix",
-        "application": "org.mozilla.fenix",
         "branches": [
             {
                 "features": [{"featureId": "no-feature-fenix", "value": {}}],
