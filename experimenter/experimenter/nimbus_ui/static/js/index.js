@@ -73,6 +73,17 @@ const setupSlugCopyToast = () => {
   }
 };
 
+const cleanupOrphanedModalBackdrops = () => {
+  if (!document.querySelector(".modal.show")) {
+    document
+      .querySelectorAll(".modal-backdrop")
+      .forEach((backdrop) => backdrop.remove());
+    document.body.classList.remove("modal-open");
+    document.body.style.removeProperty("overflow");
+    document.body.style.removeProperty("padding-right");
+  }
+};
+
 const setupHTMXLoadingOverlay = () => {
   document.addEventListener("htmx:beforeRequest", function () {
     const loadingOverlay = document.querySelector("#htmx-loading-overlay");
@@ -111,6 +122,7 @@ $(() => {
     setupToasts();
     setupSlugCopyToast();
     setupReadonlyJsonEditors();
+    cleanupOrphanedModalBackdrops();
   });
 
   // To support HTMX onchange updates on selectpicker, we need to

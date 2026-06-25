@@ -1,0 +1,60 @@
+{% load nimbus_extras %}
+
+<div class="modal fade"
+     id="end-experiment-modal-{{ experiment.slug }}"
+     tabindex="-1"
+     aria-labelledby="end-experiment-modal-label-{{ experiment.slug }}"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5"
+            id="end-experiment-modal-label-{{ experiment.slug }}">
+          End this
+          {% if experiment.is_rollout %}
+            rollout?
+          {% else %}
+            experiment?
+          {% endif %}
+        </h1>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">
+          This requests to permanently end
+          {% if experiment.is_rollout %}
+            rollout
+          {% else %}
+            experiment
+          {% endif %}
+          <strong>{{ experiment.name }}</strong> and stop collecting data. This can't be undone.
+          {% if not experiment.is_rollout %}
+            If you only want to stop new participants from enrolling, use <strong>End Enrollment</strong> instead.
+          {% endif %}
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button"
+                id="end-experiment"
+                class="btn btn-danger"
+                data-bs-dismiss="modal"
+                hx-post="{% url 'nimbus-ui-live-to-complete' slug=experiment.slug %}{{ post_query }}"
+                hx-select="{{ target|default:'#content' }}"
+                hx-target="{{ target|default:'#content' }}"
+                hx-swap="outerHTML">
+          <i class="fa-solid fa-circle-stop me-1"></i>
+          End
+          {% if experiment.is_rollout %}
+            Rollout
+          {% else %}
+            Experiment
+          {% endif %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

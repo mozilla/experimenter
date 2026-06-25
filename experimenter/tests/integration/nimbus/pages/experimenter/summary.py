@@ -36,6 +36,7 @@ class SummaryPage(ExperimenterBase):
         By.CSS_SELECTOR,
         ".header-experiment-status .border-primary",
     )
+    _end_experiment_trigger_locator = (By.CSS_SELECTOR, "#end-experiment-trigger")
     _end_experiment_button_locator = (By.CSS_SELECTOR, "#end-experiment")
     _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="nav-edit-archive"]')
     _archive_label_locator = (By.CSS_SELECTOR, "#archive-badge")
@@ -205,6 +206,7 @@ class SummaryPage(ExperimenterBase):
         self.approve()
 
     def end_and_approve(self):
+        self.click_element(self._end_experiment_trigger_locator)
         self.click_element(self._end_experiment_button_locator)
         self.approve()
 
