@@ -14,7 +14,9 @@ from experimenter.nimbus_ui.new.views import (
     NewRisksUpdateView,
     NewRolloutFeaturesUpdateView,
     NewSubscriberSearchView,
+    NewSubscribeView,
     NewTagSearchView,
+    NewUnsubscribeView,
     NimbusRolloutDetailView,
 )
 from experimenter.nimbus_ui.views import (
@@ -396,5 +398,15 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/remove_subscriber/$",
         NewRemoveSubscriberView.as_view(),
         name="nimbus-ui-new-remove-subscriber",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/subscribe/$",
+        NewSubscribeView.as_view(),
+        name="nimbus-ui-new-subscribe",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/unsubscribe/$",
+        NewUnsubscribeView.as_view(),
+        name="nimbus-ui-new-unsubscribe",
     ),
 ]
