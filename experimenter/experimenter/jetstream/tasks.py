@@ -213,7 +213,7 @@ def update_holdback_enrollment_period():
 
         updated_count = 0
         for experiment in experiments:
-            enrollment_end = experiment.actual_enrollment_end_date
+            enrollment_end = experiment.computed_enrollment_end_date
             if enrollment_end is None or today <= enrollment_end:
                 continue
 

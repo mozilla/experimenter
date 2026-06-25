@@ -3968,7 +3968,7 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
     def test_updates_enrollment_period_and_sets_do_rerun(self):
         today = datetime.date.today()
         start = today - datetime.timedelta(days=50)
-        # enrollment ended 22 days ago (14-day enrollment period started at start)
+        # enrollment ended 36 days ago (14-day enrollment period started at start)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_holdback=True,
@@ -3979,8 +3979,8 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
         tasks.update_holdback_enrollment_period()
         experiment.refresh_from_db()
 
-        # weeks_elapsed = 22 // 7 = 3 → 14 + 21 = 35
-        self.assertEqual(experiment.proposed_enrollment, 35)
+        # weeks_elapsed = 36 // 7 = 5 → 14 + 35 = 49
+        self.assertEqual(experiment.proposed_enrollment, 49)
         self.assertTrue(experiment.do_rerun)
         self.assertIsNotNone(experiment.do_rerun_timestamp)
 
