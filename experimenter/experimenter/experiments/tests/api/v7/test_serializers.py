@@ -61,8 +61,6 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertDictEqual(
             experiment_data,
             {
-                "arguments": {},
-                "application": "firefox-desktop",
                 "appName": "firefox_desktop",
                 "appId": "firefox-desktop",
                 "channel": "",
@@ -90,7 +88,6 @@ class TestNimbusExperimentSerializer(TestCase):
                 ),
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,
-                "probeSets": [],
                 "outcomes": [
                     {"priority": "primary", "slug": "foo"},
                     {"priority": "primary", "slug": "bar"},
@@ -171,8 +168,6 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIsNotNone(experiment.end_date)
 
         expected_experiment_data = {
-            "arguments": {},
-            "application": "org.mozilla.fenix",
             "appName": "fenix",
             "appId": "org.mozilla.fenix",
             "channel": "nightly",
@@ -196,7 +191,6 @@ class TestNimbusExperimentSerializer(TestCase):
             ),
             "userFacingDescription": experiment.public_description,
             "userFacingName": experiment.name,
-            "probeSets": [],
             "outcomes": [
                 {"priority": "primary", "slug": "foo"},
                 {"priority": "primary", "slug": "bar"},
