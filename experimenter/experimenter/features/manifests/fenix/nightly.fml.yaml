@@ -1337,6 +1337,13 @@ features:
           Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
+  uninstall-survey:
+    description: Feature that controls the visibility and handling of the uninstall survey app shortcut.
+    variables:
+      enabled:
+        description: If true, the uninstall survey shortcut is enabled and visible.
+        type: Boolean
+        default: true
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
@@ -1655,6 +1662,10 @@ objects:
         description: The icon shown in the survey.
         type: Option<Image>
         default: null
+      max-number-lines:
+        description: The maximum number of lines allowed for the microsurvey text layout.
+        type: Int
+        default: 2
       utm-content:
         description: Optional "utm_content" parameter for the privacy notice URL to specify the feature being surveyed.
         type: Option<String>

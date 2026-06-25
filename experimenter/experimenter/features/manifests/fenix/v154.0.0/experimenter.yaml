@@ -1039,6 +1039,14 @@ translations:
       type: boolean
       description: |
         Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
+uninstall-survey:
+  description: Feature that controls the visibility and handling of the uninstall survey app shortcut.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the uninstall survey shortcut is enabled and visible.
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true
