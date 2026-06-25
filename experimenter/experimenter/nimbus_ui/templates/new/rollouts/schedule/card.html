@@ -5,10 +5,9 @@
              style="table-layout: fixed">
         <thead>
           <tr style="font-size: 12px">
-            <th class="border-0 text-secondary fw-normal" style="width: 16%">Rollout Phase</th>
-            <th class="border-0 text-secondary fw-normal" style="width: 28%">Population Ratio</th>
-            <th class="border-0 text-secondary fw-normal" style="width: 40%">Estimated Duration</th>
-            <th class="border-0 text-secondary fw-normal" style="width: 16%"></th>
+            <th class="border-0 text-secondary fw-normal" style="width: 20%">Rollout Phase</th>
+            <th class="border-0 text-secondary fw-normal" style="width: 30%">Population Ratio</th>
+            <th class="border-0 text-secondary fw-normal" style="width: 50%">Estimated Duration</th>
           </tr>
         </thead>
         <tbody>
@@ -72,39 +71,6 @@
                   <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
                     <div class="progress-bar bg-secondary opacity-25" style="width: 100%"></div>
                   </div>
-                {% endif %}
-              </td>
-              {# Start / Resume / Pause buttons #}
-              <td class="text-end">
-                {% if phase.card_status == "not_started" or experiment.is_paused and phase.card_status == "in_progress" %}
-                  <form hx-post="{% url 'nimbus-ui-new-start-rollout-phase' experiment.slug %}"
-                        hx-target="#rollout-schedule-body"
-                        hx-swap="outerHTML"
-                        class="d-inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="phase_id" value="{{ phase.id }}">
-                    <button type="submit"
-                            class="btn btn-primary"
-                            style="width: 8rem"
-                            {% if not experiment.can_advance_rollout %}disabled{% endif %}>
-                      {% if experiment.is_paused and phase.card_status == "in_progress" %}
-                        Resume
-                      {% else %}
-                        Start
-                      {% endif %}
-                    </button>
-                  </form>
-                {% elif phase.card_status == "in_progress" %}
-                  <form hx-post="{% url 'nimbus-ui-new-pause-rollout' experiment.slug %}"
-                        hx-target="#rollout-schedule-body"
-                        hx-swap="outerHTML"
-                        class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit"
-                            class="btn btn-outline-secondary"
-                            style="width: 8rem"
-                            {% if not experiment.can_advance_rollout %}disabled{% endif %}>Pause</button>
-                  </form>
                 {% endif %}
               </td>
             </tr>

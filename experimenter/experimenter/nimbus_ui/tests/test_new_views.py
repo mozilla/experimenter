@@ -674,7 +674,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_phases-TOTAL_FORMS": "1",
+                "rollout_phases-TOTAL_FORMS": "2",
                 "rollout_phases-INITIAL_FORMS": "1",
                 "rollout_phases-0-id": phase.id,
                 "rollout_phases-0-start_date": "2026-01-15",
@@ -686,8 +686,8 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/schedule/card.html")
-        phase.refresh_from_db()
         experiment.refresh_from_db()
+        phase = experiment.rollout_phases.get()
         self.assertEqual(phase.start_date, datetime.date(2026, 1, 15))
         self.assertEqual(phase.end_date, datetime.date(2026, 1, 29))
         self.assertEqual(phase.population_percent, 25)
@@ -699,7 +699,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         )
         self.assertTrue(response.context["hx_swap_oob"])
 
-    def test_post_in_progress_phase_shows_pause_and_progress(self):
+    def test_post_in_progress_phase_shows_progress(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_rollout=True,
@@ -707,7 +707,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
 
         experiment.population_percent = 50
         experiment.save()
-        phase = NimbusRolloutPhaseFactory.create(experiment=experiment)
+        NimbusRolloutPhaseFactory.create(experiment=experiment)
         today = datetime.date.today()
         start = today - datetime.timedelta(days=3)
         end = today + datetime.timedelta(days=4)
@@ -715,8 +715,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
                 "rollout_phases-TOTAL_FORMS": "1",
-                "rollout_phases-INITIAL_FORMS": "1",
-                "rollout_phases-0-id": phase.id,
+                "rollout_phases-INITIAL_FORMS": "0",
                 "rollout_phases-0-start_date": start.isoformat(),
                 "rollout_phases-0-end_date": end.isoformat(),
                 "rollout_phases-0-population_percent": "50",
@@ -725,13 +724,12 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/schedule/card.html")
         self.assertContains(response, "3/7 days complete")
-        self.assertContains(response, "Pause")
 
 
 class TestNewRolloutPhaseCreateView(AuthTestCase):
     url_name = "nimbus-ui-new-create-rollout-phase"
 
-    def test_post_creates_phase_and_returns_edit_form(self):
+    def test_post_adds_phase_row_without_saving(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             is_rollout=True,
@@ -745,13 +743,24 @@ class TestNewRolloutPhaseCreateView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/schedule/edit_form.html")
-        self.assertEqual(experiment.rollout_phases.count(), 1)
+        self.assertEqual(response.context["form"].rollout_phases.total_form_count(), 1)
+        self.assertEqual(experiment.rollout_phases.count(), 0)
+
+    def test_post_on_non_editable_experiment_redirects(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {"rollout_phases-TOTAL_FORMS": "0", "rollout_phases-INITIAL_FORMS": "0"},
+        )
+        self.assertIn("HX-Redirect", response.headers)
 
 
 class TestNewRolloutPhaseDeleteView(AuthTestCase):
     url_name = "nimbus-ui-new-delete-rollout-phase"
 
-    def test_post_deletes_phase_and_returns_edit_form(self):
+    def test_post_removes_phase_row_without_saving(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             is_rollout=True,
@@ -766,12 +775,13 @@ class TestNewRolloutPhaseDeleteView(AuthTestCase):
                 "rollout_phases-0-start_date": "2026-01-15",
                 "rollout_phases-0-end_date": "2026-01-29",
                 "rollout_phases-0-population_percent": "25",
-                "phase_id": phase.id,
+                "delete_index": "0",
             },
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/schedule/edit_form.html")
-        self.assertEqual(experiment.rollout_phases.count(), 0)
+        self.assertEqual(response.context["form"].rollout_phases.total_form_count(), 0)
+        self.assertEqual(experiment.rollout_phases.count(), 1)
 
 
 class TestNewRolloutPlanApplyView(AuthTestCase):
@@ -797,9 +807,10 @@ class TestNewRolloutPlanApplyView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/schedule/edit_form.html")
-        phases = list(experiment.rollout_phases.all())
-        self.assertEqual([int(p.population_percent) for p in phases], plan_percentages)
-        self.assertTrue(all(p.start_date is None and p.end_date is None for p in phases))
+        formset = response.context["form"].rollout_phases
+        previewed = [int(form["population_percent"].value()) for form in formset.forms]
+        self.assertEqual(previewed, plan_percentages)
+        self.assertEqual(experiment.rollout_phases.count(), 1)
 
     def test_post_no_plan_leaves_phases_unchanged(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

@@ -1154,6 +1154,22 @@ class TestRolloutPhaseForm(TestCase):
         form = RolloutPhaseForm(data={"population_percent": "10"})
         self.assertTrue(form.is_valid(), form.errors)
 
+    def test_start_date_without_end_date_is_invalid(self):
+        form = RolloutPhaseForm(data={"start_date": "2026-01-15"})
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE,
+            form.errors["end_date"],
+        )
+
+    def test_end_date_without_start_date_is_invalid(self):
+        form = RolloutPhaseForm(data={"end_date": "2026-01-15"})
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE,
+            form.errors["start_date"],
+        )
+
     def test_negative_population_percent_is_invalid(self):
         form = RolloutPhaseForm(data={"population_percent": "-1"})
         self.assertFalse(form.is_valid())

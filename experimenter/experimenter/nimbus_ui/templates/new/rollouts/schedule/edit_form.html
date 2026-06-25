@@ -37,13 +37,13 @@
     {{ form.rollout_phases.management_form }}
     <div class="d-flex flex-column gap-3">
       {% for phase_form in form.rollout_phases %}
-        <div>
+        <div {% if phase_form.errors %}class="pb-3"{% endif %}>
           {{ phase_form.id }}
           <div class="d-flex gap-4 align-items-end">
             {# Phase Number #}
             <span class="small fw-bold text-body flex-shrink-0 pb-2">Phase {{ forloop.counter }}</span>
             {# Population in % #}
-            <div class="flex-shrink-0">
+            <div class="flex-shrink-0 position-relative">
               <label for="id_rollout_phases-{{ forloop.counter0 }}-population_percent"
                      class="text-secondary mb-1"
                      style="font-size: 12px">Population</label>
@@ -52,11 +52,13 @@
                 <span class="input-group-text">%</span>
               </div>
               {% if phase_form.population_percent.errors %}
-                <div class="text-danger small mt-1">{{ phase_form.population_percent.errors|join:", " }}</div>
+                <div class="text-danger small position-absolute mt-1" style="top: 100%">
+                  {{ phase_form.population_percent.errors|join:", " }}
+                </div>
               {% endif %}
             </div>
             {# Duration #}
-            <div class="flex-grow-1" style="min-width: 0">
+            <div class="flex-grow-1 position-relative" style="min-width: 0">
               <label class="text-secondary mb-1" style="font-size: 12px">Duration</label>
               <div class="d-flex gap-2 align-items-center">
                 <div class="flex-grow-1" style="min-width: 0">
@@ -67,16 +69,20 @@
                 </div>
               </div>
               {% if phase_form.start_date.errors %}
-                <div class="text-danger small mt-1">{{ phase_form.start_date.errors|join:", " }}</div>
-              {% endif %}
-              {% if phase_form.end_date.errors %}
-                <div class="text-danger small mt-1">{{ phase_form.end_date.errors|join:", " }}</div>
+                <div class="text-danger small position-absolute mt-1" style="top: 100%">
+                  {{ phase_form.start_date.errors|join:", " }}
+                </div>
+              {% elif phase_form.end_date.errors %}
+                <div class="text-danger small position-absolute mt-1" style="top: 100%">
+                  {{ phase_form.end_date.errors|join:", " }}
+                </div>
               {% endif %}
             </div>
             <button type="button"
                     class="btn p-0 border-0 text-secondary flex-shrink-0 pb-2 pe-1"
                     hx-post="{% url 'nimbus-ui-new-delete-rollout-phase' experiment.slug %}"
-                    hx-vals='{"phase_id": "{{ phase_form.instance.pk }}"}'
+                    hx-vals='{"delete_index": "{{ forloop.counter0 }}"}'
+                    hx-include="closest form"
                     hx-target="#rollout-schedule-body"
                     hx-swap="outerHTML">
               <i class="fa-solid fa-trash-can"></i>
@@ -88,6 +94,7 @@
         <button type="button"
                 class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small mt-2"
                 hx-post="{% url 'nimbus-ui-new-create-rollout-phase' experiment.slug %}"
+                hx-include="closest form"
                 hx-target="#rollout-schedule-body"
                 hx-swap="outerHTML">
           <i class="fa-solid fa-plus"></i>

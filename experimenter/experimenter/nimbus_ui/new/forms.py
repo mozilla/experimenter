@@ -1,6 +1,5 @@
 from collections import defaultdict
 from datetime import UTC, datetime
-from decimal import Decimal
 
 import markus
 from django import forms
@@ -897,7 +896,12 @@ class RolloutPhaseForm(forms.ModelForm):
         cleaned_data = super().clean()
         start_date = cleaned_data.get("start_date")
         end_date = cleaned_data.get("end_date")
-        if start_date and end_date and end_date < start_date:
+        if bool(start_date) != bool(end_date):
+            self.add_error(
+                "end_date" if start_date else "start_date",
+                NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE,
+            )
+        elif start_date and end_date and end_date < start_date:
             self.add_error("end_date", NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER)
         return cleaned_data
 
@@ -984,57 +988,22 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
     @transaction.atomic
     def save(self):
         experiment = super().save()
-        self.rollout_phases.save()
+        experiment.rollout_phases.all().delete()
+        for row in self.rollout_phases.cleaned_data:
+            if not any(
+                row.get(field) is not None
+                for field in ("start_date", "end_date", "population_percent")
+            ):
+                continue
+            experiment.rollout_phases.create(
+                start_date=row.get("start_date"),
+                end_date=row.get("end_date"),
+                population_percent=row.get("population_percent") or 0,
+            )
         return experiment
 
     def get_changelog_message(self):
         return f"{self.request.user} updated rollout schedule"
-
-
-class RolloutPlanApplyForm(RolloutScheduleForm):
-    @transaction.atomic
-    def save(self):
-        experiment = super().save()
-        plan_name = self.cleaned_data.get("rollout_plan")
-        if plan_name and plan_name in self.plans:
-            experiment.rollout_phases.all().delete()
-            for population_percent in self.plans[plan_name]:
-                experiment.rollout_phases.create(
-                    population_percent=Decimal(str(population_percent))
-                )
-        return experiment
-
-    def get_changelog_message(self):
-        return f"{self.request.user} applied a rollout plan"
-
-
-class RolloutPhaseCreateForm(RolloutScheduleForm):
-    @transaction.atomic
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.instance.rollout_phases.create()
-        return self.instance
-
-    def get_changelog_message(self):
-        return f"{self.request.user} added a rollout phase"
-
-
-class RolloutPhaseDeleteForm(RolloutScheduleForm):
-    phase_id = forms.ModelChoiceField(queryset=NimbusRolloutPhase.objects.all())
-
-    class Meta:
-        model = NimbusExperiment
-        fields = ["phase_id"]
-
-    @transaction.atomic
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        rollout_phase = self.cleaned_data["phase_id"]
-        rollout_phase.delete()
-        return self.instance
-
-    def get_changelog_message(self):
-        return f"{self.request.user} removed a rollout phase"
 
 
 class RolloutPlanCreateForm(RolloutScheduleForm):
