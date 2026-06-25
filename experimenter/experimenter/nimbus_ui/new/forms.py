@@ -1184,3 +1184,33 @@ class ReviewToApproveForm(UpdateStatusForm):
         )
 
         return experiment
+
+
+class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        experiment.subscribers.add(self.request.user)
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} added subscriber"
+
+
+class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        experiment.subscribers.remove(self.request.user)
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} removed subscriber"

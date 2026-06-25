@@ -26,10 +26,8 @@
     {# ── Build ── #}
     <div class="d-flex flex-column gap-2">
       <div class="small fw-medium mb-1 text-secondary">Build</div>
-      {# Rollout Features Form/Card #}
+      {# TODO EXP-6685: Rollout Features Form/Card #}
       {% include "new/rollouts/detail_card.html" with card_id="rollout-features" title="Rollout Features" subtitle="Describe the rollout experience" show_edit_btn=True body_template="new/rollouts/rollout_features/card.html" %}
-
-      {# Rollout Schedule Form/Card #}
       {% include "new/rollouts/detail_card.html" with card_id="schedule" title="Rollout schedule" subtitle="Gradually increase the rollout population in phases" show_edit_btn=True body_template="new/rollouts/schedule/card.html" %}
 
     </div>
