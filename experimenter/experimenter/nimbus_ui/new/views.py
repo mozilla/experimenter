@@ -19,12 +19,10 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutAudienceForm,
     RolloutFeaturesForm,
     RolloutOverviewForm,
-    RolloutPauseForm,
     RolloutPlanCreateForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
     RolloutScheduleForm,
-    RolloutStartPhaseForm,
     SubscribeForm,
     TagAssignForm,
     UnsubscribeForm,
@@ -379,20 +377,6 @@ class NewRolloutPlanApplyView(SchedulePhasePreviewView):
 
 class NewRolloutPlanCreateView(RenderParentDBResponseMixin, NewRolloutScheduleUpdateView):
     form_class = RolloutPlanCreateForm
-
-
-class NewRolloutStartPhaseView(NewRolloutScheduleUpdateView):
-    form_class = RolloutStartPhaseForm
-
-    def can_edit(self):
-        return self.object.can_advance_rollout
-
-
-class NewRolloutPauseView(NewRolloutScheduleUpdateView):
-    form_class = RolloutPauseForm
-
-    def can_edit(self):
-        return self.object.can_advance_rollout
 
 
 class NewSubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):

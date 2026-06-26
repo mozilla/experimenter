@@ -905,67 +905,6 @@ class TestNewRolloutPlanCreateView(AuthTestCase):
         )
 
 
-class TestNewRolloutStartPhaseView(AuthTestCase):
-    url_name = "nimbus-ui-new-start-rollout-phase"
-
-    def test_post_sets_population_and_requests_review(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            is_rollout=True,
-        )
-        phase = NimbusRolloutPhaseFactory.create(
-            experiment=experiment, population_percent=25
-        )
-        response = self.client.post(
-            reverse(self.url_name, kwargs={"slug": experiment.slug}),
-            {"phase_id": phase.id},
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "new/rollouts/schedule/card.html")
-        experiment.refresh_from_db()
-        self.assertEqual(experiment.population_percent, 25)
-
-        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
-
-        self.assertTrue(experiment.is_rollout_dirty)
-        self.assertTrue(experiment.is_rollout_update_requested)
-
-    def test_post_on_draft_is_rejected(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            is_rollout=True,
-        )
-        phase = NimbusRolloutPhaseFactory.create(
-            experiment=experiment, population_percent=25
-        )
-        response = self.client.post(
-            reverse(self.url_name, kwargs={"slug": experiment.slug}),
-            {"phase_id": phase.id},
-        )
-        self.assertEqual(response.status_code, 200)
-        experiment.refresh_from_db()
-        self.assertNotEqual(experiment.population_percent, 25)
-
-
-class TestNewRolloutPauseView(AuthTestCase):
-    url_name = "nimbus-ui-new-pause-rollout"
-
-    def test_post_pauses_and_requests_review(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            is_rollout=True,
-        )
-        response = self.client.post(
-            reverse(self.url_name, kwargs={"slug": experiment.slug}),
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "new/rollouts/schedule/card.html")
-        experiment.refresh_from_db()
-        self.assertTrue(experiment.is_paused)
-        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
-
-
 class TestNewSubscribeView(AuthTestCase):
     def test_post_subscribes_current_user(self):
         experiment = NimbusExperimentFactory.create()

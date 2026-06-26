@@ -6895,15 +6895,3 @@ class TestRolloutPhaseProgress(TestCase):
             )
         statuses = [p.card_status for p in experiment.annotated_rollout_phases()]
         self.assertEqual(statuses, ["not_started", "not_started"])
-
-    def test_can_advance_rollout(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            is_rollout=True,
-        )
-        self.assertTrue(experiment.can_advance_rollout)
-        draft = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            is_rollout=True,
-        )
-        self.assertFalse(draft.can_advance_rollout)

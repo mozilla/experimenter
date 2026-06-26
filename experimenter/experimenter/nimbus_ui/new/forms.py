@@ -1,5 +1,4 @@
 from collections import defaultdict
-from datetime import UTC, datetime
 
 import markus
 from django import forms
@@ -13,7 +12,6 @@ from django.utils.text import slugify
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -26,13 +24,7 @@ from experimenter.experiments.models import (
     NimbusRolloutPlanTemplate,
     Tag,
 )
-from experimenter.kinto.tasks import nimbus_check_kinto_push_queue_by_collection
 from experimenter.nimbus_ui.constants import NimbusUIConstants
-from experimenter.slack.constants import SlackConstants
-from experimenter.slack.tasks import (
-    add_emoji_to_message_async,
-    remove_emoji_from_message_async,
-)
 from experimenter.targeting.constants import NimbusTargetingConfig
 
 metrics = markus.get_metrics("experimenter.nimbus_ui_forms")
@@ -1029,161 +1021,6 @@ class RolloutPlanCreateForm(RolloutScheduleForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} created a rollout plan template"
-
-
-class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    status = None
-    status_next = None
-    publish_status = None
-    is_paused = None
-
-    required_status = None
-    required_status_next = None
-    required_publish_status = None
-    required_is_paused = None
-
-    class Meta:
-        model = NimbusExperiment
-        fields = []
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        required_state = (
-            self.required_status,
-            self.required_status_next,
-            self.required_publish_status,
-            self.required_is_paused,
-        )
-        current_state = (
-            self.instance.status,
-            self.instance.status_next,
-            self.instance.publish_status,
-            self.instance.is_paused,
-        )
-
-        state_mismatch = (
-            self.required_status != self.instance.status
-            or self.required_status_next != self.instance.status_next
-            or self.required_publish_status != self.instance.publish_status
-            or (
-                self.required_is_paused is not None
-                and self.required_is_paused != self.instance.is_paused
-            )
-        )
-
-        if state_mismatch:
-            raise forms.ValidationError(
-                NimbusUIConstants.ERROR_INVALID_STATE_TRANSITION.format(
-                    required_state=required_state,
-                    current_state=current_state,
-                )
-            )
-
-        return cleaned_data
-
-    @transaction.atomic
-    def save(self, commit=True):
-        self.instance.status = self.status
-        self.instance.status_next = self.status_next
-        previous_publish_status = self.instance.publish_status
-        self.instance.publish_status = self.publish_status
-
-        if self.is_paused is not None:
-            self.instance.is_paused = self.is_paused
-
-        if self.status == NimbusExperiment.Status.DRAFT:
-            self.instance.published_dto = None
-
-        if (
-            previous_publish_status == NimbusExperiment.PublishStatus.REVIEW
-            and self.publish_status != NimbusExperiment.PublishStatus.REVIEW
-        ):
-            last_review_request = self.instance.changes.latest_review_request()
-            if last_review_request is not None:
-                delta = datetime.now(UTC) - last_review_request.changed_on
-                delta_ms = int(delta.total_seconds() * 1000)
-                metrics.timing(
-                    "review_timing",
-                    value=delta_ms,
-                    tags=[f"status:{self.publish_status}"],
-                )
-
-        return super().save(commit=commit)
-
-
-class RolloutStartPhaseForm(UpdateStatusForm):
-    required_status = NimbusExperiment.Status.LIVE
-    required_status_next = None
-    required_publish_status = NimbusExperiment.PublishStatus.IDLE
-    required_is_paused = None
-
-    status = NimbusExperiment.Status.LIVE
-    status_next = NimbusExperiment.Status.LIVE
-    publish_status = NimbusExperiment.PublishStatus.REVIEW
-    is_paused = False
-
-    phase_id = forms.ModelChoiceField(queryset=NimbusRolloutPhase.objects.all())
-
-    def get_changelog_message(self):
-        return f"{self.request.user} requested review to start a rollout phase"
-
-    @transaction.atomic
-    def save(self, commit=True):
-        self.instance.population_percent = self.cleaned_data[
-            "phase_id"
-        ].population_percent
-        self.instance.is_rollout_dirty = True
-        return super().save(commit=commit)
-
-
-class RolloutPauseForm(UpdateStatusForm):
-    required_status = NimbusExperiment.Status.LIVE
-    required_status_next = None
-    required_publish_status = NimbusExperiment.PublishStatus.IDLE
-    required_is_paused = False
-
-    status = NimbusExperiment.Status.LIVE
-    status_next = NimbusExperiment.Status.LIVE
-    publish_status = NimbusExperiment.PublishStatus.REVIEW
-    is_paused = True
-
-    def get_changelog_message(self):
-        return f"{self.request.user} requested review to pause the rollout"
-
-
-class ReviewToApproveForm(UpdateStatusForm):
-    required_status = NimbusExperiment.Status.DRAFT
-    required_status_next = NimbusExperiment.Status.LIVE
-    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
-    required_is_paused = False
-
-    status = NimbusExperiment.Status.DRAFT
-    status_next = NimbusExperiment.Status.LIVE
-    publish_status = NimbusExperiment.PublishStatus.APPROVED
-
-    def get_changelog_message(self):
-        return f"{self.request.user} approved the review."
-
-    @transaction.atomic
-    def save(self, commit=True):
-        experiment = super().save(commit=commit)
-        experiment.allocate_bucket_range()
-        nimbus_check_kinto_push_queue_by_collection.apply_async(
-            countdown=5, args=[experiment.kinto_collection]
-        )
-        remove_emoji_from_message_async.delay(
-            experiment.id,
-            NimbusConstants.AlertType.LAUNCH_REQUEST,
-            SlackConstants.EmojiReaction.PENDING,
-        )
-        add_emoji_to_message_async.delay(
-            experiment.id,
-            NimbusConstants.AlertType.LAUNCH_REQUEST,
-            SlackConstants.EmojiReaction.APPROVE,
-        )
-
-        return experiment
 
 
 class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):

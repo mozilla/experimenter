@@ -1241,15 +1241,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def is_live_rollout(self):
         return self.is_rollout and (self.is_enrolling or self.is_observation)
 
-    @property
-    def can_advance_rollout(self):
-        return (
-            self.is_live_rollout
-            and self.status_next is None
-            and self.publish_status == self.PublishStatus.IDLE
-            and not self.is_archived
-        )
-
     def annotated_rollout_phases(self):
         phases = list(self.rollout_phases.all())
         active = None
