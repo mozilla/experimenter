@@ -4,11 +4,11 @@ description = "Interaction metrics for sponsored tiles."
 [metrics.newtab_sponsored_tiles_enabled.statistics.binomial]
 [metrics.any_sponsored_tiles_dismissals.statistics.binomial]
 
-[metrics.sponsored_tiles_dismissals.statistics.bootstrap_mean]
+[metrics.sponsored_tiles_dismissals.statistics.linear_model_mean]
 [metrics.sponsored_tiles_dismissals.statistics.deciles]
 
-[metrics.sponsored_tile_clicks.statistics.bootstrap_mean]
+[metrics.sponsored_tile_clicks.statistics.linear_model_mean]
 [metrics.sponsored_tile_clicks.statistics.deciles]
 
-[metrics.sponsored_tile_impressions.statistics.bootstrap_mean]
+[metrics.sponsored_tile_impressions.statistics.linear_model_mean]
 [metrics.sponsored_tile_impressions.statistics.deciles]
