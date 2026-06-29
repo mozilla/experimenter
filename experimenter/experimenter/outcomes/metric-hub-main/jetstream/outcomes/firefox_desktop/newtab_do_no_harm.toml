@@ -4,13 +4,13 @@ Guardrail metrics for the New Tab. Includes user experience and revenue-related 
 """
 
 
-[metrics.newtab_visits.statistics.bootstrap_mean]
+[metrics.newtab_visits.statistics.linear_model_mean]
 [metrics.newtab_visits.statistics.deciles]
 
-[metrics.newtab_engaged_visits.statistics.bootstrap_mean]
+[metrics.newtab_engaged_visits.statistics.linear_model_mean]
 [metrics.newtab_engaged_visits.statistics.deciles]
 
-[metrics.newtab_ad_click_rate.statistics.bootstrap_mean]
+[metrics.newtab_ad_click_rate.statistics.linear_model_mean]
 [metrics.newtab_ad_click_rate.statistics.deciles]
 
 [metrics.newtab_homepage_enabled.statistics.binomial]

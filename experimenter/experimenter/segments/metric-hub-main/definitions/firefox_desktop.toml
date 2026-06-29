@@ -463,6 +463,25 @@ description = """
 owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
 deprecated = false
 
+[metrics.daily_active_users_per_1000_clients_legacy]
+friendly_name = "DAU per 1,000 clients"
+data_source = "firefox_desktop_active_users_view"
+select_expression = """COUNTIF(is_dau) * 1000"""
+type = "scalar"
+description = """
+    This metric uses our [canonical, supported definition of Daily Active Users 
+    (DAU)](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric), expressed in a format
+    suited for use in experiments. In an experimental comparison, it describes the *additional (incremental) DAU* seen on each day from a treatment.
+    
+    The units are expressed in terms of thousands of clients enrolled or exposed, so the effect can be scaled to either the observed
+    or expected rollout population as needed to estimate absolute DAU impact.
+
+    Effects are averaged to a per-day basis over each analysis period. Since feature changes often show a strong "novelty effect", this 
+    metric is best interpreted over Week 4 or later, in order to better estimate what the lasting steady-state effects are.
+"""
+owner = ["bochocki@mozilla.com", "bbaird@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
 [metrics.client_level_daily_active_users_v2_glean]
 friendly_name = "Firefox Desktop Client-Level DAU in Glean"
 data_source = "firefox_desktop_baseline_active_users_view"
@@ -476,6 +495,25 @@ description = """
     similar to a "days of use" metric, and not DAU.
 """
 owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+
+[metrics.daily_active_users_per_1000_clients]
+friendly_name = "DAU per 1,000 clients (Glean)"
+data_source = "firefox_desktop_baseline_active_users_view"
+select_expression = """COUNTIF(is_dau) * 1000"""
+type = "scalar"
+description = """
+    This metric uses our [canonical, supported definition of Daily Active Users 
+    (DAU)](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric), expressed in a format
+    suited for use in experiments. In an experimental comparison, it describes the *additional (incremental) DAU* seen on each day from a treatment.
+    
+    The units are expressed in terms of thousands of clients enrolled or exposed, so the effect can be scaled to either the observed
+    or expected rollout population as needed to estimate absolute DAU impact.
+
+    Effects are averaged to a per-day basis over each analysis period. Since feature changes often show a strong "novelty effect", this 
+    metric is best interpreted over Week 4 or later, in order to better estimate what the lasting steady-state effects are.
+"""
+owner = ["bochocki@mozilla.com", "bbaird@mozilla.com", "firefox-kpi@mozilla.com"]
 deprecated = false
 
 [metrics.desktop_dau_kpi]

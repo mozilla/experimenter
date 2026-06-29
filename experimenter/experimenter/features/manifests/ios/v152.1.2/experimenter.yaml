@@ -16,20 +16,15 @@ address-autofill-edit:
     status:
       type: boolean
       description: If true, we will allow user to edit the address
-address-bar-gesture-to-open-tab-tray-feature:
+address-bar-menu-feature:
   description: |
-    Decides if the address bar interactive gesture to open the tab tray is enabled
+    This property determines if we show the new address bar menu entry or the toolbar menu in settings
   hasExposure: true
   exposureDescription: ''
   variables:
-    enabled_interactive:
+    status:
       type: boolean
-      description: |
-        Decides if the interactive (fancier) version of this feature is enabled.
-    enabled_swipe:
-      type: boolean
-      description: |
-        Decides if the swipe version of this feature is enabled. This will override the interactive gesture
+      description: If true, we will show the new address bar menu entry
 ads-client:
   description: This property defines if the rust ads client is enabled
   hasExposure: true
@@ -87,16 +82,6 @@ deeplink-optimization-refactor-feature:
       type: boolean
       description: |
         Variable description
-deeplink-overlay-feature:
-  description: |
-    Controls whether a privacy-style overlay is shown when the app moves to the background, regardless of tab privacy state. Used to mask the previously displayed tab while a deep link is being handled on resume.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        If true, show the background overlay for all tabs (private and normal). If false, the overlay is only shown for private tabs.
 download-live-activities-feature:
   description: |
     Download Live Activities Feature
@@ -148,6 +133,14 @@ google-lens-feature:
       type: boolean
       description: |
         Enables Google Lens entry points.
+hnt-sponsored-shortcuts-feature:
+  description: This feature manages the visibility of sponsored shortcuts on the homepage
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: Setting 'enabled' to false will hide sponsored shortcuts on the homepage and disable the respective toggle in the homepage settings
 homepage-redesign-feature:
   description: |
     This feature is for managing the roll out of the Homepage New Tab Redesign feature.
@@ -297,16 +290,6 @@ needs-reload-refactor:
       type: boolean
       description: |
         Whether or not this refactor is enabled
-nova-design-feature:
-  description: |
-    The feature flag to manage the rollout of Nova design.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Enables Nova design.
 onboarding-framework-feature:
   description: |
     The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
@@ -405,6 +388,20 @@ snapkit-removal-refactor:
     enabled:
       type: boolean
       description: If true the SnapKit removal refactor version will be used
+splash-screen:
+  description: |
+    A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, the feature is active.
+    maximum_duration_ms:
+      type: int
+      description: |
+        The maximum amount of time in milliseconds the splashscreen will be visible while waiting for initialization calls to complete.
 spotlight-search:
   description: Add pages as items findable with Spotlight.
   hasExposure: true
@@ -556,6 +553,16 @@ tou-feature:
       type: boolean
       description: |
         Enables the feature
+tracking-protection-refactor:
+  description: |
+    The Enhanced Tracking Protection refactor
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether the Enhanced Tracking Protection refactor is enabled or not
 translations-feature:
   description: |
     Enables translations feature.
@@ -601,7 +608,3 @@ world-cup-widget-feature:
       type: string
       description: |
         The ISO 8601 date string for when milestone 2 (country picker) becomes available. Defaults to 10 days before the World Cup countdown target date.
-    show-celebration-animation:
-      type: boolean
-      description: |
-        Whether or not the celebration animation is shown when a selected team's match is won.  For the generic experience the animation is shown after the result of bronze final and final too.
