@@ -10,7 +10,7 @@ features:
       enabled:
         description: If true, Add Shortcuts improvement is enabled.
         type: Boolean
-        default: false
+        default: true
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -1391,10 +1391,6 @@ enums:
     variants:
       default:
         description: The default marketing card variation.
-      treatment-a:
-        description: The Treatment A marketing card variation.
-      treatment-b:
-        description: The Treatment B marketing card variation.
       treatment-c:
         description: The Treatment C marketing card variation.
   OnboardingCardType:
