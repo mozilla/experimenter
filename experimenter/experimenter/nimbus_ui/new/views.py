@@ -339,30 +339,32 @@ class NewRolloutFeaturesUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutFeaturesForm
     display_template = "new/rollouts/rollout_features/card.html"
     template_name = "new/rollouts/rollout_features/edit_form.html"
+    save_without_explicit_submit = False
 
-    def render_valid_response(self):
-        self.object.refresh_from_db()
-
+    def form_valid(self, form):
         # If the request came from the explicit Save button, return the read-only card
         # view so the UI swaps back to the card. When the form is posted for intermediate
         # updates (e.g. feature_configs changed via hx-post on change), return the
         # editable form so the user can continue editing.
-        if "save" in self.request.POST:
-            return super().render_valid_response()
 
-        return self.render_to_response(self.get_context_data())
+        if "save" in self.request.POST or self.save_without_explicit_submit:
+            return super().form_valid(form)
+
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class NewRolloutScreenshotCreateView(
     RenderParentDBResponseMixin, NewRolloutFeaturesUpdateView
 ):
     form_class = RolloutScreenshotCreateForm
+    save_without_explicit_submit = True
 
 
 class NewRolloutScreenshotDeleteView(
     RenderParentDBResponseMixin, NewRolloutFeaturesUpdateView
 ):
     form_class = RolloutScreenshotDeleteForm
+    save_without_explicit_submit = True
 
 
 class NewQAUpdateView(CardMixin, NewCardUpdateView):

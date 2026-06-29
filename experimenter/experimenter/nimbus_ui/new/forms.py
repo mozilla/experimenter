@@ -289,14 +289,13 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
                     self.instance.feature_config.slug
                 )
 
+        feature_config = (
+            self.instance.feature_config if self.instance.feature_config_id else None
+        )
+
         if (
-            self.instance.id is not None
-            and self.instance.feature_config
-            and (
-                schema := self.instance.feature_config.schemas.filter(
-                    version=None
-                ).first()
-            )
+            feature_config
+            and (schema := feature_config.schemas.filter(version=None).first())
             and schema is not None
             and schema.schema is not None
         ):
@@ -314,10 +313,34 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         return value
 
 
+class RolloutBranchFeatureValueForm(NimbusBranchFeatureValueForm):
+    class Meta:
+        model = NimbusBranchFeatureValue
+        fields = ("feature_config", "value")
+        widgets = {"feature_config": forms.HiddenInput()}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if (
+            self.is_bound
+            and not self.instance.feature_config_id
+            and (feature_config_id := self.data.get(f"{self.prefix}-feature_config"))
+        ):
+            self.instance.feature_config = NimbusFeatureConfig.objects.filter(
+                id=feature_config_id
+            ).first()
+
+    def clean_feature_config(self):
+        return self.cleaned_data.get("feature_config") or (
+            self.instance.feature_config if self.instance.feature_config_id else None
+        )
+
+
 RolloutBranchFeatureValueFormSet = inlineformset_factory(
     NimbusBranch,
     NimbusBranchFeatureValue,
-    form=NimbusBranchFeatureValueForm,
+    form=RolloutBranchFeatureValueForm,
     extra=0,
 )
 
@@ -796,7 +819,7 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             )
 
         self.branch_feature_values = RolloutBranchFeatureValueFormSet(
-            data=self.data or None,
+            data=self.get_branch_feature_values_data(),
             instance=self.reference_branch,
             prefix="branch-feature-value",
         )
@@ -836,6 +859,47 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 "hx-target": "#rollout-rollout-features-body",
             }
         )
+
+    def get_branch_feature_values_data(self):
+        # Add temporary formset rows so newly selected, unsaved features get JSON
+        # editors during the HTMX preview before Save persists them.
+        if not self.is_bound:
+            return None
+
+        data = self.data.copy()
+        prefix = "branch-feature-value"
+        total_forms_key = f"{prefix}-TOTAL_FORMS"
+        total_forms = int(data[total_forms_key])
+
+        for feature_config_id in self._get_new_feature_config_ids(
+            data, prefix, total_forms
+        ):
+            data[f"{prefix}-{total_forms}-feature_config"] = feature_config_id
+            data[f"{prefix}-{total_forms}-value"] = "{}"
+            total_forms += 1
+
+        data[total_forms_key] = str(total_forms)
+        return data
+
+    def _get_new_feature_config_ids(self, data, prefix, total_forms):
+        selected_values = self.fields["feature_configs"].widget.value_from_datadict(
+            data, self.files, "feature_configs"
+        )
+        selected = [
+            int(feature_config_id)
+            for feature_config_id in selected_values or []
+            if feature_config_id
+        ]
+        submitted = {
+            int(data[f"{prefix}-{index}-feature_config"])
+            for index in range(total_forms)
+            if data.get(f"{prefix}-{index}-feature_config")
+        }
+        return [
+            feature_config_id
+            for feature_config_id in selected
+            if feature_config_id not in submitted
+        ]
 
     @property
     def errors(self):
