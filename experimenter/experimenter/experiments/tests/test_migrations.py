@@ -51,3 +51,54 @@ class TestClearMonitoringDataMigration(MigratorTestCase):
             NimbusExperiment.objects.get(slug="test-complete").monitoring_data,
             self.monitoring_data,
         )
+
+
+class TestBackfillResultsDataLastUpdatedMigration(MigratorTestCase):
+    migrate_from = (
+        "experiments",
+        "0331_alter_nimbusalert_alert_type",
+    )
+    migrate_to = (
+        "experiments",
+        "0332_nimbusexperiment_results_data_last_updated",
+    )
+
+    def prepare(self):
+        User = self.old_state.apps.get_model("auth", "User")
+        NimbusExperiment = self.old_state.apps.get_model(
+            "experiments", "NimbusExperiment"
+        )
+
+        owner, _ = User.objects.get_or_create(
+            username="test@example.com",
+            defaults={"email": "test@example.com"},
+        )
+
+        NimbusExperiment.objects.create(
+            slug="with-results",
+            name="With Results",
+            application="firefox-desktop",
+            owner=owner,
+            status="Complete",
+            results_data={"v3": {}},
+        )
+        NimbusExperiment.objects.create(
+            slug="without-results",
+            name="Without Results",
+            application="firefox-desktop",
+            owner=owner,
+            status="Live",
+            results_data=None,
+        )
+
+    def test_migration(self):
+        NimbusExperiment = self.new_state.apps.get_model(
+            "experiments", "NimbusExperiment"
+        )
+
+        self.assertIsNotNone(
+            NimbusExperiment.objects.get(slug="with-results").results_data_last_updated
+        )
+        self.assertIsNone(
+            NimbusExperiment.objects.get(slug="without-results").results_data_last_updated
+        )
