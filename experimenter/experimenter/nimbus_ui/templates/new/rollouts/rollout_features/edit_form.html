@@ -35,6 +35,7 @@
         {{ branch_feature_values.management_form }}
         {% for branch_feature_values_form in branch_feature_values %}
           {{ branch_feature_values_form.id }}
+          {{ branch_feature_values_form.feature_config }}
           <div class="row mt-2">
             <div class="col">
               <label class="small mb-2 text-secondary">
@@ -85,5 +86,5 @@
 </div>
 {% block extrascripts %}
   {% if branch_form_data %}{{ branch_form_data|json_script:"branch-form-data" }}{% endif %}
-  <script src="{% static 'nimbus_ui/edit_branches.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui/new_edit_branches.bundle.js' %}"></script>
 {% endblock extrascripts %}
