@@ -4028,3 +4028,10 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
 
         self.assertEqual(experiment.proposed_enrollment, 84)
         self.assertTrue(experiment.do_rerun)
+
+    def test_raises_on_unexpected_error(self):
+        with patch(
+            "experimenter.jetstream.tasks.NimbusExperiment.objects.filter",
+            side_effect=Exception("db error"),
+        ), self.assertRaises(Exception, msg="db error"):
+            tasks.update_holdback_enrollment_period()
