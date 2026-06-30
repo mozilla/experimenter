@@ -1,3 +1,5 @@
+import datetime as dt
+
 import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
@@ -11,12 +13,8 @@ from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.jetstream.client import (
     get_enrollment_funnel_data,
     get_experiment_data,
-    get_latest_analysis_start_time,
     get_monitoring_data,
     get_population_sizing_data,
-    get_results_filenames,
-    get_stored_analysis_start_time,
-    has_missing_expected_results,
 )
 from experimenter.kinto.tasks import get_kinto_user
 
@@ -83,26 +81,21 @@ def fetch_experiment_data(experiment_id):
 def fetch_jetstream_data():
     metrics.incr("fetch_jetstream_data.started")
     try:
-        results_filenames = get_results_filenames()
         for experiment in NimbusExperiment.objects.filter(
             status__in=[NimbusExperiment.Status.COMPLETE, NimbusExperiment.Status.LIVE]
         ):
-            latest_analysis_start_time = get_latest_analysis_start_time(experiment.slug)
-            needs_missing_results = has_missing_expected_results(
-                experiment, results_filenames
-            )
-
-            if latest_analysis_start_time is None and not needs_missing_results:
-                metrics.incr("fetch_jetstream_data.skipped")
-                continue
-
-            stored_analysis_start_time = get_stored_analysis_start_time(experiment)
-            has_newer_results = latest_analysis_start_time is not None and (
-                stored_analysis_start_time is None
-                or stored_analysis_start_time < latest_analysis_start_time
-            )
-
-            if has_newer_results or needs_missing_results:
+            if (
+                experiment.status == NimbusExperiment.Status.LIVE
+                or experiment.results_data is None
+                or (
+                    experiment.computed_end_date
+                    and (
+                        experiment.computed_end_date
+                        + dt.timedelta(days=NimbusConstants.DAYS_ANALYSIS_BUFFER)
+                    )
+                    >= dt.date.today()
+                )
+            ):
                 logger.info(
                     f"Fetching Jetstream data for {experiment.name} ({experiment.slug})"
                 )
