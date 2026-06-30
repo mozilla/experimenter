@@ -22,6 +22,19 @@
           <div class="text-danger small mt-1">{{ form.hypothesis.errors|join:", " }}</div>
         {% endif %}
       </div>
+      {# Application #}
+      <div>
+        <label for="id_application" class="small text-body mb-1">Application</label>
+        {{ form.application }}
+        {% if form.application.errors %}
+          <div class="text-danger small mt-1">{{ form.application.errors|join:", " }}</div>
+        {% endif %}
+        <p class="form-text mb-0">
+          Rollouts can only target one Application at a time.
+          <br>
+          Application can not be changed after a rollout is created.
+        </p>
+      </div>
       {# Important Links #}
       <div>
         <label class="small text-body mb-1">Important Links</label>

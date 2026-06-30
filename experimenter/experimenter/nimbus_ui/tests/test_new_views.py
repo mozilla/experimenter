@@ -51,6 +51,7 @@ class NewViewTestMixin:
             "name": experiment.name,
             "hypothesis": experiment.hypothesis,
             "public_description": experiment.public_description,
+            "application": experiment.application,
             "documentation_links-TOTAL_FORMS": "0",
             "documentation_links-INITIAL_FORMS": "0",
         }
@@ -438,6 +439,7 @@ class TestNewDocumentationLinkCreateView(AuthTestCase):
             {
                 "name": experiment.name,
                 "hypothesis": experiment.hypothesis,
+                "application": experiment.application,
                 "risk_brand": True,
                 "risk_message": True,
                 "public_description": experiment.public_description,
@@ -466,6 +468,7 @@ class TestNewDocumentationLinkDeleteView(AuthTestCase):
             {
                 "name": experiment.name,
                 "hypothesis": experiment.hypothesis,
+                "application": experiment.application,
                 "risk_brand": True,
                 "risk_message": True,
                 "public_description": experiment.public_description,

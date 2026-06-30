@@ -260,6 +260,7 @@ class TestRolloutOverviewForm(RequestFormTestCase):
             "name": "",
             "hypothesis": "new hypothesis",
             "public_description": "new description",
+            "application": NimbusExperiment.Application.DESKTOP,
             "documentation_links-TOTAL_FORMS": "0",
             "documentation_links-INITIAL_FORMS": "0",
         }
@@ -283,6 +284,7 @@ class TestDocumentationLinkCreateForm(RequestFormTestCase):
                 "name": "new name",
                 "hypothesis": "new hypothesis",
                 "public_description": "new description",
+                "application": experiment.application,
                 "documentation_links-TOTAL_FORMS": "0",
                 "documentation_links-INITIAL_FORMS": "0",
             },
@@ -314,6 +316,7 @@ class TestDocumentationLinkDeleteForm(RequestFormTestCase):
                 "name": "new name",
                 "hypothesis": "new hypothesis",
                 "public_description": "new description",
+                "application": experiment.application,
                 "documentation_links-TOTAL_FORMS": "1",
                 "documentation_links-INITIAL_FORMS": "1",
                 "documentation_links-0-id": documentation_link.id,
