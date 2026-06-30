@@ -1,7 +1,6 @@
 {
   "appId": "org.mozilla.ios.Firefox",
   "appName": "firefox_ios",
-  "application": "org.mozilla.ios.Firefox",
   "arguments": {},
   "branches": [
     {
