@@ -12,6 +12,7 @@ from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
     TagFactory,
 )
 from experimenter.nimbus_ui.new.forms import (
@@ -356,16 +357,22 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         self.assertTrue(response.context["hx_swap_oob"])
 
     def test_post_change_returns_edit_form(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature",
+        )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
+            takeaways_summary="Original rollout experience",
         )
 
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
                 "rollout_experience": "Updated rollout experience",
-                "feature_configs": [],
+                "feature_configs": [feature_config.id],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
             },
@@ -373,8 +380,11 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/rollout_features/edit_form.html")
+        self.assertContains(response, "rollout-feature")
+        self.assertContains(response, "value-editor")
         experiment.refresh_from_db()
-        self.assertEqual(experiment.takeaways_summary, "Updated rollout experience")
+        self.assertEqual(experiment.takeaways_summary, "Original rollout experience")
+        self.assertEqual(experiment.feature_configs.count(), 0)
 
 
 class TestNewQAUpdateView(NewViewTestMixin, AuthTestCase):

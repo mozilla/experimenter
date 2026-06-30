@@ -278,14 +278,13 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
                     self.instance.feature_config.slug
                 )
 
+        feature_config = (
+            self.instance.feature_config if self.instance.feature_config_id else None
+        )
+
         if (
-            self.instance.id is not None
-            and self.instance.feature_config
-            and (
-                schema := self.instance.feature_config.schemas.filter(
-                    version=None
-                ).first()
-            )
+            feature_config
+            and (schema := feature_config.schemas.filter(version=None).first())
             and schema is not None
             and schema.schema is not None
         ):
@@ -303,10 +302,34 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         return value
 
 
+class RolloutBranchFeatureValueForm(NimbusBranchFeatureValueForm):
+    class Meta:
+        model = NimbusBranchFeatureValue
+        fields = ("feature_config", "value")
+        widgets = {"feature_config": forms.HiddenInput()}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if (
+            self.is_bound
+            and not self.instance.feature_config_id
+            and (feature_config_id := self.data.get(f"{self.prefix}-feature_config"))
+        ):
+            self.instance.feature_config = NimbusFeatureConfig.objects.filter(
+                id=feature_config_id
+            ).first()
+
+    def clean_feature_config(self):
+        return self.cleaned_data.get("feature_config") or (
+            self.instance.feature_config if self.instance.feature_config_id else None
+        )
+
+
 RolloutBranchFeatureValueFormSet = inlineformset_factory(
     NimbusBranch,
     NimbusBranchFeatureValue,
-    form=NimbusBranchFeatureValueForm,
+    form=RolloutBranchFeatureValueForm,
     extra=0,
 )
 
@@ -693,7 +716,7 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.branch_feature_values = RolloutBranchFeatureValueFormSet(
-            data=self.data or None,
+            data=self.get_branch_feature_values_data(),
             instance=self.reference_branch,
             prefix="branch-feature-value",
         )
@@ -716,6 +739,47 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         # We use the takeaways_summary to actually store the rollout experience since it
         # will remain unused as rollouts donot have results data
         self.fields["rollout_experience"].initial = self.instance.takeaways_summary
+
+    def get_branch_feature_values_data(self):
+        # Add temporary formset rows so newly selected, unsaved features get JSON
+        # editors during the HTMX preview before Save persists them.
+        if not self.is_bound:
+            return None
+
+        data = self.data.copy()
+        prefix = "branch-feature-value"
+        total_forms_key = "branch-feature-value-TOTAL_FORMS"
+        total_forms = int(data[total_forms_key])
+
+        selected_feature_config_values = (
+            data.getlist("feature_configs")
+            if hasattr(data, "getlist")
+            else data.get("feature_configs", [])
+        )
+        selected_feature_config_ids = [
+            int(feature_config_id)
+            for feature_config_id in selected_feature_config_values
+            if feature_config_id
+        ]
+        submitted_feature_config_ids = {
+            int(feature_config_id)
+            for index in range(total_forms)
+            if (feature_config_id := data.get(f"{prefix}-{index}-feature_config"))
+        }
+
+        new_feature_config_ids = [
+            feature_config_id
+            for feature_config_id in selected_feature_config_ids
+            if feature_config_id not in submitted_feature_config_ids
+        ]
+
+        for feature_config_id in new_feature_config_ids:
+            data[f"{prefix}-{total_forms}-feature_config"] = feature_config_id
+            data[f"{prefix}-{total_forms}-value"] = "{}"
+            total_forms += 1
+
+        data[total_forms_key] = str(total_forms)
+        return data
 
     @property
     def errors(self):
