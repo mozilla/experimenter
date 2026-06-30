@@ -351,6 +351,13 @@ quick-answers-feature:
       type: boolean
       description: |
         Enables the feature.
+    model:
+      type: string
+      description: |
+        Which provider model backs Quick Answers.
+      enum:
+      - exa
+      - liner
 recent-searches-feature:
   description: |
     Enables recent searches.
