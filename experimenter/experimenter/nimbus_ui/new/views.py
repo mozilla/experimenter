@@ -5,6 +5,7 @@ from django.views.generic import DetailView
 from django.views.generic.edit import UpdateView
 
 from experimenter.experiments.models import NimbusExperiment, Tag
+from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     TagSearchFilterSet,
     UserSearchFilterSet,
@@ -18,8 +19,10 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutAudienceForm,
     RolloutFeaturesForm,
     RolloutOverviewForm,
+    RolloutPlanCreateForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
+    RolloutScheduleForm,
     SubscribeForm,
     TagAssignForm,
     UnsubscribeForm,
@@ -291,6 +294,89 @@ class NewAddSubscriberView(NewSubscriberView):
 
 class NewRemoveSubscriberView(NewSubscriberView):
     add = False
+
+
+class NewRolloutScheduleUpdateView(NewCardUpdateView):
+    form_class = RolloutScheduleForm
+    display_template = "new/rollouts/schedule/card.html"
+    template_name = "new/rollouts/schedule/edit_form.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_plan = self.request.POST.get("template_name") or self.request.POST.get(
+            "rollout_plan"
+        )
+        if selected_plan:
+            context["form"].initial["rollout_plan"] = selected_plan
+        return context
+
+    def can_edit(self):
+        return self.object.can_edit_schedule()
+
+
+def read_phase_rows(data):
+    prefix = NimbusUIConstants.ROLLOUT_PHASE_PREFIX
+    fields = NimbusUIConstants.ROLLOUT_PHASE_FIELDS
+    total = int(data.get(f"{prefix}-TOTAL_FORMS") or 0)
+    return [
+        {field: data.get(f"{prefix}-{i}-{field}", "") for field in fields}
+        for i in range(total)
+    ]
+
+
+def write_phase_rows(data, rows):
+    prefix = NimbusUIConstants.ROLLOUT_PHASE_PREFIX
+    fields = NimbusUIConstants.ROLLOUT_PHASE_FIELDS
+    for key in list(data.keys()):
+        if key.startswith(f"{prefix}-") and "FORMS" not in key:
+            del data[key]
+    data[f"{prefix}-TOTAL_FORMS"] = str(len(rows))
+    data[f"{prefix}-INITIAL_FORMS"] = "0"
+    for i, row in enumerate(rows):
+        for field in fields:
+            if row.get(field):
+                data[f"{prefix}-{i}-{field}"] = row[field]
+    return data
+
+
+class SchedulePhasePreviewView(NewRolloutScheduleUpdateView):
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.can_edit():
+            response = HttpResponse()
+            base_url = reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+            response.headers["HX-Redirect"] = f"{base_url}?save_failed=true"
+            return response
+        data = request.POST.copy()
+        write_phase_rows(data, self.modify_rows(read_phase_rows(data), data))
+        form = RolloutScheduleForm(data=data, instance=self.object, request=request)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class NewRolloutPhaseCreateView(SchedulePhasePreviewView):
+    def modify_rows(self, rows, data):
+        return [*rows, {}]
+
+
+class NewRolloutPhaseDeleteView(SchedulePhasePreviewView):
+    def modify_rows(self, rows, data):
+        index = int(data.get("delete_index", -1))
+        if 0 <= index < len(rows):
+            rows.pop(index)
+        return rows
+
+
+class NewRolloutPlanApplyView(SchedulePhasePreviewView):
+    def modify_rows(self, rows, data):
+        plans = RolloutScheduleForm.available_plans()
+        plan_name = data.get("rollout_plan")
+        if plan_name in plans:
+            return [{"population_percent": str(pct)} for pct in plans[plan_name]]
+        return rows
+
+
+class NewRolloutPlanCreateView(RenderParentDBResponseMixin, NewRolloutScheduleUpdateView):
+    form_class = RolloutPlanCreateForm
 
 
 class NewSubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):

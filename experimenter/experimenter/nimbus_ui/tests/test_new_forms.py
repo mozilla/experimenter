@@ -34,6 +34,7 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutAudienceForm,
     RolloutFeaturesForm,
     RolloutOverviewForm,
+    RolloutPhaseForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
     TagAssignForm,
@@ -987,3 +988,59 @@ class TestTagAssignForm(RequestFormTestCase):
 
         tag_names = [tag.name for tag in form.fields["tags"].queryset]
         self.assertEqual(tag_names, ["A Tag", "M Tag", "Z Tag"])
+
+
+class TestRolloutPhaseForm(TestCase):
+    def test_end_date_before_start_date_is_invalid(self):
+        form = RolloutPhaseForm(
+            data={
+                "start_date": "2026-02-01",
+                "end_date": "2026-01-01",
+                "population_percent": "10",
+            }
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER,
+            form.errors["end_date"],
+        )
+
+    def test_end_date_equal_to_start_date_is_valid(self):
+        form = RolloutPhaseForm(
+            data={
+                "start_date": "2026-01-01",
+                "end_date": "2026-01-01",
+                "population_percent": "10",
+            }
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_dates_optional_so_blank_is_valid(self):
+        form = RolloutPhaseForm(data={"population_percent": "10"})
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_start_date_without_end_date_is_invalid(self):
+        form = RolloutPhaseForm(data={"start_date": "2026-01-15"})
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE,
+            form.errors["end_date"],
+        )
+
+    def test_end_date_without_start_date_is_invalid(self):
+        form = RolloutPhaseForm(data={"end_date": "2026-01-15"})
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE,
+            form.errors["start_date"],
+        )
+
+    def test_negative_population_percent_is_invalid(self):
+        form = RolloutPhaseForm(data={"population_percent": "-1"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)
+
+    def test_population_percent_over_100_is_invalid(self):
+        form = RolloutPhaseForm(data={"population_percent": "101"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)

@@ -37,6 +37,7 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
+    NimbusRolloutPhase,
     NimbusVersionedSchema,
     Tag,
 )
@@ -1270,6 +1271,18 @@ class NimbusDocumentationLinkFactory(factory.django.DjangoModelFactory):
             title=title,
             experiment=experiment,
         )
+
+
+class NimbusRolloutPhaseFactory(factory.django.DjangoModelFactory):
+    experiment = factory.SubFactory(NimbusExperimentFactory)
+    start_date = factory.LazyAttribute(lambda o: datetime.date.today())
+    end_date = factory.LazyAttribute(
+        lambda o: datetime.date.today() + datetime.timedelta(days=random.randint(1, 30))
+    )
+    population_percent = factory.LazyAttribute(lambda o: random.randint(1, 100))
+
+    class Meta:
+        model = NimbusRolloutPhase
 
 
 class NimbusIsolationGroupFactory(factory.django.DjangoModelFactory):
