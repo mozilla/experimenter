@@ -3949,3 +3949,79 @@ class TestGetFeatmonSlugs(TestCase):
             get_featmon_slugs()
             get_featmon_slugs()
             mock_read.assert_called_once()
+
+
+class TestUpdateHoldbackEnrollmentPeriod(TestCase):
+    def test_sets_enrollment_end_date_and_do_rerun(self):
+        today = datetime.date.today()
+        start = today - datetime.timedelta(days=50)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_holdback=True,
+            _start_date=start,
+            proposed_enrollment=14,
+            proposed_duration=84,
+        )
+        tasks.update_holdback_enrollment_period()
+        experiment.refresh_from_db()
+
+        expected_enrollment_end = today - datetime.timedelta(days=21)
+        self.assertEqual(experiment._enrollment_end_date, expected_enrollment_end)
+        self.assertTrue(experiment.do_rerun)
+        self.assertIsNotNone(experiment.do_rerun_timestamp)
+
+    def test_skips_experiment_started_within_observation_period(self):
+        today = datetime.date.today()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_holdback=True,
+            _start_date=today - datetime.timedelta(days=10),
+            proposed_enrollment=14,
+            proposed_duration=84,
+        )
+        tasks.update_holdback_enrollment_period()
+        experiment.refresh_from_db()
+
+        self.assertIsNone(experiment._enrollment_end_date)
+        self.assertFalse(experiment.do_rerun)
+
+    def test_skips_ended_holdback(self):
+        today = datetime.date.today()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_holdback=True,
+            _start_date=today - datetime.timedelta(days=50),
+            proposed_enrollment=14,
+            proposed_duration=84,
+        )
+        experiment._end_date = today - datetime.timedelta(days=1)
+        experiment.save(update_fields=["_end_date"])
+        tasks.update_holdback_enrollment_period()
+        experiment.refresh_from_db()
+
+        self.assertIsNone(experiment._enrollment_end_date)
+        self.assertFalse(experiment.do_rerun)
+
+    def test_skips_non_holdback_experiments(self):
+        today = datetime.date.today()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_holdback=False,
+            _start_date=today - datetime.timedelta(days=50),
+            proposed_enrollment=14,
+            proposed_duration=84,
+        )
+        tasks.update_holdback_enrollment_period()
+        experiment.refresh_from_db()
+
+        self.assertFalse(experiment.do_rerun)
+
+    def test_raises_on_unexpected_error(self):
+        with (
+            patch(
+                "experimenter.jetstream.tasks.NimbusExperiment.objects.filter",
+                side_effect=Exception("db error"),
+            ),
+            self.assertRaises(Exception, msg="db error"),
+        ):
+            tasks.update_holdback_enrollment_period()

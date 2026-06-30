@@ -1,4 +1,5 @@
 import contextlib
+import datetime
 import json
 
 from django.conf import settings
@@ -106,10 +107,10 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     outcomes = serializers.SerializerMethodField()
     segments = serializers.SerializerMethodField()
     startDate = serializers.DateField(source="start_date")
-    enrollmentEndDate = serializers.DateField(source="actual_enrollment_end_date")
-    endDate = serializers.DateField(source="end_date")
+    enrollmentEndDate = serializers.SerializerMethodField()
+    endDate = serializers.SerializerMethodField()
     proposedDuration = serializers.ReadOnlyField(source="proposed_duration")
-    proposedEnrollment = serializers.ReadOnlyField(source="proposed_enrollment")
+    proposedEnrollment = serializers.SerializerMethodField()
     referenceBranch = serializers.SerializerMethodField()
     featureValidationOptOut = serializers.ReadOnlyField(
         source="is_client_schema_disabled"
@@ -167,6 +168,24 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "firefoxLabsGroup",
             "requiresRestart",
         )
+
+    def get_enrollmentEndDate(self, obj):
+        enrollment_end = obj.actual_enrollment_end_date
+        if obj.is_holdback and not obj.end_date and enrollment_end:
+            return enrollment_end.isoformat()
+        return enrollment_end.isoformat() if enrollment_end else None
+
+    def get_endDate(self, obj):
+        enrollment_end = obj.actual_enrollment_end_date
+        if obj.is_holdback and not obj.end_date and enrollment_end:
+            return (enrollment_end + datetime.timedelta(days=21)).isoformat()
+        return obj.end_date.isoformat() if obj.end_date else None
+
+    def get_proposedEnrollment(self, obj):
+        enrollment_end = obj.actual_enrollment_end_date
+        if obj.is_holdback and not obj.end_date and enrollment_end and obj.start_date:
+            return (enrollment_end - obj.start_date).days
+        return obj.proposed_enrollment
 
     def get_application(self, obj):
         return self.get_appId(obj)
