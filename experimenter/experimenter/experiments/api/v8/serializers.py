@@ -170,23 +170,21 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         )
 
     def get_enrollmentEndDate(self, obj):
-        if obj.is_holdback and not obj._end_date and obj._enrollment_end_date:
-            return obj._enrollment_end_date
-        return obj.actual_enrollment_end_date
+        enrollment_end = obj.actual_enrollment_end_date
+        if obj.is_holdback and not obj.end_date and enrollment_end:
+            return enrollment_end.isoformat()
+        return enrollment_end.isoformat() if enrollment_end else None
 
     def get_endDate(self, obj):
-        if obj.is_holdback and not obj._end_date and obj._enrollment_end_date:
-            return obj._enrollment_end_date + datetime.timedelta(days=21)
-        return obj.end_date
+        enrollment_end = obj.actual_enrollment_end_date
+        if obj.is_holdback and not obj.end_date and enrollment_end:
+            return (enrollment_end + datetime.timedelta(days=21)).isoformat()
+        return obj.end_date.isoformat() if obj.end_date else None
 
     def get_proposedEnrollment(self, obj):
-        if (
-            obj.is_holdback
-            and not obj.end_date
-            and obj._enrollment_end_date
-            and obj.start_date
-        ):
-            return (obj._enrollment_end_date - obj.start_date).days
+        enrollment_end = obj.actual_enrollment_end_date
+        if obj.is_holdback and not obj.end_date and enrollment_end and obj.start_date:
+            return (enrollment_end - obj.start_date).days
         return obj.proposed_enrollment
 
     def get_application(self, obj):
