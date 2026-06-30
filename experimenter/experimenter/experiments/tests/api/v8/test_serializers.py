@@ -419,6 +419,29 @@ class TestNimbusExperimentSerializer(TestCase):
         else:
             self.assertEqual(serializer.data["localizations"], expected)
 
+    def test_holdback_serializer_overrides(self):
+        today = datetime.date.today()
+        start = today - datetime.timedelta(days=50)
+        enrollment_end = today - datetime.timedelta(days=21)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_holdback=True,
+            _start_date=start,
+            _enrollment_end_date=enrollment_end,
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        data = serializer.data
+
+        self.assertEqual(data["enrollmentEndDate"], enrollment_end.isoformat())
+        self.assertEqual(
+            data["endDate"],
+            (enrollment_end + datetime.timedelta(days=21)).isoformat(),
+        )
+        self.assertEqual(
+            data["proposedEnrollment"],
+            (enrollment_end - start).days,
+        )
+
     def _experiment_data_without_branches_and_featureIds(
         self, experiment_data, min_required_version
     ) -> dict[str, Any]:
