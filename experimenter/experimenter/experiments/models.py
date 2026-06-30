@@ -194,7 +194,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         "experiments.NimbusExperiment", models.SET_NULL, blank=True, null=True
     )
     is_rollout = models.BooleanField("Is Experiment a Rollout Flag", default=False)
+    is_holdback = models.BooleanField("Is Experiment a Holdback Flag", default=False)
     is_archived = models.BooleanField("Is Experiment Archived Flag", default=False)
+    do_rerun = models.BooleanField(default=False)
+    do_rerun_timestamp = models.DateTimeField(null=True, blank=True)
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
