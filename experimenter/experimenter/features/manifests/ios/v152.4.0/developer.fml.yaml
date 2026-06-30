@@ -739,6 +739,11 @@ features:
           Enables the feature.
         type: Boolean
         default: false
+      model:
+        description: |
+          Which provider model backs Quick Answers.
+        type: QuickAnswersModel
+        default: exa
   recent-searches-feature:
     description: |
       Enables recent searches.
@@ -1216,6 +1221,13 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
+  QuickAnswersModel:
+    description: The provider model that backs the Quick Answers feature.
+    variants:
+      exa:
+        description: The Exa model provider.
+      liner:
+        description: The Liner model provider.
   StartAtHome:
     description: The option for what screen to open the app to
     variants:
