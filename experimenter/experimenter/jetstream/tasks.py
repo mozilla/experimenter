@@ -221,16 +221,12 @@ def update_holdback_enrollment_period():
             if enrollment_end <= experiment.start_date:
                 continue
 
-            experiment._enrollment_end_date = enrollment_end
-            experiment.do_rerun = True
-            experiment.do_rerun_timestamp = now
-            experiment.save(
-                update_fields=[
-                    "_enrollment_end_date",
-                    "do_rerun",
-                    "do_rerun_timestamp",
-                ]
+            NimbusExperiment.objects.filter(pk=experiment.pk).update(
+                _enrollment_end_date=enrollment_end,
+                do_rerun=True,
+                do_rerun_timestamp=now,
             )
+            experiment.refresh_from_db()
             generate_nimbus_changelog(
                 experiment,
                 get_kinto_user(),
