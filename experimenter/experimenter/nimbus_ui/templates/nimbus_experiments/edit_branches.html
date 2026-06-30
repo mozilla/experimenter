@@ -55,6 +55,17 @@
           <div class="row mb-3">
             <div class="col">
               <div class="form-check">
+                {{ form.is_holdback }}
+                <label class="form-check-label" for="id_is_holdback">{{ NimbusUIConstants.HOLDBACK_LABEL }}</label>
+              </div>
+              <p class="form-text">{{ NimbusUIConstants.HOLDBACK_HELP_TEXT }}</p>
+              {% for error in form.is_holdback.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+              {% for error in validation_errors.is_holdback %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <div class="form-check">
                 {{ form.warn_feature_schema }}
                 <label class="form-check-label" for="id_warn_feature_schema">Warn only on feature schema validation failure</label>
               </div>
