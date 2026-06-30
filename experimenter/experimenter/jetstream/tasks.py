@@ -198,6 +198,9 @@ def fetch_monitoring_data():
         raise
 
 
+HOLDBACK_OBSERVATION_DAYS = 21
+
+
 @app.task
 @metrics.timer_decorator("update_holdback_enrollment_period")
 def update_holdback_enrollment_period():
@@ -205,34 +208,33 @@ def update_holdback_enrollment_period():
     try:
         today = timezone.now().date()
         now = timezone.now()
+        enrollment_end = today - dt.timedelta(days=HOLDBACK_OBSERVATION_DAYS)
 
         experiments = NimbusExperiment.objects.filter(
             is_holdback=True,
             status=NimbusExperiment.Status.LIVE,
+            _end_date=None,
         ).exclude(_start_date=None)
 
         updated_count = 0
         for experiment in experiments:
-            enrollment_end = experiment.computed_enrollment_end_date
-            if enrollment_end is None or today <= enrollment_end:
+            if enrollment_end <= experiment.start_date:
                 continue
 
-            days_since_end = (today - enrollment_end).days
-            weeks_elapsed = max(1, days_since_end // 7)
-            new_enrollment_period = min(
-                experiment.proposed_enrollment + (weeks_elapsed * 7),
-                experiment.proposed_duration,
-            )
-
-            experiment.proposed_enrollment = new_enrollment_period
+            experiment._enrollment_end_date = enrollment_end
             experiment.do_rerun = True
             experiment.do_rerun_timestamp = now
             experiment.save(
                 update_fields=[
-                    "proposed_enrollment",
+                    "_enrollment_end_date",
                     "do_rerun",
                     "do_rerun_timestamp",
                 ]
+            )
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.HOLDBACK_ENROLLMENT_UPDATED,
             )
             updated_count += 1
 
