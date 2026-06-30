@@ -249,6 +249,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "project_impact": """Set an impact rating so others can understand the scale of
         this experiment's effect.""",
     }
+    HOLDBACK_LABEL = "Is this a holdback experiment?"
+    HOLDBACK_HELP_TEXT = (
+        "Holdback experiments continuously enroll users and run for an extended period. "
+        "Analysis will automatically run each week based on a 21-day observation period, "
+        "and an enrollment period encompassing the rest of the time between launch and "
+        "21 days from the run date."
+    )
+
     COENROLLMENT_NOTE = (
         "Note: This feature supports co-enrollment with other experiments/rollouts "
         "for the selected versions."
