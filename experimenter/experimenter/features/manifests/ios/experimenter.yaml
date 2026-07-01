@@ -381,6 +381,16 @@ relay-integration-feature:
       type: boolean
       description: |
         Enables the feature
+report-broken-site-feature:
+  description: |
+    In-app Report Broken Site (WebCompat) reporter
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 search:
   description: |
     Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
