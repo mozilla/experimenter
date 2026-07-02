@@ -332,6 +332,24 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     checklist."""
     QA_TICKET_URL = "https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10212&issuetype=11290"
 
+    ERROR_ROLLOUT_PLAN_NAME_DUPLICATE = "A rollout plan with this name already exists."
+    ERROR_ROLLOUT_PHASE_DATE_ORDER = "The end date must be on or after the start date."
+    ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE = (
+        "Set both a start and an end date or leave both blank."
+    )
+    ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
+    ROLLOUT_TEMPLATE_PLANS = {"Medium risk": [1, 10, 50, 100]}
+    ROLLOUT_ADVANCE_OBSERVATIONS_LABEL = (
+        "Move to next phase of rollout if these observations occur"
+    )
+    ROLLOUT_PAUSE_OBSERVATIONS_LABEL = "Pause rollout if these observations occur"
+    ROLLOUT_PHASE_FIELDS = ("start_date", "end_date", "population_percent")
+
+    class RolloutPhaseStatus:
+        NOT_STARTED = "not_started"
+        IN_PROGRESS = "in_progress"
+        COMPLETE = "complete"
+
     class MetricAreaType:
         PRIMARY = {
             "label": "Primary Metric",
