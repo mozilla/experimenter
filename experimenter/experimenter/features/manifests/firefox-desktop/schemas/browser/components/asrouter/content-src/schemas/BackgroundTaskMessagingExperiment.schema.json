@@ -239,31 +239,15 @@
           "type": "string"
         },
         "trigger": {
-          "description": "An action to trigger potentially showing the message",
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "description": "A string identifying the trigger action"
-            },
-            "params": {
-              "type": "array",
-              "description": "An optional array of string parameters for the trigger action",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "string"
-                  }
-                ]
-              }
-            }
-          },
-          "required": [
-            "id"
-          ]
+          "$ref": "chrome://browser/content/asrouter/schemas/BackgroundTaskMessagingExperiment.schema.json#/$defs/Trigger"
+        },
+        "triggers": {
+          "description": "An array of trigger actions (alternative to the singular `trigger`). The message is eligible if any one of them matches. When 'trigger' is also present, `triggers` takes precedence. Targeting is evaluated using the context of whichever trigger fired, so context a trigger contributes (for example `tabsClosedCount` from `nthTabClosed`) is only available when that specific trigger fires. Ensure the targeting expression is valid for every trigger listed.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "chrome://browser/content/asrouter/schemas/BackgroundTaskMessagingExperiment.schema.json#/$defs/Trigger"
+          }
         },
         "provider": {
           "description": "An identifier for the provider of this message, such as \"cfr\" or \"preview\".",
@@ -304,6 +288,33 @@
         {
           "$ref": "chrome://browser/content/asrouter/schemas/BackgroundTaskMessagingExperiment.schema.json#/$defs/localizedText"
         }
+      ]
+    },
+    "Trigger": {
+      "description": "An action to trigger potentially showing the message",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "A string identifying the trigger action"
+        },
+        "params": {
+          "type": "array",
+          "description": "An optional array of string parameters for the trigger action",
+          "items": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "id"
       ]
     },
     "TemplatedMessage": {
