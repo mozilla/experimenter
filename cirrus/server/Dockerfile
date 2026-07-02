@@ -15,19 +15,21 @@ RUN apt-get update && \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/sh -s -- -y --no-modify-path
 ENV PATH=$PATH:/root/.cargo/bin
 
-# Install poetry package management tool
-RUN curl -sSL https://install.python-poetry.org | python3 - --version 2.2.1
+# Install uv package management tool
+COPY --from=ghcr.io/astral-sh/uv:0.10.0 /uv /uvx /usr/local/bin/
 
-# Add poetry to PATH environment variable
-ENV PATH="/root/.local/bin:$PATH"
-
-# Copy only the pyproject.toml file and poetry.lock file to install dependencies ignoring dev dependencies
+# Copy the pyproject.toml and uv.lock files to install dependencies
 COPY pyproject.toml /cirrus/
-COPY poetry.lock /cirrus/
+COPY uv.lock /cirrus/
 
-# Configure poetry and install dependencies
-RUN poetry config virtualenvs.create false && \
-    poetry install --only=main --no-interaction --no-ansi
+# Install dependencies into a virtualenv that later stages can copy; uv has no
+# global-install equivalent for this yet: https://github.com/astral-sh/uv/issues/13129
+ENV UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project
 
 # Build glean assets
 COPY ./telemetry /cirrus/telemetry
@@ -35,8 +37,8 @@ RUN glean_parser translate telemetry/pings.yaml telemetry/metrics.yaml -f python
 
 # dev image
 # ---------
-# The dev image contains the regular cirrus image, plus additional developer
-# tools (e.g., poetry) that are not suitable for a deployment.
+# The dev image contains the regular cirrus image, plus the source tree and
+# developer tooling that are not suitable for a deployment.
 FROM python-builder AS dev
 
 WORKDIR /cirrus
@@ -81,11 +83,11 @@ COPY --from=experimenter:megazords /application-services/megazords/cirrus/libcir
 COPY --from=experimenter:megazords /application-services/megazords/cirrus/cirrus.py /application-services/cirrus_sdk.py
 COPY --from=experimenter:megazords /application-services/megazords/cirrus/fml.py /application-services/fml_sdk.py
 
-# Copy Python site packages and scripts
-COPY --from=python-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=python-builder /usr/local/bin /usr/local/bin
+# Copy the virtualenv and generated glean assets
+COPY --from=python-builder /opt/venv /opt/venv
 COPY --from=python-builder /cirrus/cirrus/glean /cirrus/cirrus/glean
 
+ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH=$PYTHONPATH:/application-services
 
 # Copy fml files
