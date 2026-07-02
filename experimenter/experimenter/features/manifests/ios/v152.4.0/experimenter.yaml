@@ -130,14 +130,6 @@ firefox-suggest-feature:
       type: boolean
       description: |
         Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
-general-app-features:
-  description: The feature that contains feature flags for the entire application
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    report-site-issue:
-      type: json
-      description: This property defines whether or not the feature is enabled
 google-lens-feature:
   description: |
     The feature flag to manage the rollout of Google Lens entry points.
@@ -297,6 +289,16 @@ needs-reload-refactor:
       type: boolean
       description: |
         Whether or not this refactor is enabled
+new-bookmark-folder-tree-feature:
+  description: |
+    This property determines weather we show the new bookmark folder tree UI
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 nova-design-feature:
   description: |
     The feature flag to manage the rollout of Nova design.
@@ -381,6 +383,16 @@ relay-integration-feature:
       type: boolean
       description: |
         Enables the feature
+report-broken-site-feature:
+  description: |
+    In-app Report Broken Site (WebCompat) reporter
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 search:
   description: |
     Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
@@ -590,6 +602,16 @@ trending-searches-feature:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
+wayback-machine-feature:
+  description: |
+    This property determines whether we show the wayback entry point on the native error pages
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 world-cup-widget-feature:
   description: |
     The feature flag to manage the roll out of the world cup widget feature
