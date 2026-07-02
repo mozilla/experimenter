@@ -2845,6 +2845,39 @@ LAPSED_USER_VPN_AVAILABLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+LAPSED_USER_CFR_FXA_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Lapsed users with CFRs and FxA enabled, no enterprise policies",
+    slug="lapsed_user_cfr_fxa_no_enterprise",
+    description=(
+        "Users with a profile age of 28 days and 0 days of activity in the past 28 days, "
+        "with CFRs enabled, with FxA enabled, without enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
+        " && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
+        " && "
+        "isFxAEnabled && "
+        "!hasActiveEnterprisePolicies && "
+        "((userMonthlyActivity|length == 0) || "
+        "(userMonthlyActivity|length == 1 && "
+        "(currentDate|date - userMonthlyActivity|mapToProperty('1')"
+        "[userMonthlyActivity|mapToProperty('1')|length - 1]|date < 86400000)) || "
+        "(userMonthlyActivity|mapToProperty('1')[userMonthlyActivity|length - 1]|date "
+        "<= currentDate|date - (86400000 * 28)) || "
+        "(((userMonthlyActivity|length > 1) && "
+        "(currentDate|date - userMonthlyActivity|mapToProperty('1')"
+        "[userMonthlyActivity|mapToProperty('1')|length - 1]|date < 86400000) && "
+        "(userMonthlyActivity|mapToProperty('1')[userMonthlyActivity|length - 2]|date "
+        "<= currentDate|date - (86400000 * 28)))))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION = NimbusTargetingConfig(
     name="Returning users who have lapsed a second time",
     slug="returning_churned_user_48_hr",
