@@ -130,14 +130,6 @@ firefox-suggest-feature:
       type: boolean
       description: |
         Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
-general-app-features:
-  description: The feature that contains feature flags for the entire application
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    report-site-issue:
-      type: json
-      description: This property defines whether or not the feature is enabled
 google-lens-feature:
   description: |
     The feature flag to manage the rollout of Google Lens entry points.
@@ -381,6 +373,16 @@ relay-integration-feature:
       type: boolean
       description: |
         Enables the feature
+report-broken-site-feature:
+  description: |
+    In-app Report Broken Site (WebCompat) reporter
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 search:
   description: |
     Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
