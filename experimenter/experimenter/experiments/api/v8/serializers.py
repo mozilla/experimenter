@@ -41,7 +41,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         for fv in obj.feature_values.all():
             feature_value = {
                 "featureId": (fv.feature_config and fv.feature_config.slug) or "",
-                "enabled": True,  # TODO: Remove after Desktop 104 is no longer supported
                 "value": {},
             }
 
@@ -87,8 +86,6 @@ class NimbusBranchSerializerMobile(NimbusBranchSerializer):
 class NimbusExperimentSerializer(serializers.ModelSerializer):
     schemaVersion = serializers.ReadOnlyField(default=settings.NIMBUS_SCHEMA_VERSION)
     id = serializers.ReadOnlyField(source="slug")
-    arguments = serializers.ReadOnlyField(default={})
-    application = serializers.SerializerMethodField()
     appName = serializers.SerializerMethodField()
     appId = serializers.SerializerMethodField()
     branches = serializers.SerializerMethodField()
@@ -102,7 +99,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     doRerunTimestamp = serializers.ReadOnlyField(source="do_rerun_timestamp")
     bucketConfig = NimbusBucketRangeSerializer(source="bucket_range")
     featureIds = serializers.SerializerMethodField()
-    probeSets = serializers.ReadOnlyField(default=[])
     outcomes = serializers.SerializerMethodField()
     segments = serializers.SerializerMethodField()
     startDate = serializers.DateField(source="start_date")
@@ -130,8 +126,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "schemaVersion",
             "slug",
             "id",
-            "arguments",
-            "application",
             "appName",
             "appId",
             "channel",
@@ -145,7 +139,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "doRerunTimestamp",
             "bucketConfig",
             "featureIds",
-            "probeSets",
             "outcomes",
             "segments",
             "branches",
@@ -167,9 +160,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "firefoxLabsGroup",
             "requiresRestart",
         )
-
-    def get_application(self, obj):
-        return self.get_appId(obj)
 
     def get_appName(self, obj):
         return obj.application_config.app_name
