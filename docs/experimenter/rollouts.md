@@ -686,9 +686,9 @@ A live rollout phase change review is canceled in Experimenter before it is appr
         end
 ```
 
-## Pause (Approve/Approve)
+## Disable (Approve/Approve)
 
-A live rollout is paused after being approved in Experimenter and approved in Remote Settings. The rollout moves from Live to Paused while staying in the same phase.
+A live rollout is disabled after being approved in Experimenter and approved in Remote Settings. Disabling means the rollout is unpublished from Remote Settings. The rollout moves from Live to Disabled while staying in the same phase.
 
 ```mermaid
   sequenceDiagram
@@ -699,14 +699,14 @@ A live rollout is paused after being approved in Experimenter and approved in Re
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Pause (Approve/Approve)
+    title Disable (Approve/Approve)
     
-    Note over Rollout Owner: An owner is ready to pause <br/> their live rollout
+    Note over Rollout Owner: An owner is ready to disable <br/> their live rollout
     
     rect rgb(255,204,255) 
-        Note right of Rollout Owner: Owner pauses in Experimenter
-        Rollout Owner->>Experimenter UI: Pause
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Note right of Rollout Owner: Owner disables in Experimenter
+        Rollout Owner->>Experimenter UI: Disable
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
     
     Experimenter Backend-->>Reviewer: To review
@@ -715,16 +715,16 @@ A live rollout is paused after being approved in Experimenter and approved in Re
     rect rgb(255,255,204) 
         Note over Rollout Owner: Reviewer approves in Experimenter
         Reviewer->>Experimenter UI: Approve
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
  
-    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> pause to publish, and updates the <br/> record with the serialized DTO
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> disable request and unpublishes the <br/> record with the serialized DTO
     
     rect rgb(204,255,255) 
-        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Paused
-        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
-        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
-        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Disabled
+        Note over Experimenter Worker: Worker unpublishes from <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Unpublish Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
 
     Experimenter Backend-->>Reviewer: To review in Remote Settings
@@ -743,13 +743,13 @@ A live rollout is paused after being approved in Experimenter and approved in Re
     rect rgb(204,255,255) 
         Note over Experimenter Worker: Worker updates rollout
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
-        Experimenter Worker->>Experimenter Backend:  Status: Paused <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Disabled <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
 ```
 
-## Pause (Reject/------)
+## Disable (Reject/------)
 
-A live rollout pause request is rejected in Experimenter. The rollout remains Live and returns to Idle.
+A live rollout disable request is rejected in Experimenter. The rollout remains Live and published in Remote Settings, and returns to Idle.
 
 ```mermaid
   sequenceDiagram
@@ -760,14 +760,14 @@ A live rollout pause request is rejected in Experimenter. The rollout remains Li
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Pause (Reject/------)
+    title Disable (Reject/------)
     
-    Note over Rollout Owner: An owner is ready to pause <br/> their live rollout
+    Note over Rollout Owner: An owner is ready to disable <br/> their live rollout
     
     rect rgb(255,204,255) 
-        Note right of Rollout Owner: Owner pauses in Experimenter
-        Rollout Owner->>Experimenter UI: Pause
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Note right of Rollout Owner: Owner disables in Experimenter
+        Rollout Owner->>Experimenter UI: Disable
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
     
     Experimenter Backend-->>Reviewer: To review
@@ -780,9 +780,9 @@ A live rollout pause request is rejected in Experimenter. The rollout remains Li
     end 
 ```
 
-## Pause (Approve/Reject)
+## Disable (Approve/Reject)
 
-A live rollout pause request is approved in Experimenter but rejected in Remote Settings. The rollout is rolled back and remains Live.
+A live rollout disable request is approved in Experimenter but rejected in Remote Settings. The unpublish change is rolled back and the rollout remains Live and published in Remote Settings.
 
 ```mermaid
   sequenceDiagram
@@ -793,14 +793,14 @@ A live rollout pause request is approved in Experimenter but rejected in Remote 
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Pause (Approve/Reject)
+    title Disable (Approve/Reject)
     
-    Note over Rollout Owner: An owner is ready to pause <br/> their live rollout
+    Note over Rollout Owner: An owner is ready to disable <br/> their live rollout
     
     rect rgb(255,204,255) 
-        Note right of Rollout Owner: Owner pauses in Experimenter
-        Rollout Owner->>Experimenter UI: Pause
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Note right of Rollout Owner: Owner disables in Experimenter
+        Rollout Owner->>Experimenter UI: Disable
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
     
     Experimenter Backend-->>Reviewer: To review
@@ -809,16 +809,16 @@ A live rollout pause request is approved in Experimenter but rejected in Remote 
     rect rgb(255,255,204) 
         Note over Rollout Owner: Reviewer approves in Experimenter
         Reviewer->>Experimenter UI: Approve
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
  
-    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> pause to publish, and updates the <br/> record with the serialized DTO
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> disable request and unpublishes the <br/> record with the serialized DTO
     
     rect rgb(204,255,255) 
-        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Paused
-        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
-        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
-        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Disabled
+        Note over Experimenter Worker: Worker unpublishes from <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Unpublish Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
 
     Experimenter Backend-->>Reviewer: To review in Remote Settings
@@ -840,9 +840,9 @@ A live rollout pause request is approved in Experimenter but rejected in Remote 
     end 
 ```
 
-## Pause (Approve/Reject) + manual rollback
+## Disable (Approve/Reject) + manual rollback
 
-A live rollout pause request is approved in Experimenter and rejected in Remote Settings, but the Remote Settings rollback is handled manually before Experimenter can recover the rejection reason. The rollout remains Live and returns to Idle.
+A live rollout disable request is approved in Experimenter and rejected in Remote Settings, but the Remote Settings rollback is handled manually before Experimenter can recover the rejection reason. The unpublish change is rolled back, so the rollout remains Live and published in Remote Settings.
 
 ```mermaid
   sequenceDiagram
@@ -853,14 +853,14 @@ A live rollout pause request is approved in Experimenter and rejected in Remote 
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Pause (Approve/Reject + Manual Rollback)
+    title Disable (Approve/Reject + Manual Rollback)
     
-    Note over Rollout Owner: An owner is ready to pause <br/> their live rollout
+    Note over Rollout Owner: An owner is ready to disable <br/> their live rollout
     
     rect rgb(255,204,255) 
-        Note right of Rollout Owner: Owner pauses in Experimenter
-        Rollout Owner->>Experimenter UI: Pause
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Note right of Rollout Owner: Owner disables in Experimenter
+        Rollout Owner->>Experimenter UI: Disable
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
     
     Experimenter Backend-->>Reviewer: To review
@@ -869,16 +869,16 @@ A live rollout pause request is approved in Experimenter and rejected in Remote 
     rect rgb(255,255,204) 
         Note over Rollout Owner: Reviewer approves in Experimenter
         Reviewer->>Experimenter UI: Approve
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
  
-    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> pause to publish, and updates the <br/> record with the serialized DTO
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> disable request and unpublishes the <br/> record with the serialized DTO
     
     rect rgb(204,255,255) 
-        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Paused
-        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
-        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
-        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Disabled
+        Note over Experimenter Worker: Worker unpublishes from <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Unpublish Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
 
     Experimenter Backend-->>Reviewer: To review in Remote Settings
@@ -900,9 +900,9 @@ A live rollout pause request is approved in Experimenter and rejected in Remote 
     end 
 ```
 
-## Pause (Approve/Timeout)
+## Disable (Approve/Timeout)
 
-A live rollout pause request is approved in Experimenter and sent to Remote Settings, but the Remote Settings review times out. The rollout stays Live and returns to Idle, so the owner must request review again.
+A live rollout disable request is approved in Experimenter and sent to Remote Settings as an unpublish change, but the Remote Settings review times out. The rollout stays Live and published in Remote Settings, and returns to Idle so the owner must request review again.
 
 ```mermaid
   sequenceDiagram
@@ -913,14 +913,14 @@ A live rollout pause request is approved in Experimenter and sent to Remote Sett
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Pause (Approve/Timeout)
+    title Disable (Approve/Timeout)
     
-    Note over Rollout Owner: An owner is ready to pause <br/> their live rollout
+    Note over Rollout Owner: An owner is ready to disable <br/> their live rollout
     
     rect rgb(255,204,255) 
-        Note right of Rollout Owner: Owner pauses in Experimenter
-        Rollout Owner->>Experimenter UI: Pause
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Note right of Rollout Owner: Owner disables in Experimenter
+        Rollout Owner->>Experimenter UI: Disable
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
     
     Experimenter Backend-->>Reviewer: To review
@@ -929,16 +929,16 @@ A live rollout pause request is approved in Experimenter and sent to Remote Sett
     rect rgb(255,255,204) 
         Note over Rollout Owner: Reviewer approves in Experimenter
         Reviewer->>Experimenter UI: Approve
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
  
-    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> pause to publish, and updates the <br/> record with the serialized DTO
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> disable request and unpublishes the <br/> record with the serialized DTO
     
     rect rgb(204,255,255) 
-        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Paused
-        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
-        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
-        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Disabled
+        Note over Experimenter Worker: Worker unpublishes from <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Unpublish Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end 
 
     Note over Experimenter Backend: The scheduled background task is <br/> invoked, finds a pending unattended review, <br/> rolls back, and reverts the rollout <br/> back to idle so the owner must request review again
@@ -951,9 +951,9 @@ A live rollout pause request is approved in Experimenter and sent to Remote Sett
     end
 ```
 
-## Pause (Cancel ------/------)
+## Disable (Cancel ------/------)
 
-A live rollout pause review is canceled in Experimenter before it is approved in Experimenter. The rollout remains Live and returns to Idle.
+A live rollout disable review is canceled in Experimenter before it is approved in Experimenter. The rollout remains Live and published in Remote Settings, and returns to Idle.
 
 ```mermaid
     sequenceDiagram
@@ -964,14 +964,14 @@ A live rollout pause review is canceled in Experimenter before it is approved in
         participant Experimenter Worker
         participant Remote Settings UI
         participant Remote Settings Backend
-        title Pause (Cancel ------/------)
+        title Disable (Cancel ------/------)
         
-        Note over Rollout Owner: An owner is ready to pause <br/> their live rollout
+        Note over Rollout Owner: An owner is ready to disable <br/> their live rollout
 
         rect rgb(255,204,255)
-            Note right of Rollout Owner: Owner pauses in Experimenter
-            Rollout Owner->>Experimenter UI: Pause
-            Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Paused <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+            Note right of Rollout Owner: Owner disables in Experimenter
+            Rollout Owner->>Experimenter UI: Disable
+            Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Disabled <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
         end
 
         Experimenter Backend-->>Reviewer: To review
@@ -983,9 +983,9 @@ A live rollout pause review is canceled in Experimenter before it is approved in
         end
 ```
 
-## Resume (Approve/Approve)
+## Enable (Approve/Approve)
 
-A paused rollout is resumed after being approved in Experimenter and approved in Remote Settings. The rollout moves from Paused back to Live while staying in the same phase.
+A disabled rollout is enabled after being approved in Experimenter and approved in Remote Settings. Enabling means the rollout is published in Remote Settings. The rollout moves from Disabled back to Live while staying in the same phase.
 
 ```mermaid
   sequenceDiagram
@@ -996,14 +996,14 @@ A paused rollout is resumed after being approved in Experimenter and approved in
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Resume (Approve/Approve)
+    title Enable (Approve/Approve)
 
-    Note over Rollout Owner: An owner is ready to resume <br/> their paused rollout
+    Note over Rollout Owner: An owner is ready to enable <br/> their disabled rollout
 
     rect rgb(255,204,255)
-        Note right of Rollout Owner: Owner resumes in Experimenter
-        Rollout Owner->>Experimenter UI: Resume
-        Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Note right of Rollout Owner: Owner enables in Experimenter
+        Rollout Owner->>Experimenter UI: Enable
+        Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
     Experimenter Backend-->>Reviewer: To review
@@ -1012,16 +1012,16 @@ A paused rollout is resumed after being approved in Experimenter and approved in
     rect rgb(255,255,204)
         Note over Rollout Owner: Reviewer approves in Experimenter
         Reviewer->>Experimenter UI: Approve
-        Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Approved <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Approved <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
-    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> resume to publish, and updates the <br/> record with the serialized DTO
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> enable request and publishes the <br/> record with the serialized DTO
 
     rect rgb(204,255,255)
-        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Paused <br/> Publish status: Approved <br/> Status next: Live
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Disabled <br/> Publish status: Approved <br/> Status next: Live
         Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
-        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
-        Experimenter Worker->>Experimenter Backend: Status: Paused <br/> Publish status: Waiting <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Worker->>Remote Settings Backend: Publish Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Disabled <br/> Publish status: Waiting <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
     Experimenter Backend-->>Reviewer: To review in Remote Settings
@@ -1044,9 +1044,9 @@ A paused rollout is resumed after being approved in Experimenter and approved in
     end
 ```
 
-## Resume (Reject/------)
+## Enable (Reject/------)
 
-A paused rollout resume request is rejected in Experimenter. The rollout remains Paused and returns to Idle.
+A disabled rollout enable request is rejected in Experimenter. The rollout remains Disabled and unpublished in Remote Settings, and returns to Idle.
 
 ```mermaid
   sequenceDiagram
@@ -1057,14 +1057,14 @@ A paused rollout resume request is rejected in Experimenter. The rollout remains
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Resume (Reject/------)
+    title Enable (Reject/------)
 
-    Note over Rollout Owner: An owner is ready to resume <br/> their paused rollout
+    Note over Rollout Owner: An owner is ready to enable <br/> their disabled rollout
 
     rect rgb(255,204,255)
-        Note right of Rollout Owner: Owner resumes in Experimenter
-        Rollout Owner->>Experimenter UI: Resume
-        Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Note right of Rollout Owner: Owner enables in Experimenter
+        Rollout Owner->>Experimenter UI: Enable
+        Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
     Experimenter Backend-->>Reviewer: To review
@@ -1073,13 +1073,13 @@ A paused rollout resume request is rejected in Experimenter. The rollout remains
     rect rgb(255,255,204)
         Note over Rollout Owner: Reviewer rejects in Experimenter
         Reviewer->>Experimenter UI: Reject
-        Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 ```
 
-## Resume (Approve/Reject)
+## Enable (Approve/Reject)
 
-A paused rollout resume request is approved in Experimenter but rejected in Remote Settings. The rollout is rolled back and remains Paused.
+A disabled rollout enable request is approved in Experimenter but rejected in Remote Settings. The publish change is rolled back and the rollout remains Disabled and unpublished in Remote Settings.
 
 ```mermaid
   sequenceDiagram
@@ -1090,14 +1090,14 @@ A paused rollout resume request is approved in Experimenter but rejected in Remo
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Resume (Approve/Reject)
+    title Enable (Approve/Reject)
 
-    Note over Rollout Owner: An owner is ready to resume <br/> their paused rollout
+    Note over Rollout Owner: An owner is ready to enable <br/> their disabled rollout
 
     rect rgb(255,204,255)
-        Note right of Rollout Owner: Owner resumes in Experimenter
-        Rollout Owner->>Experimenter UI: Resume
-        Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Note right of Rollout Owner: Owner enables in Experimenter
+        Rollout Owner->>Experimenter UI: Enable
+        Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
     Experimenter Backend-->>Reviewer: To review
@@ -1106,16 +1106,16 @@ A paused rollout resume request is approved in Experimenter but rejected in Remo
     rect rgb(255,255,204)
         Note over Rollout Owner: Reviewer approves in Experimenter
         Reviewer->>Experimenter UI: Approve
-        Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Approved <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Approved <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
-    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> resume to publish, and updates the <br/> record with the serialized DTO
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> enable request and publishes the <br/> record with the serialized DTO
 
     rect rgb(204,255,255)
-        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Paused <br/> Publish status: Approved <br/> Status next: Live
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Disabled <br/> Publish status: Approved <br/> Status next: Live
         Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
-        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
-        Experimenter Worker->>Experimenter Backend: Status: Paused <br/> Publish status: Waiting <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Worker->>Remote Settings Backend: Publish Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Disabled <br/> Publish status: Waiting <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
     Experimenter Backend-->>Reviewer: To review in Remote Settings
@@ -1133,13 +1133,13 @@ A paused rollout resume request is approved in Experimenter but rejected in Remo
         Note over Experimenter Worker: Worker updates <br/> rollout
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
         Experimenter Worker->>Remote Settings Backend: Rollback <br/> RS status: work-in-progress
-        Experimenter Worker->>Experimenter Backend:  Status: Paused <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Disabled <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 ```
 
-## Resume (Approve/Reject) + manual rollback
+## Enable (Approve/Reject) + manual rollback
 
-A paused rollout resume request is approved in Experimenter and rejected in Remote Settings, but the Remote Settings rollback is handled manually before Experimenter can recover the rejection reason. The rollout remains Paused and returns to Idle.
+A disabled rollout enable request is approved in Experimenter and rejected in Remote Settings, but the Remote Settings rollback is handled manually before Experimenter can recover the rejection reason. The publish change is rolled back, so the rollout remains Disabled and unpublished in Remote Settings.
 
 ```mermaid
   sequenceDiagram
@@ -1150,14 +1150,14 @@ A paused rollout resume request is approved in Experimenter and rejected in Remo
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Resume (Approve/Reject + Manual Rollback)
+    title Enable (Approve/Reject + Manual Rollback)
 
-    Note over Rollout Owner: An owner is ready to resume <br/> their paused rollout
+    Note over Rollout Owner: An owner is ready to enable <br/> their disabled rollout
 
     rect rgb(255,204,255)
-        Note right of Rollout Owner: Owner resumes in Experimenter
-        Rollout Owner->>Experimenter UI: Resume
-        Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Note right of Rollout Owner: Owner enables in Experimenter
+        Rollout Owner->>Experimenter UI: Enable
+        Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
     Experimenter Backend-->>Reviewer: To review
@@ -1166,16 +1166,16 @@ A paused rollout resume request is approved in Experimenter and rejected in Remo
     rect rgb(255,255,204)
         Note over Rollout Owner: Reviewer approves in Experimenter
         Reviewer->>Experimenter UI: Approve
-        Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Approved <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Approved <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
-    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> resume to publish, and updates the <br/> record with the serialized DTO
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> enable request and publishes the <br/> record with the serialized DTO
 
     rect rgb(204,255,255)
-        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Paused <br/> Publish status: Approved <br/> Status next: Live
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Disabled <br/> Publish status: Approved <br/> Status next: Live
         Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
-        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
-        Experimenter Worker->>Experimenter Backend: Status: Paused <br/> Publish status: Waiting <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Worker->>Remote Settings Backend: Publish Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Disabled <br/> Publish status: Waiting <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
     Experimenter Backend-->>Reviewer: To review in Remote Settings
@@ -1193,13 +1193,13 @@ A paused rollout resume request is approved in Experimenter and rejected in Remo
     rect rgb(204,255,255)
         Note over Experimenter Worker: Worker updates <br/> rollout
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: to-sign
-        Experimenter Worker->>Experimenter Backend:  Status: Paused <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Disabled <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 ```
 
-## Resume (Approve/Timeout)
+## Enable (Approve/Timeout)
 
-A paused rollout resume request is approved in Experimenter and sent to Remote Settings, but the Remote Settings review times out. The rollout stays Paused and returns to Idle, so the owner must request review again.
+A disabled rollout enable request is approved in Experimenter and sent to Remote Settings as a publish change, but the Remote Settings review times out. The rollout stays Disabled and unpublished in Remote Settings, and returns to Idle so the owner must request review again.
 
 ```mermaid
   sequenceDiagram
@@ -1210,14 +1210,14 @@ A paused rollout resume request is approved in Experimenter and sent to Remote S
     participant Experimenter Worker
     participant Remote Settings UI
     participant Remote Settings Backend
-    title Resume (Approve/Timeout)
+    title Enable (Approve/Timeout)
 
-    Note over Rollout Owner: An owner is ready to resume <br/> their paused rollout
+    Note over Rollout Owner: An owner is ready to enable <br/> their disabled rollout
 
     rect rgb(255,204,255)
-        Note right of Rollout Owner: Owner resumes in Experimenter
-        Rollout Owner->>Experimenter UI: Resume
-        Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Note right of Rollout Owner: Owner enables in Experimenter
+        Rollout Owner->>Experimenter UI: Enable
+        Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
     Experimenter Backend-->>Reviewer: To review
@@ -1226,16 +1226,16 @@ A paused rollout resume request is approved in Experimenter and sent to Remote S
     rect rgb(255,255,204)
         Note over Rollout Owner: Reviewer approves in Experimenter
         Reviewer->>Experimenter UI: Approve
-        Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Approved <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Approved <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
-    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> resume to publish, and updates the <br/> record with the serialized DTO
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> enable request and publishes the <br/> record with the serialized DTO
 
     rect rgb(204,255,255)
-        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Paused <br/> Publish status: Approved <br/> Status next: Live
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Disabled <br/> Publish status: Approved <br/> Status next: Live
         Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
-        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
-        Experimenter Worker->>Experimenter Backend: Status: Paused <br/> Publish status: Waiting <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Worker->>Remote Settings Backend: Publish Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Disabled <br/> Publish status: Waiting <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 
     Note over Experimenter Backend: The scheduled background task is <br/> invoked, finds a pending unattended review, <br/> rolls back, and reverts the rollout <br/> back to idle so the owner must request review again
@@ -1244,13 +1244,13 @@ A paused rollout resume request is approved in Experimenter and sent to Remote S
         Note over Experimenter Worker: Worker updates <br/> rollout
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
         Experimenter Worker->>Remote Settings Backend: RS status: to-rollback
-        Experimenter Worker->>Experimenter Backend:  Status: Paused <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Disabled <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
     end
 ```
 
-## Resume (Cancel ------/------)
+## Enable (Cancel ------/------)
 
-A paused rollout resume review is canceled in Experimenter before it is approved in Experimenter. The rollout remains Paused and returns to Idle.
+A disabled rollout enable review is canceled in Experimenter before it is approved in Experimenter. The rollout remains Disabled and unpublished in Remote Settings, and returns to Idle.
 
 ```mermaid
     sequenceDiagram
@@ -1261,14 +1261,14 @@ A paused rollout resume review is canceled in Experimenter before it is approved
         participant Experimenter Worker
         participant Remote Settings UI
         participant Remote Settings Backend
-        title Resume (Cancel ------/------)
+        title Enable (Cancel ------/------)
 
-        Note over Rollout Owner: An owner is ready to resume <br/> their paused rollout
+        Note over Rollout Owner: An owner is ready to enable <br/> their disabled rollout
 
         rect rgb(255,204,255)
-            Note right of Rollout Owner: Owner resumes in Experimenter
-            Rollout Owner->>Experimenter UI: Resume
-            Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+            Note right of Rollout Owner: Owner enables in Experimenter
+            Rollout Owner->>Experimenter UI: Enable
+            Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Review <br/> Status next: Live <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
         end
 
         Experimenter Backend-->>Reviewer: To review
@@ -1276,6 +1276,6 @@ A paused rollout resume review is canceled in Experimenter before it is approved
         rect rgb(255,204,255)
             Note right of Rollout Owner: Owner cancels the review request <br/> in Experimenter
             Rollout Owner->>Experimenter UI: Cancel the Review
-            Experimenter UI->>Experimenter Backend: Status: Paused <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
+            Experimenter UI->>Experimenter Backend: Status: Disabled <br/> Publish status: Idle <br/> Status next: <none> <br/> Phase: Phase X <br/> Phase Next: None <br/> + changelog
         end
 ```
