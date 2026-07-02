@@ -19,6 +19,7 @@ from mozilla_nimbus_schemas.experimenter_apis.experiments.experiments import (
 from rest_framework import serializers
 
 from experimenter.experiments.constants import (
+    FirefoxLabs,
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
@@ -1757,12 +1758,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if not data.get("is_firefox_labs_opt_in"):
             return data
 
-        min_version = NimbusExperiment.Version.parse(data.get("firefox_min_version"))
-        required_min_version = NimbusExperiment.FIREFOX_LABS_MIN_VERSION.get(
-            self.instance.application
-        )
+        application_config = self.instance.application_config
 
-        if required_min_version is None:
+        if (firefox_labs := application_config.firefox_labs) is None:
             raise serializers.ValidationError(
                 {
                     "is_firefox_labs_opt_in": (
@@ -1770,13 +1768,15 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     ),
                 }
             )
-        required_min_version = NimbusExperiment.Version.parse(required_min_version)
-        if min_version < required_min_version:
+
+        firefox_min_version = NimbusExperiment.Version.parse(data["firefox_min_version"])
+
+        if firefox_min_version < firefox_labs.min_supported_version:
             raise serializers.ValidationError(
                 {
                     "firefox_min_version": (
                         NimbusExperiment.ERROR_FIREFOX_LABS_MIN_VERSION.format(
-                            version=required_min_version
+                            version=firefox_labs.min_supported_version
                         )
                     ),
                 }
@@ -1789,28 +1789,20 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         errors = {
             field: [NimbusExperiment.ERROR_FIREFOX_LABS_REQUIRED_FIELD]
-            for field in (
-                "firefox_labs_title",
-                "firefox_labs_description",
-                "firefox_labs_group",
-            )
-            if not len((data.get(field) or "").strip())
+            for field in firefox_labs.required_fields
+            if (field_value := data.get(field)) is None or not len(field_value.strip())
         }
 
         group = data.get("firefox_labs_group")
-        if required_min_version := NimbusExperiment.FIREFOX_LABS_GROUP_AVAILABILITY[
-            self.instance.application
-        ].get(group):
-            required_min_version = NimbusExperiment.Version.parse(required_min_version)
-            if min_version < required_min_version:
-                raise serializers.ValidationError(
-                    {
-                        "firefox_labs_group": (
-                            NimbusExperiment.ERROR_FIREFOX_LABS_GROUP_MIN_VERSION.format(
-                                version=required_min_version
-                            )
-                        ),
-                    }
+        if group and firefox_labs.supports_groups:
+            # Unsupported groups are handled by the form field's choices.
+            if (
+                group_min_version := firefox_labs.groups.get(group)
+            ) and firefox_min_version < group_min_version:
+                errors.setdefault("firefox_labs_group", []).append(
+                    NimbusExperiment.ERROR_FIREFOX_LABS_GROUP_MIN_VERSION.format(
+                        version=group_min_version,
+                    )
                 )
 
         if description_links := (
@@ -1823,7 +1815,15 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON,
                 ]
             else:
-                if isinstance(description_links_obj, dict):
+                if (
+                    not isinstance(description_links_obj, dict)
+                    and description_links_obj is not None
+                ):
+                    errors["firefox_labs_description_links"] = [
+                        NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON,
+                    ]
+
+                elif isinstance(description_links_obj, dict):
                     if not all(
                         is_valid_http_url(value)
                         for value in description_links_obj.values()
@@ -1832,13 +1832,24 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                             NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
                         ]
 
-                elif (
-                    not isinstance(description_links_obj, dict)
-                    and description_links_obj is not None
-                ):
-                    errors["firefox_labs_description_links"] = [
-                        NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON,
-                    ]
+                    if (
+                        firefox_labs.supported_description_links
+                        is not FirefoxLabs.ARBITRARY_KEYS
+                    ):
+                        unsupported_keys = set(description_links_obj.keys()).difference(
+                            firefox_labs.supported_description_links
+                        )
+
+                        if unsupported_keys:
+                            errors.setdefault(
+                                "firefox_labs_description_links", []
+                            ).append(
+                                NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_UNSUPPORTED_KEYS.format(
+                                    keys=", ".join(
+                                        sorted(firefox_labs.supported_description_links)
+                                    )
+                                )
+                            )
 
         if errors:
             raise serializers.ValidationError(errors)

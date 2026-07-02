@@ -490,7 +490,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         null=True,
         max_length=255,
-        choices=NimbusConstants.FirefoxLabsGroups.choices,
+        choices=NimbusConstants.FirefoxLabs.Groups.choices,
     )
     requires_restart = models.BooleanField(
         (

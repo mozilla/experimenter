@@ -1063,14 +1063,19 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             )
 
         if kwargs.get("is_firefox_labs_opt_in", False):
-            for field in (
-                "firefox_labs_title",
-                "firefox_labs_description",
-                "firefox_labs_group",
-            ):
+            application = kwargs.get("application", NimbusExperimentFactory.application)
+            firefox_labs = NimbusExperiment.APPLICATION_CONFIGS[application].firefox_labs
+
+            if not firefox_labs:
+                raise factory.FactoryError(
+                    f"The application {application} does not support Firefox Labs"
+                )
+
+            for field in firefox_labs.required_fields:
                 if kwargs.get(field) is None:
                     raise factory.FactoryError(
-                        f"The field {field} is required when is_firefox_labs_opt_in=True"
+                        f"The field {field} is required for application {application} "
+                        "when is_firefox_labs_opt_in=True"
                     )
 
         experiment = super().create(*args, **kwargs)

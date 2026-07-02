@@ -316,7 +316,7 @@
           {% endif %}
         </div>
       </div>
-      {% if experiment.is_desktop %}
+      {% if experiment.application_config.firefox_labs %}
         <div id="labs" class="card mb-3">
           <div class="card-header">
             <h4>Firefox Labs</h4>
@@ -370,18 +370,20 @@
                   {% endfor %}
                 </div>
               </div>
-              <div class="row mb-3">
-                <div class="col">
-                  <label class="d-block">
-                    Firefox Labs Group
-                    {{ form.firefox_labs_group }}
-                  </label>
-                  {{ form.firefox_labs_group.errors }}
-                  {% for error in validation_errors.firefox_labs_group %}
-                    <div class="form-text text-danger">{{ error }}</div>
-                  {% endfor %}
+              {% if experiment.application_config.firefox_labs.supports_groups %}
+                <div class="row mb-3">
+                  <div class="col">
+                    <label class="d-block">
+                      Firefox Labs Group
+                      {{ form.firefox_labs_group }}
+                    </label>
+                    {{ form.firefox_labs_group.errors }}
+                    {% for error in validation_errors.firefox_labs_group %}
+                      <div class="form-text text-danger">{{ error }}</div>
+                    {% endfor %}
+                  </div>
                 </div>
-              </div>
+              {% endif %}
               <div class="row mb-3">
                 <div class="col">
                   <div class="form-check">

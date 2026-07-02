@@ -314,7 +314,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
                         "firefox_labs_title": "title",
                         "firefox_labs_description": "description",
                         "firefox_labs_group": (
-                            NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                            NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
                         ),
                     },
                 ],
@@ -330,7 +330,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
                         "firefox_labs_title": "title",
                         "firefox_labs_description": "description",
                         "firefox_labs_group": (
-                            NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                            NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
                         ),
                     },
                 ],
@@ -343,7 +343,7 @@ class NimbusExperimentsListViewTest(AuthTestCase):
                     "firefox_labs_title": "title",
                     "firefox_labs_description": "description",
                     "firefox_labs_group": (
-                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                        NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
                     ),
                 },
                 [{"slug": "experiment"}, {"slug": "rollout", "is_rollout": True}],
@@ -4502,7 +4502,7 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
                     "firefox_labs_title": "title",
                     "firefox_labs_description": "description",
                     "firefox_labs_group": (
-                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+                        NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
                     ),
                 },
                 NimbusConstants.HomeTypeChoices.LABS.label,
