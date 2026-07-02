@@ -80,11 +80,6 @@ class BaseExperiment(BaseModel):
     Experiment API.
     """
 
-    # The following present but obsolete fields are omitted:
-    #
-    # * arguments
-    # * probeSets
-
     schemaVersion: str = Field(
         description="Version of the NimbusExperiment schema this experiment refers to"
     )
@@ -118,7 +113,6 @@ class BaseExperiment(BaseModel):
             'Examples are "org.mozilla.firefox_beta" and "firefox-desktop".'
         )
     )
-    application: str = Field(description="A mirror of the appId field")
     channel: str = Field(
         description=(
             'A specific channel of an application such as "nightly", "beta", or '
