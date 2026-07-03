@@ -626,6 +626,7 @@ features:
           OPEN_SETTINGS_APP_ICON: ://settings_app_icon
           OPEN_SETTINGS: ://settings
           OPEN_SHARE_SHEET: ://share_sheet
+          OPEN_PROTECTIONS_DASHBOARD: ://protections_dashboard
           TURN_ON_SYNC: ://turn_on_sync
         string-alias: ActionName
       message-under-experiment:
