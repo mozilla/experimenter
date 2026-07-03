@@ -77,13 +77,6 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
-  custom-review-prompt:
-    description: Feature that controls the Play store review prompt.
-    variables:
-      enabled:
-        description: Whether or not to enable the new trigger criteria.
-        type: Boolean
-        default: false
   custom-review-prompt-ui:
     description: Feature that controls the custom UI for review prompt.
     variables:
