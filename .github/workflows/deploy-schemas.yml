@@ -29,10 +29,14 @@ jobs:
         if: steps.check-paths.outputs.should-run == 'true'
         id: version-check
         run: |
-          if git diff HEAD~1 schemas/pyproject.toml | grep 'version'; then
+          get_version() { sed -n 's/^version *= *"\(.*\)"/\1/p' | head -1; }
+          old=$(git show HEAD~1:schemas/pyproject.toml 2>/dev/null | get_version)
+          new=$(get_version < schemas/pyproject.toml)
+          if [ "$old" != "$new" ]; then
+            echo "Version changed: '$old' -> '$new'"
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "No version change, skipping deploy"
+            echo "No version change ('$new'), skipping deploy"
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 

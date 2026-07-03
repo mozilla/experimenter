@@ -20,9 +20,7 @@ RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # Python packages
-RUN curl -sSL https://install.python-poetry.org | python3 - --version 2.1.1
-ENV PATH="/root/.local/bin:$PATH"
-RUN poetry config virtualenvs.create false
+COPY --from=ghcr.io/astral-sh/uv:0.10.0 /uv /uvx /usr/local/bin/
 
 
 # Python image
@@ -30,21 +28,17 @@ RUN poetry config virtualenvs.create false
 FROM system-builder AS python-builder
 WORKDIR /schemas
 
-# Poetry needs a package to install in package-mode.
-RUN mkdir mozilla_nimbus_schemas && \
-    touch mozilla_nimbus_schemas/__init__.py
-
 COPY ./pyproject.toml /schemas/pyproject.toml
-COPY ./poetry.lock /schemas/poetry.lock
+COPY ./uv.lock /schemas/uv.lock
 COPY ./README.md /schemas/README.md
 
-RUN poetry install
-
-# If any package is installed, that is incompatible by version, this command
-# will exit non-zero and print what is usually just a warning in `poetry install`
-RUN poetry check
+# Install dependencies into a virtualenv that later stages can copy
+ENV UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/opt/venv
+RUN uv sync --frozen --no-install-project
 
 COPY ./mozilla_nimbus_schemas /schemas/mozilla_nimbus_schemas
+RUN uv sync --frozen
 
 # Node image
 #-------------------------
@@ -63,8 +57,8 @@ FROM system-builder AS dev
 WORKDIR /schemas
 
 # Python packages
-COPY --from=python-builder /usr/local/bin/ /usr/local/bin/
-COPY --from=python-builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
+COPY --from=python-builder /opt/venv/ /opt/venv/
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Node packages
 COPY --from=node-builder /schemas/node_modules/ /schemas/node_modules/
