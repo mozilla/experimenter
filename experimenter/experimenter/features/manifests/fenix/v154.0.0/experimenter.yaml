@@ -66,14 +66,6 @@ cookie-banners:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
-custom-review-prompt:
-  description: Feature that controls the Play store review prompt.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: Whether or not to enable the new trigger criteria.
 custom-review-prompt-ui:
   description: Feature that controls the custom UI for review prompt.
   hasExposure: true
