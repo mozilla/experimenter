@@ -1,6 +1,6 @@
 ## Create
 
-A new rollout is created in Experimenter. Since it has not been sent to Preview or sent for review yet, it remains in Draft with no active phase.
+A new rollout which has yet to be sent for review or put into preview is marked for Draft.
 
 ```mermaid
   sequenceDiagram
@@ -20,7 +20,7 @@ A new rollout is created in Experimenter. Since it has not been sent to Preview 
 
 ## Preview
 
-A draft rollout is sent to Preview. The rollout is published to the Preview collection in Remote Settings, but it is not Live yet and does not have an active phase.
+A draft rollout that has been validly completed is marked for Preview, is published to the preview collection in Remote Settings, and is then accessible to specially configured clients.
 
 ```mermaid
   sequenceDiagram
@@ -52,7 +52,7 @@ A draft rollout is sent to Preview. The rollout is published to the Preview coll
 
 ## Launch (approve/approve)
 
-A draft rollout is sent for review, approved in Experimenter, published to Remote Settings, and then approved in Remote Settings. After both approvals are complete, the rollout becomes Live and starts in Phase 1.
+A draft rollout that has been validly completed is reviewed and approved in Experimenter, is reviewed and approved in Remote Settings, and is then accessible to clients.
 
 ```mermaid
   sequenceDiagram
@@ -114,7 +114,7 @@ A draft rollout is sent for review, approved in Experimenter, published to Remot
 
 ## Launch (reject/----)
 
-A draft rollout is sent for review but rejected in Experimenter. The rollout stays in Draft and returns to Idle so the owner can make changes and request review again.
+A draft rollout that has been validly completed is rejected by a reviewer in Experimenter. A rejection reason is captured in Experimenter and is displayed to the owner in Experimenter.
 
 ```mermaid
   sequenceDiagram
@@ -148,7 +148,7 @@ A draft rollout is sent for review but rejected in Experimenter. The rollout sta
 
 ## Launch (approve/reject)
 
-A draft rollout is approved in Experimenter and sent to Remote Settings, but the Remote Settings reviewer rejects it. The rollout is rolled back and returns to Draft and Idle so the owner can request review again.
+A draft rollout that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter.
 
 ```mermaid
   sequenceDiagram
@@ -209,7 +209,7 @@ A draft rollout is approved in Experimenter and sent to Remote Settings, but the
 
 ## Launch (approve/reject) + manual rollback
 
-A draft rollout is approved in Experimenter and rejected in Remote Settings, but the Remote Settings rollback is handled manually before Experimenter can recover the rejection reason. The rollout returns to Draft and Idle.
+A draft rollout that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer **manually rolls back** the Remote Settings collection. A rejection reason is captured in Remote Settings but is **unable to be recovered by Experimenter** because the collection was manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason.
 
 ```mermaid
   sequenceDiagram
@@ -270,7 +270,7 @@ A draft rollout is approved in Experimenter and rejected in Remote Settings, but
 
 ## Launch (approve/timed out)
 
-A draft rollout is approved in Experimenter and sent to Remote Settings, but the Remote Settings review times out. The rollout returns to Draft and Idle, so the owner must request review again.
+A draft rollout that has been validly completed is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes. The rollout returns to Idle so the owner must request review again.
 
 ```mermaid
   sequenceDiagram
@@ -322,7 +322,7 @@ A draft rollout is approved in Experimenter and sent to Remote Settings, but the
 
 ## Launch (cancel)
 
-A rollout launch review is canceled in Experimenter before it is approved in Experimenter. The rollout returns to Idle and the owner can request review again later.
+When a draft rollout has requested review in Experimenter, the review can also be canceled in Experimenter. The review can only be canceled before it has been reviewed in Experimenter.
 
 ```mermaid
     sequenceDiagram
@@ -351,7 +351,7 @@ A rollout launch review is canceled in Experimenter before it is approved in Exp
         end
 ```
 
-A rollout can also be launched from Preview. If that review is canceled before approval, the rollout returns to Draft and Idle.
+This can also be canceled when a rollout is in the Preview state and requests to be launched. When the review is canceled, the Preview rollout is sent back to Draft.
 
 ```mermaid
     sequenceDiagram
@@ -390,7 +390,7 @@ A rollout can also be launched from Preview. If that review is canceled before a
 
 ## Change Phase (Approve/Approve)
 
-A live rollout moves to the next phase while remaining Live. The phase change is approved in Experimenter, approved in Remote Settings, and then the active phase is updated.
+A live rollout can have its next phase pushed to its state while remaining Live. This phase change must be reviewed in order to be published to the user, following the same flow to be approved in both Experimenter and Remote Settings.
 
 ```mermaid
   sequenceDiagram
@@ -451,7 +451,7 @@ A live rollout moves to the next phase while remaining Live. The phase change is
 
 ## Change Phase (Reject/------)
 
-A live rollout phase change is sent for review but rejected in Experimenter. The rollout remains Live in the current phase and returns to Idle.
+A live rollout phase change is reviewed and rejected in Experimenter. A rejection reason is captured in Experimenter and is displayed to the owner in Experimenter. The rollout remains in its current phase after the rejection.
 
 ```mermaid
   sequenceDiagram
@@ -485,7 +485,7 @@ A live rollout phase change is sent for review but rejected in Experimenter. The
 
 ## Change Phase (Approve/Reject)
 
-A live rollout phase change is approved in Experimenter but rejected in Remote Settings. The rollout is rolled back and remains Live in the current phase.
+A live rollout phase change is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter. The rollout remains in its current phase after the rejection.
 
 ```mermaid
   sequenceDiagram
@@ -545,7 +545,7 @@ A live rollout phase change is approved in Experimenter but rejected in Remote S
 
 ## Change Phase (Approve/Reject) + manual rollback
 
-A live rollout phase change is approved in Experimenter and rejected in Remote Settings, but the Remote Settings rollback is handled manually before Experimenter can recover the rejection reason. The rollout remains Live in the current phase and returns to Idle.
+A live rollout phase change is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer **manually rolls back** the Remote Settings collection. A rejection reason is captured in Remote Settings but is **unable to be recovered by Experimenter** because the collection was manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason. The rollout remains in its current phase after the rejection.
 
 ```mermaid
   sequenceDiagram
@@ -605,7 +605,7 @@ A live rollout phase change is approved in Experimenter and rejected in Remote S
 
 ## Change Phase (Approve/Timeout)
 
-A live rollout phase change is approved in Experimenter and sent to Remote Settings, but the Remote Settings review times out. The rollout stays Live in the current phase and returns to Idle, so the owner must request review again.
+A live rollout phase change is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes. The rollout returns to Idle, remains in its current phase, and the owner must request review again.
 
 ```mermaid
   sequenceDiagram
@@ -656,7 +656,7 @@ A live rollout phase change is approved in Experimenter and sent to Remote Setti
 
 ## Change Phase (Cancel ------/------)
 
-A live rollout phase change review is canceled in Experimenter before it is approved in Experimenter. The rollout remains Live in the current phase and returns to Idle.
+A live rollout phase change can be requested while the rollout remains Live. These phase changes must be reviewed in order to be published to the user, following the same flow to be approved in both Experimenter and Remote Settings. Like the publish flow, these reviews can be canceled from Experimenter.
 
 ```mermaid
     sequenceDiagram
@@ -688,7 +688,7 @@ A live rollout phase change review is canceled in Experimenter before it is appr
 
 ## Disable (Approve/Approve)
 
-A live rollout is disabled after being approved in Experimenter and approved in Remote Settings. Disabling means the rollout is unpublished from Remote Settings. The rollout moves from Live to Disabled while staying in the same phase.
+A live rollout that is published in Remote Settings is requested to be disabled by the owner, reviewed and approved in Experimenter, reviewed and approved in Remote Settings, is unpublished from the collection, and is then no longer accessible by clients.
 
 ```mermaid
   sequenceDiagram
@@ -749,7 +749,7 @@ A live rollout is disabled after being approved in Experimenter and approved in 
 
 ## Disable (Reject/------)
 
-A live rollout disable request is rejected in Experimenter. The rollout remains Live and published in Remote Settings, and returns to Idle.
+A live rollout that is published in Remote Settings is requested to be disabled by the owner, and is then reviewed and rejected in Experimenter. A rejection reason is captured in Experimenter and is displayed to the owner in Experimenter. No change is made to Remote Settings and the rollout remains published.
 
 ```mermaid
   sequenceDiagram
@@ -782,7 +782,7 @@ A live rollout disable request is rejected in Experimenter. The rollout remains 
 
 ## Disable (Approve/Reject)
 
-A live rollout disable request is approved in Experimenter but rejected in Remote Settings. The unpublish change is rolled back and the rollout remains Live and published in Remote Settings.
+A live rollout that is published in Remote Settings is requested to be disabled by the owner, reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. No change is made to Remote Settings and clients will continue to access the published rollout. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter.
 
 ```mermaid
   sequenceDiagram
@@ -842,7 +842,7 @@ A live rollout disable request is approved in Experimenter but rejected in Remot
 
 ## Disable (Approve/Reject) + manual rollback
 
-A live rollout disable request is approved in Experimenter and rejected in Remote Settings, but the Remote Settings rollback is handled manually before Experimenter can recover the rejection reason. The unpublish change is rolled back, so the rollout remains Live and published in Remote Settings.
+A live rollout that is published in Remote Settings is requested to be disabled by the owner, reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer **manually rolls back** the Remote Settings collection. A rejection reason is captured in Remote Settings but is **unable to be recovered by Experimenter** because the collection was manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason. No change is made to Remote Settings and the rollout remains published.
 
 ```mermaid
   sequenceDiagram
@@ -902,7 +902,7 @@ A live rollout disable request is approved in Experimenter and rejected in Remot
 
 ## Disable (Approve/Timeout)
 
-A live rollout disable request is approved in Experimenter and sent to Remote Settings as an unpublish change, but the Remote Settings review times out. The rollout stays Live and published in Remote Settings, and returns to Idle so the owner must request review again.
+A live rollout that is published in Remote Settings is requested to be disabled by the owner, reviewed and approved in Experimenter, and the unpublish change is pushed to Remote Settings. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes. The rollout remains published in Remote Settings, returns to Idle, and the owner must request review again.
 
 ```mermaid
   sequenceDiagram
@@ -953,7 +953,7 @@ A live rollout disable request is approved in Experimenter and sent to Remote Se
 
 ## Disable (Cancel ------/------)
 
-A live rollout disable review is canceled in Experimenter before it is approved in Experimenter. The rollout remains Live and published in Remote Settings, and returns to Idle.
+A live rollout that is published in Remote Settings is requested to be disabled by the owner. The disable request can be canceled before it is approved in Experimenter. No change is made to Remote Settings and the rollout remains published.
 
 ```mermaid
     sequenceDiagram
@@ -985,7 +985,7 @@ A live rollout disable review is canceled in Experimenter before it is approved 
 
 ## Enable (Approve/Approve)
 
-A disabled rollout is enabled after being approved in Experimenter and approved in Remote Settings. Enabling means the rollout is published in Remote Settings. The rollout moves from Disabled back to Live while staying in the same phase.
+A disabled rollout that is not published in Remote Settings is requested to be enabled by the owner, reviewed and approved in Experimenter, reviewed and approved in Remote Settings, is published to the collection, and is then accessible to clients.
 
 ```mermaid
   sequenceDiagram
@@ -1046,7 +1046,7 @@ A disabled rollout is enabled after being approved in Experimenter and approved 
 
 ## Enable (Reject/------)
 
-A disabled rollout enable request is rejected in Experimenter. The rollout remains Disabled and unpublished in Remote Settings, and returns to Idle.
+A disabled rollout that is not published in Remote Settings is requested to be enabled by the owner, and is then reviewed and rejected in Experimenter. A rejection reason is captured in Experimenter and is displayed to the owner in Experimenter. No change is made to Remote Settings and the rollout remains unpublished.
 
 ```mermaid
   sequenceDiagram
@@ -1079,7 +1079,7 @@ A disabled rollout enable request is rejected in Experimenter. The rollout remai
 
 ## Enable (Approve/Reject)
 
-A disabled rollout enable request is approved in Experimenter but rejected in Remote Settings. The publish change is rolled back and the rollout remains Disabled and unpublished in Remote Settings.
+A disabled rollout that is not published in Remote Settings is requested to be enabled by the owner, reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. No change is made to Remote Settings and the rollout remains unpublished. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter.
 
 ```mermaid
   sequenceDiagram
@@ -1139,7 +1139,7 @@ A disabled rollout enable request is approved in Experimenter but rejected in Re
 
 ## Enable (Approve/Reject) + manual rollback
 
-A disabled rollout enable request is approved in Experimenter and rejected in Remote Settings, but the Remote Settings rollback is handled manually before Experimenter can recover the rejection reason. The publish change is rolled back, so the rollout remains Disabled and unpublished in Remote Settings.
+A disabled rollout that is not published in Remote Settings is requested to be enabled by the owner, reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer **manually rolls back** the Remote Settings collection. A rejection reason is captured in Remote Settings but is **unable to be recovered by Experimenter** because the collection was manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason. No change is made to Remote Settings and the rollout remains unpublished.
 
 ```mermaid
   sequenceDiagram
@@ -1199,7 +1199,7 @@ A disabled rollout enable request is approved in Experimenter and rejected in Re
 
 ## Enable (Approve/Timeout)
 
-A disabled rollout enable request is approved in Experimenter and sent to Remote Settings as a publish change, but the Remote Settings review times out. The rollout stays Disabled and unpublished in Remote Settings, and returns to Idle so the owner must request review again.
+A disabled rollout that is not published in Remote Settings is requested to be enabled by the owner, reviewed and approved in Experimenter, and the publish change is pushed to Remote Settings. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes. The rollout remains unpublished in Remote Settings, returns to Idle, and the owner must request review again.
 
 ```mermaid
   sequenceDiagram
@@ -1250,7 +1250,7 @@ A disabled rollout enable request is approved in Experimenter and sent to Remote
 
 ## Enable (Cancel ------/------)
 
-A disabled rollout enable review is canceled in Experimenter before it is approved in Experimenter. The rollout remains Disabled and unpublished in Remote Settings, and returns to Idle.
+A disabled rollout that is not published in Remote Settings is requested to be enabled by the owner. The enable request can be canceled before it is approved in Experimenter. No change is made to Remote Settings and the rollout remains unpublished.
 
 ```mermaid
     sequenceDiagram
