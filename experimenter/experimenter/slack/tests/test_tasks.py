@@ -83,7 +83,7 @@ _FEATURE_CONFLICT_MONITORING_DATA = {
             "reason": NimbusConstants.FunnelReason.FEATURE_CONFLICT,
             "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
             "branch": "control",
-            "conflict_slug": "blocking-recipe-slug",
+            "conflict_slug": "blocking-recipe-slug,other-slug",
             "client_count": 800,
         },
         {
@@ -1154,7 +1154,7 @@ class TestCheckFeatureConflict(TestCase):
         result = self._check(_FEATURE_CONFLICT_MONITORING_DATA)
         self.assertTrue(result.is_conflict)
         self.assertAlmostEqual(result.rate, 0.80)
-        self.assertEqual(result.slugs, ["blocking-recipe-slug"])
+        self.assertEqual(result.slugs, ["blocking-recipe-slug", "other-slug"])
 
     def test_returns_false_when_conflict_rate_below_threshold(self):
         monitoring_data = {
