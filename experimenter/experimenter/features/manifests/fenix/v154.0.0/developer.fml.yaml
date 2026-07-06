@@ -11,6 +11,13 @@ features:
         description: If true, Add Shortcuts improvement is enabled.
         type: Boolean
         default: true
+  ads-client-for-stories:
+    description: Feature to enable the Mozilla Ads Client support for Sponsored Stories for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Mozilla Ads Client support for Sponsored Stories is enabled.
+        type: Boolean
+        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -805,13 +812,6 @@ features:
           Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
         type: Boolean
         default: false
-  mozilla-ads-client:
-    description: Feature to enable the Mozilla Ads Client support for Top Sites for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Mozilla Ads Client support for Top Sites is enabled.
-        type: Boolean
-        default: true
   native-share-sheet:
     description: Feature to enable the Native Share Sheet for users on Firefox on Android.
     variables:
