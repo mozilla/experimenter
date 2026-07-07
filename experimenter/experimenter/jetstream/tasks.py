@@ -198,9 +198,6 @@ def fetch_monitoring_data():
         raise
 
 
-HOLDBACK_OBSERVATION_DAYS = 21
-
-
 @app.task
 @metrics.timer_decorator("update_holdback_enrollment_period")
 def update_holdback_enrollment_period():
@@ -208,7 +205,7 @@ def update_holdback_enrollment_period():
     try:
         today = timezone.now().date()
         now = timezone.now()
-        enrollment_end = today - dt.timedelta(days=HOLDBACK_OBSERVATION_DAYS)
+        enrollment_end = today - dt.timedelta(days=settings.HOLDBACK_OBSERVATION_DAYS)
 
         experiments = NimbusExperiment.objects.filter(
             is_holdback=True,
@@ -222,7 +219,6 @@ def update_holdback_enrollment_period():
                 continue
 
             NimbusExperiment.objects.filter(pk=experiment.pk).update(
-                _enrollment_end_date=enrollment_end,
                 do_rerun=True,
                 do_rerun_timestamp=now,
             )

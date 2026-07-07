@@ -419,24 +419,20 @@ class TestNimbusExperimentSerializer(TestCase):
     def test_holdback_serializer_overrides(self):
         today = datetime.date.today()
         start = today - datetime.timedelta(days=50)
-        enrollment_end = today - datetime.timedelta(days=21)
+        expected_enrollment_end = today - datetime.timedelta(days=21)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_holdback=True,
             _start_date=start,
-            _enrollment_end_date=enrollment_end,
         )
         serializer = NimbusExperimentSerializer(experiment)
         data = serializer.data
 
-        self.assertEqual(data["enrollmentEndDate"], enrollment_end.isoformat())
-        self.assertEqual(
-            data["endDate"],
-            (enrollment_end + datetime.timedelta(days=21)).isoformat(),
-        )
+        self.assertEqual(data["enrollmentEndDate"], expected_enrollment_end.isoformat())
+        self.assertEqual(data["endDate"], today.isoformat())
         self.assertEqual(
             data["proposedEnrollment"],
-            (enrollment_end - start).days,
+            (expected_enrollment_end - start).days,
         )
 
     def test_non_holdback_proposed_enrollment_uses_model_value(self):

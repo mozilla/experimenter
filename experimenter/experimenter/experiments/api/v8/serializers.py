@@ -162,22 +162,33 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "requiresRestart",
         )
 
+    def _holdback_enrollment_end(self, obj):
+        if obj.is_holdback and not obj.end_date and not obj.actual_enrollment_end_date:
+            return datetime.date.today() - datetime.timedelta(
+                days=settings.HOLDBACK_OBSERVATION_DAYS
+            )
+        return None
+
     def get_enrollmentEndDate(self, obj):
+        holdback_end = self._holdback_enrollment_end(obj)
+        if holdback_end:
+            return holdback_end.isoformat()
         enrollment_end = obj.actual_enrollment_end_date
-        if obj.is_holdback and not obj.end_date and enrollment_end:
-            return enrollment_end.isoformat()
         return enrollment_end.isoformat() if enrollment_end else None
 
     def get_endDate(self, obj):
-        enrollment_end = obj.actual_enrollment_end_date
-        if obj.is_holdback and not obj.end_date and enrollment_end:
-            return (enrollment_end + datetime.timedelta(days=21)).isoformat()
+        holdback_end = self._holdback_enrollment_end(obj)
+        if holdback_end:
+            return (
+                holdback_end
+                + datetime.timedelta(days=settings.HOLDBACK_OBSERVATION_DAYS)
+            ).isoformat()
         return obj.end_date.isoformat() if obj.end_date else None
 
     def get_proposedEnrollment(self, obj):
-        enrollment_end = obj.actual_enrollment_end_date
-        if obj.is_holdback and not obj.end_date and enrollment_end and obj.start_date:
-            return (enrollment_end - obj.start_date).days
+        holdback_end = self._holdback_enrollment_end(obj)
+        if holdback_end and obj.start_date:
+            return (holdback_end - obj.start_date).days
         return obj.proposed_enrollment
 
     def get_application(self, obj):

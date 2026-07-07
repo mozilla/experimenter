@@ -3952,7 +3952,7 @@ class TestGetFeatmonSlugs(TestCase):
 
 
 class TestUpdateHoldbackEnrollmentPeriod(TestCase):
-    def test_sets_enrollment_end_date_and_do_rerun(self):
+    def test_sets_do_rerun(self):
         today = datetime.date.today()
         start = today - datetime.timedelta(days=50)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -3965,10 +3965,9 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
         tasks.update_holdback_enrollment_period()
         experiment.refresh_from_db()
 
-        expected_enrollment_end = today - datetime.timedelta(days=21)
-        self.assertEqual(experiment._enrollment_end_date, expected_enrollment_end)
         self.assertTrue(experiment.do_rerun)
         self.assertIsNotNone(experiment.do_rerun_timestamp)
+        self.assertIsNone(experiment._enrollment_end_date)
 
     def test_skips_experiment_started_within_observation_period(self):
         today = datetime.date.today()
@@ -3982,7 +3981,6 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
         tasks.update_holdback_enrollment_period()
         experiment.refresh_from_db()
 
-        self.assertIsNone(experiment._enrollment_end_date)
         self.assertFalse(experiment.do_rerun)
 
     def test_skips_ended_holdback(self):
@@ -3999,7 +3997,6 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
         tasks.update_holdback_enrollment_period()
         experiment.refresh_from_db()
 
-        self.assertIsNone(experiment._enrollment_end_date)
         self.assertFalse(experiment.do_rerun)
 
     def test_skips_non_holdback_experiments(self):
