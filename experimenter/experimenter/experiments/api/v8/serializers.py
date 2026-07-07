@@ -180,8 +180,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         holdback_end = self._holdback_enrollment_end(obj)
         if holdback_end:
             return (
-                holdback_end
-                + datetime.timedelta(days=settings.HOLDBACK_OBSERVATION_DAYS)
+                holdback_end + datetime.timedelta(days=settings.HOLDBACK_OBSERVATION_DAYS)
             ).isoformat()
         return obj.end_date.isoformat() if obj.end_date else None
 
