@@ -190,9 +190,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             return (holdback_end - obj.start_date).days
         return obj.proposed_enrollment
 
-    def get_application(self, obj):
-        return self.get_appId(obj)
-
     def get_appName(self, obj):
         return obj.application_config.app_name
 
