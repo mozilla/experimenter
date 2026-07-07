@@ -21,54 +21,6 @@
     "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/TemplatedMessage"
   },
   "$defs": {
-    "ActionOnlyMessage": {
-      "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "$id": "file:///ActionOnlyMessage.schema.json",
-      "title": "ActionOnlyMessage",
-      "description": "A template for messages that silently execute an allowlisted special message action with no UI. Records an impression before attempting action.",
-      "allOf": [
-        {
-          "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Message"
-        }
-      ],
-      "type": "object",
-      "properties": {
-        "content": {
-          "type": "object",
-          "properties": {
-            "action": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "description": "The type of the special message action to execute."
-                },
-                "data": {
-                  "type": "object",
-                  "description": "Optional data for the action."
-                }
-              },
-              "required": [
-                "type"
-              ],
-              "additionalProperties": true,
-              "description": "The special message action to execute. Only allowlisted action types may be used."
-            }
-          },
-          "additionalProperties": true,
-          "required": [
-            "action"
-          ]
-        },
-        "template": {
-          "type": "string",
-          "const": "action_only"
-        }
-      },
-      "required": [
-        "targeting"
-      ]
-    },
     "BookmarksBarButton": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$id": "file:///BookmarksBarButton.schema.json",
@@ -1035,17 +987,9 @@
               "type": "string",
               "description": "URL for image to use with the content."
             },
-            "rtlImageURL": {
-              "type": "string",
-              "description": "URL for RTL images that have directionally dependent assets and cannot be flipped using 'directionalImage'."
-            },
             "imageWidth": {
               "type": "number",
               "description": "The image width in pixels. Default is 120px."
-            },
-            "directionalImage": {
-              "type": "boolean",
-              "description": "If true, the illustration has a left/right orientation and should be horizontally mirrored in RTL contexts. Defaults to false."
             },
             "logoURL": {
               "type": "string",
@@ -1073,26 +1017,16 @@
             },
             "layout": {
               "type": "string",
-              "description": "The layout of the message content and illustration. Row displays the image inline to the right of the text, column displays the image above the text. Simple layout only displays primary text and primary button on one row. Split displays the illustration in one column and a stacked content column, use 'imagePosition' to swap which side the illustration sits on.",
+              "description": "The layout of the message content and illustration. Row displays the image inline to the right of the text, column displays the image above the text. Simple layout only displays primary text and primary button on one row.",
               "enum": [
                 "row",
                 "column",
-                "simple",
-                "split"
-              ]
-            },
-            "imagePosition": {
-              "type": "string",
-              "description": "Position of the illustration. For split layout, 'start' or 'end' selects which inline side the illustration sits on (defaults to 'end'). For both split and column layout, 'bottom' renders the illustration at the bottom of the card.",
-              "enum": [
-                "start",
-                "end",
-                "bottom"
+                "simple"
               ]
             },
             "allowWhenSignedIn": {
               "type": "boolean",
-              "description": "If true, the message will be shown even when the user is signed in. For 'fxa_cta' messages. Defaults to 'false'."
+              "description": "If true, the message will be shown even when the user is signed in. For 'fxa_cta' messages. Defaults to false."
             }
           }
         },
@@ -1128,6 +1062,35 @@
             "hideDefault": {
               "type": "boolean",
               "description": "Should we hide the default promo after the experiment promo is dismissed."
+            },
+            "infoEnabled": {
+              "type": "boolean",
+              "description": "Should we show the info section."
+            },
+            "infoIcon": {
+              "type": "string",
+              "description": "Icon shown in the left side of the info section. Default is the private browsing icon."
+            },
+            "infoTitle": {
+              "type": "string",
+              "description": "Is the title in the info section enabled."
+            },
+            "infoTitleEnabled": {
+              "type": "boolean",
+              "description": "Is the title in the info section enabled."
+            },
+            "infoBody": {
+              "type": "string",
+              "description": "Text content in the info section."
+            },
+            "infoLinkText": {
+              "type": "string",
+              "description": "Text for the link in the info section."
+            },
+            "infoLinkUrl": {
+              "type": "string",
+              "description": "URL for the info section link.",
+              "format": "moz-url-format"
             },
             "promoEnabled": {
               "type": "boolean",
@@ -1229,6 +1192,38 @@
                 "required": [
                   "promoButton"
                 ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "infoEnabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "infoEnabled"
+                ]
+              },
+              "then": {
+                "required": [
+                  "infoLinkText"
+                ],
+                "if": {
+                  "properties": {
+                    "infoTitleEnabled": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "infoTitleEnabled"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "infoTitle"
+                  ]
+                }
               }
             }
           ]
@@ -1757,7 +1752,6 @@
           "type": "string",
           "description": "Which messaging template this message is using.",
           "enum": [
-            "action_only",
             "bookmarks_bar_button",
             "cfr_urlbar_chiclet",
             "cfr_doorhanger",
@@ -1823,15 +1817,31 @@
           "type": "string"
         },
         "trigger": {
-          "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Trigger"
-        },
-        "triggers": {
-          "description": "An array of trigger actions (alternative to the singular `trigger`). The message is eligible if any one of them matches. When 'trigger' is also present, `triggers` takes precedence. Targeting is evaluated using the context of whichever trigger fired, so context a trigger contributes (for example `tabsClosedCount` from `nthTabClosed`) is only available when that specific trigger fires. Ensure the targeting expression is valid for every trigger listed.",
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Trigger"
-          }
+          "description": "An action to trigger potentially showing the message",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "A string identifying the trigger action"
+            },
+            "params": {
+              "type": "array",
+              "description": "An optional array of string parameters for the trigger action",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id"
+          ]
         },
         "provider": {
           "description": "An identifier for the provider of this message, such as \"cfr\" or \"preview\".",
@@ -1874,58 +1884,12 @@
         }
       ]
     },
-    "Trigger": {
-      "description": "An action to trigger potentially showing the message",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "A string identifying the trigger action"
-        },
-        "params": {
-          "type": "array",
-          "description": "An optional array of string parameters for the trigger action",
-          "items": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        }
-      },
-      "required": [
-        "id"
-      ]
-    },
     "TemplatedMessage": {
       "description": "An FxMS message of one of a variety of types.",
       "type": "object",
       "allOf": [
         {
           "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Message"
-        },
-        {
-          "if": {
-            "type": "object",
-            "properties": {
-              "template": {
-                "type": "string",
-                "enum": [
-                  "action_only"
-                ]
-              }
-            },
-            "required": [
-              "template"
-            ]
-          },
-          "then": {
-            "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/ActionOnlyMessage"
-          }
         },
         {
           "if": {

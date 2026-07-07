@@ -2,20 +2,13 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- beta
+- nightly
 features:
   add-shortcuts-improvement:
     description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
     variables:
       enabled:
         description: If true, Add Shortcuts improvement is enabled.
-        type: Boolean
-        default: true
-  ads-client-for-stories:
-    description: Feature to enable the Mozilla Ads Client support for Sponsored Stories for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Mozilla Ads Client support for Sponsored Stories is enabled.
         type: Boolean
         default: false
   alternative-app-launcher-icon:
@@ -30,6 +23,13 @@ features:
           If true use the default icon, if false use the alternative icon. This is required to 'reset' the icon for enrolled users once the initial experiment is complete.
         type: Boolean
         default: false
+  app-icon-selection:
+    description: Allows the user to set an alternative app launcher icon.
+    variables:
+      enabled:
+        description: Whether or not the feature is available for the user.
+        type: Boolean
+        default: true
   app-links:
     description: Control behavior of app links handling in the browser.
     variables:
@@ -70,7 +70,7 @@ features:
       enabled:
         description: If true, the feature is enabled.
         type: Boolean
-        default: false
+        default: true
   cookie-banners:
     description: Features for cookie banner handling.
     variables:
@@ -84,6 +84,13 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
+  custom-review-prompt:
+    description: Feature that controls the Play store review prompt.
+    variables:
+      enabled:
+        description: Whether or not to enable the new trigger criteria.
+        type: Boolean
+        default: false
   custom-review-prompt-ui:
     description: Feature that controls the custom UI for review prompt.
     variables:
@@ -213,7 +220,7 @@ features:
         description: |
           The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
         type: Int
-        default: 0
+        default: 2
       shouldUseNimbus:
         description: |
           If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
@@ -231,7 +238,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   gecko-nimbus-validation:
     description: Feature for validating Nimbus Gecko functionality
     variables:
@@ -347,13 +354,6 @@ features:
         description: Enables the feature
         type: Boolean
         default: true
-  import-bookmarks:
-    description: A feature that lets users import bookmarks from another browser.
-    variables:
-      enabled:
-        description: If true, the import bookmarks feature will be enabled.
-        type: Boolean
-        default: true
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
@@ -361,35 +361,11 @@ features:
         description: Country codes whose users are eligible for IP Protection.
         type: List<String>
         default:
-        - AU
-        - AT
-        - BE
-        - BG
-        - CA
-        - CL
-        - CO
-        - DK
-        - FI
-        - FR
-        - DE
-        - IE
-        - IT
-        - JP
-        - MY
-        - MX
-        - NL
-        - NZ
-        - NO
-        - PL
-        - PT
-        - SG
-        - ZA
-        - ES
-        - SE
-        - CH
-        - TH
-        - GB
         - US
+        - CA
+        - DE
+        - FR
+        - GB
       data-limit-gigabyte:
         description: Specifies the VPN data limit for unpaid users in GB (e.g. 50 GB).
         type: Int
@@ -397,11 +373,7 @@ features:
       enabled:
         description: If true, IP Protection feature is enabled.
         type: Boolean
-        default: true
-      promo-deadline:
-        description: The final date for the promotion to end. This needs to be an ISO 8601 formatted date (i.e. YYYY-MM-DD).
-        type: String
-        default: 2026-08-31
+        default: false
       show-beta-badge:
         description: If true, a BETA badge is shown next to the IP Protection entry in the settings list.
         type: Boolean
@@ -479,7 +451,7 @@ features:
             card-type: add-search-widget
             disqualifiers:
             - NEVER
-            enabled: true
+            enabled: false
             extra-data: null
             image-res: nova_onboarding_widget
             ordering: 20
@@ -493,7 +465,7 @@ features:
             card-type: sync-sign-in
             disqualifiers:
             - NEVER
-            enabled: true
+            enabled: false
             extra-data: null
             image-res: nova_onboarding_sync
             ordering: 30
@@ -507,7 +479,7 @@ features:
             card-type: notification-permission
             disqualifiers:
             - NEVER
-            enabled: true
+            enabled: false
             extra-data: null
             image-res: nova_onboarding_notifications
             ordering: 40
@@ -521,7 +493,7 @@ features:
             card-type: toolbar-placement
             disqualifiers:
             - NEVER
-            enabled: true
+            enabled: false
             extra-data:
               customization-toolbar-data:
               - toolbar-type: toolbar-top
@@ -579,13 +551,6 @@ features:
           Whether or not to turn on local network / device access blocking
         type: Boolean
         default: false
-  longfox:
-    description: Flag to enable Longfox for users on Firefox Android.
-    variables:
-      enabled:
-        description: If true, users will see a CTA for launching Longfox on the home screen.
-        type: Boolean
-        default: false
   marketing-onboarding-card:
     description: A temporary feature to control the marketing onboarding card shown during the onboarding flow.
     variables:
@@ -593,13 +558,17 @@ features:
         description: If false, the marketing onboarding card will never be shown.
         type: Boolean
         default: true
-  media-notification-improvements:
-    description: Whether to show the media notification improvements
+  menu-redesign:
+    description: Control the new menu redesign.
     variables:
-      enabled:
-        description: enabled media notification improvements if true, else not enabled
+      menu-banner:
+        description: If true, the menu banner is visible.
         type: Boolean
-        default: false
+        default: true
+      report-site-issue:
+        description: If true, report site issue menu item and preview is available.
+        type: Boolean
+        default: true
   merino-client:
     description: Feature to enable the Merino Client for users on Firefox on Android.
     variables:
@@ -607,6 +576,13 @@ features:
         description: If true, Merino Client is enabled.
         type: Boolean
         default: false
+  merino-manifest:
+    description: Feature to enable the Merino Manifest for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Merino Manifest is enabled.
+        type: Boolean
+        default: true
   messaging:
     description: |
       The in-app messaging system.
@@ -646,7 +622,6 @@ features:
           OPEN_SETTINGS_DELETE_BROWSING_DATA: ://settings_delete_browsing_data
           OPEN_SETTINGS_LOGINS: ://settings_logins
           OPEN_SETTINGS_NOTIFICATIONS: ://settings_notifications
-          OPEN_SETTINGS_MARKETING_NOTIFICATIONS: ://settings_marketing_notifications
           OPEN_SETTINGS_PRIVACY: ://settings_privacy
           OPEN_SETTINGS_SEARCH_ENGINE: ://settings_search_engine
           OPEN_SETTINGS_TRACKING_PROTECTION: ://settings_tracking_protection
@@ -654,7 +629,6 @@ features:
           OPEN_SETTINGS_APP_ICON: ://settings_app_icon
           OPEN_SETTINGS: ://settings
           OPEN_SHARE_SHEET: ://share_sheet
-          OPEN_PROTECTIONS_DASHBOARD: ://protections_dashboard
           TURN_ON_SYNC: ://turn_on_sync
         string-alias: ActionName
       message-under-experiment:
@@ -687,6 +661,29 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
+          microsurvey-printing-example-nightly:
+            title: microsurvey_prompt_printing_title
+            text: microsurvey_survey_printing_title
+            surface: microsurvey
+            trigger-if-all:
+            - RECENTLY_PRINTED
+            style: MICROSURVEY
+            microsurvey-config:
+              utm-content: homepage
+              icon: ic_print
+              answers:
+              - text: likert_scale_option_1
+                ordering: 0
+              - text: likert_scale_option_2
+                ordering: 1
+              - text: likert_scale_option_3
+                ordering: 2
+              - text: likert_scale_option_4
+                ordering: 3
+              - text: likert_scale_option_5
+                ordering: 4
+              - text: likert_scale_option_6
+                ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -750,10 +747,6 @@ features:
           MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
           I_AM_DEFAULT_BROWSER: is_default_browser
           I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
-          NOTIFICATIONS_ARE_ENABLED: are_notifications_enabled == true
-          NOTIFICATIONS_ARE_DISABLED: are_notifications_enabled == false
-          MARKETING_NOTIFICATIONS_ARE_ENABLED: are_marketing_notifications_enabled == true
-          MARKETING_NOTIFICATIONS_ARE_DISABLED: are_marketing_notifications_enabled == false
           FUNNEL_PAID: adjust_campaign != ''
           FUNNEL_ORGANIC: adjust_campaign == ''
           INACTIVE_1_DAY: '''app_opened''|eventLastSeen(''Hours'') >= 24'
@@ -791,6 +784,13 @@ features:
           Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
         type: Boolean
         default: false
+  mozilla-ads-client:
+    description: Feature to enable the Mozilla Ads Client for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Mozilla Ads Client is enabled.
+        type: Boolean
+        default: true
   native-share-sheet:
     description: Feature to enable the Native Share Sheet for users on Firefox on Android.
     variables:
@@ -798,6 +798,14 @@ features:
         description: If true, Native Share Sheet is enabled.
         type: Boolean
         default: false
+  navigation-toolbar:
+    description: Feature for navigation toolbar.
+    variables:
+      enabled:
+        description: |
+          When the feature is enabled then the user will see the new navigation toolbar.
+        type: Boolean
+        default: true
   networking-happy-eyeballs:
     description: Networking (Necko) Happy Eyeballs V3 configuration
     variables:
@@ -973,6 +981,17 @@ features:
           Toggles the security.tls.enable_kyber and network.http.http3.enable_kyber preferences.
         type: Option<Boolean>
         default: null
+  print:
+    description: A feature for printing from the share or browser menu.
+    variables:
+      browser-print-enabled:
+        description: If true, a print button from the browser menu is available.
+        type: Boolean
+        default: true
+      share-print-enabled:
+        description: If true, a print button from the share menu is available.
+        type: Boolean
+        default: true
   private-browsing-lock:
     description: Allows enabling and disabling the private browsing mode lock via an authentication screen.
     variables:
@@ -987,7 +1006,7 @@ features:
       enabled:
         description: If true, Private Mode and Stories Entry Point Experiment is enabled.
         type: Boolean
-        default: false
+        default: true
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -1129,6 +1148,14 @@ features:
         description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
         type: Text
         default: ''
+  settings-search:
+    description: Feature to allow users to search for settings.
+    variables:
+      enabled:
+        description: |
+          Enables the user to search for settings.
+        type: Boolean
+        default: true
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
@@ -1193,29 +1220,13 @@ features:
           Whether or not to enable drag and drop for tab groups.
         type: Boolean
         default: true
-  tab-groups-live-reorder:
-    description: Control whether reorder happens live during a drag and drop action for Tab Groups.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable live reorder for tab groups drag and drop.
-        type: Boolean
-        default: false
-  tab-groups-onboarding:
-    description: Control the visibility of onboarding for tab groups.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable onboarding for tab groups.
-        type: Boolean
-        default: false
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
-        default: false
+        default: true
   tab-strip:
     description: Enables tab strip.
     variables:
@@ -1265,16 +1276,6 @@ features:
           Enables / disables third-party cookie blocking in private browsing mode.
         type: Boolean
         default: true
-  tracking-protection-experimentation:
-    description: Experimental controls for tracking protection behavior
-    variables:
-      defer-annotation-enabled:
-        description: Whether to defer tracking protection classification annotation until the data is being handled
-        type: Option<Boolean>
-        default: null
-        gecko-pref:
-          pref: privacy.trackingprotection.defer_annotation.enabled
-          branch: default
   translations:
     description: The feature that allows on-device translations of web content.
     variables:
@@ -1313,13 +1314,14 @@ features:
           Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
-  uninstall-survey:
-    description: Feature that controls the visibility and handling of the uninstall survey app shortcut.
+  unified-trust-panel:
+    description: Enables the unified trust panel.
     variables:
       enabled:
-        description: If true, the uninstall survey shortcut is enabled and visible.
+        description: |
+          Whether or not to enable the unified trust panel.
         type: Boolean
-        default: false
+        default: true
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
@@ -1327,20 +1329,6 @@ features:
         description: The current collection version of the user characteristics.
         type: Int
         default: 0
-  voice-search-in-display-mode:
-    description: Controls whether the voice search entry point is shown in the display-mode browser toolbar.
-    variables:
-      enabled:
-        description: If true, voice search is shown in the display toolbar.
-        type: Boolean
-        default: false
-  webcompat-reporter-enhancements:
-    description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
-    variables:
-      enabled:
-        description: If true, WebCompat Reporter enhancements is enabled.
-        type: Boolean
-        default: false
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
@@ -1390,6 +1378,10 @@ enums:
     variants:
       default:
         description: The default marketing card variation.
+      treatment-a:
+        description: The Treatment A marketing card variation.
+      treatment-b:
+        description: The Treatment B marketing card variation.
       treatment-c:
         description: The Treatment C marketing card variation.
   OnboardingCardType:
@@ -1634,10 +1626,6 @@ objects:
         description: The icon shown in the survey.
         type: Option<Image>
         default: null
-      max-number-lines:
-        description: The maximum number of lines allowed for the microsurvey text layout.
-        type: Int
-        default: 2
       utm-content:
         description: Optional "utm_content" parameter for the privacy notice URL to specify the feature being surveyed.
         type: Option<String>
