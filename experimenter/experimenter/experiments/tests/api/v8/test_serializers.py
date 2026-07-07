@@ -439,6 +439,15 @@ class TestNimbusExperimentSerializer(TestCase):
             (enrollment_end - start).days,
         )
 
+    def test_non_holdback_proposed_enrollment_uses_model_value(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_holdback=False,
+            proposed_enrollment=14,
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(serializer.data["proposedEnrollment"], 14)
+
     def _experiment_data_without_branches_and_featureIds(
         self, experiment_data, min_required_version
     ) -> dict[str, Any]:
