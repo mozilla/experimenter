@@ -391,7 +391,9 @@ urlbar:
         pick. Set to zero to disable.
     quickSuggestAmpTopPickUseNovaIconSize:
       type: boolean
-      fallbackPref: browser.urlbar.quicksuggest.ampTopPickUseNovaIconSize
+      setPref:
+        branch: default
+        pref: browser.urlbar.quicksuggest.ampTopPickUseNovaIconSize
       description: >-
         Whether or not use the Nova icon size for AMP suggestion.
         Otherwise, use standard rich-suggestion size.
@@ -5226,7 +5228,7 @@ sidebar:
       description: sidebar.verticalTabs pref value to set on user branch; true to enable vertical tabs
     visibility:
       type: string
-      description: 'sidebar.visibility pref value to set on user branch. Vertical tabs: "always-show", "expand-on-hover", "hide-sidebar". Horizontal tabs: "hide-on-close", "hide-launcher".'
+      description: sidebar.visibility pref value ("hide" or "always-show") to set on user branch
 
 fxms_bmb_button:
   description: A feature for the Firefox Messaging System Bookmarks Bar button surface

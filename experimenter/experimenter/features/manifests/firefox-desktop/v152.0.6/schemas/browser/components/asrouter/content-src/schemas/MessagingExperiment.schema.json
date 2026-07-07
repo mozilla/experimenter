@@ -21,54 +21,6 @@
     "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/TemplatedMessage"
   },
   "$defs": {
-    "ActionOnlyMessage": {
-      "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "$id": "file:///ActionOnlyMessage.schema.json",
-      "title": "ActionOnlyMessage",
-      "description": "A template for messages that silently execute an allowlisted special message action with no UI. Records an impression before attempting action.",
-      "allOf": [
-        {
-          "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Message"
-        }
-      ],
-      "type": "object",
-      "properties": {
-        "content": {
-          "type": "object",
-          "properties": {
-            "action": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "description": "The type of the special message action to execute."
-                },
-                "data": {
-                  "type": "object",
-                  "description": "Optional data for the action."
-                }
-              },
-              "required": [
-                "type"
-              ],
-              "additionalProperties": true,
-              "description": "The special message action to execute. Only allowlisted action types may be used."
-            }
-          },
-          "additionalProperties": true,
-          "required": [
-            "action"
-          ]
-        },
-        "template": {
-          "type": "string",
-          "const": "action_only"
-        }
-      },
-      "required": [
-        "targeting"
-      ]
-    },
     "BookmarksBarButton": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$id": "file:///BookmarksBarButton.schema.json",
@@ -1111,6 +1063,35 @@
               "type": "boolean",
               "description": "Should we hide the default promo after the experiment promo is dismissed."
             },
+            "infoEnabled": {
+              "type": "boolean",
+              "description": "Should we show the info section."
+            },
+            "infoIcon": {
+              "type": "string",
+              "description": "Icon shown in the left side of the info section. Default is the private browsing icon."
+            },
+            "infoTitle": {
+              "type": "string",
+              "description": "Is the title in the info section enabled."
+            },
+            "infoTitleEnabled": {
+              "type": "boolean",
+              "description": "Is the title in the info section enabled."
+            },
+            "infoBody": {
+              "type": "string",
+              "description": "Text content in the info section."
+            },
+            "infoLinkText": {
+              "type": "string",
+              "description": "Text for the link in the info section."
+            },
+            "infoLinkUrl": {
+              "type": "string",
+              "description": "URL for the info section link.",
+              "format": "moz-url-format"
+            },
             "promoEnabled": {
               "type": "boolean",
               "description": "Should we show the promo section."
@@ -1211,6 +1192,38 @@
                 "required": [
                   "promoButton"
                 ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "infoEnabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "infoEnabled"
+                ]
+              },
+              "then": {
+                "required": [
+                  "infoLinkText"
+                ],
+                "if": {
+                  "properties": {
+                    "infoTitleEnabled": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "infoTitleEnabled"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "infoTitle"
+                  ]
+                }
               }
             }
           ]
@@ -1739,7 +1752,6 @@
           "type": "string",
           "description": "Which messaging template this message is using.",
           "enum": [
-            "action_only",
             "bookmarks_bar_button",
             "cfr_urlbar_chiclet",
             "cfr_doorhanger",
@@ -1878,25 +1890,6 @@
       "allOf": [
         {
           "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Message"
-        },
-        {
-          "if": {
-            "type": "object",
-            "properties": {
-              "template": {
-                "type": "string",
-                "enum": [
-                  "action_only"
-                ]
-              }
-            },
-            "required": [
-              "template"
-            ]
-          },
-          "then": {
-            "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/ActionOnlyMessage"
-          }
         },
         {
           "if": {
