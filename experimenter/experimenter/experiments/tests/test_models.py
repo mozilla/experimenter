@@ -5747,7 +5747,13 @@ class TestNimbusExperiment(TestCase):
         self.assertAlmostEqual(enrolled["pct"], 75.0)
 
     def test_enrollment_funnel_stages_links_conflict_slugs(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="other-experiment",
+        )
         experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
             monitoring_data={
                 "enrollment_funnel": [
                     {
@@ -5759,7 +5765,7 @@ class TestNimbusExperiment(TestCase):
                         "client_count": 100000,
                     },
                 ]
-            }
+            },
         )
         result = experiment.enrollment_funnel_stages
         conflict_stage = next(
@@ -5769,6 +5775,41 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertIn("other-experiment", conflict_stage["conflict_slugs"])
         self.assertFalse(conflict_stage["has_null_conflict"])
+
+    def test_enrollment_funnel_stages_multiple_conflict_slugs(self):
+        for i in (0, 1, 2):
+            NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                application=NimbusExperiment.Application.DESKTOP,
+                slug=f"conflict-{i}",
+            )
+
+        experiment = NimbusExperimentFactory.create(
+            monitoring_data={
+                "enrollment_funnel": [
+                    {
+                        "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
+                        "branch": None,
+                        "status": NimbusConstants.FunnelStatus.NOT_ENROLLED,
+                        "reason": NimbusConstants.FunnelReason.FEATURE_CONFLICT,
+                        "conflict_slug": "conflict-0,conflict-1,conflict-2,conflict-3",
+                        "client_count": 100,
+                    }
+                ]
+            }
+        )
+
+        result = experiment.enrollment_funnel_stages
+        conflict_stage = next(
+            s
+            for s in result["stages"]
+            if s["reason"] == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
+        )
+
+        self.assertEqual(
+            set(conflict_stage["conflict_slugs"]),
+            {"conflict-0", "conflict-1", "conflict-2"},
+        )
 
     def test_enrollment_funnel_stages_flags_null_conflict_on_mobile(self):
         experiment = NimbusExperimentFactory.create(
