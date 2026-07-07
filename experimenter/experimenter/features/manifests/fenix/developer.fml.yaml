@@ -687,7 +687,7 @@ features:
             text: microsurvey_uninstall_survey_title
             surface: microsurvey
             trigger-if-all:
-            - ALWAYS
+            - NEVER
             style: MICROSURVEY
             microsurvey-config:
               utm-content: uninstall_shortcut
