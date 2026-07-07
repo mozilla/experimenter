@@ -69,10 +69,6 @@ export interface DesktopAllVersionsNimbusExperiment {
    */
   appId: string;
   /**
-   * A mirror of the appId field
-   */
-  application: string;
-  /**
    * A specific channel of an application such as "nightly", "beta", or "release".
    *
    * This field is only respected by nimbus-sdk-based applications.
@@ -321,10 +317,6 @@ export interface DesktopNimbusExperiment {
    */
   appId: string;
   /**
-   * A mirror of the appId field
-   */
-  application: string;
-  /**
    * A specific channel of an application such as "nightly", "beta", or "release".
    *
    * This field is only respected by nimbus-sdk-based applications.
@@ -502,10 +494,6 @@ export interface SdkNimbusExperiment {
    * Examples are "org.mozilla.firefox_beta" and "firefox-desktop".
    */
   appId: string;
-  /**
-   * A mirror of the appId field
-   */
-  application: string;
   /**
    * A specific channel of an application such as "nightly", "beta", or "release".
    *
@@ -955,10 +943,6 @@ export interface NimbusExperimentV7 {
    * Examples are "org.mozilla.firefox_beta" and "firefox-desktop".
    */
   appId: string;
-  /**
-   * A mirror of the appId field
-   */
-  application: string;
   /**
    * A specific channel of an application such as "nightly", "beta", or "release".
    *

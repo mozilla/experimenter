@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- developer
+- beta
 features:
   ad-blocker-feature:
     description: |
@@ -19,21 +19,7 @@ features:
       status:
         description: If true, we will allow user to edit the address
         type: Boolean
-        default: true
-  address-bar-gesture-to-open-tab-tray-feature:
-    description: |
-      Decides if the address bar interactive gesture to open the tab tray is enabled
-    variables:
-      enabled_interactive:
-        description: |
-          Decides if the interactive (fancier) version of this feature is enabled.
-        type: Boolean
         default: false
-      enabled_swipe:
-        description: |
-          Decides if the swipe version of this feature is enabled. This will override the interactive gesture
-        type: Boolean
-        default: true
   ads-client:
     description: This property defines if the rust ads client is enabled
     variables:
@@ -75,7 +61,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: true
+        default: false
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
@@ -111,7 +97,7 @@ features:
         description: |
           Enables the feature.
         type: Boolean
-        default: true
+        default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -127,7 +113,15 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: true
+        default: false
+  general-app-features:
+    description: The feature that contains feature flags for the entire application
+    variables:
+      report-site-issue:
+        description: This property defines whether or not the feature is enabled
+        type: GeneralFeature
+        default:
+          status: true
   google-lens-feature:
     description: |
       The feature flag to manage the rollout of Google Lens entry points.
@@ -155,7 +149,7 @@ features:
         description: |
           If true, enables the categories flow in the stories
         type: Boolean
-        default: true
+        default: false
       jbi-section-default:
         description: |
           If true, enables the jump back in homepage section by default
@@ -165,7 +159,7 @@ features:
         description: |
           If true, enables the pinned newsfeed header on homepage.
         type: Boolean
-        default: true
+        default: false
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
@@ -289,17 +283,6 @@ features:
               - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
-          survey-surface-message:
-            surface: survey
-            style: SURVEY
-            trigger-if-all:
-            - NEVER
-            text: ResearchSurface/Body.Text.v112
-            button-label: ResearchSurface/PrimaryButton.Label.v112
-            should-randomize-options: false
-            action: OPEN_URL
-            action-params:
-              url: https://www.macrumors.com
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -382,7 +365,7 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: true
+        default: false
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
@@ -396,12 +379,12 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: true
+        default: false
       no_internet_connection_error:
         description: |
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
-        default: true
+        default: false
   needs-reload-refactor:
     description: |
       This is a technical refactor which cleans up the reloading of the webview
@@ -411,15 +394,6 @@ features:
           Whether or not this refactor is enabled
         type: Boolean
         default: true
-  new-bookmark-folder-tree-feature:
-    description: |
-      This property determines weather we show the new bookmark folder tree UI
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
-        type: Boolean
-        default: false
   nova-design-feature:
     description: |
       The feature flag to manage the rollout of Nova design.
@@ -740,11 +714,6 @@ features:
           Enables the feature.
         type: Boolean
         default: false
-      model:
-        description: |
-          Which provider model backs Quick Answers.
-        type: QuickAnswersModel
-        default: exa
   recent-searches-feature:
     description: |
       Enables recent searches.
@@ -767,15 +736,6 @@ features:
           Enables the feature
         type: Boolean
         default: true
-  report-broken-site-feature:
-    description: |
-      In-app Report Broken Site (WebCompat) reporter
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
-        type: Boolean
-        default: true
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
@@ -795,7 +755,7 @@ features:
         description: |
           Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.
         type: Boolean
-        default: true
+        default: false
       isTreatmentA:
         description: |
           If true, shares the treatment A text. If false, shares the treatment B text.
@@ -814,12 +774,12 @@ features:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
         type: Boolean
-        default: true
+        default: false
       icon-type:
         description: |
           The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
         type: Option<IconType>
-        default: screenshot
+        default: letter
       keep-for-days:
         description: |
           Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
@@ -902,7 +862,7 @@ features:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
         type: Boolean
-        default: true
+        default: false
   toolbar-refactor-feature:
     description: |
       This feature is for managing the roll out of the Toolbar refactor feature
@@ -982,15 +942,6 @@ features:
         description: The number of maximum suggestions.
         type: Int
         default: 5
-  wayback-machine-feature:
-    description: |
-      This property determines whether we show the wayback entry point on the native error pages
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
-        type: Boolean
-        default: false
   world-cup-widget-feature:
     description: |
       The feature flag to manage the roll out of the world cup widget feature
@@ -1240,13 +1191,6 @@ enums:
         description: Use all the page as text
       text-excerpt:
         description: Only use the first paragraph
-  QuickAnswersModel:
-    description: The provider model that backs the Quick Answers feature.
-    variants:
-      exa:
-        description: The Exa model provider.
-      liner:
-        description: The Liner model provider.
   StartAtHome:
     description: The option for what screen to open the app to
     variants:
@@ -1312,6 +1256,13 @@ objects:
         default: false
       use-page-content:
         description: Search in the open tab's text content when typing.
+        type: Boolean
+        default: false
+  GeneralFeature:
+    description: The configuration for the a feature that can be enabled or disabled
+    fields:
+      status:
+        description: Whether or not the feature is enabled
         type: Boolean
         default: false
   MessageData:

@@ -1468,8 +1468,29 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             key = (row["status"], row.get("reason") or "")
             by_key[key]["client_count"] += row["client_count"]
             by_key[key]["apps"].add(row["app_name"])
-            if row.get("conflict_slug"):
-                by_key[key]["conflict_slugs"].add(row["conflict_slug"])
+            if conflict_slugs := row.get("conflict_slug"):
+                by_key[key]["conflict_slugs"].update(
+                    slug for slug in conflict_slugs.split(",") if slug
+                )
+
+        # Do a single query to get the set of all slugs mentioned that actually
+        # exist.
+        #
+        # It is possible that a slug could get cut off in telemetry (or
+        # corrupted or submitted by a malicious client), which would result in
+        # referencing data that does not exist. Then, when we go to render the
+        # list of slugs, we would attempt to generate links to these
+        # non-existant recipes and cause a 500.
+        existing_slugs = set(
+            NimbusExperiment.objects.filter(
+                slug__in={
+                    slug for value in by_key.values() for slug in value["conflict_slugs"]
+                }
+            ).values_list("slug", flat=True)
+        )
+
+        for value in by_key.values():
+            value["conflict_slugs"] &= existing_slugs
 
         def _build_stage(key, data):
             status, reason = key

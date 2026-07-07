@@ -77,13 +77,6 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
-  custom-review-prompt:
-    description: Feature that controls the Play store review prompt.
-    variables:
-      enabled:
-        description: Whether or not to enable the new trigger criteria.
-        type: Boolean
-        default: false
   custom-review-prompt-ui:
     description: Feature that controls the custom UI for review prompt.
     variables:
@@ -618,6 +611,7 @@ features:
           OPEN_SETTINGS_DELETE_BROWSING_DATA: ://settings_delete_browsing_data
           OPEN_SETTINGS_LOGINS: ://settings_logins
           OPEN_SETTINGS_NOTIFICATIONS: ://settings_notifications
+          OPEN_SETTINGS_MARKETING_NOTIFICATIONS: ://settings_marketing_notifications
           OPEN_SETTINGS_PRIVACY: ://settings_privacy
           OPEN_SETTINGS_SEARCH_ENGINE: ://settings_search_engine
           OPEN_SETTINGS_TRACKING_PROTECTION: ://settings_tracking_protection
@@ -625,6 +619,7 @@ features:
           OPEN_SETTINGS_APP_ICON: ://settings_app_icon
           OPEN_SETTINGS: ://settings
           OPEN_SHARE_SHEET: ://share_sheet
+          OPEN_PROTECTIONS_DASHBOARD: ://protections_dashboard
           TURN_ON_SYNC: ://turn_on_sync
         string-alias: ActionName
       message-under-experiment:
@@ -679,6 +674,29 @@ features:
               - text: likert_scale_option_5
                 ordering: 4
               - text: likert_scale_option_6
+                ordering: 5
+          microsurvey-uninstall-survey:
+            title: microsurvey_uninstall_survey_title
+            text: microsurvey_uninstall_survey_title
+            surface: microsurvey
+            trigger-if-all:
+            - ALWAYS
+            style: MICROSURVEY
+            microsurvey-config:
+              utm-content: uninstall_shortcut
+              icon: ic_delete_black
+              answers:
+              - text: uninstall_survey_option_1
+                ordering: 0
+              - text: uninstall_survey_option_2
+                ordering: 1
+              - text: uninstall_survey_option_3
+                ordering: 2
+              - text: uninstall_survey_option_4
+                ordering: 3
+              - text: uninstall_survey_option_5
+                ordering: 4
+              - text: uninstall_survey_option_6
                 ordering: 5
         string-alias: MessageKey
       notification-config:
@@ -746,6 +764,10 @@ features:
           MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
           I_AM_DEFAULT_BROWSER: is_default_browser
           I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
+          NOTIFICATIONS_ARE_ENABLED: are_notifications_enabled == true
+          NOTIFICATIONS_ARE_DISABLED: are_notifications_enabled == false
+          MARKETING_NOTIFICATIONS_ARE_ENABLED: are_marketing_notifications_enabled == true
+          MARKETING_NOTIFICATIONS_ARE_DISABLED: are_marketing_notifications_enabled == false
           FUNNEL_PAID: adjust_campaign != ''
           FUNNEL_ORGANIC: adjust_campaign == ''
           INACTIVE_1_DAY: '''app_opened''|eventLastSeen(''Hours'') >= 24'

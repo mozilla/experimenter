@@ -12,10 +12,6 @@
       "description": "A slug identifying the targeted product of this experiment. It should be a lowercased_with_underscores name that is short and unambiguous and it should match the app_name found in https://probeinfo.telemetry.mozilla.org/glean/repositories. Examples are \"fenix\" and \"firefox_desktop\".",
       "type": "string"
     },
-    "application": {
-      "description": "A mirror of the appId field",
-      "type": "string"
-    },
     "branches": {
       "description": "Branch configuration for the SDK experiment.",
       "items": {
@@ -241,7 +237,6 @@
     "id",
     "appName",
     "appId",
-    "application",
     "channel",
     "userFacingName",
     "userFacingDescription",

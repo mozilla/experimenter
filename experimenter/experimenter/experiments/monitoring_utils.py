@@ -127,9 +127,8 @@ def check_feature_conflict(monitoring_data, threshold):
     for row in funnel:
         if row.get("reason") == NimbusConstants.FunnelReason.FEATURE_CONFLICT:
             conflict_count += row.get("client_count", 0)
-            slug = row.get("conflict_slug")
-            if slug:
-                conflict_slugs.add(slug)
+            if slugs := row.get("conflict_slug"):
+                conflict_slugs.update(slug for slug in slugs.split(",") if slug)
 
     rate = conflict_count / total
     return FeatureConflictResult(

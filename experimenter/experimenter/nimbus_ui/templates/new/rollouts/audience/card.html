@@ -90,6 +90,12 @@
     <div class="text-secondary mb-1" style="font-size: 12px;">Advanced targeting</div>
     <div class="small text-body">{{ experiment.targeting_config_slug|default:"—" }}</div>
   </div>
+  {# Full targeting expression #}
+  <div>
+    <div class="text-secondary mb-1" style="font-size: 12px;">Full targeting expression</div>
+    {% include "nimbus_experiments/readonly_targeting.html" with json_content=experiment.targeting_formatted %}
+
+  </div>
   {# Required experiments #}
   <div>
     <div class="text-secondary mb-1" style="font-size: 12px;">Include users from existing experiments</div>

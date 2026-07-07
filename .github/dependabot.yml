@@ -30,7 +30,7 @@ updates:
       - dependency-name: "*"
         update-types:
           ["version-update:semver-major", "version-update:semver-patch"]
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directory: "/cirrus/server"
     schedule:
       interval: weekly
@@ -39,7 +39,7 @@ updates:
       - dependency-name: "*"
         update-types:
           ["version-update:semver-major", "version-update:semver-patch"]
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directory: "/schemas"
     schedule:
       interval: weekly

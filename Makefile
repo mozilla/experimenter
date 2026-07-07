@@ -326,7 +326,7 @@ SCHEMAS_BLACK = black --check --diff .
 SCHEMAS_RUFF = ruff check .
 SCHEMAS_DIFF_PYDANTIC = \
 	mkdir -p /tmp/schemas-diff/ && \
-	poetry run python generate_json_schema.py \
+	python generate_json_schema.py \
 		--output /tmp/schemas-diff/index.d.ts \
 		--json-schemas /tmp/schemas-diff/schemas/ \
 		--python-package-dir /tmp/schemas-diff/mozilla_nimbus_schemas/ && \
@@ -340,11 +340,11 @@ SCHEMAS_DIFF_PYDANTIC = \
 	echo 'Done. No problems found in schemas.'
 SCHEMAS_TEST = pytest
 SCHEMAS_FORMAT = ruff check --fix . && black .
-SCHEMAS_GENERATE = poetry run python generate_json_schema.py
-SCHEMAS_DIST_PYPI = poetry build
+SCHEMAS_GENERATE = python generate_json_schema.py
+SCHEMAS_DIST_PYPI = uv build
 SCHEMAS_DEPLOY_PYPI = twine upload --skip-existing dist/*;
 SCHEMAS_DEPLOY_NPM = echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc;yarn publish --new-version ${SCHEMAS_VERSION} --access public;
-SCHEMAS_VERSION_PYPI = poetry version ${SCHEMAS_VERSION};
+SCHEMAS_VERSION_PYPI = uv version ${SCHEMAS_VERSION};
 SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
 
 schemas_docker_build:  ## Build schemas docker image

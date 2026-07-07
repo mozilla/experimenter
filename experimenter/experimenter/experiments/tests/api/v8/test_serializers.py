@@ -85,7 +85,6 @@ class TestNimbusExperimentSerializer(TestCase):
                     "features": [
                         {
                             "featureId": fv.feature_config.slug,
-                            "enabled": True,
                             "value": json.loads(fv.value),
                         }
                         for fv in branch.feature_values.all()
@@ -276,7 +275,6 @@ class TestNimbusExperimentSerializer(TestCase):
         )
 
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(serializer.data["application"], channel_app_id)
         self.assertEqual(serializer.data["channel"], "")
         self.assertIn(channel.value, serializer.data["channels"])
 
@@ -311,7 +309,6 @@ class TestNimbusExperimentSerializer(TestCase):
         )
 
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(serializer.data["application"], channel_app_id)
         self.assertEqual(serializer.data["channel"], channel)
         self.assertEqual(
             serializer.data["appName"],
@@ -446,8 +443,6 @@ class TestNimbusExperimentSerializer(TestCase):
         self, experiment_data, min_required_version
     ) -> dict[str, Any]:
         return {
-            "arguments": {},
-            "application": "firefox-desktop",
             "appName": "firefox_desktop",
             "appId": "firefox-desktop",
             "channel": "",
@@ -478,7 +473,6 @@ class TestNimbusExperimentSerializer(TestCase):
             ),
             "userFacingDescription": experiment_data.public_description,
             "userFacingName": experiment_data.name,
-            "probeSets": [],
             "outcomes": [
                 {"priority": "primary", "slug": "foo"},
                 {"priority": "primary", "slug": "bar"},

@@ -48,8 +48,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 class NimbusExperimentSerializer(serializers.ModelSerializer):
     schemaVersion = serializers.ReadOnlyField(default=settings.NIMBUS_SCHEMA_VERSION)
     id = serializers.ReadOnlyField(source="slug")
-    arguments = serializers.ReadOnlyField(default={})
-    application = serializers.SerializerMethodField()
     appName = serializers.SerializerMethodField()
     appId = serializers.SerializerMethodField()
     branches = NimbusBranchSerializer(many=True)
@@ -60,7 +58,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     isRollout = serializers.ReadOnlyField(source="is_rollout")
     bucketConfig = NimbusBucketRangeSerializer(source="bucket_range")
     featureIds = serializers.SerializerMethodField()
-    probeSets = serializers.ReadOnlyField(default=[])
     outcomes = serializers.SerializerMethodField()
     startDate = serializers.DateField(source="start_date")
     enrollmentEndDate = serializers.DateField(source="actual_enrollment_end_date")
@@ -84,8 +81,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "schemaVersion",
             "slug",
             "id",
-            "arguments",
-            "application",
             "appName",
             "appId",
             "channel",
@@ -96,7 +91,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "isRollout",
             "bucketConfig",
             "featureIds",
-            "probeSets",
             "outcomes",
             "branches",
             "targeting",
@@ -112,9 +106,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "publishedDate",
             "documentationLinks",
         )
-
-    def get_application(self, obj):
-        return self.get_appId(obj)
 
     def get_appName(self, obj):
         return obj.application_config.app_name
