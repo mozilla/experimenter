@@ -210,6 +210,7 @@ def update_holdback_enrollment_period():
             is_holdback=True,
             status=NimbusExperiment.Status.LIVE,
             _end_date=None,
+            _enrollment_end_date=None,
         ).exclude(_start_date=None)
 
         minimum_days = (
@@ -221,10 +222,10 @@ def update_holdback_enrollment_period():
             if days_since_start < minimum_days or days_since_start % 7 != 0:
                 continue
 
-            NimbusExperiment.objects.filter(pk=experiment.pk).update(
-                do_rerun=True,
-                do_rerun_timestamp=now,
-            )
+            update_fields = {"do_rerun_timestamp": now}
+            if not experiment.do_rerun:
+                update_fields["do_rerun"] = True
+            NimbusExperiment.objects.filter(pk=experiment.pk).update(**update_fields)
             experiment.refresh_from_db()
             generate_nimbus_changelog(
                 experiment,

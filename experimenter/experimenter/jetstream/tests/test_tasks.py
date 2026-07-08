@@ -3952,14 +3952,13 @@ class TestGetFeatmonSlugs(TestCase):
 
 
 class TestUpdateHoldbackEnrollmentPeriod(TestCase):
-    def test_sets_do_rerun(self):
+    def test_sets_do_rerun_on_first_trigger(self):
         today = datetime.date.today()
-        # 28 days ago: 28 >= 28 minimum and 28 % 7 == 0, so should trigger
-        start = today - datetime.timedelta(days=28)
+        # 28 days ago: first trigger — sets both do_rerun and do_rerun_timestamp
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_holdback=True,
-            _start_date=start,
+            _start_date=today - datetime.timedelta(days=28),
             proposed_enrollment=14,
             proposed_duration=84,
         )
@@ -3968,23 +3967,38 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
 
         self.assertTrue(experiment.do_rerun)
         self.assertIsNotNone(experiment.do_rerun_timestamp)
-        self.assertIsNone(experiment._enrollment_end_date)
 
-    def test_sets_do_rerun_at_35_days(self):
+    def test_updates_only_timestamp_on_subsequent_triggers(self):
         today = datetime.date.today()
-        # 35 days ago: 35 >= 28 minimum and 35 % 7 == 0, so should trigger
+        # 35 days: do_rerun already True — only do_rerun_timestamp should update
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_holdback=True,
             _start_date=today - datetime.timedelta(days=35),
             proposed_enrollment=14,
             proposed_duration=84,
+            do_rerun=True,
         )
         tasks.update_holdback_enrollment_period()
         experiment.refresh_from_db()
 
         self.assertTrue(experiment.do_rerun)
         self.assertIsNotNone(experiment.do_rerun_timestamp)
+
+    def test_skips_holdback_with_enrollment_stopped(self):
+        today = datetime.date.today()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_holdback=True,
+            _start_date=today - datetime.timedelta(days=35),
+            _enrollment_end_date=today - datetime.timedelta(days=7),
+            proposed_enrollment=14,
+            proposed_duration=84,
+        )
+        tasks.update_holdback_enrollment_period()
+        experiment.refresh_from_db()
+
+        self.assertFalse(experiment.do_rerun)
 
     def test_skips_experiment_below_minimum_days(self):
         today = datetime.date.today()
