@@ -219,7 +219,7 @@ def update_holdback_enrollment_period():
         updated_count = 0
         for experiment in experiments:
             days_since_start = (today - experiment.start_date).days
-            if days_since_start < minimum_days or days_since_start % 7 != 0:
+            if days_since_start < minimum_days or days_since_start % settings.HOLDBACK_RERUN_INTERVAL_DAYS != 0:
                 continue
 
             update_fields = {"do_rerun_timestamp": now}
