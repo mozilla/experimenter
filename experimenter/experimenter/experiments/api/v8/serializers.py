@@ -1,4 +1,5 @@
 import contextlib
+import datetime
 import json
 
 from django.conf import settings
@@ -102,10 +103,10 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     outcomes = serializers.SerializerMethodField()
     segments = serializers.SerializerMethodField()
     startDate = serializers.DateField(source="start_date")
-    enrollmentEndDate = serializers.DateField(source="actual_enrollment_end_date")
-    endDate = serializers.DateField(source="end_date")
+    enrollmentEndDate = serializers.SerializerMethodField()
+    endDate = serializers.SerializerMethodField()
     proposedDuration = serializers.ReadOnlyField(source="proposed_duration")
-    proposedEnrollment = serializers.ReadOnlyField(source="proposed_enrollment")
+    proposedEnrollment = serializers.SerializerMethodField()
     referenceBranch = serializers.SerializerMethodField()
     featureValidationOptOut = serializers.ReadOnlyField(
         source="is_client_schema_disabled"
@@ -160,6 +161,34 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "firefoxLabsGroup",
             "requiresRestart",
         )
+
+    def _holdback_enrollment_end(self, obj):
+        if obj.is_holdback and not obj.end_date and not obj.actual_enrollment_end_date:
+            return datetime.date.today() - datetime.timedelta(
+                days=settings.HOLDBACK_OBSERVATION_DAYS
+            )
+        return None
+
+    def get_enrollmentEndDate(self, obj):
+        holdback_end = self._holdback_enrollment_end(obj)
+        if holdback_end:
+            return holdback_end.isoformat()
+        enrollment_end = obj.actual_enrollment_end_date
+        return enrollment_end.isoformat() if enrollment_end else None
+
+    def get_endDate(self, obj):
+        holdback_end = self._holdback_enrollment_end(obj)
+        if holdback_end:
+            return (
+                holdback_end + datetime.timedelta(days=settings.HOLDBACK_OBSERVATION_DAYS)
+            ).isoformat()
+        return obj.end_date.isoformat() if obj.end_date else None
+
+    def get_proposedEnrollment(self, obj):
+        holdback_end = self._holdback_enrollment_end(obj)
+        if holdback_end and obj.start_date:
+            return (holdback_end - obj.start_date).days
+        return obj.proposed_enrollment
 
     def get_appName(self, obj):
         return obj.application_config.app_name
