@@ -3970,6 +3970,22 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
         self.assertIsNotNone(experiment.do_rerun_timestamp)
         self.assertIsNone(experiment._enrollment_end_date)
 
+    def test_sets_do_rerun_at_35_days(self):
+        today = datetime.date.today()
+        # 35 days ago: 35 >= 28 minimum and 35 % 7 == 0, so should trigger
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_holdback=True,
+            _start_date=today - datetime.timedelta(days=35),
+            proposed_enrollment=14,
+            proposed_duration=84,
+        )
+        tasks.update_holdback_enrollment_period()
+        experiment.refresh_from_db()
+
+        self.assertTrue(experiment.do_rerun)
+        self.assertIsNotNone(experiment.do_rerun_timestamp)
+
     def test_skips_experiment_below_minimum_days(self):
         today = datetime.date.today()
         # Started 20 days ago: 20 < 28 (minimum), so should be skipped
