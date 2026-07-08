@@ -718,6 +718,9 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     requires_restart = forms.BooleanField(
         required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
     )
+    is_holdback = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
 
     update_on_change_fields = (
         "equal_branch_ratio",
@@ -743,6 +746,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "firefox_labs_description_links",
             "firefox_labs_group",
             "requires_restart",
+            "is_holdback",
         )
         widgets = {
             "is_rollout": forms.CheckboxInput(attrs={"class": "form-check-input"}),
