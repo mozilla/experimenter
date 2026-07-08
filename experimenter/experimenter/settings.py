@@ -381,6 +381,7 @@ API_CACHE_WARMING_TTL = 60 * 60 * 24
 SIZING_DATA_KEY = "population_sizing"
 
 HOLDBACK_OBSERVATION_DAYS = 21
+HOLDBACK_MINIMUM_ENROLLMENT_DAYS = 7
 
 # Celery
 CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
@@ -425,7 +426,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "update_holdback_enrollment_period": {
         "task": "experimenter.jetstream.tasks.update_holdback_enrollment_period",
-        "schedule": crontab(minute=0, hour=7),
+        "schedule": crontab(minute=0, hour=7, day_of_week=1),
     },
 }
 CELERY_TASK_ROUTES = {

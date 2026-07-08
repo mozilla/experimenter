@@ -215,7 +215,8 @@ def update_holdback_enrollment_period():
 
         updated_count = 0
         for experiment in experiments:
-            if enrollment_end <= experiment.start_date:
+            enrollment_days = (enrollment_end - experiment.start_date).days
+            if enrollment_days < settings.HOLDBACK_MINIMUM_ENROLLMENT_DAYS:
                 continue
 
             NimbusExperiment.objects.filter(pk=experiment.pk).update(
