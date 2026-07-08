@@ -2101,8 +2101,7 @@ password-autocomplete:
 address-autofill-feature:
   description: Enabling address autofill feature
   owner: issozi@mozilla.com
-  hasExposure: true
-  exposureDescription: "Exposure is sent when an address is autofilled."
+  hasExposure: false
   variables:
     status:
       type: boolean
@@ -5338,6 +5337,20 @@ smartTabGroups:
         branch: user
         pref: browser.tabs.groups.smart.searchTopicEnabled
       description: For single tab groupings, use the search query as the topic rather than use ML
+
+tabContextMenu:
+  description: Prefs to control the behavior and structure of the tab context menu
+  owner: sfoster@mozilla.com
+  hasExposure: false
+  variables:
+    altStructureEnabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.tabs.contextmenu.altstructure.enabled
+      description: >-
+        Controls whether the updated (alternate) tab context menu layout is
+        shown instead of the classic layout.
 
 externalLinkHandling:
   description: Controls how externally-opened URLs will be handled by Firefox.

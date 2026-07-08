@@ -1208,7 +1208,7 @@ features:
         description: |
           Whether or not to enable onboarding for tab groups.
         type: Boolean
-        default: false
+        default: true
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
