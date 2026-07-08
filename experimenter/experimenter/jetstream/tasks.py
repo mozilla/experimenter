@@ -223,13 +223,20 @@ def update_holdback_enrollment_period():
                 days_since_start < minimum_days
                 or days_since_start % settings.HOLDBACK_RERUN_INTERVAL_DAYS != 0
             ):
+                logger.debug(
+                    f"Skipping holdback {experiment.slug}: "
+                    f"days_since_start={days_since_start}, "
+                    f"minimum={minimum_days}, "
+                    f"interval={settings.HOLDBACK_RERUN_INTERVAL_DAYS}"
+                )
                 continue
 
-            update_fields = {"do_rerun_timestamp": now}
+            save_fields = ["do_rerun_timestamp"]
             if not experiment.do_rerun:
-                update_fields["do_rerun"] = True
-            NimbusExperiment.objects.filter(pk=experiment.pk).update(**update_fields)
-            experiment.refresh_from_db()
+                experiment.do_rerun = True
+                save_fields.append("do_rerun")
+            experiment.do_rerun_timestamp = now
+            experiment.save(update_fields=save_fields)
             generate_nimbus_changelog(
                 experiment,
                 get_kinto_user(),
