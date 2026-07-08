@@ -205,7 +205,6 @@ def update_holdback_enrollment_period():
     try:
         today = timezone.now().date()
         now = timezone.now()
-        enrollment_end = today - dt.timedelta(days=settings.HOLDBACK_OBSERVATION_DAYS)
 
         experiments = NimbusExperiment.objects.filter(
             is_holdback=True,
@@ -213,10 +212,13 @@ def update_holdback_enrollment_period():
             _end_date=None,
         ).exclude(_start_date=None)
 
+        minimum_days = (
+            settings.HOLDBACK_OBSERVATION_DAYS + settings.HOLDBACK_MINIMUM_ENROLLMENT_DAYS
+        )
         updated_count = 0
         for experiment in experiments:
-            enrollment_days = (enrollment_end - experiment.start_date).days
-            if enrollment_days < settings.HOLDBACK_MINIMUM_ENROLLMENT_DAYS:
+            days_since_start = (today - experiment.start_date).days
+            if days_since_start < minimum_days or days_since_start % 7 != 0:
                 continue
 
             NimbusExperiment.objects.filter(pk=experiment.pk).update(

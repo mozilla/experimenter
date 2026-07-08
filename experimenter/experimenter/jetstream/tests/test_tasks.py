@@ -3954,7 +3954,8 @@ class TestGetFeatmonSlugs(TestCase):
 class TestUpdateHoldbackEnrollmentPeriod(TestCase):
     def test_sets_do_rerun(self):
         today = datetime.date.today()
-        start = today - datetime.timedelta(days=50)
+        # 28 days ago: 28 >= 28 minimum and 28 % 7 == 0, so should trigger
+        start = today - datetime.timedelta(days=28)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_holdback=True,
@@ -3969,14 +3970,28 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
         self.assertIsNotNone(experiment.do_rerun_timestamp)
         self.assertIsNone(experiment._enrollment_end_date)
 
-    def test_skips_experiment_below_minimum_enrollment(self):
+    def test_skips_experiment_below_minimum_days(self):
         today = datetime.date.today()
-        # Started 25 days ago: enrollment_end = today - 21 = 4 days ago,
-        # enrollment_days = 4, which is < HOLDBACK_MINIMUM_ENROLLMENT_DAYS (7)
+        # Started 20 days ago: 20 < 28 (minimum), so should be skipped
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_holdback=True,
-            _start_date=today - datetime.timedelta(days=25),
+            _start_date=today - datetime.timedelta(days=20),
+            proposed_enrollment=14,
+            proposed_duration=84,
+        )
+        tasks.update_holdback_enrollment_period()
+        experiment.refresh_from_db()
+
+        self.assertFalse(experiment.do_rerun)
+
+    def test_skips_experiment_not_on_weekly_boundary(self):
+        today = datetime.date.today()
+        # Started 29 days ago: >= 28 but 29 % 7 != 0, so should be skipped
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_holdback=True,
+            _start_date=today - datetime.timedelta(days=29),
             proposed_enrollment=14,
             proposed_duration=84,
         )

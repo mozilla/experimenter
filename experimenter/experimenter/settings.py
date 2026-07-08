@@ -426,7 +426,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "update_holdback_enrollment_period": {
         "task": "experimenter.jetstream.tasks.update_holdback_enrollment_period",
-        "schedule": crontab(minute=0, hour=7, day_of_week=1),
+        "schedule": crontab(minute=0, hour=7),
     },
 }
 CELERY_TASK_ROUTES = {
