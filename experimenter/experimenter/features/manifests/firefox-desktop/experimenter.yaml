@@ -6040,15 +6040,17 @@ webNotificationsPermissionUi:
   owner: omc-core@mozilla.com
   hasExposure: true
   exposureDescription: >-
-    Recorded when the permission prompt is rendered with at least one
-    treatment variable applied and the activationTargeting expression
-    (if set) evaluated truthy.
+    Recorded when an enrolled user is shown the permission prompt and the
+    activationTargeting expression (if set) evaluated truthy, regardless of
+    whether any content variable is set. This fires for the empty-content
+    control branch as well so it is comparable to the treatment branches.
   variables:
     headline:
       type: string
       description: >-
         Overrides the prompt headline. Must contain "<>" for site-name
-        substitution. Falls back to the default copy when unset.
+        substitution; a headline without it falls back to the default copy.
+        Also falls back to the default copy when unset.
     body:
       type: string
       description: >-
@@ -6063,9 +6065,10 @@ webNotificationsPermissionUi:
     secondaryCtaLabel:
       type: string
       description: >-
-        Overrides the (Always) Block button label. Applied uniformly across
-        normal and private browsing modes; the underlying BLOCK action and
-        scope are unchanged.
+        Overrides the (Always) Block button label in normal windows only; left
+        at the default in private browsing, where the wording reflects the
+        session-scoped BLOCK semantics. The underlying BLOCK action and scope
+        are unchanged.
     secondaryCtaAccessKey:
       type: string
       description: Optional access key paired with secondaryCtaLabel.
@@ -6083,3 +6086,27 @@ webNotificationsPermissionUi:
         unset or empty the treatment applies to every prompt the enrolled
         user sees; when set and falsy the prompt falls back to the default
         copy and no exposure event is recorded.
+    headlineL10nId:
+      type: string
+      description: >-
+        Fluent message id (in browser/permissions.ftl) for the headline,
+        resolved in-tree. Takes precedence over headline; the message must
+        contain "<>" (e.g. via the $host variable) for site-name substitution,
+        else the prompt falls back to the default copy.
+    bodyL10nId:
+      type: string
+      description: >-
+        Fluent message id for the body/hint text, resolved in-tree. Takes
+        precedence over body.
+    primaryCtaLabelL10nId:
+      type: string
+      description: >-
+        Fluent message id for the Allow button, resolved in-tree. Takes
+        precedence over primaryCtaLabel; its .accesskey attribute, if present,
+        sets the access key.
+    secondaryCtaLabelL10nId:
+      type: string
+      description: >-
+        Fluent message id for the (Always) Block button, resolved in-tree.
+        Takes precedence over secondaryCtaLabel; its .accesskey attribute, if
+        present, sets the access key. Not applied in private browsing.
