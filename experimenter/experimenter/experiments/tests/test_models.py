@@ -6821,7 +6821,7 @@ class TestNimbusRolloutPhase(TestCase):
         self.assertIsNone(phase.duration_display)
 
     def test_days_elapsed(self):
-        today = datetime.date.today()
+        today = timezone.now().date()
         day = datetime.timedelta(days=1)
 
         phase = NimbusRolloutPhaseFactory.build(
@@ -6932,7 +6932,7 @@ class TestAdvanceRolloutPhase(TestCase):
         ]
 
     def test_advance_from_no_phase_starts_first_phase(self):
-        today = datetime.date.today()
+        today = timezone.now().date()
         self.experiment.advance_rollout_phase()
         self.experiment.refresh_from_db()
         self.phases[0].refresh_from_db()
@@ -6943,7 +6943,7 @@ class TestAdvanceRolloutPhase(TestCase):
         self.assertIsNone(self.phases[0].start_date)
 
     def test_advance_stamps_dates_and_moves_pointer(self):
-        today = datetime.date.today()
+        today = timezone.now().date()
         planned_start = datetime.date(2026, 1, 1)
         self.phases[1].start_date = planned_start
         self.phases[1].save()
@@ -6961,8 +6961,34 @@ class TestAdvanceRolloutPhase(TestCase):
         self.assertEqual(self.experiment.rollout_phase, self.phases[1])
         self.assertIsNone(self.experiment.rollout_phase_next)
 
+    def test_advance_does_not_start_phase_with_zero_population(self):
+        self.phases[1].population_percent = 0
+        self.phases[1].save()
+        self.experiment.rollout_phase = self.phases[0]
+        self.experiment.save()
+
+        self.experiment.advance_rollout_phase()
+        self.experiment.refresh_from_db()
+        self.phases[0].refresh_from_db()
+        self.phases[1].refresh_from_db()
+
+        self.assertEqual(self.experiment.rollout_phase, self.phases[0])
+        self.assertIsNone(self.phases[0].end_date)
+        self.assertIsNone(self.phases[1].actual_start_date)
+
+    def test_advance_does_not_start_first_phase_with_zero_population(self):
+        self.phases[0].population_percent = 0
+        self.phases[0].save()
+
+        self.experiment.advance_rollout_phase()
+        self.experiment.refresh_from_db()
+        self.phases[0].refresh_from_db()
+
+        self.assertIsNone(self.experiment.rollout_phase)
+        self.assertIsNone(self.phases[0].actual_start_date)
+
     def test_completing_phase_finalizes_start_to_actual(self):
-        today = datetime.date.today()
+        today = timezone.now().date()
         self.phases[0].start_date = datetime.date(2099, 1, 1)
         self.phases[0].save()
 
@@ -6982,7 +7008,7 @@ class TestAdvanceRolloutPhase(TestCase):
         self.experiment.refresh_from_db()
         self.phases[2].refresh_from_db()
 
-        self.assertEqual(self.phases[2].end_date, datetime.date.today())
+        self.assertEqual(self.phases[2].end_date, timezone.now().date())
         self.assertEqual(self.experiment.rollout_phase, self.phases[2])
         self.assertIsNone(self.experiment.rollout_phase_next)
 

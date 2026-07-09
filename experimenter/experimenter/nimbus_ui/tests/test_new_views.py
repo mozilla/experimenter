@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from parameterized import parameterized
 
 from experimenter.base.tests.factories import (
@@ -706,7 +707,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
             is_rollout=True,
         )
 
-        today = datetime.date.today()
+        today = timezone.now().date()
         start = today - datetime.timedelta(days=3)
         end = today + datetime.timedelta(days=4)
         phase = NimbusRolloutPhaseFactory.create(
@@ -904,9 +905,7 @@ class TestNewRolloutPlanApplyView(AuthTestCase):
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_rollout=True,
         )
-        plan_name, plan_percentages = next(
-            iter(NimbusUIConstants.ROLLOUT_TEMPLATE_PLANS.items())
-        )
+        plan_name = next(iter(NimbusUIConstants.ROLLOUT_TEMPLATE_PLANS))
         done = NimbusRolloutPhaseFactory.create(
             experiment=experiment,
             population_percent=1,
@@ -931,13 +930,12 @@ class TestNewRolloutPlanApplyView(AuthTestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(experiment.rollout_phases.filter(id=done.id).exists())
-        self.assertTrue(experiment.rollout_phases.filter(id=current.id).exists())
-        percents = list(
+        self.assertTemplateUsed(response, "new/rollouts/schedule/edit_form.html")
+        self.assertContains(response, NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER)
+        percents = sorted(
             experiment.rollout_phases.values_list("population_percent", flat=True)
         )
-        for pct in plan_percentages:
-            self.assertIn(Decimal(pct), percents)
+        self.assertEqual(percents, [Decimal("1.0000"), Decimal("10.0000")])
 
 
 class TestNewRolloutPlanCreateView(AuthTestCase):

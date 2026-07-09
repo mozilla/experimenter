@@ -1035,6 +1035,15 @@ class TestRolloutPhaseForm(TestCase):
             form.errors["start_date"],
         )
 
+    def test_population_over_100_is_invalid(self):
+        form = RolloutPhaseForm(data={"population_percent": "150"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)
+
+    def test_population_100_is_valid(self):
+        form = RolloutPhaseForm(data={"population_percent": "100"})
+        self.assertTrue(form.is_valid(), form.errors)
+
     def test_negative_population_percent_is_invalid(self):
         form = RolloutPhaseForm(data={"population_percent": "-1"})
         self.assertFalse(form.is_valid())

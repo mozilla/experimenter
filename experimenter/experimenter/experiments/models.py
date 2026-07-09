@@ -1282,20 +1282,26 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if not phases:
             return
 
-        today = datetime.date.today()
+        today = timezone.now().date()
         phase_ids = [phase.id for phase in phases]
 
         if self.rollout_phase_id is None:
+            current_phase = None
             next_phase = phases[0]
         else:
             current_index = phase_ids.index(self.rollout_phase_id)
             current_phase = phases[current_index]
+            next_index = current_index + 1
+            next_phase = phases[next_index] if next_index < len(phases) else None
+
+        if next_phase is not None and not next_phase.population_percent:
+            return
+
+        if current_phase is not None:
             current_phase.end_date = today
             if current_phase.actual_start_date:
                 current_phase.start_date = current_phase.actual_start_date
             current_phase.save()
-            next_index = current_index + 1
-            next_phase = phases[next_index] if next_index < len(phases) else None
 
         if next_phase is None:
             self.rollout_phase_next = None
@@ -2875,7 +2881,7 @@ class NimbusRolloutPhase(models.Model):
     def days_elapsed(self):
         if not self.start_date:
             return 0
-        return max(0, (datetime.date.today() - self.start_date).days)
+        return max(0, (timezone.now().date() - self.start_date).days)
 
 
 class NimbusRolloutPlanTemplate(models.Model):

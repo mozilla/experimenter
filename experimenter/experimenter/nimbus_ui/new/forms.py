@@ -887,11 +887,9 @@ class RolloutPhaseForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if self.fields["start_date"].disabled:
-            return cleaned_data
         start_date = cleaned_data.get("start_date")
         end_date = cleaned_data.get("end_date")
-        if bool(start_date) != bool(end_date):
+        if not self.fields["start_date"].disabled and bool(start_date) != bool(end_date):
             self.add_error(
                 "end_date" if start_date else "start_date",
                 NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE,
