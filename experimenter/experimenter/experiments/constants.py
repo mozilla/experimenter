@@ -258,6 +258,8 @@ class ApplicationConfig:
 
 DESKTOP_PREFFLIPS_SLUG = "prefFlips"
 DESKTOP_NEWTAB_ADDON_SLUG = "newtabTrainhopAddon"
+DESKTOP_NEWTAB_TRAINHOP_SLUG = "newtabTrainhop"
+DESKTOP_NEWTAB_ADDON_VERSION_ATTR = "newtabAddonVersion"
 
 APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     name="Firefox Desktop",
@@ -532,6 +534,8 @@ class NimbusConstants:
 
     DESKTOP_PREFFLIPS_SLUG = DESKTOP_PREFFLIPS_SLUG
     DESKTOP_NEWTAB_ADDON_SLUG = DESKTOP_NEWTAB_ADDON_SLUG
+    DESKTOP_NEWTAB_TRAINHOP_SLUG = DESKTOP_NEWTAB_TRAINHOP_SLUG
+    DESKTOP_NEWTAB_ADDON_VERSION_ATTR = DESKTOP_NEWTAB_ADDON_VERSION_ATTR
 
     MOBILE_MESSAGING_SLUG = "messaging"
     MOBILE_MESSAGING_MESSAGES_FIELD = "messages"
@@ -860,6 +864,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ERROR_FEATURE_TARGET_COLLECTION = (
         "Feature '{feature_id}' publishes to collection '{collection}'"
+    )
+    ERROR_NEWTAB_TRAINHOP_TARGETING_REQUIRES_FEATURE = (
+        "Targeting the newtab addon version requires the "
+        f"{DESKTOP_NEWTAB_TRAINHOP_SLUG} feature. You must select it from the "
+        "feature configuration drop down on the Branches page."
     )
     ERROR_CANNOT_PUBLISH_TO_PREVIEW = "This experiment cannot be published to preview."
 
