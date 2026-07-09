@@ -20,9 +20,7 @@ RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # Python packages
-RUN curl -sSL https://install.python-poetry.org | python3 - --version 2.2.1
-ENV PATH="/root/.local/bin:$PATH"
-RUN poetry config virtualenvs.create false
+COPY --from=ghcr.io/astral-sh/uv:0.10.0 /uv /uvx /usr/local/bin/
 
 # Rust cargo
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | /bin/sh -s -- -y --profile minimal
@@ -34,12 +32,13 @@ FROM system-builder AS python-builder
 WORKDIR /experimenter
 
 COPY ./pyproject.toml /experimenter/pyproject.toml
-COPY ./poetry.lock /experimenter/poetry.lock
-RUN poetry install
+COPY ./uv.lock /experimenter/uv.lock
 
-# If any package is installed, that is incompatible by version, this command
-# will exit non-zero and print what is usually just a warning in `poetry install`
-RUN poetry check
+# Install dependencies into a virtualenv that later stages can copy
+ENV UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
+RUN uv sync --frozen --no-install-project
 
 # Build glean assets
 COPY ./experimenter/telemetry /experimenter/experimenter/telemetry
@@ -71,9 +70,9 @@ COPY ./bin/ /experimenter/bin/
 RUN chmod +x /experimenter/bin/wait-for-it.sh
 
 # Python packages
-COPY --from=python-builder /usr/local/bin/ /usr/local/bin/
-COPY --from=python-builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
+COPY --from=python-builder /opt/venv/ /opt/venv/
 COPY --from=python-builder /experimenter/experimenter/glean/generated/ /experimenter/experimenter/glean/generated/
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Node packages
 COPY --from=node-builder /experimenter/experimenter/legacy/legacy-ui/core/node_modules/ /experimenter/experimenter/legacy/legacy-ui/core/node_modules/
@@ -128,9 +127,9 @@ RUN apt-get update
 RUN apt-get --no-install-recommends install -y apt-utils ca-certificates git postgresql-client 
 
 # Copy source from previously built containers
-COPY --from=dev /usr/local/bin/ /usr/local/bin/
-COPY --from=dev /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
+COPY --from=dev /opt/venv/ /opt/venv/
 COPY --from=dev /experimenter/experimenter/glean/generated/ /experimenter/experimenter/glean/generated/
+ENV PATH="/opt/venv/bin:$PATH"
 COPY --from=dev /experimenter/bin/ /experimenter/bin/
 COPY --from=dev /application-services/nimbus_megazord/ /application-services/nimbus_megazord/
 COPY ./manage.py /experimenter/manage.py

@@ -44,7 +44,9 @@ case "$FIREFOX_CHANNEL" in
     ;;
 esac
 
-curl -sSL https://install.python-poetry.org | python3 - --version 1.8.4
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PROJECT_ENVIRONMENT=/tmp/uv-venv
 sudo chmod -R a+rw /code/experimenter/tests/integration/
 sudo chmod -R a+X /code/experimenter/tests/integration/
 mkdir -m a+rwx -p /code/experimenter/tests/integration/test-reports
@@ -52,10 +54,8 @@ sudo chown -R seluser /opt/venv/
 
 firefox --version
 
-poetry -C experimenter/tests/integration install --no-root
-poetry -C experimenter/tests/integration \
-    -vvv \
-    run \
+uv sync --project experimenter/tests --no-install-project
+uv run --project experimenter/tests \
     pytest \
     --html=experimenter/tests/integration/test-reports/report.htm \
     --self-contained-html \

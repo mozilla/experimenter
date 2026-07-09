@@ -12,7 +12,7 @@ updates:
       - dependency-name: "vega"
         update-types:
           ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directory: "/experimenter"
     schedule:
       interval: weekly
@@ -21,7 +21,7 @@ updates:
       - dependency-name: "*"
         update-types:
           ["version-update:semver-major", "version-update:semver-patch"]
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directory: "/experimenter/tests"
     schedule:
       interval: weekly
