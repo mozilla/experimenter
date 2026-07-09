@@ -321,6 +321,15 @@ class RolloutOverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
     public_description = forms.CharField(
         required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3})
     )
+    application = forms.ChoiceField(
+        disabled=True,
+        choices=NimbusExperiment.Application.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -328,6 +337,7 @@ class RolloutOverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "name",
             "hypothesis",
             "public_description",
+            "application",
         ]
 
     def __init__(self, *args, **kwargs):
