@@ -242,7 +242,7 @@ owner = "xluo-all@mozilla.com"
 [metrics.spoc_tiles_impressions]
 select_expression = """
       COALESCE(COUNTIF(
-          event.category = 'top_site'
+          event.category = 'top_sites'
           AND event.name = 'contile_impression'
       ),0)
 """
@@ -254,7 +254,7 @@ owner = "xluo-all@mozilla.com"
 [metrics.spoc_tiles_clicks]
 select_expression = """
       COALESCE(COUNTIF(
-          event.category = 'top_site'
+          event.category = 'top_sites'
           AND event.name = 'contile_click'
       ),0)
 """
