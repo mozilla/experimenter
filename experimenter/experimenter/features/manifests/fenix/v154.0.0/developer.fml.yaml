@@ -693,17 +693,17 @@ features:
               utm-content: uninstall_shortcut
               icon: ic_delete_black
               answers:
-              - text: uninstall_survey_option_1
+              - text: uninstall_survey_option_1_v2
                 ordering: 0
-              - text: uninstall_survey_option_2
+              - text: uninstall_survey_option_2_v2
                 ordering: 1
-              - text: uninstall_survey_option_3
+              - text: uninstall_survey_option_3_v2
                 ordering: 2
-              - text: uninstall_survey_option_4
+              - text: uninstall_survey_option_4_v2
                 ordering: 3
-              - text: uninstall_survey_option_5
+              - text: uninstall_survey_option_5_v2
                 ordering: 4
-              - text: uninstall_survey_option_6
+              - text: uninstall_survey_option_6_v2
                 ordering: 5
         string-alias: MessageKey
       notification-config:
