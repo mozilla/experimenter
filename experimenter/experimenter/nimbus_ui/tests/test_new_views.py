@@ -21,6 +21,7 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutOverviewForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
+    RolloutSignoffForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.targeting.constants import NimbusTargetingConfig
@@ -423,6 +424,47 @@ class TestNewQAUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(
             experiment.qa_run_testrail_url, "https://www.example.com/testrail"
         )
+
+
+class TestNewSignoffUpdateView(NewViewTestMixin, AuthTestCase):
+    url_name = "nimbus-ui-new-update-signoff"
+
+    def test_get_returns_edit_form_for_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/signoff/edit_form.html")
+        self.assertResponseUsesForm(response, RolloutSignoffForm)
+
+    def test_post_valid_saves_and_returns_display_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_signoff=False,
+            vp_signoff=False,
+            legal_signoff=False,
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "qa_signoff": "on",
+                "vp_signoff": "on",
+                "legal_signoff": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/signoff/card.html")
+        experiment.refresh_from_db()
+        self.assertTrue(experiment.qa_signoff)
+        self.assertTrue(experiment.vp_signoff)
+        self.assertTrue(experiment.legal_signoff)
 
 
 class TestNewDocumentationLinkCreateView(AuthTestCase):

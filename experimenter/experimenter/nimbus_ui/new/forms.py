@@ -806,6 +806,20 @@ class RolloutQAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         return f"{self.request.user} updated QA"
 
 
+class RolloutSignoffForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = ["qa_signoff", "vp_signoff", "legal_signoff"]
+        widgets = {
+            "qa_signoff": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "vp_signoff": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "legal_signoff": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated sign off"
+
+
 class TagAssignForm(NimbusChangeLogFormMixin, forms.ModelForm):
     class Meta:
         model = NimbusExperiment

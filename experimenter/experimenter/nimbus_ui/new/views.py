@@ -20,6 +20,7 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutOverviewForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
+    RolloutSignoffForm,
     SubscribeForm,
     TagAssignForm,
     UnsubscribeForm,
@@ -176,6 +177,12 @@ class NewQAUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutQAStatusForm
     display_template = "new/rollouts/qa/card.html"
     template_name = "new/rollouts/qa/edit_form.html"
+
+
+class NewSignoffUpdateView(CardMixin, NewCardUpdateView):
+    form_class = RolloutSignoffForm
+    display_template = "new/rollouts/signoff/card.html"
+    template_name = "new/rollouts/signoff/edit_form.html"
 
 
 class NewDocumentationLinkCreateView(RenderParentDBResponseMixin, NewOverviewUpdateView):
