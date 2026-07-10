@@ -34,6 +34,7 @@ from experimenter.experiments.tests.factories import (
     NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.targeting.constants import FX_153_3_TRAINHOP
 from experimenter.targeting.targeting_context_parser import TargetingContextFields
 
 BASIC_JSON_SCHEMA = """\
@@ -3610,6 +3611,81 @@ class TestNimbusReviewSerializerSingleFeature(
                 "non_field_errors": [NimbusConstants.ERROR_CANNOT_PARSE_TARGETING],
             },
         )
+
+    def test_newtab_trainhop_targeting_without_trainhop_feature_is_invalid(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
+            targeting_config_slug=FX_153_3_TRAINHOP.slug,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "feature_configs": [
+                    NimbusConstants.ERROR_NEWTAB_TRAINHOP_TARGETING_REQUIRES_FEATURE
+                ]
+            },
+        )
+
+    def test_newtab_trainhop_targeting_with_trainhop_feature_is_valid(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP,
+                    slug=NimbusConstants.DESKTOP_NEWTAB_TRAINHOP_SLUG,
+                )
+            ],
+            targeting_config_slug=FX_153_3_TRAINHOP.slug,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_non_trainhop_targeting_without_trainhop_feature_is_valid(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     @parameterized.expand(
         [

@@ -1413,6 +1413,34 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_newtab_trainhop_targeting(self, data):
+        if not self.instance.is_desktop:
+            return data
+
+        targeting_config_slug = data.get("targeting_config_slug")
+        targeting_config = NimbusExperiment.TARGETING_CONFIGS[targeting_config_slug]
+
+        if (
+            NimbusConstants.DESKTOP_NEWTAB_ADDON_VERSION_ATTR
+            not in targeting_config.targeting
+        ):
+            return data
+
+        feature_configs = data.get("feature_configs", [])
+        if not any(
+            feature_config.slug == NimbusConstants.DESKTOP_NEWTAB_TRAINHOP_SLUG
+            for feature_config in feature_configs
+        ):
+            raise serializers.ValidationError(
+                {
+                    "feature_configs": [
+                        NimbusConstants.ERROR_NEWTAB_TRAINHOP_TARGETING_REQUIRES_FEATURE
+                    ]
+                }
+            )
+
+        return data
+
     def _validate_sticky_enrollment(self, data):
         targeting_config_slug = data.get("targeting_config_slug")
         targeting_config = NimbusExperiment.TARGETING_CONFIGS[targeting_config_slug]
@@ -1952,6 +1980,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_configs(data)
         data = self._validate_enrollment_targeting(data)
         data = self._validate_targeting_parses(data)
+        data = self._validate_newtab_trainhop_targeting(data)
         data = self._validate_sticky_enrollment(data)
         data = self._validate_bucket_duplicates(data)
         data = self._validate_proposed_release_date(data)
