@@ -7,7 +7,7 @@ friendly_name = "Sponsored Tiles Impressions"
 description = "Number of times Contile Sponsored Tiles are shown."
 select_expression = """
       COALESCE(COUNTIF(
-          event.category = 'top_site'
+          event.category = 'top_sites'
           AND event.name = 'contile_impression'
       ),0)
 """
@@ -20,7 +20,7 @@ friendly_name = "Sponsored Tiles Clicks"
 description = "Number of times user clicked a Contile Sponsored Tile."
 select_expression = """
       COALESCE(COUNTIF(
-          event.category = 'top_site'
+          event.category = 'top_sites'
           AND event.name = 'contile_click'
       ),0)
 """
