@@ -1,5 +1,4 @@
 import json
-import re
 import subprocess
 import sys
 import time
@@ -14,12 +13,6 @@ NIMBUS_CLI_PATH = "/application-services/bin/nimbus-cli"
 
 NIMBUS_CLI_MAX_ATTEMPTS = 3
 NIMBUS_CLI_RETRY_BACKOFF_SECONDS = 5
-
-TRANSIENT_ERROR_RE = re.compile(rb"returned (?:429|5\d\d)")
-
-
-def _is_transient_error(stderr: Optional[bytes]) -> bool:
-    return stderr is not None and TRANSIENT_ERROR_RE.search(stderr) is not None
 
 
 def _check_output(args: list[str]) -> bytes:
@@ -36,9 +29,10 @@ def nimbus_cli(args: list[str]) -> bytes:
     """Run nimbus-cli with the given arguments.
 
     nimbus-cli fetches each included FML file from the GitHub API, which
-    intermittently returns a 5xx/429 for individual files under the burst of
-    requests. Retry those transient responses so one flaky response does not
-    drop an app-version from the fetch.
+    intermittently fails for individual files under the burst of requests. The
+    exit code cannot distinguish a transient fetch failure from a genuine
+    error, so retry on any failure: a flaky response recovers, and a real error
+    still surfaces once the retries are exhausted.
     """
     print("nimbus-cli", " ".join(args))
 
@@ -46,13 +40,11 @@ def nimbus_cli(args: list[str]) -> bytes:
         try:
             return _check_output(args)
         except subprocess.CalledProcessError as e:
-            if not _is_transient_error(e.stderr):
-                raise
-
             delay = NIMBUS_CLI_RETRY_BACKOFF_SECONDS * 2 ** (attempt - 1)
+            stderr = e.stderr.decode(errors="replace") if e.stderr else ""
             print(
-                f"nimbus-cli transient error on attempt {attempt} of "
-                f"{NIMBUS_CLI_MAX_ATTEMPTS}, retrying in {delay}s",
+                f"nimbus-cli failed on attempt {attempt} of "
+                f"{NIMBUS_CLI_MAX_ATTEMPTS}, retrying in {delay}s: {stderr}",
                 file=sys.stderr,
             )
             time.sleep(delay)

@@ -181,15 +181,7 @@ class NimbusCliTests(TestCase):
             )
 
 
-TRANSIENT_STDERR = (
-    b"Error: Problem with https://raw.githubusercontent.com/owner/repo/ref/feature.yaml: "
-    b"Can't find file: Invalid Response Status: Error: GET "
-    b"https://api.github.com/repos/owner/repo/contents/feature.yaml?ref=ref returned 502"
-)
-NON_TRANSIENT_STDERR = b"Error: Problem parsing manifest: unexpected token"
-
-
-def make_called_process_error(stderr):
+def make_called_process_error(stderr=None):
     return subprocess.CalledProcessError(
         returncode=1,
         cmd=[nimbus_cli.NIMBUS_CLI_PATH, "fml"],
@@ -198,15 +190,12 @@ def make_called_process_error(stderr):
 
 
 class NimbusCliRetryTests(TestCase):
-    """Tests for nimbus_cli transient-error retry."""
+    """Tests for nimbus_cli retry."""
 
     @patch.object(nimbus_cli.time, "sleep")
     @patch.object(nimbus_cli.subprocess, "check_output")
-    def test_retries_transient_error_then_succeeds(self, check_output, sleep):
-        check_output.side_effect = [
-            make_called_process_error(TRANSIENT_STDERR),
-            b"output",
-        ]
+    def test_retries_error_then_succeeds(self, check_output, sleep):
+        check_output.side_effect = [make_called_process_error(b"boom"), b"output"]
 
         self.assertEqual(nimbus_cli.nimbus_cli(["fml"]), b"output")
         self.assertEqual(check_output.call_count, 2)
@@ -215,35 +204,10 @@ class NimbusCliRetryTests(TestCase):
     @patch.object(nimbus_cli.time, "sleep")
     @patch.object(nimbus_cli.subprocess, "check_output")
     def test_raises_after_exhausting_retries(self, check_output, sleep):
-        check_output.side_effect = make_called_process_error(TRANSIENT_STDERR)
+        check_output.side_effect = make_called_process_error()
 
         with self.assertRaises(subprocess.CalledProcessError):
             nimbus_cli.nimbus_cli(["fml"])
 
         self.assertEqual(check_output.call_count, nimbus_cli.NIMBUS_CLI_MAX_ATTEMPTS)
         self.assertEqual(sleep.call_count, nimbus_cli.NIMBUS_CLI_MAX_ATTEMPTS - 1)
-
-    @patch.object(nimbus_cli.time, "sleep")
-    @patch.object(nimbus_cli.subprocess, "check_output")
-    def test_does_not_retry_non_transient_error(self, check_output, sleep):
-        check_output.side_effect = make_called_process_error(NON_TRANSIENT_STDERR)
-
-        with self.assertRaises(subprocess.CalledProcessError):
-            nimbus_cli.nimbus_cli(["fml"])
-
-        check_output.assert_called_once()
-        sleep.assert_not_called()
-
-    @parameterized.expand(
-        [
-            (b"GET https://api.github.com/... returned 502", True),
-            (b"GET https://api.github.com/... returned 500", True),
-            (b"GET https://api.github.com/... returned 503", True),
-            (b"GET https://api.github.com/... returned 429", True),
-            (b"GET https://api.github.com/... returned 404", False),
-            (b"Error: Problem parsing manifest", False),
-            (None, False),
-        ]
-    )
-    def test_is_transient_error(self, stderr, expected):
-        self.assertEqual(nimbus_cli._is_transient_error(stderr), expected)
