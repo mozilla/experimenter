@@ -231,6 +231,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     is_rollout_dirty = models.BooleanField(
         "Approved Changes Flag", blank=False, null=False, default=False
     )
+    rollout_advance_observations = models.TextField(
+        "Advance Rollout Phase Observations", blank=True, default=""
+    )
+    rollout_pause_observations = models.TextField(
+        "Pause Rollout Observations", blank=True, default=""
+    )
+    rollout_phase = models.ForeignKey(
+        "NimbusRolloutPhase",
+        verbose_name="Current Rollout Phase",
+        related_name="+",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    rollout_phase_next = models.ForeignKey(
+        "NimbusRolloutPhase",
+        verbose_name="Next Rollout Phase",
+        related_name="+",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     proposed_duration = models.PositiveIntegerField(
         "Proposed Duration",
         default=NimbusConstants.DEFAULT_PROPOSED_DURATION,
@@ -1238,6 +1260,60 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def is_live_rollout(self):
         return self.is_rollout and (self.is_enrolling or self.is_observation)
 
+    def annotated_rollout_phases(self):
+        phases = list(self.rollout_phases.all())
+        current_index = None
+        if self.rollout_phase_id is not None:
+            for i, phase in enumerate(phases):
+                if phase.id == self.rollout_phase_id:
+                    current_index = i
+                    break
+        for i, phase in enumerate(phases):
+            if current_index is None or i > current_index:
+                phase.card_status = NimbusUIConstants.RolloutPhaseStatus.NOT_STARTED
+            elif i == current_index:
+                phase.card_status = NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
+            else:
+                phase.card_status = NimbusUIConstants.RolloutPhaseStatus.COMPLETE
+        return phases
+
+    def advance_rollout_phase(self):
+        phases = list(self.rollout_phases.all())
+        if not phases:
+            return
+
+        today = timezone.now().date()
+        phase_ids = [phase.id for phase in phases]
+
+        if self.rollout_phase_id is None:
+            current_phase = None
+            next_phase = phases[0]
+        else:
+            current_index = phase_ids.index(self.rollout_phase_id)
+            current_phase = phases[current_index]
+            next_index = current_index + 1
+            next_phase = phases[next_index] if next_index < len(phases) else None
+
+        if next_phase is not None and not next_phase.population_percent:
+            return
+
+        if current_phase is not None:
+            current_phase.end_date = today
+            if current_phase.actual_start_date:
+                current_phase.start_date = current_phase.actual_start_date
+            current_phase.save()
+
+        if next_phase is None:
+            self.rollout_phase_next = None
+            self.save()
+            return
+
+        next_phase.actual_start_date = today
+        next_phase.save()
+        self.rollout_phase = next_phase
+        self.rollout_phase_next = None
+        self.save()
+
     @property
     def is_missing_takeaway_info(self):
         return (
@@ -1257,6 +1333,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def can_edit_audience(self):
         return self.is_draft or (self.is_live_rollout and self.is_enrolling)
+
+    def can_edit_schedule(self):
+        return self.is_draft or self.is_live_rollout
 
     def sidebar_links(self, current_path):
         return [
@@ -2382,6 +2461,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.is_archived = False
         cloned.is_paused = False
         cloned.is_rollout_dirty = False
+        cloned.rollout_phase = None
+        cloned.rollout_phase_next = None
         cloned.reference_branch = None
         cloned.proposed_release_date = None
         cloned.published_dto = None
@@ -2433,6 +2514,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             link.id = None
             link.experiment = cloned
             link.save()
+
+        for phase in self.rollout_phases.all():
+            phase.id = None
+            phase.experiment = cloned
+            phase.save()
 
         for (
             required_experiment_branch
@@ -2776,6 +2862,72 @@ class NimbusDocumentationLink(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.link})"
+
+
+class NimbusRolloutPhase(models.Model):
+    experiment = models.ForeignKey(
+        NimbusExperiment,
+        related_name="rollout_phases",
+        on_delete=models.CASCADE,
+    )
+    start_date = models.DateField("Phase Start Date", null=True, blank=True)
+    end_date = models.DateField("Phase End Date", null=True, blank=True)
+    actual_start_date = models.DateField("Phase Actual Start Date", null=True, blank=True)
+    population_percent = models.DecimalField[Decimal](
+        "Phase Population Percent", max_digits=7, decimal_places=4, default=0.0
+    )
+
+    class Meta:
+        verbose_name = "Nimbus Rollout Phase"
+        verbose_name_plural = "Nimbus Rollout Phases"
+        ordering = ("id",)
+
+    def __str__(self):
+        return f"Rollout phase ({self.population_percent}%)"
+
+    @property
+    def duration_days(self):
+        if self.start_date and self.end_date:
+            return max(0, (self.end_date - self.start_date).days)
+        return None
+
+    @property
+    def duration_display(self):
+        days = self.duration_days
+        if days is None:
+            return None
+        return f"{days} day{'' if days == 1 else 's'}"
+
+    @property
+    def days_elapsed(self):
+        if not self.start_date:
+            return 0
+        return max(0, (timezone.now().date() - self.start_date).days)
+
+
+class NimbusRolloutPlanTemplate(models.Model):
+    name = models.CharField("Rollout Plan Name", max_length=255, unique=True)
+    phases = models.JSONField("Rollout Plan Phases", default=list)
+
+    class Meta:
+        verbose_name = "Nimbus Rollout Plan Template"
+        verbose_name_plural = "Nimbus Rollout Plan Templates"
+        ordering = ("name",)
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def summary(phases):
+        formatted_phases = []
+
+        for phase in phases:
+            if phase == int(phase):
+                formatted_phases.append(f"{int(phase)}%")
+            else:
+                formatted_phases.append(f"{phase}%")
+
+        return " → ".join(formatted_phases)
 
 
 class NimbusIsolationGroup(models.Model):

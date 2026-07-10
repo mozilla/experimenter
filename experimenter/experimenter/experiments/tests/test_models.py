@@ -44,6 +44,7 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusFeatureVersion,
     NimbusIsolationGroup,
+    NimbusRolloutPlanTemplate,
     NimbusVersionedSchema,
     Tag,
 )
@@ -55,6 +56,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
     NimbusIsolationGroupFactory,
+    NimbusRolloutPhaseFactory,
     NimbusVersionedSchemaFactory,
 )
 from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
@@ -6813,3 +6815,260 @@ class TestNimbusAlert(TestCase):
                 experiment, NimbusConstants.AlertType.ANALYSIS_ERROR
             )
         )
+
+
+class TestNimbusRolloutPhase(TestCase):
+    def test_str(self):
+        phase = NimbusRolloutPhaseFactory.create(population_percent=25)
+        phase.refresh_from_db()
+        self.assertEqual(str(phase), "Rollout phase (25.0000%)")
+
+    def test_can_edit_schedule_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        self.assertTrue(experiment.can_edit_schedule())
+
+    def test_can_edit_schedule_live_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        self.assertTrue(experiment.can_edit_schedule())
+
+    def test_can_edit_schedule_completed(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            is_rollout=True,
+        )
+        self.assertFalse(experiment.can_edit_schedule())
+
+    def test_duration_days_and_display(self):
+        phase = NimbusRolloutPhaseFactory.build(
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 1, 15),
+        )
+        self.assertEqual(phase.duration_days, 14)
+        self.assertEqual(phase.duration_display, "14 days")
+
+        phase.end_date = datetime.date(2026, 1, 6)
+        self.assertEqual(phase.duration_days, 5)
+        self.assertEqual(phase.duration_display, "5 days")
+
+    def test_duration_none_without_dates(self):
+        phase = NimbusRolloutPhaseFactory.build(start_date=None, end_date=None)
+        self.assertIsNone(phase.duration_days)
+        self.assertIsNone(phase.duration_display)
+
+    def test_days_elapsed(self):
+        today = timezone.now().date()
+        day = datetime.timedelta(days=1)
+
+        phase = NimbusRolloutPhaseFactory.build(
+            start_date=today - 3 * day, end_date=today + 3 * day
+        )
+        self.assertEqual(phase.days_elapsed, 3)
+
+        phase = NimbusRolloutPhaseFactory.build(
+            start_date=today - 10 * day, end_date=today - day
+        )
+        self.assertEqual(phase.days_elapsed, 10)
+
+        phase = NimbusRolloutPhaseFactory.build(start_date=None, end_date=None)
+        self.assertEqual(phase.days_elapsed, 0)
+
+    def test_clone_copies_rollout_phases(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=100)
+
+        cloned = experiment.clone("Cloned Schedule", experiment.owner)
+
+        self.assertEqual(cloned.rollout_phases.count(), 2)
+        self.assertEqual(
+            list(cloned.rollout_phases.values_list("population_percent", flat=True)),
+            [Decimal("10.0000"), Decimal("100.0000")],
+        )
+
+
+class TestNimbusRolloutPlanTemplate(TestCase):
+    def test_str(self):
+        template = NimbusRolloutPlanTemplate.objects.create(name="High risk", phases=[])
+        self.assertEqual(str(template), "High risk")
+
+    def test_summary(self):
+        self.assertEqual(
+            NimbusRolloutPlanTemplate.summary([1, 10, 50, 100]),
+            "1% → 10% → 50% → 100%",
+        )
+
+    def test_summary_trims_trailing_zeros(self):
+        self.assertEqual(NimbusRolloutPlanTemplate.summary([2.5, 100.0]), "2.5% → 100%")
+
+
+class TestRolloutPhaseProgress(TestCase):
+    def test_annotated_rollout_phases_marks_progress(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (1, 10, 50, 100)
+        ]
+        experiment.rollout_phase = phases[2]
+        experiment.save()
+        statuses = [p.card_status for p in experiment.annotated_rollout_phases()]
+        self.assertEqual(statuses, ["complete", "complete", "in_progress", "not_started"])
+
+    def test_annotated_rollout_phases_marks_progress_after_step_down(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (50, 100, 25)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+        statuses = [p.card_status for p in experiment.annotated_rollout_phases()]
+        self.assertEqual(statuses, ["complete", "in_progress", "not_started"])
+
+    def test_annotated_rollout_phases_all_not_started_when_no_current_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        for percent in (1, 10):
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+        statuses = [p.card_status for p in experiment.annotated_rollout_phases()]
+        self.assertEqual(statuses, ["not_started", "not_started"])
+
+
+class TestAdvanceRolloutPhase(TestCase):
+    def setUp(self):
+        self.experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        self.phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=self.experiment,
+                population_percent=percent,
+                start_date=None,
+                end_date=None,
+            )
+            for percent in (1, 10, 100)
+        ]
+
+    def test_advance_from_no_phase_starts_first_phase(self):
+        today = timezone.now().date()
+        self.experiment.advance_rollout_phase()
+        self.experiment.refresh_from_db()
+        self.phases[0].refresh_from_db()
+
+        self.assertEqual(self.experiment.rollout_phase, self.phases[0])
+        self.assertIsNone(self.experiment.rollout_phase_next)
+        self.assertEqual(self.phases[0].actual_start_date, today)
+        self.assertIsNone(self.phases[0].start_date)
+
+    def test_advance_stamps_dates_and_moves_pointer(self):
+        today = timezone.now().date()
+        planned_start = datetime.date(2026, 1, 1)
+        self.phases[1].start_date = planned_start
+        self.phases[1].save()
+        self.experiment.rollout_phase = self.phases[0]
+        self.experiment.save()
+
+        self.experiment.advance_rollout_phase()
+        self.experiment.refresh_from_db()
+        self.phases[0].refresh_from_db()
+        self.phases[1].refresh_from_db()
+
+        self.assertEqual(self.phases[0].end_date, today)
+        self.assertEqual(self.phases[1].actual_start_date, today)
+        self.assertEqual(self.phases[1].start_date, planned_start)
+        self.assertEqual(self.experiment.rollout_phase, self.phases[1])
+        self.assertIsNone(self.experiment.rollout_phase_next)
+
+    def test_advance_does_not_start_phase_with_zero_population(self):
+        self.phases[1].population_percent = 0
+        self.phases[1].save()
+        self.experiment.rollout_phase = self.phases[0]
+        self.experiment.save()
+
+        self.experiment.advance_rollout_phase()
+        self.experiment.refresh_from_db()
+        self.phases[0].refresh_from_db()
+        self.phases[1].refresh_from_db()
+
+        self.assertEqual(self.experiment.rollout_phase, self.phases[0])
+        self.assertIsNone(self.phases[0].end_date)
+        self.assertIsNone(self.phases[1].actual_start_date)
+
+    def test_advance_does_not_start_first_phase_with_zero_population(self):
+        self.phases[0].population_percent = 0
+        self.phases[0].save()
+
+        self.experiment.advance_rollout_phase()
+        self.experiment.refresh_from_db()
+        self.phases[0].refresh_from_db()
+
+        self.assertIsNone(self.experiment.rollout_phase)
+        self.assertIsNone(self.phases[0].actual_start_date)
+
+    def test_completing_phase_finalizes_start_to_actual(self):
+        today = timezone.now().date()
+        self.phases[0].start_date = datetime.date(2099, 1, 1)
+        self.phases[0].save()
+
+        self.experiment.advance_rollout_phase()
+        self.experiment.advance_rollout_phase()
+        self.phases[0].refresh_from_db()
+
+        self.assertEqual(self.phases[0].actual_start_date, today)
+        self.assertEqual(self.phases[0].start_date, today)
+        self.assertEqual(self.phases[0].end_date, today)
+
+    def test_advance_past_last_phase_clears_next(self):
+        self.experiment.rollout_phase = self.phases[2]
+        self.experiment.save()
+
+        self.experiment.advance_rollout_phase()
+        self.experiment.refresh_from_db()
+        self.phases[2].refresh_from_db()
+
+        self.assertEqual(self.phases[2].end_date, timezone.now().date())
+        self.assertEqual(self.experiment.rollout_phase, self.phases[2])
+        self.assertIsNone(self.experiment.rollout_phase_next)
+
+    def test_advance_with_no_phases_is_noop(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        experiment.advance_rollout_phase()
+        experiment.refresh_from_db()
+        self.assertIsNone(experiment.rollout_phase)
+        self.assertIsNone(experiment.rollout_phase_next)
+
+    def test_clone_resets_phase_pointers(self):
+        self.experiment.rollout_phase = self.phases[1]
+        self.experiment.rollout_phase_next = self.phases[2]
+        self.experiment.save()
+
+        cloned = self.experiment.clone("Cloned Phase Pointers", self.experiment.owner)
+
+        self.assertIsNone(cloned.rollout_phase)
+        self.assertIsNone(cloned.rollout_phase_next)
