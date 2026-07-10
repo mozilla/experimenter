@@ -179,3 +179,35 @@ class NimbusCliTests(TestCase):
                 ],
                 stderr=subprocess.PIPE,
             )
+
+
+def make_called_process_error(stderr=None):
+    return subprocess.CalledProcessError(
+        returncode=1,
+        cmd=[nimbus_cli.NIMBUS_CLI_PATH, "fml"],
+        stderr=stderr,
+    )
+
+
+class NimbusCliRetryTests(TestCase):
+    """Tests for nimbus_cli retry."""
+
+    @patch.object(nimbus_cli.time, "sleep")
+    @patch.object(nimbus_cli.subprocess, "check_output")
+    def test_retries_error_then_succeeds(self, check_output, sleep):
+        check_output.side_effect = [make_called_process_error(b"boom"), b"output"]
+
+        self.assertEqual(nimbus_cli.nimbus_cli(["fml"]), b"output")
+        self.assertEqual(check_output.call_count, 2)
+        sleep.assert_called_once()
+
+    @patch.object(nimbus_cli.time, "sleep")
+    @patch.object(nimbus_cli.subprocess, "check_output")
+    def test_raises_after_exhausting_retries(self, check_output, sleep):
+        check_output.side_effect = make_called_process_error()
+
+        with self.assertRaises(subprocess.CalledProcessError):
+            nimbus_cli.nimbus_cli(["fml"])
+
+        self.assertEqual(check_output.call_count, nimbus_cli.NIMBUS_CLI_MAX_ATTEMPTS)
+        self.assertEqual(sleep.call_count, nimbus_cli.NIMBUS_CLI_MAX_ATTEMPTS - 1)
