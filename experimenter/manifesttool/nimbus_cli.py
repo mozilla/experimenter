@@ -1,6 +1,8 @@
 import json
+import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -10,11 +12,17 @@ from manifesttool.version import Version
 
 NIMBUS_CLI_PATH = "/application-services/bin/nimbus-cli"
 
+NIMBUS_CLI_MAX_ATTEMPTS = 3
+NIMBUS_CLI_RETRY_BACKOFF_SECONDS = 5
 
-def nimbus_cli(args: list[str]) -> bytes:
-    """Run nimbus-cli with the given arguments."""
-    print("nimbus-cli", " ".join(args))
+TRANSIENT_ERROR_RE = re.compile(rb"returned (?:429|5\d\d)")
 
+
+def _is_transient_error(stderr: Optional[bytes]) -> bool:
+    return stderr is not None and TRANSIENT_ERROR_RE.search(stderr) is not None
+
+
+def _check_output(args: list[str]) -> bytes:
     return subprocess.check_output(
         [
             NIMBUS_CLI_PATH,
@@ -22,6 +30,34 @@ def nimbus_cli(args: list[str]) -> bytes:
         ],
         stderr=subprocess.PIPE,
     )
+
+
+def nimbus_cli(args: list[str]) -> bytes:
+    """Run nimbus-cli with the given arguments.
+
+    nimbus-cli fetches each included FML file from the GitHub API, which
+    intermittently returns a 5xx/429 for individual files under the burst of
+    requests. Retry those transient responses so one flaky response does not
+    drop an app-version from the fetch.
+    """
+    print("nimbus-cli", " ".join(args))
+
+    for attempt in range(1, NIMBUS_CLI_MAX_ATTEMPTS):
+        try:
+            return _check_output(args)
+        except subprocess.CalledProcessError as e:
+            if not _is_transient_error(e.stderr):
+                raise
+
+            delay = NIMBUS_CLI_RETRY_BACKOFF_SECONDS * 2 ** (attempt - 1)
+            print(
+                f"nimbus-cli transient error on attempt {attempt} of "
+                f"{NIMBUS_CLI_MAX_ATTEMPTS}, retrying in {delay}s",
+                file=sys.stderr,
+            )
+            time.sleep(delay)
+
+    return _check_output(args)
 
 
 def _assert_ref_xor_github_repo(repo_type: RepositoryType, ref: Optional[Ref]):
