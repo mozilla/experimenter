@@ -9,7 +9,7 @@
       <span class="badge rounded-pill bg-danger" id="archive-badge">Archived</span>
     {% endif %}
     {% if experiment.is_rollout %}<span class="badge rounded-pill bg-primary" id="rollout-badge">Rollout</span>{% endif %}
-    {% if experiment.is_holdback %}<span class="badge rounded-pill bg-secondary" id="holdback-badge">Holdback</span>{% endif %}
+    {% if experiment.is_holdback %}<span class="badge rounded-pill bg-danger" id="holdback-badge">Holdback</span>{% endif %}
     {% if experiment.project_impact %}
       <span class="badge rounded-pill text-bg-warning border border-secondary-subtle"><i class="fa-solid fa-trophy me-2"></i>{{ experiment.project_impact|lower|capfirst }} impact</span>
     {% endif %}
