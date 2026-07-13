@@ -4841,6 +4841,12 @@ mailto:
         This pref controls after how many minutes the mailto prompt can be shown
         again, which has been dismissed by clicking a 'not now' button on it.
       fallbackPref: browser.mailto.dualPrompt.dismissNotNowMinutes
+    dialog:
+      type: boolean
+      description: >-
+        Toggle a mailto handler picker dialog shown when a mailto link is
+        clicked. When false, the picker is skipped and the link falls back to
+        the default protocol handling.
 
 nimbusIsReady:
   description: A feature that provides the number of Nimbus is_ready events to send
@@ -6006,6 +6012,9 @@ smartWindow:
   owner: echa@mozilla.com
   hasExposure: false
   variables:
+    enabled:
+      type: boolean
+      description: Enables the Smart Window feature when true. Turning off this variable will not disable the feature.
     isDefault:
       type: boolean
       setPref:
