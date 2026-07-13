@@ -276,6 +276,14 @@ homepage-as-new-tab:
       type: boolean
       description: |
         Whether or not to enable homepage as a new tab
+homepage-customization:
+  description: Feature to enable Homepage Customization for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Homepage Customization is enabled.
 homepage-hide-frecent-top-sites:
   description: Hides frecent top sites on the homepage.
   hasExposure: true
@@ -313,6 +321,14 @@ homepage-sports-widget:
       type: boolean
       description: |
         If true, treat the user as being within one week of the World Cup kickoff regardless of the device date. Used to roll out the pre-tournament pager (follow your team + view-schedule cards) ahead of the calendar date for testing or staggered launches. The natural date-based check still applies when this is false (the default).
+homepage-trending-recent-search:
+  description: Feature to show trending and recent searches on the Homepage Search for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, trending and recent searches are shown on the Homepage Search.
 homescreen:
   description: The homescreen that the user goes to when they press home or new tab.
   hasExposure: true
@@ -814,15 +830,6 @@ search-optimization-option:
     show-stocks-card:
       type: boolean
       description: If true, Search Optimization Stock cards are enabled.
-search-suggestions-on-homepage:
-  description: Enables search suggestions on homepage.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable search suggestions on homepage.
 sent-from-firefox:
   description: A feature that allows the user to add a download firefox footer to a shared link.
   hasExposure: true
