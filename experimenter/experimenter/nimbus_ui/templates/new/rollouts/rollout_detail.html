@@ -6,6 +6,8 @@
 {% block title %}{{ experiment.name }}{% endblock %}
 {% block main_content %}
   <div id="RolloutSummary" class="d-flex flex-column gap-4">
+    {% include "new/common/audience_overlap_warnings.html" %}
+
     {# ── Define ── #}
     <div class="d-flex flex-column gap-2">
       <div class="small fw-medium mb-1 text-secondary">Define</div>
