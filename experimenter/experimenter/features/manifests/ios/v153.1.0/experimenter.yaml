@@ -30,14 +30,6 @@ address-bar-gesture-to-open-tab-tray-feature:
       type: boolean
       description: |
         Decides if the swipe version of this feature is enabled. This will override the interactive gesture
-ads-client:
-  description: This property defines if the rust ads client is enabled
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    status:
-      type: boolean
-      description: If true, we will enable the rust ads client
 ai-kill-switch-feature:
   description: |
     Configuration feature for AI features

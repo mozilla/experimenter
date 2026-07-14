@@ -34,13 +34,6 @@ features:
           Decides if the swipe version of this feature is enabled. This will override the interactive gesture
         type: Boolean
         default: true
-  ads-client:
-    description: This property defines if the rust ads client is enabled
-    variables:
-      status:
-        description: If true, we will enable the rust ads client
-        type: Boolean
-        default: true
   ai-kill-switch-feature:
     description: |
       Configuration feature for AI features
