@@ -14,6 +14,7 @@
 
       {# TODO EXP-6682: Rollout Risks Form/Card #}
       {% include "new/rollouts/detail_card.html" with card_id="risks" title="Risks" subtitle="Consider possible risks if the public interacts with your experiment" show_edit_btn=True body_template="new/rollouts/risks/card.html" %}
+      {% include "new/rollouts/detail_card.html" with card_id="signoff" title="Sign-Offs" subtitle="QA, VP, and Legal Sign-offs" show_edit_btn=True body_template="new/rollouts/signoff/card.html" %}
 
     </div>
     {# ── Configure ── #}

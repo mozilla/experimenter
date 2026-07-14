@@ -1,0 +1,65 @@
+{# ── Edit form ── #}
+<div id="rollout-signoff-body">
+  <form hx-post="{% url 'nimbus-ui-new-update-signoff' experiment.slug %}"
+        hx-target="#rollout-signoff-body"
+        hx-swap="outerHTML"
+        class="d-flex flex-column gap-4">
+    {% csrf_token %}
+    <div class="d-flex flex-column gap-3">
+      {# QA sign-off #}
+      <div class="d-flex flex-row align-items-center gap-2">
+        <div class="form-check mb-0">
+          {{ form.qa_signoff }}
+          <label class="form-check-label small text-body"
+                 for="{{ form.qa_signoff.id_for_label }}">QA sign-off</label>
+        </div>
+        {% if experiment.signoff_recommendations.qa_signoff %}<span class="text-success small">Recommended:</span>{% endif %}
+        <span class="small text-secondary">Please file a QA request.
+          <a target="_blank"
+             rel="noopener noreferrer"
+             href="https://experimenter.info/workflow/risk-mitigation#qa-sign-off">Learn more</a>
+        </span>
+      </div>
+      {# VP sign-off #}
+      <div class="d-flex flex-row align-items-center gap-2">
+        <div class="form-check mb-0">
+          {{ form.vp_signoff }}
+          <label class="form-check-label small text-body"
+                 for="{{ form.vp_signoff.id_for_label }}">VP sign-off</label>
+        </div>
+        {% if experiment.signoff_recommendations.vp_signoff %}<span class="text-success small">Recommended:</span>{% endif %}
+        <span class="small text-secondary">Please email your VP.
+          <a target="_blank"
+             rel="noopener noreferrer"
+             href="https://experimenter.info/workflow/risk-mitigation#vp-sign-off">Learn more</a>
+        </span>
+      </div>
+      {# Legal sign-off #}
+      <div class="d-flex flex-row align-items-center gap-2">
+        <div class="form-check mb-0">
+          {{ form.legal_signoff }}
+          <label class="form-check-label small text-body"
+                 for="{{ form.legal_signoff.id_for_label }}">Legal sign-off</label>
+        </div>
+        {% if experiment.signoff_recommendations.legal_signoff %}
+          <span class="text-success small">Recommended:</span>
+        {% endif %}
+        <span class="small text-secondary">Please email legal.
+          <a target="_blank"
+             rel="noopener noreferrer"
+             href="https://experimenter.info/workflow/risk-mitigation#legal-sign-off">Learn more</a>
+        </span>
+      </div>
+    </div>
+    {# Action buttons #}
+    <div class="d-flex align-items-center gap-2">
+      <button type="submit" class="btn btn-primary btn-sm">Save</button>
+      <button type="button"
+              class="btn btn-outline-secondary btn-sm"
+              hx-get="{{ cancel_url }}"
+              hx-select="#rollout-card-signoff"
+              hx-target="#rollout-card-signoff"
+              hx-swap="outerHTML">Cancel</button>
+    </div>
+  </form>
+</div>
