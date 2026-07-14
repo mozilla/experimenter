@@ -3856,7 +3856,7 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         labs_title = "labs-title-id"
         labs_description = "labs-description-id"
         labs_description_links = '{"link1": "https://example.com"}'
-        labs_group = NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
+        labs_group = NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
         requires_restart = True
 
         form = NimbusBranchesForm(
@@ -3970,7 +3970,7 @@ class TestNimbusBranchesForm(RequestFormTestCase):
             is_firefox_labs_opt_in=True,
             firefox_labs_title="title",
             firefox_labs_description="description",
-            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
+            firefox_labs_group=NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
         )
         experiment.branches.all().delete()
         experiment.changes.all().delete()

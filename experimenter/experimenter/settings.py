@@ -380,6 +380,10 @@ API_CACHE_DURATION = 60 * 60
 API_CACHE_WARMING_TTL = 60 * 60 * 24
 SIZING_DATA_KEY = "population_sizing"
 
+HOLDBACK_OBSERVATION_DAYS = 21
+HOLDBACK_MINIMUM_ENROLLMENT_DAYS = 7
+HOLDBACK_RERUN_INTERVAL_DAYS = 7
+
 # Celery
 CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
 CELERY_BEAT_SCHEDULE = {
@@ -420,6 +424,10 @@ CELERY_BEAT_SCHEDULE = {
     "warm_api_caches": {
         "task": "experimenter.experiments.tasks.warm_api_caches",
         "schedule": config("API_CACHE_WARMING_INTERVAL", default=3600, cast=int),
+    },
+    "update_holdback_enrollment_period": {
+        "task": "experimenter.jetstream.tasks.update_holdback_enrollment_period",
+        "schedule": crontab(minute=0, hour=3),
     },
 }
 CELERY_TASK_ROUTES = {

@@ -4,6 +4,7 @@ from itertools import chain, product
 from typing import Literal, Optional, Union
 from unittest.mock import patch
 
+import packaging.version
 from django.test import TestCase
 from parameterized import parameterized
 
@@ -12,7 +13,11 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.constants import (
+    ApplicationConfig,
+    FirefoxLabs,
+    NimbusConstants,
+)
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureVersion
 from experimenter.experiments.tests.api.v5.test_serializers import (
     mock_targeting_manifests,
@@ -29,6 +34,7 @@ from experimenter.experiments.tests.factories import (
     NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.targeting.constants import FX_153_3_TRAINHOP
 from experimenter.targeting.targeting_context_parser import TargetingContextFields
 
 BASIC_JSON_SCHEMA = """\
@@ -78,8 +84,20 @@ REF_JSON_SCHEMA = """\
 """
 
 
-class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
+class GetReviewSerializerMixin:
+    def get_review_serializer(self, experiment):
+        return NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+
+class TestNimbusReviewSerializerSingleFeature(
+    GetReviewSerializerMixin, MockFmlErrorMixin, TestCase
+):
     maxDiff = None
+    longMessage = True
 
     def setUp(self):
         super().setUp()
@@ -2382,7 +2400,6 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
 
     @parameterized.expand((False, True))
     def test_setpref_rollout_warning(self, prevent_pref_conflicts):
-        self.maxDiff = None
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_105,
@@ -3008,97 +3025,159 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
     @parameterized.expand(
+        NimbusConstants.APPLICATION_CONFIGS[application]
+        for application in sorted(
+            set(NimbusConstants.APPLICATION_CONFIGS)
+            - {NimbusConstants.Application.DESKTOP, NimbusConstants.Application.FENIX}
+        )
+    )
+    def test_firefox_labs_unsupported_applications(
+        self, application_config: ApplicationConfig
+    ):
+        experiment_kwargs = {}
+
+        if not application_config.is_web:
+            experiment_kwargs["firefox_min_version"] = NimbusConstants.Version.FIREFOX_137
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application_config.slug,
+            is_rollout=True,
+            **experiment_kwargs,
+        )
+
+        # We cannot pass experiment_fields to the factory due to it enforcing
+        # Firefox Labs support at an application level.
+        experiment.is_firefox_labs_opt_in = True
+        experiment.firefox_labs_title = "title"
+        experiment.firefox_labs_description = "desc"
+        experiment.firefox_labs_group = FirefoxLabs.Groups.CUSTOMIZE_BROWSING
+        experiment.save()
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertDictEqual(
+            serializer.errors,
+            {
+                "is_firefox_labs_opt_in": [
+                    NimbusExperiment.ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION,
+                ]
+            },
+        )
+
+    @parameterized.expand(
         [
             (
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_137,
+                NimbusConstants.Application.DESKTOP,
+                NimbusConstants.Version.FIREFOX_136,
+                FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
+                False,
+            ),
+            (
+                NimbusConstants.Application.DESKTOP,
+                NimbusConstants.Version.FIREFOX_137,
+                FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
+                True,
+            ),
+            (
+                NimbusConstants.Application.FENIX,
+                NimbusConstants.Version.FIREFOX_153,
                 None,
+                False,
             ),
             (
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_136,
-                {
-                    "firefox_min_version": [
-                        "Firefox Labs requires at least version 137.0.0."
-                    ]
-                },
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_137,
-                {
-                    "is_firefox_labs_opt_in": [
-                        NimbusExperiment.ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION
-                    ]
-                },
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_137,
-                {
-                    "is_firefox_labs_opt_in": [
-                        NimbusExperiment.ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION
-                    ]
-                },
-            ),
-            (
-                NimbusExperiment.Application.FXA,
-                NimbusExperiment.Version.NO_VERSION,
-                {
-                    "is_firefox_labs_opt_in": [
-                        NimbusExperiment.ERROR_FIREFOX_LABS_UNSUPPORTED_APPLICATION
-                    ]
-                },
+                NimbusConstants.Application.FENIX,
+                NimbusConstants.Version.FIREFOX_154,
+                None,
+                True,
             ),
         ]
     )
-    def test_firefox_labs_applications_verions(
-        self, application, version, expected_errors
+    def test_firefox_labs_supported_applications(
+        self,
+        application: str,
+        firefox_min_version: str,
+        firefox_labs_group: str | None,
+        expected_valid: bool,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            firefox_min_version=version,
+            firefox_min_version=firefox_min_version,
+            is_rollout=True,
             is_firefox_labs_opt_in=True,
             firefox_labs_title="title",
-            firefox_labs_description="description",
-            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
-            is_rollout=True,
+            firefox_labs_description="desc",
+            firefox_labs_group=firefox_labs_group,
         )
 
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user": self.user},
-        )
+        serializer = self.get_review_serializer(experiment)
 
-        self.assertEqual(
-            not bool(expected_errors),
-            serializer.is_valid(),
-            serializer.errors,
-        )
-        if expected_errors:
-            self.assertEqual(expected_errors, serializer.errors)
+        self.assertEqual(serializer.is_valid(), expected_valid, serializer.errors)
+        if not expected_valid:
+            firefox_labs = experiment.application_config.firefox_labs
+            self.assertDictEqual(
+                serializer.errors,
+                {
+                    "firefox_min_version": [
+                        NimbusConstants.ERROR_FIREFOX_LABS_MIN_VERSION.format(
+                            version=firefox_labs.min_supported_version,
+                        )
+                    ]
+                },
+            )
 
     @parameterized.expand(
         [
-            (True, None),
             (
-                False,
-                {"is_rollout": [NimbusExperiment.ERROR_FIREFOX_LABS_ROLLOUT_REQUIRED]},
-            ),
+                application,
+                application_config.firefox_labs,
+                is_rollout,
+                expected_errors,
+            )
+            for (
+                application,
+                application_config,
+            ) in NimbusExperiment.APPLICATION_CONFIGS.items()
+            if application_config.firefox_labs
+            for (is_rollout, expected_errors) in (
+                (True, None),
+                (
+                    False,
+                    {
+                        "is_rollout": [
+                            NimbusExperiment.ERROR_FIREFOX_LABS_ROLLOUT_REQUIRED
+                        ]
+                    },
+                ),
+            )
         ]
     )
-    def test_firefox_labs_rollout_required(self, is_rollout, expected_errors):
+    def test_firefox_labs_rollout_required(
+        self,
+        application: str,
+        firefox_labs: FirefoxLabs,
+        is_rollout: bool,
+        expected_errors: dict[str, list[str]] | None,
+    ):
+        experiment_kwargs = {}
+        if firefox_labs.supports_groups:
+            experiment_kwargs["firefox_labs_group"] = (
+                firefox_labs.available_groups_in_version(
+                    firefox_labs.min_supported_version
+                )[0]
+            )
+
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_137,
-            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
+            application=application,
+            firefox_min_version=firefox_labs._unparsed_min_supported_version,
             firefox_labs_title="title",
             firefox_labs_description="description",
             is_firefox_labs_opt_in=True,
             is_rollout=is_rollout,
+            **experiment_kwargs,
         )
 
         serializer = NimbusReviewSerializer(
@@ -3113,19 +3192,16 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             serializer.errors,
         )
         if expected_errors:
-            self.assertEqual(expected_errors, serializer.errors)
+            self.assertEqual(serializer.errors, expected_errors)
 
     @parameterized.expand(
         [
-            ({}, None),
             (
                 {
                     "is_firefox_labs_opt_in": True,
                     "firefox_labs_title": "title",
                     "firefox_labs_description": "description",
-                    "firefox_labs_group": (
-                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
-                    ),
+                    "firefox_labs_group": FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
                 },
                 None,
             ),
@@ -3133,9 +3209,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 {
                     "is_firefox_labs_opt_in": True,
                     "firefox_labs_description": "description",
-                    "firefox_labs_group": (
-                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
-                    ),
+                    "firefox_labs_group": FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
                 },
                 ["firefox_labs_title"],
             ),
@@ -3143,9 +3217,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 {
                     "is_firefox_labs_opt_in": True,
                     "firefox_labs_title": "title",
-                    "firefox_labs_group": (
-                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
-                    ),
+                    "firefox_labs_group": FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
                 },
                 ["firefox_labs_description"],
             ),
@@ -3162,9 +3234,7 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                     "is_firefox_labs_opt_in": True,
                     "firefox_labs_title": "",
                     "firefox_labs_description": "",
-                    "firefox_labs_group": (
-                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
-                    ),
+                    "firefox_labs_group": FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
                 },
                 ["firefox_labs_title", "firefox_labs_description"],
             ),
@@ -3173,16 +3243,16 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                     "is_firefox_labs_opt_in": True,
                     "firefox_labs_title": " ",
                     "firefox_labs_description": " ",
-                    "firefox_labs_group": (
-                        NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING
-                    ),
+                    "firefox_labs_group": FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
                 },
                 ["firefox_labs_title", "firefox_labs_description"],
             ),
         ]
     )
-    def test_firefox_labs_required_fields(
-        self, experiment_fields, expected_required_fields
+    def test_firefox_labs_desktop_required_fields(
+        self,
+        experiment_fields: dict[str, str],
+        expected_required_fields: list[str],
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -3193,16 +3263,13 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
 
         # We cannot pass experiment_fields to the factory due to it enforcing
         # required fields when is_firefox_labs=True.
+        experiment.is_firefox_labs_opt_in = True
         for field, value in experiment_fields.items():
             setattr(experiment, field, value)
 
         experiment.save()
 
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user": self.user},
-        )
+        serializer = self.get_review_serializer(experiment)
 
         self.assertEqual(
             not bool(expected_required_fields),
@@ -3214,40 +3281,145 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 field: [NimbusExperiment.ERROR_FIREFOX_LABS_REQUIRED_FIELD]
                 for field in expected_required_fields
             }
-            self.assertEqual(expected_errors, serializer.errors)
+            self.assertDictEqual(expected_errors, serializer.errors)
 
     @parameterized.expand(
-        chain(
-            (
-                (application, group, required_version, None)
-                for application, available_groups in (
-                    NimbusExperiment.FIREFOX_LABS_GROUP_AVAILABILITY.items()
-                )
-                for group, required_version in available_groups.items()
-            ),
-            (
+        chain.from_iterable(
+            [
                 (
                     application,
-                    group,
-                    NimbusExperiment.Version.FIREFOX_137,
-                    NimbusExperiment.ERROR_FIREFOX_LABS_GROUP_MIN_VERSION.format(
-                        version=NimbusExperiment.Version.parse(required_version),
-                    ),
-                )
-                for application, available_groups in (
-                    NimbusExperiment.FIREFOX_LABS_GROUP_AVAILABILITY.items()
-                )
-                for group, required_version in available_groups.items()
-                if required_version != NimbusExperiment.Version.FIREFOX_137
-            ),
+                    firefox_min_version,
+                    {
+                        "is_firefox_labs_opt_in": True,
+                        "firefox_labs_title": "title",
+                        "firefox_labs_description": "description",
+                    },
+                    None,
+                ),
+                (
+                    application,
+                    firefox_min_version,
+                    {
+                        "is_firefox_labs_opt_in": True,
+                        "firefox_labs_description": "description",
+                    },
+                    ["firefox_labs_title"],
+                ),
+                (
+                    application,
+                    firefox_min_version,
+                    {
+                        "is_firefox_labs_opt_in": True,
+                        "firefox_labs_title": "title",
+                    },
+                    ["firefox_labs_description"],
+                ),
+                (
+                    application,
+                    firefox_min_version,
+                    {
+                        "is_firefox_labs_opt_in": True,
+                        "firefox_labs_title": "title",
+                        "firefox_labs_description": "description",
+                    },
+                    [],
+                ),
+                (
+                    application,
+                    firefox_min_version,
+                    {
+                        "is_firefox_labs_opt_in": True,
+                        "firefox_labs_title": "",
+                        "firefox_labs_description": "",
+                    },
+                    ["firefox_labs_title", "firefox_labs_description"],
+                ),
+                (
+                    application,
+                    firefox_min_version,
+                    {
+                        "is_firefox_labs_opt_in": True,
+                        "firefox_labs_title": " ",
+                        "firefox_labs_description": " ",
+                    },
+                    ["firefox_labs_title", "firefox_labs_description"],
+                ),
+            ]
+            for (application, firefox_min_version) in (
+                (NimbusConstants.Application.FENIX, NimbusConstants.Version.FIREFOX_154),
+            )
         )
     )
-    def test_firefox_labs_group_availability(
-        self, application, firefox_labs_group, firefox_min_version, expected_error
+    def test_firefox_labs_sdk_required_fields(
+        self,
+        application: str,
+        firefox_min_version: str,
+        experiment_fields: dict[str, str],
+        expected_required_fields: list[str],
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
+            firefox_min_version=firefox_min_version,
+            is_rollout=True,
+        )
+
+        # We cannot pass experiment_fields to the factory due to it enforcing
+        # required fields when is_firefox_labs=True.
+        experiment.is_firefox_labs_opt_in = True
+        for field, value in experiment_fields.items():
+            setattr(experiment, field, value)
+
+        experiment.save()
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertEqual(
+            not bool(expected_required_fields),
+            serializer.is_valid(),
+            serializer.errors,
+        )
+        if expected_required_fields:
+            expected_errors = {
+                field: [NimbusExperiment.ERROR_FIREFOX_LABS_REQUIRED_FIELD]
+                for field in expected_required_fields
+            }
+            self.assertDictEqual(expected_errors, serializer.errors)
+
+    @parameterized.expand(
+        chain(
+            # All available groups work at their mimimum supported version.
+            (
+                (group, required_version, None)
+                for (group, required_version) in (
+                    NimbusConstants.APPLICATION_CONFIGS[
+                        NimbusConstants.Application.DESKTOP
+                    ].firefox_labs._unparsed_groups.items()
+                )
+            ),
+            # Groups added after 137 will throw an error when used before their
+            # minimum supported version.
+            (
+                (group, NimbusConstants.Version.FIREFOX_137, required_version)
+                for (group, required_version) in (
+                    NimbusConstants.APPLICATION_CONFIGS[
+                        NimbusConstants.Application.DESKTOP
+                    ].firefox_labs.groups.items()
+                )
+                if required_version
+                > NimbusConstants.Version.parse(NimbusConstants.Version.FIREFOX_137)
+            ),
+        ),
+    )
+    def test_firefox_labs_desktop_group_availability(
+        self,
+        firefox_labs_group: str,
+        firefox_min_version: str,
+        error_required_version: packaging.version.Version | None,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=firefox_min_version,
             is_rollout=True,
             is_firefox_labs_opt_in=True,
@@ -3256,85 +3428,93 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             firefox_labs_group=firefox_labs_group,
         )
 
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user": self.user},
+        serializer = self.get_review_serializer(experiment)
+        self.assertEqual(
+            not bool(error_required_version), serializer.is_valid(), serializer.errors
         )
 
-        self.assertEqual(
-            not bool(expected_error),
-            serializer.is_valid(),
-            serializer.errors,
-        )
-        if expected_error:
-            self.assertEqual(
-                {"firefox_labs_group": [expected_error]},
+        if error_required_version:
+            self.assertDictEqual(
                 serializer.errors,
-                expected_error,
+                {
+                    "firefox_labs_group": [
+                        NimbusConstants.ERROR_FIREFOX_LABS_GROUP_MIN_VERSION.format(
+                            version=error_required_version
+                        ),
+                    ]
+                },
             )
 
     @parameterized.expand(
-        [
+        (
+            application,
+            application_config.firefox_labs,
+            firefox_labs_description_links,
+            expected_error,
+        )
+        for (
+            application,
+            application_config,
+        ) in NimbusConstants.APPLICATION_CONFIGS.items()
+        if application_config.firefox_labs
+        for (firefox_labs_description_links, expected_error) in [
             (None, None),
             ("", None),
             ("null", None),
             ("{}", None),
             (
-                json.dumps(
-                    {
-                        "foo": "https://mozilla.org",
-                    }
-                ),
+                json.dumps({"feedback": "https://mozilla.org"}),
                 None,
             ),
             ("1", NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON),
             ("hello", NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON),
             ("[]", NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_JSON),
             (
-                json.dumps({"hello": "world"}),
+                json.dumps({"feedback": "hello, world"}),
                 NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
             ),
             (
-                json.dumps({"foo": "chrome:///bogus.xhtml"}),
+                json.dumps({"feedback": "chrome:///bogus.xhtml"}),
                 NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
             ),
             (
-                json.dumps({"foo": "resource:///bogus.xhtml"}),
+                json.dumps({"feedback": "resource:///bogus.xhtml"}),
                 NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
             ),
             (
-                json.dumps({"foo": "about:blank"}),
+                json.dumps({"feedback": "about:blank"}),
                 NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
             ),
             (
-                json.dumps({"foo": 1}),
+                json.dumps({"feedback": 1}),
                 NimbusExperiment.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_HTTP_URLS,
             ),
         ]
     )
     def test_firefox_labs_description_links(
         self,
-        firefox_labs_description_links,
-        expected_error,
+        application: str,
+        firefox_labs: FirefoxLabs,
+        firefox_labs_description_links: str,
+        expected_error: str | None,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_137,
+            application=application,
+            firefox_min_version=firefox_labs._unparsed_min_supported_version,
             is_rollout=True,
             is_firefox_labs_opt_in=True,
             firefox_labs_title="title",
             firefox_labs_description="description",
+            firefox_labs_group=(
+                FirefoxLabs.Groups.CUSTOMIZE_BROWSING
+                if firefox_labs.supports_groups
+                else None
+            ),
             firefox_labs_description_links=firefox_labs_description_links,
-            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
         )
 
-        serializer = NimbusReviewSerializer(
-            experiment,
-            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
-            context={"user": self.user},
-        )
+        serializer = self.get_review_serializer(experiment)
 
         self.assertEqual(
             not bool(expected_error),
@@ -3342,10 +3522,68 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
             serializer.errors,
         )
         if expected_error:
-            self.assertEqual(
-                {"firefox_labs_description_links": [expected_error]},
+            self.assertDictEqual(
                 serializer.errors,
-                expected_error,
+                {
+                    "firefox_labs_description_links": [expected_error],
+                },
+            )
+
+    @parameterized.expand(
+        (
+            application,
+            NimbusConstants.APPLICATION_CONFIGS[application].firefox_labs,
+            key,
+            expected_error,
+        )
+        for application in (NimbusConstants.Application.FENIX,)
+        for (key, expected_error) in (
+            ("feedback", True),
+            ("connect", False),
+            ("unsupported", False),
+        )
+    )
+    def test_firefox_labs_sdk_description_links_keys(
+        self,
+        application: str,
+        firefox_labs: FirefoxLabs,
+        key: str,
+        expected_valid: bool,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            firefox_min_version=firefox_labs._unparsed_min_supported_version,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_description_links=json.dumps(
+                {
+                    key: "https://mozilla.org",
+                }
+            ),
+        )
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertEqual(
+            serializer.is_valid(),
+            expected_valid,
+            serializer.errors,
+        )
+        if not expected_valid:
+            self.assertDictEqual(
+                serializer.errors,
+                {
+                    "firefox_labs_description_links": [
+                        NimbusConstants.ERROR_FIREFOX_LABS_DESCRIPTION_LINKS_UNSUPPORTED_KEYS.format(
+                            keys=",".join(
+                                sorted(firefox_labs.supported_description_links)
+                            )
+                        ),
+                    ]
+                },
             )
 
     def test_invalid_targeting_expr(self):
@@ -3373,6 +3611,81 @@ class TestNimbusReviewSerializerSingleFeature(MockFmlErrorMixin, TestCase):
                 "non_field_errors": [NimbusConstants.ERROR_CANNOT_PARSE_TARGETING],
             },
         )
+
+    def test_newtab_trainhop_targeting_without_trainhop_feature_is_invalid(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
+            targeting_config_slug=FX_153_3_TRAINHOP.slug,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "feature_configs": [
+                    NimbusConstants.ERROR_NEWTAB_TRAINHOP_TARGETING_REQUIRES_FEATURE
+                ]
+            },
+        )
+
+    def test_newtab_trainhop_targeting_with_trainhop_feature_is_valid(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP,
+                    slug=NimbusConstants.DESKTOP_NEWTAB_TRAINHOP_SLUG,
+                )
+            ],
+            targeting_config_slug=FX_153_3_TRAINHOP.slug,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_non_trainhop_targeting_without_trainhop_feature_is_valid(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment, context={"user": self.user}).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     @parameterized.expand(
         [

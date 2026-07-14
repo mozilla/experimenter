@@ -1,3 +1,5 @@
+import datetime as dt
+
 import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
@@ -11,12 +13,8 @@ from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.jetstream.client import (
     get_enrollment_funnel_data,
     get_experiment_data,
-    get_latest_analysis_start_time,
     get_monitoring_data,
     get_population_sizing_data,
-    get_results_filenames,
-    get_stored_analysis_start_time,
-    has_missing_expected_results,
 )
 from experimenter.kinto.tasks import get_kinto_user
 
@@ -83,26 +81,21 @@ def fetch_experiment_data(experiment_id):
 def fetch_jetstream_data():
     metrics.incr("fetch_jetstream_data.started")
     try:
-        results_filenames = get_results_filenames()
         for experiment in NimbusExperiment.objects.filter(
             status__in=[NimbusExperiment.Status.COMPLETE, NimbusExperiment.Status.LIVE]
         ):
-            latest_analysis_start_time = get_latest_analysis_start_time(experiment.slug)
-            needs_missing_results = has_missing_expected_results(
-                experiment, results_filenames
-            )
-
-            if latest_analysis_start_time is None and not needs_missing_results:
-                metrics.incr("fetch_jetstream_data.skipped")
-                continue
-
-            stored_analysis_start_time = get_stored_analysis_start_time(experiment)
-            has_newer_results = latest_analysis_start_time is not None and (
-                stored_analysis_start_time is None
-                or stored_analysis_start_time < latest_analysis_start_time
-            )
-
-            if has_newer_results or needs_missing_results:
+            if (
+                experiment.status == NimbusExperiment.Status.LIVE
+                or experiment.results_data is None
+                or (
+                    experiment.computed_end_date
+                    and (
+                        experiment.computed_end_date
+                        + dt.timedelta(days=NimbusConstants.DAYS_ANALYSIS_BUFFER)
+                    )
+                    >= dt.date.today()
+                )
+            ):
                 logger.info(
                     f"Fetching Jetstream data for {experiment.name} ({experiment.slug})"
                 )
@@ -202,4 +195,61 @@ def fetch_monitoring_data():
     except Exception as e:
         metrics.incr("fetch_monitoring_data.failed")
         logger.exception(f"Fatal error in fetch_monitoring_data task: {e}")
+        raise
+
+
+@app.task
+@metrics.timer_decorator("update_holdback_enrollment_period")
+def update_holdback_enrollment_period():
+    metrics.incr("update_holdback_enrollment_period.started")
+    try:
+        today = timezone.now().date()
+        now = timezone.now()
+
+        experiments = NimbusExperiment.objects.filter(
+            is_holdback=True,
+            status=NimbusExperiment.Status.LIVE,
+            _end_date=None,
+            _enrollment_end_date=None,
+        ).exclude(_start_date=None)
+
+        minimum_days = (
+            settings.HOLDBACK_OBSERVATION_DAYS + settings.HOLDBACK_MINIMUM_ENROLLMENT_DAYS
+        )
+        updated_count = 0
+        for experiment in experiments:
+            days_since_start = (today - experiment.start_date).days
+            if (
+                days_since_start < minimum_days
+                or days_since_start % settings.HOLDBACK_RERUN_INTERVAL_DAYS != 0
+            ):
+                logger.debug(
+                    f"Skipping holdback {experiment.slug}: "
+                    f"days_since_start={days_since_start}, "
+                    f"minimum={minimum_days}, "
+                    f"interval={settings.HOLDBACK_RERUN_INTERVAL_DAYS}"
+                )
+                continue
+
+            save_fields = ["do_rerun_timestamp"]
+            if not experiment.do_rerun:
+                experiment.do_rerun = True
+                save_fields.append("do_rerun")
+            experiment.do_rerun_timestamp = now
+            experiment.save(update_fields=save_fields)
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.HOLDBACK_ENROLLMENT_UPDATED,
+            )
+            updated_count += 1
+
+        logger.info(
+            f"update_holdback_enrollment_period: updated {updated_count} experiments"
+        )
+        metrics.incr("update_holdback_enrollment_period.completed")
+
+    except Exception as e:
+        metrics.incr("update_holdback_enrollment_period.failed")
+        logger.exception(f"Fatal error in update_holdback_enrollment_period: {e}")
         raise

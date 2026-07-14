@@ -18,8 +18,13 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutAudienceForm,
     RolloutFeaturesForm,
     RolloutOverviewForm,
+    RolloutPhaseCreateForm,
+    RolloutPhaseDeleteForm,
+    RolloutPlanApplyForm,
+    RolloutPlanCreateForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
+    RolloutScheduleForm,
     RolloutSignoffForm,
     SubscribeForm,
     TagAssignForm,
@@ -298,6 +303,44 @@ class NewAddSubscriberView(NewSubscriberView):
 
 class NewRemoveSubscriberView(NewSubscriberView):
     add = False
+
+
+class NewRolloutScheduleUpdateView(NewCardUpdateView):
+    form_class = RolloutScheduleForm
+    display_template = "new/rollouts/schedule/card.html"
+    template_name = "new/rollouts/schedule/edit_form.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_plan = self.request.POST.get("template_name") or self.request.POST.get(
+            "rollout_plan"
+        )
+        if selected_plan:
+            context["form"].initial["rollout_plan"] = selected_plan
+        return context
+
+    def can_edit(self):
+        return self.object.can_edit_schedule()
+
+
+class NewRolloutPhaseCreateView(
+    RenderParentDBResponseMixin, NewRolloutScheduleUpdateView
+):
+    form_class = RolloutPhaseCreateForm
+
+
+class NewRolloutPhaseDeleteView(
+    RenderParentDBResponseMixin, NewRolloutScheduleUpdateView
+):
+    form_class = RolloutPhaseDeleteForm
+
+
+class NewRolloutPlanCreateView(RenderParentDBResponseMixin, NewRolloutScheduleUpdateView):
+    form_class = RolloutPlanCreateForm
+
+
+class NewRolloutPlanApplyView(RenderParentDBResponseMixin, NewRolloutScheduleUpdateView):
+    form_class = RolloutPlanApplyForm
 
 
 class NewSubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):

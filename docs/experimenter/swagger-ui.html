@@ -1532,15 +1532,6 @@
             "type": "string",
             "readOnly": true
           },
-          "arguments": {
-            "type": "string",
-            "readOnly": true,
-            "default": {}
-          },
-          "application": {
-            "type": "string",
-            "readOnly": true
-          },
           "appName": {
             "type": "string",
             "readOnly": true
@@ -1585,6 +1576,18 @@
             "type": "string",
             "readOnly": true
           },
+          "isHoldback": {
+            "type": "string",
+            "readOnly": true
+          },
+          "doRerun": {
+            "type": "string",
+            "readOnly": true
+          },
+          "doRerunTimestamp": {
+            "type": "string",
+            "readOnly": true
+          },
           "bucketConfig": {
             "type": "object",
             "properties": {
@@ -1620,11 +1623,6 @@
             "type": "string",
             "readOnly": true
           },
-          "probeSets": {
-            "type": "string",
-            "readOnly": true,
-            "default": []
-          },
           "outcomes": {
             "type": "string",
             "readOnly": true
@@ -1647,11 +1645,11 @@
           },
           "enrollmentEndDate": {
             "type": "string",
-            "format": "date"
+            "readOnly": true
           },
           "endDate": {
             "type": "string",
-            "format": "date"
+            "readOnly": true
           },
           "proposedDuration": {
             "type": "string",
@@ -1711,8 +1709,6 @@
           "channel",
           "bucketConfig",
           "startDate",
-          "enrollmentEndDate",
-          "endDate",
           "publishedDate"
         ]
       },

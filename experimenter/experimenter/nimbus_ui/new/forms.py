@@ -1,4 +1,5 @@
 from collections import defaultdict
+from decimal import Decimal
 
 import markus
 from django import forms
@@ -20,6 +21,8 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
     NimbusFeatureConfig,
+    NimbusRolloutPhase,
+    NimbusRolloutPlanTemplate,
     Tag,
 )
 from experimenter.nimbus_ui.constants import NimbusUIConstants
@@ -321,6 +324,15 @@ class RolloutOverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
     public_description = forms.CharField(
         required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3})
     )
+    application = forms.ChoiceField(
+        disabled=True,
+        choices=NimbusExperiment.Application.choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -328,6 +340,7 @@ class RolloutOverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "name",
             "hypothesis",
             "public_description",
+            "application",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -860,6 +873,244 @@ class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated collaborators"
+
+
+class RolloutPhaseForm(forms.ModelForm):
+    start_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(
+            attrs={
+                "type": "text",
+                "class": "form-control",
+                "placeholder": "From",
+                "onfocus": "this.type='date'",
+            }
+        ),
+    )
+    end_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(
+            attrs={
+                "type": "text",
+                "class": "form-control",
+                "placeholder": "To",
+                "onfocus": "this.type='date'",
+            }
+        ),
+    )
+    population_percent = forms.DecimalField(
+        required=False,
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={"class": "form-control", "min": 0, "max": 100}),
+    )
+
+    class Meta:
+        model = NimbusRolloutPhase
+        fields = ("start_date", "end_date", "population_percent")
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+        if not self.fields["start_date"].disabled and bool(start_date) != bool(end_date):
+            self.add_error(
+                "end_date" if start_date else "start_date",
+                NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE,
+            )
+        elif start_date and end_date and end_date < start_date:
+            self.add_error("end_date", NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER)
+        return cleaned_data
+
+
+class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    rollout_plan = forms.ChoiceField(
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    template_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Name this rollout plan",
+            }
+        ),
+    )
+    rollout_advance_observations = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 4,
+                "placeholder": "Describe observations here",
+            }
+        ),
+    )
+    rollout_pause_observations = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 4,
+                "placeholder": "Describe observations here",
+            }
+        ),
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ("rollout_advance_observations", "rollout_pause_observations")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.NimbusRolloutPhaseFormSet = inlineformset_factory(
+            NimbusExperiment,
+            NimbusRolloutPhase,
+            form=RolloutPhaseForm,
+            extra=0,
+        )
+        self.rollout_phases = self.NimbusRolloutPhaseFormSet(
+            data=self.data or None,
+            instance=self.instance,
+        )
+        self.plans = self.available_plans()
+        self.fields["rollout_plan"].choices = [("", "None")] + [
+            (name, f"{name} ({NimbusRolloutPlanTemplate.summary(phases)})")
+            for name, phases in self.plans.items()
+        ]
+        self.fields["rollout_plan"].widget.attrs.update(
+            {
+                "hx-post": reverse(
+                    "nimbus-ui-new-apply-rollout-plan",
+                    kwargs={"slug": self.instance.slug},
+                ),
+                "hx-trigger": "change",
+                "hx-target": "#rollout-schedule-body",
+                "hx-swap": "outerHTML",
+                "hx-include": "closest form",
+            }
+        )
+
+        phase_statuses = {
+            phase.id: phase.card_status
+            for phase in self.instance.annotated_rollout_phases()
+        }
+        self.locked_phase_ids = {
+            phase_id
+            for phase_id, status in phase_statuses.items()
+            if status
+            in (
+                NimbusUIConstants.RolloutPhaseStatus.COMPLETE,
+                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS,
+            )
+        }
+        for phase_form in self.rollout_phases.forms:
+            status = phase_statuses.get(phase_form.instance.pk)
+            phase_form.is_locked = phase_form.instance.pk in self.locked_phase_ids
+            if status == NimbusUIConstants.RolloutPhaseStatus.COMPLETE:
+                disabled_fields = NimbusUIConstants.ROLLOUT_PHASE_FIELDS
+            elif status == NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS:
+                disabled_fields = ("population_percent",)
+            else:
+                disabled_fields = ()
+            for field_name in disabled_fields:
+                phase_form.fields[field_name].disabled = True
+
+    @staticmethod
+    def available_plans():
+        plans = dict(NimbusUIConstants.ROLLOUT_TEMPLATE_PLANS)
+        for template in NimbusRolloutPlanTemplate.objects.all():
+            plans[template.name] = template.phases
+        return plans
+
+    def is_valid(self):
+        return super().is_valid() and self.rollout_phases.is_valid()
+
+    @transaction.atomic
+    def save(self):
+        experiment = super().save()
+        self.rollout_phases.save()
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} updated rollout schedule"
+
+
+class RolloutPhaseCreateForm(RolloutScheduleForm):
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.instance.rollout_phases.create()
+        return self.instance
+
+    def get_changelog_message(self):
+        return f"{self.request.user} added a rollout phase"
+
+
+class RolloutPhaseDeleteForm(RolloutScheduleForm):
+    phase_id = forms.ModelChoiceField(queryset=NimbusRolloutPhase.objects.all())
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ["phase_id"]
+
+    def clean_phase_id(self):
+        phase = self.cleaned_data["phase_id"]
+        if phase.pk in self.locked_phase_ids:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_ROLLOUT_PHASE_LOCKED)
+        return phase
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.cleaned_data["phase_id"].delete()
+        return self.instance
+
+    def get_changelog_message(self):
+        return f"{self.request.user} removed a rollout phase"
+
+
+class RolloutPlanApplyForm(RolloutScheduleForm):
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+        plan_name = self.cleaned_data.get("rollout_plan")
+        if plan_name and plan_name in self.plans:
+            experiment.rollout_phases.exclude(id__in=self.locked_phase_ids).delete()
+            for population_percent in self.plans[plan_name]:
+                experiment.rollout_phases.create(
+                    population_percent=Decimal(str(population_percent))
+                )
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} applied a rollout plan"
+
+
+class RolloutPlanCreateForm(RolloutScheduleForm):
+    def clean_template_name(self):
+        name = (self.cleaned_data.get("template_name") or "").strip()
+        if name and name in self.plans:
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_ROLLOUT_PLAN_NAME_DUPLICATE
+            )
+        return name
+
+    @transaction.atomic
+    def save(self):
+        experiment = super().save()
+        name = self.cleaned_data.get("template_name")
+        if name:
+            phases = [
+                float(phase.population_percent)
+                for phase in experiment.rollout_phases.all()
+            ]
+            NimbusRolloutPlanTemplate.objects.create(name=name, phases=phases)
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} created a rollout plan template"
 
 
 class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):

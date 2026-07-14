@@ -2845,6 +2845,39 @@ LAPSED_USER_VPN_AVAILABLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+LAPSED_USER_CFR_FXA_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Lapsed users with CFRs and FxA enabled, no enterprise policies",
+    slug="lapsed_user_cfr_fxa_no_enterprise",
+    description=(
+        "Users with a profile age of 28 days and 0 days of activity in the past 28 days, "
+        "with CFRs enabled, with FxA enabled, without enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
+        " && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
+        " && "
+        "isFxAEnabled && "
+        "!hasActiveEnterprisePolicies && "
+        "((userMonthlyActivity|length == 0) || "
+        "(userMonthlyActivity|length == 1 && "
+        "(currentDate|date - userMonthlyActivity|mapToProperty('1')"
+        "[userMonthlyActivity|mapToProperty('1')|length - 1]|date < 86400000)) || "
+        "(userMonthlyActivity|mapToProperty('1')[userMonthlyActivity|length - 1]|date "
+        "<= currentDate|date - (86400000 * 28)) || "
+        "(((userMonthlyActivity|length > 1) && "
+        "(currentDate|date - userMonthlyActivity|mapToProperty('1')"
+        "[userMonthlyActivity|mapToProperty('1')|length - 1]|date < 86400000) && "
+        "(userMonthlyActivity|mapToProperty('1')[userMonthlyActivity|length - 2]|date "
+        "<= currentDate|date - (86400000 * 28)))))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION = NimbusTargetingConfig(
     name="Returning users who have lapsed a second time",
     slug="returning_churned_user_48_hr",
@@ -4709,6 +4742,48 @@ FX_154_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_154_2_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx154 Jun-24 Trainhop",
+    slug="newtab-154-0624-trainhop",
+    description=(
+        "Desktop users having the New Tab 154.2.20260624.61428 train hop, "
+        "which includes users of Fx152"
+    ),
+    targeting="newtabAddonVersion|versionCompare('154.2.20260624.61428') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_154_3_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx154 Jun-30 Trainhop",
+    slug="newtab-154-0630-trainhop",
+    description=(
+        "Desktop users having the New Tab 154.3.20260630.235510 train hop, "
+        "which includes users of Fx152"
+    ),
+    targeting="newtabAddonVersion|versionCompare('154.3.20260630.235510') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_154_4_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx154 Jul-08 Trainhop",
+    slug="newtab-154-0708-trainhop",
+    description=(
+        "Desktop users having the New Tab 154.4.20260708.42619 train hop, "
+        "which includes users of Fx152"
+    ),
+    targeting="newtabAddonVersion|versionCompare('154.4.20260708.42619') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
     name="New Tab Lists/Timer Interaction, Neither Widget Disabled",
     slug="widgets-lists-timer-interacted-not-disabled",
@@ -4823,6 +4898,23 @@ FX_153_3_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
         "Sports, Clocks, Lists, or Timer widget and still have that widget enabled"
     ),
     targeting=f"{FX_153_3_TRAINHOP.targeting} && ({WIDGETS_ANY_FOUR_ENGAGED.targeting})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_153_5_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+    name=(
+        "New Tab Fx153 Jun-15 Trainhop, engaged with any of 4 widgets, "
+        "that widget not disabled"
+    ),
+    slug="widgets-any-four-engaged-153-0615-trainhop",
+    description=(
+        "Users having the New Tab 153.5.20260615.213953 train hop who engaged with the "
+        "Sports, Clocks, Lists, or Timer widget and still have that widget enabled"
+    ),
+    targeting=f"{FX_153_5_TRAINHOP.targeting} && ({WIDGETS_ANY_FOUR_ENGAGED.targeting})",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

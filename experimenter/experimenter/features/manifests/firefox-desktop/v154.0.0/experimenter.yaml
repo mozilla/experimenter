@@ -391,7 +391,9 @@ urlbar:
         pick. Set to zero to disable.
     quickSuggestAmpTopPickUseNovaIconSize:
       type: boolean
-      fallbackPref: browser.urlbar.quicksuggest.ampTopPickUseNovaIconSize
+      setPref:
+        branch: default
+        pref: browser.urlbar.quicksuggest.ampTopPickUseNovaIconSize
       description: >-
         Whether or not use the Nova icon size for AMP suggestion.
         Otherwise, use standard rich-suggestion size.
@@ -587,14 +589,6 @@ urlbar:
         branch: user
         pref: places.semanticHistory.featureGate
       description: use semanticHistory Search feature.
-    semanticHistoryCompletionThreshold:
-      type: string
-      setPref:
-        branch: user
-        pref: places.semanticHistory.completionThreshold
-      description: >-
-        Fraction (0.0 – 1.0) of top Places rows that must have embeddings
-        before semantic-history search is enabled. 0.5 = 50 %.
     semanticHistoryDefaultBatchChunksize:
       type: int
       setPref:
@@ -603,6 +597,35 @@ urlbar:
       description: >-
         The batch chunk size for updates for vectorDB
         defaulted at 25.
+    semanticHistoryMaxChunkTimeMs:
+      type: int
+      setPref:
+        branch: user
+        pref: places.semanticHistory.maxChunkTimeMs
+      description: >-
+        Soft per-chunk time threshold (ms) for background indexing. If the
+        median of the last 9 chunk durations exceeds this and the database
+        already holds more than `semanticHistoryMinEntriesBeforeThrottle`
+        embeddings, indexing stops advancing until next places event.
+    semanticHistoryMaxChunkTimeMsFailsafe:
+      type: int
+      setPref:
+        branch: user
+        pref: places.semanticHistory.maxChunkTimeMsFailsafe
+      description: >-
+        Failsafe per-chunk time threshold (ms) for background indexing. If half
+        or more of the last 9 chunk durations exceed this, indexing stops
+        advancing, regardless of how many embeddings exist, until restart.
+    semanticHistoryMinEntriesBeforeThrottle:
+      type: int
+      setPref:
+        branch: user
+        pref: places.semanticHistory.minEntriesBeforeThrottle
+      description: >-
+        Minimum number of embeddings that must exist before the soft
+        `semanticHistoryMaxChunkTimeMs` threshold can stop indexing. Below this
+        count indexing keeps going even when slow, so the feature reaches a
+        usable state. Defaulted at 1000.
     semanticHistoryDistanceThreshold:
       type: string
       setPref:
@@ -2054,6 +2077,27 @@ sessionRestore:
         2 = open last visited page in a tab,
         3 = re-open previous windows and tabs (session restore enabled)
 
+sessionRestoreNewTab:
+  description: Open a new tab after session restore on startup
+  owner: hsohaney@mozilla.com
+  hasExposure: true
+  exposureDescription: >
+    Recorded when a setting-based session restore occurs at startup,
+    regardless of whether the new tab feature is enabled.
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.sessionstore.newTabOnRestore
+      description: Whether to open a new tab after session restore on startup.
+    showSetting:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.sessionstore.newTabOnRestore.showSetting
+      description: Whether to show the new-tab-on-restore checkbox in about:preferences.
+
 screenshots:
   description: The built-in Screenshots feature
   owner: sfoster@mozilla.com
@@ -2078,8 +2122,7 @@ password-autocomplete:
 address-autofill-feature:
   description: Enabling address autofill feature
   owner: issozi@mozilla.com
-  hasExposure: true
-  exposureDescription: "Exposure is sent when an address is autofilled."
+  hasExposure: false
   variables:
     status:
       type: boolean
@@ -4819,6 +4862,12 @@ mailto:
         This pref controls after how many minutes the mailto prompt can be shown
         again, which has been dismissed by clicking a 'not now' button on it.
       fallbackPref: browser.mailto.dualPrompt.dismissNotNowMinutes
+    dialog:
+      type: boolean
+      description: >-
+        Toggle a mailto handler picker dialog shown when a mailto link is
+        clicked. When false, the picker is skipped and the link falls back to
+        the default protocol handling.
 
 nimbusIsReady:
   description: A feature that provides the number of Nimbus is_ready events to send
@@ -5205,7 +5254,7 @@ sidebar:
       description: sidebar.verticalTabs pref value to set on user branch; true to enable vertical tabs
     visibility:
       type: string
-      description: sidebar.visibility pref value ("hide" or "always-show") to set on user branch
+      description: 'sidebar.visibility pref value to set on user branch. Vertical tabs: "always-show", "expand-on-hover", "hide-sidebar". Horizontal tabs: "hide-on-close", "hide-launcher".'
 
 fxms_bmb_button:
   description: A feature for the Firefox Messaging System Bookmarks Bar button surface
@@ -5315,6 +5364,20 @@ smartTabGroups:
         branch: user
         pref: browser.tabs.groups.smart.searchTopicEnabled
       description: For single tab groupings, use the search query as the topic rather than use ML
+
+tabContextMenu:
+  description: Prefs to control the behavior and structure of the tab context menu
+  owner: sfoster@mozilla.com
+  hasExposure: false
+  variables:
+    altStructureEnabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.tabs.contextmenu.altstructure.enabled
+      description: >-
+        Controls whether the updated (alternate) tab context menu layout is
+        shown instead of the classic layout.
 
 externalLinkHandling:
   description: Controls how externally-opened URLs will be handled by Firefox.
@@ -5526,6 +5589,14 @@ contentClassifier:
       setPref:
         branch: default
         pref: "privacy.trackingprotection.content.mirror.enabled"
+    skipURLClassifier:
+      description: >-
+        Whether to skip the URLClassifier while the ContentClassifier engine is
+        active.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "privacy.trackingprotection.urlclassifier.disable_for_channel_classifier"
 
 auto-pip:
   description: "Automatic Picture-in-Picture"
@@ -5949,6 +6020,9 @@ macAppMenuSetAsDefault:
   variables:
     shown:
       type: boolean
+      setPref:
+        branch: user
+        pref: browser.macAppMenu.setAsDefaultShown
       description: >-
         Whether or not the macOS app menu contains "Set as Default Browser" item
 
@@ -5959,6 +6033,9 @@ smartWindow:
   owner: echa@mozilla.com
   hasExposure: false
   variables:
+    enabled:
+      type: boolean
+      description: Enables the Smart Window feature when true. Turning off this variable will not disable the feature.
     isDefault:
       type: boolean
       setPref:
@@ -5993,15 +6070,17 @@ webNotificationsPermissionUi:
   owner: omc-core@mozilla.com
   hasExposure: true
   exposureDescription: >-
-    Recorded when the permission prompt is rendered with at least one
-    treatment variable applied and the activationTargeting expression
-    (if set) evaluated truthy.
+    Recorded when an enrolled user is shown the permission prompt and the
+    activationTargeting expression (if set) evaluated truthy, regardless of
+    whether any content variable is set. This fires for the empty-content
+    control branch as well so it is comparable to the treatment branches.
   variables:
     headline:
       type: string
       description: >-
         Overrides the prompt headline. Must contain "<>" for site-name
-        substitution. Falls back to the default copy when unset.
+        substitution; a headline without it falls back to the default copy.
+        Also falls back to the default copy when unset.
     body:
       type: string
       description: >-
@@ -6016,9 +6095,10 @@ webNotificationsPermissionUi:
     secondaryCtaLabel:
       type: string
       description: >-
-        Overrides the (Always) Block button label. Applied uniformly across
-        normal and private browsing modes; the underlying BLOCK action and
-        scope are unchanged.
+        Overrides the (Always) Block button label in normal windows only; left
+        at the default in private browsing, where the wording reflects the
+        session-scoped BLOCK semantics. The underlying BLOCK action and scope
+        are unchanged.
     secondaryCtaAccessKey:
       type: string
       description: Optional access key paired with secondaryCtaLabel.
@@ -6036,3 +6116,27 @@ webNotificationsPermissionUi:
         unset or empty the treatment applies to every prompt the enrolled
         user sees; when set and falsy the prompt falls back to the default
         copy and no exposure event is recorded.
+    headlineL10nId:
+      type: string
+      description: >-
+        Fluent message id (in browser/permissions.ftl) for the headline,
+        resolved in-tree. Takes precedence over headline; the message must
+        contain "<>" (e.g. via the $host variable) for site-name substitution,
+        else the prompt falls back to the default copy.
+    bodyL10nId:
+      type: string
+      description: >-
+        Fluent message id for the body/hint text, resolved in-tree. Takes
+        precedence over body.
+    primaryCtaLabelL10nId:
+      type: string
+      description: >-
+        Fluent message id for the Allow button, resolved in-tree. Takes
+        precedence over primaryCtaLabel; its .accesskey attribute, if present,
+        sets the access key.
+    secondaryCtaLabelL10nId:
+      type: string
+      description: >-
+        Fluent message id for the (Always) Block button, resolved in-tree.
+        Takes precedence over secondaryCtaLabel; its .accesskey attribute, if
+        present, sets the access key. Not applied in private browsing.

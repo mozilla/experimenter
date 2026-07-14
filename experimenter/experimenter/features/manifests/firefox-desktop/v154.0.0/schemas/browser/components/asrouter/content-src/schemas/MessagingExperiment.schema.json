@@ -21,6 +21,54 @@
     "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/TemplatedMessage"
   },
   "$defs": {
+    "ActionOnlyMessage": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "file:///ActionOnlyMessage.schema.json",
+      "title": "ActionOnlyMessage",
+      "description": "A template for messages that silently execute an allowlisted special message action with no UI. Records an impression before attempting action.",
+      "allOf": [
+        {
+          "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Message"
+        }
+      ],
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "The type of the special message action to execute."
+                },
+                "data": {
+                  "type": "object",
+                  "description": "Optional data for the action."
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": true,
+              "description": "The special message action to execute. Only allowlisted action types may be used."
+            }
+          },
+          "additionalProperties": true,
+          "required": [
+            "action"
+          ]
+        },
+        "template": {
+          "type": "string",
+          "const": "action_only"
+        }
+      },
+      "required": [
+        "targeting"
+      ]
+    },
     "BookmarksBarButton": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$id": "file:///BookmarksBarButton.schema.json",
@@ -1709,6 +1757,7 @@
           "type": "string",
           "description": "Which messaging template this message is using.",
           "enum": [
+            "action_only",
             "bookmarks_bar_button",
             "cfr_urlbar_chiclet",
             "cfr_doorhanger",
@@ -1774,31 +1823,15 @@
           "type": "string"
         },
         "trigger": {
-          "description": "An action to trigger potentially showing the message",
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "description": "A string identifying the trigger action"
-            },
-            "params": {
-              "type": "array",
-              "description": "An optional array of string parameters for the trigger action",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "string"
-                  }
-                ]
-              }
-            }
-          },
-          "required": [
-            "id"
-          ]
+          "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Trigger"
+        },
+        "triggers": {
+          "description": "An array of trigger actions (alternative to the singular `trigger`). The message is eligible if any one of them matches. When 'trigger' is also present, `triggers` takes precedence. Targeting is evaluated using the context of whichever trigger fired, so context a trigger contributes (for example `tabsClosedCount` from `nthTabClosed`) is only available when that specific trigger fires. Ensure the targeting expression is valid for every trigger listed.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Trigger"
+          }
         },
         "provider": {
           "description": "An identifier for the provider of this message, such as \"cfr\" or \"preview\".",
@@ -1841,12 +1874,58 @@
         }
       ]
     },
+    "Trigger": {
+      "description": "An action to trigger potentially showing the message",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "A string identifying the trigger action"
+        },
+        "params": {
+          "type": "array",
+          "description": "An optional array of string parameters for the trigger action",
+          "items": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
     "TemplatedMessage": {
       "description": "An FxMS message of one of a variety of types.",
       "type": "object",
       "allOf": [
         {
           "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/Message"
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "template": {
+                "type": "string",
+                "enum": [
+                  "action_only"
+                ]
+              }
+            },
+            "required": [
+              "template"
+            ]
+          },
+          "then": {
+            "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/ActionOnlyMessage"
+          }
         },
         {
           "if": {

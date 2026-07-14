@@ -1,4 +1,5 @@
 import contextlib
+import datetime
 import json
 
 from django.conf import settings
@@ -41,7 +42,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         for fv in obj.feature_values.all():
             feature_value = {
                 "featureId": (fv.feature_config and fv.feature_config.slug) or "",
-                "enabled": True,  # TODO: Remove after Desktop 104 is no longer supported
                 "value": {},
             }
 
@@ -87,8 +87,6 @@ class NimbusBranchSerializerMobile(NimbusBranchSerializer):
 class NimbusExperimentSerializer(serializers.ModelSerializer):
     schemaVersion = serializers.ReadOnlyField(default=settings.NIMBUS_SCHEMA_VERSION)
     id = serializers.ReadOnlyField(source="slug")
-    arguments = serializers.ReadOnlyField(default={})
-    application = serializers.SerializerMethodField()
     appName = serializers.SerializerMethodField()
     appId = serializers.SerializerMethodField()
     branches = serializers.SerializerMethodField()
@@ -97,16 +95,18 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     isEnrollmentPaused = serializers.ReadOnlyField(source="is_paused")
     isRollout = serializers.ReadOnlyField(source="is_rollout")
+    isHoldback = serializers.ReadOnlyField(source="is_holdback")
+    doRerun = serializers.ReadOnlyField(source="do_rerun")
+    doRerunTimestamp = serializers.ReadOnlyField(source="do_rerun_timestamp")
     bucketConfig = NimbusBucketRangeSerializer(source="bucket_range")
     featureIds = serializers.SerializerMethodField()
-    probeSets = serializers.ReadOnlyField(default=[])
     outcomes = serializers.SerializerMethodField()
     segments = serializers.SerializerMethodField()
     startDate = serializers.DateField(source="start_date")
-    enrollmentEndDate = serializers.DateField(source="actual_enrollment_end_date")
-    endDate = serializers.DateField(source="end_date")
+    enrollmentEndDate = serializers.SerializerMethodField()
+    endDate = serializers.SerializerMethodField()
     proposedDuration = serializers.ReadOnlyField(source="proposed_duration")
-    proposedEnrollment = serializers.ReadOnlyField(source="proposed_enrollment")
+    proposedEnrollment = serializers.SerializerMethodField()
     referenceBranch = serializers.SerializerMethodField()
     featureValidationOptOut = serializers.ReadOnlyField(
         source="is_client_schema_disabled"
@@ -127,8 +127,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "schemaVersion",
             "slug",
             "id",
-            "arguments",
-            "application",
             "appName",
             "appId",
             "channel",
@@ -137,9 +135,11 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "userFacingDescription",
             "isEnrollmentPaused",
             "isRollout",
+            "isHoldback",
+            "doRerun",
+            "doRerunTimestamp",
             "bucketConfig",
             "featureIds",
-            "probeSets",
             "outcomes",
             "segments",
             "branches",
@@ -162,8 +162,33 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "requiresRestart",
         )
 
-    def get_application(self, obj):
-        return self.get_appId(obj)
+    def _holdback_enrollment_end(self, obj):
+        if obj.is_holdback and not obj.end_date and not obj.actual_enrollment_end_date:
+            return datetime.date.today() - datetime.timedelta(
+                days=settings.HOLDBACK_OBSERVATION_DAYS
+            )
+        return None
+
+    def get_enrollmentEndDate(self, obj):
+        holdback_end = self._holdback_enrollment_end(obj)
+        if holdback_end:
+            return holdback_end.isoformat()
+        enrollment_end = obj.actual_enrollment_end_date
+        return enrollment_end.isoformat() if enrollment_end else None
+
+    def get_endDate(self, obj):
+        holdback_end = self._holdback_enrollment_end(obj)
+        if holdback_end:
+            return (
+                holdback_end + datetime.timedelta(days=settings.HOLDBACK_OBSERVATION_DAYS)
+            ).isoformat()
+        return obj.end_date.isoformat() if obj.end_date else None
+
+    def get_proposedEnrollment(self, obj):
+        holdback_end = self._holdback_enrollment_end(obj)
+        if holdback_end and obj.start_date:
+            return (holdback_end - obj.start_date).days
+        return obj.proposed_enrollment
 
     def get_appName(self, obj):
         return obj.application_config.app_name

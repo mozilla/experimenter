@@ -13,6 +13,11 @@ from experimenter.nimbus_ui.new.views import (
     NewRemoveTagView,
     NewRisksUpdateView,
     NewRolloutFeaturesUpdateView,
+    NewRolloutPhaseCreateView,
+    NewRolloutPhaseDeleteView,
+    NewRolloutPlanApplyView,
+    NewRolloutPlanCreateView,
+    NewRolloutScheduleUpdateView,
     NewSignoffUpdateView,
     NewSubscriberSearchView,
     NewSubscribeView,
@@ -364,6 +369,31 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/update_signoff/$",
         NewSignoffUpdateView.as_view(),
         name="nimbus-ui-new-update-signoff",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/update_schedule/$",
+        NewRolloutScheduleUpdateView.as_view(),
+        name="nimbus-ui-new-update-schedule",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/create_rollout_phase/$",
+        NewRolloutPhaseCreateView.as_view(),
+        name="nimbus-ui-new-create-rollout-phase",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/delete_rollout_phase/$",
+        NewRolloutPhaseDeleteView.as_view(),
+        name="nimbus-ui-new-delete-rollout-phase",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/create_rollout_plan/$",
+        NewRolloutPlanCreateView.as_view(),
+        name="nimbus-ui-new-create-rollout-plan",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/apply_rollout_plan/$",
+        NewRolloutPlanApplyView.as_view(),
+        name="nimbus-ui-new-apply-rollout-plan",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/create_documentation_link/$",

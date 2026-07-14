@@ -249,6 +249,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "project_impact": """Set an impact rating so others can understand the scale of
         this experiment's effect.""",
     }
+    HOLDBACK_LABEL = "Is this a holdback experiment?"
+    HOLDBACK_HELP_TEXT = (
+        "Holdback experiments continuously enroll users and run for an extended period. "
+        "Analysis will automatically run each week based on a 21-day observation period, "
+        "and an enrollment period encompassing the rest of the time between launch and "
+        "21 days from the run date."
+    )
+
     COENROLLMENT_NOTE = (
         "Note: This feature supports co-enrollment with other experiments/rollouts "
         "for the selected versions."
@@ -331,6 +339,24 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     early. For smaller or low-risk changes, you can run your own check using the QA
     checklist."""
     QA_TICKET_URL = "https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10212&issuetype=11290"
+
+    ERROR_ROLLOUT_PLAN_NAME_DUPLICATE = "A rollout plan with this name already exists."
+    ERROR_ROLLOUT_PHASE_DATE_ORDER = "The end date must be on or after the start date."
+    ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE = (
+        "Set both a start and an end date or leave both blank."
+    )
+    ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
+    ROLLOUT_TEMPLATE_PLANS = {"Medium risk": [1, 10, 50, 100]}
+    ROLLOUT_ADVANCE_OBSERVATIONS_LABEL = (
+        "Move to next phase of rollout if these observations occur"
+    )
+    ROLLOUT_PAUSE_OBSERVATIONS_LABEL = "Pause rollout if these observations occur"
+    ROLLOUT_PHASE_FIELDS = ("start_date", "end_date", "population_percent")
+
+    class RolloutPhaseStatus:
+        NOT_STARTED = "not_started"
+        IN_PROGRESS = "in_progress"
+        COMPLETE = "complete"
 
     class MetricAreaType:
         PRIMARY = {

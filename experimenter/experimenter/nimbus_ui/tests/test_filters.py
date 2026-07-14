@@ -266,7 +266,7 @@ class TestHomeFilters(AuthTestCase):
             is_firefox_labs_opt_in=True,
             firefox_labs_title="title",
             firefox_labs_description="description",
-            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
+            firefox_labs_group=NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
             is_rollout=False,
             name="Labs One",
         )
@@ -1784,7 +1784,7 @@ class TestHomeFilters(AuthTestCase):
             is_firefox_labs_opt_in=True,
             firefox_labs_title="Recent Labs",
             firefox_labs_description="description",
-            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
+            firefox_labs_group=NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
             name="Recent Labs Experiment",
         )
         recent_rollout = NimbusExperimentFactory.create(
@@ -1799,7 +1799,7 @@ class TestHomeFilters(AuthTestCase):
             is_firefox_labs_opt_in=True,
             firefox_labs_title="Old Labs",
             firefox_labs_description="description",
-            firefox_labs_group=NimbusExperiment.FirefoxLabsGroups.CUSTOMIZE_BROWSING,
+            firefox_labs_group=NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
             name="Old Labs Experiment",
         )
 

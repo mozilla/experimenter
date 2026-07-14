@@ -713,10 +713,12 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     )
     firefox_labs_group = forms.ChoiceField(
         required=False,
-        choices=NimbusExperiment.FirefoxLabsGroups.choices,
         widget=forms.Select(attrs={"class": "form-select"}),
     )
     requires_restart = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
+    is_holdback = forms.BooleanField(
         required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
     )
 
@@ -744,6 +746,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "firefox_labs_description_links",
             "firefox_labs_group",
             "requires_restart",
+            "is_holdback",
         )
         widgets = {
             "is_rollout": forms.CheckboxInput(attrs={"class": "form-check-input"}),
@@ -806,6 +809,9 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         for field in self.update_on_change_fields:
             self.fields[field].widget.attrs.update(update_on_change_attrs)
+
+        if firefox_labs := self.instance.application_config.firefox_labs:
+            self.fields["firefox_labs_group"].choices = firefox_labs.group_choices
 
         self.was_labs_opt_in = self.instance.is_firefox_labs_opt_in
 
