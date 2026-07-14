@@ -133,6 +133,7 @@ class JetstreamTestData:
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.lower = -5.0
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.metric = Metric.RETENTION
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.statistic = Statistic.BINOMIAL
+        VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.window_index = "2"
 
         CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW = (
             VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_copy()
@@ -217,9 +218,9 @@ class JetstreamTestData:
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL = cls.get_difference_metric_data(
-            DATA_POINT_C,
+            DATA_POINT_C.model_copy(update={"window_index": "2"}),
             SignificanceData(
-                daily={"1": Significance.NEGATIVE.value}, weekly={}, overall={}
+                daily={"2": Significance.NEGATIVE.value}, weekly={}, overall={}
             ),
             comparison_to_branch="control",
         )
@@ -234,8 +235,8 @@ class JetstreamTestData:
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL = cls.get_difference_metric_data(
-            DATA_POINT_C,
-            SignificanceData(weekly={"1": Significance.NEGATIVE.value}, overall={}),
+            DATA_POINT_C.model_copy(update={"window_index": "2"}),
+            SignificanceData(weekly={"2": Significance.NEGATIVE.value}, overall={}),
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_CONTROL = cls.get_difference_metric_data(
@@ -249,15 +250,15 @@ class JetstreamTestData:
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL = cls.get_difference_metric_data(
-            DATA_POINT_D,
-            SignificanceData(weekly={}, overall={"1": Significance.NEGATIVE.value}),
+            DATA_POINT_D.model_copy(update={"window_index": "2"}),
+            SignificanceData(weekly={}, overall={"2": Significance.NEGATIVE.value}),
             is_retention=True,
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
-            DATA_POINT_B,
+            DATA_POINT_B.model_copy(update={"window_index": "2"}),
             SignificanceData(
-                daily={"1": Significance.NEUTRAL.value}, weekly={}, overall={}
+                daily={"2": Significance.NEUTRAL.value}, weekly={}, overall={}
             ),
             comparison_to_branch="variant",
         )
@@ -276,8 +277,8 @@ class JetstreamTestData:
             comparison_to_branch="variant",
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
-            DATA_POINT_B,
-            SignificanceData(weekly={"1": Significance.NEUTRAL.value}, overall={}),
+            DATA_POINT_B.model_copy(update={"window_index": "2"}),
+            SignificanceData(weekly={"2": Significance.NEUTRAL.value}, overall={}),
             comparison_to_branch="variant",
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE_VARIANT = cls.get_difference_metric_data(
@@ -291,8 +292,8 @@ class JetstreamTestData:
             comparison_to_branch="variant",
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT = cls.get_difference_metric_data(
-            DATA_POINT_E,
-            SignificanceData(weekly={}, overall={"1": Significance.NEUTRAL.value}),
+            DATA_POINT_E.model_copy(update={"window_index": "2"}),
+            SignificanceData(weekly={}, overall={"2": Significance.NEUTRAL.value}),
             is_retention=True,
             comparison_to_branch="variant",
         )
@@ -1537,6 +1538,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.lower = 0.0
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.metric = Metric.RETENTION
         VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.statistic = Statistic.BINOMIAL
+        VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.window_index = "2"
 
         CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW = (
             VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_copy()
@@ -1606,7 +1608,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL = cls.get_difference_metric_data(
-            DATA_POINT_C,
+            DATA_POINT_C.model_copy(update={"window_index": "2"}),
             SignificanceData(daily={}, weekly={}, overall={}),
             comparison_to_branch="control",
         )
@@ -1621,7 +1623,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL = cls.get_difference_metric_data(
-            DATA_POINT_C,
+            DATA_POINT_C.model_copy(update={"window_index": "2"}),
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="control",
         )
@@ -1636,13 +1638,13 @@ class ZeroJetstreamTestData(JetstreamTestData):
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL = cls.get_difference_metric_data(
-            DATA_POINT_D,
+            DATA_POINT_D.model_copy(update={"window_index": "2"}),
             SignificanceData(weekly={}, overall={}),
             is_retention=True,
             comparison_to_branch="control",
         )
         DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
-            DATA_POINT_B,
+            DATA_POINT_B.model_copy(update={"window_index": "2"}),
             SignificanceData(daily={}, weekly={}, overall={}),
             comparison_to_branch="variant",
         )
@@ -1657,7 +1659,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
             comparison_to_branch="variant",
         )
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT = cls.get_difference_metric_data(
-            DATA_POINT_B,
+            DATA_POINT_B.model_copy(update={"window_index": "2"}),
             SignificanceData(weekly={}, overall={}),
             comparison_to_branch="variant",
         )
@@ -1672,7 +1674,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
             comparison_to_branch="variant",
         )
         DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT = cls.get_difference_metric_data(
-            DATA_POINT_E,
+            DATA_POINT_E.model_copy(update={"window_index": "2"}),
             SignificanceData(weekly={}, overall={}),
             is_retention=True,
             comparison_to_branch="variant",
