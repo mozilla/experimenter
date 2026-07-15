@@ -14,6 +14,10 @@ COMPOSE_INTEGRATION_RUN = ${COMPOSE_INTEGRATION} run --rm
 DOCKER_BUILD = docker buildx build
 PYTEST_BASE_URL ?= https://nginx/nimbus/
 
+# Image tag for the application-services megazords build. CI overrides this with a
+# local registry ref so the container-driver builder can consume it as a build context.
+MEGAZORD_IMAGE ?= experimenter:megazords
+
 # Extra flags for docker buildx build, per target. Override to add caching, --load, etc.
 MEGAZORD_BUILD_FLAGS ?=
 EXPERIMENTER_BUILD_FLAGS ?=
@@ -106,7 +110,7 @@ compose_build:  ## Build containers
 	$(COMPOSE) build
 
 build_megazords:
-	$(DOCKER_BUILD) $(MEGAZORD_BUILD_FLAGS) -f application-services/Dockerfile -t experimenter:megazords application-services/
+	$(DOCKER_BUILD) $(MEGAZORD_BUILD_FLAGS) -f application-services/Dockerfile -t $(MEGAZORD_IMAGE) application-services/
 
 update_application_services: build_megazords
 	docker run \
