@@ -100,7 +100,7 @@ jobs:
 
       - name: Run Fenix enrollment test on emulator
         if: steps.check-paths.outputs.should-run == 'true'
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         with:
           api-level: 34
           arch: x86_64
