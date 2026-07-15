@@ -149,6 +149,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "experimenter.base.context_processors.site_flag_enabled",
                 "experimenter.cirrus.context_processors.cirrus_features",
                 "experimenter.nimbus_ui.context_processors.nimbus_ui_constants",
             ],

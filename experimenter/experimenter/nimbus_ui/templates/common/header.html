@@ -2,6 +2,10 @@
 
 {% include 'glean/opt_out_alert.html' %}
 
+{% if site_flag_enabled.ADVERTISE_DEVTOOLS %}
+  {% include "nimbus_devtools/banner.html" %}
+
+{% endif %}
 <nav class="navbar navbar-expand-xl">
   <div class="container-fluid">
     {% if has_sidebar %}
