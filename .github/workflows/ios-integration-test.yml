@@ -23,7 +23,7 @@ jobs:
       IOS_CHANNEL: developer
       IOS_RECIPE_PATH: ${{ github.workspace }}/ios_recipe.json
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -85,7 +85,7 @@ jobs:
       IOS_SIMULATOR: "iPhone 17"
       IOS_RECIPE_PATH: ${{ github.workspace }}/ios_recipe.json
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Read firefox-ios SHA
         run: |
@@ -97,7 +97,7 @@ jobs:
           echo "FIREFOX_IOS_SHA=$FIREFOX_IOS_SHA" >> "$GITHUB_ENV"
 
       - name: Checkout firefox-ios
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: mozilla-mobile/firefox-ios
           ref: ${{ env.FIREFOX_IOS_SHA }}

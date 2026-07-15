@@ -34,7 +34,7 @@ jobs:
       FENIX_APK_PATH: ${{ github.workspace }}/fenix.apk
       FENIX_CHANNEL: ${{ matrix.channel }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
