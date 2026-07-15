@@ -15,7 +15,6 @@ from experimenter.nimbus_ui.views import (
 
 urlpatterns = [
     re_path(r"^$", NimbusExperimentsHomeView.as_view(), name="nimbus-ui-home"),
-    re_path(r"^api/v3/", include("experimenter.visualization.api.v3.urls")),
     re_path(r"^api/v5/", include("experimenter.experiments.api.v5.urls")),
     re_path(r"^api/v6/", include("experimenter.experiments.api.v6.urls")),
     re_path(r"^api/v7/", include("experimenter.experiments.api.v7.urls")),
