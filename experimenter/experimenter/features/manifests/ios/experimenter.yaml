@@ -83,16 +83,6 @@ deeplink-optimization-refactor-feature:
       type: boolean
       description: |
         Variable description
-deeplink-overlay-feature:
-  description: |
-    Controls whether a privacy-style overlay is shown when the app moves to the background, regardless of tab privacy state. Used to mask the previously displayed tab while a deep link is being handled on resume.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        If true, show the background overlay for all tabs (private and normal). If false, the overlay is only shown for private tabs.
 download-live-activities-feature:
   description: |
     Download Live Activities Feature
