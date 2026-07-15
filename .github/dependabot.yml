@@ -60,3 +60,8 @@ updates:
       - dependency-name: "vega"
         update-types:
           ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: weekly
+    target-branch: main
