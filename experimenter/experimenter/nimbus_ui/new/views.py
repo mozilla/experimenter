@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.views.generic import DetailView
 from django.views.generic.edit import UpdateView
 
+from experimenter.experiments.constants import EXTERNAL_URLS
 from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.nimbus_ui.filtersets import (
     TagSearchFilterSet,
@@ -100,6 +101,11 @@ class NimbusRolloutDetailView(
     DetailView,
 ):
     template_name = "new/rollouts/rollout_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["EXTERNAL_URLS"] = EXTERNAL_URLS
+        return context
 
 
 class CardMixin:

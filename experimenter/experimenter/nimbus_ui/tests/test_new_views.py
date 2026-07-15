@@ -12,11 +12,13 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experiments.constants import EXTERNAL_URLS
 from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusRolloutPlanTemplate,
 )
 from experimenter.experiments.tests.factories import (
+    NimbusBranchScreenshotFactory,
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusRolloutPhaseFactory,
@@ -134,6 +136,53 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertIsInstance(response.context["create_form"], NimbusExperimentCreateForm)
         self.assertIn(tag, response.context["all_tags"])
         self.assertTrue(response.context["sidebar_links"])
+
+    def test_preview_card_hidden_when_not_in_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(experiment.is_preview)
+        self.assertNotContains(response, "Preview links & testing details")
+
+    def test_preview_card_shown_when_in_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(experiment.is_preview)
+        self.assertContains(response, "Preview links & testing details")
+        self.assertContains(response, "Rollout experience")
+        self.assertContains(response, EXTERNAL_URLS["PREVIEW_LAUNCH_DOC"])
+
+    def test_preview_card_lists_all_screenshots(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW
+        )
+        screenshot_1 = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+        screenshot_2 = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, screenshot_1.image.url)
+        self.assertContains(response, screenshot_2.image.url)
 
 
 class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):

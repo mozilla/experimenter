@@ -1,0 +1,85 @@
+{% load static %}
+
+<div class="d-flex flex-column gap-3" id="rollout-preview-body">
+  <p class="small text-body mb-0">
+    <strong>Note:</strong> Before generating links, go to <code>about:config</code>
+    and enable the <code>nimbus.debug</code> configuration first.
+  </p>
+  {# Rollout experience card #}
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      <div class="d-flex flex-column gap-3 h-100 rounded-3 bg-body-tertiary p-3">
+        <div>
+          <div class="fw-semibold mb-1">Rollout experience</div>
+          <a href="{{ EXTERNAL_URLS.PREVIEW_LAUNCH_DOC }}"
+             class="small text-decoration-none"
+             target="_blank"
+             rel="noopener noreferrer"><i class="fa-regular fa-eye me-2" aria-hidden="true"></i>Testing details</a>
+        </div>
+        {# Screenshot from the rollout branch #}
+        {% with shot=experiment.reference_branch.screenshots.first %}
+          <div class="position-relative border border-secondary-subtle rounded-3 overflow-hidden">
+            {% if shot and shot.image %}
+              <img src="{{ shot.image.url }}"
+                   alt="{{ shot.description|default:'Rollout experience screenshot' }}"
+                   class="w-100"
+                   style="height: 160px;
+                          object-fit: cover" />
+              <button type="button"
+                      class="position-absolute top-0 end-0 m-1 p-2 border-0 rounded lh-1 opacity-75 bg-body-secondary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#rollout-preview-screenshot-modal"
+                      aria-label="Enlarge screenshot">
+                <i class="fa-solid fa-up-right-and-down-left-from-center text-muted"
+                   aria-hidden="true"></i>
+              </button>
+            {% else %}
+              <img src="{% static 'assets/img-placeholder.svg' %}"
+                   alt="No screenshot uploaded yet"
+                   class="w-100"
+                   style="height: 160px;
+                          object-fit: cover" />
+            {% endif %}
+          </div>
+          {% if shot and shot.image %}
+            <div class="modal fade"
+                 id="rollout-preview-screenshot-modal"
+                 tabindex="-1"
+                 aria-labelledby="rollout-preview-screenshot-modal-label"
+                 aria-hidden="true">
+              <div class="modal-dialog modal-md modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="rollout-preview-screenshot-modal-label">Rollout experience</h1>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body d-flex flex-column gap-3">
+                    {% for screenshot in experiment.reference_branch.screenshots.all %}
+                      {% if screenshot.image %}
+                        <div>
+                          <img src="{{ screenshot.image.url }}"
+                               alt="{{ screenshot.description|default:'Rollout experience screenshot' }}"
+                               class="img-fluid w-100" />
+                          {% if screenshot.description %}<div class="mt-2 small text-body">{{ screenshot.description }}</div>{% endif %}
+                        </div>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endwith %}
+        {# about:studies opt-in URL for the rollout branch #}
+        <button type="button"
+                class="btn btn-primary d-inline-flex align-items-center justify-content-center"
+                onclick="navigator.clipboard.writeText('about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview');this.innerText='Copied';">
+          <i class="fa-regular fa-eye me-2" aria-hidden="true"></i>Preview link
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
