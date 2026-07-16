@@ -6,7 +6,13 @@ from experimenter.experiments.jexl_to_sql import (
     KNOWN_UNTRANSLATABLE,
     jexl_to_sql,
 )
-from experimenter.targeting.constants import NimbusTargetingConfig
+from experimenter.targeting.constants import (
+    FX95_DESKTOP_USERS,
+    FIRST_RUN_WINDOWS_1903_NEWER,
+    NO_ENTERPRISE_MAC_WINDOWS_ONLY,
+    WIN11_ONLY,
+    NimbusTargetingConfig,
+)
 
 _OS = "metrics.object.nimbus_targeting_context_os"
 _BS = "metrics.object.nimbus_targeting_context_browser_settings"
@@ -348,8 +354,6 @@ class TestJEXLToSQL(TestCase):
         self.assertIsNone(result.sql)
         self.assertTrue(len(result.warnings) > 0)
 
-    # --- Real targeting config integration tests ---
-
     def test_real_config_first_run_win1903(self):
         _key = "trailhead__firstrun__didSeeAboutWelcome"
         _wbn = f"SAFE_CAST(JSON_VALUE({_OS}, '$.windowsBuildNumber') AS INT64)"
@@ -359,10 +363,7 @@ class TestJEXLToSQL(TestCase):
             f" OR JSON_VALUE({_PREF}, '$.{_key}') = ''))"
             f" AND {_wbn} >= 18362)"
         )
-        result = jexl_to_sql(
-            "(isFirstStartup && !('trailhead.firstrun.didSeeAboutWelcome'"
-            "|preferenceValue)) && os.windowsBuildNumber >= 18362"
-        )
+        result = jexl_to_sql(FIRST_RUN_WINDOWS_1903_NEWER.targeting)
         self.assertEqual(result.sql, expected)
         self.assertEqual(result.warnings, [])
 
@@ -375,9 +376,7 @@ class TestJEXLToSQL(TestCase):
             ".nimbus_targeting_context_has_active_enterprise_policies)"
         )
         expected = f"({_no_ent} AND (({_not_mac} AND {_not_linux}) OR {_is_mac}))"
-        result = jexl_to_sql(
-            "(!hasActiveEnterprisePolicies) && ((os.isWindows || os.isMac))"
-        )
+        result = jexl_to_sql(NO_ENTERPRISE_MAC_WINDOWS_ONLY.targeting)
         self.assertEqual(result.sql, expected)
         self.assertEqual(result.warnings, [])
 
@@ -391,9 +390,7 @@ class TestJEXLToSQL(TestCase):
             f" AND {_winver} >= 10)"
             f" AND {_winbld} >= 22000)"
         )
-        result = jexl_to_sql(
-            "os.isWindows && os.windowsVersion >= 10 && os.windowsBuildNumber >= 22000"
-        )
+        result = jexl_to_sql(WIN11_ONLY.targeting)
         self.assertEqual(result.sql, expected)
         self.assertEqual(result.warnings, [])
 
@@ -408,9 +405,7 @@ class TestJEXLToSQL(TestCase):
 
     def test_real_config_version_range(self):
         expected = f"({_FF} >= 95 AND {_FF} < 96)"
-        result = jexl_to_sql(
-            "version|versionCompare('95.!') >= 0 && version|versionCompare('96.!') < 0"
-        )
+        result = jexl_to_sql(FX95_DESKTOP_USERS.targeting)
         self.assertEqual(result.sql, expected)
         self.assertEqual(result.warnings, [])
 
