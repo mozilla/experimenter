@@ -496,4 +496,26 @@ class TestNimbusExperimentSerializer(TestCase):
             "firefoxLabsDescriptionLinks": None,
             "firefoxLabsGroup": None,
             "requiresRestart": False,
+            "targetingSql": None,  # None for non-Draft experiments
         }
+
+    def test_targeting_sql_populated_for_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug="windows_only",
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        targeting_sql = serializer.data["targetingSql"]
+
+        self.assertIsNotNone(targeting_sql)
+        self.assertIn("sql", targeting_sql)
+        self.assertIn("warnings", targeting_sql)
+        self.assertIsNotNone(targeting_sql["sql"])
+        self.assertIn("nimbus_targeting_context_os", targeting_sql["sql"])
+
+    def test_targeting_sql_none_for_live_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertIsNone(serializer.data["targetingSql"])
