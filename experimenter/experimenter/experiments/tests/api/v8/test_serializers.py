@@ -512,7 +512,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("sql", targeting_sql)
         self.assertIn("warnings", targeting_sql)
         self.assertIsNotNone(targeting_sql["sql"])
-        # The composed targeting includes os.isWindows → derived as NOT isMac AND NOT isLinux
+        # os.isWindows is derived as NOT isMac AND NOT isLinux
         self.assertIn("nimbus_targeting_context_os", targeting_sql["sql"])
         self.assertIn("isMac", targeting_sql["sql"])
         self.assertIn("isLinux", targeting_sql["sql"])
