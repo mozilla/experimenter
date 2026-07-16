@@ -117,14 +117,14 @@ KNOWN_UNTRANSLATABLE = {
     "activeRollouts",  # circular
     "newtabSettings",
     "searchEngines",
-    "addonsInfo",               # parent blocked; specific sub-fields mapped above
+    "addonsInfo",  # parent blocked; specific sub-fields mapped above
     "isBackgroundTaskMode",
-    "newtabAddonVersion",       # addon version not stored in nimbus_targeting_context
-    "defaultProfile",           # background task context only
-    "defaultPDFHandler",        # default PDF handler, not directly queryable
-    "isDefaultHandler",         # file-type handler object, not directly queryable
-    "localeLanguageCode",       # derived from locale, not recorded separately
-    "homePageSettings",         # parent blocked; simple sub-fields mapped above
+    "newtabAddonVersion",  # addon version not stored in nimbus_targeting_context
+    "defaultProfile",  # background task context only
+    "defaultPDFHandler",  # default PDF handler, not directly queryable
+    "isDefaultHandler",  # file-type handler object, not directly queryable
+    "localeLanguageCode",  # derived from locale, not recorded separately
+    "homePageSettings",  # parent blocked; simple sub-fields mapped above
     # Mobile-only attributes
     "days_since_install",
     "days_since_update",
