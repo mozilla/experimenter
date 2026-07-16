@@ -28,7 +28,8 @@ class BranchComparison(StrEnum):
 
 class Metric(StrEnum):
     RETENTION = "retained"
-    RETENTION_3_DAYS = "active_in_last_3_days_legacy"
+    RETENTION_3_DAYS = "active_in_last_3_days"
+    RETENTION_3_DAYS_LEGACY = "active_in_last_3_days_legacy"
     SEARCH = "search_count"
     DAYS_OF_USE = "days_of_use"
     USER_COUNT = "identity"
@@ -79,6 +80,7 @@ GROUPED_METRICS = {
 }
 RETENTION_2_WEEKS_WINDOW_INDEX = 2
 RETENTION_3_DAYS_WINDOW_INDEX = 4
+RETENTION_3_DAYS_METRICS = (Metric.RETENTION_3_DAYS, Metric.RETENTION_3_DAYS_LEGACY)
 
 
 # A map of metric -> group for quick lookups.
@@ -176,25 +178,33 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
         ]
         self.extend(retention_data)
 
+    def get_retention_3_days_by_window(self, window_index, daily_data):
+        retention_data = []
+        for metric in RETENTION_3_DAYS_METRICS:
+            retention_data.extend(
+                self.get_retention_by_window(window_index, daily_data, metric)
+            )
+        return retention_data
+
     def append_retention_3_days(self, daily_data):
         # Extract the 3-day retention data (window index 4)
         # without falling back to earlier windows
-        retention_data = self.get_retention_by_window(
-            RETENTION_3_DAYS_WINDOW_INDEX, daily_data, Metric.RETENTION_3_DAYS
+        retention_data = self.get_retention_3_days_by_window(
+            RETENTION_3_DAYS_WINDOW_INDEX, daily_data
         )
 
         self.extend(retention_data)
 
     def replace_retention_3_days(self, daily_data):
         # Extract and replace with the 3-day retention data (window index 4)
-        retention_data = self.get_retention_by_window(
-            RETENTION_3_DAYS_WINDOW_INDEX, daily_data, Metric.RETENTION_3_DAYS
+        retention_data = self.get_retention_3_days_by_window(
+            RETENTION_3_DAYS_WINDOW_INDEX, daily_data
         )
 
         self.root = [
             jetstream_data_point
             for jetstream_data_point in self.root
-            if jetstream_data_point.metric != Metric.RETENTION_3_DAYS
+            if jetstream_data_point.metric not in RETENTION_3_DAYS_METRICS
         ]
         self.extend(retention_data)
 
