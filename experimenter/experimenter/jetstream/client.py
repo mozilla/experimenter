@@ -125,6 +125,7 @@ def get_results_metrics_map(
     results_metrics_map: dict[str, set[Statistic]] = {
         Metric.RETENTION: {Statistic.BINOMIAL},
         Metric.RETENTION_3_DAYS: {Statistic.BINOMIAL},
+        Metric.RETENTION_3_DAYS_LEGACY: {Statistic.BINOMIAL},
         Metric.SEARCH: {Statistic.LINEAR_MODEL_MEAN, Statistic.MEAN},
         Metric.DAYS_OF_USE: {Statistic.LINEAR_MODEL_MEAN, Statistic.MEAN},
         Metric.USER_COUNT: {Statistic.COUNT, Statistic.PERCENT},
