@@ -7,8 +7,8 @@ from experimenter.experiments.jexl_to_sql import (
     jexl_to_sql,
 )
 from experimenter.targeting.constants import (
-    FX95_DESKTOP_USERS,
     FIRST_RUN_WINDOWS_1903_NEWER,
+    FX95_DESKTOP_USERS,
     NO_ENTERPRISE_MAC_WINDOWS_ONLY,
     WIN11_ONLY,
     NimbusTargetingConfig,
