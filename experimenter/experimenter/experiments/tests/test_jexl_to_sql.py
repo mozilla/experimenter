@@ -411,4 +411,3 @@ class TestJEXLToSQL(TestCase):
         result = jexl_to_sql("(firefoxVersion + 1)|someTransform")
         self.assertIsNone(result.sql)
         self.assertIn("|someTransform", result.warnings)
-
