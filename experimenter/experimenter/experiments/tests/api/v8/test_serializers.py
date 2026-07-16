@@ -15,6 +15,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
+from experimenter.targeting.constants import WINDOWS_ONLY
 
 
 class TestNimbusExperimentSerializer(TestCase):
@@ -502,7 +503,7 @@ class TestNimbusExperimentSerializer(TestCase):
     def test_targeting_sql_populated_for_draft(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug="windows_only",
+            targeting_config_slug=WINDOWS_ONLY.slug,
         )
         serializer = NimbusExperimentSerializer(experiment)
         targeting_sql = serializer.data["targetingSql"]
@@ -511,7 +512,23 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("sql", targeting_sql)
         self.assertIn("warnings", targeting_sql)
         self.assertIsNotNone(targeting_sql["sql"])
+        # The composed targeting includes os.isWindows → derived as NOT isMac AND NOT isLinux
         self.assertIn("nimbus_targeting_context_os", targeting_sql["sql"])
+        self.assertIn("isMac", targeting_sql["sql"])
+        self.assertIn("isLinux", targeting_sql["sql"])
+        self.assertEqual(targeting_sql["warnings"], [])
+
+    def test_targeting_sql_with_warnings_for_draft(self):
+        # relay_user config uses attachedFxAOAuthClients which is untranslatable
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug="relay_user",
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        targeting_sql = serializer.data["targetingSql"]
+
+        self.assertIsNotNone(targeting_sql)
+        self.assertTrue(len(targeting_sql["warnings"]) > 0)
 
     def test_targeting_sql_none_for_live_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
