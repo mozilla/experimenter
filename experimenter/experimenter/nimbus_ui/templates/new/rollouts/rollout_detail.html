@@ -8,6 +8,12 @@
   <div id="RolloutSummary" class="d-flex flex-column gap-4">
     {% include "new/common/audience_overlap_warnings.html" %}
 
+    {% if experiment.is_preview %}
+      <div class="d-flex flex-column gap-2" id="rollout-preview-section">
+        {% include "new/rollouts/detail_card.html" with card_id="preview" title="Preview links & testing details" subtitle="Rollout experience" show_edit_btn=False body_template="new/rollouts/preview/card.html" %}
+
+      </div>
+    {% endif %}
     {# ── Define ── #}
     <div class="d-flex flex-column gap-2">
       <div class="small fw-medium mb-1 text-secondary">Define</div>
