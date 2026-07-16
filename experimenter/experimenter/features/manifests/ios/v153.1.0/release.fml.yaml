@@ -48,14 +48,6 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: true
-  appearance-menu-feature:
-    description: |
-      This property determines if we show the new appearance menu entry or the old theme settings
-    variables:
-      status:
-        description: If true, we will show the new appearance menu entry
-        type: Boolean
-        default: true
   bookmarks-search-feature:
     description: |
       Configuration feature for the bookmarks search bar
