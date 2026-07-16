@@ -380,15 +380,6 @@ features:
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
         default: false
-  needs-reload-refactor:
-    description: |
-      This is a technical refactor which cleans up the reloading of the webview
-    variables:
-      enabled:
-        description: |
-          Whether or not this refactor is enabled
-        type: Boolean
-        default: true
   new-bookmark-folder-tree-feature:
     description: |
       This property determines weather we show the new bookmark folder tree UI
