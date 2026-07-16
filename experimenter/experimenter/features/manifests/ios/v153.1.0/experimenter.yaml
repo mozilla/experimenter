@@ -44,15 +44,6 @@ ai-kill-switch-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
-appearance-menu-feature:
-  description: |
-    This property determines if we show the new appearance menu entry or the old theme settings
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    status:
-      type: boolean
-      description: If true, we will show the new appearance menu entry
 bookmarks-search-feature:
   description: |
     Configuration feature for the bookmarks search bar
