@@ -81,6 +81,16 @@ JEXL_TO_BQ_COLUMN = {
     "addonsInfo.hasInstalledAddons": (
         f"CAST(JSON_VALUE({_AI}, '$.hasInstalledAddons') AS BOOL)"
     ),
+    "primaryResolution.width": (
+        "SAFE_CAST(JSON_VALUE("
+        "metrics.object.nimbus_targeting_context_primary_resolution"
+        ", '$.width') AS INT64)"
+    ),
+    "primaryResolution.height": (
+        "SAFE_CAST(JSON_VALUE("
+        "metrics.object.nimbus_targeting_context_primary_resolution"
+        ", '$.height') AS INT64)"
+    ),
     "attributionData.medium": f"JSON_VALUE({_AD}, '$.medium')",
     "attributionData.source": f"JSON_VALUE({_AD}, '$.source')",
     "attributionData.campaign": f"JSON_VALUE({_AD}, '$.campaign')",
@@ -107,12 +117,35 @@ KNOWN_UNTRANSLATABLE = {
     "activeRollouts",  # circular
     "newtabSettings",
     "searchEngines",
-    "addonsInfo",  # parent blocked; specific sub-fields mapped above
+    "addonsInfo",               # parent blocked; specific sub-fields mapped above
     "isBackgroundTaskMode",
-    "newtabAddonVersion",  # addon version not stored in nimbus_targeting_context
-    "defaultProfile",  # background task context only
-    "days_since_install",  # mobile-only
-    "days_since_update",  # mobile-only
+    "newtabAddonVersion",       # addon version not stored in nimbus_targeting_context
+    "defaultProfile",           # background task context only
+    "defaultPDFHandler",        # default PDF handler, not directly queryable
+    "isDefaultHandler",         # file-type handler object, not directly queryable
+    "localeLanguageCode",       # derived from locale, not recorded separately
+    "homePageSettings",         # parent blocked; simple sub-fields mapped above
+    # Mobile-only attributes
+    "days_since_install",
+    "days_since_update",
+    "is_default_browser",
+    "is_phone",
+    "is_bottom_toolbar_user",
+    "is_apple_intelligence_available",
+    "cannot_use_apple_intelligence",
+    "has_accepted_terms_of_use",
+    "has_enabled_tips_notifications",
+    "user_accepted_tou",
+    "tou_points",
+    "tou_experience_points",
+    "addon_ids",
+    "no_shortcuts_or_stories_opt_outs",
+    "android_sdk_version",
+    "install_referrer_response_utm_source",
+    # Standalone sub-fields accessed without parent (default PDF handler context)
+    "pdf",
+    "knownBrowser",
+    "registered",
 }
 
 _VERSION_PATTERN = re.compile(r"^(\d+)")

@@ -2,9 +2,11 @@ from django.test import TestCase
 from parameterized import parameterized
 
 from experimenter.experiments.jexl_to_sql import (
+    JEXL_TO_BQ_COLUMN,
     KNOWN_UNTRANSLATABLE,
     jexl_to_sql,
 )
+from experimenter.targeting.constants import NimbusTargetingConfig
 
 _OS = "metrics.object.nimbus_targeting_context_os"
 _BS = "metrics.object.nimbus_targeting_context_browser_settings"
@@ -416,3 +418,43 @@ class TestJEXLToSQL(TestCase):
         result = jexl_to_sql("(firefoxVersion + 1)|someTransform")
         self.assertIsNone(result.sql)
         self.assertIn("|someTransform", result.warnings)
+
+    # --- CI validation: all warnings must be accounted for ---
+
+    def test_all_targeting_config_warnings_are_accounted_for(self):
+        """
+        Fail if a targeting config produces a warning for an attribute that is
+        not in JEXL_TO_BQ_COLUMN, KNOWN_UNTRANSLATABLE, or a known sub-path.
+
+        This catches new targeting attributes that need to be either mapped or
+        explicitly marked as untranslatable. Add new attributes to one of those
+        before this test will pass again.
+        """
+        unaccounted = set()
+
+        for config in NimbusTargetingConfig.targeting_configs:
+            if not config.targeting or config.targeting == "true":
+                continue
+
+            for warning in jexl_to_sql(config.targeting).warnings:
+                if warning.startswith("|"):
+                    # transform warning — acceptable
+                    continue
+                if warning in JEXL_TO_BQ_COLUMN:
+                    # directly mapped — acceptable (partial translation)
+                    continue
+                # Check if attribute or any prefix is in KNOWN_UNTRANSLATABLE
+                parts = warning.split(".")
+                if not any(
+                    ".".join(parts[:i]) in KNOWN_UNTRANSLATABLE
+                    for i in range(1, len(parts) + 1)
+                ):
+                    unaccounted.add(warning)
+
+        self.assertEqual(
+            unaccounted,
+            set(),
+            f"New unrecognized targeting attributes found: {sorted(unaccounted)}. "
+            f"Add them to JEXL_TO_BQ_COLUMN (if translatable) or "
+            f"KNOWN_UNTRANSLATABLE (if not).",
+        )
