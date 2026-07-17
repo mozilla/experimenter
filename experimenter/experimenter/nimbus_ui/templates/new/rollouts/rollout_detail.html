@@ -6,6 +6,14 @@
 {% block title %}{{ experiment.name }}{% endblock %}
 {% block main_content %}
   <div id="RolloutSummary" class="d-flex flex-column gap-4">
+    {% include "new/common/audience_overlap_warnings.html" %}
+
+    {% if experiment.is_preview %}
+      <div class="d-flex flex-column gap-2" id="rollout-preview-section">
+        {% include "new/rollouts/detail_card.html" with card_id="preview" title="Preview links & testing details" subtitle="Rollout experience" show_edit_btn=False body_template="new/rollouts/preview/card.html" %}
+
+      </div>
+    {% endif %}
     {# ── Define ── #}
     <div class="d-flex flex-column gap-2">
       <div class="small fw-medium mb-1 text-secondary">Define</div>
@@ -14,6 +22,7 @@
 
       {# TODO EXP-6682: Rollout Risks Form/Card #}
       {% include "new/rollouts/detail_card.html" with card_id="risks" title="Risks" subtitle="Consider possible risks if the public interacts with your experiment" show_edit_btn=True body_template="new/rollouts/risks/card.html" %}
+      {% include "new/rollouts/detail_card.html" with card_id="signoff" title="Sign-Offs" subtitle="QA, VP, and Legal Sign-offs" show_edit_btn=True body_template="new/rollouts/signoff/card.html" %}
 
     </div>
     {# ── Configure ── #}

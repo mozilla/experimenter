@@ -18,6 +18,7 @@ from experimenter.nimbus_ui.new.views import (
     NewRolloutPlanApplyView,
     NewRolloutPlanCreateView,
     NewRolloutScheduleUpdateView,
+    NewSignoffUpdateView,
     NewSubscriberSearchView,
     NewSubscribeView,
     NewTagSearchView,
@@ -363,6 +364,11 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/update_qa/$",
         NewQAUpdateView.as_view(),
         name="nimbus-ui-new-update-qa",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/update_signoff/$",
+        NewSignoffUpdateView.as_view(),
+        name="nimbus-ui-new-update-signoff",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/update_schedule/$",

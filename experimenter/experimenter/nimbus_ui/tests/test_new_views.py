@@ -13,12 +13,13 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.constants import EXTERNAL_URLS, NimbusConstants
 from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusRolloutPlanTemplate,
 )
 from experimenter.experiments.tests.factories import (
+    NimbusBranchScreenshotFactory,
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusRolloutPhaseFactory,
@@ -32,6 +33,7 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutOverviewForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
+    RolloutSignoffForm,
 )
 from experimenter.nimbus_ui.new.views import RolloutSetupProgressMixin
 from experimenter.openidc.tests.factories import UserFactory
@@ -271,6 +273,53 @@ class TestNimbusRolloutDetailView(AuthTestCase):
 
         self.assertEqual(context["setup_issues_count"], 1)
         self.assertLess(context["setup_completion_percent"], 100)
+
+    def test_preview_card_hidden_when_not_in_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(experiment.is_preview)
+        self.assertNotContains(response, "Preview links & testing details")
+
+    def test_preview_card_shown_when_in_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(experiment.is_preview)
+        self.assertContains(response, "Preview links & testing details")
+        self.assertContains(response, "Rollout experience")
+        self.assertContains(response, EXTERNAL_URLS["PREVIEW_LAUNCH_DOC"])
+
+    def test_preview_card_lists_all_screenshots(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW
+        )
+        screenshot_1 = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+        screenshot_2 = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, screenshot_1.image.url)
+        self.assertContains(response, screenshot_2.image.url)
 
 
 class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
@@ -571,6 +620,47 @@ class TestNewQAUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(
             experiment.qa_run_testrail_url, "https://www.example.com/testrail"
         )
+
+
+class TestNewSignoffUpdateView(NewViewTestMixin, AuthTestCase):
+    url_name = "nimbus-ui-new-update-signoff"
+
+    def test_get_returns_edit_form_for_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/signoff/edit_form.html")
+        self.assertResponseUsesForm(response, RolloutSignoffForm)
+
+    def test_post_valid_saves_and_returns_display_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_signoff=False,
+            vp_signoff=False,
+            legal_signoff=False,
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "qa_signoff": "on",
+                "vp_signoff": "on",
+                "legal_signoff": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/signoff/card.html")
+        experiment.refresh_from_db()
+        self.assertTrue(experiment.qa_signoff)
+        self.assertTrue(experiment.vp_signoff)
+        self.assertTrue(experiment.legal_signoff)
 
 
 class TestNewDocumentationLinkCreateView(AuthTestCase):

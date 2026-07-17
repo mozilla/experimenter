@@ -391,7 +391,9 @@ urlbar:
         pick. Set to zero to disable.
     quickSuggestAmpTopPickUseNovaIconSize:
       type: boolean
-      fallbackPref: browser.urlbar.quicksuggest.ampTopPickUseNovaIconSize
+      setPref:
+        branch: default
+        pref: browser.urlbar.quicksuggest.ampTopPickUseNovaIconSize
       description: >-
         Whether or not use the Nova icon size for AMP suggestion.
         Otherwise, use standard rich-suggestion size.
@@ -2074,6 +2076,27 @@ sessionRestore:
         1 = open the configured homepage in a tab (default, session restore disabled),
         2 = open last visited page in a tab,
         3 = re-open previous windows and tabs (session restore enabled)
+
+sessionRestoreNewTab:
+  description: Open a new tab after session restore on startup
+  owner: hsohaney@mozilla.com
+  hasExposure: true
+  exposureDescription: >
+    Recorded when a setting-based session restore occurs at startup,
+    regardless of whether the new tab feature is enabled.
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.sessionstore.newTabOnRestore
+      description: Whether to open a new tab after session restore on startup.
+    showSetting:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.sessionstore.newTabOnRestore.showSetting
+      description: Whether to show the new-tab-on-restore checkbox in about:preferences.
 
 screenshots:
   description: The built-in Screenshots feature
@@ -5968,6 +5991,9 @@ smartWindow:
   owner: echa@mozilla.com
   hasExposure: false
   variables:
+    enabled:
+      type: boolean
+      description: Enables the Smart Window feature when true. Turning off this variable will not disable the feature.
     isDefault:
       type: boolean
       setPref:

@@ -2,6 +2,11 @@ from django.test import TestCase
 from parameterized import parameterized
 
 from experimenter.experiments.constants import Application
+from experimenter.experiments.jexl_to_sql import (
+    JEXL_TO_BQ_COLUMN,
+    KNOWN_UNTRANSLATABLE,
+    jexl_to_sql,
+)
 from experimenter.experiments.jexl_utils import extract_targeting_fields
 from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.targeting.constants import (
@@ -39,6 +44,26 @@ class TestTargetingConfigs(TestCase):
                 raise Exception(
                     f"JEXL validation error in {targeting_config.name}: {e}"
                 ) from e
+
+    @parameterized.expand([(t,) for t in TargetingConstants.TARGETING_CONFIGS.values()])
+    def test_targeting_config_jexl_attributes_are_known(self, targeting_config):
+        if not targeting_config.targeting or targeting_config.targeting == "true":
+            return
+        result = jexl_to_sql(targeting_config.targeting)
+        for warning in result.warnings:
+            if warning.startswith("|"):
+                continue
+            parts = warning.split(".")
+            self.assertTrue(
+                any(
+                    ".".join(parts[:i]) in KNOWN_UNTRANSLATABLE
+                    or warning in JEXL_TO_BQ_COLUMN
+                    for i in range(1, len(parts) + 1)
+                ),
+                f"Unrecognized attribute '{warning}' in "
+                f"{targeting_config.name}. Add it to "
+                f"JEXL_TO_BQ_COLUMN or KNOWN_UNTRANSLATABLE.",
+            )
 
     @parameterized.expand([(t,) for t in TargetingConstants.TARGETING_CONFIGS.values()])
     def test_validate_targeting_config_fields(self, targeting_config):

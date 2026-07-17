@@ -93,7 +93,6 @@ One of the following:
 - **cirrus**: Anything scoped to Cirrus.
 - **schemas**: Anything scoped to Nimbus schemas.
 - **legacy**: Anything scoped only to Legacy experiment frontend
-- **visualization**: Anything scoped only to Analysis Visualization
 
 #### Description
 

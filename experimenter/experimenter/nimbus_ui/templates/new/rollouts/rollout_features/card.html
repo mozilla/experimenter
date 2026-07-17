@@ -19,3 +19,8 @@
   </div>
 </div>
 {% include "new/common/sidebar_setup_refresh.html" %}
+
+{% if hx_swap_oob %}
+  {% include "new/common/audience_overlap_warnings.html" with oob=True %}
+
+{% endif %}

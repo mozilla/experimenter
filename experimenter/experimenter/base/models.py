@@ -2,7 +2,7 @@ from django.db import models
 
 
 class SiteFlagNameChoices(models.TextChoices):
-    LAUNCHING_DISABLED = "LAUNCHING_DISABLED", "Disable launching experiments"
+    ADVERTISE_DEVTOOLS = "ADVERTISE_DEVTOOLS", "Advertise nimbus-devtools"
 
 
 class SiteFlagManager(models.Manager["SiteFlag"]):
@@ -10,12 +10,25 @@ class SiteFlagManager(models.Manager["SiteFlag"]):
         qs = self.get_queryset().filter(name=choice.name)
         return qs.get().value if qs.exists() else defval
 
+    def get_cached(self, request, name):
+        if getattr(request, "_cached_site_flags", None) is None:
+            request._cached_site_flags = {}
+
+        if name not in request._cached_site_flags:
+            site_flag = self.filter(name=name).first()
+            request._cached_site_flags[name] = site_flag
+        else:
+            site_flag = request._cached_site_flags[name]
+
+        return site_flag
+
 
 class SiteFlag(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(choices=SiteFlagNameChoices, max_length=255, unique=True)
     value = models.BooleanField()
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
+    extra_data = models.JSONField(default=None, blank=True, null=True)
 
     objects = SiteFlagManager()
 

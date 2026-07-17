@@ -8,6 +8,7 @@ import * as bootstrap from "bootstrap";
 import "htmx.org";
 import "bootstrap-select";
 import { setupReadonlyJsonEditors } from "./codemirror_utils.js";
+import { setupDevtoolsBanner } from "./nimbus_devtools.js";
 
 window.bootstrap = bootstrap;
 const setupThemeSwitcher = () => {
@@ -133,6 +134,7 @@ const setupHTMXLoadingOverlay = () => {
 };
 
 $(() => {
+  void setupDevtoolsBanner();
   setupThemeSwitcher();
   setupTooltips();
   setupToasts();

@@ -1,0 +1,72 @@
+<div id="audience-overlap-warnings"
+     style="display: contents"
+     {% if oob %}hx-swap-oob="true"{% endif %}>
+  {% if experiment.audience_overlap_warnings %}
+    {% for warning in experiment.audience_overlap_warnings %}
+      <div class="rounded-2 p-3 small"
+           style="background-color: var(--bs-warning-bg-subtle);
+                  border: 1px solid var(--bs-warning-border-subtle)"
+           role="alert">
+        <p class="mb-1 d-flex align-items-center gap-2 fw-semibold">
+          <i class="fa-solid fa-triangle-exclamation"
+             style="color: var(--bs-orange)"></i>
+          {{ warning.text }}
+        </p>
+        <ul class="mb-1">
+          {% for entry in warning.entries %}
+            <li>
+              <a target="_blank" href="{% url "nimbus-ui-detail" slug=entry.slug %}">{{ entry.slug }}</a>
+              <span class="text-muted">
+                (
+                {% for reason in entry.reasons %}
+                  {% if reason.shared_features %}
+                    {{ reason.label_prefix }}
+                    {% for feature in reason.shared_features %}
+                      <a target="_blank" href="{{ feature.url }}">{{ feature.slug }}</a>
+                      {% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                  {% else %}
+                    {{ reason.label }}
+                  {% endif %}
+                  <i class="fa-regular fa-circle-question fa-sm"
+                     data-bs-toggle="tooltip"
+                     data-bs-placement="top"
+                     title="{{ reason.detail }}"></i>
+                  {% if reason.learn_more_url %}
+                    <a href="{{ reason.learn_more_url }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="ms-1">Learn more</a>
+                  {% endif %}
+                  {% if not forloop.last %},{% endif %}
+                {% endfor %}
+                )
+              </span>
+            </li>
+          {% endfor %}
+          {% for issue in warning.self_issues %}
+            <li>
+              <span>{{ issue.label }}</span>
+              <i class="fa-regular fa-circle-question fa-sm"
+                 data-bs-toggle="tooltip"
+                 data-bs-placement="top"
+                 title="{{ issue.detail }}"></i>
+              {% if issue.learn_more_url %}
+                <a href="{{ issue.learn_more_url }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="ms-1">Learn more</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+        {% if warning.learn_more_link %}
+          <a href="{{ warning.learn_more_link }}"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="btn btn-link btn-sm p-0">Learn more</a>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>

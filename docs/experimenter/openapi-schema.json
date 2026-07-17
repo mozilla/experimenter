@@ -5,36 +5,6 @@
     "version": ""
   },
   "paths": {
-    "/api/v3/visualization/{slug}/": {
-      "get": {
-        "operationId": "retrieveanalysis_results_view",
-        "description": "",
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "api"
-        ]
-      }
-    },
     "/api/v5/csv/": {
       "get": {
         "operationId": "listNimbusExperiments",
