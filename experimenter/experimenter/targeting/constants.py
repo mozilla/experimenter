@@ -2559,6 +2559,17 @@ FIVE_BOOKMARKS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN10_AT_LEAST_TEN_BOOKMARKS = NimbusTargetingConfig(
+    name="Windows 10 users with at least 10 bookmarks",
+    slug="win10_at_least_ten_bookmarks",
+    description="Windows 10 users with at least 10 bookmarks",
+    targeting=f"{WIN10_NOT_WIN11.targeting} && totalBookmarksCount >= 10",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_MAC = NimbusTargetingConfig(
     name="Not Mac Users",
     slug="not_mac_users",
