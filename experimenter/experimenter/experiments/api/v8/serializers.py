@@ -5,6 +5,7 @@ import json
 from django.conf import settings
 from rest_framework import serializers
 
+from experimenter.experiments.jexl_to_sql import jexl_to_sql
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBucketRange,
@@ -120,6 +121,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     firefoxLabsDescriptionLinks = serializers.SerializerMethodField()
     firefoxLabsGroup = serializers.ReadOnlyField(source="firefox_labs_group")
     requiresRestart = serializers.ReadOnlyField(source="requires_restart")
+    targetingSql = serializers.SerializerMethodField()
 
     class Meta:
         model = NimbusExperiment
@@ -160,7 +162,19 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "firefoxLabsDescriptionLinks",
             "firefoxLabsGroup",
             "requiresRestart",
+            "targetingSql",
         )
+
+    def get_targetingSql(self, obj):
+        if obj.status != NimbusExperiment.Status.DRAFT:
+            return None
+        result = jexl_to_sql(obj.targeting)
+        if result.sql is None and not result.warnings:
+            return None
+        return {
+            "sql": result.sql,
+            "warnings": result.warnings,
+        }
 
     def _holdback_enrollment_end(self, obj):
         if obj.is_holdback and not obj.end_date and not obj.actual_enrollment_end_date:

@@ -8,6 +8,7 @@ from parameterized import parameterized
 
 from experimenter.base.tests.factories import LocaleFactory
 from experimenter.experiments.api.v8.serializers import NimbusExperimentSerializer
+from experimenter.experiments.jexl_to_sql import jexl_to_sql
 from experimenter.experiments.models import NimbusBranchFeatureValue, NimbusExperiment
 from experimenter.experiments.tests.factories import (
     TEST_LOCALIZATIONS,
@@ -15,6 +16,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
+from experimenter.targeting.constants import WINDOWS_ONLY
 
 
 class TestNimbusExperimentSerializer(TestCase):
@@ -496,4 +498,67 @@ class TestNimbusExperimentSerializer(TestCase):
             "firefoxLabsDescriptionLinks": None,
             "firefoxLabsGroup": None,
             "requiresRestart": False,
+            "targetingSql": None,  # None for non-Draft experiments
         }
+
+    def test_targeting_sql_populated_for_draft(self):
+        _os = "metrics.object.nimbus_targeting_context_os"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=WINDOWS_ONLY.slug,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        experiment.locales.clear()
+        experiment.countries.clear()
+        experiment.languages.clear()
+
+        expected_sql = (
+            f"(NOT CAST(JSON_VALUE({_os}, '$.isMac') AS BOOL)"
+            f" AND NOT CAST(JSON_VALUE({_os}, '$.isLinux') AS BOOL))"
+        )
+
+        jexl_result = jexl_to_sql(experiment.targeting)
+        self.assertEqual(jexl_result.sql, expected_sql)
+        self.assertEqual(jexl_result.warnings, [])
+
+        # Validate the serializer returns the same SQL in the correct shape
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(
+            serializer.data["targetingSql"],
+            {"sql": expected_sql, "warnings": []},
+        )
+
+    def test_targeting_sql_with_warnings_for_draft(self):
+        # relay_user uses attachedFxAOAuthClients which is KNOWN_UNTRANSLATABLE
+        # → sql is None, warning is attachedFxAOAuthClients
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug="relay_user",
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        experiment.locales.clear()
+        experiment.countries.clear()
+        experiment.languages.clear()
+
+        # relay_user uses attachedFxAOAuthClients (KNOWN_UNTRANSLATABLE) → sql=None
+        jexl_result = jexl_to_sql(experiment.targeting)
+        self.assertIsNone(jexl_result.sql)
+        self.assertEqual(jexl_result.warnings, ["attachedFxAOAuthClients"])
+
+        # Serializer should produce the same result as jexl_to_sql
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(
+            serializer.data["targetingSql"],
+            {"sql": jexl_result.sql, "warnings": jexl_result.warnings},
+        )
+
+    def test_targeting_sql_none_for_live_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertIsNone(serializer.data["targetingSql"])
