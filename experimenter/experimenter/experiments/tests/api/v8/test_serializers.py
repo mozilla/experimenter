@@ -503,7 +503,6 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_targeting_sql_populated_for_draft(self):
         _os = "metrics.object.nimbus_targeting_context_os"
-        # Create a minimal Draft with only the windows_only targeting config
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             targeting_config_slug=WINDOWS_ONLY.slug,
