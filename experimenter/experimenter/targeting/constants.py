@@ -4935,6 +4935,23 @@ FX_153_5_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_154_8_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+    name=(
+        "New Tab Fx154 Jul-16 Trainhop, engaged with any of 4 widgets, "
+        "that widget not disabled"
+    ),
+    slug="widgets-any-four-engaged-154-0716-trainhop",
+    description=(
+        "Users having the New Tab 154.8.20260716.43450 train hop who engaged with the "
+        "Sports, Clocks, Lists, or Timer widget and still have that widget enabled"
+    ),
+    targeting=f"{FX_154_8_TRAINHOP.targeting} && ({WIDGETS_ANY_FOUR_ENGAGED.targeting})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FX_153_3_TRAINHOP_ANY_WIDGET_ENABLED = NimbusTargetingConfig(
     name="New Tab Fx153 Jun-05 Trainhop, any of 4 widgets enabled",
     slug="any-widget-enabled-153-0605-trainhop",
