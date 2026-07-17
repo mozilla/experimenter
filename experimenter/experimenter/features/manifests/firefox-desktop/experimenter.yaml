@@ -4540,6 +4540,7 @@ opaqueResponseBlocking:
   owner: farre@mozilla.com
   hasExposure: true
   exposureDescription: Exposure is sent when a response is blocked
+  isEarlyStartup: true
   variables:
     enabled:
       description: Whether ORB is enabled

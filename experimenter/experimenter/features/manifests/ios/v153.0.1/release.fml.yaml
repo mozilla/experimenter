@@ -24,11 +24,6 @@ features:
     description: |
       Decides if the address bar interactive gesture to open the tab tray is enabled
     variables:
-      enabled_closetab:
-        description: |
-          Decides if the interactive gesture can close tabs by dragging the tab up to the top edge of the screen
-        type: Boolean
-        default: false
       enabled_interactive:
         description: |
           Decides if the interactive (fancier) version of this feature is enabled.
@@ -39,6 +34,13 @@ features:
           Decides if the swipe version of this feature is enabled. This will override the interactive gesture
         type: Boolean
         default: false
+  ads-client:
+    description: This property defines if the rust ads client is enabled
+    variables:
+      status:
+        description: If true, we will enable the rust ads client
+        type: Boolean
+        default: true
   ai-kill-switch-feature:
     description: |
       Configuration feature for AI features
@@ -46,6 +48,14 @@ features:
       enabled:
         description: |
           Whether or not this feature is enabled
+        type: Boolean
+        default: true
+  appearance-menu-feature:
+    description: |
+      This property determines if we show the new appearance menu entry or the old theme settings
+    variables:
+      status:
+        description: If true, we will show the new appearance menu entry
         type: Boolean
         default: true
   bookmarks-search-feature:
@@ -75,6 +85,15 @@ features:
           Variable description
         type: Boolean
         default: false
+  deeplink-overlay-feature:
+    description: |
+      Controls whether a privacy-style overlay is shown when the app moves to the background, regardless of tab privacy state. Used to mask the previously displayed tab while a deep link is being handled on resume.
+    variables:
+      enabled:
+        description: |
+          If true, show the background overlay for all tabs (private and normal). If false, the overlay is only shown for private tabs.
+        type: Boolean
+        default: true
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
@@ -353,6 +372,15 @@ features:
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
         default: false
+  needs-reload-refactor:
+    description: |
+      This is a technical refactor which cleans up the reloading of the webview
+    variables:
+      enabled:
+        description: |
+          Whether or not this refactor is enabled
+        type: Boolean
+        default: true
   new-bookmark-folder-tree-feature:
     description: |
       This property determines weather we show the new bookmark folder tree UI
@@ -749,7 +777,7 @@ features:
       enabled:
         description: If true the SnapKit removal refactor version will be used
         type: Boolean
-        default: true
+        default: false
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
