@@ -1046,6 +1046,16 @@ uninstall-survey:
     enabled:
       type: boolean
       description: If true, the uninstall survey shortcut is enabled and visible.
+universal-edge-to-edge-wallpapers:
+  description: |
+    Extends non-default homepage wallpapers edge-to-edge and adapts the toolbar, navigation bar and system bars to them.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable the universal edge-to-edge wallpaper treatment.
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true
