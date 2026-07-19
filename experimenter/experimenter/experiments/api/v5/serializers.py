@@ -2002,7 +2002,6 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
         min_value=0.0,
         max_value=100.0,
         required=True,
-        error_messages={"min_value": NimbusConstants.ERROR_POPULATION_PERCENT_MIN},
     )
     total_enrolled_clients = serializers.IntegerField(required=False, min_value=0)
     rollout_phases = serializers.PrimaryKeyRelatedField(
@@ -2012,6 +2011,8 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
     )
 
     def validate_reference_branch(self, value):
+        # The rollout setup flow doesn't require a reference-branch description so
+        # this skips the parent's non-empty check
         return value
 
     def validate_rollout_phases(self, value):

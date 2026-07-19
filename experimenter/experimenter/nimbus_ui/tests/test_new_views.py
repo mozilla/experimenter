@@ -250,15 +250,15 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         total_tracked = len(
             {
                 field
-                for fields in RolloutSetupProgressMixin.SETUP_SECTIONS.values()
-                for field in fields
+                for section in RolloutSetupProgressMixin.SETUP_SECTIONS.values()
+                for field in section["fields"]
             }
-        ) + len(RolloutSetupProgressMixin.NON_FIELD_ISSUE_CARDS)
+        )
         self.assertEqual(two_invalid, round(100 * (total_tracked - 2) / total_tracked))
         self.assertEqual(one_invalid, round(100 * (total_tracked - 1) / total_tracked))
         self.assertGreater(one_invalid, two_invalid)
 
-    def test_setup_progress_untracked_issue_lowers_completion(self):
+    def test_setup_progress_untracked_issue_does_not_lower_completion(self):
         experiment = NimbusExperimentFactory.create(is_rollout=True)
         url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
 
@@ -272,7 +272,7 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             context = self.client.get(url).context
 
         self.assertEqual(context["setup_issues_count"], 1)
-        self.assertLess(context["setup_completion_percent"], 100)
+        self.assertEqual(context["setup_completion_percent"], 100)
 
     def test_preview_card_hidden_when_not_in_preview(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

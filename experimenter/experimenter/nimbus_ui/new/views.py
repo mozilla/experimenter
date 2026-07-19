@@ -97,24 +97,26 @@ class UpdateRedirectViewMixin:
 
 class RolloutSetupProgressMixin:
     SETUP_SECTIONS = {
-        "Overview": {*RolloutOverviewForm.Meta.fields},
-        "Risks": {*RolloutRisksForm.Meta.fields},
-        "Features": {*RolloutFeaturesForm.Meta.fields},
-        "Audience": {*RolloutAudienceForm.Meta.fields},
-    }
-
-    SECTION_CARD_IDS = {
-        "Overview": "overview",
-        "Risks": "risks",
-        "Features": "rollout-features",
-        "Audience": "audience",
-    }
-
-    NON_FIELD_ISSUE_CARDS = {
-        "rollout_phases": {
-            "section": "Rollout schedule",
+        "Overview": {
+            "card_id": "overview",
+            "fields": {*RolloutOverviewForm.Meta.fields},
+        },
+        "Risks": {
+            "card_id": "risks",
+            "fields": {*RolloutRisksForm.Meta.fields},
+        },
+        "Features": {
+            "card_id": "rollout-features",
+            "fields": {*RolloutFeaturesForm.Meta.fields},
+        },
+        "Audience": {
+            "card_id": "audience",
+            "fields": {*RolloutAudienceForm.Meta.fields},
+        },
+        "Rollout schedule": {
             "card_id": "schedule",
-            "label": "Rollout Schedule",
+            "fields": {"rollout_phases"},
+            "labels": {"rollout_phases": "Rollout Schedule"},
         },
     }
 
@@ -132,32 +134,28 @@ class RolloutSetupProgressMixin:
         )
         error_keys = set(field_errors)
 
-        tracked_fields = set()
-        for fields in self.SETUP_SECTIONS.values():
-            tracked_fields.update(fields)
-        tracked_fields.update(self.NON_FIELD_ISSUE_CARDS)
-        tracked_fields.update(error_keys)
+        field_to_section = {
+            field: name
+            for name, section in self.SETUP_SECTIONS.items()
+            for field in section["fields"]
+        }
 
-        invalid_tracked = error_keys & tracked_fields
+        tracked_fields = set(field_to_section)
+        broken = error_keys & tracked_fields
         context["setup_completion_percent"] = round(
-            100 * (len(tracked_fields) - len(invalid_tracked)) / len(tracked_fields)
+            100 * (len(tracked_fields) - len(broken)) / len(tracked_fields)
         )
 
-        field_to_section = {
-            field: section
-            for section, fields in self.SETUP_SECTIONS.items()
-            for field in fields
-        }
         issues = []
         for field, messages in field_errors.items():
-            if field in self.NON_FIELD_ISSUE_CARDS:
-                meta = self.NON_FIELD_ISSUE_CARDS[field]
-                section = meta["section"]
+            section = field_to_section.get(field)
+            if section is not None:
+                meta = self.SETUP_SECTIONS[section]
                 card_id = meta["card_id"]
-                label = meta["label"]
+                label = meta.get("labels", {}).get(field, field.replace("_", " ").title())
             else:
-                section = field_to_section.get(field, "Other")
-                card_id = self.SECTION_CARD_IDS.get(section)
+                section = "Other"
+                card_id = None
                 label = field.replace("_", " ").title()
             issues.append(
                 {
