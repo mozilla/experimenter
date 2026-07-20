@@ -29,7 +29,7 @@
         {% if form.public_description.errors %}
           <div class="text-danger small mt-1">{{ form.public_description.errors|join:", " }}</div>
         {% endif %}
-        <p class="form-text mb-0">This description will be public to users on about:studies</p>
+        <p class="form-text mb-0">{{ NimbusUIConstants.PUBLIC_DESCRIPTION_TEXT }}</p>
       </div>
       {# Application #}
       <div>
