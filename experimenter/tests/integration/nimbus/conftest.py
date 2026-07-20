@@ -1,13 +1,13 @@
 import logging
 import os
 import time
+import tomllib
 import uuid
 from pathlib import Path
 from urllib.parse import urljoin
 
 import pytest
 import requests
-import tomllib
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from selenium import webdriver

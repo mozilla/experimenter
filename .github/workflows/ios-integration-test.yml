@@ -41,9 +41,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install poetry
+      - name: Install uv
         if: steps.check-paths.outputs.should-run == 'true'
-        run: pipx install poetry
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
 
       - name: Bring up Experimenter stack
         if: steps.check-paths.outputs.should-run == 'true'
@@ -57,12 +57,12 @@ jobs:
 
       - name: Install test deps
         if: steps.check-paths.outputs.should-run == 'true'
-        run: poetry -C experimenter/tests install --no-root
+        run: uv sync --project experimenter/tests --no-install-project
 
       - name: Create recipe
         if: steps.check-paths.outputs.should-run == 'true'
         working-directory: experimenter/tests
-        run: poetry run pytest -m ios_create_recipe -o addopts= -p no:rerunfailures integration/nimbus/ios
+        run: uv run pytest -m ios_create_recipe -o addopts= -p no:rerunfailures integration/nimbus/ios
 
       - name: Upload recipe artifact
         if: steps.check-paths.outputs.should-run == 'true'
@@ -175,11 +175,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
 
       - name: Install test deps
-        run: poetry -C experimenter/tests install --no-root
+        run: uv sync --project experimenter/tests --no-install-project
 
       - name: Download recipe artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4

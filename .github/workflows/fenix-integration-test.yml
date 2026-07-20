@@ -71,9 +71,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install poetry
+      - name: Install uv
         if: steps.check-paths.outputs.should-run == 'true'
-        run: pipx install poetry
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
 
       - name: Bring up Experimenter stack
         if: steps.check-paths.outputs.should-run == 'true'
