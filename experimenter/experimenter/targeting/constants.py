@@ -1257,6 +1257,25 @@ WIN10_VPN_PROMOTION_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_LAUNCH_ON_LOGIN_ELIGIBLE = NimbusTargetingConfig(
+    name="Windows users eligible for launch on login",
+    slug="windows_launch_on_login_eligible",
+    description=(
+        "Windows 10+ users whose profiles predate 6/16/2026, who don't already "
+        "have launch on login enabled but could enable it."
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && "
+        "!launchOnLoginEnabled && launchOnLoginAllowedByPolicy && "
+        "'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue && "
+        "profileAgeCreated > '2026-06-16'|date"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USERS_PDF_PROMO_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10+ users eligible for Split PDF promo",
     slug="win10_pdf_split_promo",
