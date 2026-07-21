@@ -202,6 +202,7 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             schedule_issues[0]["messages"],
             [NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO],
         )
+        self.assertLess(response.context["setup_completion_percent"], 100)
 
     def test_setup_progress_reports_issues_when_review_invalid(self):
         experiment = NimbusExperimentFactory.create(
