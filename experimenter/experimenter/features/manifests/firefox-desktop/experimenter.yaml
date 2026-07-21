@@ -697,6 +697,13 @@ urlbar:
       description: >-
         Whether or not to show calculator results when a user types a valid
         calculation string into the urlbar.
+    trackerCountFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.trackerCount.featureGate
+      description: >-
+        Boolean used to determine if the "x trackers blocked" pill should be
+        shown in the urlbar. Should be false for Control branch of an
+        experiment.
     unitConversionEnabled:
       type: boolean
       setPref:
@@ -6106,9 +6113,17 @@ webNotificationsPermissionUi:
     logoUrl:
       type: string
       description: >-
-        Optional logo URL used as the prompt's icon. Must be a chrome://,
-        resource:// or https:// URL; any other scheme is rejected and the
-        default icon is shown.
+        Optional logo URL used as the prompt's icon. Must be a chrome:// or
+        resource:// URL; any other scheme is rejected and the default icon is
+        shown.
+    useSiteFavicon:
+      type: boolean
+      description: >-
+        When true, use the requesting site's own favicon as the prompt icon
+        (no logoUrl needed). Prefers the site's cached favicon and falls back to
+        the tab's currently loaded icon (so it still shows on a first-time
+        private-browsing visit), or the default favicon if neither is available.
+        Ignored when a valid logoUrl is set.
     activationTargeting:
       type: string
       description: >-
