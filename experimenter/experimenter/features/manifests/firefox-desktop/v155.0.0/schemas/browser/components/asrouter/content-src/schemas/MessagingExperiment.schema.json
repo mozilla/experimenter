@@ -1137,7 +1137,6 @@
               "type": "string",
               "description": "Promo type used to determine if promo should show to a given user",
               "enum": [
-                "FOCUS",
                 "VPN",
                 "PIN",
                 "COOKIE_BANNERS",
