@@ -2,6 +2,19 @@ from django.urls import re_path
 from django.views.generic import RedirectView
 
 from experimenter.nimbus_ui.new.views import (
+    AdvancePhaseReviewApproveRolloutView,
+    AdvancePhaseReviewRejectRolloutView,
+    AdvancePhaseReviewRolloutView,
+    DisabledToLiveReviewApproveRolloutView,
+    DisabledToLiveReviewRejectRolloutView,
+    DisabledToLiveReviewRolloutView,
+    DraftReviewApproveRolloutView,
+    DraftReviewRejectView,
+    DraftReviewRolloutView,
+    DraftToPreviewRolloutView,
+    LiveToDisabledReviewApproveRolloutView,
+    LiveToDisabledReviewRejectRolloutView,
+    LiveToDisabledReviewRolloutView,
     NewAddSubscriberView,
     NewAddTagView,
     NewAudienceUpdateView,
@@ -24,6 +37,8 @@ from experimenter.nimbus_ui.new.views import (
     NewTagSearchView,
     NewUnsubscribeView,
     NimbusRolloutDetailView,
+    PreviewReviewRolloutView,
+    PreviewToDraftRolloutView,
 )
 from experimenter.nimbus_ui.views import (
     ApproveEndEnrollmentView,
@@ -308,6 +323,81 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/approve-update-rollout/$",
         ApproveUpdateRolloutView.as_view(),
         name="nimbus-ui-approve-update-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/draft-to-preview-rollout/$",
+        DraftToPreviewRolloutView.as_view(),
+        name="nimbus-ui-new-draft-to-preview-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/draft-to-review-rollout/$",
+        DraftReviewRolloutView.as_view(),
+        name="nimbus-ui-new-draft-to-review-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/draft-review-to-approve-rollout/$",
+        DraftReviewApproveRolloutView.as_view(),
+        name="nimbus-ui-new-draft-review-to-approve-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/draft-review-to-reject-rollout/$",
+        DraftReviewRejectView.as_view(),
+        name="nimbus-ui-new-draft-review-to-reject-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/preview-review-rollout/$",
+        PreviewReviewRolloutView.as_view(),
+        name="nimbus-ui-new-preview-review-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/preview-to-draft-rollout/$",
+        PreviewToDraftRolloutView.as_view(),
+        name="nimbus-ui-new-preview-to-draft-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/advance-phase-review-rollout/$",
+        AdvancePhaseReviewRolloutView.as_view(),
+        name="nimbus-ui-new-advance-phase-review-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/approve-advance-phase-review-rollout/$",
+        AdvancePhaseReviewApproveRolloutView.as_view(),
+        name="nimbus-ui-new-approve-advance-phase-review-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/reject-advance-phase-review-rollout/$",
+        AdvancePhaseReviewRejectRolloutView.as_view(),
+        name="nimbus-ui-new-reject-advance-phase-review-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/live-to-disabled-rollout/$",
+        LiveToDisabledReviewRolloutView.as_view(),
+        name="nimbus-ui-new-live-to-disabled-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/live-to-disabled-review-approve-rollout/$",
+        LiveToDisabledReviewApproveRolloutView.as_view(),
+        name="nimbus-ui-new-live-to-disabled-review-approve-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/live-to-disabled-review-reject-rollout/$",
+        LiveToDisabledReviewRejectRolloutView.as_view(),
+        name="nimbus-ui-new-live-to-disabled-review-reject-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/disabled-to-live-rollout/$",
+        DisabledToLiveReviewRolloutView.as_view(),
+        name="nimbus-ui-new-disabled-to-live-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/disabled-to-live-review-approve-rollout/$",
+        DisabledToLiveReviewApproveRolloutView.as_view(),
+        name="nimbus-ui-new-disabled-to-live-review-approve-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/disabled-to-live-review-reject-rollout/$",
+        DisabledToLiveReviewRejectRolloutView.as_view(),
+        name="nimbus-ui-new-disabled-to-live-review-reject-rollout",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/results/$",

@@ -1,9 +1,10 @@
 import datetime
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import resolve, reverse
 from django.utils import timezone
 from parameterized import parameterized
 
@@ -45,6 +46,186 @@ class AuthTestCase(TestCase):
         super().setUp()
         self.user = UserFactory.create(email="user@example.com")
         self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
+
+
+class TestRolloutStatusUpdateViews(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.mock_preview_task = patch(
+            "experimenter.nimbus_ui.new.forms."
+            "nimbus_synchronize_preview_experiments_in_kinto.apply_async"
+        ).start()
+        self.mock_allocate_bucket_range = patch(
+            "experimenter.experiments.models.NimbusExperiment.allocate_bucket_range"
+        ).start()
+        self.mock_kinto_push_queue = patch(
+            "experimenter.nimbus_ui.new.forms."
+            "nimbus_check_kinto_push_queue_by_collection.apply_async"
+        ).start()
+        self.addCleanup(self.mock_preview_task.stop)
+        self.addCleanup(self.mock_allocate_bucket_range.stop)
+        self.addCleanup(self.mock_kinto_push_queue.stop)
+
+    @parameterized.expand(
+        [
+            # Draft -> Preview
+            (
+                "nimbus-ui-new-draft-to-preview-rollout",
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.PREVIEW,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+            ),
+            # Draft -> Review
+            (
+                "nimbus-ui-new-draft-to-review-rollout",
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+            ),
+            # Preview -> Draft
+            (
+                "nimbus-ui-new-preview-to-draft-rollout",
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+            ),
+            # Live -> Live
+            (
+                "nimbus-ui-new-advance-phase-review-rollout",
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+            ),
+            # Live -> Disabled
+            (
+                "nimbus-ui-new-live-to-disabled-rollout",
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.PublishStatus.REVIEW,
+            ),
+            # Disabled -> Live
+            (
+                "nimbus-ui-new-disabled-to-live-rollout",
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+            ),
+        ]
+    )
+    def test_valid_submission(
+        self,
+        url_name,
+        initial_status,
+        expected_status,
+        expected_status_next,
+        expected_publish_status,
+    ):
+        form_class = resolve(
+            reverse(url_name, kwargs={"slug": "test"})
+        ).func.view_class.form_class
+        experiment = NimbusExperimentFactory.create(
+            status=initial_status,
+            status_next=form_class.required_status_next,
+            publish_status=form_class.required_publish_status,
+            is_rollout=True,
+        )
+
+        response = self.client.post(reverse(url_name, kwargs={"slug": experiment.slug}))
+
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.status, expected_status)
+        self.assertEqual(experiment.status_next, expected_status_next)
+        self.assertEqual(experiment.publish_status, expected_publish_status)
+
+    @parameterized.expand(
+        [
+            # Approve Draft -> Live review.
+            (
+                "nimbus-ui-new-draft-review-to-approve-rollout",
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.APPROVED,
+            ),
+            # Reject Draft -> Live review.
+            (
+                "nimbus-ui-new-draft-review-to-reject-rollout",
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+            ),
+        ]
+    )
+    def test_draft_review_submission(
+        self,
+        url_name,
+        expected_status,
+        expected_status_next,
+        expected_publish_status,
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
+
+        response = self.client.post(reverse(url_name, kwargs={"slug": experiment.slug}))
+
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.status, expected_status)
+        self.assertEqual(experiment.status_next, expected_status_next)
+        self.assertEqual(experiment.publish_status, expected_publish_status)
+
+    def test_htmx_progress_card_renders_fragment(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
+            is_rollout=True,
+        )
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-new-live-to-disabled-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+            {"fragment": "progress_card"},
+            HTTP_HX_REQUEST="true",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "nimbus_experiments/launch_controls_v2.html")
+
+    def test_invalid_submission_adds_status_form_errors_to_context(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-live-to-disabled-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            response.context["update_status_form_errors"][0],
+        )
 
 
 class NewViewTestMixin:

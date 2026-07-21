@@ -26,6 +26,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Cannot perform this action: experiment must be in state {required_state}, "
         "but is currently in state {current_state}."
     )
+    ERROR_INVALID_PAUSED_TRANSITION = (
+        "Cannot perform this action: only rollouts may be paused."
+    )
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/getting-started/for-reviewers"

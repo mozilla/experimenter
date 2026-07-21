@@ -6980,8 +6980,45 @@ class TestAdvanceRolloutPhase(TestCase):
 
         self.assertEqual(self.experiment.rollout_phase, self.phases[0])
         self.assertIsNone(self.experiment.rollout_phase_next)
+        self.assertEqual(
+            self.experiment.population_percent, self.phases[0].population_percent
+        )
         self.assertEqual(self.phases[0].actual_start_date, today)
         self.assertIsNone(self.phases[0].start_date)
+
+    def test_stage_advance_updates_proposed_population_without_advancing_phase(self):
+        self.experiment.rollout_phase = self.phases[0]
+        self.experiment.population_percent = self.phases[0].population_percent
+        self.experiment.save()
+
+        next_phase = self.experiment.stage_rollout_phase_advance()
+        self.experiment.refresh_from_db()
+        self.phases[0].refresh_from_db()
+        self.phases[1].refresh_from_db()
+
+        self.assertEqual(next_phase, self.phases[1])
+        self.assertEqual(self.experiment.rollout_phase, self.phases[0])
+        self.assertEqual(self.experiment.rollout_phase_next, self.phases[1])
+        self.assertEqual(
+            self.experiment.population_percent, self.phases[1].population_percent
+        )
+        self.assertIsNone(self.phases[0].end_date)
+        self.assertIsNone(self.phases[1].actual_start_date)
+
+    def test_advance_commits_staged_phase(self):
+        self.experiment.rollout_phase = self.phases[0]
+        self.experiment.save()
+        self.experiment.stage_rollout_phase_advance()
+
+        self.experiment.advance_rollout_phase()
+        self.experiment.refresh_from_db()
+        self.phases[0].refresh_from_db()
+        self.phases[1].refresh_from_db()
+
+        self.assertEqual(self.experiment.rollout_phase, self.phases[1])
+        self.assertIsNone(self.experiment.rollout_phase_next)
+        self.assertEqual(self.phases[0].end_date, timezone.now().date())
+        self.assertEqual(self.phases[1].actual_start_date, timezone.now().date())
 
     def test_advance_stamps_dates_and_moves_pointer(self):
         today = timezone.now().date()
@@ -7001,6 +7038,9 @@ class TestAdvanceRolloutPhase(TestCase):
         self.assertEqual(self.phases[1].start_date, planned_start)
         self.assertEqual(self.experiment.rollout_phase, self.phases[1])
         self.assertIsNone(self.experiment.rollout_phase_next)
+        self.assertEqual(
+            self.experiment.population_percent, self.phases[1].population_percent
+        )
 
     def test_advance_does_not_start_phase_with_zero_population(self):
         self.phases[1].population_percent = 0
@@ -7062,6 +7102,124 @@ class TestAdvanceRolloutPhase(TestCase):
         experiment.refresh_from_db()
         self.assertIsNone(experiment.rollout_phase)
         self.assertIsNone(experiment.rollout_phase_next)
+
+    def test_stage_advance_with_no_phases_is_noop(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+
+        next_phase = experiment.stage_rollout_phase_advance()
+
+        self.assertIsNone(next_phase)
+        self.assertIsNone(experiment.rollout_phase_next)
+
+    def test_stage_advance_from_no_current_phase_stages_first_phase(self):
+        next_phase = self.experiment.stage_rollout_phase_advance()
+        self.experiment.refresh_from_db()
+
+        self.assertEqual(next_phase, self.phases[0])
+        self.assertIsNone(self.experiment.rollout_phase)
+        self.assertEqual(self.experiment.rollout_phase_next, self.phases[0])
+        self.assertEqual(
+            self.experiment.population_percent, self.phases[0].population_percent
+        )
+
+    def test_stage_advance_reuses_already_staged_phase(self):
+        self.experiment.rollout_phase = self.phases[0]
+        self.experiment.rollout_phase_next = self.phases[2]
+        self.experiment.save()
+
+        next_phase = self.experiment.stage_rollout_phase_advance()
+
+        self.assertEqual(next_phase, self.phases[2])
+        self.assertEqual(self.experiment.rollout_phase_next, self.phases[2])
+        self.assertEqual(
+            self.experiment.population_percent, self.phases[2].population_percent
+        )
+
+    def test_stage_advance_past_last_phase_without_copy_is_noop(self):
+        self.experiment.rollout_phase = self.phases[2]
+        self.experiment.save()
+
+        next_phase = self.experiment.stage_rollout_phase_advance()
+
+        self.assertIsNone(next_phase)
+        self.assertIsNone(self.experiment.rollout_phase_next)
+
+    def test_stage_advance_past_last_phase_copies_current_when_requested(self):
+        self.experiment.rollout_phase = self.phases[2]
+        self.experiment.save()
+
+        next_phase = self.experiment.stage_rollout_phase_advance(
+            copy_current_if_missing=True
+        )
+        self.experiment.refresh_from_db()
+
+        self.assertIsNotNone(next_phase)
+        assert next_phase is not None
+        self.assertNotEqual(next_phase, self.phases[2])
+        self.assertEqual(next_phase.population_percent, self.phases[2].population_percent)
+        self.assertEqual(self.experiment.rollout_phase, self.phases[2])
+        self.assertEqual(self.experiment.rollout_phase_next, next_phase)
+        self.assertEqual(self.experiment.rollout_phases.count(), 4)
+
+    def test_stage_advance_does_not_stage_zero_population_phase(self):
+        self.phases[1].population_percent = 0
+        self.phases[1].save()
+        self.experiment.rollout_phase = self.phases[0]
+        self.experiment.save()
+
+        next_phase = self.experiment.stage_rollout_phase_advance()
+
+        self.assertIsNone(next_phase)
+        self.assertIsNone(self.experiment.rollout_phase_next)
+
+    def test_advance_does_not_overwrite_completed_current_phase_end_date(self):
+        previous_end_date = timezone.now().date() - datetime.timedelta(days=1)
+        self.phases[0].end_date = previous_end_date
+        self.phases[0].save()
+        self.experiment.rollout_phase = self.phases[0]
+        self.experiment.rollout_phase_next = self.phases[1]
+        self.experiment.save()
+
+        self.experiment.advance_rollout_phase()
+        self.phases[0].refresh_from_db()
+
+        self.assertEqual(self.phases[0].end_date, previous_end_date)
+
+    def test_end_current_rollout_phase_is_noop_without_current_phase(self):
+        self.experiment.rollout_phase = None
+        self.experiment.save()
+
+        self.experiment.end_current_rollout_phase()
+
+        self.assertIsNone(self.experiment.rollout_phase)
+
+    def test_end_current_rollout_phase_is_noop_when_already_ended(self):
+        previous_end_date = timezone.now().date() - datetime.timedelta(days=1)
+        self.phases[0].end_date = previous_end_date
+        self.phases[0].save()
+        self.experiment.rollout_phase = self.phases[0]
+        self.experiment.save()
+
+        self.experiment.end_current_rollout_phase()
+        self.phases[0].refresh_from_db()
+
+        self.assertEqual(self.phases[0].end_date, previous_end_date)
+
+    def test_end_current_rollout_phase_sets_dates(self):
+        actual_start_date = timezone.now().date() - datetime.timedelta(days=7)
+        self.phases[0].actual_start_date = actual_start_date
+        self.phases[0].save()
+        self.experiment.rollout_phase = self.phases[0]
+        self.experiment.save()
+
+        self.experiment.end_current_rollout_phase()
+        self.phases[0].refresh_from_db()
+
+        self.assertEqual(self.phases[0].start_date, actual_start_date)
+        self.assertEqual(self.phases[0].end_date, timezone.now().date())
 
     def test_clone_resets_phase_pointers(self):
         self.experiment.rollout_phase = self.phases[1]
