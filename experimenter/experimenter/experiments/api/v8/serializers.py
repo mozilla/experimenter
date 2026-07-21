@@ -171,9 +171,11 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         result = jexl_to_sql(obj.targeting)
         if result.sql is None and not result.warnings:
             return None
+
         return {
             "sql": result.sql,
             "warnings": result.warnings,
+            "needsUpdate": obj.sizing_needs_update,
         }
 
     def _holdback_enrollment_end(self, obj):

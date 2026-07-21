@@ -524,10 +524,11 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(jexl_result.warnings, [])
 
         # Validate the serializer returns the same SQL in the correct shape
+        # New experiment has no sizing_data_updated_at → needsUpdate is True
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(
             serializer.data["targetingSql"],
-            {"sql": expected_sql, "warnings": []},
+            {"sql": expected_sql, "warnings": [], "needsUpdate": True},
         )
 
     def test_targeting_sql_with_warnings_for_draft(self):
@@ -550,11 +551,36 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(jexl_result.warnings, ["attachedFxAOAuthClients"])
 
         # Serializer should produce the same result as jexl_to_sql
+        # New experiment has no sizing_data_updated_at → needsUpdate is True
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(
             serializer.data["targetingSql"],
-            {"sql": jexl_result.sql, "warnings": jexl_result.warnings},
+            {
+                "sql": jexl_result.sql,
+                "warnings": jexl_result.warnings,
+                "needsUpdate": True,
+            },
         )
+
+    def test_targeting_sql_needs_update_false_when_already_sized(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=WINDOWS_ONLY.slug,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        experiment.locales.clear()
+        experiment.countries.clear()
+        experiment.languages.clear()
+        # Simulate sizing already ran AFTER the last experiment update
+        experiment.sizing_data_updated_at = (
+            experiment._updated_date_time + datetime.timedelta(seconds=1)
+        )
+        experiment.save(update_fields=["sizing_data_updated_at"])
+
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertFalse(serializer.data["targetingSql"]["needsUpdate"])
 
     def test_targeting_sql_none_for_live_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
