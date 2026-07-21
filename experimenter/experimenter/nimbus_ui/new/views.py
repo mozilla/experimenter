@@ -1,20 +1,37 @@
 from django import forms
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import DetailView
 from django.views.generic.edit import UpdateView
 
+from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
 from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.nimbus_ui.filtersets import (
     TagSearchFilterSet,
     UserSearchFilterSet,
 )
 from experimenter.nimbus_ui.new.forms import (
+    AdvancePhaseReviewApproveRolloutForm,
+    AdvancePhaseReviewRejectRolloutForm,
+    AdvancePhaseReviewRolloutForm,
     CollaboratorsForm,
+    DisabledToLiveReviewApproveRolloutForm,
+    DisabledToLiveReviewRejectRolloutForm,
+    DisabledToLiveReviewRolloutForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
+    DraftReviewApproveRolloutForm,
+    DraftReviewRejectForm,
+    DraftReviewRolloutForm,
+    DraftToPreviewRolloutForm,
+    LiveToDisabledReviewApproveRolloutForm,
+    LiveToDisabledReviewRejectRolloutForm,
+    LiveToDisabledReviewRolloutForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    PreviewReviewRolloutForm,
+    PreviewToDraftRolloutForm,
     RolloutAudienceForm,
     RolloutFeaturesForm,
     RolloutOverviewForm,
@@ -46,6 +63,12 @@ class RequestFormMixin:
         return kwargs
 
 
+class RenderResponseMixin:
+    def form_valid(self, form):
+        super().form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
 class NimbusExperimentViewMixin:
     model = NimbusExperiment
     context_object_name = "experiment"
@@ -61,6 +84,63 @@ class NimbusExperimentViewMixin:
         )
         context["all_tags"] = Tag.objects.all().order_by("name")
         context["create_form"] = NimbusExperimentCreateForm()
+
+        return context
+
+
+def build_experiment_context(experiment):
+    outcome_doc_base_url = "https://mozilla.github.io/metric-hub/outcomes/"
+    primary_outcome_links = [
+        (
+            outcome,
+            f"{outcome_doc_base_url}{experiment.application.replace('-', '_')}/{outcome}",
+        )
+        for outcome in experiment.primary_outcomes
+    ]
+    secondary_outcome_links = [
+        (
+            outcome,
+            f"{outcome_doc_base_url}{experiment.application.replace('-', '_')}/{outcome}",
+        )
+        for outcome in experiment.secondary_outcomes
+    ]
+
+    segment_doc_base_url = "https://mozilla.github.io/metric-hub/segments/"
+    segment_links = [
+        (
+            segment,
+            # ruff prefers this implicit syntax for concatenating strings
+            f"{segment_doc_base_url}"
+            f"{experiment.application.replace('-', '_')}/"
+            f"#{segment}",
+        )
+        for segment in experiment.segments
+    ]
+    context = {
+        "RISK_QUESTIONS": RISK_QUESTIONS,
+        "EXTERNAL_URLS": EXTERNAL_URLS,
+        "primary_outcome_links": primary_outcome_links,
+        "secondary_outcome_links": secondary_outcome_links,
+        "segment_links": segment_links,
+        "uses_secure_collection": (
+            experiment.kinto_collection == settings.KINTO_COLLECTION_NIMBUS_SECURE
+        ),
+    }
+    return context
+
+
+class NimbusExperimentDetailView(
+    NimbusExperimentViewMixin,
+    CloneExperimentFormMixin,
+    UpdateView,
+):
+    template_name = "nimbus_experiments/detail.html"
+    fields = []
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        experiment_context = build_experiment_context(self.object)
+        context.update(experiment_context)
 
         return context
 
@@ -303,6 +383,88 @@ class NewAddSubscriberView(NewSubscriberView):
 
 class NewRemoveSubscriberView(NewSubscriberView):
     add = False
+
+
+class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
+    fields = None
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request"):
+            fragment = self.request.GET.get("fragment") or self.request.POST.get(
+                "fragment"
+            )
+
+            if fragment == "progress_card":
+                return ["nimbus_experiments/launch_controls_v2.html"]
+
+        return [self.template_name]
+
+    def get_context_data(self, *, form=None, **kwargs):
+        context = super().get_context_data(form=form, **kwargs)
+        if self.request.method in ("POST", "PUT") and form and not form.is_valid():
+            context["update_status_form_errors"] = form.errors["__all__"]
+
+        return context
+
+
+class DraftToPreviewRolloutView(StatusUpdateView):
+    form_class = DraftToPreviewRolloutForm
+
+
+class DraftReviewRolloutView(StatusUpdateView):
+    form_class = DraftReviewRolloutForm
+
+
+class DraftReviewApproveRolloutView(StatusUpdateView):
+    form_class = DraftReviewApproveRolloutForm
+
+
+class DraftReviewRejectView(StatusUpdateView):
+    form_class = DraftReviewRejectForm
+
+
+class PreviewReviewRolloutView(StatusUpdateView):
+    form_class = PreviewReviewRolloutForm
+
+
+class PreviewToDraftRolloutView(StatusUpdateView):
+    form_class = PreviewToDraftRolloutForm
+
+
+class AdvancePhaseReviewRolloutView(StatusUpdateView):
+    form_class = AdvancePhaseReviewRolloutForm
+
+
+class AdvancePhaseReviewApproveRolloutView(StatusUpdateView):
+    form_class = AdvancePhaseReviewApproveRolloutForm
+
+
+class AdvancePhaseReviewRejectRolloutView(StatusUpdateView):
+    form_class = AdvancePhaseReviewRejectRolloutForm
+
+
+class LiveToDisabledReviewRolloutView(StatusUpdateView):
+    form_class = LiveToDisabledReviewRolloutForm
+
+
+class LiveToDisabledReviewApproveRolloutView(StatusUpdateView):
+    form_class = LiveToDisabledReviewApproveRolloutForm
+
+
+class LiveToDisabledReviewRejectRolloutView(StatusUpdateView):
+    form_class = LiveToDisabledReviewRejectRolloutForm
+
+
+class DisabledToLiveReviewRolloutView(StatusUpdateView):
+    form_class = DisabledToLiveReviewRolloutForm
+
+
+class DisabledToLiveReviewApproveRolloutView(StatusUpdateView):
+    form_class = DisabledToLiveReviewApproveRolloutForm
+
+
+class DisabledToLiveReviewRejectRolloutView(StatusUpdateView):
+    form_class = DisabledToLiveReviewRejectRolloutForm
 
 
 class NewRolloutScheduleUpdateView(NewCardUpdateView):
