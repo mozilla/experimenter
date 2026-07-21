@@ -2,20 +2,13 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- beta
+- release
 features:
   add-shortcuts-improvement:
     description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
     variables:
       enabled:
         description: If true, Add Shortcuts improvement is enabled.
-        type: Boolean
-        default: true
-  ads-client-for-stories:
-    description: Feature to enable the Mozilla Ads Client support for Sponsored Stories for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Mozilla Ads Client support for Sponsored Stories is enabled.
         type: Boolean
         default: false
   alternative-app-launcher-icon:
@@ -36,7 +29,7 @@ features:
       show-new-prompt:
         description: Whether to show the new AppLinksPromptFragment dialog when an app link is detected. If false, the old dialog is used.
         type: Boolean
-        default: true
+        default: false
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -84,6 +77,13 @@ features:
           feature-setting-detect-only: 0
           feature-setting-global-rules: 1
           feature-setting-global-rules-sub-frames: 1
+  custom-review-prompt:
+    description: Feature that controls the Play store review prompt.
+    variables:
+      enabled:
+        description: Whether or not to enable the new trigger criteria.
+        type: Boolean
+        default: false
   custom-review-prompt-ui:
     description: Feature that controls the custom UI for review prompt.
     variables:
@@ -145,7 +145,7 @@ features:
       enabled:
         description: If true, custom download location is enabled.
         type: Boolean
-        default: true
+        default: false
   email-masks:
     description: Feature to enable Email Mask for users on Firefox on Android.
     variables:
@@ -291,13 +291,6 @@ features:
           Whether or not to enable homepage as a new tab
         type: Boolean
         default: false
-  homepage-customization:
-    description: Feature to enable Homepage Customization for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Homepage Customization is enabled.
-        type: Boolean
-        default: false
   homepage-hide-frecent-top-sites:
     description: Hides frecent top sites on the homepage.
     variables:
@@ -313,11 +306,21 @@ features:
         description: The default option for the homepage opening screen.
         type: OpeningScreenOption
         default: homepage-four-hours
-  homepage-trending-recent-search:
-    description: Feature to show trending and recent searches on the Homepage Search for users on Firefox on Android.
+  homepage-sports-widget:
+    description: Feature to enable Homepage Sports Widget for users on Firefox on Android.
     variables:
       enabled:
-        description: If true, trending and recent searches are shown on the Homepage Search.
+        description: If true, Homepage Sports Widget is enabled.
+        type: Boolean
+        default: false
+      fetch-throttle-seconds:
+        description: |
+          Minimum interval, in seconds, that the client will wait between Sports Widget fetches. Guards the upstream Merino endpoint against refresh-button spam and Home/onResume thrash. The default aligns with the upstream cache TTL — a shorter interval just returns the same payload at the cost of battery and bandwidth. Lower this remotely only if the upstream cache TTL is also lowered, otherwise users will see no fresher data.
+        type: Int
+        default: 60
+      force-one-week-to-world-cup:
+        description: |
+          If true, treat the user as being within one week of the World Cup kickoff regardless of the device date. Used to roll out the pre-tournament pager (follow your team + view-schedule cards) ahead of the calendar date for testing or staggered launches. The natural date-based check still applies when this is false (the default).
         type: Boolean
         default: false
   homescreen:
@@ -350,7 +353,7 @@ features:
       enabled:
         description: If true, the import bookmarks feature will be enabled.
         type: Boolean
-        default: true
+        default: false
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
@@ -394,7 +397,7 @@ features:
       enabled:
         description: If true, IP Protection feature is enabled.
         type: Boolean
-        default: true
+        default: false
       promo-deadline:
         description: The final date for the promotion to end. This needs to be an ISO 8601 formatted date (i.e. YYYY-MM-DD).
         type: String
@@ -590,13 +593,6 @@ features:
         description: If false, the marketing onboarding card will never be shown.
         type: Boolean
         default: true
-  media-notification-improvements:
-    description: Whether to show the media notification improvements
-    variables:
-      enabled:
-        description: enabled media notification improvements if true, else not enabled
-        type: Boolean
-        default: false
   merino-client:
     description: Feature to enable the Merino Client for users on Firefox on Android.
     variables:
@@ -604,6 +600,13 @@ features:
         description: If true, Merino Client is enabled.
         type: Boolean
         default: false
+  merino-manifest:
+    description: Feature to enable the Merino Manifest for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Merino Manifest is enabled.
+        type: Boolean
+        default: true
   messaging:
     description: |
       The in-app messaging system.
@@ -643,7 +646,6 @@ features:
           OPEN_SETTINGS_DELETE_BROWSING_DATA: ://settings_delete_browsing_data
           OPEN_SETTINGS_LOGINS: ://settings_logins
           OPEN_SETTINGS_NOTIFICATIONS: ://settings_notifications
-          OPEN_SETTINGS_MARKETING_NOTIFICATIONS: ://settings_marketing_notifications
           OPEN_SETTINGS_PRIVACY: ://settings_privacy
           OPEN_SETTINGS_SEARCH_ENGINE: ://settings_search_engine
           OPEN_SETTINGS_TRACKING_PROTECTION: ://settings_tracking_protection
@@ -651,7 +653,6 @@ features:
           OPEN_SETTINGS_APP_ICON: ://settings_app_icon
           OPEN_SETTINGS: ://settings
           OPEN_SHARE_SHEET: ://share_sheet
-          OPEN_PROTECTIONS_DASHBOARD: ://protections_dashboard
           TURN_ON_SYNC: ://turn_on_sync
         string-alias: ActionName
       message-under-experiment:
@@ -747,10 +748,6 @@ features:
           MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
           I_AM_DEFAULT_BROWSER: is_default_browser
           I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
-          NOTIFICATIONS_ARE_ENABLED: are_notifications_enabled == true
-          NOTIFICATIONS_ARE_DISABLED: are_notifications_enabled == false
-          MARKETING_NOTIFICATIONS_ARE_ENABLED: are_marketing_notifications_enabled == true
-          MARKETING_NOTIFICATIONS_ARE_DISABLED: are_marketing_notifications_enabled == false
           FUNNEL_PAID: adjust_campaign != ''
           FUNNEL_ORGANIC: adjust_campaign == ''
           INACTIVE_1_DAY: '''app_opened''|eventLastSeen(''Hours'') >= 24'
@@ -788,6 +785,13 @@ features:
           Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
         type: Boolean
         default: false
+  mozilla-ads-client:
+    description: Feature to enable the Mozilla Ads Client support for Top Sites for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Mozilla Ads Client support for Top Sites is enabled.
+        type: Boolean
+        default: true
   native-share-sheet:
     description: Feature to enable the Native Share Sheet for users on Firefox on Android.
     variables:
@@ -1099,6 +1103,14 @@ features:
         description: If true, Search Optimization Stock cards are enabled.
         type: Boolean
         default: false
+  search-suggestions-on-homepage:
+    description: Enables search suggestions on homepage.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable search suggestions on homepage.
+        type: Boolean
+        default: false
   sent-from-firefox:
     description: A feature that allows the user to add a download firefox footer to a shared link.
     variables:
@@ -1173,21 +1185,13 @@ features:
         description: |
           Whether or not to enable the tab groups feature.
         type: Boolean
-        default: true
+        default: false
   tab-groups-drag-and-drop:
     description: Control the visibility of drag and drop for tab groups.
     variables:
       enabled:
         description: |
           Whether or not to enable drag and drop for tab groups.
-        type: Boolean
-        default: true
-  tab-groups-live-reorder:
-    description: Control whether reorder happens live during a drag and drop action for Tab Groups.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable live reorder for tab groups drag and drop.
         type: Boolean
         default: false
   tab-groups-onboarding:
@@ -1197,7 +1201,7 @@ features:
         description: |
           Whether or not to enable onboarding for tab groups.
         type: Boolean
-        default: true
+        default: false
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
@@ -1302,22 +1306,6 @@ features:
           Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
-  uninstall-survey:
-    description: Feature that controls the visibility and handling of the uninstall survey app shortcut.
-    variables:
-      enabled:
-        description: If true, the uninstall survey shortcut is enabled and visible.
-        type: Boolean
-        default: false
-  universal-edge-to-edge-wallpapers:
-    description: |
-      Extends non-default homepage wallpapers edge-to-edge and adapts the toolbar, navigation bar and system bars to them.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the universal edge-to-edge wallpaper treatment.
-        type: Boolean
-        default: false
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
@@ -1388,6 +1376,10 @@ enums:
     variants:
       default:
         description: The default marketing card variation.
+      treatment-a:
+        description: The Treatment A marketing card variation.
+      treatment-b:
+        description: The Treatment B marketing card variation.
       treatment-c:
         description: The Treatment C marketing card variation.
   OnboardingCardType:
@@ -1632,10 +1624,6 @@ objects:
         description: The icon shown in the survey.
         type: Option<Image>
         default: null
-      max-number-lines:
-        description: The maximum number of lines allowed for the microsurvey text layout.
-        type: Int
-        default: 2
       utm-content:
         description: Optional "utm_content" parameter for the privacy notice URL to specify the feature being surveyed.
         type: Option<String>
