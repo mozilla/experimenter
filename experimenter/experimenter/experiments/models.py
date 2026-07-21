@@ -545,13 +545,27 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     class Filters:
         IS_LAUNCH_QUEUED = Q(
-            status=NimbusConstants.Status.DRAFT,
-            status_next=NimbusConstants.Status.LIVE,
+            Q(
+                status=NimbusConstants.Status.DRAFT,
+                status_next=NimbusConstants.Status.LIVE,
+            )
+            | Q(
+                is_rollout=True,
+                status=NimbusConstants.Status.DISABLED,
+                status_next=NimbusConstants.Status.LIVE,
+            ),
             publish_status=NimbusConstants.PublishStatus.APPROVED,
         )
         IS_LAUNCHING = Q(
-            status=NimbusConstants.Status.DRAFT,
-            status_next=NimbusConstants.Status.LIVE,
+            Q(
+                status=NimbusConstants.Status.DRAFT,
+                status_next=NimbusConstants.Status.LIVE,
+            )
+            | Q(
+                is_rollout=True,
+                status=NimbusConstants.Status.DISABLED,
+                status_next=NimbusConstants.Status.LIVE,
+            ),
             publish_status=NimbusConstants.PublishStatus.WAITING,
         )
         IS_UPDATE_QUEUED = Q(
@@ -565,13 +579,27 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             publish_status=NimbusConstants.PublishStatus.WAITING,
         )
         IS_END_QUEUED = Q(
-            status=NimbusConstants.Status.LIVE,
-            status_next=NimbusConstants.Status.COMPLETE,
+            Q(
+                status=NimbusConstants.Status.LIVE,
+                status_next=NimbusConstants.Status.COMPLETE,
+            )
+            | Q(
+                is_rollout=True,
+                status=NimbusConstants.Status.LIVE,
+                status_next=NimbusConstants.Status.DISABLED,
+            ),
             publish_status=NimbusConstants.PublishStatus.APPROVED,
         )
         IS_ENDING = Q(
-            status=NimbusConstants.Status.LIVE,
-            status_next=NimbusConstants.Status.COMPLETE,
+            Q(
+                status=NimbusConstants.Status.LIVE,
+                status_next=NimbusConstants.Status.COMPLETE,
+            )
+            | Q(
+                is_rollout=True,
+                status=NimbusConstants.Status.LIVE,
+                status_next=NimbusConstants.Status.DISABLED,
+            ),
             publish_status=NimbusConstants.PublishStatus.WAITING,
         )
         SHOULD_ALLOCATE_BUCKETS = Q(
@@ -3506,6 +3534,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         REJECTED_FROM_KINTO = "Rejected from Remote Settings"
         LIVE = "Experiment is live"
         COMPLETED = "Experiment is complete"
+        DISABLED = "Rollout is disabled"
         RESULTS_UPDATED = "Experiment results updated"
         MONITORING_DATA_UPDATED = "Experiment monitoring data updated"
         HOLDBACK_ENROLLMENT_UPDATED = "Holdback enrollment period updated"

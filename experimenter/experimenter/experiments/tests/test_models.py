@@ -321,6 +321,44 @@ class TestNimbusExperimentManager(TestCase):
             [experiment_should_update],
         )
 
+    def test_end_queue_includes_disabling_rollouts(self):
+        disabling_rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.end_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [disabling_rollout],
+        )
+
+    def test_launch_queue_includes_reenabling_rollouts(self):
+        reenabling_rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.launch_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [reenabling_rollout],
+        )
+
     def test_update_queue_filters_by_collection(self):
         test_feature = NimbusFeatureConfigFactory.create(
             slug="test-feature",
@@ -513,6 +551,44 @@ class TestNimbusExperimentManager(TestCase):
                 )
             ),
             [pausing],
+        )
+
+    def test_waiting_to_end_includes_disabling_rollouts(self):
+        disabling_rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.waiting_to_end_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [disabling_rollout],
+        )
+
+    def test_waiting_to_launch_includes_reenabling_rollouts(self):
+        reenabling_rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.waiting_to_launch_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [reenabling_rollout],
         )
 
     def test_waiting_to_update_filters_by_collection(self):
