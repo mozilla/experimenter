@@ -16,6 +16,7 @@ from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
+    NimbusBranchScreenshot,
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
@@ -26,6 +27,7 @@ from experimenter.experiments.models import (
     Tag,
 )
 from experimenter.nimbus_ui.constants import NimbusUIConstants
+from experimenter.nimbus_ui.forms import NimbusBranchScreenshotForm
 from experimenter.targeting.constants import NimbusTargetingConfig
 
 metrics = markus.get_metrics("experimenter.nimbus_ui_forms")
@@ -311,6 +313,14 @@ RolloutBranchFeatureValueFormSet = inlineformset_factory(
     NimbusBranchFeatureValue,
     form=NimbusBranchFeatureValueForm,
     extra=0,
+)
+
+RolloutScreenshotFormSet = inlineformset_factory(
+    NimbusBranch,
+    NimbusBranchScreenshot,
+    form=NimbusBranchScreenshotForm,
+    extra=0,
+    can_delete=False,
 )
 
 
@@ -705,6 +715,28 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        screenshot_formset_args = {
+            "data": self.data or None,
+            "instance": self.reference_branch,
+            "prefix": "rollout-screenshots",
+        }
+        if self.files:
+            screenshot_formset_args["files"] = self.files
+        self.rollout_screenshots = RolloutScreenshotFormSet(**screenshot_formset_args)
+
+        for screenshot_form in self.rollout_screenshots.forms:
+            screenshot_form.fields["image"].widget.attrs.update(
+                {
+                    "hx-post": reverse(
+                        "nimbus-ui-new-update-rollout-features",
+                        kwargs={"slug": self.instance.slug},
+                    ),
+                    "hx-trigger": "change",
+                    "hx-select": "#rollout-rollout-features-body",
+                    "hx-target": "#rollout-rollout-features-body",
+                }
+            )
+
         self.branch_feature_values = RolloutBranchFeatureValueFormSet(
             data=self.data or None,
             instance=self.reference_branch,
@@ -735,14 +767,21 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         errors = super().errors
         if any(self.branch_feature_values.errors):
             errors["branch_feature_values"] = self.branch_feature_values.errors
+        if any(self.rollout_screenshots.errors):
+            errors["rollout_screenshots"] = self.rollout_screenshots.errors
         return errors
 
     def is_valid(self):
-        return super().is_valid() and self.branch_feature_values.is_valid()
+        return (
+            super().is_valid()
+            and self.branch_feature_values.is_valid()
+            and self.rollout_screenshots.is_valid()
+        )
 
     @transaction.atomic
     def save(self, *args, **kwargs):
         self.branch_feature_values.save()
+        self.rollout_screenshots.save()
         self.instance.takeaways_summary = self.cleaned_data.get("rollout_experience", "")
 
         experiment = super().save(*args, **kwargs)
@@ -778,6 +817,38 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     @property
     def reference_branch(self):
         return self.instance.reference_branch or self.instance.branches.first()
+
+
+class RolloutScreenshotCreateForm(RolloutFeaturesForm):
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+        self.reference_branch.screenshots.create()
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} added a rollout screenshot"
+
+
+class RolloutScreenshotDeleteForm(RolloutFeaturesForm):
+    screenshot_id = forms.ModelChoiceField(queryset=NimbusBranchScreenshot.objects.all())
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "screenshot_id",
+            *RolloutFeaturesForm.Meta.fields,
+        ]
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+        screenshot = self.cleaned_data["screenshot_id"]
+        screenshot.delete()
+        return experiment
+
+    def get_changelog_message(self):
+        return f"{self.request.user} removed a rollout screenshot"
 
 
 class RolloutQAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):

@@ -1,6 +1,7 @@
 import datetime
 import json
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -17,6 +18,7 @@ from experimenter.experiments.models import (
     NimbusExperimentBranchThroughRequired,
 )
 from experimenter.experiments.tests.factories import (
+    NimbusBranchScreenshotFactory,
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -37,6 +39,8 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutPhaseForm,
     RolloutQAStatusForm,
     RolloutRisksForm,
+    RolloutScreenshotCreateForm,
+    RolloutScreenshotDeleteForm,
     TagAssignForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
@@ -704,6 +708,10 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
                 "branch-feature-value-MIN_NUM_FORMS": "0",
                 "branch-feature-value-MAX_NUM_FORMS": "1000",
                 "branch-feature-value-0-value": "{}",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+                "rollout-screenshots-MIN_NUM_FORMS": "0",
+                "rollout-screenshots-MAX_NUM_FORMS": "1000",
             },
             request=self.request,
         )
@@ -740,6 +748,10 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
                 "branch-feature-value-INITIAL_FORMS": "0",
                 "branch-feature-value-MIN_NUM_FORMS": "0",
                 "branch-feature-value-MAX_NUM_FORMS": "1000",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+                "rollout-screenshots-MIN_NUM_FORMS": "0",
+                "rollout-screenshots-MAX_NUM_FORMS": "1000",
             },
             request=self.request,
         )
@@ -792,6 +804,10 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
                 "branch-feature-value-MAX_NUM_FORMS": "1000",
                 "branch-feature-value-0-id": reference_feature_value.id,
                 "branch-feature-value-0-value": reference_feature_value.value,
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+                "rollout-screenshots-MIN_NUM_FORMS": "0",
+                "rollout-screenshots-MAX_NUM_FORMS": "1000",
             },
             request=self.request,
         )
@@ -810,6 +826,194 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         self.assertEqual(
             experiment.changes.latest("changed_on").message,
             f"{self.user} updated rollout features",
+        )
+
+    def test_form_uploads_rollout_screenshots_to_reference_branch(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+            takeaways_summary="",
+        )
+        experiment.reference_branch.screenshots.all().delete()
+
+        image = NimbusBranchScreenshotFactory.build().image
+        form = RolloutFeaturesForm(
+            instance=experiment,
+            data={
+                "rollout_experience": "Updated rollout experience",
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "branch-feature-value-MIN_NUM_FORMS": "0",
+                "branch-feature-value-MAX_NUM_FORMS": "1000",
+                "rollout-screenshots-TOTAL_FORMS": "1",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+                "rollout-screenshots-MIN_NUM_FORMS": "0",
+                "rollout-screenshots-MAX_NUM_FORMS": "1000",
+                "rollout-screenshots-0-description": "Test description",
+            },
+            files={"rollout-screenshots-0-image": image},
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        experiment.refresh_from_db()
+
+        screenshots = experiment.reference_branch.screenshots.all()
+        self.assertEqual(screenshots.count(), 1)
+        self.assertTrue(screenshots.first().image)
+        self.assertEqual(screenshots.first().description, "Test description")
+
+    def test_form_supports_multiple_rollout_screenshots(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+            takeaways_summary="",
+        )
+        experiment.reference_branch.screenshots.all().delete()
+
+        first_image = NimbusBranchScreenshotFactory.build().image
+        second_image = NimbusBranchScreenshotFactory.build().image
+        form = RolloutFeaturesForm(
+            instance=experiment,
+            data={
+                "rollout_experience": "Updated rollout experience",
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "branch-feature-value-MIN_NUM_FORMS": "0",
+                "branch-feature-value-MAX_NUM_FORMS": "1000",
+                "rollout-screenshots-TOTAL_FORMS": "2",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+                "rollout-screenshots-MIN_NUM_FORMS": "0",
+                "rollout-screenshots-MAX_NUM_FORMS": "1000",
+                "rollout-screenshots-0-description": "First",
+                "rollout-screenshots-1-description": "Second",
+            },
+            files={
+                "rollout-screenshots-0-image": first_image,
+                "rollout-screenshots-1-image": second_image,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+        experiment.refresh_from_db()
+
+        self.assertEqual(experiment.reference_branch.screenshots.count(), 2)
+
+    def test_form_reports_rollout_screenshot_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+        )
+        experiment.reference_branch.screenshots.all().delete()
+
+        form = RolloutFeaturesForm(
+            instance=experiment,
+            data={
+                "rollout_experience": "",
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "branch-feature-value-MIN_NUM_FORMS": "0",
+                "branch-feature-value-MAX_NUM_FORMS": "1000",
+                "rollout-screenshots-TOTAL_FORMS": "1",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+                "rollout-screenshots-MIN_NUM_FORMS": "0",
+                "rollout-screenshots-MAX_NUM_FORMS": "1000",
+                "rollout-screenshots-0-description": "Not a real image",
+            },
+            files={
+                "rollout-screenshots-0-image": SimpleUploadedFile(
+                    "bad.png", b"this is not an image", content_type="image/png"
+                )
+            },
+            request=self.request,
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("rollout_screenshots", form.errors)
+
+
+class TestRolloutScreenshotCreateForm(RequestFormTestCase):
+    def test_form_creates_empty_screenshot_and_logs_change(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment.reference_branch.screenshots.all().delete()
+
+        form = RolloutScreenshotCreateForm(
+            instance=experiment,
+            data={
+                "rollout_experience": "",
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "branch-feature-value-MIN_NUM_FORMS": "0",
+                "branch-feature-value-MAX_NUM_FORMS": "1000",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+                "rollout-screenshots-MIN_NUM_FORMS": "0",
+                "rollout-screenshots-MAX_NUM_FORMS": "1000",
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        self.assertEqual(experiment.reference_branch.screenshots.count(), 1)
+        self.assertEqual(
+            experiment.changes.latest("changed_on").message,
+            f"{self.user} added a rollout screenshot",
+        )
+
+
+class TestRolloutScreenshotDeleteForm(RequestFormTestCase):
+    def test_form_deletes_screenshot_and_logs_change(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment.reference_branch.screenshots.all().delete()
+        screenshot = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+
+        form = RolloutScreenshotDeleteForm(
+            instance=experiment,
+            data={
+                "screenshot_id": screenshot.id,
+                "rollout_experience": "",
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "branch-feature-value-MIN_NUM_FORMS": "0",
+                "branch-feature-value-MAX_NUM_FORMS": "1000",
+                "rollout-screenshots-TOTAL_FORMS": "1",
+                "rollout-screenshots-INITIAL_FORMS": "1",
+                "rollout-screenshots-MIN_NUM_FORMS": "0",
+                "rollout-screenshots-MAX_NUM_FORMS": "1000",
+                "rollout-screenshots-0-id": screenshot.id,
+                "rollout-screenshots-0-description": screenshot.description,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        self.assertEqual(experiment.reference_branch.screenshots.count(), 0)
+        self.assertEqual(
+            experiment.changes.latest("changed_on").message,
+            f"{self.user} removed a rollout screenshot",
         )
 
 

@@ -25,6 +25,8 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutQAStatusForm,
     RolloutRisksForm,
     RolloutScheduleForm,
+    RolloutScreenshotCreateForm,
+    RolloutScreenshotDeleteForm,
     RolloutSignoffForm,
     SubscribeForm,
     TagAssignForm,
@@ -176,6 +178,18 @@ class NewRolloutFeaturesUpdateView(CardMixin, NewCardUpdateView):
             return super().render_valid_response()
 
         return self.render_to_response(self.get_context_data())
+
+
+class NewRolloutScreenshotCreateView(
+    RenderParentDBResponseMixin, NewRolloutFeaturesUpdateView
+):
+    form_class = RolloutScreenshotCreateForm
+
+
+class NewRolloutScreenshotDeleteView(
+    RenderParentDBResponseMixin, NewRolloutFeaturesUpdateView
+):
+    form_class = RolloutScreenshotDeleteForm
 
 
 class NewQAUpdateView(CardMixin, NewCardUpdateView):

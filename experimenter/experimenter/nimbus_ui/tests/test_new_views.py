@@ -408,6 +408,8 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
                 "save": "True",
             },
         )
@@ -431,6 +433,8 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
             },
         )
 
@@ -438,6 +442,66 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         self.assertTemplateUsed(response, "new/rollouts/rollout_features/edit_form.html")
         experiment.refresh_from_db()
         self.assertEqual(experiment.takeaways_summary, "Updated rollout experience")
+
+
+class TestNewRolloutScreenshotCreateView(AuthTestCase):
+    url_name = "nimbus-ui-new-create-rollout-screenshot"
+
+    def test_post_creates_screenshot_and_returns_edit_form(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[],
+        )
+        experiment.reference_branch.screenshots.all().delete()
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_experience": "",
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/rollout_features/edit_form.html")
+        self.assertEqual(experiment.reference_branch.screenshots.count(), 1)
+
+
+class TestNewRolloutScreenshotDeleteView(AuthTestCase):
+    url_name = "nimbus-ui-new-delete-rollout-screenshot"
+
+    def test_post_deletes_image_and_returns_edit_form(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[],
+        )
+        experiment.reference_branch.screenshots.all().delete()
+        screenshot = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "screenshot_id": screenshot.id,
+                "rollout_experience": "",
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "1",
+                "rollout-screenshots-INITIAL_FORMS": "1",
+                "rollout-screenshots-0-id": screenshot.id,
+                "rollout-screenshots-0-description": screenshot.description,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/rollout_features/edit_form.html")
+        self.assertEqual(experiment.reference_branch.screenshots.count(), 0)
 
 
 class TestNewQAUpdateView(NewViewTestMixin, AuthTestCase):
