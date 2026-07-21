@@ -12,7 +12,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experiments.constants import EXTERNAL_URLS
+from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
 from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusRolloutPlanTemplate,
@@ -200,6 +200,7 @@ class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/overview/edit_form.html")
         self.assertResponseUsesForm(response, RolloutOverviewForm)
+        self.assertContains(response, "Public description")
 
     @parameterized.expand(
         [
@@ -267,6 +268,7 @@ class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
         experiment.refresh_from_db()
         self.assertEqual(experiment.name, "updated name")
         self.assertEqual(experiment.hypothesis, "updated hypothesis")
+        self.assertEqual(experiment.public_description, "updated description")
         self.assertTrue(response.context["hx_swap_oob"])
 
     def test_post_invalid_returns_edit_form_with_errors(self):
@@ -303,6 +305,7 @@ class TestNewRisksUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/risks/edit_form.html")
         self.assertResponseUsesForm(response, RolloutRisksForm)
+        self.assertContains(response, RISK_QUESTIONS["AI"])
 
     def test_post_valid_saves_and_returns_display_card(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

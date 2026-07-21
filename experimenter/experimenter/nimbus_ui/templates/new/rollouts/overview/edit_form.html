@@ -22,6 +22,15 @@
           <div class="text-danger small mt-1">{{ form.hypothesis.errors|join:", " }}</div>
         {% endif %}
       </div>
+      {# Public description #}
+      <div>
+        <label for="id_public_description" class="small text-body mb-1">Public description</label>
+        {{ form.public_description }}
+        {% if form.public_description.errors %}
+          <div class="text-danger small mt-1">{{ form.public_description.errors|join:", " }}</div>
+        {% endif %}
+        <p class="form-text mb-0">{{ NimbusUIConstants.PUBLIC_DESCRIPTION_TEXT }}</p>
+      </div>
       {# Application #}
       <div>
         <label for="id_application" class="small text-body mb-1">Application</label>

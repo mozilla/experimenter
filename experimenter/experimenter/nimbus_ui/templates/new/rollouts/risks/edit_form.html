@@ -14,6 +14,17 @@
       {{ documentation_link_form.link.as_hidden }}
     {% endfor %}
     <div class="d-flex flex-column gap-4">
+      {# AI risk #}
+      <div>
+        <label for="id_risk_ai" class="small text-body mb-2">
+          <div class="d-block fw-normal">
+            <div class="fw-bold">{{ RISK_QUESTIONS.AI }}</div>
+            <div class="text-secondary">{{ NimbusUIConstants.RISK_AI_TEXT }}</div>
+          </div>
+        </label>
+        {{ form.risk_ai }}
+        {% if form.risk_ai.errors %}<div class="text-danger small mt-1">{{ form.risk_ai.errors|join:", " }}</div>{% endif %}
+      </div>
       {#  Brand perception impact  #}
       <div>
         <label for="id_name" class="small text-body mb-2">
