@@ -462,6 +462,10 @@ class NimbusConstants:
         LIVE = "Live"
         COMPLETE = "Complete"
 
+        # This status applies only to rollouts, and indicates that the rollout has been
+        # disabled. It is not a valid status for experiments.
+        DISABLED = "Disabled"
+
     class PublishStatus(models.TextChoices):
         IDLE = "Idle"
         REVIEW = "Review"
