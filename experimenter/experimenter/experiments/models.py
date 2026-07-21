@@ -1285,7 +1285,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         today = timezone.now().date()
         phase_ids = [phase.id for phase in phases]
 
-        if self.rollout_phase_id is None:
+        if self.rollout_phase_next_id is not None:
+            current_phase = self.rollout_phase
+            next_phase = self.rollout_phase_next
+        elif self.rollout_phase_id is None:
             current_phase = None
             next_phase = phases[0]
         else:
@@ -1297,7 +1300,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if next_phase is not None and not next_phase.population_percent:
             return
 
-        if current_phase is not None:
+        resuming = self.status == NimbusExperiment.Status.DISABLED
+        if current_phase is not None and not resuming:
             current_phase.end_date = today
             if current_phase.actual_start_date:
                 current_phase.start_date = current_phase.actual_start_date
@@ -1312,7 +1316,49 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         next_phase.save()
         self.rollout_phase = next_phase
         self.rollout_phase_next = None
+        self.population_percent = next_phase.population_percent
         self.save()
+
+    def stage_rollout_phase_advance(self, copy_current_if_missing=False):
+        phases = list(self.rollout_phases.all())
+        if not phases:
+            return None
+
+        current_phase = self.rollout_phase
+        if self.rollout_phase_next_id is not None:
+            next_phase = self.rollout_phase_next
+        elif self.rollout_phase_id is None:
+            next_phase = phases[0]
+        else:
+            phase_ids = [phase.id for phase in phases]
+            current_index = phase_ids.index(self.rollout_phase_id)
+            next_index = current_index + 1
+            next_phase = phases[next_index] if next_index < len(phases) else None
+
+        if next_phase is None and copy_current_if_missing and current_phase is not None:
+            next_phase = self.rollout_phases.create(
+                population_percent=current_phase.population_percent
+            )
+
+        if next_phase is None or not next_phase.population_percent:
+            return None
+
+        self.rollout_phase_next = next_phase
+        self.population_percent = next_phase.population_percent
+        self.save(update_fields=["rollout_phase_next", "population_percent"])
+        return next_phase
+
+    def end_current_rollout_phase(self):
+        current_phase = self.rollout_phase
+        if current_phase is None:
+            return
+
+        today = timezone.now().date()
+
+        current_phase.end_date = today
+        if current_phase.actual_start_date:
+            current_phase.start_date = current_phase.actual_start_date
+        current_phase.save()
 
     @property
     def is_missing_takeaway_info(self):
