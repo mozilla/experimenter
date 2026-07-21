@@ -313,23 +313,6 @@ features:
         description: The default option for the homepage opening screen.
         type: OpeningScreenOption
         default: homepage-four-hours
-  homepage-sports-widget:
-    description: Feature to enable Homepage Sports Widget for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Homepage Sports Widget is enabled.
-        type: Boolean
-        default: true
-      fetch-throttle-seconds:
-        description: |
-          Minimum interval, in seconds, that the client will wait between Sports Widget fetches. Guards the upstream Merino endpoint against refresh-button spam and Home/onResume thrash. The default aligns with the upstream cache TTL — a shorter interval just returns the same payload at the cost of battery and bandwidth. Lower this remotely only if the upstream cache TTL is also lowered, otherwise users will see no fresher data.
-        type: Int
-        default: 60
-      force-one-week-to-world-cup:
-        description: |
-          If true, treat the user as being within one week of the World Cup kickoff regardless of the device date. Used to roll out the pre-tournament pager (follow your team + view-schedule cards) ahead of the calendar date for testing or staggered launches. The natural date-based check still applies when this is false (the default).
-        type: Boolean
-        default: false
   homepage-trending-recent-search:
     description: Feature to show trending and recent searches on the Homepage Search for users on Firefox on Android.
     variables:

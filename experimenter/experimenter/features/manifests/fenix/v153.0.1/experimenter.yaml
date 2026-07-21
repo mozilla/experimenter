@@ -6,14 +6,6 @@ add-shortcuts-improvement:
     enabled:
       type: boolean
       description: If true, Add Shortcuts improvement is enabled.
-ads-client-for-stories:
-  description: Feature to enable the Mozilla Ads Client support for Sponsored Stories for users on Firefox on Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, Mozilla Ads Client support for Sponsored Stories is enabled.
 alternative-app-launcher-icon:
   description: A feature that changes the app launcher icon background color.
   hasExposure: true
@@ -74,6 +66,14 @@ cookie-banners:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled.
+custom-review-prompt:
+  description: Feature that controls the Play store review prompt.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: Whether or not to enable the new trigger criteria.
 custom-review-prompt-ui:
   description: Feature that controls the custom UI for review prompt.
   hasExposure: true
@@ -276,14 +276,6 @@ homepage-as-new-tab:
       type: boolean
       description: |
         Whether or not to enable homepage as a new tab
-homepage-customization:
-  description: Feature to enable Homepage Customization for users on Firefox on Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, Homepage Customization is enabled.
 homepage-hide-frecent-top-sites:
   description: Hides frecent top sites on the homepage.
   hasExposure: true
@@ -305,14 +297,22 @@ homepage-opening-screen-default:
       - homepage
       - homepage-four-hours
       - last-tab
-homepage-trending-recent-search:
-  description: Feature to show trending and recent searches on the Homepage Search for users on Firefox on Android.
+homepage-sports-widget:
+  description: Feature to enable Homepage Sports Widget for users on Firefox on Android.
   hasExposure: true
   exposureDescription: ''
   variables:
     enabled:
       type: boolean
-      description: If true, trending and recent searches are shown on the Homepage Search.
+      description: If true, Homepage Sports Widget is enabled.
+    fetch-throttle-seconds:
+      type: int
+      description: |
+        Minimum interval, in seconds, that the client will wait between Sports Widget fetches. Guards the upstream Merino endpoint against refresh-button spam and Home/onResume thrash. The default aligns with the upstream cache TTL — a shorter interval just returns the same payload at the cost of battery and bandwidth. Lower this remotely only if the upstream cache TTL is also lowered, otherwise users will see no fresher data.
+    force-one-week-to-world-cup:
+      type: boolean
+      description: |
+        If true, treat the user as being within one week of the World Cup kickoff regardless of the device date. Used to roll out the pre-tournament pager (follow your team + view-schedule cards) ahead of the calendar date for testing or staggered launches. The natural date-based check still applies when this is false (the default).
 homescreen:
   description: The homescreen that the user goes to when they press home or new tab.
   hasExposure: true
@@ -428,14 +428,6 @@ marketing-onboarding-card:
     enabled:
       type: boolean
       description: If false, the marketing onboarding card will never be shown.
-media-notification-improvements:
-  description: Whether to show the media notification improvements
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: enabled media notification improvements if true, else not enabled
 merino-client:
   description: Feature to enable the Merino Client for users on Firefox on Android.
   hasExposure: true
@@ -444,6 +436,14 @@ merino-client:
     enabled:
       type: boolean
       description: If true, Merino Client is enabled.
+merino-manifest:
+  description: Feature to enable the Merino Manifest for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Merino Manifest is enabled.
 messaging:
   description: |
     The in-app messaging system.
@@ -503,6 +503,14 @@ minimal-addressbar:
       type: boolean
       description: |
         Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
+mozilla-ads-client:
+  description: Feature to enable the Mozilla Ads Client support for Top Sites for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Mozilla Ads Client support for Top Sites is enabled.
 native-share-sheet:
   description: Feature to enable the Native Share Sheet for users on Firefox on Android.
   hasExposure: true
@@ -814,6 +822,15 @@ search-optimization-option:
     show-stocks-card:
       type: boolean
       description: If true, Search Optimization Stock cards are enabled.
+search-suggestions-on-homepage:
+  description: Enables search suggestions on homepage.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable search suggestions on homepage.
 sent-from-firefox:
   description: A feature that allows the user to add a download firefox footer to a shared link.
   hasExposure: true
@@ -902,15 +919,6 @@ tab-groups-drag-and-drop:
       type: boolean
       description: |
         Whether or not to enable drag and drop for tab groups.
-tab-groups-live-reorder:
-  description: Control whether reorder happens live during a drag and drop action for Tab Groups.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable live reorder for tab groups drag and drop.
 tab-groups-onboarding:
   description: Control the visibility of onboarding for tab groups.
   hasExposure: true
@@ -1022,24 +1030,6 @@ translations:
       type: boolean
       description: |
         Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
-uninstall-survey:
-  description: Feature that controls the visibility and handling of the uninstall survey app shortcut.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, the uninstall survey shortcut is enabled and visible.
-universal-edge-to-edge-wallpapers:
-  description: |
-    Extends non-default homepage wallpapers edge-to-edge and adapts the toolbar, navigation bar and system bars to them.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the universal edge-to-edge wallpaper treatment.
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true
