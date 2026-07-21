@@ -20,6 +20,31 @@
         {% endfor %}
       {% endfor %}
     </div>
+    {# Rollout screenshots #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Rollout screenshots</div>
+      {% with screenshots=experiment.reference_branch.screenshots.all %}
+        {% if screenshots %}
+          <div class="d-flex flex-wrap gap-2">
+            {% for screenshot in screenshots %}
+              {% if screenshot.image %}
+                <div class="border border-secondary-subtle rounded overflow-hidden">
+                  <img src="{{ screenshot.image.url }}"
+                       alt="{{ screenshot.description }}"
+                       title="{{ screenshot.description }}"
+                       class="rounded"
+                       style="height: 125px;
+                              width: auto;
+                              object-fit: cover">
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="small text-body">—</div>
+        {% endif %}
+      {% endwith %}
+    </div>
   </div>
   {% if hx_swap_oob %}
     {% include "new/common/audience_overlap_warnings.html" with oob=True %}

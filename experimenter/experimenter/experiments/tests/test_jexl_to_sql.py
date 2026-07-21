@@ -181,7 +181,7 @@ class TestJEXLToSQL(TestCase):
             (
                 "length_untranslatable_subject",
                 "attachedFxAOAuthClients|length >= 1",
-                "|length",
+                "attachedFxAOAuthClients",
             ),
             ("preference_value_variable", "someVar|preferenceValue", "|preferenceValue"),
             (

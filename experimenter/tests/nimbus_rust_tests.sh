@@ -3,12 +3,12 @@
 set -euo pipefail
 set +x
 
+export UV_PROJECT_ENVIRONMENT=/tmp/uv-venv
+
 mkdir -m a+rwx /code/experimenter/tests/integration/test-reports
 
-poetry -C experimenter/tests/integration -vvv install --no-root
-poetry -C experimenter/tests/integration \
-    -vvv \
-    run \
+uv sync --directory experimenter/tests/integration --no-install-project
+uv run --directory experimenter/tests/integration \
     pytest \
     --verify-base-url \
     --base-url https://nginx/nimbus/ \

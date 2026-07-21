@@ -293,6 +293,11 @@ def _array_to_sql(node: ArrayLiteral, warnings: list[str]) -> Optional[str]:
 def _transform_to_sql(node: Transform, warnings: list[str]) -> Optional[str]:
     subject_path = _identifier_path(node.subject)
 
+    # If the subject itself is untranslatable, warn about it rather than the transform
+    if subject_path and _is_untranslatable(subject_path):
+        _add_warning(warnings, subject_path)
+        return None
+
     if node.name == "date":
         # profileAgeCreated is stored as epoch ms — return column directly for arithmetic
         if subject_path == "profileAgeCreated":

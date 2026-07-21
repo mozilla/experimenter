@@ -12,6 +12,11 @@
       <div class="text-secondary mb-1" style="font-size: 12px;">Observations &amp; Problem space</div>
       <div class="small text-body" style="white-space: pre-wrap;">{{ experiment.hypothesis|default:"—" }}</div>
     </div>
+    {# Public description #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Public description</div>
+      <div class="small text-body" style="white-space: pre-wrap;">{{ experiment.public_description|default:"—" }}</div>
+    </div>
     {# Application #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Application</div>

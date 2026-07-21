@@ -1,13 +1,13 @@
 import functools
 import json
 import logging
+import tomllib
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from itertools import chain
 from pathlib import Path
 from typing import Any
 
-import tomllib
 from django.conf import settings
 from django.core.files.storage import storages
 from django.utils import timezone

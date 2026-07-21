@@ -8,6 +8,7 @@
         hx-post="{% url 'nimbus-ui-new-update-rollout-features' experiment.slug %}"
         hx-target="#rollout-rollout-features-body"
         hx-swap="outerHTML"
+        hx-encoding="multipart/form-data"
         class="d-flex flex-column gap-4">
     {% csrf_token %}
     <div class="d-flex flex-column gap-4">
@@ -69,6 +70,67 @@
         {% endfor %}
       </div>
     {% endwith %}
+    {#  Rollout screenshots  #}
+    <div>
+      {% with rollout_screenshots=form.rollout_screenshots %}
+        {{ rollout_screenshots.management_form }}
+        <div class="d-flex flex-column gap-2 mt-4">
+          {% for screenshot_form in rollout_screenshots %}
+            <div>
+              {{ screenshot_form.id }}
+              <div class="d-flex gap-3">
+                <label class="small text-secondary mb-1 flex-shrink-0" style="width: 360px;">Screenshot</label>
+                <label class="small text-secondary mb-1 flex-grow-1">Description</label>
+              </div>
+              <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="flex-shrink-0" style="width: 360px;">
+                  {{ screenshot_form.image }}
+                  {% for error in screenshot_form.image.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="flex-grow-1">
+                  {{ screenshot_form.description }}
+                  {% for error in screenshot_form.description.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+                {% if screenshot_form.instance.pk %}
+                  <button type="button"
+                          class="btn p-0 border-0 text-secondary flex-shrink-0"
+                          title="Delete screenshot"
+                          hx-post="{% url 'nimbus-ui-new-delete-rollout-screenshot' experiment.slug %}"
+                          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                          hx-vals='{"screenshot_id": "{{ screenshot_form.instance.pk }}"}'
+                          hx-target="#rollout-rollout-features-body"
+                          hx-swap="outerHTML">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                {% endif %}
+              </div>
+              {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
+                <div class="border border-secondary-subtle rounded overflow-hidden mt-2 d-inline-block">
+                  <img src="{{ screenshot_form.instance.image.url }}"
+                       alt="{{ screenshot_form.instance.description }}"
+                       title="{{ screenshot_form.instance.description }}"
+                       class="rounded"
+                       style="height: 96px;
+                              width: auto;
+                              object-fit: cover">
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+        <div>
+          <button type="button"
+                  class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small"
+                  hx-post="{% url 'nimbus-ui-new-create-rollout-screenshot' experiment.slug %}"
+                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                  hx-target="#rollout-rollout-features-body"
+                  hx-swap="outerHTML">
+            <i class="fa-solid fa-plus"></i>
+            Add screenshot
+          </button>
+        </div>
+      {% endwith %}
+    </div>
   </div>
 </div>
 {# Action buttons #}

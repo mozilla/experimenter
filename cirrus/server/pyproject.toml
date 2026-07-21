@@ -23,7 +23,7 @@ dependencies = [
     "glean-parser>=18.2.0,<19",
     "pytest-mock>=3.15.0,<4",
     "mozilla-nimbus-shared>=2.5.2,<3",
-    "sentry-sdk>=2.65.0,<3",
+    "sentry-sdk>=2.66.0,<3",
 ]
 
 [tool.uv]

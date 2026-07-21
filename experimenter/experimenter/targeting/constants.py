@@ -583,6 +583,21 @@ FIRST_RUN_MACOS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_WINDOWS = NimbusTargetingConfig(
+    name="First start-up users on Windows",
+    slug="first_run_windows",
+    description=(
+        "First start-up users on Windows across all install types (stub, full, "
+        "MSI, MSIX, zip). Keyed on the first Nimbus update pass (isNonStubFirstRun) "
+        "rather than isFirstStartup, which is only set for stub installer runs."
+    ),
+    targeting=f"{NON_STUB_FIRST_RUN.targeting} && os.isWindows",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_TCP_STUDY = NimbusTargetingConfig(
     name="Exclude users in the TCP revenue study",
     slug="not_tcp_study",
@@ -2555,6 +2570,17 @@ FIVE_BOOKMARKS = NimbusTargetingConfig(
     targeting="totalBookmarksCount == 5",
     desktop_telemetry="",
     sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WIN10_AT_LEAST_TEN_BOOKMARKS = NimbusTargetingConfig(
+    name="Windows 10 users with at least 10 bookmarks",
+    slug="win10_at_least_ten_bookmarks",
+    description="Windows 10 users with at least 10 bookmarks",
+    targeting=f"{WIN10_NOT_WIN11.targeting} && totalBookmarksCount >= 10",
+    desktop_telemetry="",
+    sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -4784,6 +4810,20 @@ FX_154_4_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_154_8_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx154 Jul-16 Trainhop",
+    slug="newtab-154-0716-trainhop",
+    description=(
+        "Desktop users having the New Tab 154.8.20260716.43450 train hop, "
+        "which includes users of Fx151"
+    ),
+    targeting="newtabAddonVersion|versionCompare('154.8.20260716.43450') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
     name="New Tab Lists/Timer Interaction, Neither Widget Disabled",
     slug="widgets-lists-timer-interacted-not-disabled",
@@ -4915,6 +4955,23 @@ FX_153_5_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
         "Sports, Clocks, Lists, or Timer widget and still have that widget enabled"
     ),
     targeting=f"{FX_153_5_TRAINHOP.targeting} && ({WIDGETS_ANY_FOUR_ENGAGED.targeting})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_154_8_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+    name=(
+        "New Tab Fx154 Jul-16 Trainhop, engaged with any of 4 widgets, "
+        "that widget not disabled"
+    ),
+    slug="widgets-any-four-engaged-154-0716-trainhop",
+    description=(
+        "Users having the New Tab 154.8.20260716.43450 train hop who engaged with the "
+        "Sports, Clocks, Lists, or Timer widget and still have that widget enabled"
+    ),
+    targeting=f"{FX_154_8_TRAINHOP.targeting} && ({WIDGETS_ANY_FOUR_ENGAGED.targeting})",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

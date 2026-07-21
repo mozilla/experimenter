@@ -18,7 +18,7 @@
     <div class="d-flex flex-column gap-2">
       <div class="small fw-medium mb-1 text-secondary">Define</div>
       {# EXP-6681: Rollout Overview Form/Card #}
-      {% include "new/rollouts/detail_card.html" with card_id="overview" title="Overview" subtitle="Name · Observations & Problem space · Important Links · Project Tags · Subscribers" show_edit_btn=True body_template="new/rollouts/overview/card.html" %}
+      {% include "new/rollouts/detail_card.html" with card_id="overview" title="Overview" subtitle="Name · Observations & Problem Space · Public Description · Application · Important Links · Project Tags · Subscribers" show_edit_btn=True body_template="new/rollouts/overview/card.html" %}
 
       {# TODO EXP-6682: Rollout Risks Form/Card #}
       {% include "new/rollouts/detail_card.html" with card_id="risks" title="Risks" subtitle="Consider possible risks if the public interacts with your experiment" show_edit_btn=True body_template="new/rollouts/risks/card.html" %}

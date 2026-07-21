@@ -18,6 +18,8 @@ from experimenter.nimbus_ui.new.views import (
     NewRolloutPlanApplyView,
     NewRolloutPlanCreateView,
     NewRolloutScheduleUpdateView,
+    NewRolloutScreenshotCreateView,
+    NewRolloutScreenshotDeleteView,
     NewSignoffUpdateView,
     NewSubscriberSearchView,
     NewSubscribeView,
@@ -354,6 +356,16 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/update_rollout_features/$",
         NewRolloutFeaturesUpdateView.as_view(),
         name="nimbus-ui-new-update-rollout-features",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/create_rollout_screenshot/$",
+        NewRolloutScreenshotCreateView.as_view(),
+        name="nimbus-ui-new-create-rollout-screenshot",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/delete_rollout_screenshot/$",
+        NewRolloutScreenshotDeleteView.as_view(),
+        name="nimbus-ui-new-delete-rollout-screenshot",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/update_audience/$",

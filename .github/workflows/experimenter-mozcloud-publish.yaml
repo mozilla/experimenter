@@ -28,7 +28,7 @@ jobs:
       packages: write
       id-token: write
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.sha) || github.ref }}
           persist-credentials: false
@@ -78,7 +78,7 @@ jobs:
 
       - name: Push to Google Artifact Registry
         if: steps.check-paths.outputs.should-run == 'true'
-        uses: mozilla-it/deploy-actions/docker-push@e2876aeb0f458eba1a39fa46bd072264c5877b11 # v4.3.2
+        uses: mozilla-it/deploy-actions/docker-push@ef0f037316873ff408a598f1cd98876dd7851e53 # v6.7.0
         with:
           image_tags: |-
             ${{ env.IMAGE_BASE }}:latest

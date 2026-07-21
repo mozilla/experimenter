@@ -23,7 +23,7 @@ jobs:
       IOS_CHANNEL: developer
       IOS_RECIPE_PATH: ${{ github.workspace }}/ios_recipe.json
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -37,13 +37,13 @@ jobs:
 
       - name: Set up Python
         if: steps.check-paths.outputs.should-run == 'true'
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
 
-      - name: Install poetry
+      - name: Install uv
         if: steps.check-paths.outputs.should-run == 'true'
-        run: pipx install poetry
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
 
       - name: Bring up Experimenter stack
         if: steps.check-paths.outputs.should-run == 'true'
@@ -57,16 +57,16 @@ jobs:
 
       - name: Install test deps
         if: steps.check-paths.outputs.should-run == 'true'
-        run: poetry -C experimenter/tests install --no-root
+        run: uv sync --project experimenter/tests --no-install-project
 
       - name: Create recipe
         if: steps.check-paths.outputs.should-run == 'true'
         working-directory: experimenter/tests
-        run: poetry run pytest -m ios_create_recipe -o addopts= -p no:rerunfailures integration/nimbus/ios
+        run: uv run pytest -m ios_create_recipe -o addopts= -p no:rerunfailures integration/nimbus/ios
 
       - name: Upload recipe artifact
         if: steps.check-paths.outputs.should-run == 'true'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ios-recipe
           path: ${{ github.workspace }}/ios_recipe.json
@@ -85,7 +85,7 @@ jobs:
       IOS_SIMULATOR: "iPhone 17"
       IOS_RECIPE_PATH: ${{ github.workspace }}/ios_recipe.json
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Read firefox-ios SHA
         run: |
@@ -97,7 +97,7 @@ jobs:
           echo "FIREFOX_IOS_SHA=$FIREFOX_IOS_SHA" >> "$GITHUB_ENV"
 
       - name: Checkout firefox-ios
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: mozilla-mobile/firefox-ios
           ref: ${{ env.FIREFOX_IOS_SHA }}
@@ -171,18 +171,18 @@ jobs:
           sudo bash /tmp/install-nimbus-cli.sh --directory /usr/local/bin
 
       - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
 
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
 
       - name: Install test deps
-        run: poetry -C experimenter/tests install --no-root
+        run: uv sync --project experimenter/tests --no-install-project
 
       - name: Download recipe artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ios-recipe
           path: ${{ github.workspace }}

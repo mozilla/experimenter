@@ -16,7 +16,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 2
 
@@ -50,12 +50,12 @@ jobs:
 
       - name: Upload to PyPI
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
-        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # release/v1
+        uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247 # release/v1
         with:
           packages-dir: schemas/dist/
           skip-existing: true
 
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
         with:
           node-version: 24

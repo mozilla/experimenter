@@ -10,6 +10,6 @@ RUN apt-get update -qqy && \
         python3-venv \
         python3-pip
 
-RUN pip install poetry==1.8.4
+COPY --from=ghcr.io/astral-sh/uv:0.10.0 /uv /uvx /usr/local/bin/
 
 WORKDIR /code
