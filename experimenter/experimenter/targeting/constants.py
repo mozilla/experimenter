@@ -583,6 +583,21 @@ FIRST_RUN_MACOS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_WINDOWS = NimbusTargetingConfig(
+    name="First start-up users on Windows",
+    slug="first_run_windows",
+    description=(
+        "First start-up users on Windows across all install types (stub, full, "
+        "MSI, MSIX, zip). Keyed on the first Nimbus update pass (isNonStubFirstRun) "
+        "rather than isFirstStartup, which is only set for stub installer runs."
+    ),
+    targeting=f"{NON_STUB_FIRST_RUN.targeting} && os.isWindows",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_TCP_STUDY = NimbusTargetingConfig(
     name="Exclude users in the TCP revenue study",
     slug="not_tcp_study",
