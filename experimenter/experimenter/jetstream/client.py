@@ -114,6 +114,59 @@ def get_enrollment_funnel_data():
     return load_data_from_gcs(str(path))
 
 
+def get_results_filenames():
+    filenames_by_folder = {}
+    for folder in [STATISTICS_FOLDER, METADATA_FOLDER, ERRORS_FOLDER]:
+        _, filenames = analysis_storage.listdir(folder)
+        filenames_by_folder[folder] = set(filenames)
+    return filenames_by_folder
+
+
+def _parse_analysis_start_time(metadata):
+    start_time = metadata.get("analysis_start_time") if metadata else None
+    return datetime.fromisoformat(start_time) if start_time else None
+
+
+def get_latest_analysis_start_time(experiment_slug):
+    recipe_slug = experiment_slug.replace("-", "_")
+    try:
+        metadata = get_metadata(recipe_slug)
+    except RuntimeError:
+        return None
+    return _parse_analysis_start_time(metadata)
+
+
+def get_stored_analysis_start_time(experiment):
+    results_data = experiment.results_data or {}
+    metadata = (results_data.get("v3") or {}).get("metadata")
+    return _parse_analysis_start_time(metadata)
+
+
+def expected_windows(experiment):
+    windows = [AnalysisWindow.DAILY]
+    if experiment.results_ready:
+        windows.append(AnalysisWindow.WEEKLY)
+    if experiment.end_date and experiment.end_date < (date.today() - timedelta(days=1)):
+        windows.append(AnalysisWindow.OVERALL)
+    return windows
+
+
+def has_missing_expected_results(experiment, results_filenames):
+    if experiment.computed_end_date and (
+        experiment.computed_end_date
+        + timedelta(days=NimbusExperiment.DAYS_ANALYSIS_BUFFER)
+        < date.today()
+    ):
+        return False
+
+    recipe_slug = experiment.slug.replace("-", "_")
+    statistics_files = results_filenames[STATISTICS_FOLDER]
+    return any(
+        f"statistics_{recipe_slug}_{window}.json" not in statistics_files
+        for window in expected_windows(experiment)
+    )
+
+
 def get_results_metrics_map(
     data: JetstreamData,
     primary_outcome_slugs: list[str],
@@ -246,6 +299,7 @@ def get_experiment_data(experiment: NimbusExperiment):
         "metadata": experiment_metadata,
     }
 
+    expected = expected_windows(experiment)
     for window in windows:
         experiment_data[window] = {}
         data_from_jetstream = []
@@ -255,15 +309,7 @@ def get_experiment_data(experiment: NimbusExperiment):
             # only store runtime errors for weekly/overall windows if we expect those
             # results (overall also lags by one day so there is time for analysis to
             # complete)
-            if (
-                (window == AnalysisWindow.DAILY)
-                or (window == AnalysisWindow.WEEKLY and experiment.results_ready)
-                or (
-                    window == AnalysisWindow.OVERALL
-                    and experiment.end_date
-                    and experiment.end_date < (date.today() - timedelta(days=1))
-                )
-            ):
+            if window in expected:
                 runtime_errors.append(str(e))
 
         segment_points_enrollments = defaultdict(list)
