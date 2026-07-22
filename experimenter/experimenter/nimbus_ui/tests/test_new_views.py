@@ -1353,6 +1353,40 @@ class TestNewUnsubscribeView(AuthTestCase):
 
 
 class TestNewToggleReviewSlackNotificationsView(AuthTestCase):
+    def test_detail_page_renders_toggle_checked(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            enable_review_slack_notifications=True,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="enable_review_slack_notifications"')
+        self.assertContains(
+            response,
+            reverse(
+                "nimbus-ui-new-toggle-review-slack-notifications",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+        self.assertContains(response, "checked")
+
+    def test_detail_page_renders_toggle_disabled_when_complete(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+        self.assertTrue(experiment.is_complete)
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "disabled")
+
     def test_post_enables_slack_notifications(self):
         experiment = NimbusExperimentFactory.create(
             enable_review_slack_notifications=False
@@ -1381,7 +1415,7 @@ class TestNewToggleReviewSlackNotificationsView(AuthTestCase):
                 "nimbus-ui-new-toggle-review-slack-notifications",
                 kwargs={"slug": experiment.slug},
             ),
-            {"enable_review_slack_notifications": "false"},
+            {},
         )
 
         self.assertEqual(response.status_code, 200)

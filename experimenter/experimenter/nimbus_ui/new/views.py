@@ -66,6 +66,11 @@ class NimbusExperimentViewMixin:
         context["all_tags"] = Tag.objects.all().order_by("name")
         context["create_form"] = NimbusExperimentCreateForm()
 
+        if experiment and experiment.slug:
+            context["slack_notifications_form"] = ToggleReviewSlackNotificationsForm(
+                instance=experiment
+            )
+
         return context
 
 
