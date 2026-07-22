@@ -8,6 +8,7 @@ from itertools import chain
 from pathlib import Path
 from typing import Any
 
+import sentry_sdk
 from django.conf import settings
 from django.core.files.storage import storages
 from django.utils import timezone
@@ -19,6 +20,7 @@ from mozilla_nimbus_schemas.jetstream import (
     SampleSizes,
     Statistics,
 )
+from pydantic import ValidationError
 
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.jetstream.models import (
@@ -132,6 +134,12 @@ def get_latest_analysis_start_time(experiment_slug):
     try:
         metadata = get_metadata(recipe_slug)
     except RuntimeError:
+        return None
+    except ValidationError as e:
+        sentry_sdk.capture_exception(e)
+        logger.warning(
+            f"Skipping {experiment_slug}, metadata failed schema validation: {e}"
+        )
         return None
     return _parse_analysis_start_time(metadata)
 

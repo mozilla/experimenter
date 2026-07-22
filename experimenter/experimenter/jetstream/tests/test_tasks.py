@@ -7,8 +7,9 @@ from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
 from django.utils import timezone
-from mozilla_nimbus_schemas.jetstream import SampleSizes, SampleSizesFactory
+from mozilla_nimbus_schemas.jetstream import Metadata, SampleSizes, SampleSizesFactory
 from parameterized import parameterized
+from pydantic import ValidationError
 
 from experimenter.experiments.constants import APPLICATION_CONFIG_DESKTOP
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
@@ -4355,3 +4356,71 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
             self.assertRaises(Exception, msg="db error"),
         ):
             tasks.update_holdback_enrollment_period()
+
+
+class TestSkipInvalidResults(TestCase):
+    INVALID_METADATA = {
+        "metrics": {
+            "active_hours": {
+                "bigger_is_better": True,
+                "friendly_name": "Active hours",
+            }
+        },
+        "outcomes": {},
+    }
+
+    def test_get_latest_analysis_start_time_skips_and_reports(self):
+        try:
+            Metadata.model_validate(self.INVALID_METADATA)
+        except ValidationError as e:
+            validation_error = e
+
+        with (
+            patch(
+                "experimenter.jetstream.client.get_metadata",
+                side_effect=validation_error,
+            ),
+            patch(
+                "experimenter.jetstream.client.sentry_sdk.capture_exception"
+            ) as mock_capture,
+        ):
+            result = get_latest_analysis_start_time("my-experiment")
+
+        self.assertIsNone(result)
+        mock_capture.assert_called_once()
+
+    def test_fetch_experiment_data_skips_and_reports(self):
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = {"v3": {"existing": True}}
+        experiment.save()
+
+        try:
+            Metadata.model_validate(self.INVALID_METADATA)
+        except ValidationError as e:
+            validation_error = e
+
+        with (
+            patch(
+                "experimenter.jetstream.tasks.get_experiment_data",
+                side_effect=validation_error,
+            ),
+            patch(
+                "experimenter.jetstream.tasks.sentry_sdk.capture_exception"
+            ) as mock_capture,
+        ):
+            tasks.fetch_experiment_data(experiment.id)
+
+        mock_capture.assert_called_once()
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.results_data, {"v3": {"existing": True}})
+
+    def test_fetch_experiment_data_still_raises_on_other_errors(self):
+        experiment = NimbusExperimentFactory.create()
+        with (
+            patch(
+                "experimenter.jetstream.tasks.get_experiment_data",
+                side_effect=RuntimeError("boom"),
+            ),
+            self.assertRaises(RuntimeError),
+        ):
+            tasks.fetch_experiment_data(experiment.id)
