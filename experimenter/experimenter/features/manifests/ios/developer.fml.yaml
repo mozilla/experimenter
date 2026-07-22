@@ -954,6 +954,15 @@ features:
         description: The number of maximum suggestions.
         type: Int
         default: 5
+  vpn-feature:
+    description: |
+      Configuration feature for VPN
+    variables:
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: true
   wayback-machine-feature:
     description: |
       This property determines whether we show the wayback entry point on the native error pages

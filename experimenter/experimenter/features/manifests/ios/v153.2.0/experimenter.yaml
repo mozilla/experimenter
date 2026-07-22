@@ -569,6 +569,16 @@ trending-searches-feature:
     max-suggestions:
       type: int
       description: The number of maximum suggestions.
+vpn-feature:
+  description: |
+    Configuration feature for VPN
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 wayback-machine-feature:
   description: |
     This property determines whether we show the wayback entry point on the native error pages
