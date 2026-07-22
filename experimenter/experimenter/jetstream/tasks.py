@@ -1,8 +1,10 @@
 import markus
+import sentry_sdk
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
+from pydantic import ValidationError
 
 from experimenter.celery import app
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
@@ -68,6 +70,11 @@ def fetch_experiment_data(experiment_id):
                 )
 
         metrics.incr("fetch_experiment_data.completed")
+    except ValidationError as e:
+        metrics.incr("fetch_experiment_data.skipped")
+        sentry_sdk.capture_exception(e)
+        slug = experiment.slug if experiment is not None else experiment_id
+        logger.warning(f"Skipping results for {slug}, failed schema validation: {e}")
     except Exception as e:
         metrics.incr("fetch_experiment_data.failed")
         failure_message = f"Fetching experiment data for {experiment_id} "

@@ -7,8 +7,9 @@ from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
 from django.utils import timezone
-from mozilla_nimbus_schemas.jetstream import SampleSizes, SampleSizesFactory
+from mozilla_nimbus_schemas.jetstream import Metadata, SampleSizes, SampleSizesFactory
 from parameterized import parameterized
+from pydantic import ValidationError
 
 from experimenter.experiments.constants import APPLICATION_CONFIG_DESKTOP
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
@@ -4355,3 +4356,109 @@ class TestUpdateHoldbackEnrollmentPeriod(TestCase):
             self.assertRaises(Exception, msg="db error"),
         ):
             tasks.update_holdback_enrollment_period()
+
+
+class TestSkipInvalidResults(TestCase):
+    INVALID_METADATA = {
+        "metrics": {
+            "active_hours": {
+                "bigger_is_better": True,
+                "friendly_name": "Active hours",
+            }
+        },
+        "outcomes": {},
+    }
+
+    def test_get_latest_analysis_start_time_skips_and_reports(self):
+        try:
+            Metadata.model_validate(self.INVALID_METADATA)
+        except ValidationError as e:
+            validation_error = e
+
+        with (
+            patch(
+                "experimenter.jetstream.client.get_metadata",
+                side_effect=validation_error,
+            ),
+            patch(
+                "experimenter.jetstream.client.sentry_sdk.capture_exception"
+            ) as mock_capture,
+        ):
+            result = get_latest_analysis_start_time("my-experiment")
+
+        self.assertIsNone(result)
+        mock_capture.assert_called_once()
+
+    def test_fetch_experiment_data_skips_and_reports(self):
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = {"v3": {"existing": True}}
+        experiment.save()
+
+        try:
+            Metadata.model_validate(self.INVALID_METADATA)
+        except ValidationError as e:
+            validation_error = e
+
+        with (
+            patch(
+                "experimenter.jetstream.tasks.get_experiment_data",
+                side_effect=validation_error,
+            ),
+            patch(
+                "experimenter.jetstream.tasks.sentry_sdk.capture_exception"
+            ) as mock_capture,
+        ):
+            tasks.fetch_experiment_data(experiment.id)
+
+        mock_capture.assert_called_once()
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.results_data, {"v3": {"existing": True}})
+
+    def test_fetch_jetstream_data_continues_when_one_experiment_has_invalid_metadata(
+        self,
+    ):
+        invalid_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            results_data=None,
+        )
+        valid_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            results_data=None,
+        )
+        invalid_recipe_slug = invalid_experiment.slug.replace("-", "_")
+
+        def fake_get_metadata(recipe_slug):
+            if recipe_slug == invalid_recipe_slug:
+                Metadata.model_validate(self.INVALID_METADATA)
+            return {"analysis_start_time": "2026-07-27T00:00:00+00:00"}
+
+        with (
+            patch(
+                "experimenter.jetstream.client.get_metadata",
+                side_effect=fake_get_metadata,
+            ),
+            patch(
+                "experimenter.jetstream.client.sentry_sdk.capture_exception"
+            ) as mock_capture,
+            patch(
+                "experimenter.jetstream.tasks.get_results_filenames",
+                return_value={
+                    STATISTICS_FOLDER: set(),
+                    METADATA_FOLDER: set(),
+                    ERRORS_FOLDER: set(),
+                },
+            ),
+            patch(
+                "experimenter.jetstream.tasks.has_missing_expected_results",
+                return_value=False,
+            ),
+            patch(
+                "experimenter.jetstream.tasks.fetch_experiment_data.delay"
+            ) as mock_delay,
+        ):
+            tasks.fetch_jetstream_data()
+
+        fetched_experiment_ids = {call.args[0] for call in mock_delay.call_args_list}
+        self.assertIn(valid_experiment.id, fetched_experiment_ids)
+        self.assertNotIn(invalid_experiment.id, fetched_experiment_ids)
+        mock_capture.assert_called_once()
