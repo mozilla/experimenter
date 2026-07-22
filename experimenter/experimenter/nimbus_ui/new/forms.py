@@ -1224,13 +1224,6 @@ class ToggleReviewSlackNotificationsForm(NimbusChangeLogFormMixin, forms.ModelFo
             ),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance.is_complete:
-            self.fields["enable_review_slack_notifications"].widget.attrs["disabled"] = (
-                True
-            )
-
     def get_changelog_message(self):
         status = (
             "enabled"

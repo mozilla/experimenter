@@ -1374,19 +1374,6 @@ class TestNewToggleReviewSlackNotificationsView(AuthTestCase):
         )
         self.assertContains(response, "checked")
 
-    def test_detail_page_renders_toggle_disabled_when_complete(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-        )
-        self.assertTrue(experiment.is_complete)
-
-        response = self.client.get(
-            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "disabled")
-
     def test_post_enables_slack_notifications(self):
         experiment = NimbusExperimentFactory.create(
             enable_review_slack_notifications=False
