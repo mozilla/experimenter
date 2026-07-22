@@ -1,0 +1,29 @@
+<form id="slack-notifications-toggle-form"
+      class="d-flex align-items-center">
+  {% csrf_token %}
+  <input type="hidden" name="enable_review_slack_notifications" value="false">
+  <div class="form-check form-switch d-flex align-items-center m-0"
+       {% if experiment.is_complete %}data-bs-toggle="tooltip" data-bs-placement="left" title="Disabled because experiment is complete"{% endif %}>
+    <label for="slack-notifications-toggle"
+           class="form-check-label text-secondary small me-2 mb-0"
+           style="cursor: {% if experiment.is_complete %}not-allowed{% else %}pointer{% endif %};
+                  {% if experiment.is_complete %}opacity: 0.5{% endif %}">
+      <i class="fa-solid fa-bell me-1"></i>
+      <span>Enable review Slack notifications</span>
+    </label>
+    <input type="checkbox"
+           id="slack-notifications-toggle"
+           name="enable_review_slack_notifications"
+           value="true"
+           {% if experiment.enable_review_slack_notifications %}checked{% endif %}
+           {% if experiment.is_complete %}disabled{% endif %}
+           hx-trigger="change"
+           hx-post="{% url 'nimbus-ui-new-toggle-review-slack-notifications' experiment.slug %}"
+           hx-include="#slack-notifications-toggle-form"
+           hx-target="#slack-notifications-toggle-form"
+           hx-swap="outerHTML"
+           class="form-check-input m-0"
+           role="switch"
+           style="cursor: {% if experiment.is_complete %}not-allowed{% else %}pointer{% endif %}">
+  </div>
+</form>
