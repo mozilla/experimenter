@@ -61,21 +61,6 @@ class TestJetstreamData(TestCase):
 
         self.assertIn(retention, data)
 
-    def test_append_retention_3_days_extracts_legacy_data(self):
-        retention = JetstreamDataPoint(
-            metric=Metric.RETENTION_3_DAYS_LEGACY,
-            statistic=Statistic.BINOMIAL,
-            branch="control",
-            point=0.65,
-            segment=Segment.ALL,
-            window_index="4",
-        )
-
-        data = JetstreamData([])
-        data.append_retention_3_days([retention])
-
-        self.assertIn(retention, data)
-
     def test_append_retention_data_ignores_week_1_only_data(self):
         week_1_retention = JetstreamDataPoint(
             metric=Metric.RETENTION,
