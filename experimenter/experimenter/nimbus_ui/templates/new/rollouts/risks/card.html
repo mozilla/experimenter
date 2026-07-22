@@ -1,47 +1,51 @@
-<div class="d-flex flex-column gap-3" id="rollout-risks-body">
-  {# AI risk #}
-  <div class="d-flex flex-row gap-3">
-    <div class="text-secondary mb-1" style="font-size: 12px;">AI risk</div>
-    {% if experiment.risk_ai %}
-      <i class="fas fa-check text-success"></i>
-    {% else %}
-      <i class="fas fa-times text-danger"></i>
-    {% endif %}
+{% extends "new/common/card_base.html" %}
+
+{% block card %}
+  <div class="d-flex flex-column gap-3" id="rollout-risks-body">
+    {# AI risk #}
+    <div class="d-flex flex-row gap-3">
+      <div class="text-secondary mb-1" style="font-size: 12px;">AI risk</div>
+      {% if experiment.risk_ai %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
+    {# Brand perception impact #}
+    <div class="d-flex flex-row gap-3">
+      <div class="text-secondary mb-1" style="font-size: 12px;">Brand perception impact</div>
+      {% if experiment.risk_brand %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
+    {# Revenue impact #}
+    <div class="d-flex flex-row gap-3">
+      <div class="text-secondary mb-1" style="font-size: 12px;">Revenue impact</div>
+      {% if experiment.risk_revenue %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
+    {# External vendor impact #}
+    <div class="d-flex flex-row gap-3">
+      <div class="text-secondary mb-1" style="font-size: 12px;">External vendor impact</div>
+      {% if experiment.risk_partner_related %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
+    {# Messaging impact #}
+    <div class="d-flex flex-row gap-3">
+      <div class="text-secondary mb-1" style="font-size: 12px;">Messaging impact</div>
+      {% if experiment.risk_message %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
   </div>
-  {# Brand perception impact #}
-  <div class="d-flex flex-row gap-3">
-    <div class="text-secondary mb-1" style="font-size: 12px;">Brand perception impact</div>
-    {% if experiment.risk_brand %}
-      <i class="fas fa-check text-success"></i>
-    {% else %}
-      <i class="fas fa-times text-danger"></i>
-    {% endif %}
-  </div>
-  {# Revenue impact #}
-  <div class="d-flex flex-row gap-3">
-    <div class="text-secondary mb-1" style="font-size: 12px;">Revenue impact</div>
-    {% if experiment.risk_revenue %}
-      <i class="fas fa-check text-success"></i>
-    {% else %}
-      <i class="fas fa-times text-danger"></i>
-    {% endif %}
-  </div>
-  {# External vendor impact #}
-  <div class="d-flex flex-row gap-3">
-    <div class="text-secondary mb-1" style="font-size: 12px;">External vendor impact</div>
-    {% if experiment.risk_partner_related %}
-      <i class="fas fa-check text-success"></i>
-    {% else %}
-      <i class="fas fa-times text-danger"></i>
-    {% endif %}
-  </div>
-  {# Messaging impact #}
-  <div class="d-flex flex-row gap-3">
-    <div class="text-secondary mb-1" style="font-size: 12px;">Messaging impact</div>
-    {% if experiment.risk_message %}
-      <i class="fas fa-check text-success"></i>
-    {% else %}
-      <i class="fas fa-times text-danger"></i>
-    {% endif %}
-  </div>
-</div>
+{% endblock %}

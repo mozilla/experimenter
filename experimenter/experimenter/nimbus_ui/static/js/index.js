@@ -85,6 +85,30 @@ const cleanupOrphanedModalBackdrops = () => {
   }
 };
 
+const setupSetupIssueNav = () => {
+  document.addEventListener("click", function (event) {
+    const trigger = event.target.closest("[data-setup-issue-target]");
+    if (!trigger) {
+      return;
+    }
+
+    const cardId = trigger.getAttribute("data-setup-issue-target");
+    const card = document.getElementById(`rollout-card-${cardId}`);
+    if (!card) {
+      return;
+    }
+    const scrollToCard = () =>
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (trigger.closest(".modal")) {
+      setTimeout(scrollToCard, 300);
+    } else {
+      scrollToCard();
+    }
+  });
+};
+setupSetupIssueNav();
+
 const setupHTMXLoadingOverlay = () => {
   document.addEventListener("htmx:beforeRequest", function () {
     const loadingOverlay = document.querySelector("#htmx-loading-overlay");
