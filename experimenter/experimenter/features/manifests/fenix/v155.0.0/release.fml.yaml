@@ -406,7 +406,7 @@ features:
       show-onboarding-bottom-sheet:
         description: If true, the IP Protection onboarding bottom sheet is shown to the user.
         type: Boolean
-        default: false
+        default: true
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
