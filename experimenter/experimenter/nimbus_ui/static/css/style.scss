@@ -353,3 +353,10 @@
 .rollout-card-toggle[aria-expanded="true"] .chevron-icon {
   transform: rotate(90deg);
 }
+
+.rollout-page {
+  .cm-editor .cm-scroller {
+    font-family: var(--bs-font-monospace);
+    font-size: 0.875rem;
+  }
+}
