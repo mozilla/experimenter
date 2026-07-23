@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.views.generic import DetailView
 from django.views.generic.edit import UpdateView
 
+from experimenter.experiments.api.v5.serializers import NimbusRolloutReviewSerializer
 from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.nimbus_ui.filtersets import (
     TagSearchFilterSet,
@@ -96,7 +97,84 @@ class UpdateRedirectViewMixin:
         return super().post(request, *args, **kwargs)
 
 
+class RolloutSetupProgressMixin:
+    SETUP_SECTIONS = {
+        "Overview": {
+            "card_id": "overview",
+            "fields": {*RolloutOverviewForm.Meta.fields},
+        },
+        "Risks": {
+            "card_id": "risks",
+            "fields": {*RolloutRisksForm.Meta.fields},
+        },
+        "Features": {
+            "card_id": "rollout-features",
+            "fields": {*RolloutFeaturesForm.Meta.fields},
+        },
+        "Audience": {
+            "card_id": "audience",
+            "fields": {*RolloutAudienceForm.Meta.fields},
+        },
+        "Rollout schedule": {
+            "card_id": "schedule",
+            "fields": {"rollout_phases"},
+            "labels": {"rollout_phases": "Rollout Schedule"},
+        },
+    }
+
+    def flatten_errors(self, messages):
+        if isinstance(messages, dict):
+            return [m for value in messages.values() for m in self.flatten_errors(value)]
+        if isinstance(messages, (list, tuple)):
+            return [m for value in messages for m in self.flatten_errors(value)]
+        return [str(messages)]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        field_errors = self.object.get_invalid_fields_errors(
+            serializer_class=NimbusRolloutReviewSerializer
+        )
+        error_keys = set(field_errors)
+
+        field_to_section = {
+            field: name
+            for name, section in self.SETUP_SECTIONS.items()
+            for field in section["fields"]
+        }
+
+        tracked_fields = set(field_to_section)
+        broken = error_keys & tracked_fields
+        context["setup_completion_percent"] = round(
+            100 * (len(tracked_fields) - len(broken)) / len(tracked_fields)
+        )
+
+        issues = []
+        for field, messages in field_errors.items():
+            section = field_to_section.get(field)
+            if section is not None:
+                meta = self.SETUP_SECTIONS[section]
+                card_id = meta["card_id"]
+                label = meta.get("labels", {}).get(field, field.replace("_", " ").title())
+            else:
+                section = "Other"
+                card_id = None
+                label = field.replace("_", " ").title()
+            issues.append(
+                {
+                    "section": section,
+                    "card_id": card_id,
+                    "label": label,
+                    "messages": self.flatten_errors(messages),
+                }
+            )
+
+        context["setup_issues"] = issues
+        context["setup_issues_count"] = len(issues)
+        return context
+
+
 class NimbusRolloutDetailView(
+    RolloutSetupProgressMixin,
     NimbusExperimentViewMixin,
     CloneExperimentFormMixin,
     DetailView,
@@ -120,6 +198,7 @@ class CardMixin:
 
 
 class NewCardUpdateView(
+    RolloutSetupProgressMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
     UpdateRedirectViewMixin,

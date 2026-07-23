@@ -390,6 +390,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         null=True,
     )
+    sizing_data_updated_at = models.DateTimeField(
+        "Sizing Data Last Updated",
+        blank=True,
+        null=True,
+    )
     risk_partner_related = models.BooleanField(
         "Is a Partner Related Risk Flag", default=None, blank=True, null=True
     )
@@ -2199,6 +2204,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return datetime.date.today() >= results_ready_date
 
     @property
+    def sizing_needs_update(self):
+        """
+        True if bigquery-etl should re-run the population sizing query.
+
+        - Never sized: only if the experiment was active in the last 7 days
+        - Already sized: only if the experiment changed after the last sizing fetch
+        """
+        last_updated = self._updated_date_time
+        last_sized = self.sizing_data_updated_at
+
+        if last_sized is None:
+            return last_updated >= timezone.now() - datetime.timedelta(days=7)
+        return last_updated > last_sized
+
+    @property
     def has_displayable_results(self):
         # True if self.results_data has weekly or overall results
         if self.results_data and "v3" in self.results_data:
@@ -2422,11 +2442,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     return True
         return False
 
-    def get_invalid_fields_errors(self):
+    def get_invalid_fields_errors(self, serializer_class=None):
         from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 
-        serializer_data = NimbusReviewSerializer(self).data
-        serializer = NimbusReviewSerializer(self, data=serializer_data)
+        if serializer_class is None:
+            serializer_class = NimbusReviewSerializer
+
+        serializer_data = serializer_class(self).data
+        serializer = serializer_class(self, data=serializer_data)
 
         errors = {}
         if not serializer.is_valid():

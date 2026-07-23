@@ -1,162 +1,166 @@
-<div class="d-flex flex-column gap-3" id="rollout-audience-body">
-  {# Channel / channels #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">
-      {% if experiment.is_desktop %}
-        Channels
-      {% else %}
-        Channel
-      {% endif %}
+{% extends "new/common/card_base.html" %}
+
+{% block card %}
+  <div class="d-flex flex-column gap-3" id="rollout-audience-body">
+    {# Channel / channels #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">
+        {% if experiment.is_desktop %}
+          Channels
+        {% else %}
+          Channel
+        {% endif %}
+      </div>
+      <div class="small text-body">
+        {% if experiment.is_desktop %}
+          {% with experiment.channels as channels %}
+            {% if channels %}
+              {% for channel in channels %}
+                {{ channel|capfirst }}
+                {% if not forloop.last %},{% endif %}
+              {% endfor %}
+            {% else %}
+              —
+            {% endif %}
+          {% endwith %}
+        {% else %}
+          {{ experiment.get_channel_display|default:"—" }}
+        {% endif %}
+      </div>
     </div>
-    <div class="small text-body">
-      {% if experiment.is_desktop %}
-        {% with experiment.channels as channels %}
-          {% if channels %}
-            {% for channel in channels %}
-              {{ channel|capfirst }}
+    {# Version range #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Min Version</div>
+      <div class="small text-body">{{ experiment.get_firefox_min_version_display|default:"—" }}</div>
+    </div>
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Max Version</div>
+      <div class="small text-body">{{ experiment.get_firefox_max_version_display|default:"—" }}</div>
+    </div>
+    {# Locales / languages #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">
+        {% if experiment.is_desktop %}
+          Locales
+        {% else %}
+          Languages
+        {% endif %}
+      </div>
+      <div class="small text-body">
+        {% if experiment.is_desktop %}
+          {% with experiment.locales.all as locales %}
+            {% if locales %}
+              {% for locale in locales %}
+                {{ locale.code }}
+                {% if not forloop.last %},{% endif %}
+              {% endfor %}
+            {% else %}
+              —
+            {% endif %}
+          {% endwith %}
+        {% else %}
+          {% with experiment.languages.all as languages %}
+            {% if languages %}
+              {% for language in languages %}
+                {{ language.code }}
+                {% if not forloop.last %},{% endif %}
+              {% endfor %}
+            {% else %}
+              —
+            {% endif %}
+          {% endwith %}
+        {% endif %}
+      </div>
+    </div>
+    {# Countries #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Countries</div>
+      <div class="small text-body">
+        {% with experiment.countries.all as countries %}
+          {% if countries %}
+            {% for country in countries %}
+              {{ country.code }}
               {% if not forloop.last %},{% endif %}
             {% endfor %}
           {% else %}
             —
           {% endif %}
         {% endwith %}
-      {% else %}
-        {{ experiment.get_channel_display|default:"—" }}
-      {% endif %}
+      </div>
     </div>
-  </div>
-  {# Version range #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">Min Version</div>
-    <div class="small text-body">{{ experiment.get_firefox_min_version_display|default:"—" }}</div>
-  </div>
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">Max Version</div>
-    <div class="small text-body">{{ experiment.get_firefox_max_version_display|default:"—" }}</div>
-  </div>
-  {# Locales / languages #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">
-      {% if experiment.is_desktop %}
-        Locales
-      {% else %}
-        Languages
-      {% endif %}
+    {# Advanced targeting #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Advanced targeting</div>
+      <div class="small text-body">{{ experiment.targeting_config_slug|default:"—" }}</div>
     </div>
-    <div class="small text-body">
-      {% if experiment.is_desktop %}
-        {% with experiment.locales.all as locales %}
-          {% if locales %}
-            {% for locale in locales %}
-              {{ locale.code }}
-              {% if not forloop.last %},{% endif %}
-            {% endfor %}
-          {% else %}
-            —
-          {% endif %}
-        {% endwith %}
-      {% else %}
-        {% with experiment.languages.all as languages %}
-          {% if languages %}
-            {% for language in languages %}
-              {{ language.code }}
-              {% if not forloop.last %},{% endif %}
-            {% endfor %}
-          {% else %}
-            —
-          {% endif %}
-        {% endwith %}
-      {% endif %}
+    {# Full targeting expression #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Full targeting expression</div>
+      {% include "nimbus_experiments/readonly_targeting.html" with json_content=experiment.targeting_formatted %}
+
     </div>
-  </div>
-  {# Countries #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">Countries</div>
-    <div class="small text-body">
-      {% with experiment.countries.all as countries %}
-        {% if countries %}
-          {% for country in countries %}
-            {{ country.code }}
-            {% if not forloop.last %},{% endif %}
+    {# Required experiments #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Include users from existing experiments</div>
+      {% with experiment.required_experiments_branches.all as required_branches %}
+        {% if required_branches %}
+          {% for branch in required_branches %}
+            <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
+               target="_blank"
+               class="small"
+               rel="noopener noreferrer">
+              {{ branch.child_experiment.name }}
+              ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+            </a>
+            <br>
           {% endfor %}
         {% else %}
           —
         {% endif %}
       {% endwith %}
     </div>
-  </div>
-  {# Advanced targeting #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">Advanced targeting</div>
-    <div class="small text-body">{{ experiment.targeting_config_slug|default:"—" }}</div>
-  </div>
-  {# Full targeting expression #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">Full targeting expression</div>
-    {% include "nimbus_experiments/readonly_targeting.html" with json_content=experiment.targeting_formatted %}
+    {# Excluded experiments #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Exclude users from other experiments/rollouts</div>
+      {% with experiment.excluded_experiments_branches.all as excluded_branches %}
+        {% if excluded_branches %}
+          {% for branch in excluded_branches %}
+            <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="small">
+              {{ branch.child_experiment.name }}
+              ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+            </a>
+            <br>
+          {% endfor %}
+        {% else %}
+          —
+        {% endif %}
+      {% endwith %}
+    </div>
+    {# Sticky enrollment #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Apply sticky enrollment?</div>
+      {% if experiment.is_sticky %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
+    {# Localization substitutions #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Localization Substitutions</div>
+      {% if experiment.localizations %}
+        {% include "nimbus_experiments/readonly_feature_value.html" with json_content=experiment.localizations %}
 
-  </div>
-  {# Required experiments #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">Include users from existing experiments</div>
-    {% with experiment.required_experiments_branches.all as required_branches %}
-      {% if required_branches %}
-        {% for branch in required_branches %}
-          <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
-             target="_blank"
-             class="small"
-             rel="noopener noreferrer">
-            {{ branch.child_experiment.name }}
-            ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
-          </a>
-          <br>
-        {% endfor %}
       {% else %}
         —
       {% endif %}
-    {% endwith %}
+    </div>
   </div>
-  {# Excluded experiments #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">Exclude users from other experiments/rollouts</div>
-    {% with experiment.excluded_experiments_branches.all as excluded_branches %}
-      {% if excluded_branches %}
-        {% for branch in excluded_branches %}
-          <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
-             target="_blank"
-             rel="noopener noreferrer"
-             class="small">
-            {{ branch.child_experiment.name }}
-            ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
-          </a>
-          <br>
-        {% endfor %}
-      {% else %}
-        —
-      {% endif %}
-    {% endwith %}
-  </div>
-  {# Sticky enrollment #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">Apply sticky enrollment?</div>
-    {% if experiment.is_sticky %}
-      <i class="fas fa-check text-success"></i>
-    {% else %}
-      <i class="fas fa-times text-danger"></i>
-    {% endif %}
-  </div>
-  {# Localization substitutions #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">Localization Substitutions</div>
-    {% if experiment.localizations %}
-      {% include "nimbus_experiments/readonly_feature_value.html" with json_content=experiment.localizations %}
+  {% if hx_swap_oob %}
+    {% include "new/common/audience_overlap_warnings.html" with oob=True %}
 
-    {% else %}
-      —
-    {% endif %}
-  </div>
-</div>
-{% if hx_swap_oob %}
-  {% include "new/common/audience_overlap_warnings.html" with oob=True %}
-
-{% endif %}
+  {% endif %}
+{% endblock %}

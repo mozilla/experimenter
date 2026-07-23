@@ -1,29 +1,33 @@
-<div class="d-flex flex-column gap-3" id="rollout-signoff-body">
-  {# QA sign-off #}
-  <div class="d-flex flex-row gap-3">
-    <div class="text-secondary mb-1" style="font-size: 12px;">QA sign-off</div>
-    {% if experiment.qa_signoff %}
-      <i class="fas fa-check text-success"></i>
-    {% else %}
-      <i class="fas fa-times text-danger"></i>
-    {% endif %}
+{% extends "new/common/card_base.html" %}
+
+{% block card %}
+  <div class="d-flex flex-column gap-3" id="rollout-signoff-body">
+    {# QA sign-off #}
+    <div class="d-flex flex-row gap-3">
+      <div class="text-secondary mb-1" style="font-size: 12px;">QA sign-off</div>
+      {% if experiment.qa_signoff %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
+    {# VP sign-off #}
+    <div class="d-flex flex-row gap-3">
+      <div class="text-secondary mb-1" style="font-size: 12px;">VP sign-off</div>
+      {% if experiment.vp_signoff %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
+    {# Legal sign-off #}
+    <div class="d-flex flex-row gap-3">
+      <div class="text-secondary mb-1" style="font-size: 12px;">Legal sign-off</div>
+      {% if experiment.legal_signoff %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
   </div>
-  {# VP sign-off #}
-  <div class="d-flex flex-row gap-3">
-    <div class="text-secondary mb-1" style="font-size: 12px;">VP sign-off</div>
-    {% if experiment.vp_signoff %}
-      <i class="fas fa-check text-success"></i>
-    {% else %}
-      <i class="fas fa-times text-danger"></i>
-    {% endif %}
-  </div>
-  {# Legal sign-off #}
-  <div class="d-flex flex-row gap-3">
-    <div class="text-secondary mb-1" style="font-size: 12px;">Legal sign-off</div>
-    {% if experiment.legal_signoff %}
-      <i class="fas fa-check text-success"></i>
-    {% else %}
-      <i class="fas fa-times text-danger"></i>
-    {% endif %}
-  </div>
-</div>
+{% endblock %}

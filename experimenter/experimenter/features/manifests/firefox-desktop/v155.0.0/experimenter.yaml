@@ -6052,6 +6052,12 @@ smartWindow:
       description: >-
         If true, Firefox opens as a Smart Window by default on startup for
         eligible users. Set to false (or unenroll) to disable the rollout.
+    hiddenOnboardingScreenIds:
+      type: string
+      fallbackPref: browser.smartwindow.firstrun.hiddenOnboardingScreenIds
+      description: >-
+        Comma-separated list of screen ids that should be hidden in the Smart
+        Window first run onboarding.
 
 contentSharing:
   description: Controls the content sharing feature, which allows users to share browser content.
