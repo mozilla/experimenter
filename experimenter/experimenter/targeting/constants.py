@@ -5295,6 +5295,20 @@ EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED_7_28_DAY_PROFILE = NimbusTargetingConfig(
+    name="Existing windows users with Taskbar Tabs enabled, 7-28 day profiles",
+    slug="existing_windows_user_taskbar_tabs_enabled_7_28_day_profile",
+    description="Profile 7-28 days, Windows only, has Taskbar Tabs enabled",
+    targeting=(
+        f"{PROFILEMORETHAN7DAYS} && {PROFILELESSTHAN28DAYS} && "
+        f"{WINDOWS_ONLY.targeting} && {TASKBAR_TABS_ENABLED}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
     name="Existing users eligible for VPN, profile 14+ days, no enterprise",
     slug="existing_user_vpn_eligible",
