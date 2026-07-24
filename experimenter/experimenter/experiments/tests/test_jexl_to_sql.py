@@ -134,7 +134,7 @@ class TestJEXLToSQL(TestCase):
             (
                 "null_check",
                 "isFxASignedIn != null",
-                "metrics.boolean.nimbus_targeting_context_is_fx_a_signed_in != NULL",
+                "metrics.boolean.nimbus_targeting_context_is_fx_a_signed_in IS NOT NULL",
             ),
         ]
     )
@@ -335,11 +335,23 @@ class TestJEXLToSQL(TestCase):
 
     # --- addonsInfo ---
 
-    def test_addons_specific_addon_id(self):
+    def test_addons_specific_addon_id_installed(self):
+        # addon != null means installed → (id IN UNNEST(addons))
         result = jexl_to_sql("addonsInfo.addons['uBlock0@raymondhill.net'] != null")
-        self.assertIn(_AI, result.sql)
-        self.assertIn("uBlock0@raymondhill.net", result.sql)
-        self.assertIn("IN UNNEST", result.sql)
+        self.assertEqual(
+            result.sql,
+            f"('uBlock0@raymondhill.net' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons')))",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_addons_specific_addon_id_not_installed(self):
+        # addon == null means NOT installed → NOT (id IN UNNEST(addons))
+        addon_id = "{20fc2e06-e3e4-4b2b-812b-ab431220cada}"
+        result = jexl_to_sql(f"addonsInfo.addons['{addon_id}'] == null")
+        self.assertEqual(
+            result.sql,
+            f"NOT (('{addon_id}' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons'))))",
+        )
         self.assertEqual(result.warnings, [])
 
     def test_filter_expression_non_addons_warns(self):

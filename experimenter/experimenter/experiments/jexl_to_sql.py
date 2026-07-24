@@ -247,7 +247,20 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
     arithmetic_ops = {"+": "+", "-": "-", "*": "*", "/": "/", "%": "%"}
 
     if op in comparison_ops:
-        return f"{left} {comparison_ops[op]} {right}"
+        sql_op = comparison_ops[op]
+        # JEXL uses == null / != null; BigQuery requires IS NULL / IS NOT NULL.
+        # FilterExpression results (IN UNNEST) represent "found/not found":
+        #   filter == null  →  NOT (filter)   [addon/pref not present]
+        #   filter != null  →  filter          [addon/pref present]
+        # For all other expressions use IS NULL / IS NOT NULL.
+        if right == "NULL" or left == "NULL":
+            expr = left if right == "NULL" else right
+            is_filter_result = " IN UNNEST(" in expr.upper()
+            if sql_op == "=":
+                return f"NOT ({expr})" if is_filter_result else f"{expr} IS NULL"
+            if sql_op == "!=":
+                return expr if is_filter_result else f"{expr} IS NOT NULL"
+        return f"{left} {sql_op} {right}"
     if op in arithmetic_ops:
         return f"({left} {arithmetic_ops[op]} {right})"
     return None
