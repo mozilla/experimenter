@@ -1212,3 +1212,22 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} removed subscriber"
+
+
+class ToggleReviewSlackNotificationsForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = ["enable_review_slack_notifications"]
+        widgets = {
+            "enable_review_slack_notifications": forms.CheckboxInput(
+                attrs={"class": "form-check-input m-0"}
+            ),
+        }
+
+    def get_changelog_message(self):
+        status = (
+            "enabled"
+            if self.cleaned_data.get("enable_review_slack_notifications")
+            else "disabled"
+        )
+        return f"{self.request.user} {status} review Slack notifications"

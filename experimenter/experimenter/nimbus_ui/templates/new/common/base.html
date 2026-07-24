@@ -82,6 +82,10 @@
               <div class="small text-secondary mt-1">Updated {{ experiment.latest_change.changed_on|timesince }} ago</div>
             {% endif %}
           </div>
+          <div class="align-self-end">
+            {% include "new/common/slack_notifications_toggle.html" %}
+
+          </div>
         </div>
         {# Toast container #}
         <div class="position-fixed top-0 end-0 m-3 w-auto z-3">
