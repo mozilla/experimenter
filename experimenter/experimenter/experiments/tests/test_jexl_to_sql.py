@@ -114,7 +114,7 @@ class TestJEXLToSQL(TestCase):
             (
                 "locale_in_array",
                 'locale in ["en-US", "en-CA"]',
-                "metrics.string.nimbus_targeting_context_locale IN ('en-US', 'en-CA')",
+                "(metrics.string.nimbus_targeting_context_locale IN ('en-US', 'en-CA'))",
             ),
             (
                 "firefox_version_gte",
