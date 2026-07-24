@@ -197,10 +197,7 @@ def _node_to_sql(node, warnings: list[str]) -> Optional[str]:
             addon_id = node.expression.value
             if isinstance(addon_id, str):
                 # Wrap in parens so result can be used in comparisons: (...) != NULL
-                return (
-                    f"('{addon_id}' IN UNNEST("
-                    f"JSON_VALUE_ARRAY({_AI}, '$.addons')))"
-                )
+                return f"('{addon_id}' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons')))"
         _add_warning(warnings, subject_path or _identifier_path(node.subject))
         return None
     return None
@@ -480,7 +477,7 @@ def _is_json_string_expr(sql: str) -> bool:
     Used to detect when a boolean literal (TRUE/FALSE) would cause a type mismatch
     in a comparison — e.g. JSON_VALUE(...) = FALSE should become = 'false'.
     """
-    return sql.startswith("JSON_VALUE(") or sql.startswith("metrics.string.")
+    return sql.startswith(("JSON_VALUE(", "metrics.string."))
 
 
 def _is_untranslatable(path: str) -> bool:
