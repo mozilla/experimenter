@@ -448,3 +448,26 @@ class NewSubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
 
 class NewUnsubscribeView(NewSubscribeView):
     form_class = UnsubscribeForm
+
+
+class NewCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = NimbusExperimentSidebarCloneForm
+    template_name = "new/common/clone_form.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["data"] = kwargs["data"].copy()
+        kwargs["data"]["owner"] = self.request.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(experiment=self.get_object(), **kwargs)
+
+    def post(self, *args, **kwargs):
+        response = super().post(*args, **kwargs)
+        if response.status_code == 302:
+            response = HttpResponse()
+            response.headers["HX-Redirect"] = reverse(
+                "new-nimbus-ui-rollout-detail", kwargs={"slug": self.object.slug}
+            )
+        return response
