@@ -1,10 +1,10 @@
-import datetime as dt
-
 import markus
+import sentry_sdk
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
+from pydantic import ValidationError
 
 from experimenter.celery import app
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
@@ -13,8 +13,12 @@ from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.jetstream.client import (
     get_enrollment_funnel_data,
     get_experiment_data,
+    get_latest_analysis_start_time,
     get_monitoring_data,
     get_population_sizing_data,
+    get_results_filenames,
+    get_stored_analysis_start_time,
+    has_missing_expected_results,
 )
 from experimenter.kinto.tasks import get_kinto_user
 
@@ -66,6 +70,11 @@ def fetch_experiment_data(experiment_id):
                 )
 
         metrics.incr("fetch_experiment_data.completed")
+    except ValidationError as e:
+        metrics.incr("fetch_experiment_data.skipped")
+        sentry_sdk.capture_exception(e)
+        slug = experiment.slug if experiment is not None else experiment_id
+        logger.warning(f"Skipping results for {slug}, failed schema validation: {e}")
     except Exception as e:
         metrics.incr("fetch_experiment_data.failed")
         failure_message = f"Fetching experiment data for {experiment_id} "
@@ -81,21 +90,26 @@ def fetch_experiment_data(experiment_id):
 def fetch_jetstream_data():
     metrics.incr("fetch_jetstream_data.started")
     try:
+        results_filenames = get_results_filenames()
         for experiment in NimbusExperiment.objects.filter(
             status__in=[NimbusExperiment.Status.COMPLETE, NimbusExperiment.Status.LIVE]
         ):
-            if (
-                experiment.status == NimbusExperiment.Status.LIVE
-                or experiment.results_data is None
-                or (
-                    experiment.computed_end_date
-                    and (
-                        experiment.computed_end_date
-                        + dt.timedelta(days=NimbusConstants.DAYS_ANALYSIS_BUFFER)
-                    )
-                    >= dt.date.today()
-                )
-            ):
+            latest_analysis_start_time = get_latest_analysis_start_time(experiment.slug)
+            needs_missing_results = has_missing_expected_results(
+                experiment, results_filenames
+            )
+
+            if latest_analysis_start_time is None and not needs_missing_results:
+                metrics.incr("fetch_jetstream_data.skipped")
+                continue
+
+            stored_analysis_start_time = get_stored_analysis_start_time(experiment)
+            has_newer_results = latest_analysis_start_time is not None and (
+                stored_analysis_start_time is None
+                or stored_analysis_start_time < latest_analysis_start_time
+            )
+
+            if has_newer_results or needs_missing_results:
                 logger.info(
                     f"Fetching Jetstream data for {experiment.name} ({experiment.slug})"
                 )
