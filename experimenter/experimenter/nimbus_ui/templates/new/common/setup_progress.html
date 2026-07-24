@@ -1,0 +1,27 @@
+<div id="sidebar-setup-progress" {% if oob %}hx-swap-oob="true"{% endif %}>
+  <div class="mb-2">
+    <div class="small mb-1 text-secondary">{{ setup_completion_percent|default:0 }}% complete</div>
+    <div class="rounded-pill bg-secondary-subtle" style="height: 3px;">
+      <div class="rounded-pill bg-primary"
+           style="height: 3px;
+                  width: {{ setup_completion_percent|default:0 }}%"></div>
+    </div>
+  </div>
+  {% if setup_issues_count %}
+    <div class="d-flex align-items-center justify-content-between gap-2 rounded-2 mb-2 p-2 small"
+         style="background-color: var(--bs-warning-bg-subtle);
+                border: 1px solid var(--bs-warning-border-subtle)">
+      <span class="d-flex align-items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation"
+           style="color: var(--bs-orange)"></i>
+        {{ setup_issues_count }} issue{{ setup_issues_count|pluralize }} detected
+      </span>
+      <button type="button"
+              class="btn btn-sm py-0 px-2 small"
+              style="background-color: var(--bs-warning-border-subtle);
+                     border: 1px solid var(--bs-warning-border-subtle)"
+              data-bs-toggle="modal"
+              data-bs-target="#setupIssuesModal">View</button>
+    </div>
+  {% endif %}
+</div>

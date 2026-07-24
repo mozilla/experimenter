@@ -1,16 +1,20 @@
-<div class="d-flex flex-column gap-3" id="rollout-qa-body">
-  {# QA status #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">QA status</div>
-    {% with qa_status=experiment.qa_status qa_status_display=experiment.get_qa_status_display|default:"Not set" %}
-      <span class="badge rounded-pill small fw-normal {% if qa_status == experiment.QAStatus.GREEN or qa_status == experiment.QAStatus.SELF_GREEN %} text-bg-success {% elif qa_status == experiment.QAStatus.YELLOW or qa_status == experiment.QAStatus.SELF_YELLOW %} text-bg-warning {% elif qa_status == experiment.QAStatus.RED or qa_status == experiment.QAStatus.SELF_RED %} text-bg-danger {% else %} text-bg-light border text-body {% endif %}">
-        {{ qa_status_display }}
-      </span>
-    {% endwith %}
+{% extends "new/common/card_base.html" %}
+
+{% block card %}
+  <div class="d-flex flex-column gap-3" id="rollout-qa-body">
+    {# QA status #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">QA status</div>
+      {% with qa_status=experiment.qa_status qa_status_display=experiment.get_qa_status_display|default:"Not set" %}
+        <span class="badge rounded-pill small fw-normal {% if qa_status == experiment.QAStatus.GREEN or qa_status == experiment.QAStatus.SELF_GREEN %} text-bg-success {% elif qa_status == experiment.QAStatus.YELLOW or qa_status == experiment.QAStatus.SELF_YELLOW %} text-bg-warning {% elif qa_status == experiment.QAStatus.RED or qa_status == experiment.QAStatus.SELF_RED %} text-bg-danger {% else %} text-bg-light border text-body {% endif %}">
+          {{ qa_status_display }}
+        </span>
+      {% endwith %}
+    </div>
+    {# QA notes #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">QA notes</div>
+      <div class="small text-body" style="white-space: pre-wrap;">{{ experiment.qa_comment|default:"—" }}</div>
+    </div>
   </div>
-  {# QA notes #}
-  <div>
-    <div class="text-secondary mb-1" style="font-size: 12px;">QA notes</div>
-    <div class="small text-body" style="white-space: pre-wrap;">{{ experiment.qa_comment|default:"—" }}</div>
-  </div>
-</div>
+{% endblock %}

@@ -12,7 +12,10 @@ import experimenter.experiments.constants
 from experimenter.base.tests.factories import (
     LocaleFactory,
 )
-from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
+from experimenter.experiments.api.v5.serializers import (
+    NimbusReviewSerializer,
+    NimbusRolloutReviewSerializer,
+)
 from experimenter.experiments.constants import (
     ApplicationConfig,
     FirefoxLabs,
@@ -31,6 +34,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
     NimbusFmlErrorDataClass,
+    NimbusRolloutPhaseFactory,
     NimbusVersionedSchemaFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
@@ -92,6 +96,15 @@ class GetReviewSerializerMixin:
             context={"user": self.user},
         )
 
+    def get_rollout_review_serializer(self, experiment):
+        return NimbusRolloutReviewSerializer(
+            experiment,
+            data=NimbusRolloutReviewSerializer(
+                experiment, context={"user": self.user}
+            ).data,
+            context={"user": self.user},
+        )
+
 
 class TestNimbusReviewSerializerSingleFeature(
     GetReviewSerializerMixin, MockFmlErrorMixin, TestCase
@@ -103,6 +116,26 @@ class TestNimbusReviewSerializerSingleFeature(
         super().setUp()
         self.user = UserFactory()
         self.setup_fml_no_errors()
+
+    def create_rollout(self, **overrides):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            population_percent=0.0,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
+            is_rollout=True,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+            **overrides,
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        experiment.save()
+        return experiment
 
     def test_valid_experiment_with_single_feature(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -502,6 +535,49 @@ class TestNimbusReviewSerializerSingleFeature(
             context={"user": self.user},
         )
         self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_rollout_serializer_allows_relaxed_fields(self):
+        experiment = self.create_rollout(total_enrolled_clients=0)
+        experiment.reference_branch.description = ""
+        experiment.reference_branch.save()
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_base_serializer_rejects_relaxed_rollout_fields(self):
+        experiment = self.create_rollout(total_enrolled_clients=0)
+        experiment.reference_branch.description = ""
+        experiment.reference_branch.save()
+        serializer = self.get_review_serializer(experiment)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("population_percent", serializer.errors)
+        self.assertIn("total_enrolled_clients", serializer.errors)
+        self.assertIn("reference_branch", serializer.errors)
+
+    def test_rollout_serializer_requires_phases(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            public_description="",
+        )
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertFalse(serializer.is_valid())
+        self.assertGreater(len(serializer.errors), 1)
+        self.assertEqual(
+            serializer.errors["rollout_phases"],
+            [NimbusConstants.ERROR_ROLLOUT_NO_PHASES],
+        )
+
+    def test_rollout_serializer_requires_nonzero_first_phase(self):
+        experiment = self.create_rollout()
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=0)
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=50)
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["rollout_phases"],
+            [NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO],
+        )
 
     def test_invalid_experiment_treatment_branch_requires_description(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

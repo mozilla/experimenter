@@ -35,6 +35,7 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusFeatureConfig,
     NimbusFeatureVersion,
+    NimbusRolloutPhase,
     NimbusVersionedSchema,
 )
 from experimenter.features.manifests.nimbus_fml_loader import NimbusFmlLoader
@@ -1992,6 +1993,40 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_pref_rollouts(data)
             data = self._validate_desktop_pref_flips(data)
         return data
+
+
+class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
+    population_percent = serializers.DecimalField(
+        7,
+        4,
+        min_value=0.0,
+        max_value=100.0,
+        required=True,
+    )
+    total_enrolled_clients = serializers.IntegerField(required=False, min_value=0)
+    rollout_phases = serializers.PrimaryKeyRelatedField(
+        many=True,
+        required=False,
+        queryset=NimbusRolloutPhase.objects.all(),
+    )
+
+    def validate_reference_branch(self, value):
+        # The rollout setup flow doesn't require a reference-branch description so
+        # this skips the parent's non-empty check
+        return value
+
+    def validate_rollout_phases(self, value):
+        if self.instance and not self.instance.is_rollout:
+            return value
+
+        phases = list(value)
+        if not phases:
+            raise serializers.ValidationError(NimbusConstants.ERROR_ROLLOUT_NO_PHASES)
+        if not phases[0].population_percent:
+            raise serializers.ValidationError(
+                NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO
+            )
+        return value
 
 
 class LocalizationError(Exception):

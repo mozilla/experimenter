@@ -722,6 +722,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "You must select a feature configuration from the drop down."
     )
     ERROR_POPULATION_PERCENT_MIN = "Ensure this value is greater than or equal to 0.0001."
+    ERROR_ROLLOUT_NO_PHASES = "Add at least one rollout phase to the schedule."
+    ERROR_ROLLOUT_FIRST_PHASE_ZERO = (
+        "The first rollout phase must have a population percent greater than 0."
+    )
     ERROR_FIREFOX_VERSION_MIN = (
         "Ensure this value is less than or equal to the maximum version"
     )

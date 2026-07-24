@@ -20,12 +20,8 @@
          id="sidebar-setup"
          data-bs-parent="#accordion-setup">
       <div class="accordion-body pt-0 px-3 pb-3">
-        <div class="mb-2">
-          <div class="small mb-1 text-secondary">0% complete</div>
-          <div class="rounded-pill bg-secondary-subtle" style="height: 3px;">
-            <div class="rounded-pill bg-primary" style="height: 3px; width: 0%;"></div>
-          </div>
-        </div>
+        {% include "new/common/setup_progress.html" %}
+
         <div class="d-flex flex-column gap-1">
           {% for item in sidebar_setup_items %}
             <a href="#rollout-card-{{ item.id }}"
@@ -123,3 +119,4 @@
     Help
   </a>
 </div>
+{% include "new/common/setup_issues_modal.html" %}

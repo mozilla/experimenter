@@ -2,6 +2,13 @@
 {% load widget_tweaks %}
 
 <div id="rollout-audience-body">
+  {# Explore matching audiences #}
+  <div class="d-flex justify-content-end mb-2">
+    <a href="{{ experiment.audience_url }}"
+       class="small text-decoration-none"
+       target="_blank"
+       rel="noopener noreferrer"><i class="fa-solid fa-users me-2"></i>Explore matching audiences</a>
+  </div>
   <form hx-post="{% url 'nimbus-ui-new-update-audience' experiment.slug %}"
         hx-target="#rollout-audience-body"
         hx-swap="outerHTML"

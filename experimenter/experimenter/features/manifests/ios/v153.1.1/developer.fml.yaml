@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- beta
+- developer
 features:
   ad-blocker-feature:
     description: |
@@ -19,7 +19,7 @@ features:
       status:
         description: If true, we will allow user to edit the address
         type: Boolean
-        default: false
+        default: true
   address-bar-gesture-to-open-tab-tray-feature:
     description: |
       Decides if the address bar interactive gesture to open the tab tray is enabled
@@ -38,7 +38,7 @@ features:
         description: |
           Decides if the swipe version of this feature is enabled. This will override the interactive gesture
         type: Boolean
-        default: false
+        default: true
   ai-kill-switch-feature:
     description: |
       Configuration feature for AI features
@@ -65,7 +65,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
@@ -92,7 +92,7 @@ features:
         description: |
           Enables the feature.
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -108,7 +108,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   google-lens-feature:
     description: |
       The feature flag to manage the rollout of Google Lens entry points.
@@ -136,7 +136,7 @@ features:
         description: |
           If true, enables the categories flow in the stories
         type: Boolean
-        default: false
+        default: true
       jbi-section-default:
         description: |
           If true, enables the jump back in homepage section by default
@@ -146,7 +146,7 @@ features:
         description: |
           If true, enables the pinned newsfeed header on homepage.
         type: Boolean
-        default: false
+        default: true
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
@@ -270,6 +270,17 @@ features:
               - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
               - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+          survey-surface-message:
+            surface: survey
+            style: SURVEY
+            trigger-if-all:
+            - NEVER
+            text: ResearchSurface/Body.Text.v112
+            button-label: ResearchSurface/PrimaryButton.Label.v112
+            should-randomize-options: false
+            action: OPEN_URL
+            action-params:
+              url: https://www.macrumors.com
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -352,7 +363,7 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
@@ -366,12 +377,12 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
       no_internet_connection_error:
         description: |
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
-        default: false
+        default: true
   new-bookmark-folder-tree-feature:
     description: |
       This property determines weather we show the new bookmark folder tree UI
@@ -736,7 +747,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
@@ -756,7 +767,7 @@ features:
         description: |
           Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.
         type: Boolean
-        default: false
+        default: true
       isTreatmentA:
         description: |
           If true, shares the treatment A text. If false, shares the treatment B text.
@@ -775,12 +786,12 @@ features:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
         type: Boolean
-        default: false
+        default: true
       icon-type:
         description: |
           The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
         type: Option<IconType>
-        default: letter
+        default: screenshot
       keep-for-days:
         description: |
           Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
@@ -863,7 +874,7 @@ features:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
         type: Boolean
-        default: false
+        default: true
   toolbar-refactor-feature:
     description: |
       This feature is for managing the roll out of the Toolbar refactor feature
@@ -943,15 +954,6 @@ features:
         description: The number of maximum suggestions.
         type: Int
         default: 5
-  vpn-feature:
-    description: |
-      Configuration feature for VPN
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
-        type: Boolean
-        default: false
   wayback-machine-feature:
     description: |
       This property determines whether we show the wayback entry point on the native error pages
