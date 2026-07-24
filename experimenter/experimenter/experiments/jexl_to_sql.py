@@ -479,6 +479,7 @@ def _is_boolean_sql(sql: str) -> bool:
         sql.startswith("metrics.boolean.")
         or sql_upper.endswith(("AS BOOL)", "AS BOOLEAN)"))
         or " IN UNNEST(" in sql_upper
+        or " IN (" in sql_upper  # X IN (list) returns BOOL
         or " IS NULL" in sql_upper
         or " IS NOT NULL" in sql_upper
         or sql_upper.startswith("NOT (")
