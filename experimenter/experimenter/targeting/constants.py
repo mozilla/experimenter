@@ -5193,6 +5193,17 @@ SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NOVA_ENABLED = NimbusTargetingConfig(
+    name="Nova enabled",
+    slug="nova_enabled",
+    description="Nova is enabled",
+    targeting="'browser.nova.enabled'|preferenceValue",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_DEFAULT_BROWSER_PROFILE_7_DAYS_NO_ENTERPRISE = NimbusTargetingConfig(
     name="Not default browser, profile 7+ days, not first startup, no enterprise",
     slug="not_default_browser_profile_7_days_no_enterprise",
