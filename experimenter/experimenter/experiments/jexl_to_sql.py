@@ -196,7 +196,11 @@ def _node_to_sql(node, warnings: list[str]) -> Optional[str]:
         if subject_path == "addonsInfo.addons" and isinstance(node.expression, Literal):
             addon_id = node.expression.value
             if isinstance(addon_id, str):
-                return f"'{addon_id}' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons'))"
+                # Wrap in parens so result can be used in comparisons: (...) != NULL
+                return (
+                    f"('{addon_id}' IN UNNEST("
+                    f"JSON_VALUE_ARRAY({_AI}, '$.addons')))"
+                )
         _add_warning(warnings, subject_path or _identifier_path(node.subject))
         return None
     return None
@@ -215,6 +219,10 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
         right = _node_to_sql(node.right, warnings)
         if left and right:
             sql_op = "AND" if op == "&&" else "OR"
+            # BigQuery requires BOOL operands for AND/OR.
+            # Pref value strings and JSON_VALUE results are STRING — coerce to BOOL.
+            left = _coerce_to_bool(left)
+            right = _coerce_to_bool(right)
             return f"({left} {sql_op} {right})"
         return left or right
 
@@ -319,7 +327,11 @@ def _transform_to_sql(node: Transform, warnings: list[str]) -> Optional[str]:
         return None
 
     if node.name == "preferenceValue":
-        # Pref names stored with dots replaced by __ in BigQuery
+        # Pref names stored with dots replaced by __ in BigQuery.
+        # Returns the raw JSON string value — callers that need a boolean comparison
+        # (e.g. pref == 'value') get a STRING they can compare against.
+        # Boolean prefs used as bare truthy values in JEXL (e.g. pref|preferenceValue
+        # in an && chain) are handled by _is_boolean_sql recognizing this pattern.
         pref_name = _literal_value(node.subject)
         if pref_name:
             bq_key = pref_name.replace(".", "__")
@@ -448,12 +460,36 @@ def _is_untranslatable(path: str) -> bool:
     return any(".".join(parts[:i]) in KNOWN_UNTRANSLATABLE for i in range(1, len(parts)))
 
 
+def _coerce_to_bool(sql: str) -> str:
+    """Wrap a STRING SQL expression as BOOL for use in AND/OR.
+
+    JSON_VALUE always returns STRING. When a pref value is used as a bare
+    boolean in JEXL (truthy = non-null, non-empty, non-'false'), convert it
+    to a BQ BOOL comparison so AND/OR don't error on STRING types.
+    """
+    if _is_boolean_sql(sql):
+        return sql
+    # For STRING expressions: treat null/empty/'false' as falsy, anything else truthy
+    return f"({sql} IS NOT NULL AND {sql} != '' AND {sql} != 'false')"
+
+
 def _is_boolean_sql(sql: str) -> bool:
     sql_upper = sql.upper()
     return (
         sql.startswith("metrics.boolean.")
         or sql_upper.endswith(("AS BOOL)", "AS BOOLEAN)"))
         or " IN UNNEST(" in sql_upper
+        or " IS NULL" in sql_upper
+        or " IS NOT NULL" in sql_upper
+        or sql_upper.startswith("NOT (")
+        or " AND " in sql_upper
+        or " OR " in sql_upper
+        or " = " in sql
+        or " != " in sql
+        or " >= " in sql
+        or " <= " in sql
+        or " > " in sql
+        or " < " in sql
     )
 
 
