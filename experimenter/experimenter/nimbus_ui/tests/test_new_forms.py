@@ -1,10 +1,12 @@
 import datetime
 import json
+from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
+from parameterized import parameterized
 
 from experimenter.base.tests.factories import (
     CountryFactory,
@@ -22,17 +24,33 @@ from experimenter.experiments.tests.factories import (
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusRolloutPhaseFactory,
     NimbusVersionedSchemaFactory,
     TagFactory,
 )
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.new.forms import (
+    AdvancePhaseReviewApproveRolloutForm,
+    AdvancePhaseReviewRejectRolloutForm,
+    AdvancePhaseReviewRolloutForm,
     CollaboratorsForm,
+    DisabledToLiveReviewApproveRolloutForm,
+    DisabledToLiveReviewRejectRolloutForm,
+    DisabledToLiveReviewRolloutForm,
     DocumentationLinkCreateForm,
     DocumentationLinkDeleteForm,
+    DraftReviewApproveRolloutForm,
+    DraftReviewRejectForm,
+    DraftReviewRolloutForm,
+    DraftToPreviewRolloutForm,
+    LiveToDisabledReviewApproveRolloutForm,
+    LiveToDisabledReviewRejectRolloutForm,
+    LiveToDisabledReviewRolloutForm,
     NimbusBranchFeatureValueForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    PreviewReviewRolloutForm,
+    PreviewToDraftRolloutForm,
     RolloutAudienceForm,
     RolloutFeaturesForm,
     RolloutOverviewForm,
@@ -1195,6 +1213,570 @@ class TestTagAssignForm(RequestFormTestCase):
 
         tag_names = [tag.name for tag in form.fields["tags"].queryset]
         self.assertEqual(tag_names, ["A Tag", "M Tag", "Z Tag"])
+
+
+class TestRolloutStatusForms(RequestFormTestCase):
+    def setUp(self):
+        super().setUp()
+        self.mock_preview_task = patch(
+            "experimenter.nimbus_ui.new.forms."
+            "nimbus_synchronize_preview_experiments_in_kinto.apply_async"
+        ).start()
+        self.mock_allocate_bucket_range = patch(
+            "experimenter.experiments.models.NimbusExperiment.allocate_bucket_range"
+        ).start()
+        self.mock_kinto_push_queue = patch(
+            "experimenter.nimbus_ui.new.forms."
+            "nimbus_check_kinto_push_queue_by_collection.apply_async"
+        ).start()
+        self.addCleanup(self.mock_preview_task.stop)
+        self.addCleanup(self.mock_allocate_bucket_range.stop)
+        self.addCleanup(self.mock_kinto_push_queue.stop)
+
+    @parameterized.expand(
+        [
+            # Draft -> Preview.
+            (
+                DraftToPreviewRolloutForm,
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.Status.PREVIEW,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                "launched rollout to Preview",
+            ),
+            # Preview -> Draft.
+            (
+                PreviewToDraftRolloutForm,
+                NimbusExperiment.Status.PREVIEW,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                "moved the rollout back to Draft",
+            ),
+            # Draft -> launch review.
+            (
+                DraftReviewRolloutForm,
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                "requested rollout launch without Preview",
+            ),
+            # Approve launch review from Draft.
+            (
+                DraftReviewApproveRolloutForm,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.APPROVED,
+                "approved the review",
+            ),
+            # Reject launch review from Draft.
+            (
+                DraftReviewRejectForm,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.Status.DRAFT,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                "rejected the review",
+            ),
+            # Preview -> launch review.
+            (
+                PreviewReviewRolloutForm,
+                NimbusExperiment.Status.PREVIEW,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                "requested rollout launch from Preview",
+            ),
+            # Live -> phase-advance review.
+            (
+                AdvancePhaseReviewRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                "requested review to advance rollout phase",
+            ),
+            # Approve phase-advance review.
+            (
+                AdvancePhaseReviewApproveRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.APPROVED,
+                "approved the advance rollout phase review request",
+            ),
+            # Reject phase-advance review.
+            (
+                AdvancePhaseReviewRejectRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                "rejected the review",
+            ),
+            # Live -> disable review.
+            (
+                LiveToDisabledReviewRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.PublishStatus.REVIEW,
+                "requested review to disable rollout",
+            ),
+            # Approve disable review.
+            (
+                LiveToDisabledReviewApproveRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.PublishStatus.APPROVED,
+                "approved the disable rollout review request",
+            ),
+            # Reject disable review.
+            (
+                LiveToDisabledReviewRejectRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.Status.LIVE,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                "rejected the review",
+            ),
+            # Disabled -> re-enable review.
+            (
+                DisabledToLiveReviewRolloutForm,
+                NimbusExperiment.Status.DISABLED,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                "requested review to re-enable rollout",
+            ),
+            # Approve re-enable review.
+            (
+                DisabledToLiveReviewApproveRolloutForm,
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.APPROVED,
+                "approved the re-enable rollout review request",
+            ),
+            # Reject re-enable review.
+            (
+                DisabledToLiveReviewRejectRolloutForm,
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.Status.DISABLED,
+                None,
+                NimbusExperiment.PublishStatus.IDLE,
+                "rejected the review",
+            ),
+        ]
+    )
+    def test_valid_transition(
+        self,
+        form_class,
+        initial_status,
+        initial_status_next,
+        initial_publish_status,
+        expected_status,
+        expected_status_next,
+        expected_publish_status,
+        expected_changelog_message,
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=initial_status,
+            status_next=initial_status_next,
+            publish_status=initial_publish_status,
+            is_paused=False,
+            is_rollout=True,
+        )
+        form = form_class(
+            data={"changelog_message": "rejected the review"},
+            instance=experiment,
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, expected_status)
+        self.assertEqual(experiment.status_next, expected_status_next)
+        self.assertEqual(experiment.publish_status, expected_publish_status)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn(expected_changelog_message, changelog.message)
+
+    @parameterized.expand(
+        [
+            # Draft -> Preview.
+            (DraftToPreviewRolloutForm,),
+            # Preview -> Draft.
+            (PreviewToDraftRolloutForm,),
+            # Draft -> launch review.
+            (DraftReviewRolloutForm,),
+            # Approve launch review from Draft.
+            (DraftReviewApproveRolloutForm,),
+            # Reject launch review from Draft.
+            (DraftReviewRejectForm,),
+            # Preview -> launch review.
+            (PreviewReviewRolloutForm,),
+            # Live -> phase-advance review.
+            (AdvancePhaseReviewRolloutForm,),
+            # Approve phase-advance review.
+            (AdvancePhaseReviewApproveRolloutForm,),
+            # Reject phase-advance review.
+            (AdvancePhaseReviewRejectRolloutForm,),
+            # Live -> disable review.
+            (LiveToDisabledReviewRolloutForm,),
+            # Approve disable review.
+            (LiveToDisabledReviewApproveRolloutForm,),
+            # Reject disable review.
+            (LiveToDisabledReviewRejectRolloutForm,),
+            # Disabled -> re-enable review.
+            (DisabledToLiveReviewRolloutForm,),
+            # Approve re-enable review.
+            (DisabledToLiveReviewApproveRolloutForm,),
+            # Reject re-enable review.
+            (DisabledToLiveReviewRejectRolloutForm,),
+        ]
+    )
+    def test_invalid_publish_status_rejects_transition(self, form_class):
+        invalid_publish_status = (
+            NimbusExperiment.PublishStatus.REVIEW
+            if form_class.required_publish_status == NimbusExperiment.PublishStatus.IDLE
+            else NimbusExperiment.PublishStatus.IDLE
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=form_class.required_status,
+            status_next=form_class.required_status_next,
+            publish_status=invalid_publish_status,
+            is_paused=False,
+            is_rollout=True,
+        )
+        form = form_class(data={}, instance=experiment, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+    @parameterized.expand(
+        [
+            # Reject launch review from Draft.
+            (DraftReviewRejectForm,),
+            # Reject phase-advance review.
+            (AdvancePhaseReviewRejectRolloutForm,),
+            # Reject disable review.
+            (LiveToDisabledReviewRejectRolloutForm,),
+            # Reject re-enable review.
+            (DisabledToLiveReviewRejectRolloutForm,),
+        ]
+    )
+    def test_reject_transition_uses_cancel_message_when_reason_is_blank(self, form_class):
+        experiment = NimbusExperimentFactory.create(
+            status=form_class.required_status,
+            status_next=form_class.required_status_next,
+            publish_status=form_class.required_publish_status,
+            is_rollout=True,
+        )
+        form = form_class(
+            data={"cancel_message": "cancelled the review"},
+            instance=experiment,
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertIn(
+            "cancelled the review",
+            experiment.changes.latest("changed_on").message,
+        )
+
+    def test_disabled_transition_is_rejected_for_non_rollout(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=False,
+        )
+        form = LiveToDisabledReviewRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["__all__"],
+            [NimbusUIConstants.ERROR_INVALID_PAUSED_TRANSITION],
+        )
+
+    @parameterized.expand(
+        [
+            # Approve phase advance review.
+            (AdvancePhaseReviewApproveRolloutForm,),
+            # Approve disable review.
+            (LiveToDisabledReviewApproveRolloutForm,),
+        ]
+    )
+    def test_approval_rejects_paused_rollout_when_active_is_required(self, form_class):
+        experiment = NimbusExperimentFactory.create(
+            status=form_class.required_status,
+            status_next=form_class.required_status_next,
+            publish_status=form_class.required_publish_status,
+            is_paused=True,
+            is_rollout=True,
+        )
+        form = form_class(data={}, instance=experiment, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Cannot perform this action: experiment must be in state",
+            form.errors["__all__"][0],
+        )
+
+    def test_draft_to_preview_side_effects(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
+            is_rollout=True,
+        )
+        form = DraftToPreviewRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_preview_task.assert_called_once_with(countdown=5)
+
+    def test_preview_to_draft_resets_published_dto_and_syncs_preview(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.PREVIEW,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
+            is_rollout=True,
+            published_dto={"slug": "test-rollout"},
+        )
+        form = PreviewToDraftRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertIsNone(experiment.published_dto)
+        self.mock_preview_task.assert_called_once_with(countdown=5)
+
+    @patch("experimenter.nimbus_ui.new.forms.metrics")
+    def test_draft_review_approval_stages_phase_and_queues_kinto(self, mock_metrics):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
+            is_rollout=True,
+            population_percent=0,
+        )
+        first_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
+        form = DraftReviewApproveRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertIsNone(experiment.rollout_phase)
+        self.assertEqual(experiment.rollout_phase_next, first_phase)
+        self.assertEqual(experiment.population_percent, first_phase.population_percent)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_kinto_push_queue.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        mock_metrics.timing.assert_called_once()
+
+    def test_approve_phase_advance_stages_population_and_queues_kinto(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=False,
+            is_rollout=True,
+            population_percent=10,
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
+        next_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=25
+        )
+        experiment.rollout_phase = current_phase
+        experiment.save()
+        form = AdvancePhaseReviewApproveRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        next_phase.refresh_from_db()
+        self.assertEqual(experiment.rollout_phase, current_phase)
+        self.assertEqual(experiment.rollout_phase_next, next_phase)
+        self.assertEqual(experiment.population_percent, next_phase.population_percent)
+        self.assertIsNone(next_phase.actual_start_date)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_kinto_push_queue.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+
+    def test_reject_phase_advance_clears_pending_transition(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
+        form = AdvancePhaseReviewRejectRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertIsNone(experiment.status_next)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+    def test_disable_approval_preserves_population_and_queues_kinto(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=False,
+            is_rollout=True,
+            population_percent=25,
+        )
+        form = LiveToDisabledReviewApproveRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.population_percent, 25)
+        self.mock_allocate_bucket_range.assert_not_called()
+        self.mock_kinto_push_queue.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+
+    def test_reenable_approval_stages_existing_next_phase(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+            population_percent=0,
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
+        next_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=50
+        )
+        experiment.rollout_phase = current_phase
+        experiment.save()
+        form = DisabledToLiveReviewApproveRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.rollout_phase, current_phase)
+        self.assertEqual(experiment.rollout_phase_next, next_phase)
+        self.assertEqual(experiment.population_percent, next_phase.population_percent)
+        self.mock_allocate_bucket_range.assert_called_once()
+        self.mock_kinto_push_queue.assert_called_once_with(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+
+    def test_reenable_approval_copies_current_phase_when_next_is_missing(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+            population_percent=0,
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=25
+        )
+        experiment.rollout_phase = current_phase
+        experiment.save()
+        form = DisabledToLiveReviewApproveRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.rollout_phase, current_phase)
+        self.assertIsNotNone(experiment.rollout_phase_next)
+        self.assertNotEqual(experiment.rollout_phase_next, current_phase)
+        self.assertEqual(
+            experiment.rollout_phase_next.population_percent,
+            current_phase.population_percent,
+        )
+        self.assertEqual(experiment.rollout_phases.count(), 2)
 
 
 class TestRolloutPhaseForm(TestCase):
