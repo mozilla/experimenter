@@ -148,16 +148,26 @@
         <i class="fas fa-times text-danger"></i>
       {% endif %}
     </div>
-    {# Localization substitutions #}
+    {# Localization #}
     <div>
-      <div class="text-secondary mb-1" style="font-size: 12px;">Localization Substitutions</div>
-      {% if experiment.localizations %}
-        {% include "nimbus_experiments/readonly_feature_value.html" with json_content=experiment.localizations %}
-
+      <div class="text-secondary mb-1" style="font-size: 12px;">Is this a localized experiment?</div>
+      {% if experiment.is_localized %}
+        <i class="fas fa-check text-success"></i>
       {% else %}
-        —
+        <i class="fas fa-times text-danger"></i>
       {% endif %}
     </div>
+    {% if experiment.is_localized %}
+      <div>
+        <div class="text-secondary mb-1" style="font-size: 12px;">Localization Substitutions</div>
+        {% if experiment.localizations %}
+          {% include "nimbus_experiments/readonly_feature_value.html" with json_content=experiment.localizations %}
+
+        {% else %}
+          —
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
   {% if hx_swap_oob %}
     {% include "new/common/audience_overlap_warnings.html" with oob=True %}

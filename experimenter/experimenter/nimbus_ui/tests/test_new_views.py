@@ -117,6 +117,7 @@ class NewViewTestMixin:
                 if targeting_config_slugs
                 else NimbusExperiment.TargetingConfig.NO_TARGETING
             ),
+            "is_localized": False,
         }
         data.update(overrides)
         return data
@@ -518,6 +519,7 @@ class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
                 locales=[locale.id],
                 is_sticky=True,
                 targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
+                save="True",
             ),
         )
 
@@ -532,6 +534,60 @@ class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(
             experiment.targeting_config_slug, NimbusExperiment.TargetingConfig.FIRST_RUN
         )
+
+    def test_get_renders_is_localized_checkbox(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Is this a localized experiment?")
+        self.assertContains(response, 'id="id_is_localized"')
+
+    def test_post_toggling_is_localized_saves_and_returns_edit_form(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_localized=False,
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.audience_data(is_localized=True),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/audience/edit_form.html")
+        experiment.refresh_from_db()
+        self.assertTrue(experiment.is_localized)
+        self.assertContains(response, "Localization Substitutions")
+
+    def test_post_save_persists_localization_fields_and_returns_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_localized=False,
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.audience_data(
+                is_localized=True,
+                localizations='{"en-US": {}}',
+                save="True",
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/audience/card.html")
+        experiment.refresh_from_db()
+        self.assertTrue(experiment.is_localized)
+        self.assertEqual(experiment.localizations, '{"en-US": {}}')
 
 
 class TestNewRolloutFeaturesUpdateView(AuthTestCase):

@@ -17,6 +17,7 @@ import $ from "jquery";
 const BRANCHES_FORM_ID = "branches-form";
 const CONTENT_WITH_SIDEBAR_ID = "content-with-sidebar";
 const ROLLOUT_FEATURES_BODY_ID = "rollout-rollout-features-body";
+const ROLLOUT_AUDIENCE_BODY_ID = "rollout-audience-body";
 const EDIT_BRANCHES_INIT_FLAG = "__nimbusEditBranchesInitialized";
 
 const setupCodemirror = (selector, textarea, extraExtensions) => {
@@ -159,6 +160,7 @@ $(() => {
       if (
         event.detail.target.id === BRANCHES_FORM_ID ||
         event.detail.target.id === ROLLOUT_FEATURES_BODY_ID ||
+        event.detail.target.id === ROLLOUT_AUDIENCE_BODY_ID ||
         event.detail.target.id === CONTENT_WITH_SIDEBAR_ID
       ) {
         initializeAllEditors();

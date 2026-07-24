@@ -240,6 +240,14 @@ class NewAudienceUpdateView(CardMixin, NewCardUpdateView):
     display_template = "new/rollouts/audience/card.html"
     template_name = "new/rollouts/audience/edit_form.html"
 
+    def render_valid_response(self):
+        self.object.refresh_from_db()
+
+        if "save" in self.request.POST:
+            return super().render_valid_response()
+
+        return self.render_to_response(self.get_context_data())
+
 
 class NewRolloutFeaturesUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutFeaturesForm

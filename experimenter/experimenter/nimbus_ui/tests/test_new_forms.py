@@ -488,6 +488,31 @@ class TestRolloutAudienceForm(RequestFormTestCase):
             form.get_changelog_message(), f"{self.request.user} updated audience"
         )
 
+    def test_saves_localization_fields(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.BETA],
+            is_localized=False,
+            localizations="",
+        )
+
+        form = RolloutAudienceForm(
+            instance=experiment,
+            data=self._audience_data(
+                is_localized=True,
+                localizations='{"en-US": {}}',
+            ),
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        experiment.refresh_from_db()
+
+        self.assertTrue(experiment.is_localized)
+        self.assertEqual(experiment.localizations, '{"en-US": {}}')
+
     def test_check_rollout_dirty_does_not_set_flag_for_non_rollout(self):
         experiment = NimbusExperimentFactory.create(
             is_rollout=False,

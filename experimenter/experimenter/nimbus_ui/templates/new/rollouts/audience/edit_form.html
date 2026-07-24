@@ -127,15 +127,25 @@
       {% for error in validation_errors.is_sticky %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
     </div>
     <div>
-      <label class="small text-body mb-2">Localization Substitutions</label>
-      {{ form.localizations|add_error_class:"is-invalid" }}
-      {% for error in form.localizations.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      {% for error in validation_errors.localizations %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+      <div class="form-check">
+        {{ form.is_localized }}
+        <label class="form-check-label" for="id_is_localized">Is this a localized experiment?</label>
+      </div>
+      {% for error in form.is_localized.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      {% for error in validation_errors.is_localized %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+      {% if form.is_localized.value %}
+        <div class="mt-3">
+          <label class="small text-body mb-2" for="id_localizations">Localization Substitutions</label>
+          {{ form.localizations|add_error_class:"is-invalid" }}
+          {% for error in form.localizations.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          {% for error in validation_errors.localizations %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+        </div>
+      {% endif %}
     </div>
   </div>
   {# Action buttons #}
   <div class="d-flex align-items-center gap-2">
-    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+    <button type="submit" name="save" value="True" class="btn btn-primary btn-sm">Save</button>
     <button type="button"
             class="btn btn-outline-secondary btn-sm"
             hx-get="{{ cancel_url }}"
@@ -147,5 +157,5 @@
 </div>
 {% block extrascripts %}
   {% if branch_form_data %}{{ branch_form_data|json_script:"branch-form-data" }}{% endif %}
-  <script src="{% static 'nimbus_ui/edit_branches.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui/new_edit_branches.bundle.js' %}"></script>
 {% endblock extrascripts %}
