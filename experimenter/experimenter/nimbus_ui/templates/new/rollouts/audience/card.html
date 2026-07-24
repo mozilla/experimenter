@@ -2,6 +2,13 @@
 
 {% block card %}
   <div class="d-flex flex-column gap-3" id="rollout-audience-body">
+    {# Explore matching audiences #}
+    <div class="mt-1">
+      <a href="{{ experiment.audience_url }}"
+         class="small text-decoration-none"
+         target="_blank"
+         rel="noopener noreferrer"><i class="fa-solid fa-users me-2"></i>Explore matching audiences</a>
+    </div>
     {# Channel / channels #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">
