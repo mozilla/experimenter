@@ -148,6 +148,8 @@ export const ATTRIBUTE_TRANSFORMS = Object.freeze({
   isFxAEnabled: typeAssertions.boolean,
   isFxASignedIn: typeAssertions.boolean,
   isMSIX: typeAssertions.boolean,
+  launchOnLoginAllowedByPolicy: typeAssertions.boolean,
+  launchOnLoginEnabled: typeAssertions.boolean,
   locale: typeAssertions.string,
   memoryMB: typeAssertions.quantity,
   os: pick(
