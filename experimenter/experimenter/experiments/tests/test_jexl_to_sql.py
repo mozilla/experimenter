@@ -306,12 +306,12 @@ class TestJEXLToSQL(TestCase):
     def test_length_user_monthly_activity(self):
         result = jexl_to_sql("userMonthlyActivity|length >= 1")
         self.assertIn(_UMA, result.sql)
-        self.assertIn("JSON_ARRAY_LENGTH", result.sql)
+        self.assertIn("ARRAY_LENGTH(JSON_QUERY_ARRAY", result.sql)
         self.assertEqual(result.warnings, [])
 
     def test_length_on_translatable_subject(self):
         result = jexl_to_sql("locale|length >= 2")
-        self.assertIn("JSON_ARRAY_LENGTH", result.sql)
+        self.assertIn("ARRAY_LENGTH(JSON_QUERY_ARRAY", result.sql)
 
     def test_date_profile_age(self):
         result = jexl_to_sql(

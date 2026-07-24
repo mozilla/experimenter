@@ -331,11 +331,13 @@ def _transform_to_sql(node: Transform, warnings: list[str]) -> Optional[str]:
         return None
 
     if node.name == "length":
+        # BigQuery has no JSON_ARRAY_LENGTH for STRING columns — metrics.object.*
+        # columns are JSON strings, so use ARRAY_LENGTH(JSON_QUERY_ARRAY(...)).
         if subject_path == "userMonthlyActivity":
-            return f"JSON_ARRAY_LENGTH({_USER_MONTHLY_ACTIVITY_COL})"
+            return f"ARRAY_LENGTH(JSON_QUERY_ARRAY({_USER_MONTHLY_ACTIVITY_COL}))"
         subject_sql = _node_to_sql(node.subject, warnings)
         if subject_sql:
-            return f"JSON_ARRAY_LENGTH({subject_sql})"
+            return f"ARRAY_LENGTH(JSON_QUERY_ARRAY({subject_sql}))"
         _add_warning(warnings, "|length")
         return None
 
