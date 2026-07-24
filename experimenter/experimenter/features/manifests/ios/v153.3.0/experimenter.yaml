@@ -1,0 +1,613 @@
+ad-blocker-feature:
+  description: |
+    The feature flag to manage the roll out of the Ad Blocker badge in the Site Menu and the corresponding Block Ads toggle in Browsing settings.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+address-autofill-edit:
+  description: This property defines if the address editing is enabled in Settings
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    status:
+      type: boolean
+      description: If true, we will allow user to edit the address
+address-bar-gesture-to-open-tab-tray-feature:
+  description: |
+    Decides if the address bar interactive gesture to open the tab tray is enabled
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled_closetab:
+      type: boolean
+      description: |
+        Decides if the interactive gesture can close tabs by dragging the tab up to the top edge of the screen
+    enabled_interactive:
+      type: boolean
+      description: |
+        Decides if the interactive (fancier) version of this feature is enabled.
+    enabled_swipe:
+      type: boolean
+      description: |
+        Decides if the swipe version of this feature is enabled. This will override the interactive gesture
+ai-kill-switch-feature:
+  description: |
+    Configuration feature for AI features
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+bookmarks-search-feature:
+  description: |
+    Configuration feature for the bookmarks search bar
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+custom-reader-mode-scheme-feature:
+  description: |
+    Use a custom WKURLSchemeHandler for reader mode
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+deeplink-optimization-refactor-feature:
+  description: |
+    The feature flag to manage the rollout of deeplink optimization feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Variable description
+download-live-activities-feature:
+  description: |
+    Download Live Activities Feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, the download live activities feature is enabled
+firefox-jp-guide-default-site:
+  description: |
+    This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
+firefox-suggest-feature:
+  description: Configuration for the Firefox Suggest feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    available-suggestions-types:
+      type: json
+      description: |
+        A map of suggestion types to booleans that indicate whether or not the provider should return suggestions of those types.
+    status:
+      type: boolean
+      description: |
+        Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
+google-lens-feature:
+  description: |
+    The feature flag to manage the rollout of Google Lens entry points.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables Google Lens entry points.
+homepage-redesign-feature:
+  description: |
+    This feature is for managing the roll out of the Homepage New Tab Redesign feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    add-shortcut-tile:
+      type: boolean
+      description: |
+        If true, enables the add shortcut tile on homepage.
+    bookmarks-section-default:
+      type: boolean
+      description: |
+        If true, enables the bookmarks homepage section by default
+    categories-enabled:
+      type: boolean
+      description: |
+        If true, enables the categories flow in the stories
+    jbi-section-default:
+      type: boolean
+      description: |
+        If true, enables the jump back in homepage section by default
+    pinned-header-enabled:
+      type: boolean
+      description: |
+        If true, enables the pinned newsfeed header on homepage.
+    search-bar:
+      type: boolean
+      description: |
+        If true, enables the search bar feature on homepage for users.
+homepage-tracker-blocker-module-feature:
+  description: |
+    Controls the Tracker Blocker module feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+hosted-summarizer-feature:
+  description: |
+    This feature enables the hosted summarizer feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the hosted summarizer feature.
+    shakeGesture:
+      type: boolean
+      description: |
+        Enables the shake gesture for the summarizer feature.
+    toolbarEntrypoint:
+      type: boolean
+      description: |
+        Enables the toolbar entrypoint for the summarizer feature.
+https-upgrade-feature:
+  description: |
+    This feature enables automatic https upgrade. This is only available for 18.2+.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables automatic https upgrade.
+improved-app-store-review-trigger-feature:
+  description: |
+    The feature flag to manage the App Store review request trigger.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
+messaging:
+  description: |
+    The in-app messaging system
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    actions:
+      type: json
+      description: A growable map of action URLs.
+    message-under-experiment:
+      type: string
+      description: 'Deprecated. Please use "experiment": "{experiment}" instead.'
+    messages:
+      type: json
+      description: |
+        A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
+    on-control:
+      type: string
+      description: What should be displayed when a control message is selected.
+      enum:
+      - show-next-message
+      - show-none
+    styles:
+      type: json
+      description: |
+        A map of styles to configure message appearance.
+    triggers:
+      type: json
+      description: |
+        A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.
+    ~~experiment:
+      type: string
+      description: Not to be set by experiment.
+microsurvey-feature:
+  description: |
+    A feature that shows the microsurvey for users to interact with and submit responses.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, the feature is active.
+native-error-page-feature:
+  description: |
+    This feature is for managing the roll out of the native error page feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    bad-cert-domain-error-page:
+      type: boolean
+      description: |
+        This feature is for managing the roll out of the bad certificate domain native error page
+    enabled:
+      type: boolean
+      description: |
+        If true, the feature is active.
+    no_internet_connection_error:
+      type: boolean
+      description: |
+        This feature is for managing the roll out of the no interet connection native error page feature
+new-bookmark-folder-tree-feature:
+  description: |
+    This property determines weather we show the new bookmark folder tree UI
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+nova-design-feature:
+  description: |
+    The feature flag to manage the rollout of Nova design.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables Nova design.
+onboarding-framework-feature:
+  description: |
+    The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    cards:
+      type: json
+      description: |
+        The list of available cards for onboarding.
+    conditions:
+      type: json
+      description: |
+        A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
+    dismissable:
+      type: boolean
+      description: |
+        Whether or not the entire onboarding is dismissable by pressing an X at the top right corner of the screen.
+    enable-modern-ui:
+      type: boolean
+      description: |
+        Toggle between legacy (false) and modern (true) UI variants.
+    enable-video-intro:
+      type: boolean
+      description: |
+        When true, a full-screen video is displayed before the Terms of Service screen during fresh-install onboarding.
+    should-use-brand-refresh-configuration:
+      type: boolean
+      description: |
+        Toggle between standard (false) and brand refresh (true) onboarding content.
+    should-use-japan-configuration:
+      type: boolean
+      description: |
+        Toggle between standard (false) and Japan-specific (true) assets and content.
+quick-answers-feature:
+  description: |
+    The feature flag to manage the roll out of the quick answers feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
+    model:
+      type: string
+      description: |
+        Which provider model backs Quick Answers.
+      enum:
+      - exa
+      - liner
+recent-searches-feature:
+  description: |
+    Enables recent searches.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable recent searches.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
+relay-integration-feature:
+  description: |
+    This feature is for managing the roll out of Relay email masking integration in iOS
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature
+report-broken-site-feature:
+  description: |
+    In-app Report Broken Site (WebCompat) reporter
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+search:
+  description: |
+    Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    awesome-bar:
+      type: json
+      description: Configuring the awesome bar.
+sent-from-firefox-feature:
+  description: |
+    Adds additional promo text to links shared to WhatsApp.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.
+    isTreatmentA:
+      type: boolean
+      description: |
+        If true, shares the treatment A text. If false, shares the treatment B text.
+snapkit-removal-refactor:
+  description: This property defines if SnapKit removal refactor is enabled
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true the SnapKit removal refactor version will be used
+spotlight-search:
+  description: Add pages as items findable with Spotlight.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If this is true, then on each page load adds a new item to Spotlight.
+    icon-type:
+      type: string
+      description: |
+        The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
+    keep-for-days:
+      type: int
+      description: |
+        Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
+    searchable-content:
+      type: string
+      description: |
+        The text content that is made searchable. If this is `null` then no additional content is used, and only the title and URL will be used.
+start-at-home-feature:
+  description: This feature is for experimenting with opening screen
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    setting:
+      type: string
+      description: This property provides a default setting for the start at home feature
+      enum:
+      - afterFourHours
+      - always
+      - disabled
+summarizer-app-attest-auth-feature:
+  description: |
+    This feature enables app attest authentication for the summarizer.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables app attest authentication for the summarizer.
+summarizer-language-expansion-feature:
+  description: |
+    The feature flag to manage the rollout of the summarizer language expansion.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether the feature is enabled or not.
+    supportedLocales:
+      type: json
+      description: |
+        The list of supported locale identifiers for the summarizer language expansion according to BCP47 standard. i.e "en-US" for English (United States).
+summarizer-permissive-guardrails-feature:
+  description: |
+    This feature enables permissive guardrails for the summarizer.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables permissive guardrails for the summarizer.
+tab-scroll-refactor-feature:
+  description: |
+    The feature flag to manage the rollout of tab scroll refactor feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, tab scroll new implementation is used to show and hide toolbar views reacting to user scroll
+tab-tray-ui-experiments:
+  description: |
+    The tab tray will undergo some UI experimentation to test potential improvements.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, enables the tab tray UI experiments.
+    iPad_update_enabled:
+      type: boolean
+      description: |
+        If true, enables the tab tray UI experiments on iPad.
+    translucency:
+      type: boolean
+      description: |
+        If true, enables translucency for tab tray actions at the bottom.
+toolbar-refactor-feature:
+  description: |
+    This feature is for managing the roll out of the Toolbar refactor feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    layout:
+      type: string
+      description: |
+        The type of layout of the toolbars.
+    tab_tray_button_type:
+      type: string
+      description: |
+        The style of the tab tray button in the toolbar.
+      enum:
+      - number
+      - screenshot
+    unified_search:
+      type: boolean
+      description: |
+        Enables the unified search feature.
+tos-feature:
+  description: |
+    This feature is for managing the roll out of the ToS (Term of Service) implementation
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    status:
+      type: boolean
+      description: |
+        Enables the feature
+tou-feature:
+  description: |
+    This feature is for managing the rollout of the Terms of Use (ToU) implementation.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    content-option:
+      type: string
+      description: |
+        Determines which predefined title and "learn more" strings are used for the Terms of Use prompt.
+      enum:
+      - value-0
+      - value-1
+      - value-2
+    enable-drag-to-dismiss:
+      type: boolean
+      description: |
+        Whether to show a drag handle on the prompt and allows users to use it to dismiss the prompt.
+    max-reminders-count:
+      type: int
+      description: |
+        Maximum number of ToU bottom sheet reminders that can be displayed
+    status:
+      type: boolean
+      description: |
+        Enables the feature
+translations-feature:
+  description: |
+    Enables translations feature.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable translations feature.
+    languagePickerEnabled:
+      type: boolean
+      description: |
+        Whether or not to enable the translations language picker (Phase 2).
+trending-searches-feature:
+  description: |
+    Enables trending searches.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable trending searches.
+    max-suggestions:
+      type: int
+      description: The number of maximum suggestions.
+vpn-feature:
+  description: |
+    Configuration feature for VPN
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+wayback-machine-feature:
+  description: |
+    This property determines whether we show the wayback entry point on the native error pages
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+world-cup-widget-feature:
+  description: |
+    The feature flag to manage the roll out of the world cup widget feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    countdown-target-date:
+      type: string
+      description: |
+        The ISO 8601 date string for the World Cup countdown target
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+    milestone-2-enable-date:
+      type: string
+      description: |
+        The ISO 8601 date string for when milestone 2 (country picker) becomes available. Defaults to 10 days before the World Cup countdown target date.
+    show-celebration-animation:
+      type: boolean
+      description: |
+        Whether or not the celebration animation is shown when a selected team's match is won.  For the generic experience the animation is shown after the result of bronze final and final too.
