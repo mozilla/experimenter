@@ -31,6 +31,7 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutSignoffForm,
     SubscribeForm,
     TagAssignForm,
+    ToggleReviewSlackNotificationsForm,
     UnsubscribeForm,
 )
 
@@ -64,6 +65,11 @@ class NimbusExperimentViewMixin:
         )
         context["all_tags"] = Tag.objects.all().order_by("name")
         context["create_form"] = NimbusExperimentCreateForm()
+
+        if experiment and experiment.slug:
+            context["slack_notifications_form"] = ToggleReviewSlackNotificationsForm(
+                instance=experiment
+            )
 
         return context
 
@@ -448,3 +454,15 @@ class NewSubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
 
 class NewUnsubscribeView(NewSubscribeView):
     form_class = UnsubscribeForm
+
+
+class NewToggleReviewSlackNotificationsView(
+    NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+):
+    model = NimbusExperiment
+    form_class = ToggleReviewSlackNotificationsForm
+    template_name = "new/common/slack_notifications_toggle.html"
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return self.render_to_response(self.get_context_data())
