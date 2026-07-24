@@ -146,6 +146,11 @@ class TestJEXLToSQL(TestCase):
                 "'app.normandy.enabled'|preferenceValue == true",
                 f"JSON_VALUE({_PREF}, '$.app__normandy__enabled') = 'true'",
             ),
+            (
+                "pref_value_eq_bool_reversed",
+                "false == 'browser.shell.checkDefaultBrowser'|preferenceValue",
+                f"'false' = JSON_VALUE({_PREF}, '$.browser__shell__checkDefaultBrowser')",
+            ),
         ]
     )
     def test_comparison_produces_correct_sql(self, _name, jexl, expected_sql):
