@@ -224,7 +224,9 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
         return None
 
     if op == "in":
-        return f"{left} IN {right}"
+        # Wrap in parens so the result can be safely used in outer comparisons
+        # e.g. (region IN ('US', 'CA')) != TRUE — without parens BQ errors
+        return f"({left} IN {right})"
 
     comparison_ops = {
         "==": "=",
