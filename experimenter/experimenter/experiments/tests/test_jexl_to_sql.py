@@ -136,6 +136,16 @@ class TestJEXLToSQL(TestCase):
                 "isFxASignedIn != null",
                 "metrics.boolean.nimbus_targeting_context_is_fx_a_signed_in IS NOT NULL",
             ),
+            (
+                "pref_value_eq_bool_false",
+                "'browser.shell.checkDefaultBrowser'|preferenceValue == false",
+                f"JSON_VALUE({_PREF}, '$.browser__shell__checkDefaultBrowser') = 'false'",
+            ),
+            (
+                "pref_value_eq_bool_true",
+                "'app.normandy.enabled'|preferenceValue == true",
+                f"JSON_VALUE({_PREF}, '$.app__normandy__enabled') = 'true'",
+            ),
         ]
     )
     def test_comparison_produces_correct_sql(self, _name, jexl, expected_sql):

@@ -260,6 +260,12 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
                 return f"NOT ({expr})" if is_filter_result else f"{expr} IS NULL"
             if sql_op == "!=":
                 return expr if is_filter_result else f"{expr} IS NOT NULL"
+        # JSON_VALUE returns STRING; comparing to a BOOL literal (TRUE/FALSE) is invalid.
+        # 'pref'|preferenceValue == false → JSON_VALUE(...) = 'false' (string comparison).
+        if right in ("TRUE", "FALSE") and _is_json_string_expr(left):
+            right = f"'{right.lower()}'"
+        elif left in ("TRUE", "FALSE") and _is_json_string_expr(right):
+            left = f"'{left.lower()}'"
         return f"{left} {sql_op} {right}"
     if op in arithmetic_ops:
         return f"({left} {arithmetic_ops[op]} {right})"
@@ -466,6 +472,15 @@ def _literal_value(node) -> Optional[str]:
     if isinstance(node, Literal) and isinstance(node.value, str):
         return node.value
     return None
+
+
+def _is_json_string_expr(sql: str) -> bool:
+    """Returns True if the SQL expression produces a STRING value.
+
+    Used to detect when a boolean literal (TRUE/FALSE) would cause a type mismatch
+    in a comparison — e.g. JSON_VALUE(...) = FALSE should become = 'false'.
+    """
+    return sql.startswith("JSON_VALUE(") or sql.startswith("metrics.string.")
 
 
 def _is_untranslatable(path: str) -> bool:
