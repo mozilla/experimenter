@@ -67,7 +67,7 @@ dependencies = [
     "redis==4.6.0",
     "requests[security]==2.34.0",
     "responses==0.26.0",
-    "ruff>=0.15.0,<0.16",
+    "ruff>=0.16.0,<0.17",
     "scipy>=1.15.0,<2",
     "sentry-sdk>=2.66.0,<3",
     "slack-sdk>=3.43.0,<4",
