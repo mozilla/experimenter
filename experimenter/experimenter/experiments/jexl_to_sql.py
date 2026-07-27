@@ -56,6 +56,12 @@ JEXL_TO_BQ_COLUMN = {
         "metrics.boolean.nimbus_targeting_context_user_prefers_reduced_motion"
     ),
     "usesFirefoxSync": "metrics.boolean.nimbus_targeting_context_uses_firefox_sync",
+    "launchOnLoginAllowedByPolicy": (
+        "metrics.boolean.nimbus_targeting_context_launch_on_login_allowed_by_policy"
+    ),
+    "launchOnLoginEnabled": (
+        "metrics.boolean.nimbus_targeting_context_launch_on_login_enabled"
+    ),
     # Only usable via |length transform; listed here so the context-coverage check passes
     "userMonthlyActivity": (
         "metrics.object.nimbus_targeting_context_user_monthly_activity"
@@ -146,10 +152,6 @@ KNOWN_UNTRANSLATABLE = {
     "no_shortcuts_or_stories_opt_outs",
     "android_sdk_version",
     "install_referrer_response_utm_source",
-    # In Desktop targeting context but not yet confirmed in nimbus_targeting_context BQ
-    # schema — move to JEXL_TO_BQ_COLUMN once the column is verified to exist
-    "launchOnLoginAllowedByPolicy",
-    "launchOnLoginEnabled",
     # Standalone sub-fields accessed without parent (default PDF handler context)
     "pdf",
     "knownBrowser",
