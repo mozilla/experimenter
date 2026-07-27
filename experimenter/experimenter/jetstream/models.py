@@ -28,6 +28,7 @@ class BranchComparison(StrEnum):
 
 class Metric(StrEnum):
     RETENTION = "retained"
+    WEEKLY_RETENTION = "week_{}_retention"
     RETENTION_3_DAYS = "active_in_last_3_days"
     RETENTION_3_DAYS_LEGACY = "active_in_last_3_days_legacy"
     SEARCH = "search_count"
@@ -156,16 +157,29 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
             and jetstream_data_point.metric == metric
         ]
 
-    def append_retention_data(self, weekly_data):
-        # Try to get the two-week retention data. If it doesn't
-        # exist (experiment was too short), settle for 1 week.
-        retention_data = self.get_retention_by_window(2, weekly_data, Metric.RETENTION)
-        if len(retention_data) == 0:
-            retention_data = self.get_retention_by_window(
-                1, weekly_data, Metric.RETENTION
-            )
+    def separate_weekly_retention_data(self, weekly_data):
+        retention_data = []
 
+        for jetstream_data_point in weekly_data or []:
+            if (
+                jetstream_data_point.metric == Metric.RETENTION
+                and jetstream_data_point.window_index != "1"
+            ):
+                retention_data_point = jetstream_data_point.model_copy()
+                retention_data_point.metric = Metric.WEEKLY_RETENTION.format(
+                    retention_data_point.window_index
+                )
+                retention_data.append(retention_data_point)
+
+        self.remove_retention_data()
         self.extend(retention_data)
+
+    def remove_retention_data(self):
+        self.root = [
+            jetstream_data_point
+            for jetstream_data_point in self.root
+            if jetstream_data_point.metric != Metric.RETENTION
+        ]
 
     def get_retention_3_days_by_window(self, window_index, daily_data):
         retention_data = []
@@ -174,7 +188,7 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
                 self.get_retention_by_window(window_index, daily_data, metric)
             )
         return retention_data
-    
+
     def append_retention_3_days(self, daily_data):
         # Extract the 3-day retention data (window index 4)
         # without falling back to earlier windows
