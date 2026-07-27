@@ -21,6 +21,7 @@ from experimenter.experiments.models import (
     NimbusVersionedSchema,
     Tag,
 )
+from experimenter.jetstream.models import Metric
 from experimenter.jetstream.results_manager import ExperimentResultsManager
 from experimenter.nimbus_ui.constants import (
     METRICS_MIN_BOUNDS_WIDTH,
@@ -833,6 +834,26 @@ class ResultsView(NimbusExperimentViewMixin, DetailView):
             window=displayed_window,
         )
         context["metric_area_data"] = all_metrics
+
+        metric_slugs = {
+            metric["slug"]
+            for area_data in all_metrics.values()
+            for metric in area_data.get("metrics", [])
+        }
+        retention_prefix, retention_suffix = Metric.WEEKLY_RETENTION.split("{}")
+        weekly_retention_slugs = {
+            slug
+            for slug in metric_slugs
+            if slug.startswith(retention_prefix) and slug.endswith(retention_suffix)
+        }
+        context["hidden_weekly_metrics"] = {
+            *NimbusUIConstants.HIDDEN_WEEKLY_METRICS,
+            *weekly_retention_slugs,
+        }
+        context["hidden_daily_metrics"] = {
+            *NimbusUIConstants.HIDDEN_DAILY_METRICS,
+            *weekly_retention_slugs,
+        }
 
         context["ask_experimenter_slack_link"] = settings.ASK_EXPERIMENTER_SLACK_LINK
 

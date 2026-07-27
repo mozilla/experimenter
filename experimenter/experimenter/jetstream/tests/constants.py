@@ -657,8 +657,6 @@ class JetstreamTestData:
             VARIANT_DATA_DEFAULT_METRIC_ROW_DAU_IMPACT.model_dump(exclude_none=True),
             VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.model_dump(exclude_none=True),
             VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
-            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
-            CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
             BROKEN_STATISTIC_DATA_ROW.model_dump(exclude_none=True),
             VARIANT_BROKEN_STATISTIC_DATA_ROW.model_dump(exclude_none=True),
         ]
@@ -676,10 +674,6 @@ class JetstreamTestData:
             EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_dump(
                 exclude_none=True
             ),
-            EXPOSURES_VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_dump(
-                exclude_none=True
-            ),
-            EXPOSURES_CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
             EXPOSURES_BROKEN_STATISTIC_DATA_ROW.model_dump(exclude_none=True),
             VARIANT_EXPOSURES_BROKEN_STATISTIC_DATA_ROW.model_dump(exclude_none=True),
         ]
@@ -786,11 +780,6 @@ class JetstreamTestData:
                             exclude_none=True
                         ),
                         "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT.model_dump(
-                                exclude_none=True
-                            )
-                        ),
                         "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                 },
@@ -820,11 +809,6 @@ class JetstreamTestData:
                         "another_count": ABSOLUTE_METRIC_DATA_A.model_dump(
                             exclude_none=True
                         ),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL.model_dump(
-                                exclude_none=True
-                            )
-                        ),
                         "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                 },
@@ -847,11 +831,6 @@ class JetstreamTestData:
                             exclude_none=True
                         ),
                         "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT.model_dump(
-                                exclude_none=True
-                            )
-                        ),
                         "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                 },
@@ -881,11 +860,6 @@ class JetstreamTestData:
                         "another_count": ABSOLUTE_METRIC_DATA_A.model_dump(
                             exclude_none=True
                         ),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL.model_dump(
-                                exclude_none=True
-                            )
-                        ),
                         "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
                 },
@@ -912,11 +886,6 @@ class JetstreamTestData:
                         "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                         "default_browser_action": EMPTY_METRIC_DATA.model_dump(
                             exclude_none=True
-                        ),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT.model_dump(
-                                exclude_none=True
-                            )
                         ),
                         "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
@@ -948,11 +917,6 @@ class JetstreamTestData:
                         ),
                         "another_count": ABSOLUTE_METRIC_DATA_F.model_dump(
                             exclude_none=True
-                        ),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL.model_dump(
-                                exclude_none=True
-                            )
                         ),
                         "custom_metric": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                     },
@@ -1133,8 +1097,6 @@ class JetstreamTestData:
             CONTROL_DATA_ROW.model_dump(exclude_none=True),
             VARIANT_DATA_ROW.model_dump(exclude_none=True),
             VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
-            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
-            CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.model_dump(exclude_none=True),
         ]
         DAILY_EXPOSURES_DATA = [
             EXPOSURES_CONTROL_DATA_ROW.model_dump(exclude_none=True),
@@ -1221,11 +1183,6 @@ class JetstreamTestData:
                         "identity": ABSOLUTE_METRIC_DATA_A.model_dump(exclude_none=True),
                         "some_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                         "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_DAILY_NEUTRAL_VARIANT.model_dump(
-                                exclude_none=True
-                            )
-                        ),
                     },
                 },
             },
@@ -1248,23 +1205,12 @@ class JetstreamTestData:
                         "another_count": ABSOLUTE_METRIC_DATA_A.model_dump(
                             exclude_none=True
                         ),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_DAILY_NEGATIVE_CONTROL.model_dump(
-                                exclude_none=True
-                            )
-                        ),
                     },
                 },
             },
         }
 
         FORMATTED_DAILY_EXPOSURES_DATA = deepcopy(FORMATTED_DAILY_BASE)
-        del FORMATTED_DAILY_EXPOSURES_DATA["control"]["branch_data"][Group.OTHER][
-            "retained"
-        ]
-        del FORMATTED_DAILY_EXPOSURES_DATA["variant"]["branch_data"][Group.OTHER][
-            "retained"
-        ]
         del FORMATTED_DAILY_EXPOSURES_DATA["control"]["branch_data"][Group.SEARCH][
             "search_count"
         ]
@@ -1323,11 +1269,6 @@ class JetstreamTestData:
                         "identity": ABSOLUTE_METRIC_DATA_A.model_dump(exclude_none=True),
                         "some_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                         "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL_VARIANT.model_dump(
-                                exclude_none=True
-                            )
-                        ),
                     },
                 },
             },
@@ -1350,19 +1291,12 @@ class JetstreamTestData:
                         "another_count": ABSOLUTE_METRIC_DATA_A.model_dump(
                             exclude_none=True
                         ),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE_CONTROL.model_dump(
-                                exclude_none=True
-                            )
-                        ),
                     },
                 },
             },
         }
 
         WEEKLY_EXPOSURES_DATA = deepcopy(WEEKLY_BASE)
-        del WEEKLY_EXPOSURES_DATA["control"]["branch_data"][Group.OTHER]["retained"]
-        del WEEKLY_EXPOSURES_DATA["variant"]["branch_data"][Group.OTHER]["retained"]
         del WEEKLY_EXPOSURES_DATA["control"]["branch_data"][Group.SEARCH]["search_count"]
         del WEEKLY_EXPOSURES_DATA["variant"]["branch_data"][Group.SEARCH]["search_count"]
 
@@ -1407,11 +1341,6 @@ class JetstreamTestData:
                         ),
                         "some_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
                         "another_count": EMPTY_METRIC_DATA.model_dump(exclude_none=True),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL_VARIANT.model_dump(
-                                exclude_none=True
-                            )
-                        ),
                     },
                 },
             },
@@ -1436,19 +1365,12 @@ class JetstreamTestData:
                         "another_count": ABSOLUTE_METRIC_DATA_F.model_dump(
                             exclude_none=True
                         ),
-                        "retained": (
-                            DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE_CONTROL.model_dump(
-                                exclude_none=True
-                            )
-                        ),
                     },
                 },
             },
         }
 
         OVERALL_EXPOSURES_DATA = deepcopy(OVERALL_BASE)
-        del OVERALL_EXPOSURES_DATA["control"]["branch_data"][Group.OTHER]["retained"]
-        del OVERALL_EXPOSURES_DATA["variant"]["branch_data"][Group.OTHER]["retained"]
         del OVERALL_EXPOSURES_DATA["control"]["branch_data"][Group.SEARCH]["search_count"]
         del OVERALL_EXPOSURES_DATA["variant"]["branch_data"][Group.SEARCH]["search_count"]
 

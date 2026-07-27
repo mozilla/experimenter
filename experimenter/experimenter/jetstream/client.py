@@ -284,6 +284,11 @@ def get_experiment_data(experiment: NimbusExperiment):
             data = raw_data[window][AnalysisBasis.ENROLLMENTS][segment] = JetstreamData(
                 segment_data
             )
+            data.separate_weekly_retention_data(
+                raw_data.get(AnalysisWindow.WEEKLY, {})
+                .get(AnalysisBasis.ENROLLMENTS, {})
+                .get(segment)
+            )
             (
                 result_metrics,
                 primary_metrics_set,
@@ -301,11 +306,6 @@ def get_experiment_data(experiment: NimbusExperiment):
             if data and window == AnalysisWindow.OVERALL:
                 # Append some values onto the incoming Jetstream data
                 data.append_population_percentages()
-                data.append_retention_data(
-                    raw_data.get(AnalysisWindow.WEEKLY, {})
-                    .get(AnalysisBasis.ENROLLMENTS, {})
-                    .get(segment)
-                )
                 # Append 3-day retention from daily data
                 data.append_retention_3_days(
                     raw_data.get(AnalysisWindow.DAILY, {})
@@ -337,6 +337,8 @@ def get_experiment_data(experiment: NimbusExperiment):
                     .get(AnalysisBasis.ENROLLMENTS, {})
                     .get(segment)
                 )
+                data.remove_retention_data()
+
                 ResultsObjectModel = create_results_object_model(data)
 
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
@@ -348,6 +350,11 @@ def get_experiment_data(experiment: NimbusExperiment):
         for segment, segment_data in segment_points_exposures.items():
             data = raw_data[window][AnalysisBasis.EXPOSURES][segment] = JetstreamData(
                 segment_data
+            )
+            data.separate_weekly_retention_data(
+                raw_data.get(AnalysisWindow.WEEKLY, {})
+                .get(AnalysisBasis.EXPOSURES, {})
+                .get(segment)
             )
             (
                 result_metrics,
@@ -366,11 +373,6 @@ def get_experiment_data(experiment: NimbusExperiment):
             if data and window == AnalysisWindow.OVERALL:
                 # Append some values onto Jetstream data
                 data.append_population_percentages()
-                data.append_retention_data(
-                    raw_data.get(AnalysisWindow.WEEKLY, {})
-                    .get(AnalysisBasis.EXPOSURES, {})
-                    .get(segment)
-                )
                 # Append 3-day retention from daily data
                 data.append_retention_3_days(
                     raw_data.get(AnalysisWindow.DAILY, {})
@@ -402,6 +404,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                     .get(AnalysisBasis.EXPOSURES, {})
                     .get(segment)
                 )
+                data.remove_retention_data()
 
                 ResultsObjectModel = create_results_object_model(data)
 
