@@ -76,9 +76,9 @@ class TestTargetingConfigs(TestCase):
         """
         desktop_fields = TargetingContextFields.for_application(Application.DESKTOP)
 
-        all_mapped_prefixes = {
-            key.split(".")[0] for key in JEXL_TO_BQ_COLUMN
-        } | set(JEXL_TO_BQ_COLUMN)
+        all_mapped_prefixes = {key.split(".")[0] for key in JEXL_TO_BQ_COLUMN} | set(
+            JEXL_TO_BQ_COLUMN
+        )
         all_untranslatable_prefixes = {
             key.split(".")[0] for key in KNOWN_UNTRANSLATABLE
         } | set(KNOWN_UNTRANSLATABLE)
