@@ -56,6 +56,15 @@ JEXL_TO_BQ_COLUMN = {
         "metrics.boolean.nimbus_targeting_context_user_prefers_reduced_motion"
     ),
     "usesFirefoxSync": "metrics.boolean.nimbus_targeting_context_uses_firefox_sync",
+    "launchOnLoginAllowedByPolicy": (
+        "metrics.boolean.nimbus_targeting_context_launch_on_login_allowed_by_policy"
+    ),
+    "launchOnLoginEnabled": (
+        "metrics.boolean.nimbus_targeting_context_launch_on_login_enabled"
+    ),
+    "userMonthlyActivity": (
+        "metrics.object.nimbus_targeting_context_user_monthly_activity"
+    ),
     # isWindows is not stored — derived from absence of isMac and isLinux
     "os.isWindows": (
         f"(NOT CAST(JSON_VALUE({_OS}, '$.isMac') AS BOOL)"
@@ -257,12 +266,22 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
                 return f"NOT ({expr})" if is_filter_result else f"{expr} IS NULL"
             if sql_op == "!=":
                 return expr if is_filter_result else f"{expr} IS NOT NULL"
-        # JSON_VALUE returns STRING; comparing to a BOOL literal (TRUE/FALSE) is invalid.
-        # 'pref'|preferenceValue == false → JSON_VALUE(...) = 'false' (string comparison).
+        # JSON_VALUE returns STRING; comparing to a BOOL literal is invalid.
+        # 'pref'|preferenceValue == false → JSON_VALUE(...) = 'false'.
         if right in ("TRUE", "FALSE") and _is_json_string_expr(left):
             right = f"'{right.lower()}'"
         elif left in ("TRUE", "FALSE") and _is_json_string_expr(right):
             left = f"'{left.lower()}'"
+        # In JEXL, pref|preferenceValue returns null when the pref is not explicitly set.
+        # null != 'false' is true in JEXL — unset prefs should pass a != false check.
+        # JSON_VALUE returns NULL for unset prefs; NULL != 'false' is NULL in SQL (falsy),
+        # which would incorrectly exclude users on the browser default.
+        # Fix: (col IS NULL OR col != 'false') matches JEXL semantics.
+        _bool_strs = ("'false'", "'true'")
+        if sql_op == "!=" and right in _bool_strs and _is_json_string_expr(left):
+            return f"({left} IS NULL OR {left} != {right})"
+        if sql_op == "!=" and left in _bool_strs and _is_json_string_expr(right):
+            return f"({right} IS NULL OR {left} != {right})"
         return f"{left} {sql_op} {right}"
     if op in arithmetic_ops:
         return f"({left} {arithmetic_ops[op]} {right})"
@@ -325,7 +344,7 @@ def _transform_to_sql(node: Transform, warnings: list[str]) -> Optional[str]:
         return None
 
     if node.name == "date":
-        # profileAgeCreated is stored as epoch ms — return column directly for arithmetic
+        # profileAgeCreated is epoch ms — return column directly for arithmetic
         if subject_path == "profileAgeCreated":
             return JEXL_TO_BQ_COLUMN["profileAgeCreated"]
         if subject_path == "currentDate":
@@ -336,8 +355,6 @@ def _transform_to_sql(node: Transform, warnings: list[str]) -> Optional[str]:
     if node.name == "length":
         # BigQuery has no JSON_ARRAY_LENGTH for STRING columns — metrics.object.*
         # columns are JSON strings, so use ARRAY_LENGTH(JSON_QUERY_ARRAY(...)).
-        if subject_path == "userMonthlyActivity":
-            return f"ARRAY_LENGTH(JSON_QUERY_ARRAY({_USER_MONTHLY_ACTIVITY_COL}))"
         subject_sql = _node_to_sql(node.subject, warnings)
         if subject_sql:
             return f"ARRAY_LENGTH(JSON_QUERY_ARRAY({subject_sql}))"
