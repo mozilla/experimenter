@@ -5,6 +5,8 @@ updates:
     schedule:
       interval: weekly
     target-branch: main
+    cooldown:
+      default-days: 7
     ignore:
       - dependency-name: "*"
         update-types:
@@ -17,6 +19,8 @@ updates:
     schedule:
       interval: weekly
     target-branch: main
+    cooldown:
+      default-days: 7
     ignore:
       - dependency-name: "*"
         update-types:
@@ -26,6 +30,8 @@ updates:
     schedule:
       interval: weekly
     target-branch: main
+    cooldown:
+      default-days: 7
     ignore:
       - dependency-name: "*"
         update-types:
@@ -35,6 +41,8 @@ updates:
     schedule:
       interval: weekly
     target-branch: main
+    cooldown:
+      default-days: 7
     ignore:
       - dependency-name: "*"
         update-types:
@@ -44,6 +52,8 @@ updates:
     schedule:
       interval: weekly
     target-branch: main
+    cooldown:
+      default-days: 7
     ignore:
       - dependency-name: "*"
         update-types:
@@ -53,6 +63,8 @@ updates:
     schedule:
       interval: weekly
     target-branch: main
+    cooldown:
+      default-days: 7
     ignore:
       - dependency-name: "*"
         update-types:
@@ -65,3 +77,5 @@ updates:
     schedule:
       interval: weekly
     target-branch: main
+    cooldown:
+      default-days: 7
