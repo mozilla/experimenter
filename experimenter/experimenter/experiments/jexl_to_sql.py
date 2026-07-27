@@ -266,8 +266,8 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
                 return f"NOT ({expr})" if is_filter_result else f"{expr} IS NULL"
             if sql_op == "!=":
                 return expr if is_filter_result else f"{expr} IS NOT NULL"
-        # JSON_VALUE returns STRING; comparing to a BOOL literal (TRUE/FALSE) is invalid.
-        # 'pref'|preferenceValue == false → JSON_VALUE(...) = 'false' (string comparison).
+        # JSON_VALUE returns STRING; comparing to a BOOL literal is invalid.
+        # 'pref'|preferenceValue == false → JSON_VALUE(...) = 'false'.
         if right in ("TRUE", "FALSE") and _is_json_string_expr(left):
             right = f"'{right.lower()}'"
         elif left in ("TRUE", "FALSE") and _is_json_string_expr(right):
@@ -277,9 +277,10 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
         # JSON_VALUE returns NULL for unset prefs; NULL != 'false' is NULL in SQL (falsy),
         # which would incorrectly exclude users on the browser default.
         # Fix: (col IS NULL OR col != 'false') matches JEXL semantics.
-        if sql_op == "!=" and right in ("'false'", "'true'") and _is_json_string_expr(left):
+        _bool_strs = ("'false'", "'true'")
+        if sql_op == "!=" and right in _bool_strs and _is_json_string_expr(left):
             return f"({left} IS NULL OR {left} != {right})"
-        if sql_op == "!=" and left in ("'false'", "'true'") and _is_json_string_expr(right):
+        if sql_op == "!=" and left in _bool_strs and _is_json_string_expr(right):
             return f"({right} IS NULL OR {left} != {right})"
         return f"{left} {sql_op} {right}"
     if op in arithmetic_ops:
@@ -343,7 +344,7 @@ def _transform_to_sql(node: Transform, warnings: list[str]) -> Optional[str]:
         return None
 
     if node.name == "date":
-        # profileAgeCreated is stored as epoch ms — return column directly for arithmetic
+        # profileAgeCreated is epoch ms — return column directly for arithmetic
         if subject_path == "profileAgeCreated":
             return JEXL_TO_BQ_COLUMN["profileAgeCreated"]
         if subject_path == "currentDate":
