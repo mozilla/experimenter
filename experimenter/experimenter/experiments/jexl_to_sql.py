@@ -272,6 +272,15 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
             right = f"'{right.lower()}'"
         elif left in ("TRUE", "FALSE") and _is_json_string_expr(right):
             left = f"'{left.lower()}'"
+        # In JEXL, pref|preferenceValue returns null when the pref is not explicitly set.
+        # null != 'false' is true in JEXL — unset prefs should pass a != false check.
+        # JSON_VALUE returns NULL for unset prefs; NULL != 'false' is NULL in SQL (falsy),
+        # which would incorrectly exclude users on the browser default.
+        # Fix: (col IS NULL OR col != 'false') matches JEXL semantics.
+        if sql_op == "!=" and right in ("'false'", "'true'") and _is_json_string_expr(left):
+            return f"({left} IS NULL OR {left} != {right})"
+        if sql_op == "!=" and left in ("'false'", "'true'") and _is_json_string_expr(right):
+            return f"({right} IS NULL OR {left} != {right})"
         return f"{left} {sql_op} {right}"
     if op in arithmetic_ops:
         return f"({left} {arithmetic_ops[op]} {right})"

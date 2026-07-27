@@ -151,6 +151,19 @@ class TestJEXLToSQL(TestCase):
                 "false == 'browser.shell.checkDefaultBrowser'|preferenceValue",
                 f"'false' = JSON_VALUE({_PREF}, '$.browser__shell__checkDefaultBrowser')",
             ),
+            (
+                "pref_value_neq_bool_false",
+                # null != false is true in JEXL — unset prefs (NULL) must pass
+                "'app.shield.optoutstudies.enabled'|preferenceValue != false",
+                f"(JSON_VALUE({_PREF}, '$.app__shield__optoutstudies__enabled') IS NULL"
+                f" OR JSON_VALUE({_PREF}, '$.app__shield__optoutstudies__enabled') != 'false')",
+            ),
+            (
+                "pref_value_neq_bool_true",
+                "'some.pref'|preferenceValue != true",
+                f"(JSON_VALUE({_PREF}, '$.some__pref') IS NULL"
+                f" OR JSON_VALUE({_PREF}, '$.some__pref') != 'true')",
+            ),
         ]
     )
     def test_comparison_produces_correct_sql(self, _name, jexl, expected_sql):
