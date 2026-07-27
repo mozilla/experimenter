@@ -1,0 +1,79 @@
+{% load nimbus_extras %}
+
+<div class="dropdown"
+     id="sidebar-links"
+     {% if hx_swap_oob %}hx-swap-oob="true"{% endif %}>
+  <button class="border-0 bg-transparent text-decoration-none d-flex align-items-center justify-content-between w-100 gap-2 rounded-2 pt-3 px-2 small text-body"
+          type="button"
+          data-bs-toggle="dropdown"
+          data-bs-auto-close="outside"
+          aria-expanded="false">
+    <span class="d-flex align-items-center gap-2">
+      <i class="fa-regular fa-compass text-body"></i>
+      Links
+    </span>
+    <i class="fa-solid fa-chevron-down small text-body"></i>
+  </button>
+  <ul class="dropdown-menu w-100">
+    {% for title, link in NimbusUIConstants.SIDEBAR_COMMON_LINKS.items %}
+      <li>
+        <a class="dropdown-item d-flex align-items-center justify-content-between gap-2 small"
+           href="{{ link.url }}"
+           target="_blank"
+           rel="noopener noreferrer">
+          <span class="d-flex align-items-center gap-2">
+            <i class="{{ link.icon }} text-secondary" style="min-width: 16px;"></i>
+            {{ title }}
+          </span>
+          <i class="fa-regular fa-circle-question fa-sm text-secondary"
+             data-bs-toggle="tooltip"
+             data-bs-placement="left"
+             title="{{ link.tooltip }}"></i>
+        </a>
+      </li>
+    {% endfor %}
+    {% if experiment.is_started %}
+      <li>
+        <a class="dropdown-item d-flex align-items-center justify-content-between gap-2 small"
+           href="{{ experiment.monitoring_dashboard_url }}"
+           target="_blank"
+           rel="noopener noreferrer">
+          <span class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-chart-simple text-secondary"
+               style="min-width: 16px"></i>
+            Live Monitoring Dashboard
+          </span>
+          <i class="fa-regular fa-circle-question fa-sm text-secondary"
+             data-bs-toggle="tooltip"
+             data-bs-placement="left"
+             title="{{ NimbusUIConstants.LIVE_MONITOR_TOOLTIP }}"></i>
+        </a>
+      </li>
+      {% if experiment.rollout_monitoring_dashboard_url %}
+        <li>
+          <a class="dropdown-item d-flex align-items-center gap-2 small"
+             href="{{ experiment.rollout_monitoring_dashboard_url }}"
+             target="_blank"
+             rel="noopener noreferrer">
+            <i class="fa-solid fa-gauge-high text-secondary" style="min-width: 16px"></i>
+            Rollouts OpMon Dashboard
+          </a>
+        </li>
+      {% endif %}
+    {% endif %}
+    {% for documentation_link in experiment.documentation_links.all %}
+      {% if documentation_link.link %}
+        <li>
+          <a class="dropdown-item d-flex align-items-center gap-2 small"
+             href="{{ documentation_link.link }}"
+             target="_blank"
+             rel="noopener noreferrer">
+            <i class="fa-solid fa-arrow-up-right-from-square text-secondary"
+               style="min-width: 16px"></i>
+            {{ documentation_link.get_title_display }}
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</div>

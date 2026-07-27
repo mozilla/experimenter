@@ -79,5 +79,7 @@
     <h1 id="experiment-header-name"
         class="mb-0 fw-semibold fs-4 text-body"
         hx-swap-oob="true">{{ experiment.name }}</h1>
+    {% include "new/common/sidebar_links.html" with hx_swap_oob=True %}
+
   {% endif %}
 {% endblock %}
