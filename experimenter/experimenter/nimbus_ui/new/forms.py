@@ -484,6 +484,9 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         (True, "Yes"),
         (False, "No"),
     )
+    is_localized = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
     localizations = forms.CharField(required=False, widget=forms.HiddenInput())
     channel = forms.ChoiceField(
         required=False,
@@ -578,6 +581,7 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "locales",
             "required_experiments_branches",
             "targeting_config_slug",
+            "is_localized",
             "localizations",
         ]
 
@@ -597,6 +601,17 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 "hx-trigger": "change",
                 "hx-select": "#first-run-fields",
                 "hx-target": "#first-run-fields",
+            }
+        )
+
+        self.fields["is_localized"].widget.attrs.update(
+            {
+                "hx-post": reverse(
+                    "nimbus-ui-new-update-audience", kwargs={"slug": self.instance.slug}
+                ),
+                "hx-trigger": "change",
+                "hx-select": "#rollout-audience-body",
+                "hx-target": "#rollout-audience-body",
             }
         )
 
@@ -1212,3 +1227,22 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} removed subscriber"
+
+
+class ToggleReviewSlackNotificationsForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = ["enable_review_slack_notifications"]
+        widgets = {
+            "enable_review_slack_notifications": forms.CheckboxInput(
+                attrs={"class": "form-check-input m-0"}
+            ),
+        }
+
+    def get_changelog_message(self):
+        status = (
+            "enabled"
+            if self.cleaned_data.get("enable_review_slack_notifications")
+            else "disabled"
+        )
+        return f"{self.request.user} {status} review Slack notifications"

@@ -196,7 +196,8 @@ def _node_to_sql(node, warnings: list[str]) -> Optional[str]:
         if subject_path == "addonsInfo.addons" and isinstance(node.expression, Literal):
             addon_id = node.expression.value
             if isinstance(addon_id, str):
-                return f"'{addon_id}' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons'))"
+                # Wrap in parens so result can be used in comparisons: (...) != NULL
+                return f"('{addon_id}' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons')))"
         _add_warning(warnings, subject_path or _identifier_path(node.subject))
         return None
     return None
@@ -215,6 +216,10 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
         right = _node_to_sql(node.right, warnings)
         if left and right:
             sql_op = "AND" if op == "&&" else "OR"
+            # BigQuery requires BOOL operands for AND/OR.
+            # Pref value strings and JSON_VALUE results are STRING — coerce to BOOL.
+            left = _coerce_to_bool(left)
+            right = _coerce_to_bool(right)
             return f"({left} {sql_op} {right})"
         return left or right
 
@@ -224,7 +229,9 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
         return None
 
     if op == "in":
-        return f"{left} IN {right}"
+        # Wrap in parens so the result can be safely used in outer comparisons
+        # e.g. (region IN ('US', 'CA')) != TRUE — without parens BQ errors
+        return f"({left} IN {right})"
 
     comparison_ops = {
         "==": "=",
@@ -237,7 +244,26 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
     arithmetic_ops = {"+": "+", "-": "-", "*": "*", "/": "/", "%": "%"}
 
     if op in comparison_ops:
-        return f"{left} {comparison_ops[op]} {right}"
+        sql_op = comparison_ops[op]
+        # JEXL uses == null / != null; BigQuery requires IS NULL / IS NOT NULL.
+        # FilterExpression results (IN UNNEST) represent "found/not found":
+        #   filter == null  →  NOT (filter)   [addon/pref not present]
+        #   filter != null  →  filter          [addon/pref present]
+        # For all other expressions use IS NULL / IS NOT NULL.
+        if right == "NULL" or left == "NULL":
+            expr = left if right == "NULL" else right
+            is_filter_result = " IN UNNEST(" in expr.upper()
+            if sql_op == "=":
+                return f"NOT ({expr})" if is_filter_result else f"{expr} IS NULL"
+            if sql_op == "!=":
+                return expr if is_filter_result else f"{expr} IS NOT NULL"
+        # JSON_VALUE returns STRING; comparing to a BOOL literal (TRUE/FALSE) is invalid.
+        # 'pref'|preferenceValue == false → JSON_VALUE(...) = 'false' (string comparison).
+        if right in ("TRUE", "FALSE") and _is_json_string_expr(left):
+            right = f"'{right.lower()}'"
+        elif left in ("TRUE", "FALSE") and _is_json_string_expr(right):
+            left = f"'{left.lower()}'"
+        return f"{left} {sql_op} {right}"
     if op in arithmetic_ops:
         return f"({left} {arithmetic_ops[op]} {right})"
     return None
@@ -308,16 +334,22 @@ def _transform_to_sql(node: Transform, warnings: list[str]) -> Optional[str]:
         return None
 
     if node.name == "length":
+        # BigQuery has no JSON_ARRAY_LENGTH for STRING columns — metrics.object.*
+        # columns are JSON strings, so use ARRAY_LENGTH(JSON_QUERY_ARRAY(...)).
         if subject_path == "userMonthlyActivity":
-            return f"JSON_ARRAY_LENGTH({_USER_MONTHLY_ACTIVITY_COL})"
+            return f"ARRAY_LENGTH(JSON_QUERY_ARRAY({_USER_MONTHLY_ACTIVITY_COL}))"
         subject_sql = _node_to_sql(node.subject, warnings)
         if subject_sql:
-            return f"JSON_ARRAY_LENGTH({subject_sql})"
+            return f"ARRAY_LENGTH(JSON_QUERY_ARRAY({subject_sql}))"
         _add_warning(warnings, "|length")
         return None
 
     if node.name == "preferenceValue":
-        # Pref names stored with dots replaced by __ in BigQuery
+        # Pref names stored with dots replaced by __ in BigQuery.
+        # Returns the raw JSON string value — callers that need a boolean comparison
+        # (e.g. pref == 'value') get a STRING they can compare against.
+        # Boolean prefs used as bare truthy values in JEXL (e.g. pref|preferenceValue
+        # in an && chain) are handled by _is_boolean_sql recognizing this pattern.
         pref_name = _literal_value(node.subject)
         if pref_name:
             bq_key = pref_name.replace(".", "__")
@@ -439,11 +471,33 @@ def _literal_value(node) -> Optional[str]:
     return None
 
 
+def _is_json_string_expr(sql: str) -> bool:
+    """Returns True if the SQL expression produces a STRING value.
+
+    Used to detect when a boolean literal (TRUE/FALSE) would cause a type mismatch
+    in a comparison — e.g. JSON_VALUE(...) = FALSE should become = 'false'.
+    """
+    return sql.startswith(("JSON_VALUE(", "metrics.string."))
+
+
 def _is_untranslatable(path: str) -> bool:
     if path in KNOWN_UNTRANSLATABLE:
         return True
     parts = path.split(".")
     return any(".".join(parts[:i]) in KNOWN_UNTRANSLATABLE for i in range(1, len(parts)))
+
+
+def _coerce_to_bool(sql: str) -> str:
+    """Wrap a STRING SQL expression as BOOL for use in AND/OR.
+
+    JSON_VALUE always returns STRING. When a pref value is used as a bare
+    boolean in JEXL (truthy = non-null, non-empty, non-'false'), convert it
+    to a BQ BOOL comparison so AND/OR don't error on STRING types.
+    """
+    if _is_boolean_sql(sql):
+        return sql
+    # For STRING expressions: treat null/empty/'false' as falsy, anything else truthy
+    return f"({sql} IS NOT NULL AND {sql} != '' AND {sql} != 'false')"
 
 
 def _is_boolean_sql(sql: str) -> bool:
@@ -452,6 +506,18 @@ def _is_boolean_sql(sql: str) -> bool:
         sql.startswith("metrics.boolean.")
         or sql_upper.endswith(("AS BOOL)", "AS BOOLEAN)"))
         or " IN UNNEST(" in sql_upper
+        or " IN (" in sql_upper  # X IN (list) returns BOOL
+        or " IS NULL" in sql_upper
+        or " IS NOT NULL" in sql_upper
+        or sql_upper.startswith("NOT (")
+        or " AND " in sql_upper
+        or " OR " in sql_upper
+        or " = " in sql
+        or " != " in sql
+        or " >= " in sql
+        or " <= " in sql
+        or " > " in sql
+        or " < " in sql
     )
 
 

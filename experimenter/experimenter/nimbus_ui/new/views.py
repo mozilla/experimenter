@@ -31,6 +31,7 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutSignoffForm,
     SubscribeForm,
     TagAssignForm,
+    ToggleReviewSlackNotificationsForm,
     UnsubscribeForm,
 )
 
@@ -64,6 +65,11 @@ class NimbusExperimentViewMixin:
         )
         context["all_tags"] = Tag.objects.all().order_by("name")
         context["create_form"] = NimbusExperimentCreateForm()
+
+        if experiment and experiment.slug:
+            context["slack_notifications_form"] = ToggleReviewSlackNotificationsForm(
+                instance=experiment
+            )
 
         return context
 
@@ -239,6 +245,14 @@ class NewAudienceUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutAudienceForm
     display_template = "new/rollouts/audience/card.html"
     template_name = "new/rollouts/audience/edit_form.html"
+
+    def render_valid_response(self):
+        self.object.refresh_from_db()
+
+        if "save" in self.request.POST:
+            return super().render_valid_response()
+
+        return self.render_to_response(self.get_context_data())
 
 
 class NewRolloutFeaturesUpdateView(CardMixin, NewCardUpdateView):
@@ -471,3 +485,15 @@ class NewCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
                 "new-nimbus-ui-rollout-detail", kwargs={"slug": self.object.slug}
             )
         return response
+
+
+class NewToggleReviewSlackNotificationsView(
+    NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+):
+    model = NimbusExperiment
+    form_class = ToggleReviewSlackNotificationsForm
+    template_name = "new/common/slack_notifications_toggle.html"
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return self.render_to_response(self.get_context_data())

@@ -1,0 +1,16 @@
+<form id="slack-notifications-toggle-form"
+      hx-post="{% url 'nimbus-ui-new-toggle-review-slack-notifications' experiment.slug %}"
+      hx-trigger="change"
+      hx-target="#slack-notifications-toggle-form"
+      hx-swap="outerHTML"
+      class="d-flex align-items-center">
+  {% csrf_token %}
+  <div class="form-check form-switch d-flex align-items-center m-0">
+    <label for="{{ slack_notifications_form.enable_review_slack_notifications.id_for_label }}"
+           class="form-check-label text-secondary small me-2 mb-0">
+      <i class="fa-solid fa-bell me-1"></i>
+      <span>Enable review Slack notifications</span>
+    </label>
+    {{ slack_notifications_form.enable_review_slack_notifications }}
+  </div>
+</form>
