@@ -65,6 +65,38 @@ class TestTargetingConfigs(TestCase):
                 f"JEXL_TO_BQ_COLUMN or KNOWN_UNTRANSLATABLE.",
             )
 
+    def test_desktop_targeting_context_fields_are_mapped(self):
+        """Every field in the Desktop targeting context must be in JEXL_TO_BQ_COLUMN
+        or KNOWN_UNTRANSLATABLE.
+
+        This test runs against the real (unversioned) Desktop targeting context file.
+        When an Update External Configs PR adds a new field to the recorded targeting
+        context, this test fails, requiring the SQL mapping to be updated in the same
+        PR before the field can be referenced in any targeting config.
+        """
+        desktop_fields = TargetingContextFields.for_application(Application.DESKTOP)
+
+        all_mapped_prefixes = {
+            key.split(".")[0] for key in JEXL_TO_BQ_COLUMN
+        } | set(JEXL_TO_BQ_COLUMN)
+        all_untranslatable_prefixes = {
+            key.split(".")[0] for key in KNOWN_UNTRANSLATABLE
+        } | set(KNOWN_UNTRANSLATABLE)
+
+        unmapped = [
+            field
+            for field in desktop_fields
+            if field not in all_mapped_prefixes
+            and field not in all_untranslatable_prefixes
+        ]
+
+        self.assertFalse(
+            unmapped,
+            f"Desktop targeting context fields not covered by JEXL_TO_BQ_COLUMN "
+            f"or KNOWN_UNTRANSLATABLE: {unmapped}. "
+            f"Add a mapping in jexl_to_sql.py or add to KNOWN_UNTRANSLATABLE.",
+        )
+
     @parameterized.expand([(t,) for t in TargetingConstants.TARGETING_CONFIGS.values()])
     def test_validate_targeting_config_fields(self, targeting_config):
         valid_fields = set()
