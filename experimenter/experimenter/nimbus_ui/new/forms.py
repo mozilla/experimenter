@@ -710,7 +710,19 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     class Meta:
         model = NimbusExperiment
-        fields = ("feature_configs",)
+        fields = (
+            "feature_configs",
+            "warn_feature_schema",
+            "prevent_pref_conflicts",
+        )
+        widgets = {
+            "warn_feature_schema": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+            "prevent_pref_conflicts": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

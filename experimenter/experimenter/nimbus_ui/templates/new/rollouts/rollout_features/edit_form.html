@@ -70,6 +70,27 @@
         {% endfor %}
       </div>
     {% endwith %}
+    {#  Feature validation and pref conflict options  #}
+    <div class="mt-4">
+      <div class="form-check">
+        {{ form.warn_feature_schema }}
+        <label class="form-check-label small text-body mb-2"
+               for="{{ form.warn_feature_schema.id_for_label }}">Warn only on feature schema validation failure</label>
+      </div>
+      {% for error in validation_errors.warn_feature_schema %}
+        <div class="form-text text-danger">{{ error }}</div>
+      {% endfor %}
+      <div class="form-check">
+        {{ form.prevent_pref_conflicts }}
+        <label class="form-check-label small text-body"
+               for="{{ form.prevent_pref_conflicts.id_for_label }}">
+          Prevent enrollment if users have changed any prefs set by this experiment
+        </label>
+      </div>
+      {% for error in validation_errors.prevent_pref_conflicts %}
+        <div class="form-text text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
     {#  Rollout screenshots  #}
     <div>
       {% with rollout_screenshots=form.rollout_screenshots %}
