@@ -131,6 +131,71 @@
         </div>
       {% endwith %}
     </div>
+    {#  Firefox Labs  #}
+    {% if experiment.application_config.firefox_labs %}
+      <hr class="my-4 text-body-tertiary">
+      <div>
+        <div class="form-check">
+          {{ form.is_firefox_labs_opt_in }}
+          <label class="form-check-label" for="id_is_firefox_labs_opt_in">Is this a Firefox Labs rollout?</label>
+        </div>
+        {% for error in validation_errors.is_firefox_labs_opt_in %}
+          <div class="form-text text-danger">{{ error }}</div>
+        {% endfor %}
+        {% if experiment.is_firefox_labs_opt_in %}
+          <div class="mt-4">
+            <label class="small text-body mb-2 d-block">
+              The title to display in Firefox Labs (Fluent ID)
+              {{ form.firefox_labs_title }}
+            </label>
+            {{ form.firefox_labs_title.errors }}
+            {% for error in validation_errors.firefox_labs_title %}
+              <div class="form-text text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="mt-4">
+            <label class="small text-body mb-2 d-block">
+              The description to display in Firefox Labs (Fluent ID)
+              {{ form.firefox_labs_description }}
+            </label>
+            {{ form.firefox_labs_description.errors }}
+            {% for error in validation_errors.firefox_labs_description %}
+              <div class="form-text text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="mt-4">
+            <label class="small text-body mb-2 d-block">
+              Description Links (JSON)
+              {{ form.firefox_labs_description_links }}
+            </label>
+            {{ form.firefox_labs_description_links.errors }}
+            {% for error in validation_errors.firefox_labs_description_links %}
+              <div class="form-text text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+          {% if experiment.application_config.firefox_labs.supports_groups %}
+            <div class="mt-4">
+              <label class="small text-body mb-2 d-block">
+                Firefox Labs Group
+                {{ form.firefox_labs_group }}
+              </label>
+              {{ form.firefox_labs_group.errors }}
+              {% for error in validation_errors.firefox_labs_group %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          <div class="mt-4">
+            <div class="form-check">
+              {{ form.requires_restart }}
+              <label class="form-check-label" for="id_requires_restart">Requires restart to take effect?</label>
+            </div>
+            {{ form.requires_restart.errors }}
+            {% for error in validation_errors.requires_restart %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
 </div>
 {# Action buttons #}
@@ -147,5 +212,5 @@
 </div>
 {% block extrascripts %}
   {% if branch_form_data %}{{ branch_form_data|json_script:"branch-form-data" }}{% endif %}
-  <script src="{% static 'nimbus_ui/edit_branches.bundle.js' %}"></script>
+  <script src="{% static 'nimbus_ui/new_edit_branches.bundle.js' %}"></script>
 {% endblock extrascripts %}
