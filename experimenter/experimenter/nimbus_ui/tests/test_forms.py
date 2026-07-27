@@ -2237,6 +2237,7 @@ class TestLiveToUpdateRolloutForm(
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_paused=False,
             is_rollout=True,
+            is_rollout_dirty=True,
         )
         form = LiveToUpdateRolloutForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
@@ -2250,6 +2251,22 @@ class TestLiveToUpdateRolloutForm(
         changelog = experiment.changes.latest("changed_on")
         self.assertEqual(changelog.changed_by, self.user)
         self.assertIn("requested review to update Audience", changelog.message)
+
+    def test_invalid_when_rollout_not_dirty(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_paused=False,
+            is_rollout=True,
+            is_rollout_dirty=False,
+        )
+        form = LiveToUpdateRolloutForm(data={}, instance=experiment, request=self.request)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusExperiment.ERROR_CANNOT_UPDATE_ROLLOUT_NOT_DIRTY,
+            form.errors["__all__"],
+        )
 
     @parameterized.expand(
         [
@@ -2293,6 +2310,7 @@ class TestLiveToUpdateRolloutForm(
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            is_rollout_dirty=True,
             enable_review_slack_notifications=False,
         )
         form = LiveToUpdateRolloutForm(data={}, instance=experiment, request=self.request)
@@ -2311,6 +2329,7 @@ class TestLiveToUpdateRolloutForm(
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            is_rollout_dirty=True,
             enable_review_slack_notifications=True,
         )
         form = LiveToUpdateRolloutForm(data={}, instance=experiment, request=self.request)

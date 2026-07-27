@@ -2776,6 +2776,7 @@ class TestLaunchViews(AuthTestCase):
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            is_rollout_dirty=True,
         )
 
         response = self.client.post(
@@ -2788,6 +2789,23 @@ class TestLaunchViews(AuthTestCase):
 
         changelog = experiment.changes.latest("changed_on")
         self.assertIn("requested review to update Audience", changelog.message)
+
+    def test_live_to_update_rollout_view_does_not_transition_when_not_dirty(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            is_rollout_dirty=False,
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-live-to-update-rollout", kwargs={"slug": experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.status_next, None)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
     def test_cancel_update_rollout_view_with_rejection(self):
         experiment = NimbusExperimentFactory.create(

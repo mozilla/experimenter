@@ -934,6 +934,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ERROR_CANNOT_PAUSE_INVALID = "Cannot end enrollment at this time"
 
+    ERROR_CANNOT_UPDATE_ROLLOUT_NOT_DIRTY = (
+        "Cannot request an update: there are no unpublished changes"
+    )
+
     ERROR_CANNOT_PARSE_TARGETING = "Cannot parse targeting expression"
 
     ERROR_MOBILE_MESSAGING_EXPERIMENT_FIELD = (
