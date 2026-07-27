@@ -165,6 +165,12 @@ class TestJEXLToSQL(TestCase):
                 f"(JSON_VALUE({_PREF}, '$.some__pref') IS NULL"
                 f" OR JSON_VALUE({_PREF}, '$.some__pref') != 'true')",
             ),
+            (
+                "pref_value_neq_bool_reversed",
+                "false != 'app.normandy.enabled'|preferenceValue",
+                f"(JSON_VALUE({_PREF}, '$.app__normandy__enabled') IS NULL"
+                f" OR 'false' != JSON_VALUE({_PREF}, '$.app__normandy__enabled'))",
+            ),
         ]
     )
     def test_comparison_produces_correct_sql(self, _name, jexl, expected_sql):
