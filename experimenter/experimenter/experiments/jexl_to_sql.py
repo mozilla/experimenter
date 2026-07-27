@@ -62,7 +62,6 @@ JEXL_TO_BQ_COLUMN = {
     "launchOnLoginEnabled": (
         "metrics.boolean.nimbus_targeting_context_launch_on_login_enabled"
     ),
-    # Only usable via |length transform; listed here so the context-coverage check passes
     "userMonthlyActivity": (
         "metrics.object.nimbus_targeting_context_user_monthly_activity"
     ),
