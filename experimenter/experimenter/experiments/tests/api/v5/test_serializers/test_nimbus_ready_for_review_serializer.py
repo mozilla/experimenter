@@ -797,8 +797,10 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             serializer.errors["feature_configs"],
             [
-                "Feature Config application ios does not "
-                "match experiment application fenix."
+                (
+                    "Feature Config application ios does not "
+                    "match experiment application fenix."
+                )
             ],
         )
 
@@ -2105,8 +2107,10 @@ class TestNimbusReviewSerializerSingleFeature(
             serializer.errors,
             {
                 "localizations": [
-                    "Locale en-US is missing substitutions for IDs: bar-string, "
-                    "foo-string"
+                    (
+                        "Locale en-US is missing substitutions for IDs: bar-string, "
+                        "foo-string"
+                    )
                 ]
             },
         )
@@ -2199,8 +2203,10 @@ class TestNimbusReviewSerializerSingleFeature(
             ),
             (
                 {"id": "&&&&&&&&&"},
-                "$l10n id '&&&&&&&&&' contains invalid characters; only alphanumeric "
-                "characters and dashes are permitted",
+                (
+                    "$l10n id '&&&&&&&&&' contains invalid characters; only alphanumeric "
+                    "characters and dashes are permitted"
+                ),
             ),
             (
                 {"id": "foo-string"},
@@ -5124,8 +5130,10 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
         self.assertEqual(
             serializer.errors["feature_configs"],
             [
-                "Feature Config application ios does not "
-                "match experiment application fenix."
+                (
+                    "Feature Config application ios does not "
+                    "match experiment application fenix."
+                )
             ],
         )
 

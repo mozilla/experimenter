@@ -777,8 +777,10 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "nightly_and_beta",
-                f"channel={NimbusExperiment.Channel.NIGHTLY}"
-                f"&channel={NimbusExperiment.Channel.BETA}",
+                (
+                    f"channel={NimbusExperiment.Channel.NIGHTLY}"
+                    f"&channel={NimbusExperiment.Channel.BETA}"
+                ),
                 [
                     NimbusExperiment.Channel.NIGHTLY,
                     NimbusExperiment.Channel.BETA,
@@ -829,8 +831,10 @@ class TestHomeFilters(AuthTestCase):
             ),
             (
                 "desktop_and_fenix",
-                f"application={NimbusExperiment.Application.DESKTOP}"
-                f"&application={NimbusExperiment.Application.FENIX}",
+                (
+                    f"application={NimbusExperiment.Application.DESKTOP}"
+                    f"&application={NimbusExperiment.Application.FENIX}"
+                ),
                 [
                     NimbusExperiment.Application.DESKTOP,
                     NimbusExperiment.Application.FENIX,

@@ -6,7 +6,7 @@ from typing import Any
 from experimenter.glean.generated.server_events import GLEAN_EVENT_MOZLOG_TYPE
 
 
-def get_request_ip(request) -> None | str:
+def get_request_ip(request) -> str | None:
     if xff := request.META.get("HTTP_X_FORWARDED_FOR"):
         # Only trust the last 3 values in XFF because they are added by the Google Cloud
         # Load Balancer and nginx, and use the least recent of those values.
