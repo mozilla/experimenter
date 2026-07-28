@@ -84,7 +84,7 @@
         {{ form.prevent_pref_conflicts }}
         <label class="form-check-label small text-body"
                for="{{ form.prevent_pref_conflicts.id_for_label }}">
-          Prevent enrollment if users have changed any prefs set by this experiment
+          Prevent enrollment if users have changed any prefs set by this rollout
         </label>
       </div>
       {% for error in validation_errors.prevent_pref_conflicts %}
