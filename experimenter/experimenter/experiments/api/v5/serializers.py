@@ -1199,9 +1199,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         errors = {
             "feature_configs": [
-                f"Feature Config application {feature_config.application} "
-                f"does not match experiment application "
-                f"{self.instance.application}."
+                (
+                    f"Feature Config application {feature_config.application} "
+                    f"does not match experiment application "
+                    f"{self.instance.application}."
+                )
             ]
             for feature_config in feature_configs
             if self.instance.application != feature_config.application
@@ -1533,8 +1535,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {
                         "localizations": [
-                            f"Experiment locale {locale_code} not present in "
-                            f"localizations."
+                            (
+                                f"Experiment locale {locale_code} not present in "
+                                f"localizations."
+                            )
                         ]
                     }
                 )
@@ -1544,8 +1548,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {
                         "localizations": [
-                            f"Localization locale {localization} does not exist in "
-                            f"experiment locales."
+                            (
+                                f"Localization locale {localization} does not exist in "
+                                f"experiment locales."
+                            )
                         ]
                     }
                 )
@@ -1609,8 +1615,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {
                     "localizations": [
-                        f"Locale {locale_code} is missing substitutions for IDs: "
-                        f"{missing_ids_str}"
+                        (
+                            f"Locale {locale_code} is missing substitutions for IDs: "
+                            f"{missing_ids_str}"
+                        )
                     ]
                 }
             )

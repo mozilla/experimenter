@@ -1150,7 +1150,7 @@ EXCLUDE_WIN_10 = NimbusTargetingConfig(
     slug="all_users_no_win10",
     description=(
         "Mac, Linux and Windows 11 users but not Windows 10 users "
-        "(Windows 10 build > 22000)",
+        "(Windows 10 build > 22000)"
     ),
     targeting=(
         "(os.isWindows && os.windowsVersion >= 10 && "
