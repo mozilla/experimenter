@@ -721,6 +721,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     is_holdback = forms.BooleanField(
         required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
     )
+    is_first_run = forms.BooleanField(required=False, widget=forms.HiddenInput())
 
     update_on_change_fields = (
         "equal_branch_ratio",
@@ -746,6 +747,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "firefox_labs_description_links",
             "firefox_labs_group",
             "requires_restart",
+            "is_first_run",
             "is_holdback",
         )
         widgets = {
@@ -827,6 +829,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         if not self.was_labs_opt_in and cleaned_data["is_firefox_labs_opt_in"]:
             cleaned_data["is_rollout"] = True
+            cleaned_data["is_first_run"] = False
         elif not cleaned_data["is_rollout"]:
             cleaned_data["is_firefox_labs_opt_in"] = False
 
@@ -1177,6 +1180,9 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             for field_name in self.fields:
                 if field_name != "population_percent":
                     self.fields[field_name].disabled = True
+
+        if self.instance.is_firefox_labs_opt_in:
+            self.fields["is_first_run"].disabled = True
 
     def format_branch_choice(self, experiment_slug, experiment_name, branch_slug):
         if branch_slug is None:
