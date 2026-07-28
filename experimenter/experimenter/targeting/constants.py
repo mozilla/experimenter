@@ -2433,6 +2433,28 @@ HAS_GOOGLE_BING_DDG_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+HAS_BING_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
+    name="Has Bing as current default search engine",
+    slug="has_bing_as_current_default_search_engine",
+    description="Users with Bing as current default engine",
+    targeting=("'bing' in searchEngines.current"),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+HAS_DDG_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
+    name="Has DDG as current default search engine",
+    slug="has_ddg_as_current_default_search_engine",
+    description="Users with DuckDuckGo as current default engine",
+    targeting=("'ddg' in searchEngines.current"),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     name="Has Google as current default search engine",
     slug="has_google_as_current_default_search_engine",
