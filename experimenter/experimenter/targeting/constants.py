@@ -1274,7 +1274,7 @@ WINDOWS_LAUNCH_ON_LOGIN_ELIGIBLE = NimbusTargetingConfig(
         "os.isWindows && os.windowsVersion >= 10 && !launchOnLoginEnabled && "
         "'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue && "
         "(!isMSIX || os.windowsBuildNumber >= 22000) && "
-        "profileAgeCreated > '2026-06-16'|date"
+        "profileAgeCreated < '2026-06-16'|date"
     ),
     desktop_telemetry="",
     sticky_required=False,
