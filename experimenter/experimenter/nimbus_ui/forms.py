@@ -1809,6 +1809,16 @@ class LiveToUpdateRolloutForm(SlackNotificationMixin, UpdateStatusForm):
 
     slack_action = SlackConstants.SLACK_ACTION_UPDATE_REQUEST
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if self.instance and not self.instance.is_rollout_dirty:
+            raise forms.ValidationError(
+                NimbusExperiment.ERROR_CANNOT_UPDATE_ROLLOUT_NOT_DIRTY
+            )
+
+        return cleaned_data
+
     def get_changelog_message(self):
         return f"{self.request.user} requested review to update Audience"
 

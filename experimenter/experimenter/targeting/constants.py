@@ -1257,6 +1257,26 @@ WIN10_VPN_PROMOTION_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_LAUNCH_ON_LOGIN_ELIGIBLE = NimbusTargetingConfig(
+    name="Windows users eligible for launch on login",
+    slug="windows_launch_on_login_eligible",
+    description=(
+        "Windows 10+ users whose profiles predate 6/16/2026, who don't already "
+        "have launch on login enabled. Excludes users running an MSIX build on "
+        "Windows 10."
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !launchOnLoginEnabled && "
+        "'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue && "
+        "(!isMSIX || os.windowsBuildNumber >= 22000) && "
+        "profileAgeCreated > '2026-06-16'|date"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USERS_PDF_PROMO_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10+ users eligible for Split PDF promo",
     slug="win10_pdf_split_promo",
@@ -4978,6 +4998,45 @@ FX_154_8_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_153_3_TO_PRE_154_JUL16_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+    name=(
+        "New Tab Fx153 Jun-05 Trainhop (older than Jul-16), engaged with any of 4 "
+        "widgets, that widget not disabled"
+    ),
+    slug="widgets-any-four-engaged-153-0605-thru-pre-154-0716-trainhop",
+    description=(
+        "Users on a New Tab train hop from 153.3.20260605.21338 (Jun-05) up to but "
+        "NOT including 154.8.20260716.43450 (Jul-16) who engaged with the Sports, "
+        "Clocks, Lists, or Timer widget and still have that widget enabled"
+    ),
+    targeting=(
+        f"{FX_153_3_TRAINHOP.targeting} "
+        f"&& newtabAddonVersion|versionCompare('154.8.20260716.43450') < 0 "
+        f"&& ({WIDGETS_ANY_FOUR_ENGAGED.targeting})"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_153_3_TO_PRE_154_JUL16_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx153 Jun-05 Trainhop (older than Jul-16)",
+    slug="153-0605-thru-pre-154-0716-trainhop",
+    description=(
+        "Users on a New Tab train hop from 153.3.20260605.21338 (Jun-05) up to but "
+        "NOT including 154.8.20260716.43450 (Jul-16)"
+    ),
+    targeting=(
+        f"{FX_153_3_TRAINHOP.targeting} "
+        f"&& newtabAddonVersion|versionCompare('154.8.20260716.43450') < 0"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FX_153_3_TRAINHOP_ANY_WIDGET_ENABLED = NimbusTargetingConfig(
     name="New Tab Fx153 Jun-05 Trainhop, any of 4 widgets enabled",
     slug="any-widget-enabled-153-0605-trainhop",
@@ -5154,6 +5213,17 @@ SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NOVA_ENABLED = NimbusTargetingConfig(
+    name="Nova enabled",
+    slug="nova_enabled",
+    description="Nova is enabled",
+    targeting="'browser.nova.enabled'|preferenceValue",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_DEFAULT_BROWSER_PROFILE_7_DAYS_NO_ENTERPRISE = NimbusTargetingConfig(
     name="Not default browser, profile 7+ days, not first startup, no enterprise",
     slug="not_default_browser_profile_7_days_no_enterprise",
@@ -5249,6 +5319,20 @@ EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED = NimbusTargetingConfig(
     description="Profile 7+ days, Windows only, has Taskbar Tabs enabled",
     targeting=(
         f"{PROFILEMORETHAN7DAYS} && {WINDOWS_ONLY.targeting} && {TASKBAR_TABS_ENABLED}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED_7_28_DAY_PROFILE = NimbusTargetingConfig(
+    name="Existing windows users with Taskbar Tabs enabled, 7-28 day profiles",
+    slug="existing_windows_user_taskbar_tabs_enabled_7_28_day_profile",
+    description="Profile 7-28 days, Windows only, has Taskbar Tabs enabled",
+    targeting=(
+        f"{PROFILEMORETHAN7DAYS} && {PROFILELESSTHAN28DAYS} && "
+        f"{WINDOWS_ONLY.targeting} && {TASKBAR_TABS_ENABLED}"
     ),
     desktop_telemetry="",
     sticky_required=True,

@@ -406,7 +406,7 @@ features:
       show-onboarding-bottom-sheet:
         description: If true, the IP Protection onboarding bottom sheet is shown to the user.
         type: Boolean
-        default: false
+        default: true
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
@@ -596,7 +596,7 @@ features:
       enabled:
         description: enabled media notification improvements if true, else not enabled
         type: Boolean
-        default: false
+        default: true
   merino-client:
     description: Feature to enable the Merino Client for users on Firefox on Android.
     variables:

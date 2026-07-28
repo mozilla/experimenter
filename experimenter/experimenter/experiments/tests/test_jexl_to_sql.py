@@ -114,7 +114,7 @@ class TestJEXLToSQL(TestCase):
             (
                 "locale_in_array",
                 'locale in ["en-US", "en-CA"]',
-                "metrics.string.nimbus_targeting_context_locale IN ('en-US', 'en-CA')",
+                "(metrics.string.nimbus_targeting_context_locale IN ('en-US', 'en-CA'))",
             ),
             (
                 "firefox_version_gte",
@@ -134,7 +134,42 @@ class TestJEXLToSQL(TestCase):
             (
                 "null_check",
                 "isFxASignedIn != null",
-                "metrics.boolean.nimbus_targeting_context_is_fx_a_signed_in != NULL",
+                "metrics.boolean.nimbus_targeting_context_is_fx_a_signed_in IS NOT NULL",
+            ),
+            (
+                "pref_value_eq_bool_false",
+                "'browser.shell.checkDefaultBrowser'|preferenceValue == false",
+                f"JSON_VALUE({_PREF}, '$.browser__shell__checkDefaultBrowser') = 'false'",
+            ),
+            (
+                "pref_value_eq_bool_true",
+                "'app.normandy.enabled'|preferenceValue == true",
+                f"JSON_VALUE({_PREF}, '$.app__normandy__enabled') = 'true'",
+            ),
+            (
+                "pref_value_eq_bool_reversed",
+                "false == 'browser.shell.checkDefaultBrowser'|preferenceValue",
+                f"'false' = JSON_VALUE({_PREF}, '$.browser__shell__checkDefaultBrowser')",
+            ),
+            (
+                "pref_value_neq_bool_false",
+                # null != false is true in JEXL — unset prefs (NULL) must pass
+                "'app.shield.optoutstudies.enabled'|preferenceValue != false",
+                f"(JSON_VALUE({_PREF}, '$.app__shield__optoutstudies__enabled')"
+                f" IS NULL OR JSON_VALUE({_PREF},"
+                f" '$.app__shield__optoutstudies__enabled') != 'false')",
+            ),
+            (
+                "pref_value_neq_bool_true",
+                "'some.pref'|preferenceValue != true",
+                f"(JSON_VALUE({_PREF}, '$.some__pref') IS NULL"
+                f" OR JSON_VALUE({_PREF}, '$.some__pref') != 'true')",
+            ),
+            (
+                "pref_value_neq_bool_reversed",
+                "false != 'app.normandy.enabled'|preferenceValue",
+                f"(JSON_VALUE({_PREF}, '$.app__normandy__enabled') IS NULL"
+                f" OR 'false' != JSON_VALUE({_PREF}, '$.app__normandy__enabled'))",
             ),
         ]
     )
@@ -306,12 +341,12 @@ class TestJEXLToSQL(TestCase):
     def test_length_user_monthly_activity(self):
         result = jexl_to_sql("userMonthlyActivity|length >= 1")
         self.assertIn(_UMA, result.sql)
-        self.assertIn("JSON_ARRAY_LENGTH", result.sql)
+        self.assertIn("ARRAY_LENGTH(JSON_QUERY_ARRAY", result.sql)
         self.assertEqual(result.warnings, [])
 
     def test_length_on_translatable_subject(self):
         result = jexl_to_sql("locale|length >= 2")
-        self.assertIn("JSON_ARRAY_LENGTH", result.sql)
+        self.assertIn("ARRAY_LENGTH(JSON_QUERY_ARRAY", result.sql)
 
     def test_date_profile_age(self):
         result = jexl_to_sql(
@@ -335,11 +370,23 @@ class TestJEXLToSQL(TestCase):
 
     # --- addonsInfo ---
 
-    def test_addons_specific_addon_id(self):
+    def test_addons_specific_addon_id_installed(self):
+        # addon != null means installed → (id IN UNNEST(addons))
         result = jexl_to_sql("addonsInfo.addons['uBlock0@raymondhill.net'] != null")
-        self.assertIn(_AI, result.sql)
-        self.assertIn("uBlock0@raymondhill.net", result.sql)
-        self.assertIn("IN UNNEST", result.sql)
+        self.assertEqual(
+            result.sql,
+            f"('uBlock0@raymondhill.net' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons')))",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_addons_specific_addon_id_not_installed(self):
+        # addon == null means NOT installed → NOT (id IN UNNEST(addons))
+        addon_id = "{20fc2e06-e3e4-4b2b-812b-ab431220cada}"
+        result = jexl_to_sql(f"addonsInfo.addons['{addon_id}'] == null")
+        self.assertEqual(
+            result.sql,
+            f"NOT (('{addon_id}' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons'))))",
+        )
         self.assertEqual(result.warnings, [])
 
     def test_filter_expression_non_addons_warns(self):

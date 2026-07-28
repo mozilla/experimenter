@@ -65,6 +65,47 @@
         {% endif %}
       {% endwith %}
     </div>
+    {# Firefox Labs #}
+    {% if experiment.application_config.firefox_labs %}
+      <hr class="my-1 text-body-tertiary">
+      <div>
+        <div class="text-secondary mb-1" style="font-size: 12px;">Is this a Firefox Labs rollout?</div>
+        {% if experiment.is_firefox_labs_opt_in %}
+          <i class="fas fa-check text-success"></i>
+        {% else %}
+          <i class="fas fa-times text-danger"></i>
+        {% endif %}
+      </div>
+      {% if experiment.is_firefox_labs_opt_in %}
+        <div>
+          <div class="text-secondary mb-1" style="font-size: 12px;">Firefox Labs Title</div>
+          <div class="small text-body">{{ experiment.firefox_labs_title|default:"—" }}</div>
+        </div>
+        <div>
+          <div class="text-secondary mb-1" style="font-size: 12px;">Firefox Labs Description</div>
+          <div class="small text-body">{{ experiment.firefox_labs_description|default:"—" }}</div>
+        </div>
+        <div>
+          <div class="text-secondary mb-1" style="font-size: 12px;">Description Links</div>
+          {% include "common/readonly_json.html" with json_content=experiment.firefox_labs_description_links|default:"null" %}
+
+        </div>
+        {% if experiment.application_config.firefox_labs.supports_groups %}
+          <div>
+            <div class="text-secondary mb-1" style="font-size: 12px;">Firefox Labs Group</div>
+            <div class="small text-body">{{ experiment.firefox_labs_group|default:"—" }}</div>
+          </div>
+        {% endif %}
+        <div>
+          <div class="text-secondary mb-1" style="font-size: 12px;">Requires restart?</div>
+          {% if experiment.requires_restart %}
+            <i class="fas fa-check text-success"></i>
+          {% else %}
+            <i class="fas fa-times text-danger"></i>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endif %}
   </div>
   {% if hx_swap_oob %}
     {% include "new/common/audience_overlap_warnings.html" with oob=True %}

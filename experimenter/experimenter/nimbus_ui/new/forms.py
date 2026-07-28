@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import markus
@@ -13,6 +14,7 @@ from django.utils.text import slugify
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -25,6 +27,10 @@ from experimenter.experiments.models import (
     NimbusRolloutPhase,
     NimbusRolloutPlanTemplate,
     Tag,
+)
+from experimenter.kinto.tasks import (
+    nimbus_check_kinto_push_queue_by_collection,
+    nimbus_synchronize_preview_experiments_in_kinto,
 )
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.forms import NimbusBranchScreenshotForm
@@ -484,6 +490,9 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         (True, "Yes"),
         (False, "No"),
     )
+    is_localized = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
     localizations = forms.CharField(required=False, widget=forms.HiddenInput())
     channel = forms.ChoiceField(
         required=False,
@@ -578,6 +587,7 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "locales",
             "required_experiments_branches",
             "targeting_config_slug",
+            "is_localized",
             "localizations",
         ]
 
@@ -597,6 +607,17 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 "hx-trigger": "change",
                 "hx-select": "#first-run-fields",
                 "hx-target": "#first-run-fields",
+            }
+        )
+
+        self.fields["is_localized"].widget.attrs.update(
+            {
+                "hx-post": reverse(
+                    "nimbus-ui-new-update-audience", kwargs={"slug": self.instance.slug}
+                ),
+                "hx-trigger": "change",
+                "hx-select": "#rollout-audience-body",
+                "hx-target": "#rollout-audience-body",
             }
         )
 
@@ -707,11 +728,36 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         queryset=NimbusFeatureConfig.objects.all(),
         widget=FeatureConfigMultiSelectWidget(attrs={}),
     )
+    is_firefox_labs_opt_in = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
+    firefox_labs_title = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    firefox_labs_description = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    firefox_labs_description_links = forms.CharField(
+        required=False, widget=forms.HiddenInput()
+    )
+    firefox_labs_group = forms.ChoiceField(
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    requires_restart = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
 
     class Meta:
         model = NimbusExperiment
         fields = (
             "feature_configs",
+            "is_firefox_labs_opt_in",
+            "firefox_labs_title",
+            "firefox_labs_description",
+            "firefox_labs_description_links",
+            "firefox_labs_group",
+            "requires_restart",
             "warn_feature_schema",
             "prevent_pref_conflicts",
         )
@@ -774,6 +820,23 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         # will remain unused as rollouts donot have results data
         self.fields["rollout_experience"].initial = self.instance.takeaways_summary
 
+        if firefox_labs := self.instance.application_config.firefox_labs:
+            self.fields["firefox_labs_group"].choices = firefox_labs.group_choices
+
+        self.was_labs_opt_in = self.instance.is_firefox_labs_opt_in
+
+        self.fields["is_firefox_labs_opt_in"].widget.attrs.update(
+            {
+                "hx-post": reverse(
+                    "nimbus-ui-new-update-rollout-features",
+                    kwargs={"slug": self.instance.slug},
+                ),
+                "hx-trigger": "change",
+                "hx-select": "#rollout-rollout-features-body",
+                "hx-target": "#rollout-rollout-features-body",
+            }
+        )
+
     @property
     def errors(self):
         errors = super().errors
@@ -789,6 +852,18 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             and self.branch_feature_values.is_valid()
             and self.rollout_screenshots.is_valid()
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("is_firefox_labs_opt_in"):
+            cleaned_data["firefox_labs_title"] = ""
+            cleaned_data["firefox_labs_description"] = ""
+            cleaned_data["firefox_labs_description_links"] = "null"
+            cleaned_data["firefox_labs_group"] = ""
+            cleaned_data["requires_restart"] = False
+
+        return cleaned_data
 
     @transaction.atomic
     def save(self, *args, **kwargs):
@@ -956,6 +1031,412 @@ class CollaboratorsForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} updated collaborators"
+
+
+class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    status = None
+    status_next = None
+    publish_status = None
+    is_paused = None
+
+    required_status = None
+    required_status_next = None
+    required_publish_status = None
+    required_is_paused = None
+
+    class Meta:
+        model = NimbusExperiment
+        fields = []
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        required_state = (
+            self.required_status,
+            self.required_status_next,
+            self.required_publish_status,
+            self.required_is_paused,
+        )
+        current_state = (
+            self.instance.status,
+            self.instance.status_next,
+            self.instance.publish_status,
+            self.instance.is_paused,
+        )
+
+        state_mismatch = (
+            self.required_status != self.instance.status
+            or self.required_status_next != self.instance.status_next
+            or self.required_publish_status != self.instance.publish_status
+            or (
+                self.required_is_paused is not None
+                and self.required_is_paused != self.instance.is_paused
+            )
+        )
+
+        if state_mismatch:
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_INVALID_STATE_TRANSITION.format(
+                    required_state=required_state,
+                    current_state=current_state,
+                )
+            )
+
+        if not self.instance.is_rollout and NimbusConstants.Status.DISABLED in (
+            *required_state,
+            *current_state,
+            self.status,
+            self.status_next,
+        ):
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_INVALID_DISABLED_TRANSITION
+            )
+
+        return cleaned_data
+
+    @transaction.atomic
+    def save(self, commit=True):
+        self.instance.status = self.status
+        self.instance.status_next = self.status_next
+        previous_publish_status = self.instance.publish_status
+        self.instance.publish_status = self.publish_status
+
+        if self.status == NimbusExperiment.Status.DRAFT:
+            self.instance.published_dto = None
+
+        if (
+            previous_publish_status == NimbusExperiment.PublishStatus.REVIEW
+            and self.publish_status != NimbusExperiment.PublishStatus.REVIEW
+        ):
+            last_review_request = self.instance.changes.latest_review_request()
+            if last_review_request is not None:
+                delta = datetime.now(UTC) - last_review_request.changed_on
+                delta_ms = int(delta.total_seconds() * 1000)
+                metrics.timing(
+                    "review_timing",
+                    value=delta_ms,
+                    tags=[f"status:{self.publish_status}"],
+                )
+
+        return super().save(commit=commit)
+
+
+# Draft to Live transitions
+
+
+class DraftReviewRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DRAFT
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested rollout launch without Preview"
+
+
+class DraftReviewApproveRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DRAFT
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the review."
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        experiment.stage_rollout_phase_advance()
+        experiment.allocate_bucket_range()
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+
+        return experiment
+
+
+class DraftReviewRejectForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DRAFT
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    status = NimbusExperiment.Status.DRAFT
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    changelog_message = forms.CharField(
+        required=False, label="Changelog Message", max_length=1000
+    )
+
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
+    )
+
+    def get_changelog_message(self):
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"
+
+
+# Preview to Live transitions
+
+
+class PreviewReviewRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.PREVIEW
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    status = NimbusExperiment.Status.DRAFT
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested rollout launch from Preview"
+
+
+# Preview to Draft transitions
+
+
+class DraftToPreviewRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DRAFT
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    status = NimbusExperiment.Status.PREVIEW
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    def get_changelog_message(self):
+        return f"{self.request.user} launched rollout to Preview"
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        experiment.allocate_bucket_range()
+        nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+        return experiment
+
+
+class PreviewToDraftRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.PREVIEW
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    status = NimbusExperiment.Status.DRAFT
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    def get_changelog_message(self):
+        return f"{self.request.user} moved the rollout back to Draft"
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+        return experiment
+
+
+# Phase advance transitions
+
+
+class AdvancePhaseReviewRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested review to advance rollout phase"
+
+
+class AdvancePhaseReviewApproveRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the advance rollout phase review request"
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        experiment.stage_rollout_phase_advance()
+        experiment.allocate_bucket_range()
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+
+        return experiment
+
+
+class AdvancePhaseReviewRejectRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    changelog_message = forms.CharField(
+        required=False, label="Changelog Message", max_length=1000
+    )
+
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
+    )
+
+    def get_changelog_message(self):
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"
+
+
+# Live to disabled transitions
+
+
+class LiveToDisabledReviewRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.DISABLED
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested review to disable rollout"
+
+
+class LiveToDisabledReviewApproveRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.DISABLED
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.DISABLED
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the disable rollout review request"
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+
+        return experiment
+
+
+class LiveToDisabledReviewRejectRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.DISABLED
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    changelog_message = forms.CharField(
+        required=False, label="Changelog Message", max_length=1000
+    )
+
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
+    )
+
+    def get_changelog_message(self):
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"
+
+
+# Disabled to Live transitions
+
+
+class DisabledToLiveReviewRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DISABLED
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    status = NimbusExperiment.Status.DISABLED
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested review to re-enable rollout"
+
+
+class DisabledToLiveReviewApproveRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DISABLED
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    status = NimbusExperiment.Status.DISABLED
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the re-enable rollout review request"
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        experiment.stage_rollout_phase_advance(copy_current_if_missing=True)
+        experiment.allocate_bucket_range()
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        return experiment
+
+
+class DisabledToLiveReviewRejectRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.DISABLED
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+
+    status = NimbusExperiment.Status.DISABLED
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+
+    changelog_message = forms.CharField(
+        required=False, label="Changelog Message", max_length=1000
+    )
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
+    )
+
+    def get_changelog_message(self):
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"
 
 
 class RolloutPhaseForm(forms.ModelForm):
@@ -1224,3 +1705,22 @@ class UnsubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_changelog_message(self):
         return f"{self.request.user} removed subscriber"
+
+
+class ToggleReviewSlackNotificationsForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    class Meta:
+        model = NimbusExperiment
+        fields = ["enable_review_slack_notifications"]
+        widgets = {
+            "enable_review_slack_notifications": forms.CheckboxInput(
+                attrs={"class": "form-check-input m-0"}
+            ),
+        }
+
+    def get_changelog_message(self):
+        status = (
+            "enabled"
+            if self.cleaned_data.get("enable_review_slack_notifications")
+            else "disabled"
+        )
+        return f"{self.request.user} {status} review Slack notifications"
