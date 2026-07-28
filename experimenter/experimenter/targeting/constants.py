@@ -58,6 +58,11 @@ PROFILELESSTHAN2DAYS = "(currentDate|date - profileAgeCreated|date) / 3600000 < 
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 PROFILEMORETHAN14DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 14"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
+NO_URLBAR_SEARCH_28_DAYS = (
+    "(currentDate|date"
+    " - ('browser.urlbar.lastUrlbarSearchSeconds'|preferenceValue * 1000))"
+    " / 86400000 >= 28"
+)
 NEW_NON_SELECTABLE_PROFILE = f"({NEW_PROFILE}) && profileGroupProfileCount == 0"
 WIN1903 = "os.windowsBuildNumber >= 18362"
 WIN22H2 = "os.windowsBuildNumber >= 19045"
@@ -2471,6 +2476,20 @@ EXISTING_USER = NimbusTargetingConfig(
     slug="existing_user",
     description="Users with profiles older than 28 days",
     targeting=f"{PROFILE28DAYS}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_NO_SEARCHES_IN_28_DAYS = NimbusTargetingConfig(
+    name="Existing user (no searches in 28 days)",
+    slug="existing_user_no_searches_in_28_days",
+    description=(
+        "Users with profiles older than 28 days who have not searched from the "
+        "address bar in the last 28 days, including those who have never searched"
+    ),
+    targeting=f"{PROFILE28DAYS} && {NO_URLBAR_SEARCH_28_DAYS}",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
