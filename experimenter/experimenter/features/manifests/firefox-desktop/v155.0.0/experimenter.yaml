@@ -6077,6 +6077,18 @@ contentSharing:
         pref: browser.contentsharing.server.url
       description: The URL of the content sharing server.
 
+referrals:
+  description: Controls the Firefox referral program.
+  owner: nbarrett@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.referrals.enabled
+      description: Whether the referral program is enabled.
+
 webNotificationsPermissionUi:
   description: >-
     Overrides the copy and optional logo of the native Web Notifications
