@@ -127,7 +127,6 @@ class ValidationErrorsMixin:
             "audience": {*AudienceForm.Meta.fields},
         }
 
-        field_errors = self.get_object().get_invalid_fields_errors()
         field_error_keys = set(field_errors.keys())
 
         invalid_pages = []
@@ -169,6 +168,11 @@ class RenderParentDBResponseMixin:
         super().form_valid(form)
         form = super().form_class(instance=self.object)
         return self.render_to_response(self.get_context_data(form=form))
+
+
+class PrefetchExperimentQuerysetMixin:
+    def get_queryset(self):
+        return NimbusExperiment.objects.with_related()
 
 
 class NimbusExperimentViewMixin:
@@ -326,6 +330,7 @@ def build_experiment_context(experiment):
 
 
 class NimbusExperimentDetailView(
+    PrefetchExperimentQuerysetMixin,
     ValidationErrorsMixin,
     NimbusExperimentViewMixin,
     CloneExperimentFormMixin,
@@ -473,6 +478,7 @@ class SaveAndContinueMixin:
 
 
 class OverviewUpdateView(
+    PrefetchExperimentQuerysetMixin,
     SaveAndContinueMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -499,6 +505,7 @@ class DocumentationLinkDeleteView(RenderParentDBResponseMixin, OverviewUpdateVie
 
 
 class BranchesBaseView(
+    PrefetchExperimentQuerysetMixin,
     IntegrationTestBranchDataMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -538,6 +545,7 @@ class BranchScreenshotDeleteView(RenderParentDBResponseMixin, BranchesBaseView):
 
 
 class MetricsUpdateView(
+    PrefetchExperimentQuerysetMixin,
     SaveAndContinueMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -556,6 +564,7 @@ class MetricsUpdateView(
 
 
 class AudienceUpdateView(
+    PrefetchExperimentQuerysetMixin,
     SaveAndContinueMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -764,7 +773,7 @@ class BranchLeadingScreenshotView(
         return response
 
 
-class ResultsView(NimbusExperimentViewMixin, DetailView):
+class ResultsView(PrefetchExperimentQuerysetMixin, NimbusExperimentViewMixin, DetailView):
     template_name = "nimbus_experiments/results.html"
 
     def get_template_names(self):
