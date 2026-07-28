@@ -758,7 +758,17 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "firefox_labs_description_links",
             "firefox_labs_group",
             "requires_restart",
+            "warn_feature_schema",
+            "prevent_pref_conflicts",
         )
+        widgets = {
+            "warn_feature_schema": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+            "prevent_pref_conflicts": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

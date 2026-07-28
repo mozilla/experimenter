@@ -20,6 +20,26 @@
         {% endfor %}
       {% endfor %}
     </div>
+    {# Warn only on feature schema validation failure #}
+    <div class="d-flex flex-row gap-3">
+      <div class="text-secondary mb-1" style="font-size: 12px;">Warn only on feature schema validation failure</div>
+      {% if experiment.warn_feature_schema %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
+    {# Prevent enrollment if prefs changed #}
+    <div class="d-flex flex-row gap-3">
+      <div class="text-secondary mb-1" style="font-size: 12px;">
+        Prevent enrollment if users have changed any prefs set by this rollout
+      </div>
+      {% if experiment.prevent_pref_conflicts %}
+        <i class="fas fa-check text-success"></i>
+      {% else %}
+        <i class="fas fa-times text-danger"></i>
+      {% endif %}
+    </div>
     {# Rollout screenshots #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Rollout screenshots</div>
