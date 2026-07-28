@@ -155,21 +155,27 @@ class TestJEXLToSQL(TestCase):
                 "pref_value_neq_bool_false",
                 # null != false is true in JEXL — unset prefs (NULL) must pass
                 "'app.shield.optoutstudies.enabled'|preferenceValue != false",
-                f"(JSON_VALUE({_PREF}, '$.app__shield__optoutstudies__enabled')"
-                f" IS NULL OR JSON_VALUE({_PREF},"
-                f" '$.app__shield__optoutstudies__enabled') != 'false')",
+                (
+                    f"(JSON_VALUE({_PREF}, '$.app__shield__optoutstudies__enabled')"
+                    f" IS NULL OR JSON_VALUE({_PREF},"
+                    f" '$.app__shield__optoutstudies__enabled') != 'false')"
+                ),
             ),
             (
                 "pref_value_neq_bool_true",
                 "'some.pref'|preferenceValue != true",
-                f"(JSON_VALUE({_PREF}, '$.some__pref') IS NULL"
-                f" OR JSON_VALUE({_PREF}, '$.some__pref') != 'true')",
+                (
+                    f"(JSON_VALUE({_PREF}, '$.some__pref') IS NULL"
+                    f" OR JSON_VALUE({_PREF}, '$.some__pref') != 'true')"
+                ),
             ),
             (
                 "pref_value_neq_bool_reversed",
                 "false != 'app.normandy.enabled'|preferenceValue",
-                f"(JSON_VALUE({_PREF}, '$.app__normandy__enabled') IS NULL"
-                f" OR 'false' != JSON_VALUE({_PREF}, '$.app__normandy__enabled'))",
+                (
+                    f"(JSON_VALUE({_PREF}, '$.app__normandy__enabled') IS NULL"
+                    f" OR 'false' != JSON_VALUE({_PREF}, '$.app__normandy__enabled'))"
+                ),
             ),
         ]
     )

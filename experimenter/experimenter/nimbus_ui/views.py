@@ -306,9 +306,11 @@ def build_experiment_context(experiment):
         (
             segment,
             # ruff prefers this implicit syntax for concatenating strings
-            f"{segment_doc_base_url}"
-            f"{experiment.application.replace('-', '_')}/"
-            f"#{segment}",
+            (
+                f"{segment_doc_base_url}"
+                f"{experiment.application.replace('-', '_')}/"
+                f"#{segment}"
+            ),
         )
         for segment in experiment.segments
     ]
