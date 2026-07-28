@@ -18,6 +18,7 @@ from experimenter.nimbus_ui.new.views import (
     NewAddSubscriberView,
     NewAddTagView,
     NewAudienceUpdateView,
+    NewCloneView,
     NewDocumentationLinkCreateView,
     NewDocumentationLinkDeleteView,
     NewOverviewUpdateView,
@@ -547,6 +548,11 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/unsubscribe/$",
         NewUnsubscribeView.as_view(),
         name="nimbus-ui-new-unsubscribe",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/clone/$",
+        NewCloneView.as_view(),
+        name="nimbus-ui-new-clone",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/toggle_review_slack_notifications/$",

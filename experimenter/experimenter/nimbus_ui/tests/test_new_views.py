@@ -1589,6 +1589,45 @@ class TestNewUnsubscribeView(AuthTestCase):
         )
 
 
+class TestNewCloneView(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperimentFactory.create(
+            slug="test-experiment",
+            application="firefox-desktop",
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+        )
+
+    def test_post_clones_experiment_and_redirects_to_new_detail(self):
+        response = self.client.post(
+            reverse("nimbus-ui-new-clone", kwargs={"slug": self.experiment.slug}),
+            {"owner": self.user, "name": "Test Experiment Copy"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse(
+                "new-nimbus-ui-rollout-detail",
+                kwargs={"slug": "test-experiment-copy"},
+            ),
+        )
+        experiment = NimbusExperiment.objects.get(slug="test-experiment-copy")
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
+        self.assertEqual(experiment.owner, self.user)
+        self.assertEqual(
+            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_120
+        )
+
+    def test_form_invalid_renders_with_experiment_context(self):
+        response = self.client.post(
+            reverse("nimbus-ui-new-clone", kwargs={"slug": self.experiment.slug}),
+            {"owner": self.user, "name": "$."},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["form"].errors)
+        self.assertEqual(response.context["experiment"], self.experiment)
+
+
 class TestNewToggleReviewSlackNotificationsView(AuthTestCase):
     def test_detail_page_renders_toggle_checked(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

@@ -62,7 +62,14 @@
                   <i class="fa-solid fa-ellipsis"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                  {# TODO: more options items #}
+                  <li>
+                    <button class="dropdown-item"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#cloneModal">
+                      <i class="fa-regular fa-copy me-2"></i>Clone
+                    </button>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -104,6 +111,34 @@
         </div>
         {# Page content #}
         {% block main_content %}{% endblock %}
+      </div>
+    </div>
+    {# Clone modal #}
+    <div class="modal fade"
+         id="cloneModal"
+         tabindex="-1"
+         aria-labelledby="cloneModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5 d-flex align-items-center gap-2"
+                id="cloneModalLabel">
+              <i class="fa-regular fa-copy"></i>
+              Clone Experiment {{ experiment.name }}
+            </h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body bg-body-tertiary">
+            <form id="cloneForm"
+                  hx-post="{% url 'nimbus-ui-new-clone' experiment.slug %}"
+                  hx-target="#cloneForm">
+              {% csrf_token %}
+              {% include "new/common/clone_form.html" with form=clone_form experiment=experiment form_id_prefix="clone" %}
+
+            </form>
+          </div>
+        </div>
       </div>
     </div>
     {% block extrascripts %}{% endblock %}
