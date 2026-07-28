@@ -423,6 +423,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     risk_message = models.BooleanField(
         "Is a Message Risk Flag", default=None, blank=True, null=True
     )
+    message_reviewer = models.ForeignKey(User, default=None, blank=True, null=True, on_delete=models.SET_NULL)
     risk_ai = models.BooleanField(
         "Is an AI Risk Flag", default=None, blank=True, null=True
     )
@@ -2921,6 +2922,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.feature_configs.values_list("subscribers__email", flat=True),
         )
         return list({email for email in emails if email})
+
+    @property
+    def is_messaging_experiment(self):
+        application_config = self.application_config
+        return (
+            application_config.messaging_features
+            and self.feature_configs.filter(
+                slug__in=application_config.messaging_features
+            ).exists()
+        )
 
 
 class NimbusBranch(models.Model):

@@ -7,10 +7,12 @@ window.showRecommendation = function () {
   recommendationMessage.classList.remove("d-none");
 };
 window.toggleSubmitButton = function () {
-  const checkbox1 = document.getElementById("checkbox-1");
-  const checkbox2 = document.getElementById("checkbox-2");
-  const submitButton = document.getElementById("request-launch-button");
-  submitButton.disabled = !(checkbox1.checked && checkbox2.checked);
+  const required = Array.from(
+    document.getElementById("recommendation-message")
+    .querySelectorAll('input[type="checkbox"][data-required-for-launch]')
+  );
+
+  document.getElementById("request-launch-button").disabled = required.some(el => !el.checked);
 };
 
 window.updatePreviewURL = function () {

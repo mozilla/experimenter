@@ -59,8 +59,8 @@
               <div class="form-check">
                 {{ form.is_holdback }}
                 <label class="form-check-label" for="id_is_holdback">{{ NimbusUIConstants.HOLDBACK_LABEL }}</label>
+                <div class="form-text">{{ NimbusUIConstants.HOLDBACK_HELP_TEXT }}</div>
               </div>
-              <p class="form-text">{{ NimbusUIConstants.HOLDBACK_HELP_TEXT }}</p>
               {% for error in form.is_holdback.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
               {% for error in validation_errors.is_holdback %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             </div>
@@ -100,6 +100,34 @@
               {% endfor %}
             </div>
           </div>
+          {% if experiment.is_messaging_experiment %}
+            <div class="row mb-3">
+              <div class="col">
+                <div class="form-check">
+                  {{ form.message_review }}
+                  <label for="id_message_consult" class="form-label">
+                    This messaging {% if experiment.is_rollout %}rollout{% else %}experiment{% endif %} went through the
+                    <a target="_blank"
+                       href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.message_consult_link }}">Message Review</a>
+                    process.
+                  </label>
+                  {% if experiment.message_reviewer is None and not perms.experiments.can_perform_message_review %}
+                    <div class="form-text text-warning">
+                      You lack the necessary permissions to perform the message review. Please ask a member of OMC to perform the review.
+                    </div>
+                  {% endif %}
+                  <div class="form-text">
+                    This process is optional, but is considered best practice in
+                    order to ensure that end users do not have degraded experiences
+                    due to multiple conflicting messages.
+                  </div>
+                  {% if experiment.message_reviewer_id is not None %}
+                    <div class="form-text">The message review was completed by {{ experiment.message_reviewer }}.</div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endif %}
           <div id="branches">
             {{ form.branches.management_form }}
             {% for branch_form in form.branches %}
@@ -220,7 +248,7 @@
                             {% endwith %}
                           </div>
                           <div class="col-8">
-                            <div class=" d-flex align-items-end">
+                            <div class="d-flex align-items-end">
                               {{ screenshot_form.description|add_error_class:"is-invalid" }}
                               <button type="button"
                                       id="delete-screenshot-{{ screenshot_form.instance.id }}"

@@ -203,6 +203,8 @@ class ApplicationConfig:
     #: If None, this application will not support Firefox Labs.
     firefox_labs: FirefoxLabs | None = field(default=None)
 
+    messaging_features: list[str] = field(default=None)
+
     def get_kinto_collection_for_experiment(self, experiment: NimbusExperiment) -> str:
         if self.kinto_collections_by_feature_id is not None:
             return self.get_kinto_collection_for_feature_ids(
@@ -295,6 +297,42 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
             FirefoxLabs.Groups.NEWTAB_WIDGETS: Version.FIREFOX_151,
         },
     ),
+    # https://searchfox.org/firefox-main/source/browser/components/asrouter/modules/MessagingExperimentConstants.sys.mjs
+    messaging_features=[
+        "cfr",
+        "infobar",
+        "moments-page",
+        "pbNewtab",
+        "spotlight",
+        "featureCallout",
+        "fxms_bmb_button",
+        "fxms-message",
+        "fxms-message-1",
+        "fxms-message-2",
+        "fxms-message-3",
+        "fxms-message-4",
+        "fxms-message-5",
+        "fxms-message-6",
+        "fxms-message-7",
+        "fxms-message-8",
+        "fxms-message-9",
+        "fxms-message-10",
+        "fxms-message-11",
+        "fxms-message-12",
+        "fxms-message-13",
+        "fxms-message-14",
+        "fxms-message-15",
+        "fxms-message-16",
+        "fxms-message-17",
+        "fxms-message-18",
+        "fxms-message-19",
+        "fxms-message-20",
+        "fxms-message-21",
+        "fxms-message-22",
+        "fxms-message-23",
+        "fxms-message-24",
+        "fxms-message-25",
+    ]
 )
 
 APPLICATION_CONFIG_FENIX = ApplicationConfig(

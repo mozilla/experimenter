@@ -1,6 +1,7 @@
 import json
 import uuid
 
+from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
@@ -59,6 +60,7 @@ class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
         many=True, read_only=True, slug_field="email"
     )
     tags = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
+    message_reviewer = serializers.SlugRelatedField(read_only=True, slug_field="email")
 
     class Meta:
         model = NimbusExperiment
@@ -147,6 +149,16 @@ def get_formatted_change_object(field_name, field_diff, changelog, timestamp):
 
         old_value = json.dumps(old_value, indent=2)
         new_value = json.dumps(new_value, indent=2)
+
+    # elif (
+    #     isinstance(field_instance, models.ForeignKey)
+    #     and field_instance.related_model is User
+    # ):
+    #     values = {
+    #         User.objects.
+    #     }
+    #     old_value = "dingus"
+    #     new_value = "dongus"
 
     elif isinstance(field_instance, (models.JSONField, ArrayField)):
         event_name = ChangeEventType.DETAILED.name

@@ -452,8 +452,6 @@ class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
             flags.append("Revenue")
         if obj.risk_brand:
             flags.append("Brand")
-        if obj.risk_message:
-            flags.append("Message")
         if obj.risk_ai:
             flags.append("AI")
         return flags
@@ -630,11 +628,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
     )
     risk_brand = serializers.BooleanField(
-        required=True,
-        allow_null=False,
-        error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
-    )
-    risk_message = serializers.BooleanField(
         required=True,
         allow_null=False,
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
