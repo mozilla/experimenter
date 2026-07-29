@@ -1628,6 +1628,66 @@ class TestNewCloneView(AuthTestCase):
         self.assertEqual(response.context["experiment"], self.experiment)
 
 
+class TestNewToggleArchiveView(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        self.experiment = NimbusExperiment.objects.create(
+            slug="test-experiment",
+            name="Test Experiment",
+            owner=self.user,
+            is_archived=False,
+        )
+
+    def test_toggle_archive_status_to_archive(self):
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-toggle-archive", kwargs={"slug": self.experiment.slug}
+            ),
+            {"owner": self.user},
+            HTTP_HX_REQUEST="true",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("HX-Refresh"), "true")
+
+        updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
+        self.assertTrue(updated_experiment.is_archived)
+
+    def test_toggle_archive_status_to_unarchive(self):
+        self.experiment.is_archived = True
+        self.experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-toggle-archive", kwargs={"slug": self.experiment.slug}
+            ),
+            {"owner": self.user},
+            HTTP_HX_REQUEST="true",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("HX-Refresh"), "true")
+
+        updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
+        self.assertFalse(updated_experiment.is_archived)
+
+    def test_detail_page_renders_archive_button(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            reverse("nimbus-ui-new-toggle-archive", kwargs={"slug": experiment.slug}),
+        )
+        self.assertContains(response, "Archive")
+
+
 class TestNewToggleReviewSlackNotificationsView(AuthTestCase):
     def test_detail_page_renders_toggle_checked(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

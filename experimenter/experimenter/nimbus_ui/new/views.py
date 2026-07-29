@@ -12,6 +12,7 @@ from experimenter.nimbus_ui.filtersets import (
     TagSearchFilterSet,
     UserSearchFilterSet,
 )
+from experimenter.nimbus_ui.forms import ToggleArchiveForm
 from experimenter.nimbus_ui.new.forms import (
     AdvancePhaseReviewApproveRolloutForm,
     AdvancePhaseReviewRejectRolloutForm,
@@ -647,6 +648,18 @@ class NewCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
             response.headers["HX-Redirect"] = reverse(
                 "new-nimbus-ui-rollout-detail", kwargs={"slug": self.object.slug}
             )
+        return response
+
+
+class NewToggleArchiveView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+    form_class = ToggleArchiveForm
+    template_name = "new/common/base.html"
+
+    def form_valid(self, form):
+        form.save()
+        response = HttpResponse()
+        if self.request.headers.get("HX-Request"):
+            response.headers["HX-Refresh"] = "true"
         return response
 
 
