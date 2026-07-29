@@ -692,6 +692,15 @@ features:
           Toggle between standard (false) and Japan-specific (true) assets and content.
         type: Boolean
         default: false
+  privacy-dashboard-feature:
+    description: |
+      The Privacy Dashboard feature from homepage
+    variables:
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: false
   quick-answers-feature:
     description: |
       The feature flag to manage the roll out of the quick answers feature.

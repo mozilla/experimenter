@@ -310,6 +310,16 @@ onboarding-framework-feature:
       type: boolean
       description: |
         Toggle between standard (false) and Japan-specific (true) assets and content.
+privacy-dashboard-feature:
+  description: |
+    The Privacy Dashboard feature from homepage
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 quick-answers-feature:
   description: |
     The feature flag to manage the roll out of the quick answers feature.
