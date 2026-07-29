@@ -172,7 +172,9 @@ class RenderParentDBResponseMixin:
 
 class PrefetchExperimentQuerysetMixin:
     def get_queryset(self):
-        return NimbusExperiment.objects.with_related()
+        if self.request.method in ("GET", "HEAD"):
+            return NimbusExperiment.objects.with_related()
+        return super().get_queryset()
 
 
 class NimbusExperimentViewMixin:
