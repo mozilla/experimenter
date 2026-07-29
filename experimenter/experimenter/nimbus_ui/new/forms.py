@@ -1323,6 +1323,14 @@ class LiveToDisabledReviewRolloutForm(UpdateStatusForm):
     status_next = NimbusExperiment.Status.DISABLED
     publish_status = NimbusExperiment.PublishStatus.REVIEW
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.instance.is_rollout_with_phases:
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_INVALID_PHASELESS_ROLLOUT_DISABLED_TRANSITION
+            )
+        return cleaned_data
+
     def get_changelog_message(self):
         return f"{self.request.user} requested review to disable rollout"
 
@@ -1391,6 +1399,36 @@ class DisabledToLiveReviewRolloutForm(UpdateStatusForm):
         return f"{self.request.user} requested review to re-enable rollout"
 
 
+class DisabledToLiveDuplicatePhaseReviewRolloutForm(DisabledToLiveReviewRolloutForm):
+    def get_changelog_message(self):
+        return (
+            f"{self.request.user} duplicated the final rollout phase and requested "
+            "review to re-enable rollout"
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.instance.rollout_phase_id is None:
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_ROLLOUT_REENABLE_REQUIRES_CURRENT_PHASE
+            )
+        return cleaned_data
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = NimbusExperiment.objects.select_for_update().get(pk=self.instance.pk)
+        self.instance = experiment
+        if (
+            experiment.rollout_phase_next_id is None
+            and experiment.rollout_phase
+            and experiment.rollout_phase == experiment.rollout_phases.last()
+        ):
+            experiment.rollout_phases.create(
+                population_percent=experiment.rollout_phase.population_percent
+            )
+        return super().save(commit=commit)
+
+
 class DisabledToLiveReviewApproveRolloutForm(UpdateStatusForm):
     required_status = NimbusExperiment.Status.DISABLED
     required_status_next = NimbusExperiment.Status.LIVE
@@ -1406,7 +1444,7 @@ class DisabledToLiveReviewApproveRolloutForm(UpdateStatusForm):
     @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
-        experiment.stage_rollout_phase_advance(copy_current_if_missing=True)
+        experiment.stage_rollout_phase_advance()
         experiment.allocate_bucket_range()
         nimbus_check_kinto_push_queue_by_collection.apply_async(
             countdown=5, args=[experiment.kinto_collection]

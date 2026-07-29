@@ -550,13 +550,27 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     class Filters:
         IS_LAUNCH_QUEUED = Q(
-            status=NimbusConstants.Status.DRAFT,
-            status_next=NimbusConstants.Status.LIVE,
+            Q(
+                status=NimbusConstants.Status.DRAFT,
+                status_next=NimbusConstants.Status.LIVE,
+            )
+            | Q(
+                is_rollout=True,
+                status=NimbusConstants.Status.DISABLED,
+                status_next=NimbusConstants.Status.LIVE,
+            ),
             publish_status=NimbusConstants.PublishStatus.APPROVED,
         )
         IS_LAUNCHING = Q(
-            status=NimbusConstants.Status.DRAFT,
-            status_next=NimbusConstants.Status.LIVE,
+            Q(
+                status=NimbusConstants.Status.DRAFT,
+                status_next=NimbusConstants.Status.LIVE,
+            )
+            | Q(
+                is_rollout=True,
+                status=NimbusConstants.Status.DISABLED,
+                status_next=NimbusConstants.Status.LIVE,
+            ),
             publish_status=NimbusConstants.PublishStatus.WAITING,
         )
         IS_UPDATE_QUEUED = Q(
@@ -570,13 +584,27 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             publish_status=NimbusConstants.PublishStatus.WAITING,
         )
         IS_END_QUEUED = Q(
-            status=NimbusConstants.Status.LIVE,
-            status_next=NimbusConstants.Status.COMPLETE,
+            Q(
+                status=NimbusConstants.Status.LIVE,
+                status_next=NimbusConstants.Status.COMPLETE,
+            )
+            | Q(
+                is_rollout=True,
+                status=NimbusConstants.Status.LIVE,
+                status_next=NimbusConstants.Status.DISABLED,
+            ),
             publish_status=NimbusConstants.PublishStatus.APPROVED,
         )
         IS_ENDING = Q(
-            status=NimbusConstants.Status.LIVE,
-            status_next=NimbusConstants.Status.COMPLETE,
+            Q(
+                status=NimbusConstants.Status.LIVE,
+                status_next=NimbusConstants.Status.COMPLETE,
+            )
+            | Q(
+                is_rollout=True,
+                status=NimbusConstants.Status.LIVE,
+                status_next=NimbusConstants.Status.DISABLED,
+            ),
             publish_status=NimbusConstants.PublishStatus.WAITING,
         )
         SHOULD_ALLOCATE_BUCKETS = Q(
@@ -1265,6 +1293,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def is_live_rollout(self):
         return self.is_rollout and (self.is_enrolling or self.is_observation)
 
+    @property
+    def is_rollout_with_phases(self):
+        return self.is_rollout and self.rollout_phases.exists()
+
     def annotated_rollout_phases(self):
         phases = list(self.rollout_phases.all())
         current_index = None
@@ -1283,26 +1315,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return phases
 
     def advance_rollout_phase(self):
-        phases = list(self.rollout_phases.all())
-        if not phases:
+        if not self.is_rollout_with_phases or self.rollout_phase_next_id is None:
             return
 
         today = timezone.now().date()
-        phase_ids = [phase.id for phase in phases]
+        current_phase = self.rollout_phase
+        next_phase = self.rollout_phase_next
 
-        if self.rollout_phase_next_id is not None:
-            current_phase = self.rollout_phase
-            next_phase = self.rollout_phase_next
-        elif self.rollout_phase_id is None:
-            current_phase = None
-            next_phase = phases[0]
-        else:
-            current_index = phase_ids.index(self.rollout_phase_id)
-            current_phase = phases[current_index]
-            next_index = current_index + 1
-            next_phase = phases[next_index] if next_index < len(phases) else None
-
-        if next_phase is not None and not next_phase.population_percent:
+        if not next_phase or not next_phase.population_percent:
             return
 
         resuming = self.status == NimbusExperiment.Status.DISABLED
@@ -1312,11 +1332,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 current_phase.start_date = current_phase.actual_start_date
             current_phase.save()
 
-        if next_phase is None:
-            self.rollout_phase_next = None
-            self.save()
-            return
-
         next_phase.actual_start_date = today
         next_phase.save()
         self.rollout_phase = next_phase
@@ -1324,12 +1339,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         self.population_percent = next_phase.population_percent
         self.save()
 
-    def stage_rollout_phase_advance(self, copy_current_if_missing=False):
-        phases = list(self.rollout_phases.all())
-        if not phases:
+    def stage_rollout_phase_advance(self):
+        if not self.is_rollout_with_phases:
             return None
 
-        current_phase = self.rollout_phase
+        phases = list(self.rollout_phases.all())
+
         if self.rollout_phase_next_id is not None:
             next_phase = self.rollout_phase_next
         elif self.rollout_phase_id is None:
@@ -1340,11 +1355,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             next_index = current_index + 1
             next_phase = phases[next_index] if next_index < len(phases) else None
 
-        if next_phase is None and copy_current_if_missing and current_phase is not None:
-            next_phase = self.rollout_phases.create(
-                population_percent=current_phase.population_percent
-            )
-
         if next_phase is None or not next_phase.population_percent:
             return None
 
@@ -1353,7 +1363,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         self.save(update_fields=["rollout_phase_next", "population_percent"])
         return next_phase
 
+    def revert_staged_rollout_phase_advance(self):
+        if not self.is_rollout_with_phases or self.rollout_phase_next_id is None:
+            return
+
+        self.rollout_phase_next = None
+        self.population_percent = (
+            self.rollout_phase.population_percent if self.rollout_phase else 0
+        )
+        self.save(update_fields=["rollout_phase_next", "population_percent"])
+
     def end_current_rollout_phase(self):
+        if not self.is_rollout_with_phases:
+            return
         current_phase = self.rollout_phase
         if current_phase is None:
             return
@@ -3526,6 +3548,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         REJECTED_FROM_KINTO = "Rejected from Remote Settings"
         LIVE = "Experiment is live"
         COMPLETED = "Experiment is complete"
+        DISABLED = "Rollout is disabled"
         RESULTS_UPDATED = "Experiment results updated"
         MONITORING_DATA_UPDATED = "Experiment monitoring data updated"
         HOLDBACK_ENROLLMENT_UPDATED = "Holdback enrollment period updated"
