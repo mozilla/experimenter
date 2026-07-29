@@ -322,8 +322,12 @@ def get_experiment_data(experiment: NimbusExperiment):
 
         segment_points_enrollments = defaultdict(list)
         segment_points_exposures = defaultdict(list)
+        skipped_missing_basis = 0
 
         for point in data_from_jetstream:
+            if point.get("analysis_basis") is None:
+                skipped_missing_basis += 1
+                continue
             segment_key = point["segment"]
             if point["analysis_basis"] == AnalysisBasis.ENROLLMENTS:
                 segment_points_enrollments[segment_key].append(point)
@@ -333,6 +337,14 @@ def get_experiment_data(experiment: NimbusExperiment):
                 segment_points_exposures[segment_key].append(point)
                 experiment_data[window][AnalysisBasis.EXPOSURES] = {}
                 raw_data[window][AnalysisBasis.EXPOSURES] = {}
+
+        if skipped_missing_basis:
+            message = (
+                f"Skipped {skipped_missing_basis} {window} statistics row(s) "
+                f"missing analysis_basis for {recipe_slug}"
+            )
+            logger.warning(message)
+            sentry_sdk.capture_message(message)
 
         for segment, segment_data in segment_points_enrollments.items():
             raw_segment_data = JetstreamData(segment_data)

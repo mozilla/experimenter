@@ -22,6 +22,7 @@ from experimenter.jetstream.client import (
     expected_windows,
     get_data,
     get_enrollment_funnel_data,
+    get_experiment_data,
     get_featmon_slugs,
     get_latest_analysis_start_time,
     get_monitoring_data,
@@ -4462,3 +4463,32 @@ class TestSkipInvalidResults(TestCase):
         self.assertIn(valid_experiment.id, fetched_experiment_ids)
         self.assertNotIn(invalid_experiment.id, fetched_experiment_ids)
         mock_capture.assert_called_once()
+
+    def test_statistics_rows_missing_analysis_basis_are_skipped_and_reported(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+        row_missing_analysis_basis = {
+            "metric": "identity",
+            "statistic": "count",
+            "branch": "control",
+            "point": 40,
+            "segment": "all",
+            "window_index": "1",
+        }
+
+        with (
+            patch(
+                "experimenter.jetstream.client.get_data",
+                return_value=[row_missing_analysis_basis],
+            ),
+            patch("experimenter.jetstream.client.get_metadata", return_value=None),
+            patch("experimenter.jetstream.client.get_analysis_errors", return_value=None),
+            patch(
+                "experimenter.jetstream.client.sentry_sdk.capture_message"
+            ) as mock_capture,
+        ):
+            result = get_experiment_data(experiment)
+
+        self.assertIn("v3", result)
+        mock_capture.assert_called()
