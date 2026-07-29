@@ -26,6 +26,7 @@
           hx-target="#content-with-sidebar"
           hx-swap="innerHTML">
       {% csrf_token %}
+      {{ form.is_first_run }}
       <div class="card mb-3">
         <div class="card-header">
           <h4>Branches</h4>

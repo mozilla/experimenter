@@ -3159,6 +3159,20 @@ class TestAudienceForm(RequestFormTestCase):
             msg="Channel choices did not match for desktop",
         )
 
+    def test_is_first_run_disabled_for_labs(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="",
+            firefox_labs_description="",
+            is_rollout=True,
+        )
+
+        form = AudienceForm(instance=experiment, request=self.request)
+
+        self.assertTrue(form.fields["is_first_run"].disabled)
+
 
 class TestNimbusBranchesForm(RequestFormTestCase):
     def test_branches_form_saves_branches(self):
@@ -4342,6 +4356,25 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         self.assertEqual(
             expected_branch_ids, [branch_b.slug, branch_a.slug, branch_c.slug]
         )
+
+    def test_disables_first_run_when_becomes_lab(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            is_first_run=True,
+        )
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            request=self.request,
+            data={
+                "is_firefox_labs_opt_in": True,
+            },
+        )
+
+        experiment = form.save()
+
+        self.assertFalse(experiment.is_first_run)
 
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
