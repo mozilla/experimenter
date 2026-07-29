@@ -6,7 +6,7 @@ from unittest.mock import patch
 import requests
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils.html import escape
 from parameterized import parameterized
@@ -19,6 +19,7 @@ from experimenter.base.tests.factories import (
 )
 from experimenter.experiments.constants import EXTERNAL_URLS, NimbusConstants
 from experimenter.experiments.models import (
+    NimbusBranchFeatureValue,
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
@@ -2213,6 +2214,83 @@ class TestBranchesUpdateViews(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("branch_form_data", response.context)
+
+
+class TestBranchesUpdateOrphanFeatureValueRegression(TransactionTestCase):
+    # TransactionTestCase (not TestCase) so the branches-save commit actually runs
+    # inside the request: the deferred foreign key constraint is checked at that
+    # commit, which is where the orphaned-feature-value bug surfaces. Under a plain
+    # TestCase the outer test transaction defers the check to teardown and the POST
+    # deceptively looks like a success.
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory.create(email="user@example.com")
+        self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
+
+    def test_rollout_delete_branch_and_add_feature_config_leaves_no_orphan(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+
+        self.client.post(
+            reverse("nimbus-ui-create"),
+            {
+                "name": "rollout regression",
+                "hypothesis": "Test hypothesis",
+                "application": application,
+            },
+        )
+        experiment = NimbusExperiment.objects.get(slug="rollout-regression")
+        reference_branch = experiment.reference_branch
+        ordered_branches = [reference_branch, *experiment.treatment_branches]
+        self.assertEqual(len(ordered_branches), 2)
+
+        data = {
+            "feature_configs": [feature_config.id],
+            "is_rollout": "on",
+            "branches-TOTAL_FORMS": str(len(ordered_branches)),
+            "branches-INITIAL_FORMS": str(len(ordered_branches)),
+            "branches-MIN_NUM_FORMS": "0",
+            "branches-MAX_NUM_FORMS": "1000",
+        }
+        for idx, branch in enumerate(ordered_branches):
+            prefix = f"branches-{idx}"
+            data[f"{prefix}-id"] = str(branch.id)
+            data[f"{prefix}-name"] = branch.name
+            data[f"{prefix}-description"] = branch.description or branch.name
+            data[f"{prefix}-slug"] = branch.slug
+            data[f"{prefix}-ratio"] = "1"
+            if idx != 0:
+                data[f"{prefix}-DELETE"] = "on"
+            data[f"{prefix}-feature-value-TOTAL_FORMS"] = "0"
+            data[f"{prefix}-feature-value-INITIAL_FORMS"] = "0"
+            data[f"{prefix}-feature-value-MIN_NUM_FORMS"] = "0"
+            data[f"{prefix}-feature-value-MAX_NUM_FORMS"] = "1000"
+            data[f"{prefix}-screenshots-TOTAL_FORMS"] = "0"
+            data[f"{prefix}-screenshots-INITIAL_FORMS"] = "0"
+            data[f"{prefix}-screenshots-MIN_NUM_FORMS"] = "0"
+            data[f"{prefix}-screenshots-MAX_NUM_FORMS"] = "1000"
+
+        self.client.raise_request_exception = False
+        response = self.client.post(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug}),
+            data,
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        experiment.refresh_from_db()
+        self.assertEqual(list(experiment.branches.all()), [experiment.reference_branch])
+        feature_values = NimbusBranchFeatureValue.objects.filter(
+            branch__experiment=experiment
+        )
+        self.assertEqual(
+            [feature_value.branch_id for feature_value in feature_values],
+            [experiment.reference_branch.id],
+        )
+        self.assertEqual(
+            feature_values.get().feature_config,
+            feature_config,
+        )
 
 
 class TestBranchCreateView(AuthTestCase):

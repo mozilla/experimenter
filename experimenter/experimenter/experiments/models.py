@@ -25,6 +25,7 @@ from django.db.models import Case, F, Prefetch, Q, QuerySet, When
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 from prose.fields import RichTextField
 
@@ -75,7 +76,9 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
                 "branches",
                 "branches__feature_values",
                 "branches__feature_values__feature_config",
+                "branches__screenshots",
                 "feature_configs",
+                "documentation_links",
             )
         )
 
@@ -1030,12 +1033,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if review_request:
             return review_request.changed_by.email
 
-    @property
+    @cached_property
     def draft_date(self):
         if change := self.changes.all().order_by("changed_on").first():
             return change.changed_on.date()
 
-    @property
+    @cached_property
     def preview_date(self):
         if change := (
             self.changes.filter(new_status=self.Status.PREVIEW)
@@ -1044,7 +1047,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ):
             return change.changed_on.date()
 
-    @property
+    @cached_property
     def review_date(self):
         if change := (
             self.changes.filter(
@@ -1533,7 +1536,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return (
             [
                 self.reference_branch,
-                *self.branches.exclude(id=self.reference_branch.id),
+                *(
+                    branch
+                    for branch in self.branches.all()
+                    if branch.id != self.reference_branch.id
+                ),
             ]
             if self.reference_branch
             else []
