@@ -171,10 +171,22 @@ class RenderParentDBResponseMixin:
 
 
 class PrefetchExperimentQuerysetMixin:
+    _cached_object = None
+
     def get_queryset(self):
         if self.request.method in ("GET", "HEAD"):
             return NimbusExperiment.objects.with_related()
         return super().get_queryset()
+
+    def get_object(self, queryset=None):
+        if self.request.method not in ("GET", "HEAD"):
+            return super().get_object(queryset=queryset)
+        if queryset is None and self._cached_object is not None:
+            return self._cached_object
+        obj = super().get_object(queryset=queryset)
+        if queryset is None:
+            self._cached_object = obj
+        return obj
 
 
 class NimbusExperimentViewMixin:
@@ -191,6 +203,9 @@ class NimbusExperimentViewMixin:
             else []
         )
         context["all_tags"] = Tag.objects.all().order_by("name")
+        context["experiment_tag_ids"] = (
+            {tag.id for tag in experiment.tags.all()} if experiment else set()
+        )
         context["create_form"] = NimbusExperimentCreateForm()
 
         return context
