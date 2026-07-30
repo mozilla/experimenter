@@ -38,6 +38,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     UNENROLLMENT_SPIKE_THRESHOLD_DISPLAY = "10%"
     SRM_P_VALUE_THRESHOLD_DISPLAY = "0.001"
 
+    ARCHIVE_DISABLED_TOOLTIP = (
+        "Experiments can only be archived when in Draft or Complete."
+    )
+
     PUBLIC_DESCRIPTION_TEXT = "This description will be public to users on about:studies"
     RISK_AI_TEXT = (
         "Note: Selecting Yes will exclude all users that have opted out of "
