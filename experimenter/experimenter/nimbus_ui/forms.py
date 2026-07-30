@@ -1231,7 +1231,9 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 branch.child_experiment.name,
                 branch.branch_slug,
             )[0]
-            for branch in getattr(self.instance, field_name)
+            for branch in getattr(self.instance, field_name).select_related(
+                "child_experiment"
+            )
         ]
 
     def save_experiments_branches(self, field_name, model):

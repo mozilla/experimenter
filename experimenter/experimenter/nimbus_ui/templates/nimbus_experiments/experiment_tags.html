@@ -19,7 +19,7 @@
       <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
     {% endif %}
   {% endif %}
-  {% if experiment.tags.exists %}
+  {% if experiment.tags.all %}
     {% for tag in experiment.tags.all %}
       <span class="badge rounded-pill"
             style="background-color: {{ tag.color }};

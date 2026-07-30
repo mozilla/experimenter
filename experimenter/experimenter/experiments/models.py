@@ -58,12 +58,15 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
         return (
             super()
             .get_queryset()
+            .select_related(
+                "reference_branch",
+                "bucket_range",
+                "bucket_range__isolation_group",
+            )
             .prefetch_related(
                 "locales",
                 "languages",
                 "countries",
-                "bucket_range",
-                "bucket_range__isolation_group",
                 Prefetch(
                     "bucket_range__isolation_group__bucket_ranges",
                     queryset=NimbusBucketRange.objects.filter(
@@ -72,13 +75,13 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
                     ),
                     to_attr="desktop_group_id_ranges",
                 ),
-                "reference_branch",
                 "branches",
                 "branches__feature_values",
                 "branches__feature_values__feature_config",
                 "branches__screenshots",
                 "feature_configs",
                 "documentation_links",
+                "tags",
             )
         )
 

@@ -1,5 +1,5 @@
 <div class="dropdown dropup position-static">
-  {% include "common/tag_button.html" with tag_count=experiment.tags.count %}
+  {% include "common/tag_button.html" with tag_count=experiment.tags.all|length %}
 
   <div class="dropdown-menu p-2 shadow-sm border rounded-2"
        style="min-width:180px;
@@ -23,7 +23,7 @@
                  name="tags"
                  id="tag-{{ tag.id }}"
                  value="{{ tag.id }}"
-                 {% if tag in experiment.tags.all %}checked{% endif %}>
+                 {% if tag.id in experiment_tag_ids %}checked{% endif %}>
           <label class="form-check-label d-flex align-items-center"
                  for="tag-{{ tag.id }}">
             <span class="me-1" style="color: {{ tag.color }}">
