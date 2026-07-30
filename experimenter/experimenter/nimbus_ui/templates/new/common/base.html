@@ -67,8 +67,25 @@
                             type="button"
                             data-bs-toggle="modal"
                             data-bs-target="#cloneModal">
-                      <i class="fa-regular fa-copy me-2"></i>Clone
+                      <i class="fa-regular fa-copy fa-fw me-2"></i>Clone
                     </button>
+                  </li>
+                  <li>
+                    <form hx-post="{% url 'nimbus-ui-new-toggle-archive' experiment.slug %}"
+                          class="d-flex align-items-center">
+                      {% csrf_token %}
+                      <button class="dropdown-item"
+                              type="submit"
+                              {% if not experiment.can_archive %}disabled{% endif %}>
+                        <i class="fa-regular fa-trash-can fa-fw me-2"></i>{{ experiment.is_archived|yesno:"Unarchive,Archive" }}
+                      </button>
+                      {% if not experiment.can_archive %}
+                        <i class="fa-regular fa-circle-question fa-sm text-secondary pe-3"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="left"
+                           title="{{ NimbusUIConstants.ARCHIVE_DISABLED_TOOLTIP }}"></i>
+                      {% endif %}
+                    </form>
                   </li>
                 </ul>
               </div>
@@ -78,6 +95,7 @@
                 <span class="badge rounded-pill fw-medium small"
                       style="background-color: #2AC3A2">Rollout</span>
               {% endif %}
+              {% if experiment.is_archived %}<span class="badge rounded-pill bg-danger fw-medium small">Archived</span>{% endif %}
               <button id="experiment-slug"
                       class="btn p-0 border-0 text-secondary d-flex align-items-center gap-1 small"
                       aria-label="Copy slug">
