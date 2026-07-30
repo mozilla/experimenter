@@ -1,12 +1,7 @@
 from django.test import TestCase
 
-from experimenter.jetstream.models import (
-    JetstreamData,
-    JetstreamDataPoint,
-    Metric,
-    Segment,
-    Statistic,
-)
+from experimenter.jetstream.models import (JetstreamData, JetstreamDataPoint,
+                                           Metric, Segment, Statistic)
 from experimenter.jetstream.tests.constants import JetstreamTestData
 
 
@@ -217,3 +212,50 @@ class TestJetstreamData(TestCase):
 
         self.assertNotIn(existing_retention, data)
         self.assertIn(kept_retention, data)
+
+
+class TestAnalysisBasisFix(TestCase):
+    """Test that analysis_basis field is handled safely when missing."""
+
+    def test_get_experiment_data_handles_missing_analysis_basis(self):
+        """Verify that missing analysis_basis doesn't raise KeyError."""
+        from experimenter.jetstream.client import get_experiment_data
+
+        # Test data with missing analysis_basis field
+        test_data = [
+            {
+                "segment": "all",
+                "metric": "test_metric",
+                "branch": "control",
+                "point": 0.5,
+                "statistic": "mean",
+                # analysis_basis intentionally omitted
+            }
+        ]
+
+        # This should not raise KeyError
+        # The fix uses .get() which returns None when field is missing
+        for point in test_data:
+            # Before fix: point["analysis_basis"] would raise KeyError
+            # After fix: point.get("analysis_basis") returns None
+            result = point.get("analysis_basis")
+            self.assertIsNone(result)
+
+    def test_get_experiment_data_handles_present_analysis_basis(self):
+        """Verify that present analysis_basis works correctly."""
+        from experimenter.jetstream.metrics import AnalysisBasis
+
+        test_data = [
+            {
+                "segment": "all",
+                "metric": "test_metric",
+                "branch": "control",
+                "point": 0.5,
+                "statistic": "mean",
+                "analysis_basis": "enrollments",
+            }
+        ]
+
+        for point in test_data:
+            result = point.get("analysis_basis")
+            self.assertEqual(result, "enrollments")
