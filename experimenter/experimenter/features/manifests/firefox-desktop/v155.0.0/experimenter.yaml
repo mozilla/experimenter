@@ -2396,6 +2396,14 @@ pdfjs:
       setPref:
         branch: default
         pref: pdfjs.enableSignatureEditor
+    enableSignatureVerification:
+      description: >-
+        Set to true to enable digital signature verification, which validates a
+        PDF's signatures against NSS and exposes the certificate viewer.
+      type: boolean
+      setPref:
+        branch: default
+        pref: pdfjs.enableSignatureVerification
 
 fxms-message:
   description: A messaging channel that supports multiple simultaneous enrollments
