@@ -68,6 +68,13 @@ class RequestFormMixin:
         return kwargs
 
 
+class PrefetchExperimentQuerysetMixin:
+    def get_queryset(self):
+        if self.request.method in ("GET", "HEAD"):
+            return NimbusExperiment.objects.with_related()
+        return super().get_queryset()
+
+
 class RenderResponseMixin:
     def form_valid(self, form):
         super().form_valid(form)
@@ -262,6 +269,7 @@ class RolloutSetupProgressMixin:
 
 
 class NimbusRolloutDetailView(
+    PrefetchExperimentQuerysetMixin,
     RolloutSetupProgressMixin,
     NimbusExperimentViewMixin,
     CloneExperimentFormMixin,
@@ -286,6 +294,7 @@ class CardMixin:
 
 
 class NewCardUpdateView(
+    PrefetchExperimentQuerysetMixin,
     RolloutSetupProgressMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
