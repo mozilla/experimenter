@@ -11,12 +11,20 @@ class SlackConstants:
     SLACK_ACTION_UPDATE_REQUEST = "update_request"
     SLACK_ACTION_END_ENROLLMENT_REQUEST = "end_enrollment_request"
     SLACK_ACTION_END_EXPERIMENT_REQUEST = "end_experiment_request"
+    SLACK_ACTION_ADVANCE_ROLLOUT_PHASE_REQUEST = "advance_rollout_phase_request"
+    SLACK_ACTION_DISABLE_ROLLOUT_REQUEST = "disable_rollout_request"
+    SLACK_ACTION_REENABLE_ROLLOUT_REQUEST = "reenable_rollout_request"
 
     # Slack operation names for logging
     SLACK_OPERATION_LAUNCH_SUCCESS = "launch success notification"
     SLACK_OPERATION_UPDATE_SUCCESS = "update success notification"
     SLACK_OPERATION_ENROLLMENT_ENDING = "enrollment ending notification"
     SLACK_OPERATION_EXPERIMENT_ENDING = "experiment ending notification"
+    SLACK_OPERATION_ROLLOUT_PHASE_ADVANCE_SUCCESS = (
+        "rollout phase advance success notification"
+    )
+    SLACK_OPERATION_ROLLOUT_DISABLE_SUCCESS = "rollout disable success notification"
+    SLACK_OPERATION_ROLLOUT_REENABLE_SUCCESS = "rollout re-enable success notification"
 
     # Slack form action text mappings
     SLACK_FORM_ACTIONS = {
@@ -24,6 +32,9 @@ class SlackConstants:
         SLACK_ACTION_UPDATE_REQUEST: "🔄 Requests update",
         SLACK_ACTION_END_ENROLLMENT_REQUEST: "⏸️ Requests end enrollment",
         SLACK_ACTION_END_EXPERIMENT_REQUEST: "🛑 Requests end experiment",
+        SLACK_ACTION_ADVANCE_ROLLOUT_PHASE_REQUEST: "⏩ Requests rollout phase advance",
+        SLACK_ACTION_DISABLE_ROLLOUT_REQUEST: "⏸️ Requests disable rollout",
+        SLACK_ACTION_REENABLE_ROLLOUT_REQUEST: "▶️ Requests re-enable rollout",
     }
 
     # Slack email action text mappings
@@ -42,6 +53,13 @@ class SlackConstants:
         SLACK_ACTION_END_EXPERIMENT_REQUEST: (
             NimbusConstants.AlertType.END_EXPERIMENT_REQUEST
         ),
+        SLACK_ACTION_ADVANCE_ROLLOUT_PHASE_REQUEST: (
+            NimbusConstants.AlertType.UPDATE_REQUEST
+        ),
+        SLACK_ACTION_DISABLE_ROLLOUT_REQUEST: (
+            NimbusConstants.AlertType.END_EXPERIMENT_REQUEST
+        ),
+        SLACK_ACTION_REENABLE_ROLLOUT_REQUEST: (NimbusConstants.AlertType.LAUNCH_REQUEST),
     }
 
     # Slack emoji reaction names
@@ -76,6 +94,16 @@ class SlackConstants:
     SLACK_EXPERIMENT_ENDED_MESSAGE = (
         "🛑 ✅ *{name}* has ended\n📊 View experiment: <{url}|{slug}>"
     )
+    SLACK_ROLLOUT_PHASE_ADVANCED_MESSAGE = (
+        "⏩ ✅ *{name}* advanced to its next phase\n📊 View rollout: <{url}|{slug}>"
+    )
+    SLACK_ROLLOUT_DISABLED_MESSAGE = (
+        "⏸️ ✅ *{name}* is now disabled\n📊 View rollout: <{url}|{slug}>"
+    )
+    SLACK_ROLLOUT_REENABLED_MESSAGE = (
+        "▶️ ✅ *{name}* is now live again and advanced to its next phase\n"
+        "📊 View rollout: <{url}|{slug}>"
+    )
     SLACK_RESULTS_READY_MESSAGE = "📈 {window} analysis results are now available"
     SLACK_ANALYSIS_ERRORS_MESSAGE = "⚠️ Analysis errors detected:\n{error_lines}"
     SLACK_UNENROLLMENT_SPIKE_MESSAGE = (
@@ -109,6 +137,15 @@ class SlackConstants:
     )
     SLACK_LOG_EXPERIMENT_ENDING_SENT = (
         "Sent experiment ending notification for {experiment}"
+    )
+    SLACK_LOG_ROLLOUT_PHASE_ADVANCE_SENT = (
+        "Sent rollout phase advance success notification for {experiment}"
+    )
+    SLACK_LOG_ROLLOUT_DISABLE_SENT = (
+        "Sent rollout disable success notification for {experiment}"
+    )
+    SLACK_LOG_ROLLOUT_REENABLE_SENT = (
+        "Sent rollout re-enable success notification for {experiment}"
     )
     SLACK_LOG_EYES_EMOJI_ADDED = "Added eyes emoji to launch message for {experiment}"
     SLACK_LOG_DM_SENT = "DM sent to user {user_id}"
