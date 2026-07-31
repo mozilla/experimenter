@@ -1,0 +1,22 @@
+<div id="sidebar-preview-button" {% if oob %}hx-swap-oob="true"{% endif %}>
+  {% if experiment.is_draft and not setup_issues_count %}
+    <button type="button"
+            id="rollout-preview-btn"
+            class="btn btn-primary btn-sm w-100 mt-2 d-flex align-items-center justify-content-center gap-2"
+            hx-post="{% url 'nimbus-ui-new-draft-to-preview-rollout' experiment.slug %}"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+      <i class="fa-regular fa-eye"></i>
+      Preview
+    </button>
+  {% else %}
+    <span class="d-inline-block w-100 mt-2"
+          {% if experiment.is_draft and setup_issues_count %} data-bs-toggle="tooltip" data-bs-title="{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}"{% endif %}>
+      <button type="button"
+              class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
+              disabled>
+        <i class="fa-regular fa-eye"></i>
+        Preview
+      </button>
+    </span>
+  {% endif %}
+</div>

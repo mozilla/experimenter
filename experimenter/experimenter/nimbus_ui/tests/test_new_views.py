@@ -4,7 +4,7 @@ from unittest import mock
 from unittest.mock import patch
 
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import resolve, reverse
 from django.utils import timezone
 from parameterized import parameterized
@@ -152,6 +152,45 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         self.assertEqual(experiment.status, expected_status)
         self.assertEqual(experiment.status_next, expected_status_next)
         self.assertEqual(experiment.publish_status, expected_publish_status)
+
+    def test_htmx_transition_refreshes_page(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-draft-to-preview-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+            HTTP_HX_REQUEST="true",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["HX-Refresh"], "true")
+
+    def test_non_htmx_transition_renders_response(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-draft-to-preview-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("HX-Refresh", response.headers)
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
 
     @parameterized.expand(
         [
@@ -565,6 +604,47 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, screenshot_1.image.url)
         self.assertContains(response, screenshot_2.image.url)
+
+    @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
+    def test_sidebar_shows_approve_control_for_dev_reviewer(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="rollout-review-approve-btn"')
+        self.assertContains(
+            response,
+            reverse(
+                "nimbus-ui-new-draft-review-to-approve-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+
+    @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
+    def test_sidebar_shows_remote_settings_link_when_approved(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            is_rollout=True,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Open Remote Settings")
 
 
 class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):

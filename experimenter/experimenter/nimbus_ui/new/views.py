@@ -278,6 +278,11 @@ class NimbusRolloutDetailView(
 ):
     template_name = "new/rollouts/rollout_detail.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(build_experiment_context(self.object))
+        return context
+
 
 class CardMixin:
     form_class: type[forms.ModelForm]
@@ -526,6 +531,15 @@ class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDe
             context["update_status_form_errors"] = form.errors["__all__"]
 
         return context
+
+    def form_valid(self, form):
+        if self.request.headers.get("HX-Request"):
+            form.save()
+            response = HttpResponse()
+            response.headers["HX-Refresh"] = "true"
+            return response
+
+        return super().form_valid(form)
 
 
 class DraftToPreviewRolloutView(StatusUpdateView):

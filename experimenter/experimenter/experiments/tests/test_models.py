@@ -5502,16 +5502,25 @@ class TestNimbusExperiment(TestCase):
             (
                 NimbusExperiment.Status.DRAFT,
                 None,
+                False,
                 "LAUNCH_EXPERIMENT",
+            ),
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                True,
+                "LAUNCH_ROLLOUT",
             ),
             (
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.Status.LIVE,
+                False,
                 "END_ENROLLMENT",
             ),
             (
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.Status.COMPLETE,
+                False,
                 "END_EXPERIMENT",
             ),
         ]
@@ -5520,10 +5529,12 @@ class TestNimbusExperiment(TestCase):
         self,
         status,
         status_next,
+        is_rollout,
         expected_flow_key,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=is_rollout,
         )
 
         experiment.status = status
@@ -7328,3 +7339,64 @@ class TestAdvanceRolloutPhase(TestCase):
 
         self.assertIsNone(cloned.rollout_phase)
         self.assertIsNone(cloned.rollout_phase_next)
+
+
+class TestRolloutReviewControls(TestCase):
+    def test_rollout_review_controls_none_when_not_in_review(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+        self.assertIsNone(experiment.rollout_review_controls)
+
+    def test_rollout_review_controls_none_for_unmatched_review_state(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
+        self.assertIsNone(experiment.rollout_review_controls)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                "nimbus-ui-new-draft-review-to-approve-rollout",
+                "nimbus-ui-new-draft-review-to-reject-rollout",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                "nimbus-ui-new-approve-advance-phase-review-rollout",
+                "nimbus-ui-new-reject-advance-phase-review-rollout",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DISABLED,
+                "nimbus-ui-new-live-to-disabled-review-approve-rollout",
+                "nimbus-ui-new-live-to-disabled-review-reject-rollout",
+            ),
+            (
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.Status.LIVE,
+                "nimbus-ui-new-disabled-to-live-review-approve-rollout",
+                "nimbus-ui-new-disabled-to-live-review-reject-rollout",
+            ),
+        ]
+    )
+    def test_rollout_review_controls_maps_state_to_urls(
+        self, status, status_next, approve_url, reject_url
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
+        controls = experiment.rollout_review_controls
+        self.assertEqual(controls["approve_url"], approve_url)
+        self.assertEqual(controls["reject_url"], reject_url)

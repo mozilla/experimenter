@@ -1,3 +1,7 @@
+{% load nimbus_extras %}
+
+{% include "new/common/sidebar_review_controls.html" %}
+
 {# Set up card #}
 <div class="accordion accordion-flush rounded-3 bg-body-secondary"
      style="--bs-accordion-btn-active-color: var(--bs-body-color);
@@ -6,17 +10,34 @@
      id="accordion-setup">
   <div class="accordion-item border-0 bg-transparent rounded-3">
     <h2 class="accordion-header">
-      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small"
+      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_draft %} collapsed{% endif %}"
               type="button"
               data-bs-toggle="collapse"
               data-bs-target="#sidebar-setup"
-              aria-expanded="true"
+              aria-expanded="{% if experiment.is_draft %}true{% else %}false{% endif %}"
               aria-controls="sidebar-setup">
-        <i class="fa-regular fa-pen-to-square text-secondary me-2"></i>
-        Set up
+        {% if experiment.is_setup_complete %}
+          <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1"
+                style="width: 18px;
+                       height: 18px">
+            <i class="fa-solid fa-check" style="font-size: 10px"></i>
+          </span>
+        {% else %}
+          <i class="fa-regular fa-pen-to-square text-secondary me-2 align-self-start mt-1"></i>
+        {% endif %}
+        <span class="d-flex flex-column">
+          <span>Set up</span>
+          {% if experiment.draft_date %}
+            <span class="text-secondary fw-normal mt-1" style="font-size: 11px">
+              {{ experiment.draft_date|date:"M j, Y" }}
+              <span class="text-body-tertiary">|</span>
+              {% with days=experiment.draft_date|days_since %}{{ days }} day{{ days|pluralize }}{% endwith %}
+            </span>
+          {% endif %}
+        </span>
       </button>
     </h2>
-    <div class="accordion-collapse collapse show"
+    <div class="accordion-collapse collapse{% if experiment.is_draft %} show{% endif %}"
          id="sidebar-setup"
          data-bs-parent="#accordion-setup">
       <div class="accordion-body pt-0 px-3 pb-3">
@@ -45,11 +66,8 @@
             <a href="#rollout-card-qa"
                class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">7</span>QA</a>
           {% endfor %}
-          <div class="d-flex align-items-center justify-content-center gap-2 rounded-2 mt-2 py-2 px-3 fw-semibold small text-white bg-primary opacity-50"
-               style="cursor: not-allowed">
-            <i class="fa-regular fa-eye"></i>
-            Preview
-          </div>
+          {% include "new/common/sidebar_preview_button.html" %}
+
         </div>
       </div>
     </div>
@@ -62,45 +80,72 @@
      id="accordion-preview">
   <div class="accordion-item border-0 bg-transparent rounded-3">
     <h2 class="accordion-header">
-      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small collapsed"
+      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_preview %} collapsed{% endif %}"
               type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#sidebar-preview"
+              {% if experiment.is_preview or experiment.is_preview_complete %}data-bs-toggle="collapse" data-bs-target="#sidebar-preview" aria-controls="sidebar-preview" aria-expanded="{% if experiment.is_preview %}true{% else %}false{% endif %}
+              "
+              {% else %}
               aria-expanded="false"
-              aria-controls="sidebar-preview">
-        <i class="fa-regular fa-eye text-secondary me-2"></i>
-        Preview
+              aria-disabled="true"
+              {% endif %}>
+        {% if experiment.is_preview_complete %}
+          <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1"
+                style="width: 18px;
+                       height: 18px">
+            <i class="fa-solid fa-check" style="font-size: 10px"></i>
+          </span>
+        {% else %}
+          <i class="fa-regular fa-eye text-secondary me-2 align-self-start mt-1"></i>
+        {% endif %}
+        <span class="d-flex flex-column">
+          <span>Preview</span>
+          {% if experiment.is_preview or experiment.is_preview_complete %}
+            <span class="text-secondary fw-normal mt-1" style="font-size: 11px">
+              {{ experiment.preview_date|date:"M j, Y" }}
+              <span class="text-body-tertiary">|</span>
+              {% with days=experiment.preview_date|days_since %}{{ days }} day{{ days|pluralize }}{% endwith %}
+            </span>
+          {% endif %}
+        </span>
       </button>
     </h2>
-    <div class="accordion-collapse collapse"
+    <div class="accordion-collapse collapse{% if experiment.is_preview %} show{% endif %}"
          id="sidebar-preview"
          data-bs-parent="#accordion-preview">
-      <div class="accordion-body pt-0 px-3 pb-3"></div>
-    </div>
-  </div>
-</div>
-{# Rollout nav card — EXP-6688 #}
-<div class="accordion accordion-flush rounded-3 bg-body-secondary"
-     style="--bs-accordion-btn-active-color: var(--bs-body-color);
-            --bs-accordion-btn-active-bg: transparent;
-            --bs-accordion-active-color: var(--bs-body-color)"
-     id="accordion-rollout">
-  <div class="accordion-item border-0 bg-transparent rounded-3">
-    <h2 class="accordion-header">
-      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#sidebar-rollout"
-              aria-expanded="false"
-              aria-controls="sidebar-rollout">
-        <i class="fa-solid fa-rocket text-secondary me-2"></i>
-        Rollout
-      </button>
-    </h2>
-    <div class="accordion-collapse collapse"
-         id="sidebar-rollout"
-         data-bs-parent="#accordion-rollout">
-      <div class="accordion-body pt-0 px-3 pb-3">{# TODO EXP-6688: Rollout content #}</div>
+      <div class="accordion-body pt-0 px-3 pb-3">
+        {% if experiment.is_preview or experiment.is_preview_complete %}
+          <div class="d-flex flex-column gap-3">
+            <p class="mb-0 text-secondary" style="font-size: 12px;">
+              {{ NimbusUIConstants.ROLLOUT_PREVIEW_MESSAGE }}
+              <a href="{{ EXTERNAL_URLS.PREVIEW_LAUNCH_DOC }}"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="text-decoration-none">Learn more</a>
+            </p>
+            <a href="#rollout-card-preview"
+               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
+              <i class="fa-regular fa-eye text-secondary"></i>
+              Preview and testing details
+            </a>
+            <div class="d-flex flex-column gap-2">
+              {# Preview to Draft #}
+              <button type="button"
+                      id="rollout-back-to-setup-btn"
+                      class="btn btn-secondary btn-sm w-100"
+                      hx-post="{% url 'nimbus-ui-new-preview-to-draft-rollout' experiment.slug %}"
+                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                      {% if not experiment.is_preview %}disabled{% endif %}>Back to Set Up</button>
+              {# Preview to Review #}
+              <button type="button"
+                      id="rollout-request-enrollment-btn"
+                      class="btn btn-primary btn-sm w-100"
+                      hx-post="{% url 'nimbus-ui-new-preview-review-rollout' experiment.slug %}"
+                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                      {% if not experiment.is_preview %}disabled{% endif %}>Request Enrollment</button>
+            </div>
+          </div>
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>

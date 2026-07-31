@@ -354,6 +354,10 @@
   transform: rotate(90deg);
 }
 
+.accordion-button[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 .rollout-page {
   .cm-editor .cm-scroller {
     font-family: var(--bs-font-monospace);
