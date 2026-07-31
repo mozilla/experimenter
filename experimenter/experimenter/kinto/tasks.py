@@ -117,6 +117,7 @@ def handle_pending_review(applications, collection):
         if experiment.should_timeout:
             with transaction.atomic():
                 experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+                experiment.revert_staged_rollout_phase_advance()
                 if experiment.status == experiment.Status.DRAFT:
                     experiment.published_date = None
                 experiment.save()
@@ -153,6 +154,7 @@ def handle_rejection(applications, kinto_client):
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
             experiment.status_next = None
             experiment.is_paused = False
+            experiment.revert_staged_rollout_phase_advance()
             if experiment.status == experiment.Status.DRAFT:
                 experiment.published_date = None
             experiment.save()
@@ -203,6 +205,8 @@ def handle_launching_experiments(applications, records, collection):
             published_record.pop("last_modified")
 
             with transaction.atomic():
+                if experiment.is_rollout_with_phases and experiment.rollout_phase_next_id:
+                    experiment.advance_rollout_phase()
                 experiment.status = NimbusExperiment.Status.LIVE
                 experiment.status_next = None
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
@@ -246,6 +250,11 @@ def handle_updating_experiments(applications, records, collection):
         if published_record != stored_record:
             logger.info(f"{experiment} is updated in Kinto".format(experiment=experiment))
             with transaction.atomic():
+                next_status = experiment.status_next
+                if experiment.is_rollout_with_phases and experiment.rollout_phase_next_id:
+                    experiment.advance_rollout_phase()
+                if next_status == NimbusExperiment.Status.LIVE:
+                    experiment.status = next_status
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.status_next = None
                 experiment.published_dto = published_record
@@ -289,38 +298,54 @@ def handle_ending_experiments(applications, records, collection):
         applications, collection
     ):
         if experiment.slug not in records:
-            logger.info(
-                f"{experiment.slug} status is being updated to complete".format(
-                    experiment=experiment
-                )
+            is_disabling_rollout = (
+                experiment.is_rollout_with_phases
+                and experiment.status_next == NimbusExperiment.Status.DISABLED
             )
+            next_status = (
+                NimbusExperiment.Status.DISABLED
+                if is_disabling_rollout
+                else NimbusExperiment.Status.COMPLETE
+            )
+            logger.info(f"{experiment.slug} status is being updated to {next_status}")
 
             with transaction.atomic():
-                experiment.status = NimbusExperiment.Status.COMPLETE
+                experiment.status = next_status
                 experiment.status_next = None
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.is_rollout_dirty = False
                 experiment.save()
 
+                if is_disabling_rollout:
+                    experiment.end_current_rollout_phase()
+
                 generate_nimbus_changelog(
                     experiment,
                     get_kinto_user(),
-                    message=NimbusChangeLog.Messages.COMPLETED,
+                    message=(
+                        NimbusChangeLog.Messages.DISABLED
+                        if is_disabling_rollout
+                        else NimbusChangeLog.Messages.COMPLETED
+                    ),
                 )
 
-                experiment.update_computed_end_date()
+                if not is_disabling_rollout:
+                    experiment.update_computed_end_date()
 
-            _send_slack_alert_success_message(
-                experiment,
-                NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
-                SlackConstants.SLACK_EXPERIMENT_ENDED_MESSAGE,
-                SlackConstants.SLACK_OPERATION_EXPERIMENT_ENDING,
-                lambda slug: SlackConstants.SLACK_LOG_EXPERIMENT_ENDING_SENT.format(
-                    experiment=slug
-                ),
+            if not is_disabling_rollout:
+                _send_slack_alert_success_message(
+                    experiment,
+                    NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+                    SlackConstants.SLACK_EXPERIMENT_ENDED_MESSAGE,
+                    SlackConstants.SLACK_OPERATION_EXPERIMENT_ENDING,
+                    lambda slug: SlackConstants.SLACK_LOG_EXPERIMENT_ENDING_SENT.format(
+                        experiment=slug
+                    ),
+                )
+
+            logger.info(
+                f"{experiment.slug} {'disabled' if is_disabling_rollout else 'ended'}"
             )
-
-            logger.info(f"{experiment.slug} ended")
 
 
 def handle_waiting_experiments(applications, records, collection):
@@ -328,6 +353,7 @@ def handle_waiting_experiments(applications, records, collection):
         with transaction.atomic():
             experiment.status_next = None
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+            experiment.revert_staged_rollout_phase_advance()
             if experiment.status == experiment.Status.DRAFT:
                 experiment.published_date = None
 

@@ -18,6 +18,7 @@ from experimenter.nimbus_ui.new.forms import (
     AdvancePhaseReviewRejectRolloutForm,
     AdvancePhaseReviewRolloutForm,
     CollaboratorsForm,
+    DisabledToLiveDuplicatePhaseReviewRolloutForm,
     DisabledToLiveReviewApproveRolloutForm,
     DisabledToLiveReviewRejectRolloutForm,
     DisabledToLiveReviewRolloutForm,
@@ -577,6 +578,10 @@ class LiveToDisabledReviewRejectRolloutView(StatusUpdateView):
 
 class DisabledToLiveReviewRolloutView(StatusUpdateView):
     form_class = DisabledToLiveReviewRolloutForm
+
+
+class DisabledToLiveDuplicatePhaseReviewRolloutView(StatusUpdateView):
+    form_class = DisabledToLiveDuplicatePhaseReviewRolloutForm
 
 
 class DisabledToLiveReviewApproveRolloutView(StatusUpdateView):

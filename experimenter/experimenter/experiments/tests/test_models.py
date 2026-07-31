@@ -321,6 +321,44 @@ class TestNimbusExperimentManager(TestCase):
             [experiment_should_update],
         )
 
+    def test_end_queue_includes_disabling_rollouts(self):
+        disabling_rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.end_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [disabling_rollout],
+        )
+
+    def test_launch_queue_includes_reenabling_rollouts(self):
+        reenabling_rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.launch_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [reenabling_rollout],
+        )
+
     def test_update_queue_filters_by_collection(self):
         test_feature = NimbusFeatureConfigFactory.create(
             slug="test-feature",
@@ -513,6 +551,44 @@ class TestNimbusExperimentManager(TestCase):
                 )
             ),
             [pausing],
+        )
+
+    def test_waiting_to_end_includes_disabling_rollouts(self):
+        disabling_rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.waiting_to_end_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [disabling_rollout],
+        )
+
+    def test_waiting_to_launch_includes_reenabling_rollouts(self):
+        reenabling_rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.waiting_to_launch_queue(
+                    [NimbusExperiment.Application.DESKTOP],
+                    settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                )
+            ),
+            [reenabling_rollout],
         )
 
     def test_waiting_to_update_filters_by_collection(self):
@@ -6974,6 +7050,7 @@ class TestAdvanceRolloutPhase(TestCase):
 
     def test_advance_from_no_phase_starts_first_phase(self):
         today = timezone.now().date()
+        self.experiment.stage_rollout_phase_advance()
         self.experiment.advance_rollout_phase()
         self.experiment.refresh_from_db()
         self.phases[0].refresh_from_db()
@@ -7027,6 +7104,7 @@ class TestAdvanceRolloutPhase(TestCase):
         self.phases[1].save()
         self.experiment.rollout_phase = self.phases[0]
         self.experiment.save()
+        self.experiment.stage_rollout_phase_advance()
 
         self.experiment.advance_rollout_phase()
         self.experiment.refresh_from_db()
@@ -7046,6 +7124,7 @@ class TestAdvanceRolloutPhase(TestCase):
         self.phases[1].population_percent = 0
         self.phases[1].save()
         self.experiment.rollout_phase = self.phases[0]
+        self.experiment.rollout_phase_next = self.phases[1]
         self.experiment.save()
 
         self.experiment.advance_rollout_phase()
@@ -7060,6 +7139,8 @@ class TestAdvanceRolloutPhase(TestCase):
     def test_advance_does_not_start_first_phase_with_zero_population(self):
         self.phases[0].population_percent = 0
         self.phases[0].save()
+        self.experiment.rollout_phase_next = self.phases[0]
+        self.experiment.save()
 
         self.experiment.advance_rollout_phase()
         self.experiment.refresh_from_db()
@@ -7073,7 +7154,9 @@ class TestAdvanceRolloutPhase(TestCase):
         self.phases[0].start_date = datetime.date(2099, 1, 1)
         self.phases[0].save()
 
+        self.experiment.stage_rollout_phase_advance()
         self.experiment.advance_rollout_phase()
+        self.experiment.stage_rollout_phase_advance()
         self.experiment.advance_rollout_phase()
         self.phases[0].refresh_from_db()
 
@@ -7081,7 +7164,7 @@ class TestAdvanceRolloutPhase(TestCase):
         self.assertEqual(self.phases[0].start_date, today)
         self.assertEqual(self.phases[0].end_date, today)
 
-    def test_advance_past_last_phase_clears_next(self):
+    def test_advance_past_last_phase_without_staged_phase_is_noop(self):
         self.experiment.rollout_phase = self.phases[2]
         self.experiment.save()
 
@@ -7089,7 +7172,7 @@ class TestAdvanceRolloutPhase(TestCase):
         self.experiment.refresh_from_db()
         self.phases[2].refresh_from_db()
 
-        self.assertEqual(self.phases[2].end_date, timezone.now().date())
+        self.assertIsNone(self.phases[2].end_date)
         self.assertEqual(self.experiment.rollout_phase, self.phases[2])
         self.assertIsNone(self.experiment.rollout_phase_next)
 
@@ -7138,7 +7221,7 @@ class TestAdvanceRolloutPhase(TestCase):
             self.experiment.population_percent, self.phases[2].population_percent
         )
 
-    def test_stage_advance_past_last_phase_without_copy_is_noop(self):
+    def test_stage_advance_past_last_phase_is_noop(self):
         self.experiment.rollout_phase = self.phases[2]
         self.experiment.save()
 
@@ -7146,23 +7229,7 @@ class TestAdvanceRolloutPhase(TestCase):
 
         self.assertIsNone(next_phase)
         self.assertIsNone(self.experiment.rollout_phase_next)
-
-    def test_stage_advance_past_last_phase_copies_current_when_requested(self):
-        self.experiment.rollout_phase = self.phases[2]
-        self.experiment.save()
-
-        next_phase = self.experiment.stage_rollout_phase_advance(
-            copy_current_if_missing=True
-        )
-        self.experiment.refresh_from_db()
-
-        self.assertIsNotNone(next_phase)
-        assert next_phase is not None
-        self.assertNotEqual(next_phase, self.phases[2])
-        self.assertEqual(next_phase.population_percent, self.phases[2].population_percent)
-        self.assertEqual(self.experiment.rollout_phase, self.phases[2])
-        self.assertEqual(self.experiment.rollout_phase_next, next_phase)
-        self.assertEqual(self.experiment.rollout_phases.count(), 4)
+        self.assertEqual(self.experiment.rollout_phases.count(), 3)
 
     def test_stage_advance_does_not_stage_zero_population_phase(self):
         self.phases[1].population_percent = 0
@@ -7216,6 +7283,16 @@ class TestAdvanceRolloutPhase(TestCase):
         self.experiment.end_current_rollout_phase()
 
         self.assertIsNone(self.experiment.rollout_phase)
+
+    def test_end_current_rollout_phase_is_noop_without_phases(self):
+        legacy_rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+
+        legacy_rollout.end_current_rollout_phase()
+
+        self.assertFalse(legacy_rollout.rollout_phases.exists())
 
     def test_end_current_rollout_phase_replaces_estimated_end_date(self):
         previous_end_date = timezone.now().date() - datetime.timedelta(days=1)
