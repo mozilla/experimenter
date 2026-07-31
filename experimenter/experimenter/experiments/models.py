@@ -3555,6 +3555,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         COMPLETED = "Experiment is complete"
         RESULTS_UPDATED = "Experiment results updated"
         MONITORING_DATA_UPDATED = "Experiment monitoring data updated"
+        POPULATION_ESTIMATES_UPDATED = "Experiment population estimates updated"
         HOLDBACK_ENROLLMENT_UPDATED = "Holdback enrollment period updated"
         EXPIRED_FROM_PREVIEW = "Expired from preview collection after 30 days"
         REMOVED_FROM_PREVIEW = "Removed from preview collection"

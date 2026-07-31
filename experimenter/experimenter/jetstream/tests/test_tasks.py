@@ -4502,6 +4502,11 @@ class TestFetchPopulationEstimatesDataTask(TestCase):
         self.assertEqual(experiment.sizing_eligible_count, 1_000_000)
         self.assertEqual(experiment.sizing_warnings, ["activeExperiments"])
         self.assertIsNotNone(experiment.sizing_data_updated_at)
+        self.assertTrue(
+            experiment.changes.filter(
+                message=NimbusChangeLog.Messages.POPULATION_ESTIMATES_UPDATED
+            ).exists()
+        )
 
     def test_fetch_population_estimates_data_skips_non_draft_experiments(self):
         live_exp = NimbusExperimentFactory.create(

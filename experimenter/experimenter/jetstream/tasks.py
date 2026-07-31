@@ -179,6 +179,11 @@ def fetch_population_estimates_data():
                     experiment.save(
                         update_fields=["sizing_data", "sizing_data_updated_at"]
                     )
+                    generate_nimbus_changelog(
+                        experiment,
+                        get_kinto_user(),
+                        message=NimbusChangeLog.Messages.POPULATION_ESTIMATES_UPDATED,
+                    )
                     updated_count += 1
             except NimbusExperiment.DoesNotExist:
                 logger.warning(f"Draft experiment {slug} not found, skipping")
