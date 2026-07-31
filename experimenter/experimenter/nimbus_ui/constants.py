@@ -365,7 +365,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Set both a start and an end date or leave both blank."
     )
     ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
-    ROLLOUT_TEMPLATE_PLANS = {"Medium risk": [1, 10, 50, 100]}
+    ROLLOUT_TEMPLATE_PLANS = {
+        "Low risk": [100],
+        "Medium risk": [1, 10, 50, 100],
+        "High risk": [1, 2, 5, 10, 25, 50, 100],
+    }
     ROLLOUT_ADVANCE_OBSERVATIONS_LABEL = (
         "Move to next phase of rollout if these observations occur"
     )
