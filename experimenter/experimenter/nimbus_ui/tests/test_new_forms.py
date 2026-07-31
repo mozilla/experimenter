@@ -34,6 +34,7 @@ from experimenter.nimbus_ui.new.forms import (
     AdvancePhaseReviewRejectRolloutForm,
     AdvancePhaseReviewRolloutForm,
     CollaboratorsForm,
+    DisabledToLiveDuplicatePhaseReviewRolloutForm,
     DisabledToLiveReviewApproveRolloutForm,
     DisabledToLiveReviewRejectRolloutForm,
     DisabledToLiveReviewRolloutForm,
@@ -1642,6 +1643,8 @@ class TestRolloutStatusForms(RequestFormTestCase):
             is_paused=False,
             is_rollout=True,
         )
+        if form_class is LiveToDisabledReviewRolloutForm:
+            NimbusRolloutPhaseFactory.create(experiment=experiment)
         form = form_class(
             data={"changelog_message": "rejected the review"},
             instance=experiment,
@@ -1763,6 +1766,23 @@ class TestRolloutStatusForms(RequestFormTestCase):
         self.assertEqual(
             form.errors["__all__"],
             [NimbusUIConstants.ERROR_INVALID_DISABLED_TRANSITION],
+        )
+
+    def test_disabled_transition_is_rejected_for_rollout_without_phases(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+        form = LiveToDisabledReviewRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["__all__"],
+            [NimbusUIConstants.ERROR_INVALID_PHASELESS_ROLLOUT_DISABLED_TRANSITION],
         )
 
     def test_draft_to_preview_side_effects(self):
@@ -1946,35 +1966,85 @@ class TestRolloutStatusForms(RequestFormTestCase):
             countdown=5, args=[experiment.kinto_collection]
         )
 
-    def test_reenable_approval_copies_current_phase_when_next_is_missing(self):
+    def test_duplicate_phase_reenable_copies_final_phase(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DISABLED,
-            status_next=NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
-            population_percent=0,
         )
-        current_phase = NimbusRolloutPhaseFactory.create(
-            experiment=experiment, population_percent=25
+        final_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=25,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 1, 15),
+            actual_start_date=datetime.date(2026, 1, 2),
         )
-        experiment.rollout_phase = current_phase
+        experiment.rollout_phase = final_phase
         experiment.save()
-        form = DisabledToLiveReviewApproveRolloutForm(
+        form = DisabledToLiveDuplicatePhaseReviewRolloutForm(
             data={}, instance=experiment, request=self.request
         )
 
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
+        duplicated_phase = experiment.rollout_phases.last()
 
-        self.assertEqual(experiment.rollout_phase, current_phase)
-        self.assertIsNotNone(experiment.rollout_phase_next)
-        self.assertNotEqual(experiment.rollout_phase_next, current_phase)
+        self.assertNotEqual(duplicated_phase, final_phase)
         self.assertEqual(
-            experiment.rollout_phase_next.population_percent,
-            current_phase.population_percent,
+            duplicated_phase.population_percent, final_phase.population_percent
         )
+        self.assertIsNone(duplicated_phase.start_date)
+        self.assertIsNone(duplicated_phase.end_date)
+        self.assertIsNone(duplicated_phase.actual_start_date)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DISABLED)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertIsNone(experiment.rollout_phase_next)
+        self.assertIn(
+            "duplicated the final rollout phase and requested review to re-enable",
+            experiment.changes.latest("changed_on").message,
+        )
+
+    def test_duplicate_phase_reenable_request_does_not_duplicate_if_existing_next_phase(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=25
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=50)
+        experiment.rollout_phase = current_phase
+        experiment.save()
+        form = DisabledToLiveDuplicatePhaseReviewRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
         self.assertEqual(experiment.rollout_phases.count(), 2)
+
+    def test_duplicate_phase_reenable_request_requires_current_phase(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+        form = DisabledToLiveDuplicatePhaseReviewRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_ROLLOUT_REENABLE_REQUIRES_CURRENT_PHASE,
+            form.errors["__all__"],
+        )
 
 
 class TestRolloutPhaseForm(TestCase):

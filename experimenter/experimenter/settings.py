@@ -418,6 +418,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.slack.tasks.check_experiment_alerts",
         "schedule": crontab(minute=0, hour=18),
     },
+    "fetch_population_estimates_data": {
+        "task": "experimenter.jetstream.tasks.fetch_population_estimates_data",
+        "schedule": crontab(minute=0, hour=9),
+    },
     "fetch_monitoring_data": {
         "task": "experimenter.jetstream.tasks.fetch_monitoring_data",
         "schedule": crontab(minute=0, hour=8),

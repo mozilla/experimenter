@@ -1282,6 +1282,27 @@ WINDOWS_LAUNCH_ON_LOGIN_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_LAUNCH_ON_LOGIN_ELIGIBLE_IMPROVED = NimbusTargetingConfig(
+    name="Windows users eligible for launch on login - improved",
+    slug="windows_launch_on_login_eligible_improved",
+    description=(
+        "Windows 10+ users whose profiles predate 6/16/2026, who don't already "
+        "have launch on login enabled, for whom LoL is not blocked by policy. "
+        "Excludes users running an MSIX build on Windows 10."
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !launchOnLoginEnabled && "
+        "launchOnLoginAllowedByPolicy && "
+        "'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue && "
+        "(!isMSIX || os.windowsBuildNumber >= 22000) && "
+        "profileAgeCreated < '2026-06-16'|date"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USERS_PDF_PROMO_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10+ users eligible for Split PDF promo",
     slug="win10_pdf_split_promo",

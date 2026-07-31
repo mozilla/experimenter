@@ -142,6 +142,8 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
             publish_status=form_class.required_publish_status,
             is_rollout=True,
         )
+        if url_name == "nimbus-ui-new-live-to-disabled-rollout":
+            NimbusRolloutPhaseFactory.create(experiment=experiment)
 
         response = self.client.post(reverse(url_name, kwargs={"slug": experiment.slug}))
 
@@ -233,6 +235,61 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
             "Cannot perform this action: experiment must be in state",
             response.context["update_status_form_errors"][0],
         )
+
+    def test_duplicate_phase_resume_submission_creates_phase_and_requests_review(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+        final_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=25
+        )
+        experiment.rollout_phase = final_phase
+        experiment.save()
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-disabled-to-live-duplicate-phase-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment.refresh_from_db()
+        duplicated_phase = experiment.rollout_phases.last()
+        self.assertEqual(experiment.rollout_phases.count(), 2)
+        self.assertNotEqual(duplicated_phase, final_phase)
+        self.assertEqual(
+            duplicated_phase.population_percent, final_phase.population_percent
+        )
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DISABLED)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
+    def test_duplicate_phase_resume_submission_without_current_phase_is_invalid(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-disabled-to-live-duplicate-phase-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            NimbusUIConstants.ERROR_ROLLOUT_REENABLE_REQUIRES_CURRENT_PHASE,
+            response.context["update_status_form_errors"],
+        )
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.rollout_phases.count(), 0)
+        self.assertIsNone(experiment.status_next)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
 
 class NewViewTestMixin:

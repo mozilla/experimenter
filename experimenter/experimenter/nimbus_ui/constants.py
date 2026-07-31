@@ -29,6 +29,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_INVALID_DISABLED_TRANSITION = (
         "Cannot perform this action: only rollouts may be disabled."
     )
+    ERROR_INVALID_PHASELESS_ROLLOUT_DISABLED_TRANSITION = (
+        "Cannot perform this action: only rollouts with phases may be disabled."
+    )
+    ERROR_ROLLOUT_REENABLE_REQUIRES_CURRENT_PHASE = (
+        "Cannot duplicate the final phase because this rollout has no current phase."
+    )
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/getting-started/for-reviewers"
@@ -359,7 +365,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Set both a start and an end date or leave both blank."
     )
     ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
-    ROLLOUT_TEMPLATE_PLANS = {"Medium risk": [1, 10, 50, 100]}
+    ROLLOUT_TEMPLATE_PLANS = {
+        "Low risk": [100],
+        "Medium risk": [1, 10, 50, 100],
+        "High risk": [1, 2, 5, 10, 25, 50, 100],
+    }
     ROLLOUT_ADVANCE_OBSERVATIONS_LABEL = (
         "Move to next phase of rollout if these observations occur"
     )

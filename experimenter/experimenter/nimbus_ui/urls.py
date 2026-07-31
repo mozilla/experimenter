@@ -5,6 +5,7 @@ from experimenter.nimbus_ui.new.views import (
     AdvancePhaseReviewApproveRolloutView,
     AdvancePhaseReviewRejectRolloutView,
     AdvancePhaseReviewRolloutView,
+    DisabledToLiveDuplicatePhaseReviewRolloutView,
     DisabledToLiveReviewApproveRolloutView,
     DisabledToLiveReviewRejectRolloutView,
     DisabledToLiveReviewRolloutView,
@@ -393,6 +394,11 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/disabled-to-live-rollout/$",
         DisabledToLiveReviewRolloutView.as_view(),
         name="nimbus-ui-new-disabled-to-live-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/disabled-to-live-duplicate-phase-rollout/$",
+        DisabledToLiveDuplicatePhaseReviewRolloutView.as_view(),
+        name="nimbus-ui-new-disabled-to-live-duplicate-phase-rollout",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/disabled-to-live-review-approve-rollout/$",
