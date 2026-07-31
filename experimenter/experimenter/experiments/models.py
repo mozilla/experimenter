@@ -401,6 +401,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         null=True,
     )
+    sizing_data = models.JSONField(
+        "Population Sizing Data",
+        blank=True,
+        null=True,
+    )
     risk_partner_related = models.BooleanField(
         "Is a Partner Related Risk Flag", default=None, blank=True, null=True
     )
@@ -2297,6 +2302,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return last_updated > last_sized
 
     @property
+    def sizing_eligible_count(self):
+        return (self.sizing_data or {}).get("eligible_count")
+
+    @property
+    def sizing_warnings(self):
+        return (self.sizing_data or {}).get("warnings", [])
+
+    @property
+    def sizing_enrolled_count(self):
+        """Projected enrolled count: eligible_count * population_percent / 100."""
+        if self.sizing_eligible_count is not None and self.population_percent:
+            return int(self.sizing_eligible_count * self.population_percent / 100)
+        return None
+
+    @property
     def has_displayable_results(self):
         # True if self.results_data has weekly or overall results
         if self.results_data and "v3" in self.results_data:
@@ -3561,6 +3581,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         DISABLED = "Rollout is disabled"
         RESULTS_UPDATED = "Experiment results updated"
         MONITORING_DATA_UPDATED = "Experiment monitoring data updated"
+        POPULATION_ESTIMATES_UPDATED = "Experiment population estimates updated"
         HOLDBACK_ENROLLMENT_UPDATED = "Holdback enrollment period updated"
         EXPIRED_FROM_PREVIEW = "Expired from preview collection after 30 days"
         REMOVED_FROM_PREVIEW = "Removed from preview collection"
