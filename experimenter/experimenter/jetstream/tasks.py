@@ -15,6 +15,7 @@ from experimenter.jetstream.client import (
     get_experiment_data,
     get_latest_analysis_start_time,
     get_monitoring_data,
+    get_population_estimates_data,
     get_population_sizing_data,
     get_results_filenames,
     get_stored_analysis_start_time,
@@ -144,6 +145,57 @@ def fetch_population_sizing_data():
         metrics.incr("fetch_population_sizing_data.failed")
         logger.error(f"Fetching experiment population auto-sizing data failed: {e}")
         raise e
+
+
+@app.task
+@metrics.timer_decorator("fetch_population_estimates_data")
+def fetch_population_estimates_data():
+    """Read GCS sizing results written by bigquery-etl and store on Draft experiments."""
+    metrics.incr("fetch_population_estimates_data.started")
+    try:
+        data = get_population_estimates_data()
+
+        if not data or "v1" not in data:
+            logger.warning("No draft sizing data found in GCS")
+            metrics.incr("fetch_population_estimates_data.no_data")
+            return
+
+        sizing_by_slug = data["v1"]
+        updated_count = 0
+
+        for slug, result in sizing_by_slug.items():
+            try:
+                experiment = NimbusExperiment.objects.get(
+                    slug=slug,
+                    status=NimbusConstants.Status.DRAFT,
+                )
+                new_sizing_data = {
+                    "eligible_count": result.get("eligible_count"),
+                    "warnings": result.get("warnings", []),
+                }
+                if experiment.sizing_data != new_sizing_data:
+                    experiment.sizing_data = new_sizing_data
+                    experiment.sizing_data_updated_at = timezone.now()
+                    experiment.save(
+                        update_fields=["sizing_data", "sizing_data_updated_at"]
+                    )
+                    updated_count += 1
+            except NimbusExperiment.DoesNotExist:
+                logger.warning(f"Draft experiment {slug} not found, skipping")
+                continue
+            except Exception as e:
+                logger.error(f"Failed to update sizing data for {slug}: {e}")
+                continue
+
+        logger.info(
+            f"Successfully updated sizing data for {updated_count} Draft experiments"
+        )
+        metrics.incr("fetch_population_estimates_data.completed")
+
+    except Exception as e:
+        metrics.incr("fetch_population_estimates_data.failed")
+        logger.exception(f"Fatal error in fetch_population_estimates_data task: {e}")
+        raise
 
 
 @app.task

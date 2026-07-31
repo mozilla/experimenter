@@ -398,6 +398,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         blank=True,
         null=True,
     )
+    sizing_data = models.JSONField(
+        "Population Sizing Data",
+        blank=True,
+        null=True,
+    )
     risk_partner_related = models.BooleanField(
         "Is a Partner Related Risk Flag", default=None, blank=True, null=True
     )
@@ -2270,6 +2275,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if last_sized is None:
             return last_updated >= timezone.now() - datetime.timedelta(days=7)
         return last_updated > last_sized
+
+    @property
+    def sizing_eligible_count(self):
+        return (self.sizing_data or {}).get("eligible_count")
+
+    @property
+    def sizing_warnings(self):
+        return (self.sizing_data or {}).get("warnings", [])
+
+    @property
+    def sizing_enrolled_count(self):
+        """Projected enrolled count: eligible_count * population_percent / 100."""
+        if self.sizing_eligible_count is not None and self.population_percent:
+            return int(self.sizing_eligible_count * self.population_percent / 100)
+        return None
 
     @property
     def has_displayable_results(self):

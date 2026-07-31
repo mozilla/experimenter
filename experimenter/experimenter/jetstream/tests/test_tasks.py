@@ -4462,3 +4462,176 @@ class TestSkipInvalidResults(TestCase):
         self.assertIn(valid_experiment.id, fetched_experiment_ids)
         self.assertNotIn(invalid_experiment.id, fetched_experiment_ids)
         mock_capture.assert_called_once()
+
+
+class TestFetchPopulationEstimatesDataTask(TestCase):
+    def setUp(self):
+        super().setUp()
+        patcher = patch("experimenter.jetstream.tasks.get_population_estimates_data")
+        self.mock_get_population_estimates_data = patcher.start()
+        self.addCleanup(patcher.stop)
+
+    @parameterized.expand([(None,), ({},)])
+    def test_fetch_population_estimates_data_no_data(self, return_value):
+        self.mock_get_population_estimates_data.return_value = return_value
+        tasks.fetch_population_estimates_data()
+        self.mock_get_population_estimates_data.assert_called_once()
+
+    def test_fetch_population_estimates_data_updates_draft_experiment(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="my-draft-exp",
+            status=NimbusExperiment.Status.DRAFT,
+            sizing_data=None,
+        )
+        self.mock_get_population_estimates_data.return_value = {
+            "v1": {
+                "my-draft-exp": {
+                    "eligible_count": 1_000_000,
+                    "warnings": ["activeExperiments"],
+                }
+            }
+        }
+
+        tasks.fetch_population_estimates_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(
+            experiment.sizing_data,
+            {"eligible_count": 1_000_000, "warnings": ["activeExperiments"]},
+        )
+        self.assertEqual(experiment.sizing_eligible_count, 1_000_000)
+        self.assertEqual(experiment.sizing_warnings, ["activeExperiments"])
+        self.assertIsNotNone(experiment.sizing_data_updated_at)
+
+    def test_fetch_population_estimates_data_skips_non_draft_experiments(self):
+        live_exp = NimbusExperimentFactory.create(
+            slug="live-exp",
+            status=NimbusExperiment.Status.LIVE,
+            sizing_data=None,
+        )
+        self.mock_get_population_estimates_data.return_value = {
+            "v1": {
+                "live-exp": {"eligible_count": 500_000, "warnings": []},
+            }
+        }
+
+        tasks.fetch_population_estimates_data()
+
+        live_exp.refresh_from_db()
+        self.assertIsNone(live_exp.sizing_data)
+
+    def test_fetch_population_estimates_data_idempotent_no_update_when_same(self):
+        existing = {"eligible_count": 2_000_000, "warnings": []}
+        experiment = NimbusExperimentFactory.create(
+            slug="stable-exp",
+            status=NimbusExperiment.Status.DRAFT,
+            sizing_data=existing,
+        )
+        original_updated_at = experiment.sizing_data_updated_at
+
+        self.mock_get_population_estimates_data.return_value = {
+            "v1": {"stable-exp": {"eligible_count": 2_000_000, "warnings": []}}
+        }
+
+        tasks.fetch_population_estimates_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.sizing_data_updated_at, original_updated_at)
+
+    def test_fetch_population_estimates_data_leaves_unlisted_experiments_unchanged(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="not-in-gcs",
+            status=NimbusExperiment.Status.DRAFT,
+            sizing_data={"eligible_count": 999, "warnings": []},
+        )
+        self.mock_get_population_estimates_data.return_value = {"v1": {}}
+
+        tasks.fetch_population_estimates_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.sizing_data, {"eligible_count": 999, "warnings": []})
+
+    def test_fetch_population_estimates_data_continues_on_individual_failure(self):
+        good_exp = NimbusExperimentFactory.create(
+            slug="good-exp",
+            status=NimbusExperiment.Status.DRAFT,
+            sizing_data=None,
+        )
+        self.mock_get_population_estimates_data.return_value = {
+            "v1": {
+                "nonexistent-slug": {"eligible_count": 100, "warnings": []},
+                "good-exp": {"eligible_count": 200_000, "warnings": []},
+            }
+        }
+
+        tasks.fetch_population_estimates_data()
+
+        good_exp.refresh_from_db()
+        self.assertEqual(good_exp.sizing_data["eligible_count"], 200_000)
+
+    def test_fetch_population_estimates_data_raises_on_gcs_failure(self):
+        self.mock_get_population_estimates_data.side_effect = Exception("GCS unreachable")
+        with self.assertRaises(Exception, msg="GCS unreachable"):
+            tasks.fetch_population_estimates_data()
+
+    def test_sizing_enrolled_count_computed_from_eligible_and_population_percent(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            sizing_data={"eligible_count": 1_000_000, "warnings": []},
+            population_percent=5,
+        )
+        self.assertEqual(experiment.sizing_enrolled_count, 50_000)
+
+    def test_sizing_enrolled_count_none_when_no_sizing_data(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            sizing_data=None,
+        )
+        self.assertIsNone(experiment.sizing_enrolled_count)
+
+    def test_fetch_population_estimates_data_continues_on_save_error(self):
+        """Generic Exception during save is logged and skipped, not raised."""
+        good_exp = NimbusExperimentFactory.create(
+            slug="good-exp",
+            status=NimbusExperiment.Status.DRAFT,
+            sizing_data=None,
+        )
+        NimbusExperimentFactory.create(
+            slug="bad-exp",
+            status=NimbusExperiment.Status.DRAFT,
+            sizing_data=None,
+        )
+        self.mock_get_population_estimates_data.return_value = {
+            "v1": {
+                "bad-exp": {"eligible_count": 50_000, "warnings": []},
+                "good-exp": {"eligible_count": 200_000, "warnings": []},
+            }
+        }
+
+        original_save = NimbusExperiment.save
+
+        def patched_save(self, *args, **kwargs):
+            if self.slug == "bad-exp":
+                raise Exception("DB error")
+            original_save(self, *args, **kwargs)
+
+        with (
+            self.assertLogs("experimenter.jetstream.tasks", level="ERROR"),
+            patch.object(NimbusExperiment, "save", patched_save),
+        ):
+            tasks.fetch_population_estimates_data()
+
+        good_exp.refresh_from_db()
+        self.assertEqual(good_exp.sizing_data["eligible_count"], 200_000)
+
+    def test_get_population_estimates_data_reads_correct_gcs_path(self):
+        """GCS reader uses the correct filename for experiment_population_estimates_v1."""
+        from experimenter.jetstream.client import get_population_estimates_data
+
+        with patch("experimenter.jetstream.client.load_data_from_gcs") as mock_load:
+            mock_load.return_value = {"v1": {}}
+            get_population_estimates_data()
+
+        called_path = mock_load.call_args[0][0]
+        self.assertIn("experiment_population_estimates_v1_latest.json", called_path)
+        self.assertIn("population_sizing", called_path)

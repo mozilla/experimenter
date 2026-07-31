@@ -43,7 +43,7 @@ METADATA_FOLDER = "metadata"
 ERRORS_FOLDER = "errors"
 SIZING_FOLDER = "sample_sizes"
 ENROLLMENT_COUNTS_FOLDER = "enrollment_counts"
-DRAFT_SIZING_FOLDER = "population_sizing"
+POPULATION_ESTIMATES_FOLDER = "population_sizing"
 ALL_STATISTICS = {
     Statistic.BINOMIAL,
     Statistic.MEAN,
@@ -117,9 +117,9 @@ def get_enrollment_funnel_data():
     return load_data_from_gcs(str(path))
 
 
-def get_draft_sizing_data():
+def get_population_estimates_data():
     filename = "experiment_population_estimates_v1_latest.json"
-    path = Path(DRAFT_SIZING_FOLDER, filename)
+    path = Path(POPULATION_ESTIMATES_FOLDER, filename)
     return load_data_from_gcs(str(path))
 
 
