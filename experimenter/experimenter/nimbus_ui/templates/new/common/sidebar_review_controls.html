@@ -60,14 +60,14 @@
               <div class="d-flex flex-column gap-2">
                 <button type="button"
                         id="rollout-review-reject-btn"
-                        class="btn btn-secondary btn-sm w-100"
+                        class="btn btn-danger btn-sm w-100"
                         data-bs-toggle="collapse"
                         data-bs-target="#rollout-reject-form"
                         aria-expanded="false"
                         aria-controls="rollout-reject-form">Reject</button>
                 <button type="button"
                         id="rollout-review-approve-btn"
-                        class="btn btn-primary btn-sm w-100"
+                        class="btn btn-success btn-sm w-100"
                         hx-post="{% url controls.approve_url experiment.slug %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>Approve</button>
               </div>
