@@ -1450,9 +1450,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def can_edit_audience(self):
         return self.is_draft or (self.is_live_rollout and self.is_enrolling)
 
-    def can_edit_schedule(self):
-        return self.is_draft or self.is_live_rollout
-
     def sidebar_links(self, current_path):
         return [
             {

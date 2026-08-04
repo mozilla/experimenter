@@ -18,10 +18,10 @@
     <div class="d-flex flex-column gap-2">
       <div class="small fw-medium mb-1 text-secondary">Define</div>
       {# EXP-6681: Rollout Overview Form/Card #}
-      {% include "new/rollouts/detail_card.html" with card_id="overview" title="Overview" subtitle="Name · Observations & Problem Space · Public Description · Application · Important Links · Project Tags · Subscribers" show_edit_btn=True body_template="new/rollouts/overview/card.html" %}
+      {% include "new/rollouts/detail_card.html" with card_id="overview" title="Overview" subtitle="Name · Observations & Problem Space · Public Description · Application · Important Links · Project Tags · Subscribers" show_edit_btn=experiment.is_draft body_template="new/rollouts/overview/card.html" %}
 
       {# TODO EXP-6682: Rollout Risks Form/Card #}
-      {% include "new/rollouts/detail_card.html" with card_id="risks" title="Risks" subtitle="Consider possible risks if the public interacts with your experiment" show_edit_btn=True body_template="new/rollouts/risks/card.html" %}
+      {% include "new/rollouts/detail_card.html" with card_id="risks" title="Risks" subtitle="Consider possible risks if the public interacts with your experiment" show_edit_btn=experiment.is_draft body_template="new/rollouts/risks/card.html" %}
       {% include "new/rollouts/detail_card.html" with card_id="signoff" title="Sign-Offs" subtitle="QA, VP, and Legal Sign-offs" show_edit_btn=True body_template="new/rollouts/signoff/card.html" %}
 
     </div>
@@ -29,14 +29,14 @@
     <div class="d-flex flex-column gap-2">
       <div class="small fw-medium mb-1 text-secondary">Configure</div>
       {# TODO EXP-6683: Rollout Audience Form/Card #}
-      {% include "new/rollouts/detail_card.html" with card_id="audience" title="Audience" subtitle="Branch treatment details" show_edit_btn=True body_template="new/rollouts/audience/card.html" %}
+      {% include "new/rollouts/detail_card.html" with card_id="audience" title="Audience" subtitle="Branch treatment details" show_edit_btn=experiment.is_draft body_template="new/rollouts/audience/card.html" %}
 
     </div>
     {# ── Build ── #}
     <div class="d-flex flex-column gap-2">
       <div class="small fw-medium mb-1 text-secondary">Build</div>
       {# TODO EXP-6685: Rollout Features Form/Card #}
-      {% include "new/rollouts/detail_card.html" with card_id="rollout-features" title="Rollout Features" subtitle="Describe the rollout experience" show_edit_btn=True body_template="new/rollouts/rollout_features/card.html" %}
+      {% include "new/rollouts/detail_card.html" with card_id="rollout-features" title="Rollout Features" subtitle="Describe the rollout experience" show_edit_btn=experiment.is_draft body_template="new/rollouts/rollout_features/card.html" %}
       {% include "new/rollouts/detail_card.html" with card_id="schedule" title="Rollout schedule" subtitle="Gradually increase the rollout population in phases" show_edit_btn=True body_template="new/rollouts/schedule/card.html" %}
 
     </div>

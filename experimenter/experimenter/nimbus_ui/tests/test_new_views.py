@@ -1468,16 +1468,6 @@ class TestNewRolloutPhaseCreateView(AuthTestCase):
         self.assertEqual(response.context["form"].rollout_phases.total_form_count(), 1)
         self.assertEqual(experiment.rollout_phases.count(), 1)
 
-    def test_post_on_non_editable_experiment_redirects(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-        )
-        response = self.client.post(
-            reverse(self.url_name, kwargs={"slug": experiment.slug}),
-            {"rollout_phases-TOTAL_FORMS": "0", "rollout_phases-INITIAL_FORMS": "0"},
-        )
-        self.assertIn("HX-Redirect", response.headers)
-
 
 class TestNewRolloutPhaseDeleteView(AuthTestCase):
     url_name = "nimbus-ui-new-delete-rollout-phase"

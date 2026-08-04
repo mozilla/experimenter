@@ -389,11 +389,17 @@ class NewQAUpdateView(CardMixin, NewCardUpdateView):
     display_template = "new/rollouts/qa/card.html"
     template_name = "new/rollouts/qa/edit_form.html"
 
+    def can_edit(self):
+        return True
+
 
 class NewSignoffUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutSignoffForm
     display_template = "new/rollouts/signoff/card.html"
     template_name = "new/rollouts/signoff/edit_form.html"
+
+    def can_edit(self):
+        return True
 
 
 class NewDocumentationLinkCreateView(RenderParentDBResponseMixin, NewOverviewUpdateView):
@@ -621,7 +627,7 @@ class NewRolloutScheduleUpdateView(NewCardUpdateView):
         return context
 
     def can_edit(self):
-        return self.object.can_edit_schedule()
+        return True
 
 
 class NewRolloutPhaseCreateView(

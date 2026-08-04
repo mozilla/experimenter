@@ -6910,27 +6910,6 @@ class TestNimbusRolloutPhase(TestCase):
         phase.refresh_from_db()
         self.assertEqual(str(phase), "Rollout phase (25.0000%)")
 
-    def test_can_edit_schedule_draft(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            is_rollout=True,
-        )
-        self.assertTrue(experiment.can_edit_schedule())
-
-    def test_can_edit_schedule_live_rollout(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            is_rollout=True,
-        )
-        self.assertTrue(experiment.can_edit_schedule())
-
-    def test_can_edit_schedule_completed(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            is_rollout=True,
-        )
-        self.assertFalse(experiment.can_edit_schedule())
-
     def test_duration_days_and_display(self):
         phase = NimbusRolloutPhaseFactory.build(
             start_date=datetime.date(2026, 1, 1),

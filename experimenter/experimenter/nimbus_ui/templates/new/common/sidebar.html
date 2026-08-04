@@ -17,9 +17,7 @@
               aria-expanded="{% if experiment.is_draft %}true{% else %}false{% endif %}"
               aria-controls="sidebar-setup">
         {% if experiment.is_setup_complete %}
-          <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1"
-                style="width: 18px;
-                       height: 18px">
+          <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1 p-1">
             <i class="fa-solid fa-check" style="font-size: 10px"></i>
           </span>
         {% else %}
@@ -89,9 +87,7 @@
               aria-disabled="true"
               {% endif %}>
         {% if experiment.is_preview_complete %}
-          <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1"
-                style="width: 18px;
-                       height: 18px">
+          <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1 p-1">
             <i class="fa-solid fa-check" style="font-size: 10px"></i>
           </span>
         {% else %}
