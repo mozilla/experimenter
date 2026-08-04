@@ -697,13 +697,6 @@ urlbar:
       description: >-
         Whether or not to show calculator results when a user types a valid
         calculation string into the urlbar.
-    trackerCountFeatureGate:
-      type: boolean
-      fallbackPref: browser.urlbar.trackerCount.featureGate
-      description: >-
-        Boolean used to determine if the "x trackers blocked" pill should be
-        shown in the urlbar. Should be false for Control branch of an
-        experiment.
     unitConversionEnabled:
       type: boolean
       setPref:
@@ -1694,33 +1687,6 @@ newtabTrainhopAddon:
         branch: user
         pref: browser.newtabpage.trainhopAddon.version
 
-newtabTrainhopAddonDeployment:
-  description: |
-    Co-enrollment version of newtabTrainhopAddon used to deploy updated newtab
-    resources packaged as an xpi. Multiple overlapping enrollments are allowed and
-    the enrollment with the highest addon_version wins.
-  owner: mconley@mozilla.com
-  hasExposure: true
-  allowCoenrollment: true
-  exposureDescription: |
-    Exposure is sent when the trainhop addon version from a co-enrolled deployment is in use
-    (starting from the browser startup right after it has been downloaded and installed).
-  variables:
-    xpi_download_path:
-      type: string
-      description: |
-        Provide the path (relative to the base URL set in the `browser.newtabpage.trainhopAddon.xpiBaseURL`
-        about:config pref) from which the xpi should be downloaded.
-    addon_version:
-      type: string
-      description: |
-        Expected addon version (installing the xpi is cancelled if it mismatches the one set here).
-        The trainhop add-on version is also stored in an about:config pref, managed manually by
-        AboutNewTabResourceMapping to reflect the highest version across all active enrollments
-        (across both this feature and newtabTrainhopAddon). It is used on early application startup
-        to determine if the trainhop add-on version should be uninstalled (and not be used for the
-        newtab resources mapping to safely uninstall it later in the same application session).
-
 newtabTrainhopFirstStartup:
   description: |
     Controls startup behaviours if and when a train-hop is available for a
@@ -2156,7 +2122,8 @@ password-autocomplete:
 address-autofill-feature:
   description: Enabling address autofill feature
   owner: issozi@mozilla.com
-  hasExposure: false
+  hasExposure: true
+  exposureDescription: "Exposure is sent when an address is autofilled."
   variables:
     status:
       type: boolean
@@ -2224,18 +2191,6 @@ shellService:
         branch: user
         pref: browser.shell.focusSetDefaultBrowserButton
       type: boolean
-    displayKitImageBehindSetDefaultBrowserButton:
-      description: >
-        Display a Kit image behind the set default browser button in Windows
-        Settings.
-      setPref:
-        branch: user
-        pref: browser.shell.displayKitImageBehindSetDefaultBrowserButton
-      type: string
-      enum:
-        - "off"
-        - "static"
-        - "animated"
 upgradeDialog:
   description: The dialog shown for major upgrades
   owner: omc-core@mozilla.com
@@ -2423,14 +2378,6 @@ pdfjs:
       setPref:
         branch: default
         pref: pdfjs.enableSignatureEditor
-    enableSignatureVerification:
-      description: >-
-        Set to true to enable digital signature verification, which validates a
-        PDF's signatures against NSS and exposes the certificate viewer.
-      type: boolean
-      setPref:
-        branch: default
-        pref: pdfjs.enableSignatureVerification
 
 fxms-message:
   description: A messaging channel that supports multiple simultaneous enrollments
@@ -2911,12 +2858,6 @@ gleanInternalSdk:
       setPref:
         branch: user
         pref: telemetry.glean.internal.maxPingsPerMinute
-    enableFOGTransport:
-      type: "boolean"
-      description: "Enables FOGTransport parent/child for IPC"
-      setPref:
-        branch: user
-        pref: telemetry.fog.enable_fog_transport
 
 legacyTelemetry:
   description: "Controls for the Legacy Telemetry data collection system"
@@ -4582,7 +4523,6 @@ opaqueResponseBlocking:
   owner: farre@mozilla.com
   hasExposure: true
   exposureDescription: Exposure is sent when a response is blocked
-  isEarlyStartup: true
   variables:
     enabled:
       description: Whether ORB is enabled
@@ -4784,6 +4724,36 @@ backgroundThreads:
         branch: user
         pref: threads.lower_mainthread_priority_in_background.enabled
 
+reportBrokenSite:
+  description: The Report Broken Site feature
+  owner: twisniewski@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: ui.new-webcompat-reporter.enabled
+      description: >-
+        Whether Report Broken Site is enabled
+    sendMoreInfo:
+      type: boolean
+      setPref:
+        branch: user
+        pref: ui.new-webcompat-reporter.send-more-info-link
+      description: >-
+        Whether Report Broken Site shows the send more info link directing
+        users to webcompat.com (defaults to true for prerelease channels)
+    reasonDropdown:
+      type: int
+      setPref:
+        branch: user
+        pref: ui.new-webcompat-reporter.reason-dropdown
+      description: >-
+        0 = do not show the "reason" dropdown
+        1 = show an optional "reason" dropdown
+        2 = show a required "reason" dropdown
+
 phc:
   description: Prefs to control the Probabalistic Heap Checker (PHC)
   owner: pbone@mozilla.com
@@ -4875,12 +4845,6 @@ mailto:
         This pref controls after how many minutes the mailto prompt can be shown
         again, which has been dismissed by clicking a 'not now' button on it.
       fallbackPref: browser.mailto.dualPrompt.dismissNotNowMinutes
-    dialog:
-      type: boolean
-      description: >-
-        Toggle a mailto handler picker dialog shown when a mailto link is
-        clicked. When false, the picker is skipped and the link falls back to
-        the default protocol handling.
 
 nimbusIsReady:
   description: A feature that provides the number of Nimbus is_ready events to send
@@ -5267,7 +5231,7 @@ sidebar:
       description: sidebar.verticalTabs pref value to set on user branch; true to enable vertical tabs
     visibility:
       type: string
-      description: 'sidebar.visibility pref value to set on user branch. Vertical tabs: "always-show", "expand-on-hover", "hide-sidebar". Horizontal tabs: "hide-on-close", "hide-launcher".'
+      description: sidebar.visibility pref value ("hide" or "always-show") to set on user branch
 
 fxms_bmb_button:
   description: A feature for the Firefox Messaging System Bookmarks Bar button surface
@@ -5280,6 +5244,18 @@ fxms_bmb_button:
     uri: chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json
     path: browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json
   variables: {}
+
+contentProcessSandbox:
+  description: Prefs that control the content process sandbox.
+  owner: bowen@mozilla.com
+  hasExposure: false
+  variables:
+    Level:
+      description: Content process sandbox level
+      type: int
+      setPref:
+        branch: user
+        pref: security.sandbox.content.level
 
 certificateTransparency:
   description: Certificate Transparency configuration
@@ -5378,20 +5354,6 @@ smartTabGroups:
         pref: browser.tabs.groups.smart.searchTopicEnabled
       description: For single tab groupings, use the search query as the topic rather than use ML
 
-tabContextMenu:
-  description: Prefs to control the behavior and structure of the tab context menu
-  owner: sfoster@mozilla.com
-  hasExposure: false
-  variables:
-    altStructureEnabled:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.tabs.contextmenu.altstructure.enabled
-      description: >-
-        Controls whether the updated (alternate) tab context menu layout is
-        shown instead of the classic layout.
-
 externalLinkHandling:
   description: Controls how externally-opened URLs will be handled by Firefox.
   owner: sthompson@mozilla.com
@@ -5428,6 +5390,15 @@ smartblockEmbeds:
         pref: extensions.webcompat.smartblockEmbeds.enabled
       description: >-
         Controls whether smartblock embed placeholders and protections panel toggles will be shown to the user.
+
+selectableProfiles:
+  description: "Multiple profile management using selectableProfileService"
+  owner: jhirsch@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      description: Enables the multiple profiles feature when true. Turning off this variable will not disable the feature.
 
 storageAccessHeuristics:
   description: Heuristics that grant cookie access automatically for foreign resources
@@ -5584,23 +5555,6 @@ contentClassifier:
       setPref:
         branch: default
         pref: "privacy.trackingprotection.content.annotation.engines.pbmode"
-    mirrorEnabled:
-      description: >-
-        Whether the tracking-protection prefs are mirrored onto the content
-        classifier engine prefs. While enabled the mirror derives (and
-        owns) the content classifier prefs from the ETP settings.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "privacy.trackingprotection.content.mirror.enabled"
-    skipURLClassifier:
-      description: >-
-        Whether to skip the URLClassifier while the ContentClassifier engine is
-        active.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "privacy.trackingprotection.urlclassifier.disable_for_channel_classifier"
 
 auto-pip:
   description: "Automatic Picture-in-Picture"
@@ -6048,12 +6002,6 @@ smartWindow:
       description: >-
         If true, Firefox opens as a Smart Window by default on startup for
         eligible users. Set to false (or unenroll) to disable the rollout.
-    hiddenOnboardingScreenIds:
-      type: string
-      fallbackPref: browser.smartwindow.firstrun.hiddenOnboardingScreenIds
-      description: >-
-        Comma-separated list of screen ids that should be hidden in the Smart
-        Window first run onboarding.
 
 contentSharing:
   description: Controls the content sharing feature, which allows users to share browser content.
@@ -6073,18 +6021,6 @@ contentSharing:
         pref: browser.contentsharing.server.url
       description: The URL of the content sharing server.
 
-referrals:
-  description: Controls the Firefox referral program.
-  owner: nbarrett@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.referrals.enabled
-      description: Whether the referral program is enabled.
-
 webNotificationsPermissionUi:
   description: >-
     Overrides the copy and optional logo of the native Web Notifications
@@ -6092,17 +6028,15 @@ webNotificationsPermissionUi:
   owner: omc-core@mozilla.com
   hasExposure: true
   exposureDescription: >-
-    Recorded when an enrolled user is shown the permission prompt and the
-    activationTargeting expression (if set) evaluated truthy, regardless of
-    whether any content variable is set. This fires for the empty-content
-    control branch as well so it is comparable to the treatment branches.
+    Recorded when the permission prompt is rendered with at least one
+    treatment variable applied and the activationTargeting expression
+    (if set) evaluated truthy.
   variables:
     headline:
       type: string
       description: >-
         Overrides the prompt headline. Must contain "<>" for site-name
-        substitution; a headline without it falls back to the default copy.
-        Also falls back to the default copy when unset.
+        substitution. Falls back to the default copy when unset.
     body:
       type: string
       description: >-
@@ -6117,27 +6051,18 @@ webNotificationsPermissionUi:
     secondaryCtaLabel:
       type: string
       description: >-
-        Overrides the (Always) Block button label in normal windows only; left
-        at the default in private browsing, where the wording reflects the
-        session-scoped BLOCK semantics. The underlying BLOCK action and scope
-        are unchanged.
+        Overrides the (Always) Block button label. Applied uniformly across
+        normal and private browsing modes; the underlying BLOCK action and
+        scope are unchanged.
     secondaryCtaAccessKey:
       type: string
       description: Optional access key paired with secondaryCtaLabel.
     logoUrl:
       type: string
       description: >-
-        Optional logo URL used as the prompt's icon. Must be a chrome:// or
-        resource:// URL; any other scheme is rejected and the default icon is
-        shown.
-    useSiteFavicon:
-      type: boolean
-      description: >-
-        When true, use the requesting site's own favicon as the prompt icon
-        (no logoUrl needed). Prefers the site's cached favicon and falls back to
-        the tab's currently loaded icon (so it still shows on a first-time
-        private-browsing visit), or the default favicon if neither is available.
-        Ignored when a valid logoUrl is set.
+        Optional logo URL used as the prompt's icon. Must be a chrome://,
+        resource:// or https:// URL; any other scheme is rejected and the
+        default icon is shown.
     activationTargeting:
       type: string
       description: >-
@@ -6146,27 +6071,3 @@ webNotificationsPermissionUi:
         unset or empty the treatment applies to every prompt the enrolled
         user sees; when set and falsy the prompt falls back to the default
         copy and no exposure event is recorded.
-    headlineL10nId:
-      type: string
-      description: >-
-        Fluent message id (in browser/permissions.ftl) for the headline,
-        resolved in-tree. Takes precedence over headline; the message must
-        contain "<>" (e.g. via the $host variable) for site-name substitution,
-        else the prompt falls back to the default copy.
-    bodyL10nId:
-      type: string
-      description: >-
-        Fluent message id for the body/hint text, resolved in-tree. Takes
-        precedence over body.
-    primaryCtaLabelL10nId:
-      type: string
-      description: >-
-        Fluent message id for the Allow button, resolved in-tree. Takes
-        precedence over primaryCtaLabel; its .accesskey attribute, if present,
-        sets the access key.
-    secondaryCtaLabelL10nId:
-      type: string
-      description: >-
-        Fluent message id for the (Always) Block button, resolved in-tree.
-        Takes precedence over secondaryCtaLabel; its .accesskey attribute, if
-        present, sets the access key. Not applied in private browsing.

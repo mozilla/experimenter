@@ -1694,6 +1694,33 @@ newtabTrainhopAddon:
         branch: user
         pref: browser.newtabpage.trainhopAddon.version
 
+newtabTrainhopAddonDeployment:
+  description: |
+    Co-enrollment version of newtabTrainhopAddon used to deploy updated newtab
+    resources packaged as an xpi. Multiple overlapping enrollments are allowed and
+    the enrollment with the highest addon_version wins.
+  owner: mconley@mozilla.com
+  hasExposure: true
+  allowCoenrollment: true
+  exposureDescription: |
+    Exposure is sent when the trainhop addon version from a co-enrolled deployment is in use
+    (starting from the browser startup right after it has been downloaded and installed).
+  variables:
+    xpi_download_path:
+      type: string
+      description: |
+        Provide the path (relative to the base URL set in the `browser.newtabpage.trainhopAddon.xpiBaseURL`
+        about:config pref) from which the xpi should be downloaded.
+    addon_version:
+      type: string
+      description: |
+        Expected addon version (installing the xpi is cancelled if it mismatches the one set here).
+        The trainhop add-on version is also stored in an about:config pref, managed manually by
+        AboutNewTabResourceMapping to reflect the highest version across all active enrollments
+        (across both this feature and newtabTrainhopAddon). It is used on early application startup
+        to determine if the trainhop add-on version should be uninstalled (and not be used for the
+        newtab resources mapping to safely uninstall it later in the same application session).
+
 newtabTrainhopFirstStartup:
   description: |
     Controls startup behaviours if and when a train-hop is available for a
@@ -4756,36 +4783,6 @@ backgroundThreads:
       setPref:
         branch: user
         pref: threads.lower_mainthread_priority_in_background.enabled
-
-reportBrokenSite:
-  description: The Report Broken Site feature
-  owner: twisniewski@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: user
-        pref: ui.new-webcompat-reporter.enabled
-      description: >-
-        Whether Report Broken Site is enabled
-    sendMoreInfo:
-      type: boolean
-      setPref:
-        branch: user
-        pref: ui.new-webcompat-reporter.send-more-info-link
-      description: >-
-        Whether Report Broken Site shows the send more info link directing
-        users to webcompat.com (defaults to true for prerelease channels)
-    reasonDropdown:
-      type: int
-      setPref:
-        branch: user
-        pref: ui.new-webcompat-reporter.reason-dropdown
-      description: >-
-        0 = do not show the "reason" dropdown
-        1 = show an optional "reason" dropdown
-        2 = show a required "reason" dropdown
 
 phc:
   description: Prefs to control the Probabalistic Heap Checker (PHC)
