@@ -5403,18 +5403,17 @@ EXISTING_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_NO_ENTERPRISE_NOT_DEFAULT = NimbusTargetingConfig(
-    name="Existing users (profile 14+ days), no enterprise, no default, cfrs enabled",
-    slug="existing_user_no_enterprise_not_default",
+EXISTING_USER_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Existing users (profile 14+ days), no enterprise, cfrs enabled",
+    slug="existing_user_no_enterprise",
     description=(
         "Existing users with a profile older than 14 days, "
         "without active enterprise policies, "
-        "with cfrs enabled, not set as default"
+        "and feature recommendations enabled"
     ),
     targeting=(
         f"{PROFILEMORETHAN14DAYS}"
         f" && {NO_ENTERPRISE.targeting}"
-        f" && {NEED_DEFAULT}"
         " && "
         "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
         " && "
