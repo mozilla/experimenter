@@ -55,6 +55,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
 
     MONITORING_CARD_TITLE = "Enrollment Monitoring"
+    MONITORING_EXPERIMENT_ENDED_MESSAGE = (
+        "This experiment has ended. Monitoring data reflects the last update "
+        "before the experiment concluded."
+    )
     MONITORING_SECTION_UNENROLLMENT = "Unenrollment"
     MONITORING_SECTION_SRM = "Sample Ratio Mismatch (SRM)"
     MONITORING_SRM_SUBTITLE = "branches enrolling at unexpected ratios may indicate a bug"
