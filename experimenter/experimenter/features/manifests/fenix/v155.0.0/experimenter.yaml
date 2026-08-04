@@ -321,6 +321,14 @@ homepage-trending-recent-search:
     enabled:
       type: boolean
       description: If true, trending and recent searches are shown on the Homepage Search.
+homepage-weather-widget:
+  description: Feature to enable Homepage Weather Widget for users on Firefox for Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Homepage Weather Widget is enabled.
 homescreen:
   description: The homescreen that the user goes to when they press home or new tab.
   hasExposure: true
