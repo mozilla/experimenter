@@ -1,0 +1,132 @@
+{% extends "new/common/card_base.html" %}
+
+{% block card %}
+  <div class="d-flex flex-column gap-4">
+    {% if experiment.monitoring_data_updated_at %}
+      <div class="text-secondary" style="font-size: 12px;">
+        Last updated: {{ experiment.monitoring_data_updated_at|date:"N j, Y" }}
+      </div>
+    {% endif %}
+    {% if experiment.is_complete %}
+      <div class="alert alert-secondary small mb-0 border-0 border-start border-secondary border-4 rounded-0"
+           role="alert">{{ NimbusUIConstants.MONITORING_EXPERIMENT_ENDED_MESSAGE }}</div>
+    {% endif %}
+    {% with funnel=experiment.enrollment_funnel_stages summary=experiment.monitoring_summary %}
+      {% if funnel %}
+        <section>
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <h6 class="small fw-semibold text-body mb-0">Enrollment Funnel</h6>
+            {% for stage in funnel.stages %}
+              {% if stage.reason == "FeatureConflict" and stage.pct >= 25 %}
+                <span class="badge rounded-pill fw-normal small text-warning-emphasis bg-warning-subtle d-inline-flex align-items-center gap-1">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  Feature Conflict {{ stage.pct|floatformat:0 }}%
+                </span>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr style="font-size: 12px;">
+                <th class="text-secondary fw-normal">Stage</th>
+                <th class="text-secondary fw-normal text-end">Clients</th>
+                <th class="text-secondary fw-normal text-end">% of Evaluated</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="small fw-semibold text-body">
+                <td>Evaluated (total)</td>
+                <td class="text-end">{{ funnel.total }}</td>
+                <td class="text-end"
+                    style="background: linear-gradient(to left, rgba(var(--bs-secondary-rgb), 0.15) 100%, transparent 0%)">
+                  100%
+                </td>
+              </tr>
+              {% for stage in funnel.stages %}
+                <tr class="small text-body">
+                  <td {% if stage.reason == "FeatureConflict" and stage.pct >= 25 %}class="fw-semibold"{% endif %}>
+                    <span class="badge rounded-pill fw-normal bg-{{ stage.color }}-subtle text-{{ stage.color }}-emphasis me-1">{{ stage.status }}</span>
+                    {{ stage.label }}
+                    {% if stage.conflict_slugs %}
+                      —
+                      {% for slug in stage.conflict_slugs %}
+                        <a href="{% url 'nimbus-ui-detail' slug=slug %}">{{ slug }}</a>
+                        {% if not forloop.last %},{% endif %}
+                      {% endfor %}
+                    {% endif %}
+                    {% if stage.has_null_conflict %}
+                      <span class="text-secondary">(conflict slug unavailable on iOS/Fenix)</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">{{ stage.client_count }}</td>
+                  <td class="text-end"
+                      style="background: linear-gradient(to left, rgba(var(--bs-{{ stage.color }}-rgb), 0.15) {{ stage.pct|floatformat:1 }}%, transparent 0%)">
+                    {{ stage.pct|floatformat:1 }}%
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </section>
+      {% endif %}
+      {% if summary %}
+        <section>
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <h6 class="small fw-semibold text-body mb-0">Branch Health</h6>
+            {% if summary.is_unenrollment_spike %}
+              <span class="badge rounded-pill fw-normal small text-warning-emphasis bg-warning-subtle d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Unenrollment Spike {{ summary.unenrollment_rate|floatformat:1 }}%
+              </span>
+            {% else %}
+              <span class="badge rounded-pill fw-normal small text-success-emphasis bg-success-subtle d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-circle-check"></i>
+                Unenrollment {{ summary.unenrollment_rate|floatformat:1 }}%
+              </span>
+            {% endif %}
+          </div>
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr style="font-size: 12px;">
+                <th class="text-secondary fw-normal">Branch</th>
+                <th class="text-secondary fw-normal text-end">Enrolled</th>
+                <th class="text-secondary fw-normal text-end">Unenrolled</th>
+                <th class="text-secondary fw-normal text-end">Top Unenroll Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="small fw-semibold text-body">
+                <td>Total</td>
+                <td class="text-end">{{ summary.total_enrollments }}</td>
+                <td class="text-end">{{ summary.total_unenrollments }}</td>
+                <td></td>
+              </tr>
+              {% for branch in summary.branches %}
+                <tr class="small text-body">
+                  <td>{{ branch.name }}</td>
+                  <td class="text-end">{{ branch.enrollments }}</td>
+                  <td class="text-end">{{ branch.unenrollments }}</td>
+                  <td class="text-end">{{ branch.top_reason|default:"—" }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="small text-secondary">No branch data available</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </section>
+      {% endif %}
+    {% endwith %}
+    <div class="d-flex align-items-center justify-content-between mb-1">
+      <a href="{{ experiment.monitoring_dashboard_url }}"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="small text-decoration-none">{{ NimbusUIConstants.MONITORING_DASHBOARD_LINK_TEXT }}</a>
+      <a href="{{ NimbusUIConstants.VALIDATING_EXPERIMENTS_URL }}"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="small text-decoration-none">Learn more</a>
+    </div>
+  </div>
+{% endblock %}
