@@ -627,7 +627,7 @@ class NewRolloutScheduleUpdateView(NewCardUpdateView):
         return context
 
     def can_edit(self):
-        return True
+        return self.object.is_draft or self.object.is_rolling_out
 
 
 class NewRolloutPhaseCreateView(

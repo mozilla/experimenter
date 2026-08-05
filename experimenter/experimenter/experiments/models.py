@@ -987,13 +987,27 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return None
 
         flow_key = None
-        if rejection.old_status == self.Status.DRAFT:
-            flow_key = "LAUNCH_ROLLOUT" if self.is_rollout else "LAUNCH_EXPERIMENT"
-        elif rejection.old_status == self.Status.LIVE:
-            if rejection.old_status_next == self.Status.LIVE:
-                flow_key = "END_ENROLLMENT"
-            else:
-                flow_key = "END_EXPERIMENT"
+        if self.is_rollout:
+            if rejection.old_status == self.Status.DRAFT:
+                flow_key = "LAUNCH_ROLLOUT"
+            elif rejection.old_status == self.Status.LIVE:
+                if rejection.old_status_next == self.Status.DISABLED:
+                    flow_key = "DISABLE_ROLLOUT"
+                else:
+                    flow_key = "ADVANCE_ROLLOUT_PHASE"
+            elif rejection.old_status == self.Status.DISABLED:
+                flow_key = "START_ROLLOUT_PHASE"
+        else:
+            if rejection.old_status == self.Status.DRAFT:
+                flow_key = "LAUNCH_EXPERIMENT"
+            elif rejection.old_status == self.Status.LIVE:
+                if rejection.old_status_next == self.Status.LIVE:
+                    flow_key = "END_ENROLLMENT"
+                else:
+                    flow_key = "END_EXPERIMENT"
+
+        if flow_key is None:
+            return None
 
         return {
             "action": NimbusUIConstants.ReviewRequestMessages[flow_key].value,
@@ -1318,6 +1332,42 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def is_rollout_with_phases(self):
         return self.is_rollout and self.rollout_phases.exists()
+
+    @property
+    def is_disabled(self):
+        return self.status == self.Status.DISABLED
+
+    @property
+    def is_rolling_out(self):
+        return self.is_rollout and (self.is_live_rollout or self.is_disabled)
+
+    @property
+    def has_pending_rollout_transition(self):
+        return self.is_rollout and self.publish_status != self.PublishStatus.IDLE
+
+    @property
+    def current_rollout_phase_display(self):
+        for number, phase in enumerate(self.annotated_rollout_phases(), start=1):
+            if phase.card_status == NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS:
+                phase.number = number
+                return phase
+        return None
+
+    @property
+    def has_advanceable_rollout_phase(self):
+        phases = list(self.rollout_phases.all())
+        if not phases:
+            return False
+
+        if self.rollout_phase_id is None:
+            next_phase = phases[0]
+        else:
+            phase_ids = [phase.id for phase in phases]
+            current_index = phase_ids.index(self.rollout_phase_id)
+            next_index = current_index + 1
+            next_phase = phases[next_index] if next_index < len(phases) else None
+
+        return bool(next_phase and next_phase.population_percent)
 
     @property
     def rollout_review_controls(self):
@@ -3062,6 +3112,13 @@ class NimbusRolloutPhase(models.Model):
             return 0
         return max(0, (timezone.now().date() - self.start_date).days)
 
+    @property
+    def days_elapsed_capped(self):
+        duration = self.duration_days
+        if duration is None:
+            return self.days_elapsed
+        return min(self.days_elapsed, duration)
+
 
 class NimbusRolloutPlanTemplate(models.Model):
     name = models.CharField("Rollout Plan Name", max_length=255, unique=True)
@@ -3581,6 +3638,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
             new_status__in=(
                 NimbusExperiment.Status.DRAFT,
                 NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DISABLED,
             ),
             published_dto_changed=False,
         )

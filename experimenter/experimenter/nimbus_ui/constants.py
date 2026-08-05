@@ -387,6 +387,18 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ROLLOUT_PREVIEW_BLOCKED_TOOLTIP = (
         "Resolve the detected setup issues before previewing"
     )
+    ROLLOUT_LIVE_MESSAGE = (
+        "This rollout is live. You can advance to the next phase to adjust its "
+        "population sizing, or disable it."
+    )
+    ROLLOUT_DISABLED_MESSAGE = (
+        "This rollout is currently disabled. You can re-enable it by starting the "
+        "next phase."
+    )
+    ROLLOUT_DUPLICATE_PHASE_MESSAGE = (
+        "There is no next phase to start. Your current phase will be copied and "
+        "rolled out again."
+    )
 
     class RolloutPhaseStatus:
         NOT_STARTED = "not_started"
@@ -424,6 +436,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         LAUNCH_ROLLOUT = "launch this rollout"
         UPDATE_ROLLOUT = "update this rollout"
         END_ROLLOUT = "end this rollout"
+        ADVANCE_ROLLOUT_PHASE = "advance this rollout to the next phase"
+        START_ROLLOUT_PHASE = "start the next phase of this rollout"
+        DISABLE_ROLLOUT = "disable this rollout"
 
     class CancelRequestMessages(Enum):
         END_ENROLLMENT = "Cancelled end enrollment request."

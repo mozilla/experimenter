@@ -5523,6 +5523,24 @@ class TestNimbusExperiment(TestCase):
                 False,
                 "END_EXPERIMENT",
             ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                True,
+                "ADVANCE_ROLLOUT_PHASE",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DISABLED,
+                True,
+                "DISABLE_ROLLOUT",
+            ),
+            (
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.Status.LIVE,
+                True,
+                "START_ROLLOUT_PHASE",
+            ),
         ]
     )
     def test_rejection_block_from_rejection_changelog(
@@ -5559,6 +5577,25 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(block["date"], experiment.changes.latest_rejection().changed_on)
         self.assertEqual(block["message"], "test message")
+
+    def test_rejection_block_is_none_for_unmapped_status(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=False,
+        )
+        experiment.status = NimbusExperiment.Status.DISABLED
+        experiment.status_next = None
+
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.IDLE,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            generate_nimbus_changelog(experiment, experiment.owner, "test message")
+
+        self.assertIsNotNone(experiment.changes.latest_rejection())
+        self.assertIsNone(experiment.rejection_block)
 
     def test_save_populates_firefox_min_version_parsed_with_bang_notation(self):
         experiment = NimbusExperimentFactory.create(firefox_min_version="95.!")
@@ -6922,6 +6959,23 @@ class TestNimbusRolloutPhase(TestCase):
         self.assertEqual(phase.duration_days, 5)
         self.assertEqual(phase.duration_display, "5 days")
 
+    def test_days_elapsed_capped(self):
+        today = timezone.now().date()
+        day = datetime.timedelta(days=1)
+
+        phase = NimbusRolloutPhaseFactory.build(
+            start_date=today - 3 * day, end_date=today + 3 * day
+        )
+        self.assertEqual(phase.days_elapsed_capped, 3)
+
+        phase = NimbusRolloutPhaseFactory.build(
+            start_date=today - 10 * day, end_date=today - day
+        )
+        self.assertEqual(phase.days_elapsed_capped, 9)
+
+        phase = NimbusRolloutPhaseFactory.build(start_date=today - 2 * day, end_date=None)
+        self.assertEqual(phase.days_elapsed_capped, 2)
+
     def test_duration_none_without_dates(self):
         phase = NimbusRolloutPhaseFactory.build(start_date=None, end_date=None)
         self.assertIsNone(phase.duration_days)
@@ -7404,3 +7458,113 @@ class TestRolloutReviewControls(TestCase):
         controls = experiment.rollout_review_controls
         self.assertEqual(controls["approve_url"], approve_url)
         self.assertEqual(controls["reject_url"], reject_url)
+
+
+class TestRolloutSidebarStateHelpers(TestCase):
+    def live_rollout(self):
+        return NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+
+    def disabled_rollout(self):
+        experiment = self.live_rollout()
+        experiment.status = NimbusExperiment.Status.DISABLED
+        experiment.save()
+        return experiment
+
+    def test_is_rolling_out_when_live_rollout(self):
+        self.assertTrue(self.live_rollout().is_rolling_out)
+
+    def test_is_rolling_out_when_disabled_rollout(self):
+        self.assertTrue(self.disabled_rollout().is_rolling_out)
+
+    def test_is_rolling_out_false_when_draft(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        self.assertFalse(experiment.is_rolling_out)
+
+    def test_has_pending_rollout_transition_false_when_idle(self):
+        experiment = NimbusExperimentFactory.create(
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+        self.assertFalse(experiment.has_pending_rollout_transition)
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.PublishStatus.REVIEW,),
+            (NimbusExperiment.PublishStatus.APPROVED,),
+            (NimbusExperiment.PublishStatus.WAITING,),
+        ]
+    )
+    def test_has_pending_rollout_transition_true_while_not_idle(self, publish_status):
+        experiment = NimbusExperimentFactory.create(
+            publish_status=publish_status,
+            is_rollout=True,
+        )
+        self.assertTrue(experiment.has_pending_rollout_transition)
+
+    def test_current_rollout_phase_display_returns_in_progress_phase(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (1, 10, 50)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+
+        current = experiment.current_rollout_phase_display
+        self.assertEqual(current, phases[1])
+        self.assertEqual(current.number, 2)
+
+    def test_current_rollout_phase_display_none_when_no_current_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        self.assertIsNone(experiment.current_rollout_phase_display)
+
+    def test_has_advanceable_rollout_phase_false_when_no_phases(self):
+        self.assertFalse(self.live_rollout().has_advanceable_rollout_phase)
+
+    def test_has_advanceable_rollout_phase_true_when_next_has_population(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (1, 10)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        self.assertTrue(experiment.has_advanceable_rollout_phase)
+
+    def test_has_advanceable_rollout_phase_false_on_last_phase(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (1, 10)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+        self.assertFalse(experiment.has_advanceable_rollout_phase)
+
+    def test_has_advanceable_rollout_phase_false_when_next_has_zero_population(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (10, 0)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        self.assertFalse(experiment.has_advanceable_rollout_phase)

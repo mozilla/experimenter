@@ -1350,6 +1350,20 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/schedule/edit_form.html")
 
+    def test_get_locked_when_not_draft_or_rolling_out(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            is_rollout=True,
+        )
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
     def test_get_shows_builtin_plan(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,

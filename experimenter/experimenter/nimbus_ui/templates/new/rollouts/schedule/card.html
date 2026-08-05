@@ -110,4 +110,8 @@
       </div>
     </div>
   </div>
+  {% if hx_swap_oob and experiment.is_rolling_out %}
+    {% include "new/common/sidebar_rollout_actions.html" with oob=True %}
+
+  {% endif %}
 {% endblock %}
