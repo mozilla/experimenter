@@ -7320,6 +7320,31 @@ class TestAdvanceRolloutPhase(TestCase):
         self.assertIsNone(cloned.rollout_phase_next)
 
 
+class TestIsPreviewComplete(TestCase):
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Status.DRAFT, True, False),
+            (NimbusExperiment.Status.PREVIEW, True, False),
+            (NimbusExperiment.Status.LIVE, True, True),
+            (NimbusExperiment.Status.COMPLETE, True, True),
+            (NimbusExperiment.Status.DISABLED, True, True),
+            (NimbusExperiment.Status.LIVE, False, False),
+        ]
+    )
+    def test_is_preview_complete(self, status, has_preview_change, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            is_rollout=True,
+        )
+        if has_preview_change:
+            NimbusChangeLogFactory.create(
+                experiment=experiment,
+                new_status=NimbusExperiment.Status.PREVIEW,
+            )
+
+        self.assertEqual(experiment.is_preview_complete, expected)
+
+
 class TestRolloutReviewControls(TestCase):
     def test_rollout_review_controls_none_when_not_in_review(self):
         experiment = NimbusExperimentFactory.create(

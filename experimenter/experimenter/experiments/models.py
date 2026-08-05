@@ -1144,7 +1144,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_preview_complete(self):
-        return self.preview_date is not None and not self.is_preview and not self.is_draft
+        return self.preview_date is not None and self.status not in (
+            self.Status.DRAFT,
+            self.Status.PREVIEW,
+        )
 
     @property
     def days_since_enrollment_start(self):
