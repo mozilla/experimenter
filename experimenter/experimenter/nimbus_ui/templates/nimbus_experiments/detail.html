@@ -22,7 +22,7 @@
       {% include "nimbus_experiments/detail_card_monitoring.html" %}
 
     {% endif %}
-    {% if experiment.is_draft %}
+    {% if experiment.is_draft or experiment.sizing_eligible_count is not None %}
       {% include "nimbus_experiments/detail_card_sizing.html" %}
 
     {% endif %}

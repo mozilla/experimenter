@@ -1242,6 +1242,30 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertContains(response, "Audience Size Estimate")
         self.assertContains(response, "No sizing data available yet")
 
+    def test_shows_sizing_card_for_live_experiment_with_data(self):
+        live_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            sizing_data={"eligible_count": 5000000, "warnings": []},
+            sizing_data_updated_at=datetime.datetime.now(tz=datetime.timezone.utc),
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-detail", kwargs={"slug": live_experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Audience Size Estimate")
+        self.assertNotContains(response, "No sizing data available yet")
+
+    def test_hides_sizing_card_for_live_experiment_without_data(self):
+        live_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            sizing_data=None,
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-detail", kwargs={"slug": live_experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Audience Size Estimate")
+
     def test_qa_edit_mode_get_form(self):
         response = self.client.get(
             reverse("nimbus-ui-update-qa-status", kwargs={"slug": self.experiment.slug}),

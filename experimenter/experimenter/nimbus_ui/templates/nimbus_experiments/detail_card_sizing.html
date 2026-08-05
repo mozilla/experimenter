@@ -40,7 +40,7 @@
           </div>
         </div>
       {% endif %}
-    {% else %}
+    {% elif experiment.is_draft %}
       <p class="text-muted mb-0">No sizing data available yet. Estimates are computed daily for Draft experiments.</p>
     {% endif %}
   </div>
