@@ -1220,49 +1220,64 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         )
         self.assertEqual(response.context["segment_links"], expected_segment_links)
 
-    def test_shows_sizing_card_when_data_present(self):
-        self.experiment.sizing_data = {"eligible_count": 800000, "warnings": []}
-        self.experiment.sizing_data_updated_at = datetime.datetime.now(tz=datetime.UTC)
-        self.experiment.save()
+    @parameterized.expand(
+        [
+            (
+                "draft_with_data",
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                {"eligible_count": 800000, "warnings": []},
+                True,
+                False,
+            ),
+            (
+                "draft_with_warnings",
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                {"eligible_count": 800000, "warnings": ["activeRollouts"]},
+                True,
+                False,
+            ),
+            (
+                "draft_no_data",
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                None,
+                True,
+                True,
+            ),
+            (
+                "live_with_data",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+                {"eligible_count": 5000000, "warnings": []},
+                True,
+                False,
+            ),
+            (
+                "live_no_data",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+                None,
+                False,
+                False,
+            ),
+        ]
+    )
+    def test_sizing_card_display(
+        self, _name, lifecycle, sizing_data, shows_card, shows_no_data_message
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            sizing_data=sizing_data,
+        )
         response = self.client.get(
-            reverse("nimbus-ui-detail", kwargs={"slug": self.experiment.slug})
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Audience Size Estimate")
-
-    def test_shows_sizing_card_with_no_data_message_for_draft(self):
-        self.experiment.sizing_data = None
-        self.experiment.save()
-        response = self.client.get(
-            reverse("nimbus-ui-detail", kwargs={"slug": self.experiment.slug})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Audience Size Estimate")
-        self.assertContains(response, "No sizing data available yet")
-
-    def test_shows_sizing_card_for_live_experiment_with_data(self):
-        live_experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            sizing_data={"eligible_count": 5000000, "warnings": []},
-            sizing_data_updated_at=datetime.datetime.now(tz=datetime.UTC),
-        )
-        response = self.client.get(
-            reverse("nimbus-ui-detail", kwargs={"slug": live_experiment.slug})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Audience Size Estimate")
-        self.assertNotContains(response, "No sizing data available yet")
-
-    def test_hides_sizing_card_for_live_experiment_without_data(self):
-        live_experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            sizing_data=None,
-        )
-        response = self.client.get(
-            reverse("nimbus-ui-detail", kwargs={"slug": live_experiment.slug})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Audience Size Estimate")
+        if shows_card:
+            self.assertContains(response, "Audience Size Estimate")
+        else:
+            self.assertNotContains(response, "Audience Size Estimate")
+        if shows_no_data_message:
+            self.assertContains(response, "No sizing data available yet")
+        else:
+            self.assertNotContains(response, "No sizing data available yet")
 
     def test_qa_edit_mode_get_form(self):
         response = self.client.get(
@@ -3358,48 +3373,50 @@ class TestAudienceUpdateView(AuthTestCase):
         )
         self.assertTrue(experiment.is_sticky)
 
-    def test_shows_sizing_callout_when_data_present(self):
+    @parameterized.expand(
+        [
+            (
+                "with_data_and_warnings",
+                {"eligible_count": 500000, "warnings": ["activeRollouts"]},
+                True,
+                True,
+            ),
+            (
+                "with_data_no_warnings",
+                {"eligible_count": 1000000, "warnings": []},
+                True,
+                False,
+            ),
+            (
+                "no_data",
+                None,
+                False,
+                False,
+            ),
+        ]
+    )
+    def test_sizing_callout_display(
+        self, _name, sizing_data, shows_callout, shows_warnings
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             population_percent=10,
-            sizing_data={"eligible_count": 500000, "warnings": ["activeRollouts"]},
-            sizing_data_updated_at=datetime.datetime.now(tz=datetime.UTC),
+            sizing_data=sizing_data,
         )
         response = self.client.get(
             reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "sizing-callout")
-        self.assertContains(response, "Audience Size Estimate")
-        self.assertContains(response, "Estimate excludes")
-
-    def test_hides_sizing_callout_when_no_data(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            sizing_data=None,
-        )
-        response = self.client.get(
-            reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "sizing-callout")
-
-    def test_shows_sizing_callout_without_warnings(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            population_percent=5,
-            sizing_data={"eligible_count": 1000000, "warnings": []},
-            sizing_data_updated_at=datetime.datetime.now(tz=datetime.UTC),
-        )
-        response = self.client.get(
-            reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "sizing-callout")
-        self.assertNotContains(response, "Estimate excludes")
+        if shows_callout:
+            self.assertContains(response, "sizing-callout")
+            self.assertContains(response, "Audience Size Estimate")
+        else:
+            self.assertNotContains(response, "sizing-callout")
+        if shows_warnings:
+            self.assertContains(response, "Estimate excludes")
+        else:
+            self.assertNotContains(response, "Estimate excludes")
 
 
 class TestSaveAndContinueMixin(AuthTestCase):
