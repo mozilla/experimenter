@@ -1222,9 +1222,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
 
     def test_shows_sizing_card_when_data_present(self):
         self.experiment.sizing_data = {"eligible_count": 800000, "warnings": []}
-        self.experiment.sizing_data_updated_at = datetime.datetime.now(
-            tz=datetime.timezone.utc
-        )
+        self.experiment.sizing_data_updated_at = datetime.datetime.now(tz=datetime.UTC)
         self.experiment.save()
         response = self.client.get(
             reverse("nimbus-ui-detail", kwargs={"slug": self.experiment.slug})
@@ -1246,7 +1244,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         live_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             sizing_data={"eligible_count": 5000000, "warnings": []},
-            sizing_data_updated_at=datetime.datetime.now(tz=datetime.timezone.utc),
+            sizing_data_updated_at=datetime.datetime.now(tz=datetime.UTC),
         )
         response = self.client.get(
             reverse("nimbus-ui-detail", kwargs={"slug": live_experiment.slug})
@@ -3366,7 +3364,7 @@ class TestAudienceUpdateView(AuthTestCase):
             application=NimbusExperiment.Application.DESKTOP,
             population_percent=10,
             sizing_data={"eligible_count": 500000, "warnings": ["activeRollouts"]},
-            sizing_data_updated_at=datetime.datetime.now(tz=datetime.timezone.utc),
+            sizing_data_updated_at=datetime.datetime.now(tz=datetime.UTC),
         )
         response = self.client.get(
             reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
@@ -3394,7 +3392,7 @@ class TestAudienceUpdateView(AuthTestCase):
             application=NimbusExperiment.Application.DESKTOP,
             population_percent=5,
             sizing_data={"eligible_count": 1000000, "warnings": []},
-            sizing_data_updated_at=datetime.datetime.now(tz=datetime.timezone.utc),
+            sizing_data_updated_at=datetime.datetime.now(tz=datetime.UTC),
         )
         response = self.client.get(
             reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
