@@ -988,7 +988,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         flow_key = None
         if rejection.old_status == self.Status.DRAFT:
-            flow_key = "LAUNCH_EXPERIMENT"
+            flow_key = "LAUNCH_ROLLOUT" if self.is_rollout else "LAUNCH_EXPERIMENT"
         elif rejection.old_status == self.Status.LIVE:
             if rejection.old_status_next == self.Status.LIVE:
                 flow_key = "END_ENROLLMENT"
@@ -1142,6 +1142,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 self._end_date = end_changelog.changed_on.date()
                 self.save()
                 return self._end_date
+
+    @property
+    def is_setup_complete(self):
+        return not self.is_draft
+
+    @property
+    def is_preview_complete(self):
+        return self.preview_date is not None and self.status not in (
+            self.Status.DRAFT,
+            self.Status.PREVIEW,
+        )
 
     @property
     def days_since_enrollment_start(self):
@@ -1308,6 +1319,35 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def is_rollout_with_phases(self):
         return self.is_rollout and self.rollout_phases.exists()
 
+    @property
+    def rollout_review_controls(self):
+        if self.publish_status != self.PublishStatus.REVIEW:
+            return None
+
+        transitions = {
+            (self.Status.DRAFT, self.Status.LIVE): {
+                "action_label": "Launch Rollout",
+                "approve_url": "nimbus-ui-new-draft-review-to-approve-rollout",
+                "reject_url": "nimbus-ui-new-draft-review-to-reject-rollout",
+            },
+            (self.Status.LIVE, self.Status.LIVE): {
+                "action_label": "Advance to Next Phase",
+                "approve_url": "nimbus-ui-new-approve-advance-phase-review-rollout",
+                "reject_url": "nimbus-ui-new-reject-advance-phase-review-rollout",
+            },
+            (self.Status.LIVE, self.Status.DISABLED): {
+                "action_label": "Disable Rollout",
+                "approve_url": "nimbus-ui-new-live-to-disabled-review-approve-rollout",
+                "reject_url": "nimbus-ui-new-live-to-disabled-review-reject-rollout",
+            },
+            (self.Status.DISABLED, self.Status.LIVE): {
+                "action_label": "Start Next Phase",
+                "approve_url": "nimbus-ui-new-disabled-to-live-review-approve-rollout",
+                "reject_url": "nimbus-ui-new-disabled-to-live-review-reject-rollout",
+            },
+        }
+        return transitions.get((self.status, self.status_next))
+
     def annotated_rollout_phases(self):
         phases = list(self.rollout_phases.all())
         current_index = None
@@ -1417,9 +1457,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def can_edit_audience(self):
         return self.is_draft or (self.is_live_rollout and self.is_enrolling)
-
-    def can_edit_schedule(self):
-        return self.is_draft or self.is_live_rollout
 
     def sidebar_links(self, current_path):
         return [

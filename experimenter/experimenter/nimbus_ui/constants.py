@@ -379,6 +379,14 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ROLLOUT_PAUSE_OBSERVATIONS_LABEL = "Pause rollout if these observations occur"
     ROLLOUT_PHASE_FIELDS = ("start_date", "end_date", "population_percent")
+    ROLLOUT_PREVIEW_MESSAGE = (
+        "This rollout is in Preview mode and is live for testing now. It can take up "
+        "to an hour before clients receive the preview. When you're ready, request "
+        "enrollment to launch."
+    )
+    ROLLOUT_PREVIEW_BLOCKED_TOOLTIP = (
+        "Resolve the detected setup issues before previewing"
+    )
 
     class RolloutPhaseStatus:
         NOT_STARTED = "not_started"

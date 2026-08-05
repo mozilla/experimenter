@@ -70,6 +70,13 @@ def parse_version(version_str):
     return "No Version"
 
 
+@register.filter
+def days_since(value):
+    if value is None:
+        return None
+    return (date.today() - value).days
+
+
 @register.filter(name="remove_underscores")
 def remove_underscores(value):
     """Replace underscores in the string with spaces."""

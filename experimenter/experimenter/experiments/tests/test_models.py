@@ -5502,16 +5502,25 @@ class TestNimbusExperiment(TestCase):
             (
                 NimbusExperiment.Status.DRAFT,
                 None,
+                False,
                 "LAUNCH_EXPERIMENT",
+            ),
+            (
+                NimbusExperiment.Status.DRAFT,
+                None,
+                True,
+                "LAUNCH_ROLLOUT",
             ),
             (
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.Status.LIVE,
+                False,
                 "END_ENROLLMENT",
             ),
             (
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.Status.COMPLETE,
+                False,
                 "END_EXPERIMENT",
             ),
         ]
@@ -5520,10 +5529,12 @@ class TestNimbusExperiment(TestCase):
         self,
         status,
         status_next,
+        is_rollout,
         expected_flow_key,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=is_rollout,
         )
 
         experiment.status = status
@@ -6899,27 +6910,6 @@ class TestNimbusRolloutPhase(TestCase):
         phase.refresh_from_db()
         self.assertEqual(str(phase), "Rollout phase (25.0000%)")
 
-    def test_can_edit_schedule_draft(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            is_rollout=True,
-        )
-        self.assertTrue(experiment.can_edit_schedule())
-
-    def test_can_edit_schedule_live_rollout(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            is_rollout=True,
-        )
-        self.assertTrue(experiment.can_edit_schedule())
-
-    def test_can_edit_schedule_completed(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            is_rollout=True,
-        )
-        self.assertFalse(experiment.can_edit_schedule())
-
     def test_duration_days_and_display(self):
         phase = NimbusRolloutPhaseFactory.build(
             start_date=datetime.date(2026, 1, 1),
@@ -7328,3 +7318,89 @@ class TestAdvanceRolloutPhase(TestCase):
 
         self.assertIsNone(cloned.rollout_phase)
         self.assertIsNone(cloned.rollout_phase_next)
+
+
+class TestIsPreviewComplete(TestCase):
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Status.DRAFT, True, False),
+            (NimbusExperiment.Status.PREVIEW, True, False),
+            (NimbusExperiment.Status.LIVE, True, True),
+            (NimbusExperiment.Status.COMPLETE, True, True),
+            (NimbusExperiment.Status.DISABLED, True, True),
+            (NimbusExperiment.Status.LIVE, False, False),
+        ]
+    )
+    def test_is_preview_complete(self, status, has_preview_change, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            is_rollout=True,
+        )
+        if has_preview_change:
+            NimbusChangeLogFactory.create(
+                experiment=experiment,
+                new_status=NimbusExperiment.Status.PREVIEW,
+            )
+
+        self.assertEqual(experiment.is_preview_complete, expected)
+
+
+class TestRolloutReviewControls(TestCase):
+    def test_rollout_review_controls_none_when_not_in_review(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+        self.assertIsNone(experiment.rollout_review_controls)
+
+    def test_rollout_review_controls_none_for_unmatched_review_state(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
+        self.assertIsNone(experiment.rollout_review_controls)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                "nimbus-ui-new-draft-review-to-approve-rollout",
+                "nimbus-ui-new-draft-review-to-reject-rollout",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                "nimbus-ui-new-approve-advance-phase-review-rollout",
+                "nimbus-ui-new-reject-advance-phase-review-rollout",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DISABLED,
+                "nimbus-ui-new-live-to-disabled-review-approve-rollout",
+                "nimbus-ui-new-live-to-disabled-review-reject-rollout",
+            ),
+            (
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.Status.LIVE,
+                "nimbus-ui-new-disabled-to-live-review-approve-rollout",
+                "nimbus-ui-new-disabled-to-live-review-reject-rollout",
+            ),
+        ]
+    )
+    def test_rollout_review_controls_maps_state_to_urls(
+        self, status, status_next, approve_url, reject_url
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
+        controls = experiment.rollout_review_controls
+        self.assertEqual(controls["approve_url"], approve_url)
+        self.assertEqual(controls["reject_url"], reject_url)

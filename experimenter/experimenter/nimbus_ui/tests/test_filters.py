@@ -32,6 +32,7 @@ from experimenter.nimbus_ui.templatetags.nimbus_extras import (
     application_icon_info,
     channel_icon_info,
     choices_with_icons,
+    days_since,
     dict_get,
     experiment_date_progress,
     format_json,
@@ -1908,3 +1909,17 @@ class TestFormatPValue(TestCase):
     )
     def test_format_p_value(self, _name, value, expected):
         self.assertEqual(format_p_value(value), expected)
+
+
+class TestDaysSince(TestCase):
+    def test_returns_none_for_none(self):
+        self.assertIsNone(days_since(None))
+
+    def test_returns_days_elapsed(self):
+        import datetime
+
+        from django.utils import timezone
+
+        self.assertEqual(
+            days_since(timezone.now().date() - datetime.timedelta(days=5)), 5
+        )
