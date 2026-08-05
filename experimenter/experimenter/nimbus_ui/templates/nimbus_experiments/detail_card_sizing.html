@@ -15,33 +15,33 @@
   </div>
 {% endblock %}
 {% block card_body %}
-  <div class="p-3">
-    {% if experiment.sizing_eligible_count is not None %}
-      <table class="table table-sm mb-0">
-        <tbody>
+  {% if experiment.sizing_eligible_count is not None %}
+    <table class="table table-striped mb-0" data-testid="sizing-callout">
+      <tbody>
+        <tr>
+          <th class="w-50">Estimated eligible clients</th>
+          <td>~{{ experiment.sizing_eligible_count|short_number }}</td>
+        </tr>
+        {% if experiment.sizing_enrolled_count is not None %}
           <tr>
-            <th class="w-50">Estimated eligible clients</th>
-            <td>~{{ experiment.sizing_eligible_count|short_number }}</td>
+            <th>Projected enrolled at {{ experiment.population_percent }}%</th>
+            <td>~{{ experiment.sizing_enrolled_count|short_number }}</td>
           </tr>
-          {% if experiment.sizing_enrolled_count is not None %}
-            <tr>
-              <th>Projected enrolled at {{ experiment.population_percent }}%</th>
-              <td>~{{ experiment.sizing_enrolled_count|short_number }}</td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
-      {% if experiment.sizing_warnings %}
-        <div class="alert alert-warning mt-3 mb-0 py-2">
-          <i class="fa-solid fa-triangle-exclamation me-1"></i>
-          <strong>Estimate excludes:</strong> {{ experiment.sizing_warnings|join:", " }}
-          <div class="form-text text-muted mt-1">
-            These attributes couldn't be translated to SQL and were excluded from the estimate.
-          </div>
-        </div>
-      {% endif %}
-    {% elif experiment.is_draft %}
+        {% endif %}
+        {% if experiment.sizing_warnings %}
+          <tr>
+            <td colspan="2" class="text-warning-emphasis">
+              <i class="fa-solid fa-triangle-exclamation me-1"></i>
+              <strong>Estimate excludes:</strong> {{ experiment.sizing_warnings|join:", " }}
+              <div class="form-text">These attributes couldn't be translated to SQL</div>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  {% elif experiment.is_draft %}
+    <div class="p-3">
       <p class="text-muted mb-0">No sizing data available yet. Estimates are computed daily for Draft experiments.</p>
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
 {% endblock %}

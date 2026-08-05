@@ -516,6 +516,19 @@ def build_random_funnel_data(branches):
     return rows
 
 
+def build_random_sizing_data():
+    """Generate realistic sizing data for local development."""
+    eligible_count = random.randint(500_000, 90_000_000)
+    possible_warnings = [
+        "experiment.slug",
+        "activeExperiments",
+        "activeRollouts",
+        "enrollmentsMap",
+    ]
+    warnings = random.sample(possible_warnings, k=random.randint(0, 2))
+    return {"eligible_count": eligible_count, "warnings": warnings}
+
+
 def build_random_monitoring_data(branches):
     """Generate realistic monitoring data for a set of branch names."""
     total_enrollments = random.randint(5000, 50000)
@@ -1195,6 +1208,18 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             experiment.monitoring_data = build_random_monitoring_data(
                 list(experiment.branches.all())
             )
+            experiment.save()
+
+        sizing_data = kwargs.get("sizing_data", _UNSET)
+        if sizing_data is not _UNSET:
+            experiment.sizing_data = sizing_data
+            experiment.save()
+        elif experiment.status in (
+            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.LIVE,
+            NimbusExperiment.Status.COMPLETE,
+        ):
+            experiment.sizing_data = build_random_sizing_data()
             experiment.save()
 
         return NimbusExperiment.objects.get(id=experiment.id)
