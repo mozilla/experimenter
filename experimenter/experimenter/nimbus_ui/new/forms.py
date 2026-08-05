@@ -35,7 +35,6 @@ from experimenter.kinto.tasks import (
     nimbus_synchronize_preview_experiments_in_kinto,
 )
 from experimenter.nimbus_ui.constants import NimbusUIConstants
-from experimenter.nimbus_ui.forms import NimbusBranchScreenshotForm
 from experimenter.slack.constants import SlackConstants
 from experimenter.slack.tasks import (
     add_emoji_to_message_async,
@@ -410,6 +409,21 @@ class RolloutBranchFeatureValueForm(NimbusBranchFeatureValueForm):
         return self.cleaned_data.get("feature_config") or (
             self.instance.feature_config if self.instance.feature_config_id else None
         )
+
+
+class NimbusBranchScreenshotForm(forms.ModelForm):
+    image = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={"class": "form-control"}),
+    )
+    description = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+
+    class Meta:
+        model = NimbusBranchScreenshot
+        fields = ("image", "description")
 
 
 RolloutBranchFeatureValueFormSet = inlineformset_factory(
