@@ -195,6 +195,10 @@ def handle_launching_experiments(applications, records, collection):
         applications, collection
     ):
         if experiment.slug in records:
+            is_reenabling_rollout = (
+                experiment.is_rollout_with_phases
+                and experiment.status == NimbusExperiment.Status.DISABLED
+            )
             logger.info(
                 f"{experiment} status is being updated to live".format(
                     experiment=experiment
@@ -221,15 +225,26 @@ def handle_launching_experiments(applications, records, collection):
 
                 experiment.update_computed_end_date()
 
-            _send_slack_alert_success_message(
-                experiment,
-                NimbusConstants.AlertType.LAUNCH_REQUEST,
-                SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
-                SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
-                lambda slug: SlackConstants.SLACK_LOG_LAUNCH_SUCCESS_SENT.format(
-                    experiment=slug
-                ),
-            )
+            if is_reenabling_rollout:
+                _send_slack_alert_success_message(
+                    experiment,
+                    NimbusConstants.AlertType.LAUNCH_REQUEST,
+                    SlackConstants.SLACK_ROLLOUT_REENABLED_MESSAGE,
+                    SlackConstants.SLACK_OPERATION_ROLLOUT_REENABLE_SUCCESS,
+                    lambda slug: SlackConstants.SLACK_LOG_ROLLOUT_REENABLE_SENT.format(
+                        experiment=slug
+                    ),
+                )
+            else:
+                _send_slack_alert_success_message(
+                    experiment,
+                    NimbusConstants.AlertType.LAUNCH_REQUEST,
+                    SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+                    SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
+                    lambda slug: SlackConstants.SLACK_LOG_LAUNCH_SUCCESS_SENT.format(
+                        experiment=slug
+                    ),
+                )
 
             logger.info(f"{experiment.slug} launched")
 
@@ -249,6 +264,10 @@ def handle_updating_experiments(applications, records, collection):
 
         if published_record != stored_record:
             logger.info(f"{experiment} is updated in Kinto".format(experiment=experiment))
+            is_advancing_rollout_phase = (
+                experiment.is_rollout_with_phases
+                and experiment.rollout_phase_next_id is not None
+            )
             with transaction.atomic():
                 next_status = experiment.status_next
                 if experiment.is_rollout_with_phases and experiment.rollout_phase_next_id:
@@ -269,7 +288,19 @@ def handle_updating_experiments(applications, records, collection):
 
                 experiment.update_computed_end_date()
 
-            if experiment.is_paused:
+            if is_advancing_rollout_phase:
+                _send_slack_alert_success_message(
+                    experiment,
+                    NimbusConstants.AlertType.UPDATE_REQUEST,
+                    SlackConstants.SLACK_ROLLOUT_PHASE_ADVANCED_MESSAGE,
+                    SlackConstants.SLACK_OPERATION_ROLLOUT_PHASE_ADVANCE_SUCCESS,
+                    lambda slug: (
+                        SlackConstants.SLACK_LOG_ROLLOUT_PHASE_ADVANCE_SENT.format(
+                            experiment=slug
+                        )
+                    ),
+                )
+            elif experiment.is_paused:
                 _send_slack_alert_success_message(
                     experiment,
                     NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
@@ -332,7 +363,17 @@ def handle_ending_experiments(applications, records, collection):
                 if not is_disabling_rollout:
                     experiment.update_computed_end_date()
 
-            if not is_disabling_rollout:
+            if is_disabling_rollout:
+                _send_slack_alert_success_message(
+                    experiment,
+                    NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+                    SlackConstants.SLACK_ROLLOUT_DISABLED_MESSAGE,
+                    SlackConstants.SLACK_OPERATION_ROLLOUT_DISABLE_SUCCESS,
+                    lambda slug: SlackConstants.SLACK_LOG_ROLLOUT_DISABLE_SENT.format(
+                        experiment=slug
+                    ),
+                )
+            else:
                 _send_slack_alert_success_message(
                     experiment,
                     NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,

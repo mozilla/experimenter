@@ -13,7 +13,9 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
+    NimbusAlert,
     NimbusBranchFeatureValue,
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
@@ -63,6 +65,7 @@ from experimenter.nimbus_ui.new.forms import (
     TagAssignForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.slack.constants import SlackConstants
 from experimenter.targeting.constants import NimbusTargetingConfig
 
 
@@ -73,6 +76,29 @@ class RequestFormTestCase(TestCase):
         request_factory = RequestFactory()
         self.request = request_factory.get(reverse("nimbus-ui-create"))
         self.request.user = self.user
+
+
+class SlackNotificationMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_slack_task = patch(
+            "experimenter.nimbus_ui.new.forms.nimbus_send_slack_notification"
+        ).start()
+        self.mock_slack_task.return_value = ("1234567890.123456", "C123456")
+        self.addCleanup(self.mock_slack_task.stop)
+
+
+class SlackEmojiMockMixin:
+    def setUp(self):
+        super().setUp()
+        self.mock_emoji_task = patch(
+            "experimenter.slack.tasks.add_emoji_to_message_async.delay"
+        ).start()
+        self.mock_remove_emoji_task = patch(
+            "experimenter.slack.tasks.remove_emoji_from_message_async.delay"
+        ).start()
+        self.addCleanup(self.mock_emoji_task.stop)
+        self.addCleanup(self.mock_remove_emoji_task.stop)
 
 
 class TestNimbusExperimentCreateForm(RequestFormTestCase):
@@ -1438,7 +1464,9 @@ class TestTagAssignForm(RequestFormTestCase):
         self.assertEqual(tag_names, ["A Tag", "M Tag", "Z Tag"])
 
 
-class TestRolloutStatusForms(RequestFormTestCase):
+class TestRolloutStatusForms(
+    SlackEmojiMockMixin, SlackNotificationMockMixin, RequestFormTestCase
+):
     def setUp(self):
         super().setUp()
         self.mock_preview_task = patch(
@@ -1720,16 +1748,30 @@ class TestRolloutStatusForms(RequestFormTestCase):
     @parameterized.expand(
         [
             # Reject launch review from Draft.
-            (DraftReviewRejectForm,),
+            (
+                DraftReviewRejectForm,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+            ),
             # Reject phase-advance review.
-            (AdvancePhaseReviewRejectRolloutForm,),
+            (
+                AdvancePhaseReviewRejectRolloutForm,
+                NimbusConstants.AlertType.UPDATE_REQUEST,
+            ),
             # Reject disable review.
-            (LiveToDisabledReviewRejectRolloutForm,),
+            (
+                LiveToDisabledReviewRejectRolloutForm,
+                NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            ),
             # Reject re-enable review.
-            (DisabledToLiveReviewRejectRolloutForm,),
+            (
+                DisabledToLiveReviewRejectRolloutForm,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+            ),
         ]
     )
-    def test_reject_transition_uses_cancel_message_when_reason_is_blank(self, form_class):
+    def test_reject_transition_uses_cancel_message_and_updates_slack_reaction(
+        self, form_class, alert_type
+    ):
         experiment = NimbusExperimentFactory.create(
             status=form_class.required_status,
             status_next=form_class.required_status_next,
@@ -1749,6 +1791,16 @@ class TestRolloutStatusForms(RequestFormTestCase):
         self.assertIn(
             "cancelled the review",
             experiment.changes.latest("changed_on").message,
+        )
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            alert_type,
+            SlackConstants.EmojiReaction.PENDING,
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            alert_type,
+            SlackConstants.EmojiReaction.CANCEL,
         )
 
     def test_disabled_transition_is_rejected_for_non_rollout(self):
@@ -1851,6 +1903,16 @@ class TestRolloutStatusForms(RequestFormTestCase):
             countdown=5, args=[experiment.kinto_collection]
         )
         mock_metrics.timing.assert_called_once()
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
+        )
 
     def test_approve_phase_advance_stages_population_and_queues_kinto(self):
         experiment = NimbusExperimentFactory.create(
@@ -1890,6 +1952,16 @@ class TestRolloutStatusForms(RequestFormTestCase):
         self.mock_allocate_bucket_range.assert_called_once()
         self.mock_kinto_push_queue.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
+        )
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.UPDATE_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.UPDATE_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
     def test_reject_phase_advance_clears_pending_transition(self):
@@ -1933,6 +2005,16 @@ class TestRolloutStatusForms(RequestFormTestCase):
         self.mock_kinto_push_queue.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
         )
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
+        )
 
     def test_reenable_approval_stages_existing_next_phase(self):
         experiment = NimbusExperimentFactory.create(
@@ -1964,6 +2046,16 @@ class TestRolloutStatusForms(RequestFormTestCase):
         self.mock_allocate_bucket_range.assert_called_once()
         self.mock_kinto_push_queue.assert_called_once_with(
             countdown=5, args=[experiment.kinto_collection]
+        )
+        self.mock_remove_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id,
+            NimbusConstants.AlertType.LAUNCH_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
         )
 
     def test_duplicate_phase_reenable_copies_final_phase(self):
@@ -2044,6 +2136,128 @@ class TestRolloutStatusForms(RequestFormTestCase):
         self.assertIn(
             NimbusUIConstants.ERROR_ROLLOUT_REENABLE_REQUIRES_CURRENT_PHASE,
             form.errors["__all__"],
+        )
+
+    @parameterized.expand(
+        [
+            (
+                "draft_launch",
+                DraftReviewRolloutForm,
+                NimbusExperiment.Status.DRAFT,
+                SlackConstants.SLACK_ACTION_LAUNCH_REQUEST,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+            ),
+            (
+                "preview_launch",
+                PreviewReviewRolloutForm,
+                NimbusExperiment.Status.PREVIEW,
+                SlackConstants.SLACK_ACTION_LAUNCH_REQUEST,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+            ),
+            (
+                "advance_phase",
+                AdvancePhaseReviewRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                SlackConstants.SLACK_ACTION_ADVANCE_ROLLOUT_PHASE_REQUEST,
+                NimbusConstants.AlertType.UPDATE_REQUEST,
+            ),
+            (
+                "disable",
+                LiveToDisabledReviewRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                SlackConstants.SLACK_ACTION_DISABLE_ROLLOUT_REQUEST,
+                NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            ),
+            (
+                "reenable",
+                DisabledToLiveReviewRolloutForm,
+                NimbusExperiment.Status.DISABLED,
+                SlackConstants.SLACK_ACTION_REENABLE_ROLLOUT_REQUEST,
+                NimbusConstants.AlertType.LAUNCH_REQUEST,
+            ),
+        ]
+    )
+    def test_review_request_sends_slack_notification(
+        self, name, form_class, status, slack_action, alert_type
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            enable_review_slack_notifications=True,
+        )
+        if form_class is LiveToDisabledReviewRolloutForm:
+            NimbusRolloutPhaseFactory.create(experiment=experiment)
+        form = form_class(data={}, instance=experiment, request=self.request)
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_slack_task.assert_called_once()
+        self.assertEqual(
+            self.mock_slack_task.call_args.kwargs["action_text"],
+            SlackConstants.SLACK_FORM_ACTIONS[slack_action],
+        )
+        alert = NimbusAlert.objects.get(experiment=experiment, alert_type=alert_type)
+        self.assertEqual(alert.slack_thread_id, "1234567890.123456")
+        self.assertEqual(alert.slack_channel_id, "C123456")
+        self.mock_emoji_task.assert_called_once_with(
+            experiment.id, alert_type, SlackConstants.EmojiReaction.PENDING
+        )
+
+    def test_review_request_does_not_send_slack_notification_when_disabled(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            enable_review_slack_notifications=False,
+        )
+        form = AdvancePhaseReviewRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        self.mock_slack_task.assert_not_called()
+        self.assertFalse(NimbusAlert.objects.filter(experiment=experiment).exists())
+
+    @patch("experimenter.slack.tasks.add_emoji_to_message_async.delay")
+    @patch("experimenter.nimbus_ui.new.forms.nimbus_send_slack_notification")
+    def test_adds_lock_emoji_for_secure_collection(
+        self, mock_send_slack, mock_emoji_task
+    ):
+        mock_send_slack.return_value = ("1234567890.123456", "C123456")
+
+        secure_feature = NimbusFeatureConfigFactory.create(
+            slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            enable_review_slack_notifications=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[secure_feature],
+        )
+        form = DraftReviewRolloutForm(data={}, instance=experiment, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        form.save()
+
+        emoji_calls = [call[0] for call in mock_emoji_task.call_args_list]
+        alert_type = NimbusConstants.AlertType.LAUNCH_REQUEST
+        self.assertIn(
+            (experiment.id, alert_type, SlackConstants.EmojiReaction.PENDING),
+            emoji_calls,
+        )
+        self.assertIn(
+            (experiment.id, alert_type, SlackConstants.EmojiReaction.SECURE),
+            emoji_calls,
         )
 
 

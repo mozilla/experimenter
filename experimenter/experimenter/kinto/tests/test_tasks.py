@@ -1158,7 +1158,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
         NimbusAlert.objects.create(
             experiment=launching_experiment,
             alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
-            message="🚀 Requests launch",
+            message=SlackConstants.SLACK_FORM_ACTIONS[
+                SlackConstants.SLACK_ACTION_LAUNCH_REQUEST
+            ],
             slack_thread_id="1234567890.123456",
         )
 
@@ -1193,7 +1195,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
         NimbusAlert.objects.create(
             experiment=updating_experiment,
             alert_type=NimbusConstants.AlertType.UPDATE_REQUEST,
-            message="🔄 Requests update",
+            message=SlackConstants.SLACK_FORM_ACTIONS[
+                SlackConstants.SLACK_ACTION_UPDATE_REQUEST
+            ],
             slack_thread_id="1234567890.123456",
         )
 
@@ -1219,7 +1223,10 @@ class TestNimbusCheckKintoPushQueueByCollection(
         )
         self.assertIn("updated_field", updating_experiment.published_dto)
 
-    def test_remote_settings_update_approval_commits_staged_rollout_phase(self):
+    @mock.patch("experimenter.kinto.tasks.send_threaded_success_message")
+    def test_remote_settings_update_approval_commits_staged_rollout_phase(
+        self, mock_send_message
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
@@ -1236,6 +1243,14 @@ class TestNimbusCheckKintoPushQueueByCollection(
         experiment.population_percent = current_phase.population_percent
         experiment.save()
         experiment.stage_rollout_phase_advance()
+        alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.UPDATE_REQUEST,
+            message=SlackConstants.SLACK_FORM_ACTIONS[
+                SlackConstants.SLACK_ACTION_ADVANCE_ROLLOUT_PHASE_REQUEST
+            ],
+            slack_thread_id="1234567890.123456",
+        )
 
         self.assertEqual(experiment.rollout_phase, current_phase)
         self.assertEqual(experiment.rollout_phase_next, next_phase)
@@ -1258,6 +1273,15 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertIsNone(experiment.rollout_phase_next)
         self.assertEqual(current_phase.end_date, timezone.now().date())
         self.assertEqual(next_phase.actual_start_date, timezone.now().date())
+        self.assertEqual(
+            mock_send_message.call_args.args[:4],
+            (
+                experiment.id,
+                alert.slack_thread_id,
+                SlackConstants.SLACK_ROLLOUT_PHASE_ADVANCED_MESSAGE,
+                SlackConstants.SLACK_OPERATION_ROLLOUT_PHASE_ADVANCE_SUCCESS,
+            ),
+        )
 
     def test_remote_settings_rejection_reverts_staged_rollout_phase(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1310,7 +1334,10 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertIsNone(experiment.rollout_phase_next)
         self.assertEqual(experiment.population_percent, current_phase.population_percent)
 
-    def test_remote_settings_disable_approval_disables_and_ends_current_phase(self):
+    @mock.patch("experimenter.kinto.tasks.send_threaded_success_message")
+    def test_remote_settings_disable_approval_disables_and_ends_current_phase(
+        self, mock_send_message
+    ):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=NimbusExperiment.Status.DISABLED,
@@ -1326,6 +1353,14 @@ class TestNimbusCheckKintoPushQueueByCollection(
         )
         experiment.rollout_phase = current_phase
         experiment.save()
+        alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.END_EXPERIMENT_REQUEST,
+            message=SlackConstants.SLACK_FORM_ACTIONS[
+                SlackConstants.SLACK_ACTION_DISABLE_ROLLOUT_REQUEST
+            ],
+            slack_thread_id="1234567890.123456",
+        )
 
         tasks.handle_ending_experiments(
             [NimbusExperiment.Application.DESKTOP],
@@ -1339,6 +1374,15 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertIsNone(experiment.status_next)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
         self.assertEqual(current_phase.end_date, timezone.now().date())
+        self.assertEqual(
+            mock_send_message.call_args.args[:4],
+            (
+                experiment.id,
+                alert.slack_thread_id,
+                SlackConstants.SLACK_ROLLOUT_DISABLED_MESSAGE,
+                SlackConstants.SLACK_OPERATION_ROLLOUT_DISABLE_SUCCESS,
+            ),
+        )
 
     def test_remote_settings_legacy_rollout_ending_uses_completion_flow(self):
         experiment = NimbusExperimentFactory.create(
@@ -1364,7 +1408,10 @@ class TestNimbusCheckKintoPushQueueByCollection(
             experiment.changes.filter(message=NimbusChangeLog.Messages.COMPLETED).exists()
         )
 
-    def test_remote_settings_reenable_approval_advances_phase_and_sets_live(self):
+    @mock.patch("experimenter.kinto.tasks.send_threaded_success_message")
+    def test_remote_settings_reenable_approval_advances_phase_and_sets_live(
+        self, mock_send_message
+    ):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DISABLED,
             status_next=NimbusExperiment.Status.LIVE,
@@ -1382,6 +1429,14 @@ class TestNimbusCheckKintoPushQueueByCollection(
         experiment.rollout_phase = current_phase
         experiment.rollout_phase_next = next_phase
         experiment.save()
+        alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message=SlackConstants.SLACK_FORM_ACTIONS[
+                SlackConstants.SLACK_ACTION_REENABLE_ROLLOUT_REQUEST
+            ],
+            slack_thread_id="1234567890.123456",
+        )
 
         tasks.handle_launching_experiments(
             [NimbusExperiment.Application.DESKTOP],
@@ -1401,6 +1456,15 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertEqual(experiment.rollout_phase, next_phase)
         self.assertIsNone(experiment.rollout_phase_next)
         self.assertEqual(next_phase.actual_start_date, timezone.now().date())
+        self.assertEqual(
+            mock_send_message.call_args.args[:4],
+            (
+                experiment.id,
+                alert.slack_thread_id,
+                SlackConstants.SLACK_ROLLOUT_REENABLED_MESSAGE,
+                SlackConstants.SLACK_OPERATION_ROLLOUT_REENABLE_SUCCESS,
+            ),
+        )
 
     @mock.patch("experimenter.kinto.tasks.send_threaded_success_message")
     def test_updating_paused_experiment_sends_enrollment_ended_notification(
@@ -1418,7 +1482,9 @@ class TestNimbusCheckKintoPushQueueByCollection(
         NimbusAlert.objects.create(
             experiment=paused_experiment,
             alert_type=NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
-            message="⏸️ Requests end enrollment",
+            message=SlackConstants.SLACK_FORM_ACTIONS[
+                SlackConstants.SLACK_ACTION_END_ENROLLMENT_REQUEST
+            ],
             slack_thread_id="1234567890.123456",
         )
 

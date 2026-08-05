@@ -69,9 +69,17 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
             "experimenter.nimbus_ui.new.forms."
             "nimbus_check_kinto_push_queue_by_collection.apply_async"
         ).start()
+        self.mock_emoji_task = patch(
+            "experimenter.slack.tasks.add_emoji_to_message_async.delay"
+        ).start()
+        self.mock_remove_emoji_task = patch(
+            "experimenter.slack.tasks.remove_emoji_from_message_async.delay"
+        ).start()
         self.addCleanup(self.mock_preview_task.stop)
         self.addCleanup(self.mock_allocate_bucket_range.stop)
         self.addCleanup(self.mock_kinto_push_queue.stop)
+        self.addCleanup(self.mock_emoji_task.stop)
+        self.addCleanup(self.mock_remove_emoji_task.stop)
 
     @parameterized.expand(
         [
