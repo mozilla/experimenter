@@ -22,6 +22,10 @@
       {% include "nimbus_experiments/detail_card_monitoring.html" %}
 
     {% endif %}
+    {% if experiment.is_draft %}
+      {% include "nimbus_experiments/detail_card_sizing.html" %}
+
+    {% endif %}
     {% include "nimbus_experiments/detail_card_overview.html" %}
     {% include "nimbus_experiments/detail_card_risk_mitigation.html" %}
     {% include "nimbus_experiments/detail_card_signoff.html" with edit=False experiment=experiment %}
