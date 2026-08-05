@@ -634,6 +634,14 @@ urlbar:
       description: >-
         semantic similarity distance threshold (0.0 - 1.0)
         defaulted at 0.6.
+    semanticHistorySmartwindowDistanceThreshold:
+      type: string
+      setPref:
+        branch: user
+        pref: places.semanticHistory.smartwindow.distanceThreshold
+      description: >-
+        semantic similarity distance threshold (0.0 - 1.0) for Smart Window
+        history search only.
     semanticHistorySupportedRegions:
       type: string
       setPref:
@@ -6072,6 +6080,18 @@ contentSharing:
         branch: default
         pref: browser.contentsharing.server.url
       description: The URL of the content sharing server.
+
+urlbarShareButton:
+  description: Controls the share button in the url bar.
+  owner: nbaumgardner@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.urlbar.share-button.enabled
+      description: Whether the share button in the url bar is visible.
 
 referrals:
   description: Controls the Firefox referral program.
