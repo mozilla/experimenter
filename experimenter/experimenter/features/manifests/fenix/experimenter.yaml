@@ -74,14 +74,6 @@ continuous-onboarding:
     enabled:
       type: boolean
       description: If true, the feature is enabled.
-cookie-banners:
-  description: Features for cookie banner handling.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    sections-enabled:
-      type: json
-      description: This property provides a lookup table of whether or not the given section should be enabled.
 custom-review-prompt-ui:
   description: Feature that controls the custom UI for review prompt.
   hasExposure: true
