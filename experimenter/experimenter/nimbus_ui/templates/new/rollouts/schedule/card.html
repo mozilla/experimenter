@@ -39,11 +39,22 @@
                 {# Estimated Duration #}
                 <td class="small">
                   {% if phase.card_status == "in_progress" %}
-                    {% if phase.end_date %}
+                    {% if experiment.is_disabled %}
+                      <div class="d-flex align-items-center gap-1 text-secondary mb-1">
+                        <span>Disabled</span>
+                        {% if phase.actual_start_date %}
+                          <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                          <span>Started {{ phase.actual_start_date|date:"M j, Y" }}</span>
+                        {% endif %}
+                      </div>
+                      <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
+                        <div class="progress-bar bg-secondary opacity-25" style="width: 100%"></div>
+                      </div>
+                    {% elif phase.end_date %}
                       <div class="d-flex align-items-center gap-1 text-secondary mb-1">
                         <span>{{ phase.days_elapsed }}/{{ phase.duration_days }} days complete</span>
                         <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                        <span>Ending on {{ phase.end_date|date:"M j, Y" }}</span>
+                        <span>End on {{ phase.end_date|date:"M j, Y" }}</span>
                       </div>
                       <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
                         <div class="progress-bar"

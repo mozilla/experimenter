@@ -396,8 +396,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "next phase."
     )
     ROLLOUT_DUPLICATE_PHASE_MESSAGE = (
-        "There is no next phase to start. Your current phase will be copied and "
-        "rolled out again."
+        "There is no next phase to start. Accept to copy and launch the current "
+        "phase again, or cancel and add a new phase in the rollout schedule."
     )
 
     class RolloutPhaseStatus:
