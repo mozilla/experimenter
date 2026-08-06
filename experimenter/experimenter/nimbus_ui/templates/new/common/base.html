@@ -125,8 +125,26 @@
                 Slug copied to clipboard!
               </div>
             </div>
+            <div id="json-copy-toast"
+                 class="toast hide text-bg-primary mb-1"
+                 role="alert"
+                 aria-live="assertive"
+                 aria-atomic="true">
+              <div class="toast-body">
+                <i class="fa-regular fa-circle-check"></i>
+                JSON copied to clipboard!
+              </div>
+            </div>
           </div>
         </div>
+        <template id="template-toast">
+          <div class="toast hide text-bg-primary mb-1"
+               role="alert"
+               aria-live="assertive"
+               aria-atomic="true">
+            <div class="toast-body"></div>
+          </div>
+        </template>
         {# Page content #}
         {% block main_content %}{% endblock %}
       </div>

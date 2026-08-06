@@ -1,0 +1,27 @@
+<div data-nimbus-devtools-opt-in-pane>
+  <div class="d-none rounded-3 border border-primary-subtle bg-primary-subtle p-3"
+       data-nimbus-devtools-required>
+    <div class="d-flex align-items-start gap-2 mb-2">
+      <i class="fa-solid fa-bolt text-primary mt-1" aria-hidden="true"></i>
+      <div class="small text-body">
+        Because you have <em>Nimbus Developer Tools</em> installed, you can opt-in with one click:
+      </div>
+    </div>
+    {% if experiment.is_rollout %}
+      <input type="hidden"
+             data-nimbus-devtools-force-enroll-branch-selector
+             value="{{ experiment.reference_branch.slug }}">
+    {% else %}
+      <select class="form-select form-select-sm mb-2"
+              data-nimbus-devtools-force-enroll-branch-selector>
+        {% for branch in experiment.branches.all %}
+          <option value="{{ branch.slug }}"
+                  {% if branch == experiment.reference_branch %}selected{% endif %}>{{ branch.name }}</option>
+        {% endfor %}
+      </select>
+    {% endif %}
+    <button class="btn btn-primary btn-sm w-100 d-inline-flex align-items-center justify-content-center"
+            type="button"
+            data-nimbus-devtools-enroll-button>Force Enroll</button>
+  </div>
+</div>
