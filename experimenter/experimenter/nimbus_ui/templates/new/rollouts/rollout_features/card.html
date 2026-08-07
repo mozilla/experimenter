@@ -5,13 +5,14 @@
     {# Brand impact #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Rollout experience</div>
-      <div class="small text-body">{{ experiment.takeaways_summary|default:"—" }}</div>
+      <div id="rollout-features-experience" class="small text-body">{{ experiment.takeaways_summary|default:"—" }}</div>
     </div>
     {# Feature configurations #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Feature configurations</div>
       {% for feature_config in experiment.feature_configs.all %}
-        <div class="small text-body mt-2">{{ feature_config.name }}</div>
+        <div id="rollout-features-config-{{ forloop.counter0 }}"
+             class="small text-body mt-2">{{ feature_config.name }}</div>
         {% for feature_value in experiment.reference_branch.feature_values.all %}
           {% if feature_value.feature_config_id == feature_config.id %}
             {% include "new/common/readonly_feature_value.html" with feature_id=feature_config.slug json_content=feature_value.value %}
@@ -24,9 +25,9 @@
     <div class="d-flex flex-row gap-3">
       <div class="text-secondary mb-1" style="font-size: 12px;">Warn only on feature schema validation failure</div>
       {% if experiment.warn_feature_schema %}
-        <i class="fas fa-check text-success"></i>
+        <i id="rollout-features-warn-schema" class="fas fa-check text-success"></i>
       {% else %}
-        <i class="fas fa-times text-danger"></i>
+        <i id="rollout-features-warn-schema" class="fas fa-times text-danger"></i>
       {% endif %}
     </div>
     {# Prevent enrollment if prefs changed #}
@@ -35,9 +36,11 @@
         Prevent enrollment if users have changed any prefs set by this rollout
       </div>
       {% if experiment.prevent_pref_conflicts %}
-        <i class="fas fa-check text-success"></i>
+        <i id="rollout-features-prevent-conflicts"
+           class="fas fa-check text-success"></i>
       {% else %}
-        <i class="fas fa-times text-danger"></i>
+        <i id="rollout-features-prevent-conflicts"
+           class="fas fa-times text-danger"></i>
       {% endif %}
     </div>
     {# Rollout screenshots #}

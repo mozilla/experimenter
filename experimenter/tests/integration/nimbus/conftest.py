@@ -28,6 +28,13 @@ from nimbus.models.base_dataclass import (
 )
 from nimbus.pages.demo_app.frontend import DemoAppPage
 from nimbus.pages.experimenter.home import HomePage
+from nimbus.pages.rollouts.audience import AudienceSection
+from nimbus.pages.rollouts.features import FeaturesSection
+from nimbus.pages.rollouts.overview import OverviewSection
+from nimbus.pages.rollouts.qa import QASection
+from nimbus.pages.rollouts.risks import RisksSection
+from nimbus.pages.rollouts.schedule import ScheduleSection
+from nimbus.pages.rollouts.signoff import SignoffSection
 from nimbus.utils import helpers
 
 
@@ -133,8 +140,9 @@ def selenium(selenium, experiment_slug, kinto_client):
     yield selenium
 
     try:
-        helpers.end_experiment(experiment_slug)
-        kinto_client.approve()
+        if not helpers.is_rollout(experiment_slug):
+            helpers.end_experiment(experiment_slug)
+            kinto_client.approve()
     except Exception:
         pass
 
@@ -206,6 +214,11 @@ def experiment_slug(experiment_name):
 @pytest.fixture
 def experiment_url(base_url, experiment_slug):
     return f"{urljoin(base_url, experiment_slug)}/summary/"
+
+
+@pytest.fixture
+def rollout_url(base_url, experiment_slug):
+    return urljoin(base_url, f"/nimbus/new/rollouts/{experiment_slug}/")
 
 
 @pytest.fixture(name="load_experiment_outcomes")
@@ -387,6 +400,89 @@ def create_experiment(base_url, default_data, mobile_apps, application):
         return audience.save_and_continue()
 
     return _create_experiment
+
+
+@pytest.fixture
+def create_rollout(application, experiment_slug, rollout_url):
+    def _create_rollout(selenium):
+        helpers.create_experiment(experiment_slug, application, is_rollout=True)
+        return OverviewSection(selenium, rollout_url).open()
+
+    return _create_rollout
+
+
+@pytest.fixture
+def configured_rollout(selenium, create_rollout, default_data):
+    rollout = create_rollout(selenium)
+
+    rollout.edit()
+    rollout.name = default_data.public_name
+    rollout.hypothesis = default_data.hypothesis
+    rollout.public_description = default_data.public_description
+    rollout.save()
+
+    risks = RisksSection(selenium, rollout.base_url)
+    risks.edit()
+    risks.risk_ai = False
+    risks.risk_brand = False
+    risks.risk_revenue = False
+    risks.risk_partner_related = False
+    risks.risk_message = False
+    risks.save()
+
+    audience = AudienceSection(selenium, rollout.base_url)
+    audience.edit()
+    if default_data.application != "firefox-desktop":
+        audience.channel = "Beta"
+    audience.min_version = default_data.audience.min_version
+    audience.countries = ["Canada"]
+    audience.is_sticky = True
+    audience.save()
+
+    features = FeaturesSection(selenium, rollout.base_url)
+    features.edit()
+    features.warn_feature_schema = True
+    features.prevent_pref_conflicts = True
+    features.save()
+
+    schedule = ScheduleSection(selenium, rollout.base_url)
+    schedule.edit()
+    schedule.add_phase()
+    schedule.add_phase()
+    schedule.set_phase_population(0, "50")
+    schedule.set_phase_population(1, "100")
+    schedule.advance_observations = "Advance when rollout health remains stable."
+    schedule.pause_observations = "Pause if rollout health regresses."
+    schedule.save()
+
+    qa = QASection(selenium, rollout.base_url)
+    qa.edit()
+    qa.status = "SELF GREEN"
+    qa.comment = "Self QA completed successfully."
+    qa.save()
+
+    signoff = SignoffSection(selenium, rollout.base_url)
+    signoff.edit()
+    signoff.qa_signoff = True
+    signoff.vp_signoff = True
+    signoff.legal_signoff = True
+    signoff.save()
+
+    return rollout
+
+
+@pytest.fixture
+def live_rollout(configured_rollout, kinto_client):
+    configured_rollout.transition_to_preview()
+    configured_rollout.request_enrollment()
+    configured_rollout.approve_review()
+
+    kinto_client().approve()
+
+    configured_rollout.wait_for_live_status()
+    configured_rollout.wait_for_rollout_phase(1)
+
+    return configured_rollout
 
 
 @pytest.fixture
