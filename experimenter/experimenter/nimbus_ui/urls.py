@@ -35,6 +35,7 @@ from experimenter.nimbus_ui.new.views import (
     NewRolloutScheduleUpdateView,
     NewRolloutScreenshotCreateView,
     NewRolloutScreenshotDeleteView,
+    NewRolloutScreenshotUploadView,
     NewSignoffUpdateView,
     NewSubscriberSearchView,
     NewSubscribeView,
@@ -460,6 +461,11 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/create_rollout_screenshot/$",
         NewRolloutScreenshotCreateView.as_view(),
         name="nimbus-ui-new-create-rollout-screenshot",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/upload_rollout_screenshot/$",
+        NewRolloutScreenshotUploadView.as_view(),
+        name="nimbus-ui-new-upload-rollout-screenshot",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/delete_rollout_screenshot/$",
