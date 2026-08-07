@@ -5503,17 +5503,20 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Status.DRAFT,
                 None,
                 False,
+                False,
                 "LAUNCH_EXPERIMENT",
             ),
             (
                 NimbusExperiment.Status.DRAFT,
                 None,
                 True,
+                False,
                 "LAUNCH_ROLLOUT",
             ),
             (
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.Status.LIVE,
+                False,
                 False,
                 "END_ENROLLMENT",
             ),
@@ -5521,11 +5524,13 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.Status.COMPLETE,
                 False,
+                False,
                 "END_EXPERIMENT",
             ),
             (
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.Status.LIVE,
+                True,
                 True,
                 "ADVANCE_ROLLOUT_PHASE",
             ),
@@ -5533,13 +5538,29 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.Status.DISABLED,
                 True,
+                True,
                 "DISABLE_ROLLOUT",
             ),
             (
                 NimbusExperiment.Status.DISABLED,
                 NimbusExperiment.Status.LIVE,
                 True,
+                True,
                 "START_ROLLOUT_PHASE",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.COMPLETE,
+                True,
+                False,
+                "END_EXPERIMENT",
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                True,
+                False,
+                "END_ENROLLMENT",
             ),
         ]
     )
@@ -5548,12 +5569,15 @@ class TestNimbusExperiment(TestCase):
         status,
         status_next,
         is_rollout,
+        with_phases,
         expected_flow_key,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             is_rollout=is_rollout,
         )
+        if with_phases:
+            NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
         experiment.status = status
         experiment.status_next = status_next

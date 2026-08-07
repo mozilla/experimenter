@@ -993,9 +993,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             elif rejection.old_status == self.Status.LIVE:
                 if rejection.old_status_next == self.Status.DISABLED:
                     flow_key = "DISABLE_ROLLOUT"
-                else:
+                elif self.is_rollout_with_phases:
                     flow_key = "ADVANCE_ROLLOUT_PHASE"
-            elif rejection.old_status == self.Status.DISABLED:
+                elif rejection.old_status_next == self.Status.LIVE:
+                    flow_key = "END_ENROLLMENT"
+                else:
+                    flow_key = "END_EXPERIMENT"
+            elif (
+                rejection.old_status == self.Status.DISABLED
+                and self.is_rollout_with_phases
+            ):
                 flow_key = "START_ROLLOUT_PHASE"
         else:
             if rejection.old_status == self.Status.DRAFT:
@@ -1354,19 +1361,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return None
 
     @property
-    def has_advanceable_rollout_phase(self):
+    def next_rollout_phase(self):
+        if self.rollout_phase_next_id is not None:
+            return self.rollout_phase_next
+
         phases = list(self.rollout_phases.all())
         if not phases:
-            return False
+            return None
 
         if self.rollout_phase_id is None:
-            next_phase = phases[0]
-        else:
-            phase_ids = [phase.id for phase in phases]
-            current_index = phase_ids.index(self.rollout_phase_id)
-            next_index = current_index + 1
-            next_phase = phases[next_index] if next_index < len(phases) else None
+            return phases[0]
 
+        phase_ids = [phase.id for phase in phases]
+        current_index = phase_ids.index(self.rollout_phase_id)
+        next_index = current_index + 1
+        return phases[next_index] if next_index < len(phases) else None
+
+    @property
+    def has_advanceable_rollout_phase(self):
+        next_phase = self.next_rollout_phase
         return bool(next_phase and next_phase.population_percent)
 
     @property
@@ -1421,7 +1434,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         today = timezone.now().date()
         current_phase = self.rollout_phase
-        next_phase = self.rollout_phase_next
+        next_phase = self.next_rollout_phase
 
         if not next_phase or not next_phase.population_percent:
             return
@@ -1444,17 +1457,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if not self.is_rollout_with_phases:
             return None
 
-        phases = list(self.rollout_phases.all())
-
-        if self.rollout_phase_next_id is not None:
-            next_phase = self.rollout_phase_next
-        elif self.rollout_phase_id is None:
-            next_phase = phases[0]
-        else:
-            phase_ids = [phase.id for phase in phases]
-            current_index = phase_ids.index(self.rollout_phase_id)
-            next_index = current_index + 1
-            next_phase = phases[next_index] if next_index < len(phases) else None
+        next_phase = self.next_rollout_phase
 
         if next_phase is None or not next_phase.population_percent:
             return None
