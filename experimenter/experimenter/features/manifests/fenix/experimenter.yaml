@@ -74,14 +74,6 @@ continuous-onboarding:
     enabled:
       type: boolean
       description: If true, the feature is enabled.
-cookie-banners:
-  description: Features for cookie banner handling.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    sections-enabled:
-      type: json
-      description: This property provides a lookup table of whether or not the given section should be enabled.
 custom-review-prompt-ui:
   description: Feature that controls the custom UI for review prompt.
   hasExposure: true
@@ -658,6 +650,14 @@ nimbus-validation:
     settings-title:
       type: string
       description: The title of displayed in the Settings screen and app menu.
+oled-theme:
+  description: Feature to provide the OLED theme option for users on Firefox for Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the OLED theme option is shown.
 onboarding:
   description: A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments.
   hasExposure: true
