@@ -31,11 +31,14 @@
                  data-testid="rejection-notice">
               <p class="small text-secondary text-break mb-0">
                 {{ rejection.email }} rejected the request to
-                {{ rejection.action }} on {{ rejection.date|date:"M j, Y" }}:
+                {{ rejection.action }} on {{ rejection.date|date:"M j, Y" }}
+                {% if rejection.message %}:{% endif %}
               </p>
-              <p class="small text-danger-emphasis text-break bg-danger-subtle border-start border-danger border-3 rounded-end p-2 mb-0">
-                {{ rejection.message }}
-              </p>
+              {% if rejection.message %}
+                <p class="small text-danger-emphasis text-break bg-danger-subtle border-start border-danger border-3 rounded-end p-2 mb-0">
+                  {{ rejection.message }}
+                </p>
+              {% endif %}
             </div>
           {% endif %}
           {% if timed_out %}
