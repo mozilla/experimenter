@@ -209,15 +209,25 @@ def get_feature_id_as_string(slug, app):
             return str(config["id"])
 
 
-def load_experiment_data(slug):
+def _load_experiment(slug):
     experiment = _get_api(f"/api/v6/experiments/{slug}/")
     if not experiment or "detail" in experiment:
         experiment = _get_api(f"/api/v6/draft-experiments/{slug}/")
+
+    return experiment
+
+
+def load_experiment_data(slug):
+    experiment = _load_experiment(slug)
 
     return {
         "targeting": experiment.get("targeting"),
         "recipe_json": json.dumps(experiment),
     }
+
+
+def is_rollout(slug):
+    return _load_experiment(slug).get("isRollout", False)
 
 
 def create_basic_experiment(

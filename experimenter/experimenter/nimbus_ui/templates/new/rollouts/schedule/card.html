@@ -13,7 +13,7 @@
               <th class="border-0 text-secondary fw-normal" style="width: 50%">Estimated Duration</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="rollout-schedule-phases">
             {% for phase in phases %}
               <tr>
                 {# Rollout Phase #}
@@ -27,7 +27,8 @@
                 </td>
                 {# Population Ratio #}
                 <td>
-                  <div class="small text-body mb-1">{{ phase.population_percent|floatformat:"-2" }}%</div>
+                  <div id="rollout-schedule-phase-{{ forloop.counter0 }}-population"
+                       class="small text-body mb-1">{{ phase.population_percent|floatformat:"-2" }}%</div>
                   <div class="progress"
                        style="height: 6px;
                               max-width: 10rem"
@@ -110,14 +111,18 @@
         <div class="text-secondary mb-1" style="font-size: 12px;">
           {{ NimbusUIConstants.ROLLOUT_ADVANCE_OBSERVATIONS_LABEL }}
         </div>
-        <div class="small text-body">{{ experiment.rollout_advance_observations|default:"—" }}</div>
+        <div id="rollout-schedule-advance-observations" class="small text-body">
+          {{ experiment.rollout_advance_observations|default:"—" }}
+        </div>
       </div>
       {# Pause rollout observations #}
       <div class="flex-fill">
         <div class="text-secondary mb-1" style="font-size: 12px;">
           {{ NimbusUIConstants.ROLLOUT_PAUSE_OBSERVATIONS_LABEL }}
         </div>
-        <div class="small text-body">{{ experiment.rollout_pause_observations|default:"—" }}</div>
+        <div id="rollout-schedule-pause-observations" class="small text-body">
+          {{ experiment.rollout_pause_observations|default:"—" }}
+        </div>
       </div>
     </div>
   </div>

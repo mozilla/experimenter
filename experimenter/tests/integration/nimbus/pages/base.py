@@ -17,7 +17,7 @@ if (typeof window.__htmxPending === 'undefined') {
     document.body.addEventListener('htmx:beforeRequest', function() {
         window.__htmxPending++;
     });
-    document.body.addEventListener('htmx:afterSettle', function() {
+    document.body.addEventListener('htmx:afterRequest', function() {
         window.__htmxPending--;
     });
 }
