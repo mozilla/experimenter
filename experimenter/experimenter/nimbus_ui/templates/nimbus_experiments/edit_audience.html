@@ -259,6 +259,33 @@
               </div>
             </div>
           </div>
+          {% if experiment.sizing_eligible_count is not None %}
+            <div class="alert alert-info mt-3 mb-0"
+                 role="alert"
+                 data-testid="sizing-callout">
+              <div class="d-flex align-items-baseline justify-content-between mb-1">
+                <strong>Audience Size Estimate</strong>
+                {% if experiment.sizing_data_updated_at %}
+                  <span class="text-muted small">Last updated: {{ experiment.sizing_data_updated_at|timesince }} ago</span>
+                {% endif %}
+              </div>
+              <div>
+                Estimated eligible clients: <strong>~{{ experiment.sizing_eligible_count|short_number }}</strong>
+              </div>
+              {% if experiment.sizing_enrolled_count is not None %}
+                <div>
+                  Projected enrolled at {{ experiment.population_percent }}%: <strong>~{{ experiment.sizing_enrolled_count|short_number }}</strong>
+                </div>
+              {% endif %}
+              {% if experiment.sizing_warnings %}
+                <div class="mt-2 text-warning-emphasis">
+                  <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                  <strong>Estimate excludes:</strong> {{ experiment.sizing_warnings|join:", " }}
+                  <div class="form-text">These attributes couldn't be translated to SQL</div>
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
         </div>
       </div>
       <div class="d-flex justify-content-end">

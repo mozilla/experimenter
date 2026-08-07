@@ -1,0 +1,47 @@
+{% extends "nimbus_experiments/detail_card_base.html" %}
+
+{% load nimbus_extras %}
+
+{% block card_id %}sizing{% endblock %}
+{% block card_anchor %}sizing{% endblock %}
+{% block card_header %}
+  <div class="d-flex align-items-center justify-content-between">
+    <h4 class="mb-0">
+      <a href="#sizing" class="text-decoration-none text-body">Audience Size Estimate</a>
+    </h4>
+    {% if experiment.sizing_data_updated_at %}
+      <span class="text-muted small">Last updated: {{ experiment.sizing_data_updated_at|timesince }} ago</span>
+    {% endif %}
+  </div>
+{% endblock %}
+{% block card_body %}
+  {% if experiment.sizing_eligible_count is not None %}
+    <table class="table table-striped mb-0" data-testid="sizing-callout">
+      <tbody>
+        <tr>
+          <th class="w-50">Estimated eligible clients</th>
+          <td>~{{ experiment.sizing_eligible_count|short_number }}</td>
+        </tr>
+        {% if experiment.sizing_enrolled_count is not None %}
+          <tr>
+            <th>Projected enrolled at {{ experiment.population_percent }}%</th>
+            <td>~{{ experiment.sizing_enrolled_count|short_number }}</td>
+          </tr>
+        {% endif %}
+        {% if experiment.sizing_warnings %}
+          <tr>
+            <td colspan="2" class="text-warning-emphasis">
+              <i class="fa-solid fa-triangle-exclamation me-1"></i>
+              <strong>Estimate excludes:</strong> {{ experiment.sizing_warnings|join:", " }}
+              <div class="form-text">These attributes couldn't be translated to SQL</div>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  {% elif experiment.is_draft %}
+    <div class="p-3">
+      <p class="text-muted mb-0">No sizing data available yet. Estimates are computed daily for Draft experiments.</p>
+    </div>
+  {% endif %}
+{% endblock %}

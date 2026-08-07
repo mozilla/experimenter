@@ -1220,6 +1220,65 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         )
         self.assertEqual(response.context["segment_links"], expected_segment_links)
 
+    @parameterized.expand(
+        [
+            (
+                "draft_with_data",
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                {"eligible_count": 12_345, "warnings": []},
+                True,
+                False,
+            ),
+            (
+                "draft_with_warnings",
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                {"eligible_count": 12_345, "warnings": ["activeRollouts"]},
+                True,
+                False,
+            ),
+            (
+                "draft_no_data",
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                None,
+                True,
+                True,
+            ),
+            (
+                "live_with_data",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+                {"eligible_count": 98_765, "warnings": []},
+                True,
+                False,
+            ),
+            (
+                "live_no_data",
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+                None,
+                False,
+                False,
+            ),
+        ]
+    )
+    def test_sizing_card_display(
+        self, _name, lifecycle, sizing_data, shows_card, shows_no_data_message
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            sizing_data=sizing_data,
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        if shows_card:
+            self.assertContains(response, "Audience Size Estimate")
+        else:
+            self.assertNotContains(response, "Audience Size Estimate")
+        if shows_no_data_message:
+            self.assertContains(response, "No sizing data available yet")
+        else:
+            self.assertNotContains(response, "No sizing data available yet")
+
     def test_qa_edit_mode_get_form(self):
         response = self.client.get(
             reverse("nimbus-ui-update-qa-status", kwargs={"slug": self.experiment.slug}),
@@ -3313,6 +3372,51 @@ class TestAudienceUpdateView(AuthTestCase):
             experiment.targeting_config_slug, NimbusExperiment.TargetingConfig.FIRST_RUN
         )
         self.assertTrue(experiment.is_sticky)
+
+    @parameterized.expand(
+        [
+            (
+                "with_data_and_warnings",
+                {"eligible_count": 34_567, "warnings": ["activeRollouts"]},
+                True,
+                True,
+            ),
+            (
+                "with_data_no_warnings",
+                {"eligible_count": 87_654, "warnings": []},
+                True,
+                False,
+            ),
+            (
+                "no_data",
+                None,
+                False,
+                False,
+            ),
+        ]
+    )
+    def test_sizing_callout_display(
+        self, _name, sizing_data, shows_callout, shows_warnings
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            population_percent=10,
+            sizing_data=sizing_data,
+        )
+        response = self.client.get(
+            reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        if shows_callout:
+            self.assertContains(response, "sizing-callout")
+            self.assertContains(response, "Audience Size Estimate")
+        else:
+            self.assertNotContains(response, "sizing-callout")
+        if shows_warnings:
+            self.assertContains(response, "Estimate excludes")
+        else:
+            self.assertNotContains(response, "Estimate excludes")
 
 
 class TestSaveAndContinueMixin(AuthTestCase):
