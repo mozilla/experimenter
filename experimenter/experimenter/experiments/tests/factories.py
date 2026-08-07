@@ -518,7 +518,7 @@ def build_random_funnel_data(branches):
 
 def build_random_sizing_data():
     """Generate realistic sizing data for local development."""
-    eligible_count = random.randint(500_000, 90_000_000)
+    eligible_count = random.randint(10_000, 1_000_000)
     possible_warnings = [
         "experiment.slug",
         "activeExperiments",

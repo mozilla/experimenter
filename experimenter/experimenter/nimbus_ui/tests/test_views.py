@@ -1225,14 +1225,14 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             (
                 "draft_with_data",
                 NimbusExperimentFactory.Lifecycles.CREATED,
-                {"eligible_count": 800000, "warnings": []},
+                {"eligible_count": 12_345, "warnings": []},
                 True,
                 False,
             ),
             (
                 "draft_with_warnings",
                 NimbusExperimentFactory.Lifecycles.CREATED,
-                {"eligible_count": 800000, "warnings": ["activeRollouts"]},
+                {"eligible_count": 12_345, "warnings": ["activeRollouts"]},
                 True,
                 False,
             ),
@@ -1246,7 +1246,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             (
                 "live_with_data",
                 NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-                {"eligible_count": 5000000, "warnings": []},
+                {"eligible_count": 98_765, "warnings": []},
                 True,
                 False,
             ),
@@ -3377,13 +3377,13 @@ class TestAudienceUpdateView(AuthTestCase):
         [
             (
                 "with_data_and_warnings",
-                {"eligible_count": 500000, "warnings": ["activeRollouts"]},
+                {"eligible_count": 34_567, "warnings": ["activeRollouts"]},
                 True,
                 True,
             ),
             (
                 "with_data_no_warnings",
-                {"eligible_count": 1000000, "warnings": []},
+                {"eligible_count": 87_654, "warnings": []},
                 True,
                 False,
             ),
