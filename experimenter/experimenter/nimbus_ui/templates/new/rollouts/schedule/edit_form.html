@@ -94,6 +94,7 @@
       {% endfor %}
       <div>
         <button type="button"
+                id="rollout-schedule-add-phase"
                 class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small mt-2"
                 hx-post="{% url 'nimbus-ui-new-create-rollout-phase' experiment.slug %}"
                 hx-include="closest form"
