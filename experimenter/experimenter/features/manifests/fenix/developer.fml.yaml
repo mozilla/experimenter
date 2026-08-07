@@ -77,20 +77,7 @@ features:
       enabled:
         description: If true, the feature is enabled.
         type: Boolean
-        default: false
-  cookie-banners:
-    description: Features for cookie banner handling.
-    variables:
-      sections-enabled:
-        description: This property provides a lookup table of whether or not the given section should be enabled.
-        type: Map<CookieBannersSection, Int>
-        default:
-          feature-ui: 1
-          feature-setting-value: 0
-          feature-setting-value-pbm: 1
-          feature-setting-detect-only: 0
-          feature-setting-global-rules: 1
-          feature-setting-global-rules-sub-frames: 1
+        default: true
   custom-review-prompt-ui:
     description: Feature that controls the custom UI for review prompt.
     variables:
@@ -457,67 +444,6 @@ features:
             primary-button-label: nova_onboarding_set_to_default_button
             secondary-button-label: nova_onboarding_negative_button
             title: nova_onboarding_set_to_default_title_2
-          add-search-widget:
-            body: nova_onboarding_add_search_widget_subtitle
-            card-type: add-search-widget
-            disqualifiers:
-            - NEVER
-            enabled: true
-            extra-data: null
-            image-res: nova_onboarding_widget
-            ordering: 20
-            prerequisites:
-            - ALWAYS
-            primary-button-label: nova_onboarding_add_search_widget_button
-            secondary-button-label: nova_onboarding_negative_button
-            title: nova_onboarding_add_search_widget_title
-          sync-sign-in:
-            body: nova_onboarding_sync_subtitle
-            card-type: sync-sign-in
-            disqualifiers:
-            - NEVER
-            enabled: true
-            extra-data: null
-            image-res: nova_onboarding_sync
-            ordering: 30
-            prerequisites:
-            - ALWAYS
-            primary-button-label: nova_onboarding_sync_button
-            secondary-button-label: nova_onboarding_negative_button
-            title: nova_onboarding_sync_title
-          notification-permission:
-            body: nova_onboarding_notifications_subtitle
-            card-type: notification-permission
-            disqualifiers:
-            - NEVER
-            enabled: true
-            extra-data: null
-            image-res: nova_onboarding_notifications
-            ordering: 40
-            prerequisites:
-            - ALWAYS
-            primary-button-label: nova_onboarding_notifications_button
-            secondary-button-label: nova_onboarding_negative_button
-            title: nova_onboarding_notifications_title
-          toolbar-placement:
-            body: ''
-            card-type: toolbar-placement
-            disqualifiers:
-            - NEVER
-            enabled: true
-            extra-data:
-              customization-toolbar-data:
-              - toolbar-type: toolbar-top
-                label: nova_onboarding_toolbar_selection_top_label
-              - toolbar-type: toolbar-bottom
-                label: nova_onboarding_toolbar_selection_bottom_label
-            image-res: ic_onboarding_welcome
-            ordering: 50
-            prerequisites:
-            - ALWAYS
-            primary-button-label: nova_onboarding_continue_button
-            secondary-button-label: ''
-            title: nova_onboarding_toolbar_selection_title
           marketing:
             body: ''
             card-type: marketing-data
@@ -529,7 +455,7 @@ features:
                 body-line-one-text: nova_onboarding_marketing_body
                 body-line-one-link-text: nova_onboarding_marketing_body_link_text
             image-res: nova_onboarding_marketing
-            ordering: 60
+            ordering: 20
             prerequisites:
             - ALWAYS
             primary-button-label: nova_onboarding_continue_button
@@ -954,6 +880,13 @@ features:
         description: The title of displayed in the Settings screen and app menu.
         type: Text
         default: browser_menu_settings
+  oled-theme:
+    description: Feature to provide the OLED theme option for users on Firefox for Android.
+    variables:
+      enabled:
+        description: If true, the OLED theme option is shown.
+        type: Boolean
+        default: false
   onboarding:
     description: A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments.
     variables:
@@ -1382,21 +1315,6 @@ enums:
         description: The next eligible message should be shown.
       show-none:
         description: The surface should show no message.
-  CookieBannersSection:
-    description: The identifiers for the sections of the MR 2022.
-    variants:
-      feature-setting-detect-only:
-        description: An integer either 0 or 1 indicating if cookie banner detect only mode should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting.
-      feature-setting-global-rules:
-        description: An integer either 0 or 1 indicating if cookie banner global rules should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting.
-      feature-setting-global-rules-sub-frames:
-        description: An integer either 0 or 1 indicating if cookie banner global rules sub-frames should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting.
-      feature-setting-value:
-        description: An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all.
-      feature-setting-value-pbm:
-        description: An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all.
-      feature-ui:
-        description: An integer either 0 or 1 indicating if the UI for cookie banner handling should be visible, 0 to hide the UI and 1 to show the UI. The actual UI is composed by cookie banner section in the settings page, the toolbar section and the re-engagement dialog.
   HomeScreenSection:
     description: The identifiers for the sections of the homescreen.
     variants:
@@ -1425,6 +1343,14 @@ enums:
         description: The default marketing card variation.
       treatment-c:
         description: The Treatment C marketing card variation.
+  MicrosurveyOrdering:
+    description: An enum to determine how to order the microsurvey answers.
+    variants:
+      pinned-randomized:
+        description: |
+          Answers with an ordering value greater than 0 are pinned to the top, in ascending order of that value. The remaining answers, with an ordering of 0, are shuffled below. E.g. 1 will be the first/top item, 2 will be next, followed by randomized 0s.
+      randomized:
+        description: The whole answer list is shuffled. Ordering values are ignored.
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
@@ -1649,7 +1575,7 @@ objects:
     fields:
       ordering:
         description: |
-          Used to sequence the answers top to bottom. E.g. 0 will be the first/top item, 1 will be next and so on. Always set either ALL the provided answers ordering or NONE. If ALL answers are default, the the ordering used will be the same as provided by the experiment.
+          Used when answer-ordering-type is pinned-randomized to sequence answers with ordering values greater than 0 top to bottom. Answers with ordering values equal to 0 are shuffled below. E.g. 1 will be the first/top item, 2 will be next, followed by randomized 0s.
         type: Int
         default: 0
       text:
@@ -1659,6 +1585,10 @@ objects:
   MicrosurveyConfig:
     description: Attributes relating to microsurvey content.
     fields:
+      answer-ordering-type:
+        description: The way answers are ordered.
+        type: MicrosurveyOrdering
+        default: randomized
       answers:
         description: The list of answers to present to the user e.g. "Satisfied, Dissatisfied...".
         type: List<MicrosurveyAnswer>
