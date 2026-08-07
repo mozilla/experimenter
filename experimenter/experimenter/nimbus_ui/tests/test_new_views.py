@@ -4,6 +4,7 @@ from unittest import mock
 from unittest.mock import patch
 
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import resolve, reverse
 from django.utils import timezone
@@ -24,6 +25,7 @@ from experimenter.experiments.models import (
     NimbusRolloutPlanTemplate,
 )
 from experimenter.experiments.tests.factories import (
+    TINY_PNG,
     NimbusBranchScreenshotFactory,
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
@@ -1003,6 +1005,42 @@ class TestNewRolloutScreenshotCreateView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/rollout_features/edit_form.html")
         self.assertEqual(experiment.reference_branch.screenshots.count(), 1)
+
+
+class TestNewRolloutScreenshotUploadView(AuthTestCase):
+    url_name = "nimbus-ui-new-upload-rollout-screenshot"
+
+    def test_post_saves_uploaded_image_and_returns_edit_form(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            feature_configs=[],
+        )
+        experiment.reference_branch.screenshots.all().delete()
+        screenshot = experiment.reference_branch.screenshots.create()
+        self.assertFalse(screenshot.image)
+
+        image = SimpleUploadedFile(
+            name="screenshot.png", content=TINY_PNG, content_type="image/png"
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_experience": "",
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "1",
+                "rollout-screenshots-INITIAL_FORMS": "1",
+                "rollout-screenshots-0-id": screenshot.id,
+                "rollout-screenshots-0-description": "",
+                "rollout-screenshots-0-image": image,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/rollout_features/edit_form.html")
+        screenshot.refresh_from_db()
+        self.assertTrue(screenshot.image)
 
 
 class TestNewRolloutScreenshotDeleteView(AuthTestCase):

@@ -898,7 +898,7 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             screenshot_form.fields["image"].widget.attrs.update(
                 {
                     "hx-post": reverse(
-                        "nimbus-ui-new-update-rollout-features",
+                        "nimbus-ui-new-upload-rollout-screenshot",
                         kwargs={"slug": self.instance.slug},
                     ),
                     "hx-trigger": "change",

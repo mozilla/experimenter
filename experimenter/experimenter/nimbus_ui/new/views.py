@@ -377,6 +377,13 @@ class NewRolloutScreenshotCreateView(
     save_without_explicit_submit = True
 
 
+class NewRolloutScreenshotUploadView(
+    RenderParentDBResponseMixin, NewRolloutFeaturesUpdateView
+):
+    form_class = RolloutFeaturesForm
+    save_without_explicit_submit = True
+
+
 class NewRolloutScreenshotDeleteView(
     RenderParentDBResponseMixin, NewRolloutFeaturesUpdateView
 ):
