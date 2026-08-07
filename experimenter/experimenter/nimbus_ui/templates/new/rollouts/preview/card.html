@@ -73,12 +73,16 @@
             </div>
           {% endif %}
         {% endwith %}
-        {# about:studies opt-in URL for the rollout branch #}
-        <button type="button"
-                class="btn btn-primary d-inline-flex align-items-center justify-content-center"
-                onclick="navigator.clipboard.writeText('about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview');this.innerText='Copied';">
-          <i class="fa-regular fa-eye me-2" aria-hidden="true"></i>Preview link
-        </button>
+        {% if experiment.is_desktop %}
+          {# about:studies opt-in URL for the rollout branch #}
+          <button type="button"
+                  class="btn btn-primary d-inline-flex align-items-center justify-content-center"
+                  onclick="navigator.clipboard.writeText('about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview');this.innerText='Copied';">
+            <i class="fa-regular fa-eye me-2" aria-hidden="true"></i>Preview link
+          </button>
+          {% include "nimbus_devtools/opt_in_pane.html" %}
+
+        {% endif %}
       </div>
     </div>
   </div>

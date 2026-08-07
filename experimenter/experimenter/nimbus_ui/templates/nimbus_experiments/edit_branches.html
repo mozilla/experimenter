@@ -9,6 +9,7 @@
 {% block title %}{{ experiment.name }} - Branches{% endblock %}
 {% block main_content %}
   {% devtools_metadata experiment %}
+  {% devtools_integration experiment "branches" %}
   <div class="position-relative">
     <!-- Full form overlay -->
     <div id="htmx-loading-overlay"
