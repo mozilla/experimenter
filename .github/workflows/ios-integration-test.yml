@@ -115,12 +115,18 @@ jobs:
       - name: Build Fennec scheme
         working-directory: firefox-ios-checkout/firefox-ios
         run: |
+          # DerivedData must live outside the checkout. bootstrap.sh installs
+          # the SwiftLint version pinned in .swiftlint-version, and the Client
+          # target's SwiftLint build phase lints the whole source root. The
+          # firefox-ios .swiftlint.yml does not exclude DerivedData, so a
+          # DerivedData inside the checkout gets linted too and the SPM
+          # dependency sources fail the build on error-severity rules.
           xcodebuild -resolvePackageDependencies -onlyUsePackageVersionsFromResolvedFile
           xcodebuild build \
             -project Client.xcodeproj \
             -scheme Fennec \
             -destination "platform=iOS Simulator,name=${IOS_SIMULATOR},OS=${IOS_VERSION}" \
-            -derivedDataPath ./DerivedData \
+            -derivedDataPath "${{ runner.temp }}/DerivedData" \
             -skipMacroValidation \
             COMPILER_INDEX_STORE_ENABLE=NO \
             CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
@@ -129,10 +135,10 @@ jobs:
 
       - name: Locate and ad-hoc sign Client.app
         run: |
-          APP_PATH=$(find firefox-ios-checkout/firefox-ios/DerivedData/Build/Products -path "*iphonesimulator*/Client.app" -type d | head -1)
+          APP_PATH=$(find "${{ runner.temp }}/DerivedData/Build/Products" -path "*iphonesimulator*/Client.app" -type d | head -1)
           if [ -z "$APP_PATH" ]; then
             echo "::error::Could not locate Client.app in DerivedData"
-            find firefox-ios-checkout/firefox-ios/DerivedData/Build/Products -maxdepth 3 -type d || true
+            find "${{ runner.temp }}/DerivedData/Build/Products" -maxdepth 3 -type d || true
             exit 1
           fi
           # Sign leaves-to-root. --deep is deprecated and doesn't always
@@ -163,7 +169,7 @@ jobs:
           </plist>
           EOF
           codesign --force --sign - --entitlements "$ENTITLEMENTS" "$APP_PATH"
-          echo "IOS_APP_PATH=${GITHUB_WORKSPACE}/${APP_PATH}" >> "$GITHUB_ENV"
+          echo "IOS_APP_PATH=${APP_PATH}" >> "$GITHUB_ENV"
 
       - name: Install nimbus-cli
         run: |
