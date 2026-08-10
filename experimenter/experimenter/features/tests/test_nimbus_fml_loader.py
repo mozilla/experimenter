@@ -138,14 +138,15 @@ class TestNimbusFmlLoader(TestCase):
         result = loader.fml_client()
         self.assertIsInstance(result, FmlClient)
 
+    @mock_fml_versioned_features
     def test_get_fml_errors_fetches_client_inspector_and_error(
         self,
     ):
         loader = self.create_loader()
         test_blob = json.dumps({"features": {"new-feature": {"enabled": "false"}}})
 
-        result = loader.get_fml_errors(test_blob, "cookie-banners")
-        expected_error = 'Invalid property "features"; did you mean "sections-enabled"?'
+        result = loader.get_fml_errors(test_blob, "unified-search", "119.0.0")
+        expected_error = 'Invalid property "features"; did you mean "enabled"?'
         self.assertIn(expected_error, result[0].message)
 
     @mock_fml_features
