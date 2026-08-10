@@ -1,10 +1,11 @@
 {% extends "new/common/base.html" %}
 
 {% load static %}
-{% load nimbus_extras %}
+{% load nimbus_extras nimbus_devtools %}
 
 {% block title %}{{ experiment.name }}{% endblock %}
 {% block main_content %}
+  {% devtools_integration experiment "rollout" %}
   <div id="RolloutSummary" class="d-flex flex-column gap-4">
     {% include "new/common/audience_overlap_warnings.html" %}
 
