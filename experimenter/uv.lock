@@ -422,11 +422,11 @@ wheels = [
 
 [[package]]
 name = "django-admin-rangefilter"
-version = "0.13.0"
+version = "0.14.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/58/14/e96404b59cf8f78bf5967240dac67072a3849b985ec5ac9b46b7051de6da/django_admin_rangefilter-0.13.0.tar.gz", hash = "sha256:d017bb8f44f6fbe262361fa9b0c7bcc05a01919f241f0eff084e1e2da9443084", size = 23042, upload-time = "2024-05-21T17:12:09.892Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0a/a7/617940b631f885d6d1f7811d0afbb58b6f1ef04dd15b163dbbaaaa24567f/django_admin_rangefilter-0.14.0.tar.gz", hash = "sha256:1d7a6d86afa8ac92fecb01e7cece5fbc2065b3c2b4f3cc0e3fb719179d479509", size = 24753, upload-time = "2026-08-01T04:16:46.589Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/75/5d/15641a8840ad1db7c2a904d3af6182a4637c98f0834ed111cbdae2b849b1/django_admin_rangefilter-0.13.0-py2.py3-none-any.whl", hash = "sha256:ea23896f515fb0974097d6f035a1234d2e30bd33f4e62df2997b2826b1aefd01", size = 47933, upload-time = "2024-05-21T17:12:08.327Z" },
+    { url = "https://files.pythonhosted.org/packages/57/36/aa3850b7a36c9ce7989c60ec7fa3f574528d1f20aca039fd32bf3ef40a1d/django_admin_rangefilter-0.14.0-py2.py3-none-any.whl", hash = "sha256:904870d2f0af02322efd328cd9d60f3d01ec8eb6b68dc53e24300635a92e2e65", size = 48597, upload-time = "2026-08-01T04:16:45.629Z" },
 ]
 
 [[package]]
@@ -782,7 +782,7 @@ requires-dist = [
     { name = "deepdiff", specifier = ">=8.6.2,<9" },
     { name = "dj-inmemorystorage", specifier = ">=2.1.0,<3" },
     { name = "django", specifier = ">=5.2,<6" },
-    { name = "django-admin-rangefilter", specifier = "==0.13.0" },
+    { name = "django-admin-rangefilter", specifier = "==0.14.0" },
     { name = "django-bootstrap5", specifier = ">=24.3,<25" },
     { name = "django-cors-headers", specifier = "==3.14.0" },
     { name = "django-countries", specifier = "==7.6" },
