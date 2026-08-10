@@ -1,0 +1,295 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  check-cirrus:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    name: "Cirrus Check (${{ matrix.arch }})"
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "cirrus/ application-services/"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - name: Run Cirrus tests and linting
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: |
+          cp .env.sample .env
+          make cirrus_check
+
+  check-experimenter:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    name: "Experimenter Check (${{ matrix.arch }})"
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/ application-services/"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/retry
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          label: Build experimenter test image
+          run: |
+            cp .env.sample .env
+            make build_test
+
+      - name: Run tests and linting
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: make check
+
+  check-feature-manifests:
+    name: "Check Local Feature Manifests"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/experimenter/features/manifests/ experimenter/manifesttool/ application-services/"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/retry
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          label: Build experimenter dev image
+          run: |
+            cp .env.sample .env
+            make build_dev
+
+      - name: Check local feature manifests
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: |
+          make feature_manifests FETCH_ARGS="--local-apps"
+          if ! git diff --quiet experimenter/experimenter/features/manifests/; then
+            echo 'Please commit generated updates to local feature manifests:'
+            echo
+            echo '    make feature_manifests FETCH_ARGS="--local-apps"'
+            echo
+            exit 1
+          fi
+
+  check-schemas:
+    name: "Check Schemas"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "schemas/"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - name: Run schemas tests and linting
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: make schemas_check
+
+  integration-desktop-enrollment:
+    strategy:
+      fail-fast: false
+      matrix:
+        split: [0, 1]
+    name: "Desktop Enrollment (${{ matrix.split }})"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/ application-services/"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/run-integration-test
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          artifact-name: desktop-enrollment-${{ matrix.split }}-test-report
+
+  integration-desktop-targeting:
+    strategy:
+      fail-fast: false
+      matrix:
+        channel: [release, beta, nightly]
+        split: [0, 1]
+    name: "Desktop Targeting (${{ matrix.channel }} ${{ matrix.split }})"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      FIREFOX_CHANNEL: ${{ matrix.channel }}
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/ application-services/"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/run-integration-test
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          make-args: FIREFOX_CHANNEL=${{ matrix.channel }}
+          artifact-name: desktop-targeting-${{ matrix.channel }}-${{ matrix.split }}-test-report
+
+  integration-nimbus-ui:
+    name: "Desktop Nimbus UI (Release Firefox)"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -m nimbus_ui -n 4 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/ application-services/"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/run-integration-test
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          artifact-name: nimbus-ui-test-report
+
+  integration-remote-settings-all:
+    name: "Remote Settings All Workflows (${{ matrix.name }})"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Experiments
+            marker: remote_settings_experiments
+          - name: Rollouts
+            marker: remote_settings_rollouts
+          - name: Live Updates
+            marker: remote_settings_live_updates
+    env:
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m ${{ matrix.marker }} --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/ application-services/"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/run-integration-test
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          artifact-name: remote-settings-all-${{ matrix.marker }}-test-report
+
+  integration-remote-settings-launch:
+    name: "Remote Settings Launch (All Applications)"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -m remote_settings_launch --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/ application-services/"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/run-integration-test
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          artifact-name: remote-settings-launch-test-report

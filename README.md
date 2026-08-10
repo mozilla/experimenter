@@ -1,6 +1,6 @@
 # Mozilla Experimenter
 
-[![CI](https://github.com/mozilla/experimenter/actions/workflows/check-experimenter.yml/badge.svg)](https://github.com/mozilla/experimenter/actions/workflows/check-experimenter.yml) ![Status](https://img.shields.io/badge/Status-Invest-green)
+[![CI](https://github.com/mozilla/experimenter/actions/workflows/ci.yml/badge.svg)](https://github.com/mozilla/experimenter/actions/workflows/ci.yml) ![Status](https://img.shields.io/badge/Status-Invest-green)
 
 Experimenter is a platform for managing experiments in [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/?utm_medium=referral&utm_source=firefox-com).
 

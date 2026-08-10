@@ -57,6 +57,10 @@ PROFILELESSTHAN1HOUR = "(currentDate|date - profileAgeCreated|date) / 3600000 < 
 PROFILELESSTHAN2DAYS = "(currentDate|date - profileAgeCreated|date) / 3600000 < 48"
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 PROFILEMORETHAN14DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 14"
+PROFILE1TO2DAYS = (
+    "(currentDate|date - profileAgeCreated|date) / 86400000 > 1"
+    " && (currentDate|date - profileAgeCreated|date) / 86400000 < 3"
+)
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
 NO_URLBAR_SEARCH_28_DAYS = (
     "(currentDate|date"
@@ -5367,6 +5371,25 @@ NON_CORE_USER_NEED_DEFAULT_EXCLUDE_WIN10 = NimbusTargetingConfig(
         f" && {PROFILEMORETHAN7DAYS}"
         " && userMonthlyActivity|length >= 1"
         " && userMonthlyActivity|length <= 20"
+        " && (!os.isWindows || os.windowsBuildNumber >= 22000)"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NON_DEFAULT_DAY_1_2_EXCLUDE_WIN10 = NimbusTargetingConfig(
+    name="Non-default users, Day 1-2 profile, excluding Windows 10",
+    slug="non_default_day_1_2_exclude_win10",
+    description=(
+        "Profile 1-2 days old (24-72h), Firefox not default, "
+        "not first startup, excluding Windows 10 users"
+    ),
+    targeting=(
+        f"{NEED_DEFAULT}"
+        " && !isFirstStartup"
+        f" && {PROFILE1TO2DAYS}"
         " && (!os.isWindows || os.windowsBuildNumber >= 22000)"
     ),
     desktop_telemetry="",

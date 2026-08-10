@@ -175,6 +175,14 @@
         {% endif %}
       </div>
     {% endif %}
+    {# Recipe JSON #}
+    <div>
+      <div class="text-secondary mb-1" style="font-size: 12px;">Recipe JSON</div>
+      <div data-nimbus-devtools-recipe-json>
+        {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
+
+      </div>
+    </div>
   </div>
   {% if hx_swap_oob %}
     {% include "new/common/audience_overlap_warnings.html" with oob=True %}
