@@ -4711,66 +4711,6 @@ bookmarks:
         pref: browser.toolbars.bookmarks.showOtherBookmarks
       description: Display state of the "Other Bookmarks" toolbar button.
 
-cookieBannerHandling:
-  description: Automatically handle cookie banners on the user's behalf.
-  owner: emz@mozilla.com
-  hasExposure: false
-  variables:
-    modeNormalBrowsing:
-      type: int
-      setPref:
-        branch: default
-        pref: cookiebanners.service.mode
-      description: >-
-        Controls the cookie banner handling mode in normal browsing.
-        Values: 0 - disabled, 1 - reject all, 2 - reject all with accept all fallback.
-    modePrivateBrowsing:
-      type: int
-      setPref:
-        branch: default
-        pref: cookiebanners.service.mode.privateBrowsing
-      description: >-
-        Controls the cookie banner handling mode in private browsing.
-        Values: 0 - disabled, 1 - reject all, 2 - reject all with accept all fallback.
-    enableGlobalRules:
-      type: boolean
-      setPref:
-        branch: default
-        pref: cookiebanners.service.enableGlobalRules
-      description: >-
-        Enables use of global CookieBannerRules, which apply to all sites.
-        This enables handling of CMPs across sites without the use of site-specific rules.
-    enableGlobalRulesSubFrames:
-      type: boolean
-      setPref:
-        branch: default
-        pref: cookiebanners.service.enableGlobalRules.subFrames
-      description: >-
-        Whether global rules are allowed to run in sub-frames. Running query
-        selectors in every sub-frame may negatively impact performance, but is
-        required for some CMPs.
-    enableDetectOnly:
-      type: boolean
-      setPref:
-        branch: default
-        pref: cookiebanners.service.detectOnly
-      description: >-
-        When set to true, cookie banners are detected and detection events are
-        dispatched, but they will not be handled.
-        This pref applies to both normal and private browsing windows.
-    enablePromo:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.promo.cookiebanners.enabled
-      description: Enables the cookie banner promo in about:privatebrowsing.
-    enableDesktopFeatureCallout:
-      type: boolean
-      setPref:
-        branch: default
-        pref: cookiebanners.ui.desktop.showCallout
-      description: Enables the cookie banner feature callout on desktop.
-
 backgroundThreads:
   description: Prefs to control MacOS thread priorities for power savings.
   owner: kwright@mozilla.com
