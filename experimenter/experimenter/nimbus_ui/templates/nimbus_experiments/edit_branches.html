@@ -349,7 +349,12 @@
               <div class="row mb-3">
                 <div class="col">
                   <label class="d-block">
-                    The title to display in Firefox Labs (Fluent ID)
+                    The title to display in Firefox Labs
+                    {% if experiment.is_mobile %}
+                      (Resource ID)
+                    {% else %}
+                      (Fluent ID)
+                    {% endif %}
                     {{ form.firefox_labs_title }}
                   </label>
                   {{ form.firefox_labs_title.errors }}
@@ -361,7 +366,12 @@
               <div class="row mb-3">
                 <div class="col">
                   <label class="d-block">
-                    The description to display in Firefox Labs (Fluent ID)
+                    The description to display in Firefox Labs
+                    {% if experiment.is_mobile %}
+                      (Resource ID)
+                    {% else %}
+                      (Fluent ID)
+                    {% endif %}
                     {{ form.firefox_labs_description }}
                   </label>
                   {{ form.firefox_labs_description.errors }}
