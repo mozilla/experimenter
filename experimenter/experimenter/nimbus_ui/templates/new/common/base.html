@@ -12,6 +12,7 @@
       {% block title %}{% endblock %}
     | Experimenter</title>
     <script src="{% static 'nimbus_ui/app.bundle.js' %}"></script>
+    <script src="{% static 'nimbus_ui/new_tooltips.bundle.js' %}"></script>
     {% block extra_head %}{% endblock %}
   </head>
   <body class="m-0 p-0 rollout-page"
@@ -54,44 +55,6 @@
               <h1 id="experiment-header-name" class="mb-0 fw-semibold fs-4 text-body">{{ experiment.name }}</h1>
               {% include "new/common/subscribe_bell.html" %}
 
-              <div class="dropdown">
-                <button class="btn p-0 border-0 text-secondary"
-                        id="rollout-actions-dropdown"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                        aria-label="More options">
-                  <i class="fa-solid fa-ellipsis"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li>
-                    <button class="dropdown-item"
-                            id="rollout-clone-button"
-                            type="button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#cloneModal">
-                      <i class="fa-regular fa-copy fa-fw me-2"></i>Clone
-                    </button>
-                  </li>
-                  <li>
-                    <form hx-post="{% url 'nimbus-ui-new-toggle-archive' experiment.slug %}"
-                          class="d-flex align-items-center">
-                      {% csrf_token %}
-                      <button class="dropdown-item"
-                              id="rollout-archive-button"
-                              type="submit"
-                              {% if not experiment.can_archive %}disabled{% endif %}>
-                        <i class="fa-regular fa-trash-can fa-fw me-2"></i>{{ experiment.is_archived|yesno:"Unarchive,Archive" }}
-                      </button>
-                      {% if not experiment.can_archive %}
-                        <i class="fa-regular fa-circle-question fa-sm text-secondary pe-3"
-                           data-bs-toggle="tooltip"
-                           data-bs-placement="left"
-                           title="{{ NimbusUIConstants.ARCHIVE_DISABLED_TOOLTIP }}"></i>
-                      {% endif %}
-                    </form>
-                  </li>
-                </ul>
-              </div>
             </div>
             <div class="d-flex align-items-center gap-2 mt-1">
               {% if experiment.is_rollout %}
@@ -117,9 +80,55 @@
               <div class="small text-secondary mt-1">Updated {{ experiment.latest_change.changed_on|timesince }} ago</div>
             {% endif %}
           </div>
-          <div class="align-self-end">
-            {% include "new/common/slack_notifications_toggle.html" %}
+          <div class="align-self-start">
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2"
+                      id="rollout-actions-dropdown"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      data-bs-auto-close="outside"
+                      aria-expanded="false"
+                      aria-label="Options">
+                <i class="fa-solid fa-bars"></i>
+                Options
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" style="min-width: 14rem;">
+                <li class="px-4 py-2">
+                  {% include "new/common/slack_notifications_toggle.html" %}
 
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li>
+                  <button class="dropdown-item"
+                          id="rollout-clone-button"
+                          type="button"
+                          data-bs-toggle="modal"
+                          data-bs-target="#cloneModal">
+                    <i class="fa-regular fa-copy fa-fw me-2"></i>Clone
+                  </button>
+                </li>
+                <li>
+                  <form hx-post="{% url 'nimbus-ui-new-toggle-archive' experiment.slug %}"
+                        class="d-flex align-items-center">
+                    {% csrf_token %}
+                    <button class="dropdown-item"
+                            id="rollout-archive-button"
+                            type="submit"
+                            {% if not experiment.can_archive %}disabled{% endif %}>
+                      <i class="fa-regular fa-trash-can fa-fw me-2"></i>{{ experiment.is_archived|yesno:"Unarchive,Archive" }}
+                    </button>
+                    {% if not experiment.can_archive %}
+                      <i class="fa-regular fa-circle-question fa-sm text-secondary pe-3"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="left"
+                         title="{{ NimbusUIConstants.ARCHIVE_DISABLED_TOOLTIP }}"></i>
+                    {% endif %}
+                  </form>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
         {# Toast container #}
