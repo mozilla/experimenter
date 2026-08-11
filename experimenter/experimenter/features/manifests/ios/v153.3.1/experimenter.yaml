@@ -393,6 +393,14 @@ sent-from-firefox-feature:
       type: boolean
       description: |
         If true, shares the treatment A text. If false, shares the treatment B text.
+snapkit-removal-refactor:
+  description: This property defines if SnapKit removal refactor is enabled
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true the SnapKit removal refactor version will be used
 spotlight-search:
   description: Add pages as items findable with Spotlight.
   hasExposure: true
