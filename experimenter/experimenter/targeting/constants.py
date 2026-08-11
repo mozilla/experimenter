@@ -1291,15 +1291,17 @@ WINDOWS_LAUNCH_ON_LOGIN_ELIGIBLE_IMPROVED = NimbusTargetingConfig(
     slug="windows_launch_on_login_eligible_improved",
     description=(
         "Windows 10+ users whose profiles predate 6/16/2026, who don't already "
-        "have launch on login enabled, for whom LoL is not blocked by policy. "
-        "Excludes users running an MSIX build on Windows 10."
+        "have launch on login enabled, for whom LoL is not blocked by policy, "
+        "who are not running an MSIX build on Windows 10, and who are not using "
+        "a selectable profile group with more than 1 profile."
     ),
     targeting=(
         "os.isWindows && os.windowsVersion >= 10 && !launchOnLoginEnabled && "
         "launchOnLoginAllowedByPolicy && "
         "'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue && "
         "(!isMSIX || os.windowsBuildNumber >= 22000) && "
-        "profileAgeCreated < '2026-06-16'|date"
+        "profileAgeCreated < '2026-06-16'|date && "
+        "profileGroupProfileCount < 2"
     ),
     desktop_telemetry="",
     sticky_required=False,
