@@ -179,10 +179,25 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         }
 
     def _holdback_enrollment_end(self, obj):
-        if obj.is_holdback and not obj.end_date and not obj.actual_enrollment_end_date:
-            return datetime.date.today() - datetime.timedelta(
+        # A holdback's analysis window is anchored on its most recent weekly rerun
+        # (do_rerun_timestamp), NOT on today, so the enrollment period steps weekly
+        # (7, 14, 21, ...) instead of drifting by a day on every API read. Before the
+        # first rerun is triggered there is no complete window yet, so emit nothing;
+        # this keeps jetstream from analyzing (and computing overall) prematurely.
+        # do_rerun_timestamp is a UTC datetime, matching jetstream's UTC clock, so
+        # the resulting endDate also lands in the past (today-1 or earlier).
+        if (
+            obj.is_holdback
+            and not obj.end_date
+            and not obj.actual_enrollment_end_date
+            and obj.do_rerun_timestamp
+            and obj.start_date
+        ):
+            enrollment_end = obj.do_rerun_timestamp.date() - datetime.timedelta(
                 days=settings.HOLDBACK_OBSERVATION_DAYS
             )
+            if enrollment_end > obj.start_date:
+                return enrollment_end
         return None
 
     def get_enrollmentEndDate(self, obj):

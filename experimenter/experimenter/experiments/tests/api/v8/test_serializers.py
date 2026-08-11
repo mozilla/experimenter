@@ -4,6 +4,7 @@ from typing import Any
 
 from django.conf import settings
 from django.test import TestCase
+from django.utils import timezone
 from parameterized import parameterized
 
 from experimenter.base.tests.factories import LocaleFactory
@@ -419,23 +420,45 @@ class TestNimbusExperimentSerializer(TestCase):
             self.assertEqual(serializer.data["localizations"], expected)
 
     def test_holdback_serializer_overrides(self):
-        today = datetime.date.today()
-        start = today - datetime.timedelta(days=50)
-        expected_enrollment_end = today - datetime.timedelta(days=21)
+        # The window is anchored on the weekly rerun (do_rerun_timestamp), not on
+        # today. A holdback 35 days in (its 5th weekly rerun) reports a 14-day
+        # enrollment (35 - 21 observation), and endDate is the rerun date.
+        rerun = timezone.now()
+        rerun_date = rerun.date()
+        start = rerun_date - datetime.timedelta(days=35)
+        expected_enrollment_end = rerun_date - datetime.timedelta(days=21)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_holdback=True,
             _start_date=start,
         )
+        experiment.do_rerun = True
+        experiment.do_rerun_timestamp = rerun
+        experiment.save()
+
         serializer = NimbusExperimentSerializer(experiment)
         data = serializer.data
 
         self.assertEqual(data["enrollmentEndDate"], expected_enrollment_end.isoformat())
-        self.assertEqual(data["endDate"], today.isoformat())
-        self.assertEqual(
-            data["proposedEnrollment"],
-            (expected_enrollment_end - start).days,
+        self.assertEqual(data["endDate"], rerun_date.isoformat())
+        self.assertEqual(data["proposedEnrollment"], 14)
+
+    def test_holdback_serializer_no_window_before_first_rerun(self):
+        # Until the first weekly rerun is triggered (do_rerun_timestamp is None),
+        # the serializer emits no enrollment/end window so jetstream does not
+        # analyze the holdback (or compute overall) prematurely.
+        start = timezone.now().date() - datetime.timedelta(days=20)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_holdback=True,
+            _start_date=start,
         )
+        self.assertIsNone(experiment.do_rerun_timestamp)
+
+        data = NimbusExperimentSerializer(experiment).data
+
+        self.assertIsNone(data["enrollmentEndDate"])
+        self.assertIsNone(data["endDate"])
 
     def test_non_holdback_proposed_enrollment_uses_model_value(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
