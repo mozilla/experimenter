@@ -140,7 +140,7 @@
             </div>
           {% endfor %}
         </div>
-        <div>
+        <div {% if rollout_screenshots|length %}class="mt-2"{% endif %}>
           <button type="button"
                   class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small"
                   hx-post="{% url 'nimbus-ui-new-create-rollout-screenshot' experiment.slug %}"

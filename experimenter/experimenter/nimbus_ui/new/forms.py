@@ -1085,6 +1085,7 @@ class RolloutScreenshotDeleteForm(RolloutFeaturesForm):
             "screenshot_id",
             *RolloutFeaturesForm.Meta.fields,
         ]
+        widgets = RolloutFeaturesForm.Meta.widgets
 
     @transaction.atomic
     def save(self, *args, **kwargs):
