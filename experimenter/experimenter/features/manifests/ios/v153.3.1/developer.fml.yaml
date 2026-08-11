@@ -28,17 +28,17 @@ features:
         description: |
           Decides if the interactive gesture can close tabs by dragging the tab up to the top edge of the screen
         type: Boolean
-        default: true
+        default: false
       enabled_interactive:
         description: |
           Decides if the interactive (fancier) version of this feature is enabled.
         type: Boolean
-        default: true
+        default: false
       enabled_swipe:
         description: |
           Decides if the swipe version of this feature is enabled. This will override the interactive gesture
         type: Boolean
-        default: false
+        default: true
   ai-kill-switch-feature:
     description: |
       Configuration feature for AI features
@@ -117,7 +117,7 @@ features:
         description: |
           Enables Google Lens entry points.
         type: Boolean
-        default: true
+        default: false
   homepage-redesign-feature:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.
@@ -782,6 +782,13 @@ features:
           If true, shares the treatment A text. If false, shares the treatment B text.
         type: Boolean
         default: true
+  snapkit-removal-refactor:
+    description: This property defines if SnapKit removal refactor is enabled
+    variables:
+      enabled:
+        description: If true the SnapKit removal refactor version will be used
+        type: Boolean
+        default: true
   spotlight-search:
     description: Add pages as items findable with Spotlight.
     variables:
@@ -974,6 +981,30 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: false
+  world-cup-widget-feature:
+    description: |
+      The feature flag to manage the roll out of the world cup widget feature
+    variables:
+      countdown-target-date:
+        description: |
+          The ISO 8601 date string for the World Cup countdown target
+        type: String
+        default: 2026-06-11T19:00:00Z
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: false
+      milestone-2-enable-date:
+        description: |
+          The ISO 8601 date string for when milestone 2 (country picker) becomes available. Defaults to 10 days before the World Cup countdown target date.
+        type: String
+        default: 2026-06-01T19:00:00Z
+      show-celebration-animation:
+        description: |
+          Whether or not the celebration animation is shown when a selected team's match is won.  For the generic experience the animation is shown after the result of bronze final and final too.
+        type: Boolean
+        default: true
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
