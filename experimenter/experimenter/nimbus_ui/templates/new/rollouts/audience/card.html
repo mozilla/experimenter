@@ -35,6 +35,13 @@
             {{ experiment.get_channel_display|default:"—" }}
           {% endif %}
         </div>
+        {% if experiment.is_desktop %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.channels %}
+
+        {% else %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.channel %}
+
+        {% endif %}
       </div>
       {# Version range #}
       <div>
@@ -42,12 +49,16 @@
         <div id="rollout-audience-min-version" class="small text-body">
           {{ experiment.get_firefox_min_version_display|default:"—" }}
         </div>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_min_version %}
+
       </div>
       <div>
         <div class="text-secondary mb-1" style="font-size: 12px;">Max Version</div>
         <div id="rollout-audience-max-version" class="small text-body">
           {{ experiment.get_firefox_max_version_display|default:"—" }}
         </div>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_max_version %}
+
       </div>
       {# Locales / languages #}
       <div>
@@ -83,6 +94,15 @@
             {% endwith %}
           {% endif %}
         </div>
+        {% if experiment.is_desktop %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.locales %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_locales %}
+
+        {% else %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.languages %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_languages %}
+
+        {% endif %}
       </div>
       {# Countries #}
       <div>
@@ -99,16 +119,23 @@
             {% endif %}
           {% endwith %}
         </div>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.countries %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_countries %}
+
       </div>
       {# Advanced targeting #}
       <div>
         <div class="text-secondary mb-1" style="font-size: 12px;">Advanced targeting</div>
         <div id="rollout-audience-targeting" class="small text-body">{{ experiment.targeting_config_slug|default:"—" }}</div>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.targeting_config_slug %}
+
       </div>
       {# Full targeting expression #}
       <div>
         <div class="text-secondary mb-1" style="font-size: 12px;">Full targeting expression</div>
         {% include "nimbus_experiments/readonly_targeting.html" with json_content=experiment.targeting_formatted %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.targeting %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.non_field_errors %}
 
       </div>
       {# Required experiments #}
@@ -130,6 +157,8 @@
             —
           {% endif %}
         {% endwith %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.required_experiments_branches %}
+
       </div>
       {# Excluded experiments #}
       <div>
@@ -150,6 +179,8 @@
             —
           {% endif %}
         {% endwith %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.excluded_experiments_branches %}
+
       </div>
       {# Sticky enrollment #}
       <div>
@@ -159,6 +190,8 @@
         {% else %}
           <i id="rollout-audience-sticky" class="fas fa-times text-danger"></i>
         {% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.is_sticky %}
+
       </div>
       {# Localization #}
       <div>
@@ -168,6 +201,8 @@
         {% else %}
           <i id="rollout-audience-localized" class="fas fa-times text-danger"></i>
         {% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.is_localized %}
+
       </div>
       {% if experiment.is_localized %}
         <div>
@@ -178,6 +213,8 @@
           {% else %}
             —
           {% endif %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.localizations %}
+
         </div>
       {% endif %}
       {# Recipe JSON #}

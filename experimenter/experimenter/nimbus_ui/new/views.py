@@ -230,6 +230,10 @@ class RolloutSetupProgressMixin:
         field_errors = self.object.get_invalid_fields_errors(
             serializer_class=NimbusRolloutReviewSerializer
         )
+        validation_errors = {
+            field: self.flatten_errors(messages)
+            for field, messages in field_errors.items()
+        }
         error_keys = set(field_errors)
 
         field_to_section = {
@@ -266,6 +270,7 @@ class RolloutSetupProgressMixin:
 
         context["setup_issues"] = issues
         context["setup_issues_count"] = len(issues)
+        context["validation_errors"] = validation_errors
         return context
 
 

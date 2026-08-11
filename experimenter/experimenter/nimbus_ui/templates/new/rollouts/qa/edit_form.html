@@ -37,6 +37,8 @@
                 {% if form.qa_status.errors %}
                   <div class="text-danger small mt-1">{{ form.qa_status.errors|join:", " }}</div>
                 {% endif %}
+                {% include "new/common/validation_errors.html" with errors=validation_errors.qa_status %}
+
               </div>
             </div>
             <div class="mt-4">
@@ -45,6 +47,8 @@
               {% if form.qa_comment.errors %}
                 <div class="text-danger small mt-1">{{ form.qa_comment.errors|join:", " }}</div>
               {% endif %}
+              {% include "new/common/validation_errors.html" with errors=validation_errors.qa_comment %}
+
             </div>
           </div>
         </div>

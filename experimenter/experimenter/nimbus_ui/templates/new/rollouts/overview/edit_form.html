@@ -13,6 +13,8 @@
         </label>
         {{ form.name }}
         {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors|join:", " }}</div>{% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.name %}
+
       </div>
       {# Observations & Problem space #}
       <div>
@@ -21,6 +23,8 @@
         {% if form.hypothesis.errors %}
           <div class="text-danger small mt-1">{{ form.hypothesis.errors|join:", " }}</div>
         {% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.hypothesis %}
+
       </div>
       {# Public description #}
       <div>
@@ -29,6 +33,8 @@
         {% if form.public_description.errors %}
           <div class="text-danger small mt-1">{{ form.public_description.errors|join:", " }}</div>
         {% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.public_description %}
+
         <p class="form-text mb-0">{{ NimbusUIConstants.PUBLIC_DESCRIPTION_TEXT }}</p>
       </div>
       {# Application #}
@@ -38,6 +44,8 @@
         {% if form.application.errors %}
           <div class="text-danger small mt-1">{{ form.application.errors|join:", " }}</div>
         {% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.application %}
+
         <p class="form-text mb-0">
           Rollouts can only target one Application at a time.
           <br>
@@ -87,6 +95,8 @@
                 hx-swap="outerHTML">
           <i class="fa-solid fa-plus me-1"></i>Add link
         </button>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.documentation_links %}
+
       </div>
       {# Project Tags — search input + pills #}
       {% include "new/rollouts/overview/tags_field.html" %}
