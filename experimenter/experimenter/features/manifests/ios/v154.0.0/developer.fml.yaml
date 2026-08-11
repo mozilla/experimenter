@@ -117,7 +117,7 @@ features:
         description: |
           Enables Google Lens entry points.
         type: Boolean
-        default: false
+        default: true
   homepage-redesign-feature:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.

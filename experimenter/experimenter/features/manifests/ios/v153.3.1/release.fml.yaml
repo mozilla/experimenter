@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- developer
+- release
 features:
   ad-blocker-feature:
     description: |
@@ -12,14 +12,14 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: true
+        default: false
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
     variables:
       status:
         description: If true, we will allow user to edit the address
         type: Boolean
-        default: true
+        default: false
   address-bar-gesture-to-open-tab-tray-feature:
     description: |
       Decides if the address bar interactive gesture to open the tab tray is enabled
@@ -28,12 +28,12 @@ features:
         description: |
           Decides if the interactive gesture can close tabs by dragging the tab up to the top edge of the screen
         type: Boolean
-        default: true
+        default: false
       enabled_interactive:
         description: |
           Decides if the interactive (fancier) version of this feature is enabled.
         type: Boolean
-        default: true
+        default: false
       enabled_swipe:
         description: |
           Decides if the swipe version of this feature is enabled. This will override the interactive gesture
@@ -65,7 +65,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: true
+        default: false
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
@@ -74,7 +74,7 @@ features:
         description: |
           Variable description
         type: Boolean
-        default: true
+        default: false
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
@@ -83,7 +83,7 @@ features:
         description: |
           If true, the download live activities feature is enabled
         type: Boolean
-        default: true
+        default: false
   firefox-jp-guide-default-site:
     description: |
       This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
@@ -92,7 +92,7 @@ features:
         description: |
           Enables the feature.
         type: Boolean
-        default: true
+        default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -108,7 +108,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: true
+        default: false
   google-lens-feature:
     description: |
       The feature flag to manage the rollout of Google Lens entry points.
@@ -117,7 +117,7 @@ features:
         description: |
           Enables Google Lens entry points.
         type: Boolean
-        default: true
+        default: false
   homepage-redesign-feature:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.
@@ -136,7 +136,7 @@ features:
         description: |
           If true, enables the categories flow in the stories
         type: Boolean
-        default: true
+        default: false
       jbi-section-default:
         description: |
           If true, enables the jump back in homepage section by default
@@ -146,7 +146,7 @@ features:
         description: |
           If true, enables the pinned newsfeed header on homepage.
         type: Boolean
-        default: true
+        default: false
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
@@ -160,7 +160,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: true
+        default: false
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
@@ -169,17 +169,17 @@ features:
         description: |
           Enables the hosted summarizer feature.
         type: Boolean
-        default: true
+        default: false
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
   https-upgrade-feature:
     description: |
       This feature enables automatic https upgrade. This is only available for 18.2+.
@@ -188,7 +188,7 @@ features:
         description: |
           Enables automatic https upgrade.
         type: Boolean
-        default: true
+        default: false
   improved-app-store-review-trigger-feature:
     description: |
       The feature flag to manage the App Store review request trigger.
@@ -250,37 +250,7 @@ features:
         description: |
           A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
         type: Map<MessageKey, MessageData>
-        default:
-          homepage-microsurvey-message:
-            surface: microsurvey
-            style: MICROSURVEY
-            trigger-if-all:
-            - SECOND_HOMEPAGE_VIEW
-            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
-            text: How satisfied are you with your Firefox homepage?
-            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
-            should-randomize-options: false
-            microsurveyConfig:
-              utm-content: homepage
-              icon: homeLarge
-              options:
-              - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
-              - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
-          survey-surface-message:
-            surface: survey
-            style: SURVEY
-            trigger-if-all:
-            - NEVER
-            text: ResearchSurface/Body.Text.v112
-            button-label: ResearchSurface/PrimaryButton.Label.v112
-            should-randomize-options: false
-            action: OPEN_URL
-            action-params:
-              url: https://www.macrumors.com
+        default: {}
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -363,7 +333,7 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: true
+        default: false
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
@@ -377,12 +347,12 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: true
+        default: false
       no_internet_connection_error:
         description: |
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
-        default: true
+        default: false
   new-bookmark-folder-tree-feature:
     description: |
       This property determines weather we show the new bookmark folder tree UI
@@ -711,7 +681,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: true
+        default: false
   quick-answers-feature:
     description: |
       The feature flag to manage the roll out of the quick answers feature.
@@ -756,7 +726,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: true
+        default: false
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
@@ -776,10 +746,17 @@ features:
         description: |
           Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.
         type: Boolean
-        default: true
+        default: false
       isTreatmentA:
         description: |
           If true, shares the treatment A text. If false, shares the treatment B text.
+        type: Boolean
+        default: true
+  snapkit-removal-refactor:
+    description: This property defines if SnapKit removal refactor is enabled
+    variables:
+      enabled:
+        description: If true the SnapKit removal refactor version will be used
         type: Boolean
         default: true
   spotlight-search:
@@ -788,12 +765,12 @@ features:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
         type: Boolean
-        default: true
+        default: false
       icon-type:
         description: |
           The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
         type: Option<IconType>
-        default: screenshot
+        default: letter
       keep-for-days:
         description: |
           Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
@@ -848,7 +825,7 @@ features:
         description: |
           Enables permissive guardrails for the summarizer.
         type: Boolean
-        default: true
+        default: false
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.
@@ -876,7 +853,7 @@ features:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
         type: Boolean
-        default: true
+        default: false
   toolbar-refactor-feature:
     description: |
       This feature is for managing the roll out of the Toolbar refactor feature
@@ -964,7 +941,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: true
+        default: false
   wayback-machine-feature:
     description: |
       This property determines whether we show the wayback entry point on the native error pages
@@ -974,6 +951,30 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: false
+  world-cup-widget-feature:
+    description: |
+      The feature flag to manage the roll out of the world cup widget feature
+    variables:
+      countdown-target-date:
+        description: |
+          The ISO 8601 date string for the World Cup countdown target
+        type: String
+        default: 2026-06-11T19:00:00Z
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: false
+      milestone-2-enable-date:
+        description: |
+          The ISO 8601 date string for when milestone 2 (country picker) becomes available. Defaults to 10 days before the World Cup countdown target date.
+        type: String
+        default: 2026-06-01T19:00:00Z
+      show-celebration-animation:
+        description: |
+          Whether or not the celebration animation is shown when a selected team's match is won.  For the generic experience the animation is shown after the result of bronze final and final too.
+        type: Boolean
+        default: true
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.

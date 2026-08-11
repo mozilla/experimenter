@@ -393,6 +393,14 @@ sent-from-firefox-feature:
       type: boolean
       description: |
         If true, shares the treatment A text. If false, shares the treatment B text.
+snapkit-removal-refactor:
+  description: This property defines if SnapKit removal refactor is enabled
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true the SnapKit removal refactor version will be used
 spotlight-search:
   description: Add pages as items findable with Spotlight.
   hasExposure: true
@@ -591,3 +599,25 @@ wayback-machine-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+world-cup-widget-feature:
+  description: |
+    The feature flag to manage the roll out of the world cup widget feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    countdown-target-date:
+      type: string
+      description: |
+        The ISO 8601 date string for the World Cup countdown target
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+    milestone-2-enable-date:
+      type: string
+      description: |
+        The ISO 8601 date string for when milestone 2 (country picker) becomes available. Defaults to 10 days before the World Cup countdown target date.
+    show-celebration-animation:
+      type: boolean
+      description: |
+        Whether or not the celebration animation is shown when a selected team's match is won.  For the generic experience the animation is shown after the result of bronze final and final too.
