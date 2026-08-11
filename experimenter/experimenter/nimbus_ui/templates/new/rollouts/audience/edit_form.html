@@ -3,7 +3,7 @@
 
 <div id="rollout-audience-body">
   {# Explore matching audiences #}
-  <div class="d-flex justify-content-end mb-2">
+  <div class="mb-2">
     <a href="{{ experiment.audience_url }}"
        class="small text-decoration-none"
        target="_blank"
@@ -49,19 +49,19 @@
         {% if experiment.is_desktop %}
           <label for="id_locales" class="small text-body mb-2">Locales</label>
           {{ form.locales|add_class:"form-control"|add_error_class:"is-invalid" }}
-          <label for="id_exclude_locales" class="form-label mt-2">
+          <div class="form-check mt-2">
             {{ form.exclude_locales|add_error_class:"is-invalid" }}
-            Exclude selected locales
-          </label>
+            <label class="form-check-label small text-body" for="id_exclude_locales">Exclude selected locales</label>
+          </div>
           {% for error in form.locales.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
           {% for error in validation_errors.locales %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
         {% else %}
           <label for="id_languages" class="small text-body mb-2">Languages</label>
           {{ form.languages|add_class:"form-control"|add_error_class:"is-invalid" }}
-          <label for="id_exclude_languages" class="form-label mt-2">
+          <div class="form-check mt-2">
             {{ form.exclude_languages|add_error_class:"is-invalid" }}
-            Exclude selected languages
-          </label>
+            <label class="form-check-label small text-body" for="id_exclude_languages">Exclude selected languages</label>
+          </div>
           {% for error in form.languages.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
           {% for error in validation_errors.languages %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
         {% endif %}
@@ -69,10 +69,10 @@
       <div class="col">
         <label for="id_countries" class="small text-body mb-2">Countries</label>
         {{ form.countries|add_class:"form-control"|add_error_class:"is-invalid" }}
-        <label for="id_exclude_countries" class="form-label mt-2">
+        <div class="form-check mt-2">
           {{ form.exclude_countries|add_error_class:"is-invalid" }}
-          Exclude selected countries
-        </label>
+          <label class="form-check-label small text-body" for="id_exclude_countries">Exclude selected countries</label>
+        </div>
         {% for error in form.countries.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
         {% for error in validation_errors.countries %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
       </div>
@@ -136,7 +136,7 @@
     <div>
       <div class="form-check">
         {{ form.is_localized }}
-        <label class="form-check-label" for="id_is_localized">Is this a localized rollout?</label>
+        <label class="form-check-label small text-body" for="id_is_localized">Is this a localized rollout?</label>
       </div>
       {% for error in form.is_localized.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       {% for error in validation_errors.is_localized %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}

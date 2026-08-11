@@ -647,19 +647,25 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         queryset=Locale.objects.all().order_by("code"),
         widget=MultiSelectWidget(),
     )
-    exclude_locales = forms.BooleanField(required=False)
+    exclude_locales = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
     languages = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Language.objects.all().order_by("code"),
         widget=MultiSelectWidget(),
     )
-    exclude_languages = forms.BooleanField(required=False)
+    exclude_languages = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
     countries = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Country.objects.all().order_by("code"),
         widget=MultiSelectWidget(),
     )
-    exclude_countries = forms.BooleanField(required=False)
+    exclude_countries = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
     targeting_config_slug = forms.ChoiceField(
         required=False,
         label="",
