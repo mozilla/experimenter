@@ -18,6 +18,8 @@
 
           {% endif %}
         {% endfor %}
+      {% empty %}
+        <div class="small text-body">—</div>
       {% endfor %}
     </div>
     {# Warn only on feature schema validation failure #}
