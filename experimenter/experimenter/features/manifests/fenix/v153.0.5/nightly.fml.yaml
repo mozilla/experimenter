@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- beta
+- nightly
 features:
   add-shortcuts-improvement:
     description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
@@ -11,13 +11,6 @@ features:
         description: If true, Add Shortcuts improvement is enabled.
         type: Boolean
         default: true
-  ads-client-for-stories:
-    description: Feature to enable the Mozilla Ads Client support for Sponsored Stories for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Mozilla Ads Client support for Sponsored Stories is enabled.
-        type: Boolean
-        default: false
   alternative-app-launcher-icon:
     description: A feature that changes the app launcher icon background color.
     variables:
@@ -63,13 +56,6 @@ features:
         description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
         type: String
         default: ''
-  collections-to-tab-groups-migration:
-    description: Feature to migrate Collections to Tab Groups for users on Firefox for Android.
-    variables:
-      hide-collections-ui:
-        description: If true, the Collections UI is hidden.
-        type: Boolean
-        default: false
   continuous-onboarding:
     description: |
       Feature to enable the continuous onboarding flow. This feature reduces the number of upfront onboarding cards and distributes the cards and other prompts progressively over a number of days.
@@ -78,6 +64,26 @@ features:
         description: If true, the feature is enabled.
         type: Boolean
         default: true
+  cookie-banners:
+    description: Features for cookie banner handling.
+    variables:
+      sections-enabled:
+        description: This property provides a lookup table of whether or not the given section should be enabled.
+        type: Map<CookieBannersSection, Int>
+        default:
+          feature-ui: 0
+          feature-setting-value: 0
+          feature-setting-value-pbm: 0
+          feature-setting-detect-only: 0
+          feature-setting-global-rules: 1
+          feature-setting-global-rules-sub-frames: 1
+  custom-review-prompt:
+    description: Feature that controls the Play store review prompt.
+    variables:
+      enabled:
+        description: Whether or not to enable the new trigger criteria.
+        type: Boolean
+        default: false
   custom-review-prompt-ui:
     description: Feature that controls the custom UI for review prompt.
     variables:
@@ -207,7 +213,7 @@ features:
         description: |
           The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
         type: Int
-        default: 0
+        default: 2
       shouldUseNimbus:
         description: |
           If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
@@ -225,7 +231,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   gecko-nimbus-validation:
     description: Feature for validating Nimbus Gecko functionality
     variables:
@@ -276,20 +282,13 @@ features:
       enabled:
         description: If true, Google Lens integration is enabled.
         type: Boolean
-        default: false
+        default: true
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
       enabled:
         description: |
           Whether or not to enable homepage as a new tab
-        type: Boolean
-        default: false
-  homepage-customization:
-    description: Feature to enable Homepage Customization for users on Firefox on Android.
-    variables:
-      enabled:
-        description: If true, Homepage Customization is enabled.
         type: Boolean
         default: false
   homepage-hide-frecent-top-sites:
@@ -307,18 +306,21 @@ features:
         description: The default option for the homepage opening screen.
         type: OpeningScreenOption
         default: homepage-four-hours
-  homepage-trending-recent-search:
-    description: Feature to show trending and recent searches on the Homepage Search for users on Firefox on Android.
+  homepage-sports-widget:
+    description: Feature to enable Homepage Sports Widget for users on Firefox on Android.
     variables:
       enabled:
-        description: If true, trending and recent searches are shown on the Homepage Search.
+        description: If true, Homepage Sports Widget is enabled.
         type: Boolean
-        default: false
-  homepage-weather-widget:
-    description: Feature to enable Homepage Weather Widget for users on Firefox for Android.
-    variables:
-      enabled:
-        description: If true, Homepage Weather Widget is enabled.
+        default: true
+      fetch-throttle-seconds:
+        description: |
+          Minimum interval, in seconds, that the client will wait between Sports Widget fetches. Guards the upstream Merino endpoint against refresh-button spam and Home/onResume thrash. The default aligns with the upstream cache TTL — a shorter interval just returns the same payload at the cost of battery and bandwidth. Lower this remotely only if the upstream cache TTL is also lowered, otherwise users will see no fresher data.
+        type: Int
+        default: 60
+      force-one-week-to-world-cup:
+        description: |
+          If true, treat the user as being within one week of the World Cup kickoff regardless of the device date. Used to roll out the pre-tournament pager (follow your team + view-schedule cards) ahead of the calendar date for testing or staggered launches. The natural date-based check still applies when this is false (the default).
         type: Boolean
         default: false
   homescreen:
@@ -407,7 +409,7 @@ features:
       show-onboarding-bottom-sheet:
         description: If true, the IP Protection onboarding bottom sheet is shown to the user.
         type: Boolean
-        default: true
+        default: false
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
@@ -472,6 +474,67 @@ features:
             primary-button-label: nova_onboarding_set_to_default_button
             secondary-button-label: nova_onboarding_negative_button
             title: nova_onboarding_set_to_default_title_2
+          add-search-widget:
+            body: nova_onboarding_add_search_widget_subtitle
+            card-type: add-search-widget
+            disqualifiers:
+            - NEVER
+            enabled: false
+            extra-data: null
+            image-res: nova_onboarding_widget
+            ordering: 20
+            prerequisites:
+            - ALWAYS
+            primary-button-label: nova_onboarding_add_search_widget_button
+            secondary-button-label: nova_onboarding_negative_button
+            title: nova_onboarding_add_search_widget_title
+          sync-sign-in:
+            body: nova_onboarding_sync_subtitle
+            card-type: sync-sign-in
+            disqualifiers:
+            - NEVER
+            enabled: false
+            extra-data: null
+            image-res: nova_onboarding_sync
+            ordering: 30
+            prerequisites:
+            - ALWAYS
+            primary-button-label: nova_onboarding_sync_button
+            secondary-button-label: nova_onboarding_negative_button
+            title: nova_onboarding_sync_title
+          notification-permission:
+            body: nova_onboarding_notifications_subtitle
+            card-type: notification-permission
+            disqualifiers:
+            - NEVER
+            enabled: false
+            extra-data: null
+            image-res: nova_onboarding_notifications
+            ordering: 40
+            prerequisites:
+            - ALWAYS
+            primary-button-label: nova_onboarding_notifications_button
+            secondary-button-label: nova_onboarding_negative_button
+            title: nova_onboarding_notifications_title
+          toolbar-placement:
+            body: ''
+            card-type: toolbar-placement
+            disqualifiers:
+            - NEVER
+            enabled: false
+            extra-data:
+              customization-toolbar-data:
+              - toolbar-type: toolbar-top
+                label: nova_onboarding_toolbar_selection_top_label
+              - toolbar-type: toolbar-bottom
+                label: nova_onboarding_toolbar_selection_bottom_label
+            image-res: ic_onboarding_welcome
+            ordering: 50
+            prerequisites:
+            - ALWAYS
+            primary-button-label: nova_onboarding_continue_button
+            secondary-button-label: ''
+            title: nova_onboarding_toolbar_selection_title
           marketing:
             body: ''
             card-type: marketing-data
@@ -483,7 +546,7 @@ features:
                 body-line-one-text: nova_onboarding_marketing_body
                 body-line-one-link-text: nova_onboarding_marketing_body_link_text
             image-res: nova_onboarding_marketing
-            ordering: 20
+            ordering: 60
             prerequisites:
             - ALWAYS
             primary-button-label: nova_onboarding_continue_button
@@ -530,13 +593,6 @@ features:
         description: If false, the marketing onboarding card will never be shown.
         type: Boolean
         default: true
-  media-notification-improvements:
-    description: Whether to show the media notification improvements
-    variables:
-      enabled:
-        description: enabled media notification improvements if true, else not enabled
-        type: Boolean
-        default: true
   merino-client:
     description: Feature to enable the Merino Client for users on Firefox on Android.
     variables:
@@ -544,6 +600,13 @@ features:
         description: If true, Merino Client is enabled.
         type: Boolean
         default: false
+  merino-manifest:
+    description: Feature to enable the Merino Manifest for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Merino Manifest is enabled.
+        type: Boolean
+        default: true
   messaging:
     description: |
       The in-app messaging system.
@@ -583,7 +646,6 @@ features:
           OPEN_SETTINGS_DELETE_BROWSING_DATA: ://settings_delete_browsing_data
           OPEN_SETTINGS_LOGINS: ://settings_logins
           OPEN_SETTINGS_NOTIFICATIONS: ://settings_notifications
-          OPEN_SETTINGS_MARKETING_NOTIFICATIONS: ://settings_marketing_notifications
           OPEN_SETTINGS_PRIVACY: ://settings_privacy
           OPEN_SETTINGS_SEARCH_ENGINE: ://settings_search_engine
           OPEN_SETTINGS_TRACKING_PROTECTION: ://settings_tracking_protection
@@ -591,7 +653,6 @@ features:
           OPEN_SETTINGS_APP_ICON: ://settings_app_icon
           OPEN_SETTINGS: ://settings
           OPEN_SHARE_SHEET: ://share_sheet
-          OPEN_PROTECTIONS_DASHBOARD: ://protections_dashboard
           TURN_ON_SYNC: ://turn_on_sync
         string-alias: ActionName
       message-under-experiment:
@@ -624,6 +685,29 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
+          microsurvey-printing-example-nightly:
+            title: microsurvey_prompt_printing_title
+            text: microsurvey_survey_printing_title
+            surface: microsurvey
+            trigger-if-all:
+            - RECENTLY_PRINTED
+            style: MICROSURVEY
+            microsurvey-config:
+              utm-content: homepage
+              icon: ic_print
+              answers:
+              - text: likert_scale_option_1
+                ordering: 0
+              - text: likert_scale_option_2
+                ordering: 1
+              - text: likert_scale_option_3
+                ordering: 2
+              - text: likert_scale_option_4
+                ordering: 3
+              - text: likert_scale_option_5
+                ordering: 4
+              - text: likert_scale_option_6
+                ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -687,10 +771,6 @@ features:
           MORE_THAN_24H_SINCE_INSTALLED_OR_UPDATED: days_since_update >= 1
           I_AM_DEFAULT_BROWSER: is_default_browser
           I_AM_NOT_DEFAULT_BROWSER: is_default_browser == false
-          NOTIFICATIONS_ARE_ENABLED: are_notifications_enabled == true
-          NOTIFICATIONS_ARE_DISABLED: are_notifications_enabled == false
-          MARKETING_NOTIFICATIONS_ARE_ENABLED: are_marketing_notifications_enabled == true
-          MARKETING_NOTIFICATIONS_ARE_DISABLED: are_marketing_notifications_enabled == false
           FUNNEL_PAID: adjust_campaign != ''
           FUNNEL_ORGANIC: adjust_campaign == ''
           INACTIVE_1_DAY: '''app_opened''|eventLastSeen(''Hours'') >= 24'
@@ -728,13 +808,20 @@ features:
           Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
         type: Boolean
         default: false
+  mozilla-ads-client:
+    description: Feature to enable the Mozilla Ads Client support for Top Sites for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Mozilla Ads Client support for Top Sites is enabled.
+        type: Boolean
+        default: true
   native-share-sheet:
     description: Feature to enable the Native Share Sheet for users on Firefox on Android.
     variables:
       enabled:
         description: If true, Native Share Sheet is enabled.
         type: Boolean
-        default: false
+        default: true
   networking-happy-eyeballs:
     description: Networking (Necko) Happy Eyeballs V3 configuration
     variables:
@@ -859,13 +946,6 @@ features:
         description: The title of displayed in the Settings screen and app menu.
         type: Text
         default: browser_menu_settings
-  oled-theme:
-    description: Feature to provide the OLED theme option for users on Firefox for Android.
-    variables:
-      enabled:
-        description: If true, the OLED theme option is shown.
-        type: Boolean
-        default: false
   onboarding:
     description: A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments.
     variables:
@@ -883,13 +963,6 @@ features:
     variables:
       enabled:
         description: If true, the one click search will be enabled.
-        type: Boolean
-        default: false
-  pdf-viewer:
-    description: Feature for the PDF viewer tools for users on Firefox for Android.
-    variables:
-      android-ui-tools:
-        description: If true, the Android PDF UI tools are shown.
         type: Boolean
         default: false
   pdfjs:
@@ -938,7 +1011,7 @@ features:
       enabled:
         description: If true, Private Mode and Stories Entry Point Experiment is enabled.
         type: Boolean
-        default: false
+        default: true
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -1053,6 +1126,14 @@ features:
         description: If true, Search Optimization Stock cards are enabled.
         type: Boolean
         default: false
+  search-suggestions-on-homepage:
+    description: Enables search suggestions on homepage.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable search suggestions on homepage.
+        type: Boolean
+        default: false
   sent-from-firefox:
     description: A feature that allows the user to add a download firefox footer to a shared link.
     variables:
@@ -1136,14 +1217,6 @@ features:
           Whether or not to enable drag and drop for tab groups.
         type: Boolean
         default: true
-  tab-groups-live-reorder:
-    description: Control whether reorder happens live during a drag and drop action for Tab Groups.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable live reorder for tab groups drag and drop.
-        type: Boolean
-        default: false
   tab-groups-onboarding:
     description: Control the visibility of onboarding for tab groups.
     variables:
@@ -1151,14 +1224,14 @@ features:
         description: |
           Whether or not to enable onboarding for tab groups.
         type: Boolean
-        default: true
+        default: false
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
-        default: false
+        default: true
   tab-strip:
     description: Enables tab strip.
     variables:
@@ -1256,22 +1329,6 @@ features:
           Show the page settings entry point within the translations feature. (Gear icon on the translations main flow page.) 'main-flow-toolbar-enabled' or 'main-flow-browser-menu-enabled' must also be enabled for users to access this feature.
         type: Boolean
         default: true
-  uninstall-survey:
-    description: Feature that controls the visibility and handling of the uninstall survey app shortcut.
-    variables:
-      enabled:
-        description: If true, the uninstall survey shortcut is enabled and visible.
-        type: Boolean
-        default: false
-  universal-edge-to-edge-wallpapers:
-    description: |
-      Extends non-default homepage wallpapers edge-to-edge and adapts the toolbar, navigation bar and system bars to them.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the universal edge-to-edge wallpaper treatment.
-        type: Boolean
-        default: false
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
@@ -1285,7 +1342,7 @@ features:
       enabled:
         description: If true, voice search is shown in the display toolbar.
         type: Boolean
-        default: false
+        default: true
   webcompat-reporter-enhancements:
     description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
     variables:
@@ -1301,6 +1358,21 @@ enums:
         description: The next eligible message should be shown.
       show-none:
         description: The surface should show no message.
+  CookieBannersSection:
+    description: The identifiers for the sections of the MR 2022.
+    variants:
+      feature-setting-detect-only:
+        description: An integer either 0 or 1 indicating if cookie banner detect only mode should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting.
+      feature-setting-global-rules:
+        description: An integer either 0 or 1 indicating if cookie banner global rules should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting.
+      feature-setting-global-rules-sub-frames:
+        description: An integer either 0 or 1 indicating if cookie banner global rules sub-frames should be enabled or disabled. 0 for setting to be disabled, and 1 for enabling the setting.
+      feature-setting-value:
+        description: An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all.
+      feature-setting-value-pbm:
+        description: An integer either 0 or 1 indicating if cookie banner setting should be enabled or disabled, 0 for setting the value to disabled, 1  for enabling the setting with the value reject_all.
+      feature-ui:
+        description: An integer either 0 or 1 indicating if the UI for cookie banner handling should be visible, 0 to hide the UI and 1 to show the UI. The actual UI is composed by cookie banner section in the settings page, the toolbar section and the re-engagement dialog.
   HomeScreenSection:
     description: The identifiers for the sections of the homescreen.
     variants:
@@ -1327,16 +1399,12 @@ enums:
     variants:
       default:
         description: The default marketing card variation.
+      treatment-a:
+        description: The Treatment A marketing card variation.
+      treatment-b:
+        description: The Treatment B marketing card variation.
       treatment-c:
         description: The Treatment C marketing card variation.
-  MicrosurveyOrdering:
-    description: An enum to determine how to order the microsurvey answers.
-    variants:
-      pinned-randomized:
-        description: |
-          Answers with an ordering value greater than 0 are pinned to the top, in ascending order of that value. The remaining answers, with an ordering of 0, are shuffled below. E.g. 1 will be the first/top item, 2 will be next, followed by randomized 0s.
-      randomized:
-        description: The whole answer list is shuffled. Ordering values are ignored.
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
@@ -1561,7 +1629,7 @@ objects:
     fields:
       ordering:
         description: |
-          Used when answer-ordering-type is pinned-randomized to sequence answers with ordering values greater than 0 top to bottom. Answers with ordering values equal to 0 are shuffled below. E.g. 1 will be the first/top item, 2 will be next, followed by randomized 0s.
+          Used to sequence the answers top to bottom. E.g. 0 will be the first/top item, 1 will be next and so on. Always set either ALL the provided answers ordering or NONE. If ALL answers are default, the the ordering used will be the same as provided by the experiment.
         type: Int
         default: 0
       text:
@@ -1571,10 +1639,6 @@ objects:
   MicrosurveyConfig:
     description: Attributes relating to microsurvey content.
     fields:
-      answer-ordering-type:
-        description: The way answers are ordered.
-        type: MicrosurveyOrdering
-        default: randomized
       answers:
         description: The list of answers to present to the user e.g. "Satisfied, Dissatisfied...".
         type: List<MicrosurveyAnswer>
@@ -1583,10 +1647,6 @@ objects:
         description: The icon shown in the survey.
         type: Option<Image>
         default: null
-      max-number-lines:
-        description: The maximum number of lines allowed for the microsurvey text layout.
-        type: Int
-        default: 2
       utm-content:
         description: Optional "utm_content" parameter for the privacy notice URL to specify the feature being surveyed.
         type: Option<String>
