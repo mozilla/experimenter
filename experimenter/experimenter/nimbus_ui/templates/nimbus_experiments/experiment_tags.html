@@ -18,8 +18,12 @@
     {% if experiment.is_rollout_dirty %}
       <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
     {% endif %}
+    {% if experiment.is_live_rollout %}
+      <span id="rollout-live-badge"
+            class="badge rounded-pill text-bg-success fw-medium small">Live</span>
+    {% endif %}
   {% endif %}
-  {% if experiment.tags.all %}
+  {% if experiment.tags.all and not hide_project_tags %}
     {% for tag in experiment.tags.all %}
       <span class="badge rounded-pill"
             style="background-color: {{ tag.color }};

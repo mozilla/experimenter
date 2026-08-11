@@ -17,7 +17,7 @@ class RolloutBase(Base):
     _clone_name_locator = (By.ID, "clone-name")
     _clone_submit_locator = (By.CSS_SELECTOR, "#cloneForm button[type='submit']")
     _header_name_locator = (By.ID, "experiment-header-name")
-    _archived_badge_locator = (By.ID, "rollout-archived-badge")
+    _archived_badge_locator = (By.ID, "archive-badge")
     _live_badge_locator = (By.ID, "rollout-live-badge")
     _preview_button_locator = (By.ID, "rollout-preview-btn")
     _preview_section_locator = (By.ID, "rollout-preview-section")
