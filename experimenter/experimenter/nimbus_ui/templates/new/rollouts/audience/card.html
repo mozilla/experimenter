@@ -18,7 +18,7 @@
           Channel
         {% endif %}
       </div>
-      <div class="small text-body">
+      <div id="rollout-audience-channel" class="small text-body">
         {% if experiment.is_desktop %}
           {% with experiment.channels as channels %}
             {% if channels %}
@@ -38,11 +38,15 @@
     {# Version range #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Min Version</div>
-      <div class="small text-body">{{ experiment.get_firefox_min_version_display|default:"—" }}</div>
+      <div id="rollout-audience-min-version" class="small text-body">
+        {{ experiment.get_firefox_min_version_display|default:"—" }}
+      </div>
     </div>
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Max Version</div>
-      <div class="small text-body">{{ experiment.get_firefox_max_version_display|default:"—" }}</div>
+      <div id="rollout-audience-max-version" class="small text-body">
+        {{ experiment.get_firefox_max_version_display|default:"—" }}
+      </div>
     </div>
     {# Locales / languages #}
     <div>
@@ -53,7 +57,7 @@
           Languages
         {% endif %}
       </div>
-      <div class="small text-body">
+      <div id="rollout-audience-locales-languages" class="small text-body">
         {% if experiment.is_desktop %}
           {% with experiment.locales.all as locales %}
             {% if locales %}
@@ -82,7 +86,7 @@
     {# Countries #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Countries</div>
-      <div class="small text-body">
+      <div id="rollout-audience-countries" class="small text-body">
         {% with experiment.countries.all as countries %}
           {% if countries %}
             {% for country in countries %}
@@ -98,7 +102,7 @@
     {# Advanced targeting #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Advanced targeting</div>
-      <div class="small text-body">{{ experiment.targeting_config_slug|default:"—" }}</div>
+      <div id="rollout-audience-targeting" class="small text-body">{{ experiment.targeting_config_slug|default:"—" }}</div>
     </div>
     {# Full targeting expression #}
     <div>
@@ -150,18 +154,18 @@
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Apply sticky enrollment?</div>
       {% if experiment.is_sticky %}
-        <i class="fas fa-check text-success"></i>
+        <i id="rollout-audience-sticky" class="fas fa-check text-success"></i>
       {% else %}
-        <i class="fas fa-times text-danger"></i>
+        <i id="rollout-audience-sticky" class="fas fa-times text-danger"></i>
       {% endif %}
     </div>
     {# Localization #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Is this a localized rollout?</div>
       {% if experiment.is_localized %}
-        <i class="fas fa-check text-success"></i>
+        <i id="rollout-audience-localized" class="fas fa-check text-success"></i>
       {% else %}
-        <i class="fas fa-times text-danger"></i>
+        <i id="rollout-audience-localized" class="fas fa-times text-danger"></i>
       {% endif %}
     </div>
     {% if experiment.is_localized %}

@@ -5,17 +5,21 @@
     {# Name #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Name</div>
-      <div class="small text-body">{{ experiment.name|default:"—" }}</div>
+      <div id="rollout-overview-name" class="small text-body">{{ experiment.name|default:"—" }}</div>
     </div>
     {# Observations & Problem space #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Observations &amp; Problem space</div>
-      <div class="small text-body" style="white-space: pre-wrap;">{{ experiment.hypothesis|default:"—" }}</div>
+      <div id="rollout-overview-hypothesis"
+           class="small text-body"
+           style="white-space: pre-wrap">{{ experiment.hypothesis|default:"—" }}</div>
     </div>
     {# Public description #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Public description</div>
-      <div class="small text-body" style="white-space: pre-wrap;">{{ experiment.public_description|default:"—" }}</div>
+      <div id="rollout-overview-public-description"
+           class="small text-body"
+           style="white-space: pre-wrap">{{ experiment.public_description|default:"—" }}</div>
     </div>
     {# Application #}
     <div>

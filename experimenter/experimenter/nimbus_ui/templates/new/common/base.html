@@ -56,6 +56,7 @@
 
               <div class="dropdown">
                 <button class="btn p-0 border-0 text-secondary"
+                        id="rollout-actions-dropdown"
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                         aria-label="More options">
@@ -64,6 +65,7 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li>
                     <button class="dropdown-item"
+                            id="rollout-clone-button"
                             type="button"
                             data-bs-toggle="modal"
                             data-bs-target="#cloneModal">
@@ -75,6 +77,7 @@
                           class="d-flex align-items-center">
                       {% csrf_token %}
                       <button class="dropdown-item"
+                              id="rollout-archive-button"
                               type="submit"
                               {% if not experiment.can_archive %}disabled{% endif %}>
                         <i class="fa-regular fa-trash-can fa-fw me-2"></i>{{ experiment.is_archived|yesno:"Unarchive,Archive" }}
@@ -95,7 +98,14 @@
                 <span class="badge rounded-pill fw-medium small"
                       style="background-color: #2AC3A2">Rollout</span>
               {% endif %}
-              {% if experiment.is_archived %}<span class="badge rounded-pill bg-danger fw-medium small">Archived</span>{% endif %}
+              {% if experiment.is_live_rollout %}
+                <span id="rollout-live-badge"
+                      class="badge rounded-pill text-bg-success fw-medium small">Live</span>
+              {% endif %}
+              {% if experiment.is_archived %}
+                <span id="rollout-archived-badge"
+                      class="badge rounded-pill bg-danger fw-medium small">Archived</span>
+              {% endif %}
               <button id="experiment-slug"
                       class="btn p-0 border-0 text-secondary d-flex align-items-center gap-1 small"
                       aria-label="Copy slug">
