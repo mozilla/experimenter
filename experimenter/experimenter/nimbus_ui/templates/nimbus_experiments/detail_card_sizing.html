@@ -44,4 +44,26 @@
       <p class="text-muted mb-0">No sizing data available yet. Estimates are computed daily for Draft experiments.</p>
     </div>
   {% endif %}
+  {% if experiment.sizing_sql %}
+    <div class="mt-3">
+      <button class="btn btn-sm btn-outline-secondary"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#sizing-sql"
+              aria-expanded="false"
+              aria-controls="sizing-sql">
+        <i class="fa-solid fa-code me-1"></i>Show SQL snippet
+      </button>
+      <div class="collapse mt-2 me-1" id="sizing-sql">
+        <label for="sizing-sql-query" class="form-text mt-0">
+          BigQuery predicate generated from this experiment's targeting, for validation or exploring the population.
+        </label>
+        <textarea id="sizing-sql-query"
+                  class="form-control font-monospace small"
+                  rows="8"
+                  readonly
+                  data-testid="sizing-sql-query">{{ experiment.sizing_sql }}</textarea>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}

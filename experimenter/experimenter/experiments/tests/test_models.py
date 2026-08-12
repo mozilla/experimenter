@@ -637,6 +637,35 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(str(experiment), experiment.name)
 
+    def test_sizing_sql_translates_targeting(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+        )
+        self.assertEqual(
+            experiment.sizing_sql,
+            "(("
+            "JSON_VALUE(metrics.object.nimbus_targeting_context_browser_settings,"
+            " '$.update.channel') IN ('release'))\n"
+            "AND metrics.quantity.nimbus_targeting_context_firefox_version >= 120)",
+        )
+
+    def test_sizing_sql_none_for_match_all_targeting(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            locales=[],
+            countries=[],
+            languages=[],
+            risk_ai=False,
+        )
+        self.assertEqual(experiment.targeting, "true")
+        self.assertIsNone(experiment.sizing_sql)
+
     def test_get_rollout_url(self):
         experiment = NimbusExperimentFactory.create(slug="my-rollout")
         self.assertEqual(

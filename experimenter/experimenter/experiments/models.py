@@ -37,6 +37,7 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
+from experimenter.experiments.jexl_to_sql import jexl_to_sql
 from experimenter.experiments.jexl_utils import format_jexl
 from experimenter.experiments.monitoring_utils import (
     check_srm_mismatch,
@@ -2405,6 +2406,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.sizing_eligible_count is not None and self.population_percent:
             return int(self.sizing_eligible_count * self.population_percent / 100)
         return None
+
+    @property
+    def sizing_sql(self):
+        sql = jexl_to_sql(self.targeting).sql
+        if sql:
+            sql = sql.replace(" AND ", "\nAND ")
+        return sql
 
     @property
     def has_displayable_results(self):
