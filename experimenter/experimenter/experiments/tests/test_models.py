@@ -33,6 +33,7 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
+from experimenter.experiments.jexl_to_sql import jexl_to_sql
 from experimenter.experiments.models import (
     NimbusAlert,
     NimbusBranch,
@@ -636,6 +637,31 @@ class TestNimbusExperiment(TestCase):
     def test_str(self):
         experiment = NimbusExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(str(experiment), experiment.name)
+
+    def test_sizing_sql_translates_targeting(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+        )
+        self.assertEqual(experiment.sizing_sql, jexl_to_sql(experiment.targeting).sql)
+        self.assertIsNotNone(experiment.sizing_sql)
+        self.assertIn("nimbus_targeting_context", experiment.sizing_sql)
+
+    def test_sizing_sql_none_for_match_all_targeting(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            locales=[],
+            countries=[],
+            languages=[],
+            risk_ai=False,
+        )
+        self.assertEqual(experiment.targeting, "true")
+        self.assertIsNone(experiment.sizing_sql)
 
     def test_get_rollout_url(self):
         experiment = NimbusExperimentFactory.create(slug="my-rollout")

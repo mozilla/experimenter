@@ -37,6 +37,7 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
+from experimenter.experiments.jexl_to_sql import jexl_to_sql
 from experimenter.experiments.jexl_utils import format_jexl
 from experimenter.experiments.monitoring_utils import (
     check_srm_mismatch,
@@ -2405,6 +2406,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.sizing_eligible_count is not None and self.population_percent:
             return int(self.sizing_eligible_count * self.population_percent / 100)
         return None
+
+    @property
+    def sizing_sql(self):
+        """The BigQuery SQL predicate generated from this experiment's targeting.
+
+        Surfaced on the sizing card so it can be used to validate or explore the
+        eligible population. Returns None when the targeting can't be translated.
+        """
+        return jexl_to_sql(self.targeting).sql
 
     @property
     def has_displayable_results(self):
