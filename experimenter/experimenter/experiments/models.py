@@ -2409,12 +2409,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def sizing_sql(self):
-        """The BigQuery SQL predicate generated from this experiment's targeting.
-
-        Surfaced on the sizing card so it can be used to validate or explore the
-        eligible population. Returns None when the targeting can't be translated.
-        """
-        return jexl_to_sql(self.targeting).sql
+        sql = jexl_to_sql(self.targeting).sql
+        if sql:
+            sql = sql.replace(" AND ", "\nAND ")
+        return sql
 
     @property
     def has_displayable_results(self):
