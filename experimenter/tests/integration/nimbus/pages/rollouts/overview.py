@@ -9,10 +9,19 @@ class OverviewSection(FormBase):
     PAGE_TITLE = "Rollout Overview"
     CARD_ID = "overview"
 
-    _name_locator = (By.ID, "id_name")
-    _hypothesis_locator = (By.ID, "id_hypothesis")
-    _public_description_locator = (By.ID, "id_public_description")
-    _application_locator = (By.ID, "id_application")
+    _name_locator = (By.CSS_SELECTOR, "#rollout-overview-body #id_name")
+    _hypothesis_locator = (
+        By.CSS_SELECTOR,
+        "#rollout-overview-body #id_hypothesis",
+    )
+    _public_description_locator = (
+        By.CSS_SELECTOR,
+        "#rollout-overview-body #id_public_description",
+    )
+    _application_locator = (
+        By.CSS_SELECTOR,
+        "#rollout-overview-body #id_application",
+    )
     _displayed_name_locator = (By.ID, "rollout-overview-name")
     _displayed_hypothesis_locator = (By.ID, "rollout-overview-hypothesis")
     _displayed_public_description_locator = (

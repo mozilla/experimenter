@@ -288,6 +288,9 @@ class NimbusRolloutDetailView(
         context.update(build_experiment_context(self.object))
         return context
 
+    def get_queryset(self):
+        return super().get_queryset().filter(is_rollout=True)
+
 
 class CardMixin:
     form_class: type[forms.ModelForm]

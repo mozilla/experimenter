@@ -415,7 +415,8 @@ class TestNimbusRolloutDetailView(AuthTestCase):
     def test_get_returns_new_rollout_detail_context(self):
         tag = TagFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
         )
 
         response = self.client.get(
@@ -502,6 +503,7 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             public_description="",
             hypothesis=NimbusExperiment.HYPOTHESIS_DEFAULT,
             feature_configs=[],
+            is_rollout=True,
         )
 
         response = self.client.get(
@@ -570,7 +572,8 @@ class TestNimbusRolloutDetailView(AuthTestCase):
 
     def test_preview_card_hidden_when_not_in_preview(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
         )
 
         response = self.client.get(
@@ -583,7 +586,8 @@ class TestNimbusRolloutDetailView(AuthTestCase):
 
     def test_preview_card_shown_when_in_preview(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PREVIEW
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            is_rollout=True,
         )
 
         response = self.client.get(
@@ -598,7 +602,8 @@ class TestNimbusRolloutDetailView(AuthTestCase):
 
     def test_preview_card_lists_all_screenshots(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PREVIEW
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            is_rollout=True,
         )
         screenshot_1 = NimbusBranchScreenshotFactory.create(
             branch=experiment.reference_branch
@@ -655,6 +660,15 @@ class TestNimbusRolloutDetailView(AuthTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Open Remote Settings")
+
+    def test_get_returns_404_for_experiment(self):
+        experiment = NimbusExperimentFactory.create(is_rollout=False)
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 404)
 
 
 class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
@@ -1294,6 +1308,7 @@ class TestNewOverviewCancelView(AuthTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             documentation_links=[blank_link, filled_link],
+            is_rollout=True,
         )
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
@@ -1948,6 +1963,7 @@ class TestNewToggleArchiveView(AuthTestCase):
     def test_detail_page_renders_archive_button(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
         )
 
         response = self.client.get(
@@ -1967,6 +1983,7 @@ class TestNewToggleReviewSlackNotificationsView(AuthTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             enable_review_slack_notifications=True,
+            is_rollout=True,
         )
 
         response = self.client.get(
