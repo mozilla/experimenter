@@ -6,7 +6,9 @@
     {% csrf_token %}
     <button type="submit"
             class="btn p-0 border-0 text-secondary"
-            aria-label="Unsubscribe from this experiment">
+            aria-label="Unsubscribe from this experiment"
+            data-bs-toggle="tooltip"
+            title="Unsubscribe from this experiment">
       <i class="fa-solid fa-bell"></i>
     </button>
   </form>
@@ -18,7 +20,9 @@
     {% csrf_token %}
     <button type="submit"
             class="btn p-0 border-0 text-secondary"
-            aria-label="Subscribe to this experiment">
+            aria-label="Subscribe to this experiment"
+            data-bs-toggle="tooltip"
+            title="Subscribe to this experiment">
       <i class="fa-regular fa-bell"></i>
     </button>
   </form>
