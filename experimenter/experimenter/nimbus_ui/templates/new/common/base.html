@@ -80,26 +80,18 @@
               <div class="small text-secondary mt-1">Updated {{ experiment.latest_change.changed_on|timesince }} ago</div>
             {% endif %}
           </div>
-          <div class="align-self-start">
+          <div class="align-self-start d-flex flex-column align-items-end gap-2">
             <div class="dropdown">
               <button class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2"
                       id="rollout-actions-dropdown"
                       type="button"
                       data-bs-toggle="dropdown"
-                      data-bs-auto-close="outside"
                       aria-expanded="false"
                       aria-label="Options">
                 <i class="fa-solid fa-bars"></i>
                 Options
               </button>
-              <ul class="dropdown-menu dropdown-menu-end" style="min-width: 14rem;">
-                <li class="px-4 py-2">
-                  {% include "new/common/slack_notifications_toggle.html" %}
-
-                </li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
+              <ul class="dropdown-menu dropdown-menu-end">
                 <li>
                   <button class="dropdown-item"
                           id="rollout-clone-button"
@@ -129,6 +121,8 @@
                 </li>
               </ul>
             </div>
+            {% include "new/common/slack_notifications_toggle.html" %}
+
           </div>
         </div>
         {# Toast container #}
