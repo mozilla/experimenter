@@ -60,17 +60,16 @@
                   {{ link_form.link }}
                 </div>
                 <div style="width: 40%; min-width: 0" class="flex-shrink-0">{{ link_form.title }}</div>
-                {% if link_form.instance.pk %}
-                  <button type="button"
-                          class="btn p-0 border-0 text-secondary flex-shrink-0"
-                          hx-post="{% url 'nimbus-ui-new-delete-documentation-link' experiment.slug %}"
-                          hx-vals='{"link_id": "{{ link_form.instance.pk }}"}'
-                          hx-target="#rollout-overview-body"
-                          hx-swap="outerHTML"
-                          aria-label="Remove link">
-                    <i class="fa-solid fa-xmark"></i>
-                  </button>
-                {% endif %}
+                <button type="button"
+                        class="btn p-0 border-0 text-secondary flex-shrink-0"
+                        style="width: 1rem"
+                        hx-post="{% url 'nimbus-ui-new-delete-documentation-link' experiment.slug %}"
+                        hx-vals='{"link_id": "{{ link_form.instance.pk }}"}'
+                        hx-target="#rollout-overview-body"
+                        hx-swap="outerHTML"
+                        aria-label="Remove link">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
               </div>
               {% if link_form.link.errors %}
                 <div class="text-danger small mt-1">{{ link_form.link.errors|join:", " }}</div>
@@ -80,118 +79,28 @@
               {% endif %}
             </div>
           {% endfor %}
-          {# Add link row — always visible #}
-          <div class="d-flex gap-2 align-items-center">
-            <div class="input-group flex-grow-1">
-              <span class="input-group-text bg-body border-end-0 text-secondary">
-                <i class="fa-solid fa-link fa-sm"></i>
-              </span>
-              <input type="text"
-                     class="form-control border-start-0 small"
-                     placeholder="Paste link here"
-                     disabled>
-            </div>
-            <input type="text"
-                   class="form-control flex-grow-1 small"
-                   placeholder="Link name"
-                   disabled>
-            <button type="button"
-                    class="btn p-0 border-0 text-primary flex-shrink-0"
-                    hx-post="{% url 'nimbus-ui-new-create-documentation-link' experiment.slug %}"
-                    hx-target="#rollout-overview-body"
-                    hx-swap="outerHTML"
-                    aria-label="Add link">
-              <i class="fa-solid fa-plus"></i>
-            </button>
-          </div>
         </div>
+        <button type="button"
+                class="btn p-0 border-0 text-primary small mt-2"
+                hx-post="{% url 'nimbus-ui-new-create-documentation-link' experiment.slug %}"
+                hx-target="#rollout-overview-body"
+                hx-swap="outerHTML">
+          <i class="fa-solid fa-plus me-1"></i>Add link
+        </button>
       </div>
       {# Project Tags — search input + pills #}
-      <div>
-        <label class="small text-body mb-1">Project Tags</label>
-        <div class="input-group">
-          <span class="input-group-text bg-body border-end-0 text-secondary">
-            <i class="fa-solid fa-magnifying-glass fa-sm"></i>
-          </span>
-          <input type="text"
-                 class="form-control border-start-0 ps-1 small"
-                 placeholder="Search existing tags or features"
-                 autocomplete="off"
-                 name="q"
-                 hx-get="{% url 'nimbus-ui-new-search-tags' experiment.slug %}"
-                 hx-trigger="input changed delay:300ms, focus"
-                 hx-target="#tag-search-results"
-                 hx-swap="innerHTML">
-        </div>
-        <div id="tag-search-results"></div>
-        {% if experiment.tags.exists %}
-          <div class="d-flex align-items-center flex-wrap gap-1 mt-2">
-            <span class="text-secondary small">Added tags:</span>
-            {% for tag in experiment.tags.all %}
-              <span class="badge rounded-pill fw-normal d-inline-flex align-items-center gap-1"
-                    style="background-color: {{ tag.color }};
-                           color: white">
-                {{ tag.name }}
-                <button type="button"
-                        class="btn p-0 border-0 bg-transparent text-white lh-1"
-                        aria-label="Remove {{ tag.name }}"
-                        hx-post="{% url 'nimbus-ui-new-remove-tag' experiment.slug %}"
-                        hx-vals='{"tag_id": "{{ tag.id }}"}'
-                        hx-target="#rollout-overview-body"
-                        hx-swap="outerHTML">
-                  <i class="fa-solid fa-xmark fa-xs"></i>
-                </button>
-              </span>
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
+      {% include "new/rollouts/overview/tags_field.html" %}
+
       {# Subscribers — search input + list of added #}
-      <div>
-        <label class="small text-body mb-1">Subscribers</label>
-        <div class="input-group">
-          <span class="input-group-text bg-body border-end-0 text-secondary">
-            <i class="fa-solid fa-magnifying-glass fa-sm"></i>
-          </span>
-          <input type="text"
-                 class="form-control border-start-0 ps-1 small"
-                 placeholder="Search by first and last name"
-                 autocomplete="off"
-                 name="q"
-                 hx-get="{% url 'nimbus-ui-new-search-subscribers' experiment.slug %}"
-                 hx-trigger="input changed delay:300ms"
-                 hx-target="#subscriber-search-results"
-                 hx-swap="innerHTML">
-        </div>
-        <div id="subscriber-search-results"></div>
-        {% if experiment.subscribers.exists %}
-          <div class="d-flex flex-wrap gap-1 mt-2">
-            {% for subscriber in experiment.subscribers.all %}
-              <span class="badge rounded-pill fw-normal d-inline-flex align-items-center gap-1 small text-body"
-                    style="background-color: var(--bs-secondary-bg);
-                           border: 1px solid var(--bs-border-color)">
-                {{ subscriber.email }}
-                <button type="button"
-                        class="btn p-0 border-0 bg-transparent text-secondary lh-1"
-                        aria-label="Remove {{ subscriber.email }}"
-                        hx-post="{% url 'nimbus-ui-new-remove-subscriber' experiment.slug %}"
-                        hx-vals='{"user_id": "{{ subscriber.id }}"}'
-                        hx-target="#rollout-overview-body"
-                        hx-swap="outerHTML">
-                  <i class="fa-solid fa-xmark fa-xs"></i>
-                </button>
-              </span>
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
+      {% include "new/rollouts/overview/subscribers_field.html" %}
+
     </div>
     {# Action buttons #}
     <div class="d-flex align-items-center gap-2">
       <button type="submit" class="btn btn-primary btn-sm">Save</button>
       <button type="button"
               class="btn btn-outline-secondary btn-sm"
-              hx-get="{{ cancel_url }}"
+              hx-post="{% url 'nimbus-ui-new-cancel-overview' experiment.slug %}"
               hx-select="#rollout-card-overview"
               hx-target="#rollout-card-overview"
               hx-swap="outerHTML">Cancel</button>

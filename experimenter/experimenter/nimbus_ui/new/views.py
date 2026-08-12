@@ -332,6 +332,12 @@ class NewOverviewUpdateView(CardMixin, NewCardUpdateView):
     template_name = "new/rollouts/overview/edit_form.html"
 
 
+class NewOverviewCancelView(NimbusRolloutDetailView):
+    def post(self, request, *args, **kwargs):
+        self.get_object().documentation_links.filter(link="").delete()
+        return self.get(request, *args, **kwargs)
+
+
 class NewRisksUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutRisksForm
     display_template = "new/rollouts/risks/card.html"
@@ -409,12 +415,39 @@ class NewSignoffUpdateView(CardMixin, NewCardUpdateView):
         return True
 
 
+class CardMutationMixin:
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.can_edit():
+            response = HttpResponse()
+            base_url = reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+            response.headers["HX-Redirect"] = f"{base_url}?save_failed=true"
+            return response
+
+        form = self.get_form()
+        if form.is_valid():
+            form.save()
+        else:
+            self.mutate()
+
+        return self.render_to_response(
+            self.get_context_data(form=self.form_class(instance=self.object))
+        )
+
+    def mutate(self):
+        raise NotImplementedError
+
+
 class NewDocumentationLinkCreateView(RenderParentDBResponseMixin, NewOverviewUpdateView):
     form_class = DocumentationLinkCreateForm
 
 
-class NewDocumentationLinkDeleteView(RenderParentDBResponseMixin, NewOverviewUpdateView):
+class NewDocumentationLinkDeleteView(CardMutationMixin, NewOverviewUpdateView):
     form_class = DocumentationLinkDeleteForm
+
+    def mutate(self):
+        link_id = self.request.POST.get("link_id")
+        self.object.documentation_links.filter(id=link_id).delete()
 
 
 class NewM2MSearchView(NimbusExperimentViewMixin, DetailView):
@@ -481,13 +514,25 @@ class NewM2MDeltaMixin:
         return kwargs
 
 
-class NewTagView(NewM2MDeltaMixin, CardMixin, NewCardUpdateView):
+class NewOverviewFieldUpdateView(NewCardUpdateView):
+    field_template = None
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return self.response_class(
+            request=self.request,
+            template=self.field_template,
+            context=self.get_context_data(),
+        )
+
+
+class NewTagView(NewM2MDeltaMixin, CardMixin, NewOverviewFieldUpdateView):
     item_id_key = "tag_id"
     m2m_attr = "tags"
     form_field = "tags"
     form_class = TagAssignForm
-    display_template = "new/rollouts/overview/card.html"
     template_name = "new/rollouts/overview/edit_form.html"
+    field_template = "new/rollouts/overview/tags_field.html"
 
 
 class NewAddTagView(NewTagView):
@@ -507,13 +552,13 @@ class NewSubscriberSearchView(NewM2MSearchView):
     require_query = True
 
 
-class NewSubscriberView(NewM2MDeltaMixin, CardMixin, NewCardUpdateView):
+class NewSubscriberView(NewM2MDeltaMixin, CardMixin, NewOverviewFieldUpdateView):
     item_id_key = "user_id"
     m2m_attr = "subscribers"
     form_field = "collaborators"
     form_class = CollaboratorsForm
-    display_template = "new/rollouts/overview/card.html"
     template_name = "new/rollouts/overview/edit_form.html"
+    field_template = "new/rollouts/overview/subscribers_field.html"
 
 
 class NewAddSubscriberView(NewSubscriberView):
