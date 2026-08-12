@@ -33,7 +33,6 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
-from experimenter.experiments.jexl_to_sql import jexl_to_sql
 from experimenter.experiments.models import (
     NimbusAlert,
     NimbusBranch,
