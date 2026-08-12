@@ -644,7 +644,8 @@ class TestNimbusExperiment(TestCase):
             channels=[NimbusExperiment.Channel.RELEASE],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
         )
-        self.assertEqual(experiment.sizing_sql, jexl_to_sql(experiment.targeting).sql)
+        raw_sql = jexl_to_sql(experiment.targeting).sql
+        self.assertEqual(experiment.sizing_sql, raw_sql.replace(" AND ", "\nAND "))
         self.assertIsNotNone(experiment.sizing_sql)
         self.assertIn("nimbus_targeting_context", experiment.sizing_sql)
 
