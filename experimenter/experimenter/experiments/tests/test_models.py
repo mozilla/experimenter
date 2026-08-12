@@ -644,10 +644,13 @@ class TestNimbusExperiment(TestCase):
             channels=[NimbusExperiment.Channel.RELEASE],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
         )
-        raw_sql = jexl_to_sql(experiment.targeting).sql
-        self.assertEqual(experiment.sizing_sql, raw_sql.replace(" AND ", "\nAND "))
-        self.assertIsNotNone(experiment.sizing_sql)
-        self.assertIn("nimbus_targeting_context", experiment.sizing_sql)
+        self.assertEqual(
+            experiment.sizing_sql,
+            "(("
+            "JSON_VALUE(metrics.object.nimbus_targeting_context_browser_settings,"
+            " '$.update.channel') IN ('release'))\n"
+            "AND metrics.quantity.nimbus_targeting_context_firefox_version >= 120)",
+        )
 
     def test_sizing_sql_none_for_match_all_targeting(self):
         experiment = NimbusExperimentFactory.create(
