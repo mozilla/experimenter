@@ -1,0 +1,45 @@
+<div id="overview-tags-field">
+  <label class="small text-body mb-1">Project Tags</label>
+  <div class="dropdown">
+    <div class="input-group"
+         data-bs-toggle="dropdown"
+         data-bs-auto-close="outside"
+         aria-expanded="false">
+      <span class="input-group-text bg-body border-end-0 text-secondary">
+        <i class="fa-solid fa-magnifying-glass fa-sm"></i>
+      </span>
+      <input type="text"
+             class="form-control border-start-0 ps-1 small"
+             placeholder="Search existing tags or features"
+             autocomplete="off"
+             name="q"
+             hx-get="{% url 'nimbus-ui-new-search-tags' experiment.slug %}"
+             hx-trigger="input changed delay:300ms, focus"
+             hx-target="#tag-search-results"
+             hx-swap="innerHTML">
+    </div>
+    <div class="dropdown-menu w-100 border-0 bg-transparent p-0"
+         id="tag-search-results"></div>
+  </div>
+  {% if experiment.tags.exists %}
+    <div class="d-flex align-items-center flex-wrap gap-1 mt-2">
+      <span class="text-secondary small">Added tags:</span>
+      {% for tag in experiment.tags.all %}
+        <span class="badge rounded-pill fw-normal d-inline-flex align-items-center gap-1"
+              style="background-color: {{ tag.color }};
+                     color: white">
+          {{ tag.name }}
+          <button type="button"
+                  class="btn p-0 border-0 bg-transparent text-white lh-1"
+                  aria-label="Remove {{ tag.name }}"
+                  hx-post="{% url 'nimbus-ui-new-remove-tag' experiment.slug %}"
+                  hx-vals='{"tag_id": "{{ tag.id }}"}'
+                  hx-target="#overview-tags-field"
+                  hx-swap="outerHTML">
+            <i class="fa-solid fa-xmark fa-xs"></i>
+          </button>
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

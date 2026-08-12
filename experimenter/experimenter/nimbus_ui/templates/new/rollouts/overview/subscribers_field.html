@@ -1,0 +1,44 @@
+<div id="overview-subscribers-field">
+  <label class="small text-body mb-1">Subscribers</label>
+  <div class="dropdown">
+    <div class="input-group"
+         data-bs-toggle="dropdown"
+         data-bs-auto-close="outside"
+         aria-expanded="false">
+      <span class="input-group-text bg-body border-end-0 text-secondary">
+        <i class="fa-solid fa-magnifying-glass fa-sm"></i>
+      </span>
+      <input type="text"
+             class="form-control border-start-0 ps-1 small"
+             placeholder="Search by first and last name"
+             autocomplete="off"
+             name="q"
+             hx-get="{% url 'nimbus-ui-new-search-subscribers' experiment.slug %}"
+             hx-trigger="input changed delay:300ms"
+             hx-target="#subscriber-search-results"
+             hx-swap="innerHTML">
+    </div>
+    <div class="dropdown-menu w-100 border-0 bg-transparent p-0"
+         id="subscriber-search-results"></div>
+  </div>
+  {% if experiment.subscribers.exists %}
+    <div class="d-flex flex-wrap gap-1 mt-2">
+      {% for subscriber in experiment.subscribers.all %}
+        <span class="badge rounded-pill fw-normal d-inline-flex align-items-center gap-1 small text-body"
+              style="background-color: var(--bs-secondary-bg);
+                     border: 1px solid var(--bs-border-color)">
+          {{ subscriber.email }}
+          <button type="button"
+                  class="btn p-0 border-0 bg-transparent text-secondary lh-1"
+                  aria-label="Remove {{ subscriber.email }}"
+                  hx-post="{% url 'nimbus-ui-new-remove-subscriber' experiment.slug %}"
+                  hx-vals='{"user_id": "{{ subscriber.id }}"}'
+                  hx-target="#overview-subscribers-field"
+                  hx-swap="outerHTML">
+            <i class="fa-solid fa-xmark fa-xs"></i>
+          </button>
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

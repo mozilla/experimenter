@@ -32,15 +32,17 @@
       {% if experiment.documentation_links.exists %}
         <div class="d-flex flex-column gap-1">
           {% for link in experiment.documentation_links.all %}
-            <div class="small">
-              <a href="{{ link.link }}"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 class="text-primary text-decoration-none">
-                {{ link.get_title_display|default:link.link }}
-                <i class="fa-solid fa-arrow-up-right-from-square fa-2xs ms-1"></i>
-              </a>
-            </div>
+            {% if link.link %}
+              <div class="small">
+                <a href="{{ link.link }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="text-primary text-decoration-none">
+                  {{ link.get_title_display|default:link.link }}
+                  <i class="fa-solid fa-arrow-up-right-from-square fa-2xs ms-1"></i>
+                </a>
+              </div>
+            {% endif %}
           {% endfor %}
         </div>
       {% else %}

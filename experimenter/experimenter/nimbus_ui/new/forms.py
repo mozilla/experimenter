@@ -168,7 +168,13 @@ class NimbusDocumentationLinkForm(forms.ModelForm):
         widget=forms.Select(attrs={"class": "form-select"}),
     )
     link = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Paste link here",
+            }
+        ),
     )
 
     class Meta:
@@ -491,6 +497,7 @@ class RolloutOverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self):
         experiment = super().save()
         self.documentation_links.save()
+        experiment.documentation_links.filter(link="").delete()
         return experiment
 
     def get_changelog_message(self):

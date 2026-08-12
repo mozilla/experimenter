@@ -1192,6 +1192,23 @@ class TestNewDocumentationLinkCreateView(AuthTestCase):
         self.assertTemplateUsed(response, "new/rollouts/overview/edit_form.html")
         self.assertEqual(experiment.documentation_links.count(), 1)
 
+    def test_post_invalid_does_not_create_link(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[],
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/overview/edit_form.html")
+        self.assertTrue(response.context["form"].errors)
+        self.assertEqual(experiment.documentation_links.count(), 0)
+
 
 class TestNewDocumentationLinkDeleteView(AuthTestCase):
     url_name = "nimbus-ui-new-delete-documentation-link"
@@ -1226,6 +1243,66 @@ class TestNewDocumentationLinkDeleteView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/overview/edit_form.html")
         self.assertEqual(experiment.documentation_links.count(), 0)
+
+    def test_post_deletes_link_even_when_form_invalid(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "documentation_links-TOTAL_FORMS": "0",
+                "documentation_links-INITIAL_FORMS": "0",
+                "link_id": documentation_link.id,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/overview/edit_form.html")
+        self.assertEqual(experiment.documentation_links.count(), 0)
+
+    def test_post_locked_experiment_redirects(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            documentation_links=[documentation_link],
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {"link_id": documentation_link.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers.get("HX-Redirect"),
+            (
+                f"{reverse('nimbus-ui-detail', kwargs={'slug': experiment.slug})}"
+                "?save_failed=true"
+            ),
+        )
+        self.assertEqual(experiment.documentation_links.count(), 1)
+
+
+class TestNewOverviewCancelView(AuthTestCase):
+    url_name = "nimbus-ui-new-cancel-overview"
+
+    def test_post_discards_blank_links_and_returns_card(self):
+        blank_link = NimbusDocumentationLinkFactory.create(link="")
+        filled_link = NimbusDocumentationLinkFactory.create(
+            link="https://www.example.com"
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[blank_link, filled_link],
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/overview/card.html")
+        links = list(experiment.documentation_links.all())
+        self.assertNotIn(blank_link, links)
+        self.assertIn(filled_link, links)
 
 
 class TestNewTagSearchView(AuthTestCase):
