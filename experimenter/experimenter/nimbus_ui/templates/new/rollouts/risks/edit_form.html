@@ -24,6 +24,8 @@
         </label>
         {{ form.risk_ai }}
         {% if form.risk_ai.errors %}<div class="text-danger small mt-1">{{ form.risk_ai.errors|join:", " }}</div>{% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.risk_ai %}
+
       </div>
       {#  Brand perception impact  #}
       <div>
@@ -35,6 +37,8 @@
         {% if form.risk_brand.errors %}
           <div class="text-danger small mt-1">{{ form.risk_brand.errors|join:", " }}</div>
         {% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.risk_brand %}
+
       </div>
       {# Revenue impact #}
       <div>
@@ -46,6 +50,8 @@
         {% if form.risk_revenue.errors %}
           <div class="text-danger small mt-1">{{ form.risk_revenue.errors|join:", " }}</div>
         {% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.risk_revenue %}
+
       </div>
       {# External vendor impact #}
       <div>
@@ -57,6 +63,8 @@
         {% if form.risk_partner_related.errors %}
           <div class="text-danger small mt-1">{{ form.risk_partner_related.errors|join:", " }}</div>
         {% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.risk_partner_related %}
+
       </div>
       {# Messaging impact #}
       <div>
@@ -68,6 +76,8 @@
         {% if form.risk_message.errors %}
           <div class="text-danger small mt-1">{{ form.risk_message.errors|join:", " }}</div>
         {% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.risk_message %}
+
       </div>
     </div>
     {# Action buttons #}

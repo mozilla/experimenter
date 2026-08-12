@@ -104,6 +104,11 @@
           Add phase
         </button>
       </div>
+      {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_phases %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.population_percent %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.proposed_enrollment %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.proposed_duration %}
+
     </div>
     {# Move to next phase observations #}
     <div>
@@ -114,6 +119,8 @@
       {% if form.rollout_advance_observations.errors %}
         <div class="text-danger small mt-1">{{ form.rollout_advance_observations.errors|join:", " }}</div>
       {% endif %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_advance_observations %}
+
     </div>
     {# Pause rollout observations #}
     <div class="mb-2">
@@ -124,6 +131,8 @@
       {% if form.rollout_pause_observations.errors %}
         <div class="text-danger small mt-1">{{ form.rollout_pause_observations.errors|join:", " }}</div>
       {% endif %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_pause_observations %}
+
     </div>
     {# Action buttons #}
     <div class="d-flex align-items-center gap-2">

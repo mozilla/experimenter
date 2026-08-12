@@ -52,6 +52,8 @@
           <div class="form-check mt-2">
             {{ form.exclude_locales|add_error_class:"is-invalid" }}
             <label class="form-check-label small text-body" for="id_exclude_locales">Exclude selected locales</label>
+            {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_locales %}
+
           </div>
           {% for error in form.locales.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
           {% for error in validation_errors.locales %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
@@ -61,6 +63,8 @@
           <div class="form-check mt-2">
             {{ form.exclude_languages|add_error_class:"is-invalid" }}
             <label class="form-check-label small text-body" for="id_exclude_languages">Exclude selected languages</label>
+            {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_languages %}
+
           </div>
           {% for error in form.languages.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
           {% for error in validation_errors.languages %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
@@ -72,6 +76,8 @@
         <div class="form-check mt-2">
           {{ form.exclude_countries|add_error_class:"is-invalid" }}
           <label class="form-check-label small text-body" for="id_exclude_countries">Exclude selected countries</label>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_countries %}
+
         </div>
         {% for error in form.countries.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
         {% for error in validation_errors.countries %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
@@ -99,6 +105,9 @@
       {% for error in validation_errors.targeting_config_slug %}
         <div class="form-text text-danger">{{ error }}</div>
       {% endfor %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.targeting %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.non_field_errors %}
+
     </div>
     <div>
       <label for="id_name" class="small text-body mb-2">Include users from existing experiments</label>

@@ -20,6 +20,8 @@
              href="https://experimenter.info/workflow/risk-mitigation#qa-sign-off">Learn more</a>
         </span>
       </div>
+      {% include "new/common/validation_errors.html" with errors=validation_errors.qa_signoff %}
+
       {# VP sign-off #}
       <div class="d-flex flex-row align-items-center gap-2">
         <div class="form-check mb-0">
@@ -34,6 +36,8 @@
              href="https://experimenter.info/workflow/risk-mitigation#vp-sign-off">Learn more</a>
         </span>
       </div>
+      {% include "new/common/validation_errors.html" with errors=validation_errors.vp_signoff %}
+
       {# Legal sign-off #}
       <div class="d-flex flex-row align-items-center gap-2">
         <div class="form-check mb-0">
@@ -50,6 +54,8 @@
              href="https://experimenter.info/workflow/risk-mitigation#legal-sign-off">Learn more</a>
         </span>
       </div>
+      {% include "new/common/validation_errors.html" with errors=validation_errors.legal_signoff %}
+
     </div>
     {# Action buttons #}
     <div class="d-flex align-items-center gap-2">

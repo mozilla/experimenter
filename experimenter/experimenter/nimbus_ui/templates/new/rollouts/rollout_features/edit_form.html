@@ -21,6 +21,8 @@
       {% if form.rollout_experience.errors %}
         <div class="text-danger small mt-1">{{ form.rollout_experience.errors|join:", " }}</div>
       {% endif %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.takeaways_summary %}
+
     </div>
     <div>
       {#  Feature config  #}
@@ -70,6 +72,9 @@
           </div>
         {% endfor %}
       </div>
+      {% include "new/common/validation_errors.html" with errors=validation_errors.reference_branch %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.treatment_branches %}
+
     {% endwith %}
     {#  Feature validation and pref conflict options  #}
     <div class="mt-4">

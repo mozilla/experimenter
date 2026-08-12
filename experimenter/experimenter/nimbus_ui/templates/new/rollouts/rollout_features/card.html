@@ -6,6 +6,8 @@
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Rollout experience</div>
       <div id="rollout-features-experience" class="small text-body">{{ experiment.takeaways_summary|default:"—" }}</div>
+      {% include "new/common/validation_errors.html" with errors=validation_errors.takeaways_summary %}
+
     </div>
     {# Feature configurations #}
     <div>
@@ -22,28 +24,40 @@
       {% empty %}
         <div class="small text-body">—</div>
       {% endfor %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.feature_configs %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.reference_branch %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.treatment_branches %}
+
     </div>
     {# Warn only on feature schema validation failure #}
-    <div class="d-flex flex-row gap-3">
-      <div class="text-secondary mb-1" style="font-size: 12px;">Warn only on feature schema validation failure</div>
-      {% if experiment.warn_feature_schema %}
-        <i id="rollout-features-warn-schema" class="fas fa-check text-success"></i>
-      {% else %}
-        <i id="rollout-features-warn-schema" class="fas fa-times text-danger"></i>
-      {% endif %}
+    <div>
+      <div class="d-flex flex-row gap-3">
+        <div class="text-secondary mb-1" style="font-size: 12px;">Warn only on feature schema validation failure</div>
+        {% if experiment.warn_feature_schema %}
+          <i id="rollout-features-warn-schema" class="fas fa-check text-success"></i>
+        {% else %}
+          <i id="rollout-features-warn-schema" class="fas fa-times text-danger"></i>
+        {% endif %}
+      </div>
+      {% include "new/common/validation_errors.html" with errors=validation_errors.warn_feature_schema %}
+
     </div>
     {# Prevent enrollment if prefs changed #}
-    <div class="d-flex flex-row gap-3">
-      <div class="text-secondary mb-1" style="font-size: 12px;">
-        Prevent enrollment if users have changed any prefs set by this rollout
+    <div>
+      <div class="d-flex flex-row gap-3">
+        <div class="text-secondary mb-1" style="font-size: 12px;">
+          Prevent enrollment if users have changed any prefs set by this rollout
+        </div>
+        {% if experiment.prevent_pref_conflicts %}
+          <i id="rollout-features-prevent-conflicts"
+             class="fas fa-check text-success"></i>
+        {% else %}
+          <i id="rollout-features-prevent-conflicts"
+             class="fas fa-times text-danger"></i>
+        {% endif %}
       </div>
-      {% if experiment.prevent_pref_conflicts %}
-        <i id="rollout-features-prevent-conflicts"
-           class="fas fa-check text-success"></i>
-      {% else %}
-        <i id="rollout-features-prevent-conflicts"
-           class="fas fa-times text-danger"></i>
-      {% endif %}
+      {% include "new/common/validation_errors.html" with errors=validation_errors.prevent_pref_conflicts %}
+
     </div>
     {# Rollout screenshots #}
     <div>
@@ -80,25 +94,34 @@
         {% else %}
           <i class="fas fa-times text-danger"></i>
         {% endif %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.is_firefox_labs_opt_in %}
+
       </div>
       {% if experiment.is_firefox_labs_opt_in %}
         <div>
           <div class="text-secondary mb-1" style="font-size: 12px;">Firefox Labs Title</div>
           <div class="small text-body">{{ experiment.firefox_labs_title|default:"—" }}</div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_labs_title %}
+
         </div>
         <div>
           <div class="text-secondary mb-1" style="font-size: 12px;">Firefox Labs Description</div>
           <div class="small text-body">{{ experiment.firefox_labs_description|default:"—" }}</div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_labs_description %}
+
         </div>
         <div>
           <div class="text-secondary mb-1" style="font-size: 12px;">Description Links</div>
           {% include "common/readonly_json.html" with json_content=experiment.firefox_labs_description_links|default:"null" %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_labs_description_links %}
 
         </div>
         {% if experiment.application_config.firefox_labs.supports_groups %}
           <div>
             <div class="text-secondary mb-1" style="font-size: 12px;">Firefox Labs Group</div>
             <div class="small text-body">{{ experiment.firefox_labs_group|default:"—" }}</div>
+            {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_labs_group %}
+
           </div>
         {% endif %}
         <div>
@@ -108,6 +131,8 @@
           {% else %}
             <i class="fas fa-times text-danger"></i>
           {% endif %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.requires_restart %}
+
         </div>
       {% endif %}
     {% endif %}

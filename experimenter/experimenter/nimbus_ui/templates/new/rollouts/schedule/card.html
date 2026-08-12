@@ -105,6 +105,12 @@
         </table>
       {% endif %}
     {% endwith %}
+    {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_phases %}
+    {% include "new/common/validation_errors.html" with errors=validation_errors.population_percent %}
+    {% include "new/common/validation_errors.html" with errors=validation_errors.proposed_enrollment %}
+    {% include "new/common/validation_errors.html" with errors=validation_errors.proposed_duration %}
+    {% include "new/common/validation_errors.html" with errors=validation_errors.total_enrolled_clients %}
+
     <div class="d-flex gap-5">
       {# Move to next phase observations #}
       <div class="flex-fill">
@@ -114,6 +120,8 @@
         <div id="rollout-schedule-advance-observations" class="small text-body">
           {{ experiment.rollout_advance_observations|default:"—" }}
         </div>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_advance_observations %}
+
       </div>
       {# Pause rollout observations #}
       <div class="flex-fill">
@@ -123,6 +131,8 @@
         <div id="rollout-schedule-pause-observations" class="small text-body">
           {{ experiment.rollout_pause_observations|default:"—" }}
         </div>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_pause_observations %}
+
       </div>
     </div>
   </div>
