@@ -1081,6 +1081,38 @@ ENROLLMENT_FUNNEL_STAGES = {
     ),
 }
 
+NIMBUS_TARGETING_CONTEXT_TABLE = (
+    "moz-fx-data-shared-prod.firefox_desktop.nimbus_targeting_context"
+)
+SIZING_SAMPLE_ID_MAX = 10
+SIZING_WINDOW_DAYS = 7
+SIZING_FULL_SQL_TEMPLATE = """\
+-- Matches the 7-day window and 10% sample used by the population sizing ETL.
+-- Deduplicates on client_id, keeping the most recent ping per client.
+WITH latest_per_client AS (
+  SELECT
+    *,
+    ROW_NUMBER() OVER (
+      PARTITION BY client_info.client_id
+      ORDER BY submission_timestamp DESC
+    ) AS rn
+  FROM `{table}`
+  WHERE DATE(submission_timestamp)
+      BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL {window_days} DAY)
+      AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+    AND sample_id < {sample_id_max}
+    AND client_info.client_id IS NOT NULL
+),
+clients AS (SELECT * EXCEPT (rn) FROM latest_per_client WHERE rn = 1)
+SELECT
+  client_info.client_id,
+  DATE(submission_timestamp) AS submission_date
+FROM clients
+WHERE (
+    {predicate}
+)
+LIMIT 1000"""
+
 RISK_QUESTIONS = {
     "BRAND": (
         "If the public, users or press, were to discover this experiment and "
