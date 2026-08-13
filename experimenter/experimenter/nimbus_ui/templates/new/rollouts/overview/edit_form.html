@@ -1,5 +1,7 @@
 {# ── Edit form ── #}
 <div id="rollout-overview-body">
+  {% include "new/common/sidebar_setup_refresh.html" %}
+
   <form hx-post="{% url 'nimbus-ui-new-update-overview' experiment.slug %}"
         hx-target="#rollout-overview-body"
         hx-swap="outerHTML"
@@ -99,10 +101,10 @@
 
       </div>
       {# Project Tags — search input + pills #}
-      {% include "new/rollouts/overview/tags_field.html" %}
+      {% include "new/rollouts/overview/tags_field.html" with suppress_sidebar_setup_refresh=True %}
 
       {# Subscribers — search input + list of added #}
-      {% include "new/rollouts/overview/subscribers_field.html" %}
+      {% include "new/rollouts/overview/subscribers_field.html" with suppress_sidebar_setup_refresh=True %}
 
     </div>
     {# Action buttons #}

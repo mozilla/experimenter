@@ -1,4 +1,8 @@
 <div id="overview-subscribers-field">
+  {% if not suppress_sidebar_setup_refresh %}
+    {% include "new/common/sidebar_setup_refresh.html" %}
+
+  {% endif %}
   <label class="small text-body mb-1">Subscribers</label>
   <div class="dropdown">
     <div class="input-group"

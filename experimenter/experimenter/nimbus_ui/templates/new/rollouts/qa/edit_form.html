@@ -2,6 +2,8 @@
 
 {# ── Edit form ── #}
 <div id="rollout-qa-body">
+  {% include "new/common/sidebar_setup_refresh.html" %}
+
   <form hx-post="{% url 'nimbus-ui-new-update-qa' experiment.slug %}"
         hx-target="#rollout-qa-body"
         hx-swap="outerHTML"

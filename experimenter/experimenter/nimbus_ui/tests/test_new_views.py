@@ -285,6 +285,31 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
             response.context["update_status_form_errors"][0],
         )
 
+    def test_launch_request_shows_cancel_action_to_requester(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+
+        self.client.post(
+            reverse(
+                "nimbus-ui-new-draft-to-review-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'id="rollout-review-cancel-btn"')
+        self.assertContains(
+            response,
+            reverse(
+                "nimbus-ui-new-draft-review-to-reject-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+
     def test_duplicate_phase_resume_submission_creates_phase_and_requests_review(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DISABLED,
@@ -412,6 +437,29 @@ class NewViewTestMixin:
 
 
 class TestNimbusRolloutDetailView(AuthTestCase):
+    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
+    def test_ready_rollout_shows_preview_and_launch_actions(self, _mock_errors):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'id="rollout-preview-btn"')
+        self.assertContains(response, 'id="rollout-launch-btn"')
+        self.assertContains(
+            response,
+            reverse(
+                "nimbus-ui-new-draft-to-review-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+
     def test_get_returns_new_rollout_detail_context(self):
         tag = TagFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -774,6 +822,9 @@ class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/overview/edit_form.html")
         self.assertTrue(response.context["form"].errors)
+        self.assertTrue(response.context["hx_swap_oob"])
+        self.assertContains(response, 'id="sidebar-setup-progress"')
+        self.assertContains(response, 'hx-swap-oob="true"')
 
 
 class TestNewRisksUpdateView(NewViewTestMixin, AuthTestCase):
@@ -1019,6 +1070,56 @@ class TestNewRolloutScreenshotCreateView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/rollout_features/edit_form.html")
         self.assertEqual(experiment.reference_branch.screenshots.count(), 1)
+        self.assertTrue(response.context["hx_swap_oob"])
+        self.assertContains(response, 'id="sidebar-setup-progress"')
+        self.assertContains(response, 'hx-swap-oob="true"')
+
+    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
+    def test_post_saves_form_state_and_refreshes_actions_before_preview(
+        self, _mock_errors
+    ):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            feature_configs=[],
+            takeaways_summary="Original rollout experience",
+        )
+        experiment.reference_branch.screenshots.all().delete()
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_experience": "Updated without explicit save",
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+            },
+        )
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.takeaways_summary, "Updated without explicit save")
+        self.assertContains(response, 'id="rollout-preview-btn"')
+        self.assertContains(response, 'id="rollout-launch-btn"')
+
+        with (
+            mock.patch.object(NimbusExperiment, "allocate_bucket_range"),
+            mock.patch(
+                "experimenter.nimbus_ui.new.forms."
+                "nimbus_synchronize_preview_experiments_in_kinto.apply_async"
+            ),
+        ):
+            self.client.post(
+                reverse(
+                    "nimbus-ui-new-draft-to-preview-rollout",
+                    kwargs={"slug": experiment.slug},
+                )
+            )
+        experiment.refresh_from_db()
+        self.assertTrue(experiment.is_preview)
 
 
 class TestNewRolloutScreenshotUploadView(AuthTestCase):
@@ -1315,6 +1416,9 @@ class TestNewOverviewCancelView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/overview/card.html")
+        self.assertTrue(response.context["hx_swap_oob"])
+        self.assertContains(response, 'id="sidebar-setup-progress"')
+        self.assertContains(response, 'hx-swap-oob="true"')
         links = list(experiment.documentation_links.all())
         self.assertNotIn(blank_link, links)
         self.assertIn(filled_link, links)

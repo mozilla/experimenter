@@ -53,6 +53,16 @@
               {{ experiment.latest_review_requested_by }} requested to
               {{ controls.action_label|lower }}.
             </p>
+            {% if experiment.latest_review_requested_by == user.email %}
+              <button type="button"
+                      id="rollout-review-cancel-btn"
+                      class="btn btn-secondary btn-sm w-100 mb-2"
+                      hx-post="{% url controls.reject_url experiment.slug %}"
+                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                      hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}"}'>
+                Cancel Request
+              </button>
+            {% endif %}
             {% if user_can_review %}
               {% if uses_secure_collection %}
                 <p class="small text-body mb-2">

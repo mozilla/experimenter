@@ -1,5 +1,7 @@
 {# ── Edit form ── #}
 <div id="rollout-signoff-body">
+  {% include "new/common/sidebar_setup_refresh.html" %}
+
   <form hx-post="{% url 'nimbus-ui-new-update-signoff' experiment.slug %}"
         hx-target="#rollout-signoff-body"
         hx-swap="outerHTML"

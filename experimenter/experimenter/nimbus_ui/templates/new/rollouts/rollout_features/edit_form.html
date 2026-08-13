@@ -4,6 +4,8 @@
 
 {# ── Edit form ── #}
 <div id="rollout-rollout-features-body">
+  {% include "new/common/sidebar_setup_refresh.html" %}
+
   <form id="branches-form"
         hx-post="{% url 'nimbus-ui-new-update-rollout-features' experiment.slug %}"
         hx-target="#rollout-rollout-features-body"
@@ -72,9 +74,6 @@
           </div>
         {% endfor %}
       </div>
-      {% include "new/common/validation_errors.html" with errors=validation_errors.reference_branch %}
-      {% include "new/common/validation_errors.html" with errors=validation_errors.treatment_branches %}
-
     {% endwith %}
     {#  Feature validation and pref conflict options  #}
     <div class="mt-4">

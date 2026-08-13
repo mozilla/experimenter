@@ -317,6 +317,11 @@ class NewCardUpdateView(
 ):
     display_template = None
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["hx_swap_oob"] = self.request.method not in ("GET", "HEAD")
+        return context
+
     def can_edit(self):
         return self.object.can_edit_overview()
 
@@ -326,7 +331,6 @@ class NewCardUpdateView(
 
     def render_valid_response(self):
         context = self.get_context_data()
-        context["hx_swap_oob"] = True
         return self.response_class(
             request=self.request,
             template=self.display_template,
@@ -341,9 +345,14 @@ class NewOverviewUpdateView(CardMixin, NewCardUpdateView):
 
 
 class NewOverviewCancelView(NimbusRolloutDetailView):
+    template_name = "new/rollouts/overview/cancel_response.html"
+
     def post(self, request, *args, **kwargs):
-        self.get_object().documentation_links.filter(link="").delete()
-        return self.get(request, *args, **kwargs)
+        self.object = self.get_object()
+        self.object.documentation_links.filter(link="").delete()
+        context = self.get_context_data()
+        context["hx_swap_oob"] = True
+        return self.render_to_response(context)
 
 
 class NewRisksUpdateView(CardMixin, NewCardUpdateView):

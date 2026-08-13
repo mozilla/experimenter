@@ -134,10 +134,12 @@
               {# Preview to Review #}
               <button type="button"
                       id="rollout-request-enrollment-btn"
-                      class="btn btn-primary btn-sm w-100"
+                      class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
                       hx-post="{% url 'nimbus-ui-new-preview-review-rollout' experiment.slug %}"
                       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                      {% if not experiment.is_preview %}disabled{% endif %}>Request Enrollment</button>
+                      {% if not experiment.is_preview %}disabled{% endif %}>
+                <i class="fa-solid fa-rocket"></i>Request Enrollment
+              </button>
             </div>
           </div>
         {% endif %}
