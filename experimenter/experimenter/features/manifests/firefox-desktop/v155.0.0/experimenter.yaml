@@ -661,12 +661,28 @@ urlbar:
         branch: user
         pref: places.semanticHistory.embeddingType
       description: >-
-        Embedding family used by Places semantic history: "static" (default,
-        lightweight) or "contextual" (transformer-based, larger). Changing
-        this on a live profile drops the embedding tables and rebuilds them
-        on next startup. Contextual model details (dimension, modelId,
-        wasm fallback) are controlled by the browser.ml.embedGen.* prefs and
-        are intentionally not exposed via Nimbus.
+        Embedding family used by Places semantic history: "static"
+        (lightweight) or "contextual" (transformer-based, larger). When unset
+        or empty, the family is derived from the home region, the app locale
+        and the OS: contextual in the markets listed in
+        `semanticHistoryMultilingualEmbeddingRegions` on Mac/Windows, static
+        everywhere else. Changing this on a live profile drops the embedding
+        tables and rebuilds them on next startup. Contextual model details
+        (dimension, modelId) are controlled by the browser.ml.embedGen.* prefs
+        and are intentionally not exposed via Nimbus.
+    semanticHistoryMultilingualEmbeddingRegions:
+      type: string
+      setPref:
+        branch: user
+        pref: places.semanticHistory.multilingualEmbeddingRegions
+      description: >-
+        map-like JSON of regions and locales that get multilingual (contextual)
+        embeddings, used when `semanticHistoryEmbeddingType` is unset or empty.
+        Same format as `semanticHistorySupportedRegions`, except that a "*"
+        region matches any region. The entries are OR-ed, so
+        '[["FR",["en-*","fr-*"]],["*",["fr-*"]]]' means France in English or
+        French, or a French locale anywhere. An empty value disables
+        multilingual embeddings everywhere.
     semanticHistoryInSeparateGroup:
       type: boolean
       setPref:
