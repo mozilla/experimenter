@@ -51,7 +51,7 @@
                       <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
                         <div class="progress-bar bg-secondary opacity-25" style="width: 100%"></div>
                       </div>
-                    {% elif phase.end_date %}
+                    {% elif phase.start_date and phase.end_date %}
                       <div class="d-flex align-items-center gap-1 text-secondary mb-1">
                         <span>{{ phase.days_elapsed }}/{{ phase.duration_days }} days complete</span>
                         <span class="mx-1" style="color: var(--bs-border-color);">•</span>

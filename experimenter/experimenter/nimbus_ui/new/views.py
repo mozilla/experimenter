@@ -428,13 +428,12 @@ class CardMutationMixin:
         if form.is_valid():
             form.save()
         else:
-            self.mutate()
+            self.mutate(form)
 
-        return self.render_to_response(
-            self.get_context_data(form=self.form_class(instance=self.object))
-        )
+        form = super().form_class(instance=self.object)
+        return self.render_to_response(self.get_context_data(form=form))
 
-    def mutate(self):
+    def mutate(self, form):
         raise NotImplementedError
 
 
@@ -445,7 +444,7 @@ class NewDocumentationLinkCreateView(RenderParentDBResponseMixin, NewOverviewUpd
 class NewDocumentationLinkDeleteView(CardMutationMixin, NewOverviewUpdateView):
     form_class = DocumentationLinkDeleteForm
 
-    def mutate(self):
+    def mutate(self, form):
         link_id = self.request.POST.get("link_id")
         self.object.documentation_links.filter(id=link_id).delete()
 
@@ -688,18 +687,26 @@ class NewRolloutPhaseCreateView(
     form_class = RolloutPhaseCreateForm
 
 
-class NewRolloutPhaseDeleteView(
-    RenderParentDBResponseMixin, NewRolloutScheduleUpdateView
-):
+class NewRolloutPhaseDeleteView(CardMutationMixin, NewRolloutScheduleUpdateView):
     form_class = RolloutPhaseDeleteForm
+
+    def mutate(self, form):
+        phase_id = self.request.POST.get("phase_id")
+        if not phase_id:
+            return
+        if int(phase_id) not in form.locked_phase_ids:
+            self.object.rollout_phases.filter(id=phase_id).delete()
 
 
 class NewRolloutPlanCreateView(RenderParentDBResponseMixin, NewRolloutScheduleUpdateView):
     form_class = RolloutPlanCreateForm
 
 
-class NewRolloutPlanApplyView(RenderParentDBResponseMixin, NewRolloutScheduleUpdateView):
+class NewRolloutPlanApplyView(CardMutationMixin, NewRolloutScheduleUpdateView):
     form_class = RolloutPlanApplyForm
+
+    def mutate(self, form):
+        form.apply_plan()
 
 
 class NewSubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):

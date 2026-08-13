@@ -364,10 +364,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     QA_TICKET_URL = "https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10212&issuetype=11290"
 
     ERROR_ROLLOUT_PLAN_NAME_DUPLICATE = "A rollout plan with this name already exists."
-    ERROR_ROLLOUT_PHASE_DATE_ORDER = "The end date must be on or after the start date."
-    ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE = (
-        "Set both a start and an end date or leave both blank."
+    ERROR_ROLLOUT_PLAN_FIX_ERRORS = (
+        "Resolve the highlighted errors above before saving this plan."
     )
+    ERROR_ROLLOUT_PHASE_DATE_ORDER = "The end date must be on or after the start date."
     ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
     ROLLOUT_TEMPLATE_PLANS = {
         "Low risk": [100],

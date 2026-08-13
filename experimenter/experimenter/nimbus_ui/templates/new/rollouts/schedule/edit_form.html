@@ -10,34 +10,12 @@
     {# Choose rollout plan #}
     <div>
       <label for="id_rollout_plan" class="small text-body mb-1">Choose rollout plan</label>
-      <div class="d-flex align-items-stretch gap-2">
-        <div class="flex-grow-1">{{ form.rollout_plan|add_class:"form-select"|add_error_class:"is-invalid" }}</div>
-        <button type="button"
-                class="btn btn-outline-secondary px-3 flex-shrink-0 d-flex align-items-center"
-                data-bs-toggle="collapse"
-                data-bs-target="#new-rollout-plan-field">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-      </div>
-      <div class="collapse mt-2{% if form.template_name.errors %} show{% endif %}"
-           id="new-rollout-plan-field">
-        <div class="input-group has-validation">
-          {{ form.template_name|add_class:"form-control"|add_error_class:"is-invalid" }}
-          <button type="button"
-                  class="btn btn-outline-primary"
-                  hx-post="{% url 'nimbus-ui-new-create-rollout-plan' experiment.slug %}"
-                  hx-target="#rollout-schedule-body"
-                  hx-swap="outerHTML">Save plan</button>
-          {% if form.template_name.errors %}
-            <div class="text-danger small mt-1">{{ form.template_name.errors|join:", " }}</div>
-          {% endif %}
-        </div>
-      </div>
+      {{ form.rollout_plan|add_error_class:"is-invalid" }}
     </div>
     {{ form.rollout_phases.management_form }}
-    <div class="d-flex flex-column gap-3">
+    <div class="d-flex flex-column">
       {% for phase_form in form.rollout_phases %}
-        <div {% if phase_form.errors %}class="pb-3"{% endif %}>
+        <div class="pb-3">
           {{ phase_form.id }}
           <div class="d-flex gap-4 align-items-end">
             {# Phase Number #}
@@ -48,7 +26,7 @@
                      class="text-secondary mb-1"
                      style="font-size: 12px">Population</label>
               <div class="input-group">
-                {{ phase_form.population_percent|add_class:"form-control"|add_error_class:"is-invalid" }}
+                {{ phase_form.population_percent|add_error_class:"is-invalid" }}
                 <span class="input-group-text">%</span>
               </div>
               {% if phase_form.population_percent.errors %}
@@ -58,25 +36,30 @@
               {% endif %}
             </div>
             {# Duration #}
-            <div class="flex-grow-1 position-relative" style="min-width: 0">
+            <div class="flex-grow-1" style="min-width: 0">
               <label class="text-secondary mb-1" style="font-size: 12px">Duration</label>
               <div class="d-flex gap-2 align-items-center">
-                <div class="flex-grow-1" style="min-width: 0">
-                  {{ phase_form.start_date|add_class:"form-control"|add_error_class:"is-invalid" }}
+                <div class="flex-grow-1 position-relative"
+                     style="min-width: 0;
+                            flex-basis: 0">
+                  {{ phase_form.start_date|add_error_class:"is-invalid" }}
+                  {% if phase_form.start_date.errors %}
+                    <div class="text-danger small position-absolute mt-1" style="top: 100%">
+                      {{ phase_form.start_date.errors|join:", " }}
+                    </div>
+                  {% endif %}
                 </div>
-                <div class="flex-grow-1" style="min-width: 0">
-                  {{ phase_form.end_date|add_class:"form-control"|add_error_class:"is-invalid" }}
+                <div class="flex-grow-1 position-relative"
+                     style="min-width: 0;
+                            flex-basis: 0">
+                  {{ phase_form.end_date|add_error_class:"is-invalid" }}
+                  {% if phase_form.end_date.errors %}
+                    <div class="text-danger small position-absolute mt-1" style="top: 100%">
+                      {{ phase_form.end_date.errors|join:", " }}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
-              {% if phase_form.start_date.errors %}
-                <div class="text-danger small position-absolute mt-1" style="top: 100%">
-                  {{ phase_form.start_date.errors|join:", " }}
-                </div>
-              {% elif phase_form.end_date.errors %}
-                <div class="text-danger small position-absolute mt-1" style="top: 100%">
-                  {{ phase_form.end_date.errors|join:", " }}
-                </div>
-              {% endif %}
             </div>
             {% if not phase_form.is_locked %}
               <button type="button"
@@ -95,7 +78,7 @@
       <div>
         <button type="button"
                 id="rollout-schedule-add-phase"
-                class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small mt-2"
+                class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small mt-1"
                 hx-post="{% url 'nimbus-ui-new-create-rollout-phase' experiment.slug %}"
                 hx-include="closest form"
                 hx-target="#rollout-schedule-body"
@@ -105,12 +88,38 @@
         </button>
       </div>
     </div>
+    {% if form.rollout_phases|length %}
+      <div class="border-top pt-3">
+        <div class="text-secondary mb-2" style="font-size: 12px">Reuse this schedule on other rollouts</div>
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2"
+                data-bs-toggle="collapse"
+                data-bs-target="#new-rollout-plan-field">
+          <i class="fa-regular fa-bookmark"></i>
+          Save as new plan
+        </button>
+        <div class="collapse mt-2{% if form.template_name.errors %} show{% endif %}"
+             id="new-rollout-plan-field">
+          <div class="input-group">
+            {{ form.template_name|add_error_class:"is-invalid" }}
+            <button type="button"
+                    class="btn btn-primary"
+                    hx-post="{% url 'nimbus-ui-new-create-rollout-plan' experiment.slug %}"
+                    hx-target="#rollout-schedule-body"
+                    hx-swap="outerHTML">Save plan</button>
+          </div>
+          {% if form.template_name.errors %}
+            <div class="text-danger small mt-1">{{ form.template_name.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
     {# Move to next phase observations #}
     <div>
       <label for="id_rollout_advance_observations" class="small text-body mb-1">
         {{ NimbusUIConstants.ROLLOUT_ADVANCE_OBSERVATIONS_LABEL }}
       </label>
-      {{ form.rollout_advance_observations|add_class:"form-control"|add_error_class:"is-invalid" }}
+      {{ form.rollout_advance_observations|add_error_class:"is-invalid" }}
       {% if form.rollout_advance_observations.errors %}
         <div class="text-danger small mt-1">{{ form.rollout_advance_observations.errors|join:", " }}</div>
       {% endif %}
@@ -120,7 +129,7 @@
       <label for="id_rollout_pause_observations" class="small text-body mb-1">
         {{ NimbusUIConstants.ROLLOUT_PAUSE_OBSERVATIONS_LABEL }}
       </label>
-      {{ form.rollout_pause_observations|add_class:"form-control"|add_error_class:"is-invalid" }}
+      {{ form.rollout_pause_observations|add_error_class:"is-invalid" }}
       {% if form.rollout_pause_observations.errors %}
         <div class="text-danger small mt-1">{{ form.rollout_pause_observations.errors|join:", " }}</div>
       {% endif %}
