@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -30,6 +31,7 @@ FEATURE_PYTHON_TYPES = {
     FeatureVariableType.BOOLEAN: bool,
 }
 
+logger = logging.getLogger()
 
 @dataclass
 class Feature:
@@ -122,6 +124,7 @@ class Features:
     def _load_features(cls):
         features = []
         version_re = re.compile(r"^v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)")
+        i = 0
 
         for application in NimbusConstants.APPLICATION_CONFIGS.values():
             application_dir: Path = settings.FEATURE_MANIFESTS_PATH / application.slug
@@ -139,11 +142,15 @@ class Features:
 
                         application_yaml_path = child / "experimenter.yaml"
                         if application_yaml_path.exists():
+                            i+=1
+                            logging.info(f"Loading manifest {i} {application_yaml_path}")
                             features.extend(
                                 cls._read_manifest(
                                     application, application_yaml_path, version
                                 )
                             )
+                            logging.info(f"Loaded manifest {i} {application_yaml_path}")
+
 
         return features
 
