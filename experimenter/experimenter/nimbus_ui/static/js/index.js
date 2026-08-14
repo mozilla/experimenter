@@ -7,7 +7,10 @@ import * as $ from "jquery";
 import * as bootstrap from "bootstrap";
 import "htmx.org";
 import "bootstrap-select";
-import { setupReadonlyJsonEditors } from "./codemirror_utils.js";
+import {
+  setupReadonlyJsonEditors,
+  setupReadonlySqlEditors,
+} from "./codemirror_utils.js";
 import { setupDevtoolsBanner } from "./nimbus_devtools.js";
 
 window.bootstrap = bootstrap;
@@ -141,6 +144,9 @@ $(() => {
   setupSlugCopyToast();
   setupHTMXLoadingOverlay();
   setupReadonlyJsonEditors();
+  document.addEventListener("shown.bs.modal", (event) => {
+    setupReadonlySqlEditors(event.target);
+  });
 
   document.body.addEventListener("htmx:afterSwap", function () {
     $(".selectpicker").selectpicker();

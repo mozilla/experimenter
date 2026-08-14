@@ -651,6 +651,20 @@ class TestNimbusExperiment(TestCase):
             "AND metrics.quantity.nimbus_targeting_context_firefox_version >= 120)",
         )
 
+    def test_sizing_full_sql_returns_none_when_no_predicate(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            locales=[],
+            countries=[],
+            languages=[],
+            risk_ai=False,
+        )
+        self.assertIsNone(experiment.sizing_full_sql)
+
     def test_sizing_sql_none_for_match_all_targeting(self):
         experiment = NimbusExperimentFactory.create(
             application=NimbusExperiment.Application.DESKTOP,

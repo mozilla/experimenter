@@ -70,6 +70,40 @@ export const setupCodemirrorCollapsibleDisplay = (textarea) => {
     });
 };
 
+export const createReadonlySqlEditor = (textarea) => {
+  if (!textarea || textarea.dataset.is_rendered) return null;
+
+  textarea.dataset.is_rendered = true;
+
+  const view = new EditorView({
+    doc: textarea.value,
+    extensions: [
+      basicSetup,
+      EditorState.readOnly.of(true),
+      EditorView.editable.of(false),
+      EditorView.lineWrapping,
+      themeCompartment.of(getThemeExtensions()),
+    ],
+    parent: textarea.parentNode,
+  });
+
+  view.dom.style.border = "1px solid #ccc";
+  textarea.parentNode.insertBefore(view.dom, textarea);
+  textarea.style.display = "none";
+
+  registerView(view);
+  return view;
+};
+
+export const setupReadonlySqlEditors = (container = document) => {
+  container.querySelectorAll(".readonly-sql").forEach((textarea) => {
+    const view = createReadonlySqlEditor(textarea);
+    if (view) {
+      setupCopyButton(textarea, view);
+    }
+  });
+};
+
 export const setupReadonlyJsonEditors = () => {
   document.querySelectorAll(".readonly-json").forEach((textarea) => {
     const maxLines = textarea.closest(".collapsed-json")
