@@ -4,6 +4,10 @@ ad-blocker-feature:
   hasExposure: true
   exposureDescription: ''
   variables:
+    badge-enabled:
+      type: boolean
+      description: |
+        Whether or not the Ad Blocker badge is shown in the Site Menu
     enabled:
       type: boolean
       description: |
