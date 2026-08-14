@@ -1733,12 +1733,7 @@ class RolloutPhaseForm(forms.ModelForm):
         cleaned_data = super().clean()
         start_date = cleaned_data.get("start_date")
         end_date = cleaned_data.get("end_date")
-        if not self.fields["start_date"].disabled and bool(start_date) != bool(end_date):
-            self.add_error(
-                "end_date" if start_date else "start_date",
-                NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_INCOMPLETE,
-            )
-        elif start_date and end_date and end_date < start_date:
+        if start_date and end_date and end_date < start_date:
             self.add_error("end_date", NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER)
         return cleaned_data
 
@@ -1893,15 +1888,19 @@ class RolloutPhaseDeleteForm(RolloutScheduleForm):
 
 class RolloutPlanApplyForm(RolloutScheduleForm):
     @transaction.atomic
-    def save(self, *args, **kwargs):
-        experiment = super().save(*args, **kwargs)
-        plan_name = self.cleaned_data.get("rollout_plan")
+    def apply_plan(self):
+        plan_name = self.data.get("rollout_plan")
         if plan_name and plan_name in self.plans:
-            experiment.rollout_phases.exclude(id__in=self.locked_phase_ids).delete()
+            self.instance.rollout_phases.exclude(id__in=self.locked_phase_ids).delete()
             for population_percent in self.plans[plan_name]:
-                experiment.rollout_phases.create(
+                self.instance.rollout_phases.create(
                     population_percent=Decimal(str(population_percent))
                 )
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+        self.apply_plan()
         return experiment
 
     def get_changelog_message(self):
@@ -1916,6 +1915,14 @@ class RolloutPlanCreateForm(RolloutScheduleForm):
                 NimbusUIConstants.ERROR_ROLLOUT_PLAN_NAME_DUPLICATE
             )
         return name
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get("template_name") and not self.rollout_phases.is_valid():
+            self.add_error(
+                "template_name", NimbusUIConstants.ERROR_ROLLOUT_PLAN_FIX_ERRORS
+            )
+        return cleaned_data
 
     @transaction.atomic
     def save(self):
