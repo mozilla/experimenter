@@ -2679,7 +2679,7 @@ WIN10_EXISTING_USER_STORIES_DISABLED = NimbusTargetingConfig(
     targeting=(
         f"{PROFILE28DAYS} && {WIN10_NOT_WIN11.targeting} && ",
         f"{RECOMMENDED_OR_SPONSORED_STORIES_DISABLED} && ",
-        "userPrefs.cfrFeatures && !hasActiveEnterprisePolicies"
+        "defaultProfile.userPrefs.cfrFeatures && !hasActiveEnterprisePolicies"
     ),
     desktop_telemetry="",
     sticky_required=False,
