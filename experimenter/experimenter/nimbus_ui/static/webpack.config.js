@@ -12,6 +12,7 @@ module.exports = {
     edit_branches: "./js/edit_branches.js",
     new_edit_branches: "./js/new/edit_branches.js",
     new_tooltips: "./js/new/tooltips.js",
+    new_htmx_failure: "./js/new/htmx_failure.js",
     experiment_detail: "./js/experiment_detail.js",
     branch_detail: "./js/branch_detail.js",
     features_page: "./js/features_page.js",
