@@ -77,11 +77,16 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         self.mock_remove_emoji_task = patch(
             "experimenter.slack.tasks.remove_emoji_from_message_async.delay"
         ).start()
+        self.invalid_fields_patcher = patch.object(
+            NimbusExperiment, "get_invalid_fields_errors", return_value={}
+        )
+        self.mock_invalid_fields = self.invalid_fields_patcher.start()
         self.addCleanup(self.mock_preview_task.stop)
         self.addCleanup(self.mock_allocate_bucket_range.stop)
         self.addCleanup(self.mock_kinto_push_queue.stop)
         self.addCleanup(self.mock_emoji_task.stop)
         self.addCleanup(self.mock_remove_emoji_task.stop)
+        self.addCleanup(self.invalid_fields_patcher.stop)
 
     @parameterized.expand(
         [
@@ -241,6 +246,31 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         self.assertEqual(experiment.status, expected_status)
         self.assertEqual(experiment.status_next, expected_status_next)
         self.assertEqual(experiment.publish_status, expected_publish_status)
+
+    def test_invalid_rollout_cannot_request_launch(self):
+        self.mock_invalid_fields.return_value = {
+            "risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]
+        }
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-draft-to-review-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertIn(
+            NimbusUIConstants.ERROR_INVALID_ROLLOUT_LAUNCH,
+            response.context["update_status_form_errors"],
+        )
 
     def test_htmx_progress_card_renders_fragment(self):
         experiment = NimbusExperimentFactory.create(
@@ -691,6 +721,62 @@ class TestNimbusRolloutDetailView(AuthTestCase):
                 kwargs={"slug": experiment.slug},
             ),
         )
+
+    def test_setup_issues_disable_phase_advance_but_not_disable_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=20)
+        experiment.rollout_phase = current_phase
+        experiment.save()
+
+        with mock.patch.object(
+            NimbusExperiment,
+            "get_invalid_fields_errors",
+            return_value={"risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]},
+        ):
+            response = self.client.get(
+                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+            )
+
+        content = response.content.decode()
+        next_phase_button = content.split('id="rollout-next-phase-btn"', 1)[1].split(
+            "</button>", 1
+        )[0]
+        disable_button = content.split('id="rollout-disable-btn"', 1)[1].split(
+            "</button>", 1
+        )[0]
+        self.assertRegex(next_phase_button, r"\sdisabled(?:\s|>)")
+        self.assertNotRegex(disable_button, r"\sdisabled(?:\s|>)")
+
+    @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
+    def test_setup_issues_disable_phase_advance_approval(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
+
+        with mock.patch.object(
+            NimbusExperiment,
+            "get_invalid_fields_errors",
+            return_value={"risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]},
+        ):
+            response = self.client.get(
+                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
+                **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
+            )
+
+        content = response.content.decode()
+        approve_button = content.split('id="rollout-review-approve-btn"', 1)[1].split(
+            "</button>", 1
+        )[0]
+        self.assertRegex(approve_button, r"\sdisabled(?:\s|>)")
 
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
     def test_sidebar_shows_remote_settings_link_when_approved(self):

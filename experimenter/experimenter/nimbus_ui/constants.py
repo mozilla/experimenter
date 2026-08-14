@@ -26,6 +26,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Cannot perform this action: experiment must be in state {required_state}, "
         "but is currently in state {current_state}."
     )
+    ERROR_INVALID_ROLLOUT_LAUNCH = (
+        "Resolve all rollout setup issues before requesting or approving this change."
+    )
     ERROR_INVALID_DISABLED_TRANSITION = (
         "Cannot perform this action: only rollouts may be disabled."
     )
