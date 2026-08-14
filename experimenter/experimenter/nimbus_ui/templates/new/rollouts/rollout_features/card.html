@@ -25,8 +25,6 @@
         <div class="small text-body">—</div>
       {% endfor %}
       {% include "new/common/validation_errors.html" with errors=validation_errors.feature_configs %}
-      {% include "new/common/validation_errors.html" with errors=validation_errors.reference_branch %}
-      {% include "new/common/validation_errors.html" with errors=validation_errors.treatment_branches %}
 
     </div>
     {# Warn only on feature schema validation failure #}

@@ -32,6 +32,10 @@ from prose.fields import RichTextField
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import (
     ENROLLMENT_FUNNEL_STAGES,
+    NIMBUS_TARGETING_CONTEXT_TABLE,
+    SIZING_FULL_SQL_TEMPLATE,
+    SIZING_SAMPLE_ID_MAX,
+    SIZING_WINDOW_DAYS,
     BucketRandomizationUnit,
     ChangeEventType,
     NimbusConstants,
@@ -2413,6 +2417,22 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if sql:
             sql = sql.replace(" AND ", "\nAND ")
         return sql
+
+    @property
+    def sizing_sql_predicate(self):
+        return jexl_to_sql(self.targeting).sql
+
+    @property
+    def sizing_full_sql(self):
+        predicate = self.sizing_sql
+        if not predicate:
+            return None
+        return SIZING_FULL_SQL_TEMPLATE.format(
+            table=NIMBUS_TARGETING_CONTEXT_TABLE,
+            window_days=SIZING_WINDOW_DAYS,
+            sample_id_max=SIZING_SAMPLE_ID_MAX,
+            predicate=predicate.replace("\n", "\n    "),
+        )
 
     @property
     def has_displayable_results(self):

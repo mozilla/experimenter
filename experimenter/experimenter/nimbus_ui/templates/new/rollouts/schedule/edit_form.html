@@ -2,6 +2,8 @@
 
 {# ── Edit form ── #}
 <div id="rollout-schedule-body">
+  {% include "new/common/sidebar_setup_refresh.html" %}
+
   <form hx-post="{% url 'nimbus-ui-new-update-schedule' experiment.slug %}"
         hx-target="#rollout-schedule-body"
         hx-swap="outerHTML"

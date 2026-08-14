@@ -4,75 +4,105 @@
   <div class="d-flex flex-column gap-3" id="rollout-risks-body">
     {# AI risk #}
     <div>
-      <div class="d-flex flex-row gap-3">
-        <div class="text-secondary mb-1" style="font-size: 12px;">AI risk</div>
+      <div class="d-flex flex-row align-items-baseline gap-2">
         {% if experiment.risk_ai is None %}
-          <span id="rollout-risks-ai" class="small text-body">—</span>
+          <span id="rollout-risks-ai"
+                class="small text-body text-center"
+                style="min-width: 16px">—</span>
         {% elif experiment.risk_ai %}
-          <i id="rollout-risks-ai" class="fas fa-check text-success"></i>
+          <i id="rollout-risks-ai"
+             class="fas fa-check text-success text-center"
+             style="min-width: 16px"></i>
         {% else %}
-          <i id="rollout-risks-ai" class="fas fa-times text-danger"></i>
+          <i id="rollout-risks-ai"
+             class="fas fa-times text-danger text-center"
+             style="min-width: 16px"></i>
         {% endif %}
+        <div class="text-secondary" style="font-size: 12px;">AI risk</div>
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.risk_ai %}
 
     </div>
     {# Brand perception impact #}
     <div>
-      <div class="d-flex flex-row gap-3">
-        <div class="text-secondary mb-1" style="font-size: 12px;">Brand perception impact</div>
+      <div class="d-flex flex-row align-items-baseline gap-2">
         {% if experiment.risk_brand is None %}
-          <span id="rollout-risks-brand" class="small text-body">—</span>
+          <span id="rollout-risks-brand"
+                class="small text-body text-center"
+                style="min-width: 16px">—</span>
         {% elif experiment.risk_brand %}
-          <i id="rollout-risks-brand" class="fas fa-check text-success"></i>
+          <i id="rollout-risks-brand"
+             class="fas fa-check text-success text-center"
+             style="min-width: 16px"></i>
         {% else %}
-          <i id="rollout-risks-brand" class="fas fa-times text-danger"></i>
+          <i id="rollout-risks-brand"
+             class="fas fa-times text-danger text-center"
+             style="min-width: 16px"></i>
         {% endif %}
+        <div class="text-secondary" style="font-size: 12px;">Brand perception impact</div>
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.risk_brand %}
 
     </div>
     {# Revenue impact #}
     <div>
-      <div class="d-flex flex-row gap-3">
-        <div class="text-secondary" style="font-size: 12px;">Revenue impact</div>
+      <div class="d-flex flex-row align-items-baseline gap-2">
         {% if experiment.risk_revenue is None %}
-          <span id="rollout-risks-revenue" class="small text-body">—</span>
+          <span id="rollout-risks-revenue"
+                class="small text-body text-center"
+                style="min-width: 16px">—</span>
         {% elif experiment.risk_revenue %}
-          <i id="rollout-risks-revenue" class="fas fa-check text-success"></i>
+          <i id="rollout-risks-revenue"
+             class="fas fa-check text-success text-center"
+             style="min-width: 16px"></i>
         {% else %}
-          <i id="rollout-risks-revenue" class="fas fa-times text-danger"></i>
+          <i id="rollout-risks-revenue"
+             class="fas fa-times text-danger text-center"
+             style="min-width: 16px"></i>
         {% endif %}
+        <div class="text-secondary" style="font-size: 12px;">Revenue impact</div>
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.risk_revenue %}
 
     </div>
     {# External vendor impact #}
     <div>
-      <div class="d-flex flex-row gap-3">
-        <div class="text-secondary mb-1" style="font-size: 12px;">External vendor impact</div>
+      <div class="d-flex flex-row align-items-baseline gap-2">
         {% if experiment.risk_partner_related is None %}
-          <span id="rollout-risks-partner-related" class="small text-body">—</span>
+          <span id="rollout-risks-partner-related"
+                class="small text-body text-center"
+                style="min-width: 16px">—</span>
         {% elif experiment.risk_partner_related %}
-          <i id="rollout-risks-partner-related" class="fas fa-check text-success"></i>
+          <i id="rollout-risks-partner-related"
+             class="fas fa-check text-success text-center"
+             style="min-width: 16px"></i>
         {% else %}
-          <i id="rollout-risks-partner-related" class="fas fa-times text-danger"></i>
+          <i id="rollout-risks-partner-related"
+             class="fas fa-times text-danger text-center"
+             style="min-width: 16px"></i>
         {% endif %}
+        <div class="text-secondary" style="font-size: 12px;">External vendor impact</div>
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.risk_partner_related %}
 
     </div>
     {# Messaging impact #}
     <div>
-      <div class="d-flex flex-row gap-3">
-        <div class="text-secondary mb-1" style="font-size: 12px;">Messaging impact</div>
+      <div class="d-flex flex-row align-items-baseline gap-2">
         {% if experiment.risk_message is None %}
-          <span id="rollout-risks-message" class="small text-body">—</span>
+          <span id="rollout-risks-message"
+                class="small text-body text-center"
+                style="min-width: 16px">—</span>
         {% elif experiment.risk_message %}
-          <i id="rollout-risks-message" class="fas fa-check text-success"></i>
+          <i id="rollout-risks-message"
+             class="fas fa-check text-success text-center"
+             style="min-width: 16px"></i>
         {% else %}
-          <i id="rollout-risks-message" class="fas fa-times text-danger"></i>
+          <i id="rollout-risks-message"
+             class="fas fa-times text-danger text-center"
+             style="min-width: 16px"></i>
         {% endif %}
+        <div class="text-secondary" style="font-size: 12px;">Messaging impact</div>
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.risk_message %}
 

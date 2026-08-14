@@ -385,7 +385,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "enrollment to launch."
     )
     ROLLOUT_PREVIEW_BLOCKED_TOOLTIP = (
-        "Resolve the detected setup issues before previewing"
+        "Resolve the detected setup issues before previewing or launching"
     )
     ROLLOUT_LIVE_MESSAGE = (
         "This rollout is live. You can advance to the next phase to adjust its "
