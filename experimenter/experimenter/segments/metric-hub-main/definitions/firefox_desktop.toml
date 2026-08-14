@@ -2550,6 +2550,42 @@ friendly_name = "Mexico"
 description = "Clients in Mexico"
 select_expression = "COALESCE(LOGICAL_OR(country = 'MX'), FALSE)"
 
+[segments.windows_v1]
+data_source = "clients_daily"
+friendly_name = "All Windows Clients"
+description = "Clients on any version of Windows"
+select_expression = "COALESCE(LOGICAL_OR(mozfun.norm.os(os) = 'Windows'), FALSE)"
+
+[segments.windows_10_v1]
+data_source = "clients_daily"
+friendly_name = "Windows 10 Clients"
+description = "Clients on Windows 10, identified by mozfun.norm.windows_version_info"
+select_expression = "COALESCE(LOGICAL_OR(mozfun.norm.windows_version_info(os, os_version, windows_build_number) = 'Windows 10'), FALSE)"
+
+[segments.windows_11_v1]
+data_source = "clients_daily"
+friendly_name = "Windows 11 Clients"
+description = "Clients on Windows 11, identified by mozfun.norm.windows_version_info"
+select_expression = "COALESCE(LOGICAL_OR(mozfun.norm.windows_version_info(os, os_version, windows_build_number) = 'Windows 11'), FALSE)"
+
+[segments.windows_other_v1]
+data_source = "clients_daily"
+friendly_name = "Older Windows Clients"
+description = "Clients on Windows versions older than Windows 10 (e.g., Windows 7, 8, 8.1, Vista, XP)"
+select_expression = "COALESCE(LOGICAL_OR(mozfun.norm.os(os) = 'Windows' AND SAFE_CAST(SPLIT(os_version, '.')[SAFE_OFFSET(0)] AS INT64) < 10), FALSE)"
+
+[segments.macos_v1]
+data_source = "clients_daily"
+friendly_name = "macOS Clients"
+description = "Clients on macOS (any version)"
+select_expression = "COALESCE(LOGICAL_OR(mozfun.norm.os(os) = 'Mac'), FALSE)"
+
+[segments.linux_v1]
+data_source = "clients_daily"
+friendly_name = "Linux Clients"
+description = "Clients on Linux (any distribution)"
+select_expression = "COALESCE(LOGICAL_OR(mozfun.norm.os(os) = 'Linux'), FALSE)"
+
 [segments.profile_age_0_to_7_days]
 data_source = "clients_last_seen"
 friendly_name = "Profile age 0-6 days at enrollment"
