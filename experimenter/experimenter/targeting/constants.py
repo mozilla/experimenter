@@ -2677,8 +2677,8 @@ WIN10_EXISTING_USER_STORIES_DISABLED = NimbusTargetingConfig(
         "disabled, with CFRs enabled, and without enterprise policies"
     ),
     targeting=(
-        f"{PROFILE28DAYS} && {WIN10_NOT_WIN11.targeting} && ",
-        f"{RECOMMENDED_OR_SPONSORED_STORIES_DISABLED} && ",
+        f"{PROFILE28DAYS} && {WIN10_NOT_WIN11.targeting} && "
+        f"{RECOMMENDED_OR_SPONSORED_STORIES_DISABLED} && "
         "defaultProfile.userPrefs.cfrFeatures && !hasActiveEnterprisePolicies"
     ),
     desktop_telemetry="",
