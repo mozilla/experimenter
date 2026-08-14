@@ -2759,6 +2759,31 @@ class TestNimbusExperiment(TestCase):
         ):
             self.assertFalse(experiment.can_publish_to_preview)
 
+    @parameterized.expand(
+        [
+            NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
+            NimbusExperiment.DESKTOP_NEWTAB_ADDON_SLUG,
+            NimbusExperiment.DESKTOP_NEWTAB_ADDON_LEGACY_SLUG,
+        ]
+    )
+    def test_secure_features_target_secure_collection(self, feature_id):
+        feature_config = NimbusFeatureConfigFactory.create(
+            name=feature_id,
+            slug=feature_id,
+            description=feature_id,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+
+        self.assertEqual(
+            experiment.kinto_collection, settings.KINTO_COLLECTION_NIMBUS_SECURE
+        )
+        self.assertFalse(experiment.can_publish_to_preview)
+
     def test_audience_url(self):
         language1 = LanguageFactory.create(code="a")
         language2 = LanguageFactory.create(code="b")
