@@ -48,10 +48,14 @@ class Command(BaseCommand):
         # When we are ingesting versioned Features, we want to update the
         # NimbusFeatureConfig objects with the most up-to-date description.
         updated: set[tuple[str, str]] = set()
-        for feature in itertools.chain(
+        ALL_FEATURES = list(itertools.chain(
             Features.unversioned(),
             sorted(Features.versioned(), key=lambda f: f.version, reverse=True),
-        ):
+        ))
+        N = len(ALL_FEATURES)
+        for (i, feature) in enumerate(ALL_FEATURES):
+            logger.info(f"processing feature {i}/{N}")
+
             key = (feature.application_slug, feature.slug)
             if key in updated:
                 # We have already processes the unversioned feature OR a
@@ -210,10 +214,11 @@ class Command(BaseCommand):
                 schema.save(update_fields=dirty_fields)
 
             logger.info(
-                f"Feature Loaded: {feature.application_slug}/{feature.slug} "
+                f"Feature {i}/{N} Loaded: {feature.application_slug}/{feature.slug} "
                 f"(version {feature.version})"
             )
 
+        logger.info("attempting bulk create of {len(schemas_to_create)} schemas")
         NimbusVersionedSchema.objects.bulk_create(schemas_to_create)
 
         logger.info("Features Updated")
