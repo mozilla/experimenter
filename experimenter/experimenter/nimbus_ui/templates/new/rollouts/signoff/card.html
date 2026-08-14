@@ -4,39 +4,51 @@
   <div class="d-flex flex-column gap-3" id="rollout-signoff-body">
     {# QA sign-off #}
     <div>
-      <div class="d-flex flex-row gap-3">
-        <div class="text-secondary mb-1" style="font-size: 12px;">QA sign-off</div>
+      <div class="d-flex flex-row align-items-baseline gap-2">
         {% if experiment.qa_signoff %}
-          <i id="rollout-signoff-qa" class="fas fa-check text-success"></i>
+          <i id="rollout-signoff-qa"
+             class="fas fa-check text-success text-center"
+             style="min-width: 16px"></i>
         {% else %}
-          <i id="rollout-signoff-qa" class="fas fa-times text-danger"></i>
+          <i id="rollout-signoff-qa"
+             class="fas fa-times text-danger text-center"
+             style="min-width: 16px"></i>
         {% endif %}
+        <div class="text-secondary" style="font-size: 12px;">QA sign-off</div>
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.qa_signoff %}
 
     </div>
     {# VP sign-off #}
     <div>
-      <div class="d-flex flex-row gap-3">
-        <div class="text-secondary mb-1" style="font-size: 12px;">VP sign-off</div>
+      <div class="d-flex flex-row align-items-baseline gap-2">
         {% if experiment.vp_signoff %}
-          <i id="rollout-signoff-vp" class="fas fa-check text-success"></i>
+          <i id="rollout-signoff-vp"
+             class="fas fa-check text-success text-center"
+             style="min-width: 16px"></i>
         {% else %}
-          <i id="rollout-signoff-vp" class="fas fa-times text-danger"></i>
+          <i id="rollout-signoff-vp"
+             class="fas fa-times text-danger text-center"
+             style="min-width: 16px"></i>
         {% endif %}
+        <div class="text-secondary" style="font-size: 12px;">VP sign-off</div>
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.vp_signoff %}
 
     </div>
     {# Legal sign-off #}
     <div>
-      <div class="d-flex flex-row gap-3">
-        <div class="text-secondary mb-1" style="font-size: 12px;">Legal sign-off</div>
+      <div class="d-flex flex-row align-items-baseline gap-2">
         {% if experiment.legal_signoff %}
-          <i id="rollout-signoff-legal" class="fas fa-check text-success"></i>
+          <i id="rollout-signoff-legal"
+             class="fas fa-check text-success text-center"
+             style="min-width: 16px"></i>
         {% else %}
-          <i id="rollout-signoff-legal" class="fas fa-times text-danger"></i>
+          <i id="rollout-signoff-legal"
+             class="fas fa-times text-danger text-center"
+             style="min-width: 16px"></i>
         {% endif %}
+        <div class="text-secondary" style="font-size: 12px;">Legal sign-off</div>
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.legal_signoff %}
 
