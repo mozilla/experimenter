@@ -1,5 +1,7 @@
 {# ── Edit form ── #}
 <div id="rollout-risks-body">
+  {% include "new/common/sidebar_setup_refresh.html" %}
+
   <form hx-post="{% url 'nimbus-ui-new-update-risks' experiment.slug %}"
         hx-target="#rollout-risks-body"
         hx-swap="outerHTML"

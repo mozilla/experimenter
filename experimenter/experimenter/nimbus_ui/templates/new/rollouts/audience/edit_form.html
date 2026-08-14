@@ -2,6 +2,8 @@
 {% load widget_tweaks %}
 
 <div id="rollout-audience-body">
+  {% include "new/common/sidebar_setup_refresh.html" %}
+
   {# Explore matching audiences #}
   <div class="mb-2">
     <a href="{{ experiment.audience_url }}"
