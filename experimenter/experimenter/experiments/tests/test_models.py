@@ -7167,6 +7167,76 @@ class TestRolloutPhaseProgress(TestCase):
         statuses = [p.card_status for p in experiment.annotated_rollout_phases()]
         self.assertEqual(statuses, ["not_started", "not_started"])
 
+    def test_annotated_rollout_phases_annotates_status_display_and_number(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (10, 50, 100)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+
+        annotated = experiment.annotated_rollout_phases()
+        self.assertEqual([p.number for p in annotated], [1, 2, 3])
+        self.assertEqual(
+            [p.card_status_display for p in annotated],
+            [
+                NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISPLAY[status]
+                for status in (
+                    NimbusUIConstants.RolloutPhaseStatus.COMPLETE,
+                    NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS,
+                    NimbusUIConstants.RolloutPhaseStatus.NOT_STARTED,
+                )
+            ],
+        )
+
+    def test_rollout_phase_status_display_when_paused(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+            is_paused=True,
+        )
+        self.assertEqual(
+            experiment.rollout_phase_status_display(
+                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
+            ),
+            NimbusUIConstants.ROLLOUT_PHASE_STATUS_PAUSED,
+        )
+
+    def test_rollout_phase_status_display_when_disabled(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        experiment.status = NimbusExperiment.Status.DISABLED
+        experiment.save()
+        self.assertEqual(
+            experiment.rollout_phase_status_display(
+                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
+            ),
+            NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISABLED,
+        )
+
+    def test_rollout_phase_status_display_ignores_paused_for_other_statuses(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+            is_paused=True,
+        )
+        self.assertEqual(
+            experiment.rollout_phase_status_display(
+                NimbusUIConstants.RolloutPhaseStatus.COMPLETE
+            ),
+            NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISPLAY[
+                NimbusUIConstants.RolloutPhaseStatus.COMPLETE
+            ],
+        )
+
 
 class TestAdvanceRolloutPhase(TestCase):
     def setUp(self):

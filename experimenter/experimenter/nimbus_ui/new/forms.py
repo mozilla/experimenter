@@ -1821,7 +1821,14 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
             )
         }
         for phase_form in self.rollout_phases.forms:
-            status = phase_statuses.get(phase_form.instance.pk)
+            status = phase_statuses.get(
+                phase_form.instance.pk,
+                NimbusUIConstants.RolloutPhaseStatus.NOT_STARTED,
+            )
+            phase_form.card_status = status
+            phase_form.card_status_display = self.instance.rollout_phase_status_display(
+                status
+            )
             phase_form.is_locked = phase_form.instance.pk in self.locked_phase_ids
             if status == NimbusUIConstants.RolloutPhaseStatus.COMPLETE:
                 disabled_fields = NimbusUIConstants.ROLLOUT_PHASE_FIELDS
