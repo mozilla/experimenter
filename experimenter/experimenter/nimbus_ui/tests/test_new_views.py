@@ -495,6 +495,36 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             ),
         )
 
+    @parameterized.expand(
+        [
+            (NimbusExperiment.PublishStatus.REVIEW,),
+            (NimbusExperiment.PublishStatus.APPROVED,),
+            (NimbusExperiment.PublishStatus.WAITING,),
+        ]
+    )
+    def test_disable_button_disabled_while_disable_transition_pending(
+        self, publish_status
+    ):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.DISABLED,
+            publish_status=publish_status,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment)
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        start = content.index('id="rollout-disable-btn"')
+        button_tag = content[start : content.index(">", start)]
+        self.assertNotIn("hx-post", button_tag)
+        button_tag = button_tag.replace('hx-disabled-elt="this"', "")
+        self.assertIn("disabled", button_tag)
+
     def test_get_returns_new_rollout_detail_context(self):
         tag = TagFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(

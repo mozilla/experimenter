@@ -262,6 +262,9 @@ class RolloutSetupProgressMixin:
         }
         context["setup_issues"] = issues
         context["setup_issues_count"] = sum(len(group["fields"]) for group in issues)
+        context["setup_issue_card_ids"] = [
+            issue["card_id"] for issue in issues if issue["card_id"]
+        ]
         context["setup_completion_percent"] = round(
             100 * (len(tracked) - len(broken)) / len(tracked)
         )

@@ -1,0 +1,46 @@
+<div id="sidebar-setup-nav"
+     {% if oob %}hx-swap-oob="true"{% endif %}
+     class="d-flex flex-column gap-1">
+  <a href="#rollout-card-overview"
+     class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
+    {% include "new/common/sidebar_setup_item_health.html" with card_id="overview" %}
+
+    Overview
+  </a>
+  <a href="#rollout-card-schedule"
+     class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
+    {% include "new/common/sidebar_setup_item_health.html" with card_id="schedule" %}
+
+    Rollout schedule
+  </a>
+  <a href="#rollout-card-audience"
+     class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
+    {% include "new/common/sidebar_setup_item_health.html" with card_id="audience" %}
+
+    Audience
+  </a>
+  <a href="#rollout-card-rollout-features"
+     class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
+    {% include "new/common/sidebar_setup_item_health.html" with card_id="rollout-features" %}
+
+    Rollout Features
+  </a>
+  <a href="#rollout-card-signoff"
+     class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
+    {% include "new/common/sidebar_setup_item_health.html" with card_id="signoff" %}
+
+    Sign-Offs
+  </a>
+  <a href="#rollout-card-risks"
+     class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
+    {% include "new/common/sidebar_setup_item_health.html" with card_id="risks" %}
+
+    Risks
+  </a>
+  <a href="#rollout-card-qa"
+     class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
+    {% include "new/common/sidebar_setup_item_health.html" with card_id="qa" %}
+
+    QA
+  </a>
+</div>

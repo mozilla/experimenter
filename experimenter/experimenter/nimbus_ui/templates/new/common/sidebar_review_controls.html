@@ -16,10 +16,10 @@
               <i class="fa-regular fa-hourglass-half text-secondary me-2"></i>
               Review requested
             {% elif rejection %}
-              <i class="fa-solid fa-circle-xmark text-secondary me-2"></i>
+              <i class="fa-regular fa-circle-xmark text-secondary me-2"></i>
               Review rejected
             {% else %}
-              <i class="fa-solid fa-cloud-arrow-up text-secondary me-2"></i>
+              <i class="fa-regular fa-bell text-secondary me-2"></i>
               Action required
             {% endif %}
           </div>
@@ -56,10 +56,11 @@
             {% if experiment.latest_review_requested_by == user.email %}
               <button type="button"
                       id="rollout-review-cancel-btn"
-                      class="btn btn-secondary btn-sm w-100 mb-2"
+                      class="btn btn-secondary btn-sm w-100 mb-2 d-flex align-items-center justify-content-center gap-2"
                       hx-post="{% url controls.reject_url experiment.slug %}"
                       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                       hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}"}'>
+                <i class="fa-solid fa-rotate-left"></i>
                 Cancel Request
               </button>
             {% endif %}
@@ -73,18 +74,24 @@
               <div class="d-flex flex-column gap-2">
                 <button type="button"
                         id="rollout-review-reject-btn"
-                        class="btn btn-secondary btn-sm w-100"
+                        class="btn btn-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
                         data-bs-toggle="collapse"
                         data-bs-target="#rollout-reject-form"
                         aria-expanded="false"
-                        aria-controls="rollout-reject-form">Reject</button>
+                        aria-controls="rollout-reject-form">
+                  <i class="fa-regular fa-circle-xmark"></i>
+                  Reject
+                </button>
                 <button type="button"
                         id="rollout-review-approve-btn"
-                        class="btn btn-primary btn-sm w-100"
+                        class="btn btn-success btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
                         hx-post="{% url controls.approve_url experiment.slug %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                        {% if setup_issues_count %} {% if experiment.is_draft or controls.action_label == "Advance to Next Phase" %}disabled{% endif %}
-                        {% endif %}>Approve</button>
+                        {% if setup_issues_count %}{% if experiment.is_draft or controls.action_label == "Advance to Next Phase" %}disabled{% endif %}
+                        {% endif %}>
+                  <i class="fa-regular fa-circle-check"></i>
+                  Approve
+                </button>
               </div>
               <div class="collapse mt-2" id="rollout-reject-form">
                 <label for="rollout-reject-message" class="form-label small mb-1">
@@ -97,11 +104,14 @@
                           rows="3"></textarea>
                 <button type="button"
                         id="rollout-review-submit-reject-btn"
-                        class="btn btn-secondary btn-sm w-100"
+                        class="btn btn-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
                         hx-post="{% url controls.reject_url experiment.slug %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                         hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}"}'
-                        hx-include="#rollout-reject-message">Submit Rejection</button>
+                        hx-include="#rollout-reject-message">
+                  <i class="fa-regular fa-circle-xmark"></i>
+                  Submit Rejection
+                </button>
               </div>
             {% else %}
               <p class="small text-body mb-2">
@@ -131,7 +141,10 @@
                href="{{ experiment.review_url }}"
                target="_blank"
                rel="noopener noreferrer"
-               class="btn btn-primary btn-sm w-100">Open Remote Settings</a>
+               class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+              <i class="fa-regular fa-circle-right"></i>
+              Open Remote Settings
+            </a>
           {% endif %}
         </div>
       </div>

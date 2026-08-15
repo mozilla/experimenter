@@ -20,14 +20,7 @@
       </div>
     {% endif %}
     {% include "new/rollouts/detail_card.html" with card_id="overview" title="Overview" show_edit_btn=experiment.is_draft body_template="new/rollouts/overview/card.html" %}
-
-    {% if experiment.is_rolling_out %}
-      {% include "new/rollouts/detail_card.html" with card_id="schedule" title="Rollout schedule" show_edit_btn=True body_template="new/rollouts/schedule/card.html" %}
-
-    {% else %}
-      {% include "new/rollouts/detail_card.html" with card_id="schedule" title="Rollout schedule" show_edit_btn=experiment.is_draft body_template="new/rollouts/schedule/card.html" %}
-
-    {% endif %}
+    {% include "new/rollouts/detail_card.html" with card_id="schedule" title="Rollout schedule" show_edit_btn=experiment.is_rolling_out|default:experiment.is_draft lock_edit=experiment.has_pending_rollout_transition lock_tooltip=NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP body_template="new/rollouts/schedule/card.html" %}
     {% include "new/rollouts/detail_card.html" with card_id="audience" title="Audience" show_edit_btn=experiment.is_draft body_template="new/rollouts/audience/card.html" %}
     {% include "new/rollouts/detail_card.html" with card_id="rollout-features" title="Rollout Features" show_edit_btn=experiment.is_draft body_template="new/rollouts/rollout_features/card.html" %}
     {% include "new/rollouts/detail_card.html" with card_id="signoff" title="Sign-Offs" show_edit_btn=True body_template="new/rollouts/signoff/card.html" %}
