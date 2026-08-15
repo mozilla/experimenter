@@ -60,7 +60,7 @@ dependencies = [
     "pyright>=1.1.291,<2",
     "pytest>=8.4.0,<9",
     "pytest-cov>=6.3.0,<7",
-    "pytest-django==4.12.0",
+    "pytest-django==4.13.0",
     "pytest-xdist==2.5.0",
     "python-decouple==3.8",
     "pyyaml>=6.0.1,<7",
