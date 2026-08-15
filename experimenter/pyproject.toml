@@ -29,7 +29,7 @@ dependencies = [
     "django-test-migrations>=1.5.0,<2",
     "django-types>=0.24.0,<0.25",
     "django-widget-tweaks==1.5.0",
-    "djangorestframework==3.17.0",
+    "djangorestframework==3.18.0",
     "djangorestframework-csv==2.1.1",
     "djlint>=1.36.1,<2",
     "dockerflow>=2024.4.1,<2025",
