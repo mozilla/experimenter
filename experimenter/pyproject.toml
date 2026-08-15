@@ -26,7 +26,7 @@ dependencies = [
     "django-prose>=2.1.0,<3",
     "django-redis>=5.4.0,<6",
     "django-storages==1.14",
-    "django-test-migrations>=1.5.0,<2",
+    "django-test-migrations>=1.6.0,<2",
     "django-types>=0.24.0,<0.25",
     "django-widget-tweaks==1.5.0",
     "djangorestframework==3.17.0",
