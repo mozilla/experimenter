@@ -7,7 +7,8 @@
   <form hx-post="{% url 'nimbus-ui-new-update-qa' experiment.slug %}"
         hx-target="#rollout-qa-body"
         hx-swap="outerHTML"
-        class="d-flex flex-column gap-4">
+        hx-disabled-elt="#rollout-qa-save"
+        class="card-edit-form d-flex flex-column gap-4">
     {% csrf_token %}
     <div class="d-flex flex-column gap-4">
       {# QA method #}
@@ -46,14 +47,7 @@
       </div>
     </div>
     {# Action buttons #}
-    <div class="d-flex align-items-center gap-2">
-      <button type="submit" class="btn btn-primary btn-sm">Save</button>
-      <button type="button"
-              class="btn btn-outline-secondary btn-sm"
-              hx-get="{{ cancel_url }}"
-              hx-select="#rollout-card-qa"
-              hx-target="#rollout-card-qa"
-              hx-swap="outerHTML">Cancel</button>
-    </div>
+    {% include "new/common/card_form_actions.html" with card_id="qa" %}
+
   </form>
 </div>

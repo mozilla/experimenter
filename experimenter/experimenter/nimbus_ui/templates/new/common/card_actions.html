@@ -1,0 +1,12 @@
+{% with 'nimbus-ui-new-update-'|add:card_id as url_name %}
+  <button class="btn p-0 border-0 text-secondary"
+          type="button"
+          data-card-action="edit"
+          aria-label="Edit {{ card_id }}"
+          hx-get="{% url url_name experiment.slug %}"
+          hx-target="#rollout-{{ card_id }}-body"
+          hx-swap="outerHTML">
+    <i class="fa-regular fa-pen-to-square"></i>
+  </button>
+{% endwith %}
+{% include "new/common/card_cancel_button.html" with icon_only=True %}

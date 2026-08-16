@@ -358,6 +358,19 @@
   cursor: not-allowed;
 }
 
+.card-edit-form .card-edit-spinner {
+  display: none;
+}
+
+.card-edit-form.htmx-request {
+  opacity: 0.55;
+  pointer-events: none;
+
+  .card-edit-spinner {
+    display: inline-block;
+  }
+}
+
 .rollout-page {
   .cm-editor .cm-scroller {
     font-family: var(--bs-font-monospace);

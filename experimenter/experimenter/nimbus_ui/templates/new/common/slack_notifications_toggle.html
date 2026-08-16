@@ -3,6 +3,7 @@
       hx-trigger="change"
       hx-target="#slack-notifications-toggle-form"
       hx-swap="outerHTML"
+      hx-sync="this:drop"
       class="d-flex align-items-center">
   {% csrf_token %}
   <div class="form-check form-switch d-flex align-items-center m-0">
