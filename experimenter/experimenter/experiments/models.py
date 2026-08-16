@@ -1394,6 +1394,32 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     @property
+    def next_rollout_phase_number(self):
+        next_phase = self.next_rollout_phase
+        if next_phase is None:
+            return None
+
+        phase_ids = [phase.id for phase in self.rollout_phases.all()]
+        return phase_ids.index(next_phase.id) + 1
+
+    @property
+    def should_advance_rollout_phase(self):
+        if not self.is_rolling_out or self.has_pending_rollout_transition:
+            return False
+
+        if self.rollout_phase_next_id is not None:
+            return False
+
+        next_phase = self.next_rollout_phase
+        if next_phase is None:
+            return False
+
+        if next_phase.start_date is None:
+            return False
+
+        return datetime.date.today() >= next_phase.start_date
+
+    @property
     def rollout_review_controls(self):
         if self.publish_status != self.PublishStatus.REVIEW:
             return None
@@ -3770,6 +3796,13 @@ class NimbusEmail(models.Model):
         NimbusExperiment,
         related_name="emails",
         on_delete=models.CASCADE,
+    )
+    rollout_phase = models.ForeignKey(
+        "NimbusRolloutPhase",
+        related_name="emails",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     type = models.CharField(max_length=255, choices=NimbusExperiment.EmailType.choices)
     sent_on = models.DateTimeField(auto_now_add=True)

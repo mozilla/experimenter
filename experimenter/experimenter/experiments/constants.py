@@ -570,6 +570,7 @@ class NimbusConstants:
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
         ENROLLMENT_END = "enrollment end"
+        ROLLOUT_PHASE_ADVANCE = "rollout phase advance"
 
     class AlertType(models.TextChoices):
         ANALYSIS_ERROR = "analysis_error", "Analysis Error"
@@ -610,6 +611,11 @@ class NimbusConstants:
 
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
     EMAIL_ENROLLMENT_END_SUBJECT = "Action required: Please end experiment enrollment"
+    EMAIL_ROLLOUT_PHASE_ADVANCE_SUBJECT = (
+        "Action required: Your Rollout's next phase is scheduled to start today"
+    )
+
+    LOG_ROLLOUT_PHASE_ADVANCE_EMAIL_SENT = "{rollout} rollout phase advance email sent"
 
     LANGUAGES_APPLICATION_SUPPORTED_VERSION = {
         Application.FENIX: Version.FIREFOX_102,

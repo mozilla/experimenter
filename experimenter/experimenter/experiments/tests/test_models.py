@@ -7771,6 +7771,125 @@ class TestRolloutSidebarStateHelpers(TestCase):
         experiment = NimbusExperimentFactory.create(is_rollout=False)
         self.assertFalse(experiment.has_rollout_review_errors)
 
+    def test_next_rollout_phase_number_returns_position_of_next_phase(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (1, 10, 50)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+        self.assertEqual(experiment.next_rollout_phase_number, 3)
+
+    def test_next_rollout_phase_number_none_on_last_phase(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (1, 10)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+        self.assertIsNone(experiment.next_rollout_phase_number)
+
+    def test_should_advance_rollout_phase_true_on_next_phase_start_date(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=percent,
+                start_date=datetime.date.today(),
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        self.assertTrue(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_false_before_next_phase_start_date(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=percent,
+                start_date=datetime.date.today() + datetime.timedelta(days=1),
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        self.assertFalse(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_false_without_next_phase_start_date(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent, start_date=None
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        self.assertFalse(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_false_when_not_rolling_out(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date.today(),
+        )
+        self.assertFalse(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_false_when_advance_already_staged(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=percent,
+                start_date=datetime.date.today(),
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        experiment.stage_rollout_phase_advance()
+        self.assertFalse(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_true_when_next_has_zero_population(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=percent,
+                start_date=datetime.date.today(),
+            )
+            for percent in (10, 0)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        self.assertTrue(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_false_on_last_phase(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=percent,
+                start_date=datetime.date.today(),
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+        self.assertFalse(experiment.should_advance_rollout_phase)
+
     def test_active_rollout_stage_setup_when_draft(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
