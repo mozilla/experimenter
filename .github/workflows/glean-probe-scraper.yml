@@ -4,4 +4,4 @@ on: [push, pull_request]
 jobs:
   glean-probe-scraper:
     if: github.repository == 'mozilla/experimenter'
-    uses: mozilla/probe-scraper/.github/workflows/glean.yaml@62e2e10077331056f28f116735f437c48f328e74 # main
+    uses: mozilla/probe-scraper/.github/workflows/glean.yaml@b8148e1b96d27cfcb390c1f4a030de065f5a8a64 # main
