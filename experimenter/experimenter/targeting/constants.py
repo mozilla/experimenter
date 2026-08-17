@@ -5487,6 +5487,18 @@ EXISTING_USER_NO_ENTERPRISE = NimbusTargetingConfig(
 )
 
 
+NOT_DEFAULT_BROWSER_DESKTOP = NimbusTargetingConfig(
+    name="Firefox is not the default browser",
+    slug="not_default_browser_desktop",
+    description="Users that do not have Firefox as the default browser",
+    targeting=NEED_DEFAULT,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+
 class TargetingConstants:
     TARGETING_CONFIGS = {
         targeting.slug: targeting for targeting in NimbusTargetingConfig.targeting_configs
