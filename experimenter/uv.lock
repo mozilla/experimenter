@@ -554,14 +554,14 @@ wheels = [
 
 [[package]]
 name = "django-test-migrations"
-version = "1.5.0"
+version = "1.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/be/ed/7fc6f8e89d83565fc4acb93ae0a2387d885ac83cda445cb6c570f302bf55/django_test_migrations-1.5.0.tar.gz", hash = "sha256:1cbff04b1e82c5564a6f635284907b381cc11a2ff883adff46776d9126824f07", size = 20143, upload-time = "2025-04-18T10:15:38.547Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ff/9f/d8197fa49c4e6632e9e14867f2cf7be7d29cd93de611559610d63b5c3e30/django_test_migrations-1.6.0.tar.gz", hash = "sha256:a36e13d3f6cb139707896a8e5acefa0fbb24df0ee19e4f986e37faa8ef858819", size = 20798, upload-time = "2026-08-05T08:07:25.976Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c0/fe/38789c69f71adff9156bda7542d8fd05fcde1a109cf67bd7a1a139f8199f/django_test_migrations-1.5.0-py3-none-any.whl", hash = "sha256:96a08f085fc8bfaa53d44618341d82a2d22fd194c821cd81b147b66f0bec0da8", size = 25099, upload-time = "2025-04-18T10:15:37.16Z" },
+    { url = "https://files.pythonhosted.org/packages/e5/ee/5c03667edfc91fddd06f457814581d25d7380eeca0da5ab03fc7c0955e9e/django_test_migrations-1.6.0-py3-none-any.whl", hash = "sha256:ecff93a5aa8bbcba9862a057c658c4ca35d92848253ca5cb47bad372c81d528f", size = 25695, upload-time = "2026-08-05T08:07:27.223Z" },
 ]
 
 [[package]]
@@ -793,7 +793,7 @@ requires-dist = [
     { name = "django-prose", specifier = ">=2.1.0,<3" },
     { name = "django-redis", specifier = ">=5.4.0,<6" },
     { name = "django-storages", specifier = "==1.14" },
-    { name = "django-test-migrations", specifier = ">=1.5.0,<2" },
+    { name = "django-test-migrations", specifier = ">=1.6.0,<2" },
     { name = "django-types", specifier = ">=0.24.0,<0.25" },
     { name = "django-widget-tweaks", specifier = "==1.5.0" },
     { name = "djangorestframework", specifier = "==3.17.0" },
