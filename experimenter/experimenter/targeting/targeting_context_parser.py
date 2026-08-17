@@ -47,7 +47,7 @@ class TargetingContextFields:
         for line in targeting_context_code.splitlines():
             stripped_line = line.strip()
 
-            if stripped_line == "val obj = JSONObject(":
+            if stripped_line == "override fun toJson(): JsonObject {":
                 found_block = True
             elif found_block and stripped_line == "),":
                 break
