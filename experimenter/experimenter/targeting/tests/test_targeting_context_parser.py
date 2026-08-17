@@ -7,6 +7,49 @@ from experimenter.experiments.constants import NimbusConstants
 from experimenter.targeting.targeting_context_parser import TargetingContextFields
 from experimenter.targeting.tests import mock_targeting_manifests
 
+FENIX_TARGETING_CONTEXT_OLD_FORMAT = """
+class RecordedNimbusContext {
+    private val decoy = mapOf("not_a_targeting_field" to 1)
+
+    override fun toJson(): JsonObject {
+        val obj = JSONObject(
+            mapOf(
+                "is_first_run" to isFirstRun,
+                "events" to JSONObject(eventQueryValues),
+                "app_version" to appVersion,
+                "nested_object" to JSONObject(mapOf("inner_key" to innerValue)),
+                "region" to region,
+            ),
+        )
+        return obj
+    }
+
+    fun other(): Map<String, Any> = mapOf("after_block" to 1)
+}
+"""
+
+FENIX_TARGETING_CONTEXT_NEW_FORMAT = """
+class RecordedNimbusContext {
+    private val decoy = mapOf("not_a_targeting_field" to 1)
+
+    override fun toJson(): JsonObject {
+        val obj =
+            JSONObject(
+                mapOf(
+                    "is_first_run" to isFirstRun,
+                    "events" to JSONObject(eventQueryValues),
+                    "app_version" to appVersion,
+                    "nested_object" to JSONObject(mapOf("inner_key" to innerValue)),
+                    "region" to region,
+                )
+            )
+        return obj
+    }
+
+    fun other(): Map<String, Any> = mapOf("after_block" to 1)
+}
+"""
+
 
 @mock_targeting_manifests
 class TestTargetingContextFields(TestCase):
@@ -139,6 +182,37 @@ class TestTargetingContextFields(TestCase):
 
         for field in expected_fields:
             self.assertIn(field, targeting_fields)
+
+    def test_parse_fenix_targeting_fields_independent_of_source_formatting(self):
+        expected_fields = [
+            "is_first_run",
+            "events",
+            "app_version",
+            "nested_object",
+            "region",
+        ]
+
+        old_format_fields = TargetingContextFields._parse_fenix_targeting_fields(
+            FENIX_TARGETING_CONTEXT_OLD_FORMAT
+        )
+        new_format_fields = TargetingContextFields._parse_fenix_targeting_fields(
+            FENIX_TARGETING_CONTEXT_NEW_FORMAT
+        )
+
+        self.assertEqual(old_format_fields, expected_fields)
+        self.assertEqual(new_format_fields, expected_fields)
+
+        for fields in (old_format_fields, new_format_fields):
+            self.assertNotIn("inner_key", fields)
+            self.assertNotIn("not_a_targeting_field", fields)
+            self.assertNotIn("after_block", fields)
+
+    def test_parse_fenix_targeting_fields_without_recorded_context_map(self):
+        targeting_fields = TargetingContextFields._parse_fenix_targeting_fields(
+            "class RecordedNimbusContext {\n    private val decoy = mapOf()\n}\n"
+        )
+
+        self.assertEqual(targeting_fields, [])
 
     def test_attempt_load_targeting_fields_for_unknown_application(self):
         self.assertRaises(

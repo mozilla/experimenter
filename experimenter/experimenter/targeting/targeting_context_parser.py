@@ -40,21 +40,40 @@ class TargetingContextFields:
 
     @staticmethod
     def _parse_fenix_targeting_fields(targeting_context_code):
-        found_block = False
         targeting_fields = []
-        target_line_match = re.compile(r'"([^"]+)"')
+        map_of_match = re.compile(r"JSONObject\s*\(\s*mapOf\s*\(")
+        target_entry_match = re.compile(r'"([^"]*)"\s*to\s')
 
-        for line in targeting_context_code.splitlines():
-            stripped_line = line.strip()
+        map_of = map_of_match.search(targeting_context_code)
+        if map_of is None:
+            return targeting_fields
 
-            if stripped_line == "val obj = JSONObject(":
-                found_block = True
-            elif found_block and stripped_line == "),":
-                break
-            elif found_block:
-                res = target_line_match.search(stripped_line)
-                if res:
-                    targeting_fields.append(res.group(1))
+        depth = 1
+        index = map_of.end()
+
+        while index < len(targeting_context_code) and depth > 0:
+            character = targeting_context_code[index]
+
+            if character == '"':
+                entry = target_entry_match.match(targeting_context_code, index)
+                if depth == 1 and entry:
+                    targeting_fields.append(entry.group(1))
+                    index = entry.end()
+                else:
+                    closing_quote = targeting_context_code.find('"', index + 1)
+                    index = (
+                        len(targeting_context_code)
+                        if closing_quote == -1
+                        else closing_quote + 1
+                    )
+                continue
+
+            if character in "([{":
+                depth += 1
+            elif character in ")]}":
+                depth -= 1
+
+            index += 1
 
         return targeting_fields
 
