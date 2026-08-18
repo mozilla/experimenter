@@ -1,0 +1,13 @@
+<div class="d-flex align-items-center gap-2">
+  <button type="submit"
+          id="rollout-{{ card_id }}-save"
+          {% if submit_name %}name="{{ submit_name }}" value="True"{% endif %}
+          class="btn btn-primary btn-sm d-inline-flex align-items-center gap-2">
+    <span class="spinner-border spinner-border-sm card-edit-spinner"
+          role="status"
+          aria-hidden="true"></span>
+    Save
+  </button>
+  {% include "new/common/card_cancel_button.html" %}
+
+</div>

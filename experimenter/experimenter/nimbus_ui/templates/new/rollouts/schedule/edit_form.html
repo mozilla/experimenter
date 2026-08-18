@@ -7,7 +7,8 @@
   <form hx-post="{% url 'nimbus-ui-new-update-schedule' experiment.slug %}"
         hx-target="#rollout-schedule-body"
         hx-swap="outerHTML"
-        class="d-flex flex-column gap-4">
+        hx-disabled-elt="#rollout-schedule-save"
+        class="card-edit-form d-flex flex-column gap-4">
     {% csrf_token %}
     {# Choose rollout plan #}
     <div>
@@ -146,14 +147,7 @@
 
     </div>
     {# Action buttons #}
-    <div class="d-flex align-items-center gap-2">
-      <button type="submit" class="btn btn-primary btn-sm">Save</button>
-      <button type="button"
-              class="btn btn-outline-secondary btn-sm"
-              hx-get="{{ cancel_url }}"
-              hx-select="#rollout-card-schedule"
-              hx-target="#rollout-card-schedule"
-              hx-swap="outerHTML">Cancel</button>
-    </div>
+    {% include "new/common/card_form_actions.html" with card_id="schedule" %}
+
   </form>
 </div>

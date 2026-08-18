@@ -1,4 +1,5 @@
 import datetime
+import json
 from decimal import Decimal
 from unittest import mock
 from unittest.mock import patch
@@ -2253,3 +2254,62 @@ class TestNewToggleReviewSlackNotificationsView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertFalse(experiment.enable_review_slack_notifications)
+
+
+class TestToastTriggers(AuthTestCase):
+    def assertToastTriggered(self, response, toast_id):
+        self.assertEqual(
+            json.loads(response.headers["HX-Trigger"]),
+            {"showToast": {"id": toast_id}},
+        )
+        self.assertIn(toast_id, NimbusUIConstants.TOASTS)
+
+    def test_saving_a_card_triggers_the_saved_toast(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, is_rollout=True
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-update-signoff", kwargs={"slug": experiment.slug}),
+            {"qa_signoff": "on", "vp_signoff": "on", "legal_signoff": "on"},
+        )
+
+        self.assertToastTriggered(response, NimbusUIConstants.TOAST_SAVED)
+
+    def test_subscribing_and_unsubscribing_trigger_toasts(self):
+        experiment = NimbusExperimentFactory.create()
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-subscribe", kwargs={"slug": experiment.slug})
+        )
+        self.assertToastTriggered(response, NimbusUIConstants.TOAST_SUBSCRIBED)
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-unsubscribe", kwargs={"slug": experiment.slug})
+        )
+        self.assertToastTriggered(response, NimbusUIConstants.TOAST_UNSUBSCRIBED)
+
+    def test_toggling_slack_notifications_triggers_toasts(self):
+        experiment = NimbusExperimentFactory.create()
+        url = reverse(
+            "nimbus-ui-new-toggle-review-slack-notifications",
+            kwargs={"slug": experiment.slug},
+        )
+
+        response = self.client.post(url, {"enable_review_slack_notifications": "on"})
+        self.assertToastTriggered(response, NimbusUIConstants.TOAST_SLACK_ENABLED)
+
+        response = self.client.post(url, {})
+        self.assertToastTriggered(response, NimbusUIConstants.TOAST_SLACK_DISABLED)
+
+    def test_every_toast_id_has_markup_on_the_page(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, is_rollout=True
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        for toast_id in NimbusUIConstants.TOASTS:
+            self.assertContains(response, f'<div id="{toast_id}"')

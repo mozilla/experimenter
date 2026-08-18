@@ -14,6 +14,7 @@
     <script src="{% static 'nimbus_ui/app.bundle.js' %}"></script>
     <script src="{% static 'nimbus_ui/new_tooltips.bundle.js' %}"></script>
     <script src="{% static 'nimbus_ui/new_htmx_failure.bundle.js' %}"></script>
+    <script src="{% static 'nimbus_ui/new_rollout_cards.bundle.js' %}"></script>
     {% block extra_head %}{% endblock %}
   </head>
   <body class="m-0 p-0 rollout-page bg-body-tertiary"
@@ -136,6 +137,18 @@
                 JSON copied to clipboard!
               </div>
             </div>
+            {% for toast_id, toast_message in NimbusUIConstants.TOASTS.items %}
+              <div id="{{ toast_id }}"
+                   class="toast hide text-bg-primary mb-1"
+                   role="alert"
+                   aria-live="assertive"
+                   aria-atomic="true">
+                <div class="toast-body">
+                  <i class="fa-regular fa-circle-check"></i>
+                  {{ toast_message }}
+                </div>
+              </div>
+            {% endfor %}
           </div>
         </div>
         <template id="template-toast">

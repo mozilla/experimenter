@@ -5,7 +5,8 @@
   <form hx-post="{% url 'nimbus-ui-new-update-overview' experiment.slug %}"
         hx-target="#rollout-overview-body"
         hx-swap="outerHTML"
-        class="d-flex flex-column gap-4">
+        hx-disabled-elt="#rollout-overview-save"
+        class="card-edit-form d-flex flex-column gap-4">
     {% csrf_token %}
     <div class="d-flex flex-column gap-4">
       {# Name #}
@@ -108,15 +109,8 @@
 
     </div>
     {# Action buttons #}
-    <div class="d-flex align-items-center gap-2">
-      <button type="submit" class="btn btn-primary btn-sm">Save</button>
-      <button type="button"
-              class="btn btn-outline-secondary btn-sm"
-              hx-post="{% url 'nimbus-ui-new-cancel-overview' experiment.slug %}"
-              hx-select="#rollout-card-overview"
-              hx-target="#rollout-card-overview"
-              hx-swap="outerHTML">Cancel</button>
-    </div>
+    {% include "new/common/card_form_actions.html" with card_id="overview" %}
+
   </form>
 </div>
 {% include "new/common/sidebar_links.html" with hx_swap_oob=True %}

@@ -5,7 +5,8 @@
   <form hx-post="{% url 'nimbus-ui-new-update-signoff' experiment.slug %}"
         hx-target="#rollout-signoff-body"
         hx-swap="outerHTML"
-        class="d-flex flex-column gap-4">
+        hx-disabled-elt="#rollout-signoff-save"
+        class="card-edit-form d-flex flex-column gap-4">
     {% csrf_token %}
     <div class="d-flex flex-column gap-3">
       {# QA sign-off #}
@@ -60,14 +61,7 @@
 
     </div>
     {# Action buttons #}
-    <div class="d-flex align-items-center gap-2">
-      <button type="submit" class="btn btn-primary btn-sm">Save</button>
-      <button type="button"
-              class="btn btn-outline-secondary btn-sm"
-              hx-get="{{ cancel_url }}"
-              hx-select="#rollout-card-signoff"
-              hx-target="#rollout-card-signoff"
-              hx-swap="outerHTML">Cancel</button>
-    </div>
+    {% include "new/common/card_form_actions.html" with card_id="signoff" %}
+
   </form>
 </div>
