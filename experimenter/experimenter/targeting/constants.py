@@ -55,6 +55,7 @@ PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
 PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 < 28"
 PROFILELESSTHAN1HOUR = "(currentDate|date - profileAgeCreated|date) / 3600000 < 1"
 PROFILELESSTHAN2DAYS = "(currentDate|date - profileAgeCreated|date) / 3600000 < 48"
+PROFILE2DAYS = "(currentDate|date - profileAgeCreated|date) / 3600000 >= 48"
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 PROFILEMORETHAN14DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 14"
 PROFILE1TO2DAYS = (
@@ -4934,6 +4935,34 @@ FX_156_TRAINHOP = NimbusTargetingConfig(
         "which includes users of Fx154"
     ),
     targeting="newtabAddonVersion|versionCompare('156.1.20260818.43226') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+PROFILE_UNDER_48_HOURS_FX_156_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx156 Aug-18 Trainhop, Profile Newer Than 48 Hours",
+    slug="newtab-156-0818-trainhop-profile-under-48-hours",
+    description=(
+        "Desktop users having the New Tab 156.1.20260818.43226 train hop, "
+        "which includes users of Fx154, whose profile is newer than 48 hours"
+    ),
+    targeting=f"{FX_156_TRAINHOP.targeting} && ({PROFILELESSTHAN2DAYS})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+PROFILE_48_HOURS_OR_OLDER_FX_156_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx156 Aug-18 Trainhop, Profile 48 Hours Or Older",
+    slug="newtab-156-0818-trainhop-profile-48-hours-or-older",
+    description=(
+        "Desktop users having the New Tab 156.1.20260818.43226 train hop, "
+        "which includes users of Fx154, whose profile is at least 48 hours old"
+    ),
+    targeting=f"{FX_156_TRAINHOP.targeting} && ({PROFILE2DAYS})",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
