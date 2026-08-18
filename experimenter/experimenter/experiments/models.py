@@ -1416,11 +1416,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return transitions.get((self.status, self.status_next))
 
     def rollout_phase_status_display(self, status):
-        if status == NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS:
-            if self.is_disabled:
-                return NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISABLED
-            if self.is_paused:
-                return NimbusUIConstants.ROLLOUT_PHASE_STATUS_PAUSED
+        if (
+            status == NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
+            and self.is_disabled
+        ):
+            return NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISABLED
         return NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISPLAY[status]
 
     def annotated_rollout_phases(self):

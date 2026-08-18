@@ -7195,19 +7195,6 @@ class TestRolloutPhaseProgress(TestCase):
             ],
         )
 
-    def test_rollout_phase_status_display_when_paused(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
-            is_rollout=True,
-            is_paused=True,
-        )
-        self.assertEqual(
-            experiment.rollout_phase_status_display(
-                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
-            ),
-            NimbusUIConstants.ROLLOUT_PHASE_STATUS_PAUSED,
-        )
-
     def test_rollout_phase_status_display_when_disabled(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
@@ -7222,18 +7209,17 @@ class TestRolloutPhaseProgress(TestCase):
             NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISABLED,
         )
 
-    def test_rollout_phase_status_display_ignores_paused_for_other_statuses(self):
+    def test_rollout_phase_status_display_when_not_disabled(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_rollout=True,
-            is_paused=True,
         )
         self.assertEqual(
             experiment.rollout_phase_status_display(
-                NimbusUIConstants.RolloutPhaseStatus.COMPLETE
+                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
             ),
             NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISPLAY[
-                NimbusUIConstants.RolloutPhaseStatus.COMPLETE
+                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
             ],
         )
 

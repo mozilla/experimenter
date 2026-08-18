@@ -419,8 +419,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "color": "success",
         },
     }
-    ROLLOUT_PHASE_STATUS_PAUSED = {"label": "Paused", "color": "warning"}
-    ROLLOUT_PHASE_STATUS_DISABLED = {"label": "Disabled", "color": "secondary"}
+    ROLLOUT_PHASE_STATUS_DISABLED = {"label": "Disabled", "color": "dark"}
 
     class MetricAreaType:
         PRIMARY = {
