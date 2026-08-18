@@ -5441,6 +5441,23 @@ EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED_7_28_DAY_PROFILE = NimbusTargetingCon
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_WINDOWS_USER_NEED_PIN = NimbusTargetingConfig(
+    name="Existing Windows users needing pin, 7-28 day profiles",
+    slug="existing_windows_user_need_pin",
+    description=(
+        "Profile 7-28 days, Firefox not pinned, Windows build 19045+ "
+        "(Windows 10 22H2 and all Windows 11)"
+    ),
+    targeting=(
+        f"{PROFILEMORETHAN7DAYS} && {PROFILELESSTHAN28DAYS} && "
+        f"{WINDOWS_ONLY.targeting} && doesAppNeedPin && {WIN22H2}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
     name="Existing users eligible for VPN, profile 14+ days, no enterprise",
     slug="existing_user_vpn_eligible",
