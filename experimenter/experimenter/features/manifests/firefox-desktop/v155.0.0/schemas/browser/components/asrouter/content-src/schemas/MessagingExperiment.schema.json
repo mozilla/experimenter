@@ -748,6 +748,23 @@
                 }
               ]
             },
+            "dismiss_action": {
+              "description": "Optional Special Message Action dispatched via dispatchUserAction when the user dismisses the infobar (X button). Any action type is allowed, including MULTI_ACTION, which SpecialMessageActions unpacks natively.",
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "SpecialMessageActions action type"
+                },
+                "data": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "additionalProperties": true
+            },
             "canReplace": {
               "description": "IDs of other infobar messages this infobar may replace",
               "type": "array",
