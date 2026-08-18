@@ -44,7 +44,9 @@ from experimenter.nimbus_ui.new.views import (
     NewToggleArchiveView,
     NewToggleReviewSlackNotificationsView,
     NewUnsubscribeView,
+    NimbusExperimentsCreateView,
     NimbusRolloutDetailView,
+    NimbusRolloutsCreateView,
     PreviewReviewRolloutView,
     PreviewToDraftRolloutView,
 )
@@ -77,7 +79,6 @@ from experimenter.nimbus_ui.views import (
     MetricsUpdateView,
     NimbusChangeLogsView,
     NimbusExperimentDetailView,
-    NimbusExperimentsCreateView,
     NimbusExperimentsListTableView,
     NimbusExperimentsPromoteToRolloutView,
     NimbusExperimentsSidebarCloneView,
@@ -102,6 +103,11 @@ from experimenter.nimbus_ui.views import (
 )
 
 urlpatterns = [
+    re_path(
+        r"^new/rollouts/create/$",
+        NimbusRolloutsCreateView.as_view(),
+        name="nimbus-ui-new-create-rollout",
+    ),
     re_path(
         r"^table/",
         NimbusExperimentsListTableView.as_view(),

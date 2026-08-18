@@ -4,7 +4,7 @@ from django import forms
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
-from django.views.generic import DetailView
+from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 
 from experimenter.experiments.api.v5.serializers import NimbusRolloutReviewSerializer
@@ -36,6 +36,7 @@ from experimenter.nimbus_ui.new.forms import (
     LiveToDisabledReviewRolloutForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    NimbusRolloutCreateForm,
     PreviewReviewRolloutForm,
     PreviewToDraftRolloutForm,
     RolloutAudienceForm,
@@ -112,6 +113,38 @@ class NimbusExperimentViewMixin:
             )
 
         return context
+
+
+class NimbusExperimentsCreateView(
+    NimbusExperimentViewMixin, RequestFormMixin, CreateView
+):
+    form_class = NimbusExperimentCreateForm
+    template_name = "nimbus_experiments/create.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["data"] = kwargs["data"].copy()
+        kwargs["data"]["owner"] = self.request.user
+        return kwargs
+
+    def get_redirect_url(self):
+        return reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+
+    def post(self, *args, **kwargs):
+        response = super().post(*args, **kwargs)
+
+        if response.status_code == 302:
+            response = HttpResponse()
+            response.headers["HX-Redirect"] = self.get_redirect_url()
+        return response
+
+
+class NimbusRolloutsCreateView(NimbusExperimentsCreateView):
+    form_class = NimbusRolloutCreateForm
+    template_name = "nimbus_experiments/create.html"
+
+    def get_redirect_url(self):
+        return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.object.slug})
 
 
 def build_experiment_context(experiment):

@@ -52,6 +52,7 @@ from experimenter.nimbus_ui.new.forms import (
     NimbusBranchFeatureValueForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    NimbusRolloutCreateForm,
     PreviewReviewRolloutForm,
     PreviewToDraftRolloutForm,
     RolloutAudienceForm,
@@ -178,6 +179,24 @@ class TestNimbusExperimentCreateForm(RequestFormTestCase):
         branch_names = set(experiment.branches.values_list("name", flat=True))
         self.assertIn("Control", branch_names)
         self.assertIn("Treatment A", branch_names)
+
+
+class TestNimbusRolloutCreateForm(RequestFormTestCase):
+    def test_form_creates_rollout(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Rollout",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusRolloutCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        rollout = form.save()
+
+        self.assertTrue(rollout.is_rollout)
+        self.assertEqual(rollout.branches.count(), 1)
+        self.assertEqual(rollout.reference_branch.name, "Control")
 
 
 class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
