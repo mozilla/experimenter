@@ -2,6 +2,7 @@
   <form id="subscribe-bell"
         hx-post="{% url 'nimbus-ui-new-unsubscribe' experiment.slug %}"
         hx-swap="outerHTML"
+        hx-sync="this:drop"
         class="d-inline">
     {% csrf_token %}
     <button type="submit"
@@ -16,6 +17,7 @@
   <form id="subscribe-bell"
         hx-post="{% url 'nimbus-ui-new-subscribe' experiment.slug %}"
         hx-swap="outerHTML"
+        hx-sync="this:drop"
         class="d-inline">
     {% csrf_token %}
     <button type="submit"

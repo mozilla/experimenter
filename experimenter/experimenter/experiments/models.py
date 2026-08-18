@@ -1359,9 +1359,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def current_rollout_phase_display(self):
-        for number, phase in enumerate(self.annotated_rollout_phases(), start=1):
-            if phase.card_status == NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS:
-                phase.number = number
+        for phase in self.annotated_rollout_phases():
+            if phase.is_current:
                 return phase
         return None
 
@@ -1428,9 +1427,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if current_index is None or i > current_index:
                 phase.card_status = NimbusUIConstants.RolloutPhaseStatus.NOT_STARTED
             elif i == current_index:
-                phase.card_status = NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
+                phase.card_status = (
+                    NimbusUIConstants.RolloutPhaseStatus.DISABLED
+                    if self.is_disabled
+                    else NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
+                )
             else:
                 phase.card_status = NimbusUIConstants.RolloutPhaseStatus.COMPLETE
+            phase.card_status_display = NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISPLAY[
+                phase.card_status
+            ]
+            phase.is_current = (
+                phase.card_status in NimbusUIConstants.RolloutPhaseStatus.CURRENT
+            )
+            phase.number = i + 1
         return phases
 
     def advance_rollout_phase(self):

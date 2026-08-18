@@ -1,4 +1,5 @@
 import datetime
+import json
 from decimal import Decimal
 from unittest import mock
 from unittest.mock import patch
@@ -77,11 +78,16 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         self.mock_remove_emoji_task = patch(
             "experimenter.slack.tasks.remove_emoji_from_message_async.delay"
         ).start()
+        self.invalid_fields_patcher = patch.object(
+            NimbusExperiment, "get_invalid_fields_errors", return_value={}
+        )
+        self.mock_invalid_fields = self.invalid_fields_patcher.start()
         self.addCleanup(self.mock_preview_task.stop)
         self.addCleanup(self.mock_allocate_bucket_range.stop)
         self.addCleanup(self.mock_kinto_push_queue.stop)
         self.addCleanup(self.mock_emoji_task.stop)
         self.addCleanup(self.mock_remove_emoji_task.stop)
+        self.addCleanup(self.invalid_fields_patcher.stop)
 
     @parameterized.expand(
         [
@@ -241,6 +247,31 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         self.assertEqual(experiment.status, expected_status)
         self.assertEqual(experiment.status_next, expected_status_next)
         self.assertEqual(experiment.publish_status, expected_publish_status)
+
+    def test_invalid_rollout_cannot_request_launch(self):
+        self.mock_invalid_fields.return_value = {
+            "risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]
+        }
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse(
+                "nimbus-ui-new-draft-to-review-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertIn(
+            NimbusUIConstants.ERROR_INVALID_ROLLOUT_LAUNCH,
+            response.context["update_status_form_errors"],
+        )
 
     def test_htmx_progress_card_renders_fragment(self):
         experiment = NimbusExperimentFactory.create(
@@ -691,6 +722,62 @@ class TestNimbusRolloutDetailView(AuthTestCase):
                 kwargs={"slug": experiment.slug},
             ),
         )
+
+    def test_setup_issues_disable_phase_advance_but_not_disable_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=20)
+        experiment.rollout_phase = current_phase
+        experiment.save()
+
+        with mock.patch.object(
+            NimbusExperiment,
+            "get_invalid_fields_errors",
+            return_value={"risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]},
+        ):
+            response = self.client.get(
+                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+            )
+
+        content = response.content.decode()
+        next_phase_button = content.split('id="rollout-next-phase-btn"', 1)[1].split(
+            "</button>", 1
+        )[0]
+        disable_button = content.split('id="rollout-disable-btn"', 1)[1].split(
+            "</button>", 1
+        )[0]
+        self.assertRegex(next_phase_button, r"\sdisabled(?:\s|>)")
+        self.assertNotRegex(disable_button, r"\sdisabled(?:\s|>)")
+
+    @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
+    def test_setup_issues_disable_phase_advance_approval(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
+
+        with mock.patch.object(
+            NimbusExperiment,
+            "get_invalid_fields_errors",
+            return_value={"risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]},
+        ):
+            response = self.client.get(
+                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
+                **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
+            )
+
+        content = response.content.decode()
+        approve_button = content.split('id="rollout-review-approve-btn"', 1)[1].split(
+            "</button>", 1
+        )[0]
+        self.assertRegex(approve_button, r"\sdisabled(?:\s|>)")
 
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
     def test_sidebar_shows_remote_settings_link_when_approved(self):
@@ -1727,6 +1814,37 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         self.assertEqual(phase.end_date, datetime.date(2026, 2, 20))
         self.assertEqual(phase.population_percent, 50)
 
+    def test_post_keeps_population_locked_for_disabled_rollout_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=50,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 1, 15),
+        )
+        experiment.rollout_phase = phase
+        experiment.status = NimbusExperiment.Status.DISABLED
+        experiment.save()
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "1",
+                "rollout_phases-INITIAL_FORMS": "1",
+                "rollout_phases-0-id": phase.id,
+                "rollout_phases-0-start_date": "2026-02-01",
+                "rollout_phases-0-end_date": "2026-02-20",
+                "rollout_phases-0-population_percent": "90",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        phase.refresh_from_db()
+        self.assertEqual(phase.population_percent, 50)
+
 
 class TestNewRolloutPhaseCreateView(AuthTestCase):
     url_name = "nimbus-ui-new-create-rollout-phase"
@@ -2253,3 +2371,62 @@ class TestNewToggleReviewSlackNotificationsView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
         self.assertFalse(experiment.enable_review_slack_notifications)
+
+
+class TestToastTriggers(AuthTestCase):
+    def assertToastTriggered(self, response, toast_id):
+        self.assertEqual(
+            json.loads(response.headers["HX-Trigger"]),
+            {"showToast": {"id": toast_id}},
+        )
+        self.assertIn(toast_id, NimbusUIConstants.TOASTS)
+
+    def test_saving_a_card_triggers_the_saved_toast(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, is_rollout=True
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-update-signoff", kwargs={"slug": experiment.slug}),
+            {"qa_signoff": "on", "vp_signoff": "on", "legal_signoff": "on"},
+        )
+
+        self.assertToastTriggered(response, NimbusUIConstants.TOAST_SAVED)
+
+    def test_subscribing_and_unsubscribing_trigger_toasts(self):
+        experiment = NimbusExperimentFactory.create()
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-subscribe", kwargs={"slug": experiment.slug})
+        )
+        self.assertToastTriggered(response, NimbusUIConstants.TOAST_SUBSCRIBED)
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-unsubscribe", kwargs={"slug": experiment.slug})
+        )
+        self.assertToastTriggered(response, NimbusUIConstants.TOAST_UNSUBSCRIBED)
+
+    def test_toggling_slack_notifications_triggers_toasts(self):
+        experiment = NimbusExperimentFactory.create()
+        url = reverse(
+            "nimbus-ui-new-toggle-review-slack-notifications",
+            kwargs={"slug": experiment.slug},
+        )
+
+        response = self.client.post(url, {"enable_review_slack_notifications": "on"})
+        self.assertToastTriggered(response, NimbusUIConstants.TOAST_SLACK_ENABLED)
+
+        response = self.client.post(url, {})
+        self.assertToastTriggered(response, NimbusUIConstants.TOAST_SLACK_DISABLED)
+
+    def test_every_toast_id_has_markup_on_the_page(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, is_rollout=True
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        for toast_id in NimbusUIConstants.TOASTS:
+            self.assertContains(response, f'<div id="{toast_id}"')

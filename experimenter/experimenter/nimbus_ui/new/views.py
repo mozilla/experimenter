@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
@@ -8,6 +10,7 @@ from django.views.generic.edit import UpdateView
 from experimenter.experiments.api.v5.serializers import NimbusRolloutReviewSerializer
 from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
 from experimenter.experiments.models import NimbusExperiment, Tag
+from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     TagSearchFilterSet,
     UserSearchFilterSet,
@@ -53,6 +56,11 @@ from experimenter.nimbus_ui.new.forms import (
     ToggleReviewSlackNotificationsForm,
     UnsubscribeForm,
 )
+
+
+def trigger_toast(response, toast_id):
+    response.headers["HX-Trigger"] = json.dumps({"showToast": {"id": toast_id}})
+    return response
 
 
 class CloneExperimentFormMixin:
@@ -316,6 +324,7 @@ class NewCardUpdateView(
     UpdateView,
 ):
     display_template = None
+    save_toast_id = NimbusUIConstants.TOAST_SAVED
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -331,10 +340,13 @@ class NewCardUpdateView(
 
     def render_valid_response(self):
         context = self.get_context_data()
-        return self.response_class(
-            request=self.request,
-            template=self.display_template,
-            context=context,
+        return trigger_toast(
+            self.response_class(
+                request=self.request,
+                template=self.display_template,
+                context=context,
+            ),
+            self.save_toast_id,
         )
 
 
@@ -730,14 +742,18 @@ class NewSubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     model = NimbusExperiment
     form_class = SubscribeForm
     template_name = "new/common/subscribe_bell.html"
+    toast_id = NimbusUIConstants.TOAST_SUBSCRIBED
 
     def form_valid(self, form):
         self.object = form.save()
-        return self.render_to_response(self.get_context_data())
+        return trigger_toast(
+            self.render_to_response(self.get_context_data()), self.toast_id
+        )
 
 
 class NewUnsubscribeView(NewSubscribeView):
     form_class = UnsubscribeForm
+    toast_id = NimbusUIConstants.TOAST_UNSUBSCRIBED
 
 
 class NewCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
@@ -784,4 +800,9 @@ class NewToggleReviewSlackNotificationsView(
 
     def form_valid(self, form):
         self.object = form.save()
-        return self.render_to_response(self.get_context_data())
+        toast_id = (
+            NimbusUIConstants.TOAST_SLACK_ENABLED
+            if self.object.enable_review_slack_notifications
+            else NimbusUIConstants.TOAST_SLACK_DISABLED
+        )
+        return trigger_toast(self.render_to_response(self.get_context_data()), toast_id)

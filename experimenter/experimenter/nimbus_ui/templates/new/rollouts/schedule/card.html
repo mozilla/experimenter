@@ -8,98 +8,125 @@
                style="table-layout: fixed">
           <thead>
             <tr style="font-size: 12px">
-              <th class="border-0 text-secondary fw-normal" style="width: 20%">Rollout Phase</th>
-              <th class="border-0 text-secondary fw-normal" style="width: 30%">Population Ratio</th>
-              <th class="border-0 text-secondary fw-normal" style="width: 50%">Estimated Duration</th>
+              <th class="border-0 text-secondary fw-normal ps-3" style="width: 14%">Rollout Phase</th>
+              <th class="border-0 text-secondary fw-normal" style="width: 16%">Status</th>
+              <th class="border-0 text-secondary fw-normal" style="width: 26%">Population Ratio</th>
+              <th class="border-0 text-secondary fw-normal" style="width: 44%">Estimated Duration</th>
             </tr>
           </thead>
           <tbody id="rollout-schedule-phases">
             {% for phase in phases %}
-              <tr>
-                {# Rollout Phase #}
-                <td class="small fw-bold text-body">
-                  <span class="d-inline-flex align-items-center gap-1">
+              {% with display=phase.card_status_display %}
+                <tr id="rollout-schedule-phase-{{ forloop.counter0 }}"
+                    {% if phase.is_current %}style="--bs-table-bg: rgba(var(--bs-{{ display.color }}-rgb), 0.07)"{% endif %}>
+                  {# Rollout Phase #}
+                  <td class="small text-body py-3 ps-3 {% if phase.is_current %}fw-bold{% else %}fw-semibold{% endif %}">
                     Phase {{ forloop.counter }}
-                    {% if phase.card_status == "in_progress" and experiment.is_paused %}
-                      <span class="badge rounded-pill fw-normal small text-secondary-emphasis bg-secondary-subtle ms-2">Paused</span>
-                    {% endif %}
-                  </span>
-                </td>
-                {# Population Ratio #}
-                <td>
-                  <div id="rollout-schedule-phase-{{ forloop.counter0 }}-population"
-                       class="small text-body mb-1">{{ phase.population_percent|floatformat:"-2" }}%</div>
-                  <div class="progress"
-                       style="height: 6px;
-                              max-width: 10rem"
-                       role="progressbar">
-                    <div class="progress-bar{% if phase.card_status == 'not_started' %} bg-secondary opacity-25{% endif %}"
-                         style="width: {{ phase.population_percent }}%"></div>
-                  </div>
-                </td>
-                {# Estimated Duration #}
-                <td class="small">
-                  {% if phase.card_status == "in_progress" %}
-                    {% if experiment.is_disabled %}
-                      <div class="d-flex align-items-center gap-1 text-secondary mb-1">
-                        <span>Disabled</span>
-                        {% if phase.actual_start_date %}
+                  </td>
+                  {# Status #}
+                  <td class="py-3"
+                      id="rollout-schedule-phase-{{ forloop.counter0 }}-status">
+                    {% include "new/rollouts/schedule/phase_status_badge.html" %}
+
+                  </td>
+                  {# Population Ratio #}
+                  <td class="py-3">
+                    <div id="rollout-schedule-phase-{{ forloop.counter0 }}-population"
+                         class="small text-body mb-1">{{ phase.population_percent|floatformat:"-2" }}%</div>
+                    <div class="progress"
+                         style="height: 6px;
+                                max-width: 10rem"
+                         role="progressbar"
+                         aria-label="Phase {{ forloop.counter }} population ratio">
+                      <div class="progress-bar{% if phase.card_status == "not_started" %} bg-secondary opacity-25{% else %} bg-{{ display.color }}{% endif %}"
+                           style="width: {{ phase.population_percent }}%"></div>
+                    </div>
+                  </td>
+                  {# Estimated Duration #}
+                  <td class="small py-3 pe-3">
+                    {% if phase.is_current %}
+                      {% if phase.card_status == "disabled" %}
+                        <div class="d-flex align-items-center gap-1 text-secondary mb-1">
+                          <span>Disabled</span>
+                          {% if phase.actual_start_date %}
+                            <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                            <span>Started {{ phase.actual_start_date|date:"M j, Y" }}</span>
+                          {% endif %}
+                        </div>
+                        <div class="progress"
+                             style="height: 6px;
+                                    width: 80%"
+                             role="progressbar"
+                             aria-label="Phase {{ forloop.counter }} duration progress">
+                          <div class="progress-bar bg-secondary opacity-25" style="width: 100%"></div>
+                        </div>
+                      {% elif phase.start_date and phase.end_date %}
+                        <div class="d-flex align-items-center gap-1 text-secondary mb-1">
+                          <span>{{ phase.days_elapsed }}/{{ phase.duration_days }} days complete</span>
                           <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                          <span>Started {{ phase.actual_start_date|date:"M j, Y" }}</span>
+                          <span>End on {{ phase.end_date|date:"M j, Y" }}</span>
+                        </div>
+                        <div class="progress"
+                             style="height: 6px;
+                                    width: 80%"
+                             role="progressbar"
+                             aria-label="Phase {{ forloop.counter }} duration progress">
+                          <div class="progress-bar bg-{{ display.color }}"
+                               style="width: {% widthratio phase.days_elapsed_capped phase.duration_days 100 %}%">
+                          </div>
+                        </div>
+                      {% else %}
+                        <div class="d-flex align-items-center gap-1 text-secondary mb-1">
+                          <span>In progress</span>
+                          <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                          <span>{{ phase.days_elapsed }} day{{ phase.days_elapsed|pluralize }} running</span>
+                        </div>
+                        <div class="progress"
+                             style="height: 6px;
+                                    width: 80%"
+                             role="progressbar"
+                             aria-label="Phase {{ forloop.counter }} duration progress">
+                          <div class="progress-bar bg-{{ display.color }}" style="width: 0%"></div>
+                        </div>
+                      {% endif %}
+                    {% elif phase.card_status == "complete" %}
+                      <div class="d-flex align-items-center gap-1 text-secondary mb-1">
+                        <span>Completed</span>
+                        {% if phase.actual_start_date and phase.end_date %}
+                          <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                          <span>{{ phase.actual_start_date|date:"M j" }} - {{ phase.end_date|date:"M j, Y" }}</span>
                         {% endif %}
                       </div>
-                      <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
-                        <div class="progress-bar bg-secondary opacity-25" style="width: 100%"></div>
-                      </div>
-                    {% elif phase.start_date and phase.end_date %}
-                      <div class="d-flex align-items-center gap-1 text-secondary mb-1">
-                        <span>{{ phase.days_elapsed }}/{{ phase.duration_days }} days complete</span>
-                        <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                        <span>End on {{ phase.end_date|date:"M j, Y" }}</span>
-                      </div>
-                      <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
-                        <div class="progress-bar"
-                             style="width: {% widthratio phase.days_elapsed phase.duration_days 100 %}%"></div>
+                      <div class="progress"
+                           style="height: 6px;
+                                  width: 80%"
+                           role="progressbar"
+                           aria-label="Phase {{ forloop.counter }} duration progress">
+                        <div class="progress-bar bg-{{ display.color }}" style="width: 100%"></div>
                       </div>
                     {% else %}
                       <div class="d-flex align-items-center gap-1 text-secondary mb-1">
-                        <span>In progress</span>
-                        <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                        <span>{{ phase.days_elapsed }} day{{ phase.days_elapsed|pluralize }} running</span>
+                        <span>Not started</span>
+                        {% if phase.duration_display %}
+                          <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                          <span>{{ phase.duration_display }}</span>
+                        {% endif %}
+                        {% if phase.start_date and phase.end_date %}
+                          <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                          <span>{{ phase.start_date|date:"M j" }} - {{ phase.end_date|date:"M j, Y" }}</span>
+                        {% endif %}
                       </div>
-                      <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
-                        <div class="progress-bar" style="width: 0%"></div>
+                      <div class="progress"
+                           style="height: 6px;
+                                  width: 80%"
+                           role="progressbar"
+                           aria-label="Phase {{ forloop.counter }} duration progress">
+                        <div class="progress-bar bg-secondary opacity-25" style="width: 0%"></div>
                       </div>
                     {% endif %}
-                  {% elif phase.card_status == "complete" %}
-                    <div class="d-flex align-items-center gap-1 text-secondary mb-1">
-                      <span>Completed</span>
-                      {% if phase.actual_start_date and phase.end_date %}
-                        <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                        <span>{{ phase.actual_start_date|date:"M j" }} - {{ phase.end_date|date:"M j, Y" }}</span>
-                      {% endif %}
-                    </div>
-                    <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
-                      <div class="progress-bar" style="width: 100%"></div>
-                    </div>
-                  {% else %}
-                    <div class="d-flex align-items-center gap-1 text-secondary mb-1">
-                      <span>Not started</span>
-                      {% if phase.duration_display %}
-                        <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                        <span>{{ phase.duration_display }}</span>
-                      {% endif %}
-                      {% if phase.start_date and phase.end_date %}
-                        <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                        <span>{{ phase.start_date|date:"M j" }} - {{ phase.end_date|date:"M j, Y" }}</span>
-                      {% endif %}
-                    </div>
-                    <div class="progress" style="height: 6px; width: 80%;" role="progressbar">
-                      <div class="progress-bar bg-secondary opacity-25" style="width: 100%"></div>
-                    </div>
-                  {% endif %}
-                </td>
-              </tr>
+                  </td>
+                </tr>
+              {% endwith %}
             {% endfor %}
           </tbody>
         </table>

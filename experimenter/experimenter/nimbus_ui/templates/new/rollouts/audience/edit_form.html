@@ -14,7 +14,8 @@
   <form hx-post="{% url 'nimbus-ui-new-update-audience' experiment.slug %}"
         hx-target="#rollout-audience-body"
         hx-swap="outerHTML"
-        class="d-flex flex-column gap-4">
+        hx-disabled-elt="#rollout-audience-save"
+        class="card-edit-form d-flex flex-column gap-4">
     {% csrf_token %}
     <div class="row g-3">
       <div class="col">
@@ -162,15 +163,8 @@
     </div>
   </div>
   {# Action buttons #}
-  <div class="d-flex align-items-center gap-2">
-    <button type="submit" name="save" value="True" class="btn btn-primary btn-sm">Save</button>
-    <button type="button"
-            class="btn btn-outline-secondary btn-sm"
-            hx-get="{{ cancel_url }}"
-            hx-select="#rollout-card-audience"
-            hx-target="#rollout-card-audience"
-            hx-swap="outerHTML">Cancel</button>
-  </div>
+  {% include "new/common/card_form_actions.html" with card_id="audience" submit_name="save" %}
+
 </form>
 </div>
 {% block extrascripts %}

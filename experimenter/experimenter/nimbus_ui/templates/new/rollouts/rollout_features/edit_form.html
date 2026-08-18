@@ -11,7 +11,8 @@
         hx-target="#rollout-rollout-features-body"
         hx-swap="outerHTML"
         hx-encoding="multipart/form-data"
-        class="d-flex flex-column gap-4">
+        hx-disabled-elt="#rollout-rollout-features-save"
+        class="card-edit-form d-flex flex-column gap-4">
     {% csrf_token %}
     <div class="d-flex flex-column gap-4">
       {#  Brand perception impact  #}
@@ -218,15 +219,8 @@
   </div>
 </div>
 {# Action buttons #}
-<div class="d-flex align-items-center gap-2">
-  <button type="submit" name="save" value="True" class="btn btn-primary btn-sm">Save</button>
-  <button type="button"
-          class="btn btn-outline-secondary btn-sm"
-          hx-get="{{ cancel_url }}"
-          hx-select="#rollout-card-rollout-features"
-          hx-target="#rollout-card-rollout-features"
-          hx-swap="outerHTML">Cancel</button>
-</div>
+{% include "new/common/card_form_actions.html" with card_id="rollout-features" submit_name="save" %}
+
 </form>
 </div>
 {% block extrascripts %}

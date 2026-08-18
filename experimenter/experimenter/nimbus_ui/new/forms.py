@@ -1210,6 +1210,7 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     required_status_next = None
     required_publish_status = None
     required_is_paused = None
+    requires_valid_rollout_launch = False
 
     class Meta:
         model = NimbusExperiment
@@ -1259,6 +1260,18 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 NimbusUIConstants.ERROR_INVALID_DISABLED_TRANSITION
             )
 
+        if self.requires_valid_rollout_launch:
+            from experimenter.experiments.api.v5.serializers import (
+                NimbusRolloutReviewSerializer,
+            )
+
+            if self.instance.get_invalid_fields_errors(
+                serializer_class=NimbusRolloutReviewSerializer
+            ):
+                raise forms.ValidationError(
+                    NimbusUIConstants.ERROR_INVALID_ROLLOUT_LAUNCH
+                )
+
         return cleaned_data
 
     @transaction.atomic
@@ -1292,6 +1305,7 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class DraftReviewRolloutForm(SlackNotificationMixin, UpdateStatusForm):
+    requires_valid_rollout_launch = True
     required_status = NimbusExperiment.Status.DRAFT
     required_status_next = None
     required_publish_status = NimbusExperiment.PublishStatus.IDLE
@@ -1307,6 +1321,7 @@ class DraftReviewRolloutForm(SlackNotificationMixin, UpdateStatusForm):
 
 
 class DraftReviewApproveRolloutForm(UpdateStatusForm):
+    requires_valid_rollout_launch = True
     required_status = NimbusExperiment.Status.DRAFT
     required_status_next = NimbusExperiment.Status.LIVE
     required_publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -1371,6 +1386,7 @@ class DraftReviewRejectForm(CancelRequestMixin, UpdateStatusForm):
 
 
 class PreviewReviewRolloutForm(SlackNotificationMixin, UpdateStatusForm):
+    requires_valid_rollout_launch = True
     required_status = NimbusExperiment.Status.PREVIEW
     required_status_next = None
     required_publish_status = NimbusExperiment.PublishStatus.IDLE
@@ -1431,6 +1447,7 @@ class PreviewToDraftRolloutForm(UpdateStatusForm):
 
 
 class AdvancePhaseReviewRolloutForm(SlackNotificationMixin, UpdateStatusForm):
+    requires_valid_rollout_launch = True
     required_status = NimbusExperiment.Status.LIVE
     required_status_next = None
     required_publish_status = NimbusExperiment.PublishStatus.IDLE
@@ -1445,6 +1462,7 @@ class AdvancePhaseReviewRolloutForm(SlackNotificationMixin, UpdateStatusForm):
 
 
 class AdvancePhaseReviewApproveRolloutForm(UpdateStatusForm):
+    requires_valid_rollout_launch = True
     required_status = NimbusExperiment.Status.LIVE
     required_status_next = NimbusExperiment.Status.LIVE
     required_publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -1807,25 +1825,29 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
             }
         )
 
-        phase_statuses = {
-            phase.id: phase.card_status
-            for phase in self.instance.annotated_rollout_phases()
+        annotated_phases = {
+            phase.id: phase for phase in self.instance.annotated_rollout_phases()
         }
         self.locked_phase_ids = {
             phase_id
-            for phase_id, status in phase_statuses.items()
-            if status
-            in (
-                NimbusUIConstants.RolloutPhaseStatus.COMPLETE,
-                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS,
-            )
+            for phase_id, phase in annotated_phases.items()
+            if phase.card_status in NimbusUIConstants.RolloutPhaseStatus.LOCKED
         }
+        not_started = NimbusUIConstants.RolloutPhaseStatus.NOT_STARTED
         for phase_form in self.rollout_phases.forms:
-            status = phase_statuses.get(phase_form.instance.pk)
+            phase = annotated_phases.get(phase_form.instance.pk)
+            status = phase.card_status if phase else not_started
+            phase_form.card_status = status
+            phase_form.card_status_display = (
+                phase.card_status_display
+                if phase
+                else NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISPLAY[not_started]
+            )
+            phase_form.is_current = bool(phase and phase.is_current)
             phase_form.is_locked = phase_form.instance.pk in self.locked_phase_ids
             if status == NimbusUIConstants.RolloutPhaseStatus.COMPLETE:
                 disabled_fields = NimbusUIConstants.ROLLOUT_PHASE_FIELDS
-            elif status == NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS:
+            elif status in NimbusUIConstants.RolloutPhaseStatus.CURRENT:
                 disabled_fields = ("population_percent",)
             else:
                 disabled_fields = ()

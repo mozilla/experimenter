@@ -13,50 +13,26 @@
       {% include "new/rollouts/detail_card.html" with card_id="monitoring" title=NimbusUIConstants.MONITORING_CARD_TITLE subtitle="Enrollment funnel and branch health" show_edit_btn=False body_template="new/rollouts/monitoring/card.html" %}
 
     {% endif %}
-    {% if experiment.is_rolling_out %}
-      {% include "new/rollouts/detail_card.html" with card_id="schedule" title="Rollout schedule" subtitle="Gradually increase the rollout population in phases" show_edit_btn=True body_template="new/rollouts/schedule/card.html" %}
-
-    {% endif %}
     {% if experiment.is_preview %}
       <div class="d-flex flex-column gap-2" id="rollout-preview-section">
         {% include "new/rollouts/detail_card.html" with card_id="preview" title="Preview links & testing details" subtitle="Rollout experience" show_edit_btn=False body_template="new/rollouts/preview/card.html" %}
 
       </div>
     {% endif %}
-    {# ── Define ── #}
-    <div class="d-flex flex-column gap-2">
-      <div class="small fw-medium mb-1 text-secondary">Define</div>
-      {# EXP-6681: Rollout Overview Form/Card #}
-      {% include "new/rollouts/detail_card.html" with card_id="overview" title="Overview" subtitle="Name · Observations & Problem Space · Public Description · Application · Important Links · Project Tags · Subscribers" show_edit_btn=experiment.is_draft body_template="new/rollouts/overview/card.html" %}
+    {% include "new/rollouts/detail_card.html" with card_id="overview" title="Overview" show_edit_btn=experiment.is_draft body_template="new/rollouts/overview/card.html" %}
 
-      {# TODO EXP-6682: Rollout Risks Form/Card #}
-      {% include "new/rollouts/detail_card.html" with card_id="risks" title="Risks" subtitle="Consider possible risks if the public interacts with your experiment" show_edit_btn=experiment.is_draft body_template="new/rollouts/risks/card.html" %}
-      {% include "new/rollouts/detail_card.html" with card_id="signoff" title="Sign-Offs" subtitle="QA, VP, and Legal Sign-offs" show_edit_btn=True body_template="new/rollouts/signoff/card.html" %}
+    {% if experiment.is_rolling_out %}
+      {% include "new/rollouts/detail_card.html" with card_id="schedule" title="Rollout schedule" show_edit_btn=True body_template="new/rollouts/schedule/card.html" %}
 
-    </div>
-    {# ── Configure ── #}
-    <div class="d-flex flex-column gap-2">
-      <div class="small fw-medium mb-1 text-secondary">Configure</div>
-      {# TODO EXP-6683: Rollout Audience Form/Card #}
-      {% include "new/rollouts/detail_card.html" with card_id="audience" title="Audience" subtitle="Branch treatment details" show_edit_btn=experiment.is_draft body_template="new/rollouts/audience/card.html" %}
+    {% else %}
+      {% include "new/rollouts/detail_card.html" with card_id="schedule" title="Rollout schedule" show_edit_btn=experiment.is_draft body_template="new/rollouts/schedule/card.html" %}
 
-    </div>
-    {# ── Build ── #}
-    <div class="d-flex flex-column gap-2">
-      <div class="small fw-medium mb-1 text-secondary">Build</div>
-      {# TODO EXP-6685: Rollout Features Form/Card #}
-      {% include "new/rollouts/detail_card.html" with card_id="rollout-features" title="Rollout Features" subtitle="Describe the rollout experience" show_edit_btn=experiment.is_draft body_template="new/rollouts/rollout_features/card.html" %}
+    {% endif %}
+    {% include "new/rollouts/detail_card.html" with card_id="audience" title="Audience" show_edit_btn=experiment.is_draft body_template="new/rollouts/audience/card.html" %}
+    {% include "new/rollouts/detail_card.html" with card_id="rollout-features" title="Rollout Features" show_edit_btn=experiment.is_draft body_template="new/rollouts/rollout_features/card.html" %}
+    {% include "new/rollouts/detail_card.html" with card_id="signoff" title="Sign-Offs" show_edit_btn=True body_template="new/rollouts/signoff/card.html" %}
+    {% include "new/rollouts/detail_card.html" with card_id="risks" title="Risks" show_edit_btn=experiment.is_draft body_template="new/rollouts/risks/card.html" %}
+    {% include "new/rollouts/detail_card.html" with card_id="qa" title="Quality Assurance Checks (QA)" show_edit_btn=True body_template="new/rollouts/qa/card.html" %}
 
-      {% if not experiment.is_rolling_out %}
-        {% include "new/rollouts/detail_card.html" with card_id="schedule" title="Rollout schedule" subtitle="Gradually increase the rollout population in phases" show_edit_btn=experiment.is_draft body_template="new/rollouts/schedule/card.html" %}
-
-      {% endif %}
-    </div>
-    {# ── Check ── #}
-    <div class="d-flex flex-column gap-2">
-      <div class="small fw-medium mb-1 text-secondary">Check</div>
-      {% include "new/rollouts/detail_card.html" with card_id="qa" title="Quality Assurance Checks (QA)" subtitle="Request a QA or do a Self QA" show_edit_btn=True body_template="new/rollouts/qa/card.html" %}
-
-    </div>
   </div>
 {% endblock %}

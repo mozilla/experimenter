@@ -1480,9 +1480,14 @@ class TestRolloutStatusForms(
             "experimenter.nimbus_ui.new.forms."
             "nimbus_check_kinto_push_queue_by_collection.apply_async"
         ).start()
+        self.invalid_fields_patcher = patch.object(
+            NimbusExperiment, "get_invalid_fields_errors", return_value={}
+        )
+        self.mock_invalid_fields = self.invalid_fields_patcher.start()
         self.addCleanup(self.mock_preview_task.stop)
         self.addCleanup(self.mock_allocate_bucket_range.stop)
         self.addCleanup(self.mock_kinto_push_queue.stop)
+        self.addCleanup(self.invalid_fields_patcher.stop)
 
     @parameterized.expand(
         [
@@ -1912,6 +1917,60 @@ class TestRolloutStatusForms(
             experiment.id,
             NimbusConstants.AlertType.LAUNCH_REQUEST,
             SlackConstants.EmojiReaction.APPROVE,
+        )
+
+    @parameterized.expand(
+        [
+            (
+                DraftReviewRolloutForm,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.IDLE,
+                None,
+            ),
+            (
+                DraftReviewApproveRolloutForm,
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.Status.LIVE,
+            ),
+            (
+                PreviewReviewRolloutForm,
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                None,
+            ),
+            (
+                AdvancePhaseReviewRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.IDLE,
+                None,
+            ),
+            (
+                AdvancePhaseReviewApproveRolloutForm,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.Status.LIVE,
+            ),
+        ]
+    )
+    def test_review_transition_rejects_setup_errors(
+        self, form_class, status, publish_status, status_next
+    ):
+        self.mock_invalid_fields.return_value = {
+            "risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]
+        }
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=publish_status,
+            is_rollout=True,
+        )
+        form = form_class(data={}, instance=experiment, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_INVALID_ROLLOUT_LAUNCH,
+            form.errors["__all__"],
         )
 
     def test_approve_phase_advance_stages_population_and_queues_kinto(self):

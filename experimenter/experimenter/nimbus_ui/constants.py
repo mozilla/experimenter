@@ -26,6 +26,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Cannot perform this action: experiment must be in state {required_state}, "
         "but is currently in state {current_state}."
     )
+    ERROR_INVALID_ROLLOUT_LAUNCH = (
+        "Resolve all rollout setup issues before requesting or approving this change."
+    )
     ERROR_INVALID_DISABLED_TRANSITION = (
         "Cannot perform this action: only rollouts may be disabled."
     )
@@ -400,10 +403,49 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "phase again, or cancel and add a new phase in the rollout schedule."
     )
 
+    TOAST_SAVED = "toast-saved"
+    TOAST_SUBSCRIBED = "toast-subscribed"
+    TOAST_UNSUBSCRIBED = "toast-unsubscribed"
+    TOAST_SLACK_ENABLED = "toast-slack-enabled"
+    TOAST_SLACK_DISABLED = "toast-slack-disabled"
+    TOAST_EDIT_CANCELLED = "toast-edit-cancelled"
+
+    TOASTS = {
+        TOAST_SAVED: "Changes saved",
+        TOAST_SUBSCRIBED: "Subscribed to this experiment",
+        TOAST_UNSUBSCRIBED: "Unsubscribed from this experiment",
+        TOAST_SLACK_ENABLED: "Review Slack notifications enabled",
+        TOAST_SLACK_DISABLED: "Review Slack notifications disabled",
+        TOAST_EDIT_CANCELLED: "Edit cancelled",
+    }
+
     class RolloutPhaseStatus:
         NOT_STARTED = "not_started"
         IN_PROGRESS = "in_progress"
+        DISABLED = "disabled"
         COMPLETE = "complete"
+
+        CURRENT = (IN_PROGRESS, DISABLED)
+        LOCKED = (IN_PROGRESS, DISABLED, COMPLETE)
+
+    ROLLOUT_PHASE_STATUS_DISPLAY = {
+        RolloutPhaseStatus.NOT_STARTED: {
+            "label": "Not started",
+            "color": "secondary",
+        },
+        RolloutPhaseStatus.IN_PROGRESS: {
+            "label": "In progress",
+            "color": "primary",
+        },
+        RolloutPhaseStatus.DISABLED: {
+            "label": "Disabled",
+            "color": "dark",
+        },
+        RolloutPhaseStatus.COMPLETE: {
+            "label": "Complete",
+            "color": "success",
+        },
+    }
 
     class MetricAreaType:
         PRIMARY = {
