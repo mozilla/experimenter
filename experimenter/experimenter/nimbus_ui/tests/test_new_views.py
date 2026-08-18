@@ -1814,6 +1814,37 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         self.assertEqual(phase.end_date, datetime.date(2026, 2, 20))
         self.assertEqual(phase.population_percent, 50)
 
+    def test_post_keeps_population_locked_for_disabled_rollout_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=50,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 1, 15),
+        )
+        experiment.rollout_phase = phase
+        experiment.status = NimbusExperiment.Status.DISABLED
+        experiment.save()
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "1",
+                "rollout_phases-INITIAL_FORMS": "1",
+                "rollout_phases-0-id": phase.id,
+                "rollout_phases-0-start_date": "2026-02-01",
+                "rollout_phases-0-end_date": "2026-02-20",
+                "rollout_phases-0-population_percent": "90",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        phase.refresh_from_db()
+        self.assertEqual(phase.population_percent, 50)
+
 
 class TestNewRolloutPhaseCreateView(AuthTestCase):
     url_name = "nimbus-ui-new-create-rollout-phase"
