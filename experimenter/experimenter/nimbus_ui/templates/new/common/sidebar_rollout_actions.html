@@ -48,23 +48,29 @@
           {% endif %}
         {% else %}
           {# Live to Disabled #}
-          <button type="button"
-                  id="rollout-disable-btn"
-                  class="btn btn-secondary btn-sm w-100"
-                  hx-post="{% url 'nimbus-ui-new-live-to-disabled-rollout' experiment.slug %}"
-                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                  hx-disabled-elt="this"
-                  {% if transition_pending %}disabled{% endif %}>Disable rollout</button>
+          <span class="d-inline-block w-100"
+                {% if transition_pending %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}"{% endif %}>
+            <button type="button"
+                    id="rollout-disable-btn"
+                    class="btn btn-secondary btn-sm w-100"
+                    hx-post="{% url 'nimbus-ui-new-live-to-disabled-rollout' experiment.slug %}"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-disabled-elt="this"
+                    {% if transition_pending %}disabled{% endif %}>Disable rollout</button>
+          </span>
           {# Live to Live phase advance #}
-          <button type="button"
-                  id="rollout-next-phase-btn"
-                  class="btn btn-primary btn-sm w-100"
-                  hx-post="{% url 'nimbus-ui-new-advance-phase-review-rollout' experiment.slug %}"
-                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                  hx-disabled-elt="this"
-                  {% if transition_pending or setup_issues_count or not experiment.has_advanceable_rollout_phase %}disabled{% endif %}>
-            Start next phase
-          </button>
+          <span class="d-inline-block w-100"
+                {% if experiment.has_rollout_review_errors %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_HAS_ISSUES_TOOLTIP }}"{% elif transition_pending %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}"{% elif not experiment.has_advanceable_rollout_phase %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_NO_NEXT_PHASE_TOOLTIP }}"{% endif %}>
+            <button type="button"
+                    id="rollout-next-phase-btn"
+                    class="btn btn-primary btn-sm w-100"
+                    hx-post="{% url 'nimbus-ui-new-advance-phase-review-rollout' experiment.slug %}"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-disabled-elt="this"
+                    {% if transition_pending or not experiment.has_advanceable_rollout_phase or experiment.has_rollout_review_errors %}disabled{% endif %}>
+              Start next phase
+            </button>
+          </span>
         {% endif %}
       </div>
     {% endwith %}

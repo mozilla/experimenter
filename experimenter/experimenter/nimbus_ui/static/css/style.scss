@@ -354,6 +354,10 @@
   transform: rotate(90deg);
 }
 
+.rollout-card-toggle[aria-expanded="true"] .card-collapsed-subtitle {
+  display: none !important;
+}
+
 .accordion-button[aria-disabled="true"] {
   cursor: not-allowed;
 }

@@ -579,6 +579,31 @@ class TestNimbusReviewSerializerSingleFeature(
             [NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO],
         )
 
+    def test_rollout_serializer_rejects_phase_end_before_start(self):
+        experiment = self.create_rollout()
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date(2026, 2, 1),
+            end_date=datetime.date(2026, 1, 1),
+        )
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["rollout_phases"],
+            [NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER],
+        )
+
+    def test_rollout_serializer_rejects_phase_population_out_of_range(self):
+        experiment = self.create_rollout()
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=150)
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["rollout_phases"],
+            [NimbusConstants.ERROR_ROLLOUT_PHASE_POPULATION_RANGE],
+        )
+
     def test_invalid_experiment_treatment_branch_requires_description(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
