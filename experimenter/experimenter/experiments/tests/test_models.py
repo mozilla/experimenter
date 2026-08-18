@@ -7195,32 +7195,64 @@ class TestRolloutPhaseProgress(TestCase):
             ],
         )
 
-    def test_rollout_phase_status_display_when_disabled(self):
+    def test_annotated_rollout_phases_marks_current_phase_disabled(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_rollout=True,
         )
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (10, 50, 100)
+        ]
+        experiment.rollout_phase = phases[1]
         experiment.status = NimbusExperiment.Status.DISABLED
         experiment.save()
-        self.assertEqual(
-            experiment.rollout_phase_status_display(
-                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
-            ),
-            NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISABLED,
-        )
 
-    def test_rollout_phase_status_display_when_not_disabled(self):
+        annotated = experiment.annotated_rollout_phases()
+        self.assertEqual(
+            [p.card_status for p in annotated],
+            ["complete", "disabled", "not_started"],
+        )
+        self.assertEqual(
+            [p.card_status_display["label"] for p in annotated],
+            ["Complete", "Disabled", "Not started"],
+        )
+        self.assertEqual([p.is_current for p in annotated], [False, True, False])
+
+    def test_annotated_rollout_phases_marks_current_phase_in_progress_when_live(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_rollout=True,
         )
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+
+        annotated = experiment.annotated_rollout_phases()
+        self.assertEqual([p.card_status for p in annotated], ["complete", "in_progress"])
+        self.assertEqual([p.is_current for p in annotated], [False, True])
+
+    def test_current_rollout_phase_display_returns_disabled_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        phase = NimbusRolloutPhaseFactory.create(experiment=experiment)
+        experiment.rollout_phase = phase
+        experiment.status = NimbusExperiment.Status.DISABLED
+        experiment.save()
+
+        current = experiment.current_rollout_phase_display
+        self.assertEqual(current, phase)
         self.assertEqual(
-            experiment.rollout_phase_status_display(
-                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
-            ),
-            NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISPLAY[
-                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
-            ],
+            current.card_status, NimbusUIConstants.RolloutPhaseStatus.DISABLED
         )
 
 

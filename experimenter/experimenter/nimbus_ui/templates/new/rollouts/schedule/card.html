@@ -18,9 +18,9 @@
             {% for phase in phases %}
               {% with display=phase.card_status_display %}
                 <tr id="rollout-schedule-phase-{{ forloop.counter0 }}"
-                    {% if phase.card_status == "in_progress" %}style="--bs-table-bg: rgba(var(--bs-{{ display.color }}-rgb), 0.07)"{% endif %}>
+                    {% if phase.is_current %}style="--bs-table-bg: rgba(var(--bs-{{ display.color }}-rgb), 0.07)"{% endif %}>
                   {# Rollout Phase #}
-                  <td class="small text-body py-3 ps-3 {% if phase.card_status == "in_progress" %}fw-bold{% else %}fw-semibold{% endif %}">
+                  <td class="small text-body py-3 ps-3 {% if phase.is_current %}fw-bold{% else %}fw-semibold{% endif %}">
                     Phase {{ forloop.counter }}
                   </td>
                   {# Status #}
@@ -44,8 +44,8 @@
                   </td>
                   {# Estimated Duration #}
                   <td class="small py-3 pe-3">
-                    {% if phase.card_status == "in_progress" %}
-                      {% if experiment.is_disabled %}
+                    {% if phase.is_current %}
+                      {% if phase.card_status == "disabled" %}
                         <div class="d-flex align-items-center gap-1 text-secondary mb-1">
                           <span>Disabled</span>
                           {% if phase.actual_start_date %}

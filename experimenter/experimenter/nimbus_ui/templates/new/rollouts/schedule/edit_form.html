@@ -19,11 +19,11 @@
       {% for phase_form in form.rollout_phases %}
         {% with display=phase_form.card_status_display %}
           <div class="p-3 rounded"
-               {% if phase_form.card_status == "in_progress" %}style="background-color: rgba(var(--bs-{{ display.color }}-rgb), 0.07)"{% endif %}>
+               {% if phase_form.is_current %}style="background-color: rgba(var(--bs-{{ display.color }}-rgb), 0.07)"{% endif %}>
             {{ phase_form.id }}
             {# Phase Number and Status #}
             <div class="d-flex align-items-center gap-2 mb-2">
-              <span class="small text-body {% if phase_form.card_status == "in_progress" %}fw-bold{% else %}fw-semibold{% endif %}">Phase {{ forloop.counter }}</span>
+              <span class="small text-body {% if phase_form.is_current %}fw-bold{% else %}fw-semibold{% endif %}">Phase {{ forloop.counter }}</span>
               {% include "new/rollouts/schedule/phase_status_badge.html" %}
 
             </div>

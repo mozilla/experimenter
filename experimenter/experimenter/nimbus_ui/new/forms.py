@@ -1807,32 +1807,29 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
             }
         )
 
-        phase_statuses = {
-            phase.id: phase.card_status
-            for phase in self.instance.annotated_rollout_phases()
+        annotated_phases = {
+            phase.id: phase for phase in self.instance.annotated_rollout_phases()
         }
         self.locked_phase_ids = {
             phase_id
-            for phase_id, status in phase_statuses.items()
-            if status
-            in (
-                NimbusUIConstants.RolloutPhaseStatus.COMPLETE,
-                NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS,
-            )
+            for phase_id, phase in annotated_phases.items()
+            if phase.card_status in NimbusUIConstants.RolloutPhaseStatus.LOCKED
         }
+        not_started = NimbusUIConstants.RolloutPhaseStatus.NOT_STARTED
         for phase_form in self.rollout_phases.forms:
-            status = phase_statuses.get(
-                phase_form.instance.pk,
-                NimbusUIConstants.RolloutPhaseStatus.NOT_STARTED,
-            )
+            phase = annotated_phases.get(phase_form.instance.pk)
+            status = phase.card_status if phase else not_started
             phase_form.card_status = status
-            phase_form.card_status_display = self.instance.rollout_phase_status_display(
-                status
+            phase_form.card_status_display = (
+                phase.card_status_display
+                if phase
+                else NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISPLAY[not_started]
             )
+            phase_form.is_current = bool(phase and phase.is_current)
             phase_form.is_locked = phase_form.instance.pk in self.locked_phase_ids
             if status == NimbusUIConstants.RolloutPhaseStatus.COMPLETE:
                 disabled_fields = NimbusUIConstants.ROLLOUT_PHASE_FIELDS
-            elif status == NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS:
+            elif status in NimbusUIConstants.RolloutPhaseStatus.CURRENT:
                 disabled_fields = ("population_percent",)
             else:
                 disabled_fields = ()

@@ -403,7 +403,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     class RolloutPhaseStatus:
         NOT_STARTED = "not_started"
         IN_PROGRESS = "in_progress"
+        DISABLED = "disabled"
         COMPLETE = "complete"
+
+        CURRENT = (IN_PROGRESS, DISABLED)
+        LOCKED = (IN_PROGRESS, DISABLED, COMPLETE)
 
     ROLLOUT_PHASE_STATUS_DISPLAY = {
         RolloutPhaseStatus.NOT_STARTED: {
@@ -414,12 +418,15 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             "label": "In progress",
             "color": "primary",
         },
+        RolloutPhaseStatus.DISABLED: {
+            "label": "Disabled",
+            "color": "dark",
+        },
         RolloutPhaseStatus.COMPLETE: {
             "label": "Complete",
             "color": "success",
         },
     }
-    ROLLOUT_PHASE_STATUS_DISABLED = {"label": "Disabled", "color": "dark"}
 
     class MetricAreaType:
         PRIMARY = {
