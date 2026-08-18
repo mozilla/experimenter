@@ -1387,6 +1387,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return bool(next_phase and next_phase.population_percent)
 
     @property
+    def has_rollout_review_errors(self):
+        from experimenter.experiments.api.v5.serializers import (
+            NimbusRolloutReviewSerializer,
+        )
+
+        if not self.is_rollout:
+            return False
+        return bool(
+            self.get_invalid_fields_errors(serializer_class=NimbusRolloutReviewSerializer)
+        )
+
+    @property
     def rollout_review_controls(self):
         if self.publish_status != self.PublishStatus.REVIEW:
             return None

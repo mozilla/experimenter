@@ -7748,3 +7748,7 @@ class TestRolloutSidebarStateHelpers(TestCase):
         experiment.rollout_phase = phases[0]
         experiment.save()
         self.assertFalse(experiment.has_advanceable_rollout_phase)
+
+    def test_has_rollout_review_errors_false_when_not_rollout(self):
+        experiment = NimbusExperimentFactory.create(is_rollout=False)
+        self.assertFalse(experiment.has_rollout_review_errors)

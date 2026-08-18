@@ -26,6 +26,10 @@
       {% endfor %}
       {% include "new/common/validation_errors.html" with errors=validation_errors.feature_configs %}
 
+      {% for feature_value_errors in validation_errors.reference_branch.feature_values %}
+        {% include "new/common/validation_errors.html" with errors=feature_value_errors.value %}
+
+      {% endfor %}
     </div>
     {# Warn only on feature schema validation failure #}
     <div>
@@ -81,6 +85,13 @@
           <div class="small text-body">—</div>
         {% endif %}
       {% endwith %}
+      {% for screenshot_errors in validation_errors.reference_branch.screenshots %}
+        {% if screenshot_errors.image %}
+          <div class="small text-danger mt-1">{{ screenshot_errors.image.0 }}</div>
+        {% elif screenshot_errors.description %}
+          <div class="small text-danger mt-1">{{ screenshot_errors.description.0 }}</div>
+        {% endif %}
+      {% endfor %}
     </div>
     {# Firefox Labs #}
     {% if experiment.application_config.firefox_labs %}

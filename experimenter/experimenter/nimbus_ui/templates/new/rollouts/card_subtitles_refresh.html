@@ -1,0 +1,6 @@
+{% if hx_swap_oob %}
+  {% for card_id, card_status in card_summaries.items %}
+    {% include "new/rollouts/card_subtitle.html" with card_status=card_status card_id=card_id oob=True %}
+
+  {% endfor %}
+{% endif %}

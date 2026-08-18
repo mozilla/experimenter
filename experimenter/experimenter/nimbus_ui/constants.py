@@ -370,8 +370,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_ROLLOUT_PLAN_FIX_ERRORS = (
         "Resolve the highlighted errors above before saving this plan."
     )
-    ERROR_ROLLOUT_PHASE_DATE_ORDER = "The end date must be on or after the start date."
     ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
+    ROLLOUT_REVIEW_PENDING_TOOLTIP = "A review is currently pending."
+    ROLLOUT_NO_NEXT_PHASE_TOOLTIP = "There is no further phase to start."
+    ROLLOUT_HAS_ISSUES_TOOLTIP = "All rollout issues must be resolved first."
     ROLLOUT_TEMPLATE_PLANS = {
         "Low risk": [100],
         "Medium risk": [1, 10, 50, 100],
@@ -417,6 +419,108 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         TOAST_SLACK_ENABLED: "Review Slack notifications enabled",
         TOAST_SLACK_DISABLED: "Review Slack notifications disabled",
         TOAST_EDIT_CANCELLED: "Edit cancelled",
+    }
+
+    ROLLOUT_CARD_FIELDS = {
+        "overview": {
+            "section": "Overview",
+            "rows": (
+                ("Name", ("name",)),
+                ("Observations & Problem Space", ("hypothesis",)),
+                ("Public Description", ("public_description",)),
+                ("Application", ("application",)),
+                ("Important Links", ("documentation_links",)),
+                ("Project Tags", ()),
+                ("Subscribers", ()),
+            ),
+        },
+        "risks": {
+            "section": "Risks",
+            "rows": (
+                ("AI Risk", ("risk_ai",)),
+                ("Brand Perception", ("risk_brand",)),
+                ("Revenue", ("risk_revenue",)),
+                ("External Vendor", ("risk_partner_related",)),
+                ("Messaging", ("risk_message",)),
+            ),
+        },
+        "rollout-features": {
+            "section": "Features",
+            "rows": (
+                ("Rollout Experience", ("takeaways_summary",)),
+                ("Feature Configuration", ("feature_configs", "reference_branch")),
+                ("Warn On Schema Failure", ("warn_feature_schema",)),
+                ("Prevent Pref Conflicts", ("prevent_pref_conflicts",)),
+                ("Screenshots", ()),
+                (
+                    "Firefox Labs",
+                    (
+                        "is_firefox_labs_opt_in",
+                        "firefox_labs_title",
+                        "firefox_labs_description",
+                        "firefox_labs_description_links",
+                        "firefox_labs_group",
+                        "requires_restart",
+                    ),
+                ),
+            ),
+        },
+        "audience": {
+            "section": "Audience",
+            "rows": (
+                ("Channel", ("channel", "channels")),
+                ("Min Version", ("firefox_min_version",)),
+                ("Max Version", ("firefox_max_version",)),
+                (
+                    "Locales & Languages",
+                    ("locales", "exclude_locales", "languages", "exclude_languages"),
+                ),
+                ("Countries", ("countries", "exclude_countries")),
+                ("Advanced Targeting", ("targeting_config_slug",)),
+                ("Targeting Expression", ("targeting",)),
+                ("Required Experiments", ("required_experiments_branches",)),
+                ("Excluded Experiments", ("excluded_experiments_branches",)),
+                ("Sticky Enrollment", ("is_sticky",)),
+                ("Localized Rollout", ("is_localized", "localizations")),
+            ),
+        },
+        "schedule": {
+            "section": "Rollout schedule",
+            "rows": (
+                ("Rollout Schedule", ("rollout_phases",)),
+                ("Advance Observations", ("rollout_advance_observations",)),
+                ("Pause Observations", ("rollout_pause_observations",)),
+            ),
+        },
+        "signoff": {
+            "section": "Sign-Offs",
+            "tracked": False,
+            "rows": (
+                ("QA Sign-off", ("qa_signoff",)),
+                ("VP Sign-off", ("vp_signoff",)),
+                ("Legal Sign-off", ("legal_signoff",)),
+            ),
+        },
+        "qa": {
+            "section": "Quality Assurance",
+            "tracked": False,
+            "rows": (
+                ("QA Status", ("qa_status",)),
+                ("QA Notes", ("qa_comment",)),
+            ),
+        },
+    }
+
+    ROLLOUT_CARD_ICONS = {
+        "monitoring": "fa-regular fa-chart-bar",
+        "schedule": "fa-regular fa-calendar-days",
+        "preview": "fa-regular fa-eye",
+        "overview": "fa-regular fa-file-lines",
+        "risks": "fa-regular fa-flag",
+        "signoff": "fa-regular fa-square-check",
+        "audience": "fa-regular fa-circle-user",
+        "rollout-features": "fa-regular fa-lightbulb",
+        "qa": "fa-regular fa-clipboard",
     }
 
     class RolloutPhaseStatus:

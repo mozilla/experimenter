@@ -305,6 +305,37 @@ class TestRolloutOverviewForm(RequestFormTestCase):
             f"{self.request.user} updated rollouts overview",
         )
 
+    def test_invalid_documentation_link_url_does_not_block_save(self):
+        documentation_link = NimbusDocumentationLinkFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            documentation_links=[documentation_link],
+        )
+
+        form = RolloutOverviewForm(
+            instance=experiment,
+            data={
+                "name": "new rollout name",
+                "hypothesis": "new hypothesis",
+                "public_description": "new description",
+                "documentation_links-TOTAL_FORMS": "1",
+                "documentation_links-INITIAL_FORMS": "1",
+                "documentation_links-0-id": documentation_link.id,
+                "documentation_links-0-title": (
+                    NimbusExperiment.DocumentationLink.DESIGN_DOC.value
+                ),
+                "documentation_links-0-link": "not-a-valid-url",
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(
+            experiment.documentation_links.all().get().link, "not-a-valid-url"
+        )
+
     def test_name_field_is_required(self):
         form_data = {
             "name": "",
@@ -2321,7 +2352,7 @@ class TestRolloutStatusForms(
 
 
 class TestRolloutPhaseForm(TestCase):
-    def test_end_date_before_start_date_is_invalid(self):
+    def test_end_date_before_start_date_does_not_block_save(self):
         form = RolloutPhaseForm(
             data={
                 "start_date": "2026-02-01",
@@ -2329,11 +2360,7 @@ class TestRolloutPhaseForm(TestCase):
                 "population_percent": "10",
             }
         )
-        self.assertFalse(form.is_valid())
-        self.assertIn(
-            NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER,
-            form.errors["end_date"],
-        )
+        self.assertTrue(form.is_valid(), form.errors)
 
     def test_end_date_equal_to_start_date_is_valid(self):
         form = RolloutPhaseForm(
@@ -2349,21 +2376,11 @@ class TestRolloutPhaseForm(TestCase):
         form = RolloutPhaseForm(data={"population_percent": "10"})
         self.assertTrue(form.is_valid(), form.errors)
 
-    def test_population_over_100_is_invalid(self):
-        form = RolloutPhaseForm(data={"population_percent": "150"})
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
-
     def test_population_100_is_valid(self):
         form = RolloutPhaseForm(data={"population_percent": "100"})
         self.assertTrue(form.is_valid(), form.errors)
 
-    def test_negative_population_percent_is_invalid(self):
-        form = RolloutPhaseForm(data={"population_percent": "-1"})
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
-
-    def test_population_percent_over_100_is_invalid(self):
-        form = RolloutPhaseForm(data={"population_percent": "101"})
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
+    def test_population_out_of_range_does_not_block(self):
+        for value in ["150", "101", "-1"]:
+            form = RolloutPhaseForm(data={"population_percent": value})
+            self.assertTrue(form.is_valid(), value)

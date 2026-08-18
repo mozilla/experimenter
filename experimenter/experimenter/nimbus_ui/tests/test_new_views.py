@@ -44,7 +44,6 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutRisksForm,
     RolloutSignoffForm,
 )
-from experimenter.nimbus_ui.new.views import RolloutSetupProgressMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.targeting.constants import NimbusTargetingConfig
 
@@ -161,7 +160,12 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         if url_name == "nimbus-ui-new-live-to-disabled-rollout":
             NimbusRolloutPhaseFactory.create(experiment=experiment)
 
-        response = self.client.post(reverse(url_name, kwargs={"slug": experiment.slug}))
+        with mock.patch.object(
+            NimbusExperiment, "get_invalid_fields_errors", return_value={}
+        ):
+            response = self.client.post(
+                reverse(url_name, kwargs={"slug": experiment.slug})
+            )
 
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
@@ -528,54 +532,39 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertEqual(response.context["setup_issues_count"], 0)
         self.assertEqual(response.context["setup_issues"], [])
 
-    def test_setup_progress_reports_issue_when_no_rollout_phases(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            is_rollout=True,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
-        )
-        self.assertFalse(experiment.rollout_phases.exists())
+    def test_setup_progress_reports_schedule_phase_issues(self):
+        for populations, expected_message in [
+            ([], NimbusConstants.ERROR_ROLLOUT_NO_PHASES),
+            ([0, 50], NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO),
+        ]:
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+                is_rollout=True,
+                firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            )
+            for population_percent in populations:
+                NimbusRolloutPhaseFactory.create(
+                    experiment=experiment, population_percent=population_percent
+                )
 
-        response = self.client.get(
-            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
-        )
+            response = self.client.get(
+                reverse(
+                    "new-nimbus-ui-rollout-detail",
+                    kwargs={"slug": experiment.slug},
+                )
+            )
 
-        schedule_issues = [
-            issue
-            for issue in response.context["setup_issues"]
-            if issue["card_id"] == "schedule"
-        ]
-        self.assertEqual(len(schedule_issues), 1)
-        self.assertEqual(
-            schedule_issues[0]["messages"],
-            [NimbusConstants.ERROR_ROLLOUT_NO_PHASES],
-        )
-        self.assertLess(response.context["setup_completion_percent"], 100)
-
-    def test_setup_progress_reports_issue_when_first_phase_population_zero(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            is_rollout=True,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
-        )
-        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=0)
-        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=50)
-
-        response = self.client.get(
-            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
-        )
-
-        schedule_issues = [
-            issue
-            for issue in response.context["setup_issues"]
-            if issue["card_id"] == "schedule"
-        ]
-        self.assertEqual(len(schedule_issues), 1)
-        self.assertEqual(
-            schedule_issues[0]["messages"],
-            [NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO],
-        )
-        self.assertLess(response.context["setup_completion_percent"], 100)
+            schedule_groups = [
+                group
+                for group in response.context["setup_issues"]
+                if group["card_id"] == "schedule"
+            ]
+            self.assertEqual(len(schedule_groups), 1, expected_message)
+            self.assertEqual(
+                schedule_groups[0]["fields"],
+                [{"label": "Rollout Schedule", "messages": [expected_message]}],
+            )
+            self.assertLess(response.context["setup_completion_percent"], 100)
 
     def test_setup_progress_reports_issues_when_review_invalid(self):
         experiment = NimbusExperimentFactory.create(
@@ -591,15 +580,19 @@ class TestNimbusRolloutDetailView(AuthTestCase):
 
         self.assertLess(response.context["setup_completion_percent"], 100)
         self.assertGreater(response.context["setup_issues_count"], 0)
+
+        setup_issues = response.context["setup_issues"]
         self.assertEqual(
             response.context["setup_issues_count"],
-            len(response.context["setup_issues"]),
+            sum(len(group["fields"]) for group in setup_issues),
         )
-        for issue in response.context["setup_issues"]:
-            self.assertIn("section", issue)
-            self.assertIn("card_id", issue)
-            self.assertIn("label", issue)
-            self.assertTrue(issue["messages"])
+        for group in setup_issues:
+            self.assertIn("section", group)
+            self.assertIn("card_id", group)
+            self.assertTrue(group["fields"])
+            for field in group["fields"]:
+                self.assertIn("label", field)
+                self.assertTrue(field["messages"])
 
     def test_setup_progress_advances_per_field_within_a_section(self):
         experiment = NimbusExperimentFactory.create(is_rollout=True)
@@ -624,30 +617,114 @@ class TestNimbusRolloutDetailView(AuthTestCase):
 
         total_tracked = len(
             {
-                field
-                for section in RolloutSetupProgressMixin.SETUP_SECTIONS.values()
-                for field in section["fields"]
+                key
+                for card in NimbusUIConstants.ROLLOUT_CARD_FIELDS.values()
+                if card.get("tracked", True)
+                for _, keys in card["rows"]
+                for key in keys
             }
         )
         self.assertEqual(two_invalid, round(100 * (total_tracked - 2) / total_tracked))
         self.assertEqual(one_invalid, round(100 * (total_tracked - 1) / total_tracked))
         self.assertGreater(one_invalid, two_invalid)
 
-    def test_setup_progress_untracked_issue_does_not_lower_completion(self):
+    def test_untracked_and_display_only_fields_do_not_lower_completion(self):
+        experiment = NimbusExperimentFactory.create(is_rollout=True)
+        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+
+        for field, label in [
+            ("population_percent", "Population Percent"),
+            ("qa_status", "Qa Status"),
+            ("legal_signoff", "Legal Signoff"),
+        ]:
+            with mock.patch.object(
+                NimbusExperiment,
+                "get_invalid_fields_errors",
+                return_value={field: ["This field may not be null."]},
+            ):
+                context = self.client.get(url).context
+
+            self.assertEqual(context["setup_issues_count"], 1, field)
+            self.assertEqual(context["setup_completion_percent"], 100, field)
+            (group,) = context["setup_issues"]
+            self.assertEqual(group["section"], "Other", field)
+            self.assertIsNone(group["card_id"], field)
+            self.assertEqual([f["label"] for f in group["fields"]], [label], field)
+
+    def test_card_summaries_present_for_all_cards(self):
+        experiment = NimbusExperimentFactory.create(is_rollout=True)
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        card_summaries = response.context["card_summaries"]
+        self.assertEqual(
+            set(card_summaries),
+            set(NimbusUIConstants.ROLLOUT_CARD_FIELDS),
+        )
+        for card_id, summary in card_summaries.items():
+            expected_labels = [
+                label
+                for label, _ in NimbusUIConstants.ROLLOUT_CARD_FIELDS[card_id]["rows"]
+            ]
+            self.assertEqual(
+                [field["label"] for field in summary],
+                expected_labels,
+            )
+
+    def test_card_status_indicators_rendered_in_template(self):
         experiment = NimbusExperimentFactory.create(is_rollout=True)
         url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
 
         with mock.patch.object(
             NimbusExperiment,
             "get_invalid_fields_errors",
-            return_value={
-                "reference_branch": {"feature_values": ["Feature not supported."]}
-            },
+            return_value={"name": ["This field may not be blank."]},
+        ):
+            response = self.client.get(url)
+
+        self.assertContains(response, 'id="rollout-card-overview-summary"')
+        self.assertContains(response, "Observations &amp; Problem Space")
+
+    def test_reference_branch_errors_deduped_into_one_field(self):
+        experiment = NimbusExperimentFactory.create(is_rollout=True)
+        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+
+        reference_branch_errors = {
+            "feature_values": [
+                "This field may not be blank.",
+                "This field may not be blank.",
+            ],
+            "screenshots": [{"description": ["This field is required."]}],
+        }
+        with mock.patch.object(
+            NimbusExperiment,
+            "get_invalid_fields_errors",
+            return_value={"reference_branch": reference_branch_errors},
         ):
             context = self.client.get(url).context
 
-        self.assertEqual(context["setup_issues_count"], 1)
-        self.assertEqual(context["setup_completion_percent"], 100)
+        self.assertEqual(
+            context["validation_errors"]["reference_branch"],
+            reference_branch_errors,
+        )
+        (features_group,) = [
+            group
+            for group in context["setup_issues"]
+            if group["card_id"] == "rollout-features"
+        ]
+        self.assertEqual(
+            features_group["fields"],
+            [
+                {
+                    "label": "Feature Configuration",
+                    "messages": [
+                        "This field may not be blank.",
+                        "This field is required.",
+                    ],
+                },
+            ],
+        )
 
     def test_preview_card_hidden_when_not_in_preview(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -891,6 +968,8 @@ class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(experiment.hypothesis, "updated hypothesis")
         self.assertEqual(experiment.public_description, "updated description")
         self.assertTrue(response.context["hx_swap_oob"])
+        self.assertContains(response, 'id="rollout-card-overview-summary"')
+        self.assertContains(response, 'hx-swap-oob="true"')
 
     def test_post_invalid_returns_edit_form_with_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1485,32 +1564,6 @@ class TestNewDocumentationLinkDeleteView(AuthTestCase):
         self.assertEqual(experiment.documentation_links.count(), 1)
 
 
-class TestNewOverviewCancelView(AuthTestCase):
-    url_name = "nimbus-ui-new-cancel-overview"
-
-    def test_post_discards_blank_links_and_returns_card(self):
-        blank_link = NimbusDocumentationLinkFactory.create(link="")
-        filled_link = NimbusDocumentationLinkFactory.create(
-            link="https://www.example.com"
-        )
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            documentation_links=[blank_link, filled_link],
-            is_rollout=True,
-        )
-        response = self.client.post(
-            reverse(self.url_name, kwargs={"slug": experiment.slug}),
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "new/rollouts/overview/card.html")
-        self.assertTrue(response.context["hx_swap_oob"])
-        self.assertContains(response, 'id="sidebar-setup-progress"')
-        self.assertContains(response, 'hx-swap-oob="true"')
-        links = list(experiment.documentation_links.all())
-        self.assertNotIn(blank_link, links)
-        self.assertIn(filled_link, links)
-
-
 class TestNewTagSearchView(AuthTestCase):
     def test_get_returns_matching_unassigned_tags(self):
         experiment = NimbusExperimentFactory.create()
@@ -1938,8 +1991,7 @@ class TestNewRolloutPhaseDeleteView(AuthTestCase):
                 "rollout_phases-TOTAL_FORMS": "2",
                 "rollout_phases-INITIAL_FORMS": "2",
                 "rollout_phases-0-id": invalid.id,
-                "rollout_phases-0-start_date": "2026-01-15",
-                "rollout_phases-0-end_date": "2026-01-01",
+                "rollout_phases-0-start_date": "not-a-date",
                 "rollout_phases-0-population_percent": "10",
                 "rollout_phases-1-id": target.id,
                 "rollout_phases-1-population_percent": "50",
@@ -2054,6 +2106,7 @@ class TestNewRolloutPlanApplyView(AuthTestCase):
                 "rollout_phases-INITIAL_FORMS": "2",
                 "rollout_phases-0-id": done.id,
                 "rollout_phases-1-id": current.id,
+                "rollout_phases-1-start_date": "not-a-date",
                 "rollout_plan": plan_name,
             },
         )
@@ -2108,6 +2161,32 @@ class TestNewRolloutPlanCreateView(AuthTestCase):
         self.assertContains(response, '<option value="My custom plan" selected>')
         self.assertNotContains(response, f'<option value="{plan_name}" selected>')
 
+    def test_post_blocked_by_phase_error_keeps_name(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "1",
+                "rollout_phases-INITIAL_FORMS": "1",
+                "rollout_phases-0-id": phase.id,
+                "rollout_phases-0-start_date": "not-a-date",
+                "rollout_phases-0-population_percent": "10",
+                "template_name": "My plan",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, NimbusUIConstants.ERROR_ROLLOUT_PLAN_FIX_ERRORS)
+        self.assertContains(response, "My plan")
+        self.assertFalse(
+            NimbusRolloutPlanTemplate.objects.filter(name="My plan").exists()
+        )
+
     def test_post_blank_name_creates_nothing(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2147,33 +2226,6 @@ class TestNewRolloutPlanCreateView(AuthTestCase):
         self.assertContains(response, NimbusUIConstants.ERROR_ROLLOUT_PLAN_NAME_DUPLICATE)
         self.assertFalse(
             NimbusRolloutPlanTemplate.objects.filter(name=plan_name).exists()
-        )
-
-    def test_post_blocked_by_phase_error_shows_message_and_keeps_name(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            is_rollout=True,
-        )
-        phase = NimbusRolloutPhaseFactory.create(
-            experiment=experiment, population_percent=10
-        )
-        response = self.client.post(
-            reverse(self.url_name, kwargs={"slug": experiment.slug}),
-            {
-                "rollout_phases-TOTAL_FORMS": "1",
-                "rollout_phases-INITIAL_FORMS": "1",
-                "rollout_phases-0-id": phase.id,
-                "rollout_phases-0-start_date": "2026-01-15",
-                "rollout_phases-0-end_date": "2026-01-01",
-                "rollout_phases-0-population_percent": "10",
-                "template_name": "My plan",
-            },
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, NimbusUIConstants.ERROR_ROLLOUT_PLAN_FIX_ERRORS)
-        self.assertContains(response, "My plan")
-        self.assertFalse(
-            NimbusRolloutPlanTemplate.objects.filter(name="My plan").exists()
         )
 
 

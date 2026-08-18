@@ -1,5 +1,7 @@
 {% extends "new/common/card_base.html" %}
 
+{% load error_helpers %}
+
 {% block card %}
   <div class="d-flex flex-column gap-3" id="rollout-overview-body">
     {# Name #}
@@ -51,13 +53,14 @@
                 </a>
               </div>
             {% endif %}
+            {% with dl_errors=validation_errors.documentation_links|get_item:forloop.counter0 %}
+              {% for error in dl_errors.link %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+            {% endwith %}
           {% endfor %}
         </div>
       {% else %}
         <div class="small text-body">—</div>
       {% endif %}
-      {% include "new/common/validation_errors.html" with errors=validation_errors.documentation_links %}
-
     </div>
     {# Project Tags #}
     <div>
