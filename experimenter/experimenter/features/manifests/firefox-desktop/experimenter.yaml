@@ -2796,6 +2796,19 @@ pbNewtab:
     path: "browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json"
   variables: {}
 
+privateWindowRedesign:
+  description: "Experimental features for the private browsing window redesign"
+  owner: omc-core@mozilla.com
+  hasExposure: false
+  variables:
+    pbwRedesignGate:
+      type: boolean
+      setPref:
+        branch: default
+        pref: "browser.privateWindowRedesign.enabled"
+      description: >-
+        Enables the new private browsing window redesign, including updated styling, promotions, animation and other visual improvements.
+
 backgroundTaskMessage:
   description: "A Firefox Messaging System message for the background task message channel"
   owner: nalexander@mozilla.com
