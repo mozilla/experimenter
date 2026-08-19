@@ -1297,6 +1297,8 @@ class TestNimbusCheckKintoPushQueueByCollection(
         experiment.population_percent = current_phase.population_percent
         experiment.save()
         experiment.stage_rollout_phase_advance()
+        experiment.is_rollout_dirty = False
+        experiment.save()
 
         self.mock_kinto_client.collection = experiment.kinto_collection
         self.mock_kinto_client.get_rejected_collection_data.return_value = {
@@ -1309,6 +1311,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
         experiment.refresh_from_db()
         self.assertIsNone(experiment.rollout_phase_next)
         self.assertEqual(experiment.population_percent, current_phase.population_percent)
+        self.assertFalse(experiment.is_rollout_dirty)
 
     @override_settings(KINTO_REVIEW_TIMEOUT=0)
     def test_remote_settings_timeout_reverts_staged_rollout_phase(self):

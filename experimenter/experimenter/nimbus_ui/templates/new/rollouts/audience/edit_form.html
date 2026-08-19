@@ -145,6 +145,16 @@
       {% for error in form.is_sticky.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
       {% for error in validation_errors.is_sticky %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
     </div>
+    {% if experiment.is_mobile %}
+      <div id="first-run-fields">
+        <div class="form-check">
+          {{ form.is_first_run }}
+          <label class="form-check-label small text-body" for="id_is_first_run">First run rollout</label>
+        </div>
+        {% for error in form.is_first_run.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        {% for error in validation_errors.is_first_run %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+      </div>
+    {% endif %}
     <div>
       <div class="form-check">
         {{ form.is_localized }}

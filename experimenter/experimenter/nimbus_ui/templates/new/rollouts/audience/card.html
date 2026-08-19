@@ -193,6 +193,19 @@
         {% include "new/common/validation_errors.html" with errors=validation_errors.is_sticky %}
 
       </div>
+      {% if experiment.is_mobile %}
+        {# First run #}
+        <div>
+          <div class="text-secondary mb-1" style="font-size: 12px;">First run rollout</div>
+          {% if experiment.is_first_run %}
+            <i id="rollout-audience-first-run" class="fas fa-check text-success"></i>
+          {% else %}
+            <i id="rollout-audience-first-run" class="fas fa-times text-danger"></i>
+          {% endif %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.is_first_run %}
+
+        </div>
+      {% endif %}
       {# Localization #}
       <div>
         <div class="text-secondary mb-1" style="font-size: 12px;">Is this a localized rollout?</div>

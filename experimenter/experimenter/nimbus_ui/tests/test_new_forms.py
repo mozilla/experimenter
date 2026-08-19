@@ -49,6 +49,9 @@ from experimenter.nimbus_ui.new.forms import (
     LiveToDisabledReviewApproveRolloutForm,
     LiveToDisabledReviewRejectRolloutForm,
     LiveToDisabledReviewRolloutForm,
+    LiveToEndEnrollmentReviewApproveRolloutForm,
+    LiveToEndEnrollmentReviewRejectRolloutForm,
+    LiveToEndEnrollmentReviewRolloutForm,
     NimbusBranchFeatureValueForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
@@ -588,6 +591,59 @@ class TestRolloutAudienceForm(RequestFormTestCase):
 
         self.assertTrue(experiment.is_localized)
         self.assertEqual(experiment.localizations, '{"en-US": {}}')
+
+    def test_is_first_run_disabled_for_labs_opt_in(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group="group",
+            application=NimbusExperiment.Application.DESKTOP,
+            is_first_run=False,
+        )
+
+        form = RolloutAudienceForm(
+            instance=experiment,
+            data=self._audience_data(is_first_run=True),
+            request=self.request,
+        )
+
+        self.assertTrue(form.fields["is_first_run"].disabled)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        updated_experiment = form.save()
+        updated_experiment.refresh_from_db()
+
+        self.assertFalse(updated_experiment.is_first_run)
+
+    def test_is_first_run_editable_for_non_labs_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.BETA,
+            is_first_run=False,
+        )
+
+        form = RolloutAudienceForm(
+            instance=experiment,
+            data=self._audience_data(
+                channel=NimbusExperiment.Channel.BETA,
+                channels=[NimbusExperiment.Channel.BETA],
+                is_first_run=True,
+            ),
+            request=self.request,
+        )
+
+        self.assertFalse(form.fields["is_first_run"].disabled)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        updated_experiment = form.save()
+        updated_experiment.refresh_from_db()
+
+        self.assertTrue(updated_experiment.is_first_run)
 
     def test_check_rollout_dirty_does_not_set_flag_for_non_rollout(self):
         experiment = NimbusExperimentFactory.create(
@@ -1873,6 +1929,21 @@ class TestRolloutStatusForms(
             [NimbusUIConstants.ERROR_INVALID_PHASELESS_ROLLOUT_DISABLED_TRANSITION],
         )
 
+    def test_advance_phase_is_rejected_when_enrollment_is_closed(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            is_paused=True,
+        )
+        form = AdvancePhaseReviewRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("__all__", form.errors)
+
     def test_draft_to_preview_side_effects(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
@@ -2348,6 +2419,132 @@ class TestRolloutStatusForms(
         self.assertIn(
             (experiment.id, alert_type, SlackConstants.EmojiReaction.SECURE),
             emoji_calls,
+        )
+
+
+class TestRolloutEndEnrollmentForms(
+    SlackEmojiMockMixin, SlackNotificationMockMixin, RequestFormTestCase
+):
+    def setUp(self):
+        super().setUp()
+        self.mock_kinto_push_queue = patch(
+            "experimenter.nimbus_ui.new.forms."
+            "nimbus_check_kinto_push_queue_by_collection.apply_async"
+        ).start()
+        self.addCleanup(self.mock_kinto_push_queue.stop)
+
+    def create_labs_rollout(self, **kwargs):
+        return NimbusExperimentFactory.create(
+            **{
+                "status": NimbusExperiment.Status.LIVE,
+                "status_next": None,
+                "publish_status": NimbusExperiment.PublishStatus.IDLE,
+                "is_paused": False,
+                "is_rollout": True,
+                "is_firefox_labs_opt_in": True,
+                "firefox_labs_title": "title",
+                "firefox_labs_description": "description",
+                "firefox_labs_group": "group",
+                **kwargs,
+            }
+        )
+
+    def test_request_end_enrollment_for_labs_rollout(self):
+        experiment = self.create_labs_rollout()
+        form = LiveToEndEnrollmentReviewRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertTrue(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(changelog.changed_by, self.user)
+        self.assertIn("requested review to end enrollment", changelog.message)
+
+    def test_request_end_enrollment_invalid_for_non_labs_rollout(self):
+        experiment = self.create_labs_rollout(is_firefox_labs_opt_in=False)
+        form = LiveToEndEnrollmentReviewRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusExperiment.ERROR_CANNOT_PAUSE_ROLLOUT,
+            form.errors["__all__"],
+        )
+
+    def test_approve_end_enrollment_review(self):
+        experiment = self.create_labs_rollout(
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=True,
+        )
+        form = LiveToEndEnrollmentReviewApproveRolloutForm(
+            data={}, instance=experiment, request=self.request
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.assertTrue(experiment.is_paused)
+        self.mock_kinto_push_queue.assert_called_once()
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertIn("approved the end enrollment request", changelog.message)
+
+    def test_reject_end_enrollment_review_unpauses(self):
+        experiment = self.create_labs_rollout(
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=True,
+        )
+        form = LiveToEndEnrollmentReviewRejectRolloutForm(
+            data={"changelog_message": "rejected the review"},
+            instance=experiment,
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertIsNone(experiment.status_next)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertFalse(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertIn("rejected the review", changelog.message)
+
+    def test_reject_end_enrollment_review_with_cancel_message(self):
+        experiment = self.create_labs_rollout(
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_paused=True,
+        )
+        form = LiveToEndEnrollmentReviewRejectRolloutForm(
+            data={"cancel_message": "cancelled the end enrollment request"},
+            instance=experiment,
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        self.assertFalse(experiment.is_paused)
+
+        changelog = experiment.changes.latest("changed_on")
+        self.assertEqual(
+            changelog.message,
+            f"{self.request.user} cancelled the end enrollment request",
         )
 
 

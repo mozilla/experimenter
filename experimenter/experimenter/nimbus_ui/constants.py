@@ -373,6 +373,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
     ROLLOUT_REVIEW_PENDING_TOOLTIP = "A review is currently pending."
     ROLLOUT_NO_NEXT_PHASE_TOOLTIP = "There is no further phase to start."
+    ROLLOUT_ENROLLMENT_CLOSED_TOOLTIP = (
+        "Enrollment is closed, so no further phase can be started."
+    )
+    ROLLOUT_SCHEDULE_DATES_NOTE = (
+        "Phase dates are used for planning and reminders only. Phases do not start or "
+        "end automatically, so these dates are optional."
+    )
     ROLLOUT_HAS_ISSUES_TOOLTIP = "All rollout issues must be resolved first."
     ROLLOUT_TEMPLATE_PLANS = {
         "Low risk": [100],
@@ -396,9 +403,18 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "This rollout is live. You can advance to the next phase to adjust its "
         "population sizing, or disable it."
     )
+    ROLLOUT_LABS_LIVE_MESSAGE = (
+        "This Firefox Labs rollout is live and eligible clients can opt in from "
+        "Firefox Labs. Close enrollment when you no longer want new clients to "
+        "opt in."
+    )
     ROLLOUT_DISABLED_MESSAGE = (
         "This rollout is currently disabled. You can re-enable it by starting the "
         "next phase."
+    )
+    ROLLOUT_ENROLLMENT_CLOSED_MESSAGE = (
+        "Enrollment is closed for this rollout. Clients who already opted in keep "
+        "the feature, and no new clients will enroll."
     )
     ROLLOUT_DUPLICATE_PHASE_MESSAGE = (
         "There is no next phase to start. Accept to copy and launch the current "
@@ -526,11 +542,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     class RolloutPhaseStatus:
         NOT_STARTED = "not_started"
         IN_PROGRESS = "in_progress"
+        PAUSED = "paused"
         DISABLED = "disabled"
         COMPLETE = "complete"
 
-        CURRENT = (IN_PROGRESS, DISABLED)
-        LOCKED = (IN_PROGRESS, DISABLED, COMPLETE)
+        CURRENT = (IN_PROGRESS, PAUSED, DISABLED)
+        LOCKED = (IN_PROGRESS, PAUSED, DISABLED, COMPLETE)
 
     ROLLOUT_PHASE_STATUS_DISPLAY = {
         RolloutPhaseStatus.NOT_STARTED: {
@@ -540,6 +557,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         RolloutPhaseStatus.IN_PROGRESS: {
             "label": "In progress",
             "color": "primary",
+        },
+        RolloutPhaseStatus.PAUSED: {
+            "label": "Paused",
+            "color": "warning",
         },
         RolloutPhaseStatus.DISABLED: {
             "label": "Disabled",

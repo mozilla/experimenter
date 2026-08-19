@@ -1403,6 +1403,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.publish_status != self.PublishStatus.REVIEW:
             return None
 
+        if self.is_enrollment_pause_requested:
+            return {
+                "action_label": "End Enrollment",
+                "approve_url": (
+                    "nimbus-ui-new-live-to-end-enrollment-review-approve-rollout"
+                ),
+                "reject_url": (
+                    "nimbus-ui-new-live-to-end-enrollment-review-reject-rollout"
+                ),
+            }
+
         transitions = {
             (self.Status.DRAFT, self.Status.LIVE): {
                 "action_label": "Launch Rollout",
@@ -1439,11 +1450,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if current_index is None or i > current_index:
                 phase.card_status = NimbusUIConstants.RolloutPhaseStatus.NOT_STARTED
             elif i == current_index:
-                phase.card_status = (
-                    NimbusUIConstants.RolloutPhaseStatus.DISABLED
-                    if self.is_disabled
-                    else NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
-                )
+                if self.is_disabled:
+                    phase.card_status = NimbusUIConstants.RolloutPhaseStatus.DISABLED
+                elif self.is_paused:
+                    phase.card_status = NimbusUIConstants.RolloutPhaseStatus.PAUSED
+                else:
+                    phase.card_status = NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
             else:
                 phase.card_status = NimbusUIConstants.RolloutPhaseStatus.COMPLETE
             phase.card_status_display = NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISPLAY[
@@ -1537,6 +1549,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def can_edit_audience(self):
         return self.is_draft or (self.is_live_rollout and self.is_enrolling)
+
+    @property
+    def can_edit_rollout_schedule(self):
+        return (self.is_draft or self.is_rolling_out) and not self.is_paused
 
     def sidebar_links(self, current_path):
         return [

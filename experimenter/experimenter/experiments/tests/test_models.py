@@ -7255,6 +7255,21 @@ class TestRolloutPhaseProgress(TestCase):
             current.card_status, NimbusUIConstants.RolloutPhaseStatus.DISABLED
         )
 
+    def test_current_rollout_phase_display_returns_paused_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            is_rollout=True,
+        )
+        phase = NimbusRolloutPhaseFactory.create(experiment=experiment)
+        experiment.rollout_phase = phase
+        experiment.save()
+
+        current = experiment.current_rollout_phase_display
+        self.assertEqual(current, phase)
+        self.assertEqual(current.card_status, NimbusUIConstants.RolloutPhaseStatus.PAUSED)
+        self.assertEqual(current.card_status_display["label"], "Paused")
+        self.assertEqual(current.card_status_display["color"], "warning")
+
 
 class TestAdvanceRolloutPhase(TestCase):
     def setUp(self):
@@ -7638,6 +7653,30 @@ class TestRolloutReviewControls(TestCase):
         controls = experiment.rollout_review_controls
         self.assertEqual(controls["approve_url"], approve_url)
         self.assertEqual(controls["reject_url"], reject_url)
+
+    def test_rollout_review_controls_for_end_enrollment_request(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group="group",
+            is_paused=True,
+            published_dto=None,
+        )
+        controls = experiment.rollout_review_controls
+        self.assertEqual(controls["action_label"], "End Enrollment")
+        self.assertEqual(
+            controls["approve_url"],
+            "nimbus-ui-new-live-to-end-enrollment-review-approve-rollout",
+        )
+        self.assertEqual(
+            controls["reject_url"],
+            "nimbus-ui-new-live-to-end-enrollment-review-reject-rollout",
+        )
 
 
 class TestRolloutSidebarStateHelpers(TestCase):

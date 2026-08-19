@@ -695,6 +695,9 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         widget=InlineRadioSelect,
         coerce=lambda x: x == "True",
     )
+    is_first_run = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -726,10 +729,11 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         self.setup_initial_experiments_branches("excluded_experiments_branches")
         self.setup_channel_choices()
 
+        self.fields["is_first_run"].disabled = self.instance.is_firefox_labs_opt_in
         self.fields["is_first_run"].widget.attrs.update(
             {
                 "hx-post": reverse(
-                    "nimbus-ui-update-audience", kwargs={"slug": self.instance.slug}
+                    "nimbus-ui-new-update-audience", kwargs={"slug": self.instance.slug}
                 ),
                 "hx-trigger": "change",
                 "hx-select": "#first-run-fields",
@@ -1283,6 +1287,9 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
         previous_publish_status = self.instance.publish_status
         self.instance.publish_status = self.publish_status
 
+        if self.is_paused is not None:
+            self.instance.is_paused = self.is_paused
+
         if self.status == NimbusExperiment.Status.DRAFT:
             self.instance.published_dto = None
 
@@ -1453,6 +1460,7 @@ class AdvancePhaseReviewRolloutForm(SlackNotificationMixin, UpdateStatusForm):
     required_status = NimbusExperiment.Status.LIVE
     required_status_next = None
     required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
 
     status = NimbusExperiment.Status.LIVE
     status_next = NimbusExperiment.Status.LIVE
@@ -1591,6 +1599,95 @@ class LiveToDisabledReviewRejectRolloutForm(CancelRequestMixin, UpdateStatusForm
     status_next = None
     publish_status = NimbusExperiment.PublishStatus.IDLE
     cancel_request_alert_type = NimbusConstants.AlertType.END_EXPERIMENT_REQUEST
+
+    changelog_message = forms.CharField(
+        required=False, label="Changelog Message", max_length=1000
+    )
+
+    cancel_message = forms.CharField(
+        required=False, label="Cancel Message", max_length=1000
+    )
+
+    def get_changelog_message(self):
+        if self.cleaned_data.get("changelog_message"):
+            return (
+                f"{self.request.user} rejected the review with reason: "
+                f"{self.cleaned_data['changelog_message']}"
+            )
+        return f"{self.request.user} {self.cleaned_data['cancel_message']}"
+
+
+# End enrollment transitions (Firefox Labs rollouts only)
+
+
+class LiveToEndEnrollmentReviewRolloutForm(SlackNotificationMixin, UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = None
+    required_publish_status = NimbusExperiment.PublishStatus.IDLE
+    required_is_paused = False
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.REVIEW
+    is_paused = True
+
+    slack_action = SlackConstants.SLACK_ACTION_END_ENROLLMENT_REQUEST
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if self.instance.is_rollout and not self.instance.is_firefox_labs_opt_in:
+            raise forms.ValidationError(NimbusExperiment.ERROR_CANNOT_PAUSE_ROLLOUT)
+
+        return cleaned_data
+
+    def get_changelog_message(self):
+        return f"{self.request.user} requested review to end enrollment"
+
+
+class LiveToEndEnrollmentReviewApproveRolloutForm(UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+    required_is_paused = True
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = NimbusExperiment.Status.LIVE
+    publish_status = NimbusExperiment.PublishStatus.APPROVED
+
+    def get_changelog_message(self):
+        return f"{self.request.user} approved the end enrollment request"
+
+    @transaction.atomic
+    def save(self, commit=True):
+        experiment = super().save(commit=commit)
+        nimbus_check_kinto_push_queue_by_collection.apply_async(
+            countdown=5, args=[experiment.kinto_collection]
+        )
+        remove_emoji_from_message_async.delay(
+            experiment.id,
+            NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
+            SlackConstants.EmojiReaction.PENDING,
+        )
+        add_emoji_to_message_async.delay(
+            experiment.id,
+            NimbusConstants.AlertType.END_ENROLLMENT_REQUEST,
+            SlackConstants.EmojiReaction.APPROVE,
+        )
+        return experiment
+
+
+class LiveToEndEnrollmentReviewRejectRolloutForm(CancelRequestMixin, UpdateStatusForm):
+    required_status = NimbusExperiment.Status.LIVE
+    required_status_next = NimbusExperiment.Status.LIVE
+    required_publish_status = NimbusExperiment.PublishStatus.REVIEW
+    required_is_paused = True
+
+    status = NimbusExperiment.Status.LIVE
+    status_next = None
+    publish_status = NimbusExperiment.PublishStatus.IDLE
+    is_paused = False
+    cancel_request_alert_type = NimbusConstants.AlertType.END_ENROLLMENT_REQUEST
 
     changelog_message = forms.CharField(
         required=False, label="Changelog Message", max_length=1000

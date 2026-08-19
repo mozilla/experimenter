@@ -210,6 +210,10 @@
             <p class="text-secondary mb-0" style="font-size: 12px;">
               {% if experiment.is_disabled %}
                 {{ NimbusUIConstants.ROLLOUT_DISABLED_MESSAGE }}
+              {% elif experiment.is_observation %}
+                {{ NimbusUIConstants.ROLLOUT_ENROLLMENT_CLOSED_MESSAGE }}
+              {% elif experiment.is_firefox_labs_opt_in %}
+                {{ NimbusUIConstants.ROLLOUT_LABS_LIVE_MESSAGE }}
               {% else %}
                 {{ NimbusUIConstants.ROLLOUT_LIVE_MESSAGE }}
               {% endif %}

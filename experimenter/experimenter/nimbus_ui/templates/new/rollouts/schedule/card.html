@@ -77,7 +77,7 @@
                         </div>
                       {% else %}
                         <div class="d-flex align-items-center gap-1 text-secondary mb-1">
-                          <span>In progress</span>
+                          <span>{{ display.label }}</span>
                           <span class="mx-1" style="color: var(--bs-border-color);">•</span>
                           <span>{{ phase.days_elapsed }} day{{ phase.days_elapsed|pluralize }} running</span>
                         </div>

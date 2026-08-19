@@ -16,6 +16,9 @@
       {{ form.rollout_plan|add_error_class:"is-invalid" }}
     </div>
     {{ form.rollout_phases.management_form }}
+    {% if form.rollout_phases|length %}
+      <p class="text-secondary mb-0" style="font-size: 12px;">{{ NimbusUIConstants.ROLLOUT_SCHEDULE_DATES_NOTE }}</p>
+    {% endif %}
     <div class="d-flex flex-column">
       {% for phase_form in form.rollout_phases %}
         {% with display=phase_form.card_status_display %}

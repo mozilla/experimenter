@@ -138,6 +138,14 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
                 NimbusExperiment.Status.LIVE,
                 NimbusExperiment.PublishStatus.REVIEW,
             ),
+            # Live -> Live end enrollment
+            (
+                "nimbus-ui-new-live-to-end-enrollment-rollout",
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.PublishStatus.REVIEW,
+            ),
         ]
     )
     def test_valid_submission(
@@ -159,6 +167,9 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         )
         if url_name == "nimbus-ui-new-live-to-disabled-rollout":
             NimbusRolloutPhaseFactory.create(experiment=experiment)
+        if url_name == "nimbus-ui-new-live-to-end-enrollment-rollout":
+            experiment.is_firefox_labs_opt_in = True
+            experiment.save()
 
         with mock.patch.object(
             NimbusExperiment, "get_invalid_fields_errors", return_value={}
@@ -800,61 +811,75 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             ),
         )
 
-    def test_setup_issues_disable_phase_advance_but_not_disable_rollout(self):
+    def test_sidebar_shows_end_enrollment_for_labs_rollout(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group="group",
         )
-        current_phase = NimbusRolloutPhaseFactory.create(
-            experiment=experiment, population_percent=10
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
         )
-        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=20)
-        experiment.rollout_phase = current_phase
-        experiment.save()
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={"risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]},
-        ):
-            response = self.client.get(
-                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
-            )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="rollout-end-enrollment-btn"')
+        self.assertContains(
+            response,
+            reverse(
+                "nimbus-ui-new-live-to-end-enrollment-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+        self.assertContains(response, 'id="rollout-next-phase-btn"')
+        self.assertContains(response, 'id="rollout-disable-btn"')
 
-        content = response.content.decode()
-        next_phase_button = content.split('id="rollout-next-phase-btn"', 1)[1].split(
-            "</button>", 1
-        )[0]
-        disable_button = content.split('id="rollout-disable-btn"', 1)[1].split(
-            "</button>", 1
-        )[0]
-        self.assertRegex(next_phase_button, r"\sdisabled(?:\s|>)")
-        self.assertNotRegex(disable_button, r"\sdisabled(?:\s|>)")
+    def test_sidebar_hides_end_enrollment_for_non_labs_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+            is_firefox_labs_opt_in=False,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="rollout-end-enrollment-btn"')
 
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
-    def test_setup_issues_disable_phase_advance_approval(self):
+    def test_sidebar_shows_end_enrollment_review_controls(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
             status_next=NimbusExperiment.Status.LIVE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_group="group",
+            is_paused=True,
+            published_dto=None,
         )
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={"risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]},
-        ):
-            response = self.client.get(
-                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
-                **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
-            )
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
+        )
 
-        content = response.content.decode()
-        approve_button = content.split('id="rollout-review-approve-btn"', 1)[1].split(
-            "</button>", 1
-        )[0]
-        self.assertRegex(approve_button, r"\sdisabled(?:\s|>)")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "end enrollment")
+        self.assertContains(
+            response,
+            reverse(
+                "nimbus-ui-new-live-to-end-enrollment-review-approve-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
 
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
     def test_sidebar_shows_remote_settings_link_when_approved(self):
@@ -1056,6 +1081,69 @@ class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/audience/edit_form.html")
         self.assertResponseUsesForm(response, RolloutAudienceForm)
+
+    def test_get_redirects_for_live_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+            fetch_redirect_response=False,
+        )
+
+    def test_get_renders_first_run_for_mobile(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            application=NimbusExperiment.Application.FENIX,
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="first-run-fields"')
+        self.assertFalse(response.context["form"].fields["is_first_run"].disabled)
+
+    def test_get_renders_first_run_disabled_for_labs_opt_in(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            application=NimbusExperiment.Application.FENIX,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="first-run-fields"')
+        self.assertTrue(response.context["form"].fields["is_first_run"].disabled)
+
+    def test_get_hides_first_run_for_desktop(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="first-run-fields"')
 
     def test_post_valid_saves_and_returns_display_card(self):
         country = CountryFactory.create()
@@ -1712,6 +1800,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/schedule/edit_form.html")
+        self.assertNotContains(response, NimbusUIConstants.ROLLOUT_SCHEDULE_DATES_NOTE)
 
     def test_get_editable_when_live_rollout(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1723,6 +1812,20 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/schedule/edit_form.html")
+
+    def test_get_locked_when_enrollment_is_closed(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            is_rollout=True,
+        )
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+        self.assertRedirects(
+            response,
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+            fetch_redirect_response=False,
+        )
 
     def test_get_locked_when_not_draft_or_rolling_out(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

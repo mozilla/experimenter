@@ -16,6 +16,9 @@ from experimenter.nimbus_ui.new.views import (
     LiveToDisabledReviewApproveRolloutView,
     LiveToDisabledReviewRejectRolloutView,
     LiveToDisabledReviewRolloutView,
+    LiveToEndEnrollmentReviewApproveRolloutView,
+    LiveToEndEnrollmentReviewRejectRolloutView,
+    LiveToEndEnrollmentReviewRolloutView,
     NewAddSubscriberView,
     NewAddTagView,
     NewAudienceUpdateView,
@@ -390,6 +393,21 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/live-to-disabled-review-reject-rollout/$",
         LiveToDisabledReviewRejectRolloutView.as_view(),
         name="nimbus-ui-new-live-to-disabled-review-reject-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/live-to-end-enrollment-rollout/$",
+        LiveToEndEnrollmentReviewRolloutView.as_view(),
+        name="nimbus-ui-new-live-to-end-enrollment-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/live-to-end-enrollment-review-approve-rollout/$",
+        LiveToEndEnrollmentReviewApproveRolloutView.as_view(),
+        name="nimbus-ui-new-live-to-end-enrollment-review-approve-rollout",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/live-to-end-enrollment-review-reject-rollout/$",
+        LiveToEndEnrollmentReviewRejectRolloutView.as_view(),
+        name="nimbus-ui-new-live-to-end-enrollment-review-reject-rollout",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/disabled-to-live-rollout/$",

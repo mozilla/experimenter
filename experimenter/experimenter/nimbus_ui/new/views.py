@@ -34,6 +34,9 @@ from experimenter.nimbus_ui.new.forms import (
     LiveToDisabledReviewApproveRolloutForm,
     LiveToDisabledReviewRejectRolloutForm,
     LiveToDisabledReviewRolloutForm,
+    LiveToEndEnrollmentReviewApproveRolloutForm,
+    LiveToEndEnrollmentReviewRejectRolloutForm,
+    LiveToEndEnrollmentReviewRolloutForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
     PreviewReviewRolloutForm,
@@ -658,6 +661,18 @@ class LiveToDisabledReviewRejectRolloutView(StatusUpdateView):
     form_class = LiveToDisabledReviewRejectRolloutForm
 
 
+class LiveToEndEnrollmentReviewRolloutView(StatusUpdateView):
+    form_class = LiveToEndEnrollmentReviewRolloutForm
+
+
+class LiveToEndEnrollmentReviewApproveRolloutView(StatusUpdateView):
+    form_class = LiveToEndEnrollmentReviewApproveRolloutForm
+
+
+class LiveToEndEnrollmentReviewRejectRolloutView(StatusUpdateView):
+    form_class = LiveToEndEnrollmentReviewRejectRolloutForm
+
+
 class DisabledToLiveReviewRolloutView(StatusUpdateView):
     form_class = DisabledToLiveReviewRolloutForm
 
@@ -689,7 +704,7 @@ class NewRolloutScheduleUpdateView(NewCardUpdateView):
         return context
 
     def can_edit(self):
-        return self.object.is_draft or self.object.is_rolling_out
+        return self.object.can_edit_rollout_schedule
 
 
 class NewRolloutPhaseCreateView(
