@@ -252,6 +252,22 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
     }
     arithmetic_ops = {"+": "+", "-": "-", "*": "*", "/": "/", "%": "%"}
 
+    # JSON_VALUE (from preferenceValue) returns STRING. When used in numeric
+    # comparisons or arithmetic, cast to FLOAT64 so BigQuery accepts it.
+    # e.g. 'pref'|preferenceValue >= 4  →  SAFE_CAST(JSON_VALUE(...) AS FLOAT64) >= 4
+    # e.g. 'pref'|preferenceValue * 1   →  SAFE_CAST(JSON_VALUE(...) AS FLOAT64) * 1
+    def _is_numeric_literal(sql):
+        try:
+            float(sql)
+            return True
+        except (ValueError, TypeError):
+            return False
+
+    if _is_json_string_expr(left) and _is_numeric_literal(right):
+        left = f"SAFE_CAST({left} AS FLOAT64)"
+    elif _is_json_string_expr(right) and _is_numeric_literal(left):
+        right = f"SAFE_CAST({right} AS FLOAT64)"
+
     if op in comparison_ops:
         sql_op = comparison_ops[op]
         # JEXL uses == null / != null; BigQuery requires IS NULL / IS NOT NULL.
@@ -284,6 +300,12 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
             return f"({right} IS NULL OR {left} != {right})"
         return f"{left} {sql_op} {right}"
     if op in arithmetic_ops:
+        # BigQuery has no BOOL arithmetic — cast BOOL operands to INT64.
+        # Avoid double-casting if already CAST(...AS INT64).
+        if _is_boolean_sql(left) and not left.upper().endswith("AS INT64)"):
+            left = f"CAST({left} AS INT64)"
+        if _is_boolean_sql(right) and not right.upper().endswith("AS INT64)"):
+            right = f"CAST({right} AS INT64)"
         return f"({left} {arithmetic_ops[op]} {right})"
     return None
 
@@ -488,6 +510,16 @@ def _literal_value(node) -> Optional[str]:
     return None
 
 
+def ensure_bool_sql(sql: str) -> str:
+    """Coerce a SQL expression to BOOL if it is a STRING (e.g. from preferenceValue).
+
+    Used when the expression must be a BOOL, e.g. as the argument to COUNTIF.
+    """
+    if _is_boolean_sql(sql):
+        return sql
+    return _coerce_to_bool(sql)
+
+
 def _is_json_string_expr(sql: str) -> bool:
     """Returns True if the SQL expression produces a STRING value.
 
@@ -510,9 +542,17 @@ def _coerce_to_bool(sql: str) -> str:
     JSON_VALUE always returns STRING. When a pref value is used as a bare
     boolean in JEXL (truthy = non-null, non-empty, non-'false'), convert it
     to a BQ BOOL comparison so AND/OR don't error on STRING types.
+
+    Numeric literals (e.g. from JEXL patterns like `bool && 1 || 0`) are
+    converted to TRUE/FALSE so they don't produce INT64 != STRING comparisons.
     """
     if _is_boolean_sql(sql):
         return sql
+    # Numeric literal: non-zero is truthy in JEXL, zero is falsy.
+    try:
+        return "TRUE" if float(sql) != 0 else "FALSE"
+    except (ValueError, TypeError):
+        pass
     # For STRING expressions: treat null/empty/'false' as falsy, anything else truthy
     return f"({sql} IS NOT NULL AND {sql} != '' AND {sql} != 'false')"
 
@@ -520,7 +560,8 @@ def _coerce_to_bool(sql: str) -> str:
 def _is_boolean_sql(sql: str) -> bool:
     sql_upper = sql.upper()
     return (
-        sql.startswith("metrics.boolean.")
+        sql_upper in ("TRUE", "FALSE")
+        or sql.startswith("metrics.boolean.")
         or sql_upper.endswith(("AS BOOL)", "AS BOOLEAN)"))
         or " IN UNNEST(" in sql_upper
         or " IN (" in sql_upper  # X IN (list) returns BOOL
