@@ -1175,7 +1175,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_preview_complete(self):
-        return self.preview_date is not None and self.status not in (
+        return self.status not in (
             self.Status.DRAFT,
             self.Status.PREVIEW,
         )
@@ -1382,11 +1382,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return phases[next_index] if next_index < len(phases) else None
 
     @property
-    def has_advanceable_rollout_phase(self):
-        next_phase = self.next_rollout_phase
-        return bool(next_phase and next_phase.population_percent)
-
-    @property
     def has_rollout_review_errors(self):
         from experimenter.experiments.api.v5.serializers import (
             NimbusRolloutReviewSerializer,
@@ -1463,7 +1458,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         current_phase = self.rollout_phase
         next_phase = self.next_rollout_phase
 
-        if not next_phase or not next_phase.population_percent:
+        if next_phase is None or (
+            current_phase is None and not next_phase.population_percent
+        ):
             return
 
         resuming = self.status == NimbusExperiment.Status.DISABLED
@@ -1486,7 +1483,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         next_phase = self.next_rollout_phase
 
-        if next_phase is None or not next_phase.population_percent:
+        if next_phase is None:
+            return None
+
+        if self.rollout_phase_id is None and not next_phase.population_percent:
             return None
 
         self.rollout_phase_next = next_phase
@@ -1701,6 +1701,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for item in timeline:
             if item["is_active"]:
                 return item["step"]
+
+    @property
+    def active_rollout_stage(self):
+        if self.is_rolling_out:
+            return "rollout"
+        if self.is_preview:
+            return "preview"
+        if self.is_review_timeline:
+            review_request = (
+                self.changes.filter(
+                    new_status=self.Status.DRAFT,
+                    new_publish_status=self.PublishStatus.REVIEW,
+                )
+                .order_by("changed_on")
+                .last()
+            )
+            if review_request and review_request.old_status == self.Status.PREVIEW:
+                return "preview"
+            return "setup"
+        if self.is_draft:
+            return "setup"
+        return None
 
     @property
     def should_end(self):

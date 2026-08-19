@@ -1,0 +1,11 @@
+{% if card_id in setup_issue_card_ids %}
+  <i class="fa-solid fa-triangle-exclamation text-primary"
+     style="min-width: 16px;
+            font-size: 12px"
+     title="Warning: issues detected"></i>
+{% else %}
+  <i class="fa-regular fa-circle-check text-primary"
+     style="min-width: 16px;
+            font-size: 12px"
+     title="Healthy"></i>
+{% endif %}

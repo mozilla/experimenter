@@ -139,12 +139,16 @@
             </div>
             {% for toast_id, toast_message in NimbusUIConstants.TOASTS.items %}
               <div id="{{ toast_id }}"
-                   class="toast hide text-bg-primary mb-1"
+                   class="toast hide {% if toast_id == NimbusUIConstants.TOAST_EDIT_CANCELLED %}text-bg-secondary{% else %}text-bg-primary{% endif %} mb-1"
                    role="alert"
                    aria-live="assertive"
                    aria-atomic="true">
                 <div class="toast-body">
-                  <i class="fa-regular fa-circle-check"></i>
+                  {% if toast_id == NimbusUIConstants.TOAST_EDIT_CANCELLED %}
+                    <i class="fa-regular fa-circle-xmark"></i>
+                  {% else %}
+                    <i class="fa-regular fa-circle-check"></i>
+                  {% endif %}
                   {{ toast_message }}
                 </div>
               </div>
