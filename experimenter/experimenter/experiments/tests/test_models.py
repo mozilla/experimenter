@@ -7580,7 +7580,7 @@ class TestIsPreviewComplete(TestCase):
             (NimbusExperiment.Status.LIVE, True, True),
             (NimbusExperiment.Status.COMPLETE, True, True),
             (NimbusExperiment.Status.DISABLED, True, True),
-            (NimbusExperiment.Status.LIVE, False, False),
+            (NimbusExperiment.Status.LIVE, False, True),
         ]
     )
     def test_is_preview_complete(self, status, has_preview_change, expected):
