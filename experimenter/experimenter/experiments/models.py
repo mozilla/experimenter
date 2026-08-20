@@ -29,7 +29,13 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from prose.fields import RichTextField
 
-from experimenter.base.models import Country, Language, Locale
+from experimenter.base.models import (
+    Country,
+    Language,
+    Locale,
+    SiteFlag,
+    SiteFlagNameChoices,
+)
 from experimenter.experiments.constants import (
     ENROLLMENT_FUNNEL_STAGES,
     NIMBUS_TARGETING_CONTEXT_TABLE,
@@ -661,14 +667,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_absolute_url(self):
         return reverse("nimbus-ui-detail", kwargs={"slug": self.slug})
 
+    @cached_property
+    def is_new_rollout_ui_enabled(self):
+        return SiteFlag.objects.filter(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        ).exists()
+
     def get_detail_url(self):
+        if self.is_rollout and self.is_new_rollout_ui_enabled:
+            return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.slug})
+
         return reverse("nimbus-ui-detail", kwargs={"slug": self.slug})
 
     def get_history_url(self):
         return reverse("nimbus-ui-history", kwargs={"slug": self.slug})
-
-    def get_rollout_url(self):
-        return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.slug})
 
     def get_update_overview_url(self):
         return reverse("nimbus-ui-update-overview", kwargs={"slug": self.slug})

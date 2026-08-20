@@ -290,11 +290,20 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         if experiment.branches.count() == 0:
             control = experiment.branches.create(name="Control", slug="control", ratio=1)
-            experiment.branches.create(name="Treatment A", slug="treatment-a", ratio=1)
+            if not experiment.is_rollout:
+                experiment.branches.create(
+                    name="Treatment A", slug="treatment-a", ratio=1
+                )
             experiment.reference_branch = control
             experiment.save(update_fields=["reference_branch"])
 
         return experiment
+
+
+class NimbusRolloutCreateForm(NimbusExperimentCreateForm):
+    def save(self, *args, **kwargs):
+        self.instance.is_rollout = True
+        return super().save(*args, **kwargs)
 
 
 class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm):

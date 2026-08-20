@@ -10,7 +10,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import View
-from django.views.generic import CreateView, DetailView, TemplateView
+from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
 
@@ -408,29 +408,6 @@ class SignoffUpdateView(RequestFormMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
-
-
-class NimbusExperimentsCreateView(
-    NimbusExperimentViewMixin, RequestFormMixin, CreateView
-):
-    form_class = NimbusExperimentCreateForm
-    template_name = "nimbus_experiments/create.html"
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["data"] = kwargs["data"].copy()
-        kwargs["data"]["owner"] = self.request.user
-        return kwargs
-
-    def post(self, *args, **kwargs):
-        response = super().post(*args, **kwargs)
-
-        if response.status_code == 302:
-            response = HttpResponse()
-            response.headers["HX-Redirect"] = reverse(
-                "nimbus-ui-detail", kwargs={"slug": self.object.slug}
-            )
-        return response
 
 
 class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):

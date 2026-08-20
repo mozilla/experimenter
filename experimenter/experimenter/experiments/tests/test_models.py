@@ -17,6 +17,7 @@ from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
 import experimenter.experiments.constants
+from experimenter.base.models import SiteFlag, SiteFlagNameChoices
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
@@ -680,12 +681,40 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.targeting, "true")
         self.assertIsNone(experiment.sizing_sql)
 
-    def test_get_rollout_url(self):
-        experiment = NimbusExperimentFactory.create(slug="my-rollout")
+    def test_get_detail_url_uses_legacy_url_for_experiment(self):
+        experiment = NimbusExperimentFactory.create(slug="my-experiment")
+
         self.assertEqual(
-            experiment.get_rollout_url(),
+            experiment.get_detail_url(),
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_get_detail_url_uses_legacy_url_for_rollout_when_flag_is_unset(self):
+        experiment = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        self.assertEqual(
+            experiment.get_detail_url(),
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_get_detail_url_uses_new_url_for_rollout_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        experiment = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        self.assertEqual(
+            experiment.get_detail_url(),
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
         )
+
+    def test_get_detail_url_caches_site_flag_query(self):
+        experiment = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        with self.assertNumQueries(1):
+            experiment.get_detail_url()
+            experiment.get_detail_url()
 
     def test_latest_change_returns_most_recent(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

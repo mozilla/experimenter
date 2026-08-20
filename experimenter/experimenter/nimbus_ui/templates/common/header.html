@@ -55,15 +55,61 @@
         </li>
       </ul>
       <ul class="navbar-nav ms-xl-auto align-items-xl-center gap-1 gap-xl-0 mt-3 mt-xl-0">
-        <li class="nav-item me-xl-2">
-          <button id="create-new-button"
-                  class="btn btn-primary"
-                  data-bs-toggle="modal"
-                  data-bs-target="#createModal">
-            <i class="fa-regular fa-pen-to-square me-1"></i>
-            Create Experiment
-          </button>
-        </li>
+        {% if site_flag_enabled.NEW_DELIVERY_MENU %}
+          <li class="nav-item dropdown me-xl-2">
+            <button id="new-delivery-button"
+                    class="btn btn-primary dropdown-toggle"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">New delivery</button>
+            <div class="dropdown-menu dropdown-menu-end shadow border-0 p-3 mt-2"
+                 aria-labelledby="new-delivery-button"
+                 style="width: clamp(20rem, 35vw, 28rem);
+                        max-width: calc(100vw - 2rem)">
+              <h5 class="fw-semibold px-2 pt-1 mb-3">Start new delivery</h5>
+              <button id="create-new-experiment-button"
+                      type="button"
+                      class="dropdown-item d-flex align-items-start gap-3 rounded-2 p-2 mb-2 text-wrap"
+                      data-bs-toggle="modal"
+                      data-bs-target="#createModal">
+                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 bg-primary-subtle text-primary p-2 fs-5">
+                  <i class="fa-solid fa-chart-line"></i>
+                </span>
+                <span>
+                  <span class="d-block fw-semibold">Experiment</span>
+                  <span class="d-block small text-secondary">
+                    Test a hypothesis. See how various features or messages compare for our users via A/B testing.
+                  </span>
+                </span>
+              </button>
+              <button id="create-new-rollout-button"
+                      type="button"
+                      class="dropdown-item d-flex align-items-start gap-3 rounded-2 p-2 text-wrap"
+                      data-bs-toggle="modal"
+                      data-bs-target="#createRolloutModal">
+                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 bg-success-subtle text-success p-2 fs-5">
+                  <i class="fa-solid fa-rocket"></i>
+                </span>
+                <span>
+                  <span class="d-block fw-semibold">Rollout</span>
+                  <span class="d-block small text-secondary">
+                    Deliver new features to users early and safely—expand exposure over time and roll back instantly if needed. Ideal for staged launches without change metrics or statistical tracking.
+                  </span>
+                </span>
+              </button>
+            </div>
+          </li>
+        {% else %}
+          <li class="nav-item me-xl-2">
+            <button id="create-new-button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createModal">
+              <i class="fa-regular fa-pen-to-square me-1"></i>
+              Create Experiment
+            </button>
+          </li>
+        {% endif %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle"
              href="#"
@@ -230,3 +276,33 @@
     </div>
   </div>
 </div>
+{% if site_flag_enabled.NEW_DELIVERY_MENU %}
+  <div class="modal fade"
+       id="createRolloutModal"
+       tabindex="-1"
+       aria-labelledby="createRolloutModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createRolloutModalLabel">
+            <i class="fa-regular fa-pen-to-square me-1"></i>
+            Create Rollout
+          </h5>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body bg-body-tertiary">
+          <form id="createRolloutForm"
+                hx-post="{% url 'nimbus-ui-new-create-rollout' %}"
+                hx-target="#createRolloutForm">
+            {% include "nimbus_experiments/create.html" with form=create_form %}
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}

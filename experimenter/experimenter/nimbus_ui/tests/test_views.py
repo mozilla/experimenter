@@ -12,6 +12,7 @@ from django.utils.html import escape
 from parameterized import parameterized
 from PIL import Image
 
+from experimenter.base.models import SiteFlag, SiteFlagNameChoices
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
@@ -1124,6 +1125,45 @@ class NimbusExperimentsListViewTest(AuthTestCase):
         self.assertEqual(
             filtered_response,
             ([experiment2.slug, experiment1.slug]),
+        )
+
+    def test_delivery_links_use_legacy_detail_urls_when_flag_is_unset(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="test-experiment",
+        )
+        rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="test-rollout",
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse("nimbus-list"))
+
+        self.assertContains(response, f'href="{experiment.get_detail_url()}"')
+        self.assertContains(response, f'href="{rollout.get_detail_url()}"')
+        self.assertNotContains(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    def test_rollout_links_use_new_detail_url_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="test-rollout",
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse("nimbus-list"))
+
+        self.assertContains(response, f'href="{rollout.get_detail_url()}"')
+        self.assertNotContains(
+            response,
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
         )
 
 

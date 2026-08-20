@@ -11,6 +11,7 @@ from django.urls import resolve, reverse
 from django.utils import timezone
 from parameterized import parameterized
 
+from experimenter.base.models import SiteFlag, SiteFlagNameChoices
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
@@ -55,6 +56,91 @@ class AuthTestCase(TestCase):
         super().setUp()
         self.user = UserFactory.create(email="user@example.com")
         self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
+
+
+class TestNimbusExperimentsCreateView(AuthTestCase):
+    def test_invalid_post_renders_form_errors(self):
+        response = self.client.post(
+            reverse("nimbus-ui-create"),
+            {
+                "name": "$.",
+                "hypothesis": "test",
+                "application": NimbusExperiment.Application.DESKTOP,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("name", response.context["form"].errors)
+        self.assertNotIn("HX-Redirect", response.headers)
+
+    def test_post_creates_experiment(self):
+        response = self.client.post(
+            reverse("nimbus-ui-create"),
+            {
+                "name": "Test Experiment",
+                "hypothesis": "test",
+                "application": NimbusExperiment.Application.DESKTOP,
+            },
+        )
+
+        experiment = NimbusExperiment.objects.get(slug="test-experiment")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+        self.assertFalse(experiment.is_rollout)
+        self.assertEqual(experiment.hypothesis, "test")
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
+        self.assertEqual(experiment.owner, self.user)
+
+
+class TestNimbusRolloutsCreateView(AuthTestCase):
+    def enable_rollout_creation(self):
+        return SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+
+    def test_create_button_hidden_when_flag_is_unset(self):
+        response = self.client.get(reverse("nimbus-ui-home"))
+
+        self.assertNotContains(response, 'id="new-delivery-button"')
+        self.assertNotContains(response, 'id="create-new-rollout-button"')
+        self.assertContains(response, 'id="create-new-button"')
+
+    def test_new_delivery_menu_shown_when_flag_is_enabled(self):
+        self.enable_rollout_creation()
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+
+        self.assertContains(response, 'id="new-delivery-button"')
+        self.assertContains(response, 'id="create-new-experiment-button"')
+        self.assertContains(response, 'id="create-new-rollout-button"')
+        self.assertNotContains(response, 'id="create-new-button"')
+
+    def test_post_creates_rollout_when_flag_is_enabled(self):
+        self.enable_rollout_creation()
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-create-rollout"),
+            {
+                "name": "Test Rollout",
+                "hypothesis": "test",
+                "application": NimbusExperiment.Application.DESKTOP,
+            },
+        )
+
+        rollout = NimbusExperiment.objects.get(slug="test-rollout")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+        self.assertTrue(rollout.is_rollout)
+        self.assertEqual(rollout.owner, self.user)
+        self.assertEqual(rollout.branches.count(), 1)
+        self.assertEqual(rollout.reference_branch.name, "Control")
 
 
 class TestRolloutStatusUpdateViews(AuthTestCase):
