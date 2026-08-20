@@ -143,6 +143,13 @@ class FirefoxLabs:
         self.supported_description_links = supported_description_links
 
     @property
+    def supports_arbitrary_description_links(self) -> bool:
+        """Return whether this application supports arbitrary keys in the
+        firefox_labs_description_links field.
+        """
+        return self.supported_description_links is FirefoxLabs.ARBITRARY_KEYS
+
+    @property
     def supports_groups(self) -> bool:
         """Whether this application supports the firefox_labs_groups field."""
         return self.groups is not None

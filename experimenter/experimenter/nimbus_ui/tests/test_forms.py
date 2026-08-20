@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 import datetime
 import io
 import json
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.forms.models import model_to_dict
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -86,6 +90,21 @@ from experimenter.segments import Segments
 from experimenter.segments.tests.mock_segments import mock_get_segments
 from experimenter.slack.constants import SlackConstants
 from experimenter.targeting.constants import NimbusTargetingConfig
+
+if TYPE_CHECKING:
+    from django import forms
+    from django.db import models
+
+
+def get_modelform_data(
+    form_cls: type[forms.ModelForm],
+    instance: models.Model,
+) -> dict[str, Any]:
+    return model_to_dict(
+        instance,
+        fields=getattr(form_cls.Meta, "fields", None),
+        exclude=getattr(form_cls.Meta, "exclude", None),
+    )
 
 
 class RequestFormTestCase(TestCase):
@@ -4375,6 +4394,132 @@ class TestNimbusBranchesForm(RequestFormTestCase):
         experiment = form.save()
 
         self.assertFalse(experiment.is_first_run)
+
+    def test_fenix_firefox_labs_description_link(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+        )
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            request=self.request,
+            data={
+                **get_modelform_data(NimbusBranchesForm, experiment),
+                "firefox_labs_description_links": "ignored",
+                "firefox_labs_description_link": "https://example.com",
+            },
+        )
+
+        experiment = form.save()
+
+        self.assertTrue(experiment.is_firefox_labs_opt_in)
+        self.assertEqual(
+            json.loads(experiment.firefox_labs_description_links),
+            {"feedback": "https://example.com"},
+        )
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            request=self.request,
+            data={
+                **get_modelform_data(NimbusBranchesForm, experiment),
+                "firefox_labs_description_links": "ignored",
+                "firefox_labs_description_link": "",
+            },
+        )
+
+        experiment = form.save()
+
+        self.assertTrue(experiment.is_firefox_labs_opt_in)
+        self.assertEqual(
+            experiment.firefox_labs_description_links,
+            "null",
+        )
+
+    def test_fenix_firefox_labs_description_link_bad_json(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_description_links="not JSON",
+        )
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            request=self.request,
+            data={
+                **get_modelform_data(NimbusBranchesForm, experiment),
+                "firefox_labs_description_link": "https://example.com",
+            },
+        )
+
+        self.assertIsNone(form.fields["firefox_labs_description_link"].initial)
+
+        experiment = form.save()
+
+        self.assertTrue(experiment.is_firefox_labs_opt_in)
+        self.assertEqual(
+            json.loads(experiment.firefox_labs_description_links),
+            {"feedback": "https://example.com"},
+        )
+
+    def test_desktop_firefox_labs_description_link(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="description",
+            firefox_labs_description_links=json.dumps(
+                {
+                    "test": "https://example.com",
+                }
+            ),
+            firefox_labs_group=NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
+        )
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            request=self.request,
+            data={
+                **get_modelform_data(NimbusBranchesForm, experiment),
+                "firefox_labs_description_link": "https://example.com",
+            },
+        )
+
+        experiment = form.save()
+
+        self.assertTrue(experiment.is_firefox_labs_opt_in)
+        self.assertEqual(
+            json.loads(experiment.firefox_labs_description_links),
+            {"test": "https://example.com"},
+        )
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            request=self.request,
+            data={
+                **get_modelform_data(NimbusBranchesForm, experiment),
+                "firefox_labs_description_link": "https://example.com",
+            },
+        )
+
+        experiment = form.save()
+
+        self.assertTrue(experiment.is_firefox_labs_opt_in)
+        self.assertEqual(
+            json.loads(experiment.firefox_labs_description_links),
+            {"test": "https://example.com"},
+        )
 
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
