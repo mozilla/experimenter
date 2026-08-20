@@ -2669,6 +2669,25 @@ EXISTING_USER_ONLY_WIN10 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN10_EXISTING_USER_STORIES_DISABLED = NimbusTargetingConfig(
+    name="Windows 10 existing users with HNT stories disabled.",
+    slug="win10_existing_user_stories_disabled",
+    description=(
+        "Windows 10 users with profiles older than 28 days, with HNT stories "
+        "disabled, with CFRs enabled, and without enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && {WIN10_NOT_WIN11.targeting} && "
+        f"{RECOMMENDED_OR_SPONSORED_STORIES_DISABLED} && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'"
+        "|preferenceValue && !hasActiveEnterprisePolicies"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     name="New user (5 bookmarks)",
     slug="new_user_5_bookmarks",
