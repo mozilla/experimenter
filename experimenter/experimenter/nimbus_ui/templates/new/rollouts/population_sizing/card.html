@@ -1,0 +1,104 @@
+{% extends "new/common/card_base.html" %}
+
+{% load nimbus_extras %}
+
+{% block card %}
+  <div id="rollout-population-sizing-body"
+       class="d-flex flex-column gap-4"
+       {% if population_sizing_oob %}hx-swap-oob="true"{% endif %}>
+    {% if experiment.sizing_data_updated_at %}
+      <div class="small text-secondary">Last updated: {{ experiment.sizing_data_updated_at|timesince }} ago</div>
+    {% endif %}
+    {% if experiment.sizing_eligible_count is not None %}
+      <section data-testid="sizing-callout">
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+          <div class="col">
+            <div class="h-100 rounded-3 bg-body-tertiary p-3">
+              <div class="small text-secondary mb-1">Estimated eligible clients</div>
+              <div class="fs-4 fw-semibold text-body">~{{ experiment.sizing_eligible_count|short_number }}</div>
+            </div>
+          </div>
+          {% for estimate in rollout_phase_population_estimates %}
+            <div class="col" data-testid="sizing-phase-estimate">
+              <div class="h-100 rounded-3 bg-body-tertiary p-3">
+                <div class="small text-secondary mb-1">
+                  Phase {{ forloop.counter }} projected enrollment at
+                  {{ estimate.phase.population_percent|floatformat:"-2" }}%
+                </div>
+                <div class="fs-4 fw-semibold text-body">~{{ estimate.estimated_count|short_number }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        {% if experiment.sizing_warnings %}
+          <div class="alert alert-warning small border-0 border-start border-warning border-4 rounded-0 mt-3 mb-0"
+               role="alert">
+            <div>
+              <i class="fa-solid fa-triangle-exclamation me-1"></i>
+              <strong>Estimate excludes:</strong> {{ experiment.sizing_warnings|join:", " }}
+            </div>
+            <div class="text-secondary mt-1">These attributes couldn't be translated to SQL</div>
+          </div>
+        {% endif %}
+      </section>
+    {% elif experiment.is_draft %}
+      <p class="small text-secondary mb-0">
+        No sizing data available yet. Estimates are computed daily for Draft experiments.
+      </p>
+    {% endif %}
+    {% if experiment.sizing_full_sql %}
+      <div class="d-flex align-items-center justify-content-between border-top pt-3">
+        <button class="btn btn-sm btn-outline-secondary"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#sizing-sql-modal">
+          <i class="fa-solid fa-code me-1"></i>Generate SQL
+        </button>
+      </div>
+      <div class="modal fade"
+           id="sizing-sql-modal"
+           tabindex="-1"
+           aria-labelledby="sizing-sql-modal-label"
+           aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="sizing-sql-modal-label">Explore this audience in BigQuery</h5>
+              <button type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p class="small text-secondary">
+                Full BigQuery query generated from this experiment's targeting.
+                Copy and paste into BigQuery to explore the eligible population.
+              </p>
+              <div>
+                <div class="d-flex justify-content-end mb-1">
+                  <button type="button"
+                          class="btn btn-sm btn-outline-secondary codemirror-copy-btn"
+                          aria-label="Copy SQL">
+                    <i class="fa-solid fa-copy me-1"></i>Copy
+                  </button>
+                </div>
+                <textarea class="readonly-sql" data-testid="sizing-sql-query">{{ experiment.sizing_full_sql }}</textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <a href="https://sql.telemetry.mozilla.org/queries/124957/source?p_targeting_predicate={{ experiment.sizing_sql_predicate|urlencode }}"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="btn btn-sm btn-outline-secondary">
+                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>Open in STMO
+              </a>
+              <button type="button"
+                      class="btn btn-secondary btn-sm"
+                      data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

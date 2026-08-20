@@ -998,6 +998,83 @@ class TestNimbusRolloutDetailView(AuthTestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    @parameterized.expand(
+        [
+            # Draft with data
+            (
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                {"eligible_count": 12345, "warnings": []},
+                True,
+                False,
+            ),
+            # Draft no data
+            (
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                None,
+                True,
+                True,
+            ),
+            # Live with data
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+                {"eligible_count": 98765, "warnings": []},
+                True,
+                False,
+            ),
+            # Live no data
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+                None,
+                False,
+                False,
+            ),
+        ]
+    )
+    def test_population_sizing_card_display(
+        self, lifecycle, sizing_data, shows_card, shows_no_data_message
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            is_rollout=True,
+            sizing_data=sizing_data,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        if shows_card:
+            self.assertContains(response, 'id="rollout-card-population_sizing"')
+        else:
+            self.assertNotContains(response, 'id="rollout-card-population_sizing"')
+        if shows_no_data_message:
+            self.assertContains(response, "No sizing data available yet")
+        else:
+            self.assertNotContains(response, "No sizing data available yet")
+
+    def test_population_sizing_card_shows_estimate_for_each_rollout_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            sizing_data={"eligible_count": 100_000, "warnings": []},
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=25)
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=100)
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'data-testid="sizing-phase-estimate"', count=3)
+        self.assertContains(response, "Phase 1 projected enrollment at")
+        self.assertContains(response, "Phase 2 projected enrollment at")
+        self.assertContains(response, "Phase 3 projected enrollment at")
+        self.assertContains(response, "~10.0K")
+        self.assertContains(response, "~25.0K")
+        self.assertContains(response, "~100.0K")
+
 
 class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
     url_name = "nimbus-ui-new-update-overview"
@@ -1894,6 +1971,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             is_rollout=True,
+            sizing_data={"eligible_count": 100_000, "warnings": []},
         )
         phase = NimbusRolloutPhaseFactory.create(experiment=experiment)
         response = self.client.post(
@@ -1923,6 +2001,9 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
             experiment.rollout_pause_observations, "Test rollout pause observations"
         )
         self.assertTrue(response.context["hx_swap_oob"])
+        self.assertContains(response, 'id="rollout-population-sizing-body"')
+        self.assertContains(response, "Phase 1 projected enrollment at")
+        self.assertContains(response, "~25.0K")
 
     def test_post_in_progress_phase_shows_progress(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
