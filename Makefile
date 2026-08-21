@@ -254,9 +254,6 @@ integration_test_vnc: build_prod
 integration_test_nimbus_desktop: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "FIREFOX_CHANNEL=$(FIREFOX_CHANNEL) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) ./experimenter/tests/nimbus_integration_tests.sh"
 
-integration_test_nimbus_sdk: build_integration_test build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) -it rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"
-
 integration_test_nimbus_fenix:
 	uv sync --project experimenter/tests --no-install-project
 	mkdir -p experimenter/tests/integration/test-reports

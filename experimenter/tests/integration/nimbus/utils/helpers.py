@@ -184,21 +184,12 @@ def _default_feature_config_ids(app):
     return []
 
 
-def load_targeting_configs(app=BaseExperimentApplications.FIREFOX_DESKTOP.value):
+def load_targeting_configs():
     targeting_configs = json.loads(TARGETING_CONFIGS_PATH.read_text())
     return [
         item["value"]
         for item in targeting_configs
-        if (
-            BaseExperimentApplications.FIREFOX_DESKTOP.value in app
-            and BaseExperimentApplications.FIREFOX_DESKTOP.value
-            in item["applicationValues"]
-        )
-        or (
-            BaseExperimentApplications.FIREFOX_DESKTOP.value not in app
-            and BaseExperimentApplications.FIREFOX_DESKTOP.value
-            not in item["applicationValues"]
-        )
+        if BaseExperimentApplications.FIREFOX_DESKTOP.value in item["applicationValues"]
     ]
 
 
