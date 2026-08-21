@@ -371,12 +371,12 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
       no_internet_connection_error:
         description: |
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
-        default: false
+        default: true
   new-bookmark-folder-tree-feature:
     description: |
       This property determines weather we show the new bookmark folder tree UI

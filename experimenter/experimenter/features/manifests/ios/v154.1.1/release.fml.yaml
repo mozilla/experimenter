@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- beta
+- release
 features:
   ad-blocker-feature:
     description: |
@@ -12,12 +12,12 @@ features:
         description: |
           Whether or not the Ad Blocker badge is shown in the Site Menu
         type: Boolean
-        default: true
+        default: false
       enabled:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: true
+        default: false
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
     variables:
@@ -33,12 +33,12 @@ features:
         description: |
           Decides if the interactive gesture can close tabs by dragging the tab up to the top edge of the screen
         type: Boolean
-        default: true
+        default: false
       enabled_interactive:
         description: |
           Decides if the interactive (fancier) version of this feature is enabled.
         type: Boolean
-        default: true
+        default: false
       enabled_swipe:
         description: |
           Decides if the swipe version of this feature is enabled. This will override the interactive gesture
@@ -79,7 +79,7 @@ features:
         description: |
           Variable description
         type: Boolean
-        default: true
+        default: false
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
@@ -88,7 +88,7 @@ features:
         description: |
           If true, the download live activities feature is enabled
         type: Boolean
-        default: true
+        default: false
   firefox-jp-guide-default-site:
     description: |
       This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
@@ -174,17 +174,17 @@ features:
         description: |
           Enables the hosted summarizer feature.
         type: Boolean
-        default: true
+        default: false
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: true
+        default: false
   https-upgrade-feature:
     description: |
       This feature enables automatic https upgrade. This is only available for 18.2+.
@@ -193,7 +193,7 @@ features:
         description: |
           Enables automatic https upgrade.
         type: Boolean
-        default: true
+        default: false
   improved-app-store-review-trigger-feature:
     description: |
       The feature flag to manage the App Store review request trigger.
@@ -255,26 +255,7 @@ features:
         description: |
           A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
         type: Map<MessageKey, MessageData>
-        default:
-          homepage-microsurvey-message:
-            surface: microsurvey
-            style: MICROSURVEY
-            trigger-if-all:
-            - SECOND_HOMEPAGE_VIEW
-            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
-            text: How satisfied are you with your Firefox homepage?
-            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
-            should-randomize-options: false
-            microsurveyConfig:
-              utm-content: homepage
-              icon: homeLarge
-              options:
-              - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
-              - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
-              - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+        default: {}
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -371,12 +352,12 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: true
+        default: false
       no_internet_connection_error:
         description: |
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
-        default: true
+        default: false
   new-bookmark-folder-tree-feature:
     description: |
       This property determines weather we show the new bookmark folder tree UI
@@ -842,7 +823,7 @@ features:
         description: |
           Enables permissive guardrails for the summarizer.
         type: Boolean
-        default: true
+        default: false
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.
