@@ -60,6 +60,22 @@ def pytest_collection_modifyitems(config, items):
         items.sort(key=lambda item: item.nodeid)
         items[:] = [item for i, item in enumerate(items) if i % splits == split]
 
+    for item in items:
+        if "kinto_client" not in getattr(item, "fixturenames", ()):
+            continue
+
+        callspec = getattr(item, "callspec", None)
+        if callspec is None:
+            continue
+
+        application = callspec.params.get("application")
+        if application is None:
+            continue
+
+        item.add_marker(
+            pytest.mark.xdist_group(APPLICATION_KINTO_COLLECTION[application.value])
+        )
+
 
 APPLICATION_KINTO_REVIEW_PATH = {
     BaseExperimentApplications.FIREFOX_DESKTOP.value: (
