@@ -173,7 +173,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             return None
 
         return {
-            "sql": result.sql,
+            "sql": obj.sizing_sql_predicate,
             "warnings": result.warnings,
             "needsUpdate": obj.sizing_needs_update,
         }
