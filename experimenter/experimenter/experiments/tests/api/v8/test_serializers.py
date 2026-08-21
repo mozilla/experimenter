@@ -554,6 +554,31 @@ class TestNimbusExperimentSerializer(TestCase):
             {"sql": expected_sql, "warnings": [], "needsUpdate": True},
         )
 
+    def test_targeting_sql_coerces_string_returning_expression(self):
+        # urlbar_firefox_suggest uses bare 'pref'|preferenceValue which returns STRING.
+        # The serializer must return the ensure_bool_sql-coerced version so the ETL
+        # query and the CI dry-run validate the same SQL.
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug="urlbar_firefox_suggest",
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        experiment.locales.clear()
+        experiment.countries.clear()
+        experiment.languages.clear()
+
+        _pref_col = "metrics.object.nimbus_targeting_environment_pref_values"
+        raw = f"JSON_VALUE({_pref_col}, '$.browser.urlbar.showSearchSuggestionsFirst')"
+        coerced = f"({raw} IS NOT NULL AND {raw} != '' AND {raw} != 'false')"
+
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(
+            serializer.data["targetingSql"],
+            {"sql": coerced, "warnings": [], "needsUpdate": True},
+        )
+
     def test_targeting_sql_with_warnings_for_draft(self):
         # relay_user uses attachedFxAOAuthClients which is KNOWN_UNTRANSLATABLE
         # → sql is None, warning is attachedFxAOAuthClients
