@@ -864,36 +864,11 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         queryset=NimbusFeatureConfig.objects.all(),
         widget=FeatureConfigMultiSelectWidget(attrs={}),
     )
-    is_firefox_labs_opt_in = forms.BooleanField(
-        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
-    )
-    firefox_labs_title = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
-    )
-    firefox_labs_description = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
-    )
-    firefox_labs_description_links = forms.CharField(
-        required=False, widget=forms.HiddenInput()
-    )
-    firefox_labs_group = forms.ChoiceField(
-        required=False,
-        widget=forms.Select(attrs={"class": "form-select"}),
-    )
-    requires_restart = forms.BooleanField(
-        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
-    )
 
     class Meta:
         model = NimbusExperiment
         fields = (
             "feature_configs",
-            "is_firefox_labs_opt_in",
-            "firefox_labs_title",
-            "firefox_labs_description",
-            "firefox_labs_description_links",
-            "firefox_labs_group",
-            "requires_restart",
             "warn_feature_schema",
             "prevent_pref_conflicts",
         )
@@ -956,23 +931,6 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         # will remain unused as rollouts donot have results data
         self.fields["rollout_experience"].initial = self.instance.takeaways_summary
 
-        if firefox_labs := self.instance.application_config.firefox_labs:
-            self.fields["firefox_labs_group"].choices = firefox_labs.group_choices
-
-        self.was_labs_opt_in = self.instance.is_firefox_labs_opt_in
-
-        self.fields["is_firefox_labs_opt_in"].widget.attrs.update(
-            {
-                "hx-post": reverse(
-                    "nimbus-ui-new-update-rollout-features",
-                    kwargs={"slug": self.instance.slug},
-                ),
-                "hx-trigger": "change",
-                "hx-select": "#rollout-rollout-features-body",
-                "hx-target": "#rollout-rollout-features-body",
-            }
-        )
-
     def get_branch_feature_values_data(self):
         # Add temporary formset rows so newly selected, unsaved features get JSON
         # editors during the HTMX preview before Save persists them.
@@ -1029,18 +987,6 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             and self.branch_feature_values.is_valid()
             and self.rollout_screenshots.is_valid()
         )
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("is_firefox_labs_opt_in"):
-            cleaned_data["firefox_labs_title"] = ""
-            cleaned_data["firefox_labs_description"] = ""
-            cleaned_data["firefox_labs_description_links"] = "null"
-            cleaned_data["firefox_labs_group"] = ""
-            cleaned_data["requires_restart"] = False
-
-        return cleaned_data
 
     @transaction.atomic
     def save(self, *args, **kwargs):

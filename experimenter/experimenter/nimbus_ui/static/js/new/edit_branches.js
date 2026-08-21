@@ -105,13 +105,6 @@ const setupCodemirrorFeatures = () => {
   });
 };
 
-const setupCodemirrorLabs = () => {
-  const selector = "#id_firefox_labs_description_links";
-  const textarea = document.querySelector(selector);
-
-  setupCodemirror(selector, textarea, []);
-};
-
 const setupCodeMirrorLocalizations = () => {
   const selector = "#id_localizations";
   const textarea = document.querySelector(selector);
@@ -144,7 +137,6 @@ const setupSchemaToggleButtons = () => {
 
 const initializeAllEditors = () => {
   setupCodemirrorFeatures();
-  setupCodemirrorLabs();
   setupCodeMirrorLocalizations();
   setupSchemaToggleButtons();
 };
