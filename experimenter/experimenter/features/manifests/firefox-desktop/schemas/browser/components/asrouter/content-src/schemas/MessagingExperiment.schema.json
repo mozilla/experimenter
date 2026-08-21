@@ -1156,6 +1156,7 @@
               "enum": [
                 "VPN",
                 "PIN",
+                "RELAY",
                 "OTHER"
               ]
             },
@@ -1432,6 +1433,10 @@
             "imageDisplay": {
               "type": "string",
               "description": "Display style for the image."
+            },
+            "dismissable": {
+              "type": "boolean",
+              "description": "When true, shows moz-promo's built-in top-right close (X) button. Dismissing hides the promo and records telemetry. Defaults to false."
             },
             "primary_button": {
               "type": "object",
