@@ -570,7 +570,7 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment.languages.clear()
 
         _pref_col = "metrics.object.nimbus_targeting_environment_pref_values"
-        raw = f"JSON_VALUE({_pref_col}, '$.browser.urlbar.showSearchSuggestionsFirst')"
+        raw = f"JSON_VALUE({_pref_col}, '$.browser__urlbar__showSearchSuggestionsFirst')"
         coerced = f"({raw} IS NOT NULL AND {raw} != '' AND {raw} != 'false')"
 
         serializer = NimbusExperimentSerializer(experiment)
