@@ -49,6 +49,39 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
     Application.IOS: {"current_date", "nimbus_id"},
 }
 
+DESKTOP_TRANSFORMS = {
+    "date",
+    "stableSample",
+    "bucketSample",
+    "preferenceValue",
+    "preferenceIsUserSet",
+    "preferenceExists",
+    "preferenceIsLocked",
+    "keys",
+    "values",
+    "length",
+    "mapToProperty",
+    "regExpMatch",
+    "versionCompare",
+}
+
+MOBILE_TRANSFORMS = {
+    "versionCompare",
+    "eventSum",
+    "eventCountNonZero",
+    "eventAveragePerInterval",
+    "eventAveragePerNonZeroInterval",
+    "eventLastSeen",
+    "preferenceIsUserSet",
+    "bucketSample",
+}
+
+TRANSFORMS_BY_APPLICATION = {
+    Application.DESKTOP: DESKTOP_TRANSFORMS,
+    Application.FENIX: MOBILE_TRANSFORMS,
+    Application.IOS: MOBILE_TRANSFORMS,
+}
+
 HAS_PIN = "!doesAppNeedPin"
 NEED_DEFAULT = "!isDefaultBrowser"
 PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
