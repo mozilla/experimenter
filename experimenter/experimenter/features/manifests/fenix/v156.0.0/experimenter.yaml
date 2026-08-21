@@ -403,6 +403,14 @@ juno-onboarding:
       type: json
       description: |
         A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
+listen-to-page:
+  description: A feature that allows audio listening of a page
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, listen to page will be enabled
 lna-blocking:
   description: Feature that allows blocking local network or device access.
   hasExposure: true
