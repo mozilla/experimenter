@@ -1092,6 +1092,7 @@ SIZING_WINDOW_DAYS = 7
 SIZING_FULL_SQL_TEMPLATE = """\
 -- Matches the 7-day window and 10% sample used by the population sizing ETL.
 -- Deduplicates on client_id, keeping the most recent ping per client.
+-- Returns the eligible client count within the 10% sample.
 WITH latest_per_client AS (
   SELECT
     *,
@@ -1108,13 +1109,11 @@ WITH latest_per_client AS (
 ),
 clients AS (SELECT * EXCEPT (rn) FROM latest_per_client WHERE rn = 1)
 SELECT
-  client_info.client_id,
-  DATE(submission_timestamp) AS submission_date
+  COUNT(*) AS estimated_client_count
 FROM clients
 WHERE (
     {predicate}
-)
-LIMIT 1000"""
+)"""
 
 RISK_QUESTIONS = {
     "BRAND": (
