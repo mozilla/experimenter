@@ -38,6 +38,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_ROLLOUT_REENABLE_REQUIRES_CURRENT_PHASE = (
         "Cannot duplicate the final phase because this rollout has no current phase."
     )
+    ERROR_ROLLOUT_REENABLE_UNSUPPORTED_VERSION = (
+        "Cannot perform this action: this rollout targets Firefox versions that do "
+        "not support re-enabling a rollout that has been disabled."
+    )
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/getting-started/for-reviewers"
@@ -399,6 +403,15 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ROLLOUT_DISABLED_MESSAGE = (
         "This rollout is currently disabled. You can re-enable it by starting the "
         "next phase."
+    )
+    ROLLOUT_REENABLE_UNSUPPORTED_MESSAGE = (
+        "This rollout cannot be re-enabled because Firefox Desktop versions under "
+        "156 do not support re-enabling a rollout that has been disabled."
+    )
+    ROLLOUT_REENABLE_VERSION_WARNING = (
+        "Firefox Desktop versions under 156 do not support re-enabling a rollout "
+        "once it has been disabled. If this rollout is disabled, it cannot be "
+        "started again."
     )
     ROLLOUT_DUPLICATE_PHASE_MESSAGE = (
         "There is no next phase to start. Accept to copy and launch the current "

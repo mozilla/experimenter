@@ -2673,6 +2673,32 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             }
 
     @property
+    def supports_rollout_reenable(self):
+        if not self.is_rollout:
+            return True
+
+        min_required_version = NimbusConstants.ROLLOUT_REENABLE_MIN_SUPPORTED_VERSION.get(
+            self.application
+        )
+        if min_required_version is None:
+            return True
+
+        if not self.firefox_min_version:
+            return False
+
+        return NimbusExperiment.Version.parse(
+            self.firefox_min_version
+        ) >= NimbusExperiment.Version.parse(min_required_version)
+
+    @property
+    def show_rollout_reenable_warning(self):
+        return not self.supports_rollout_reenable and self.status in (
+            NimbusConstants.Status.DRAFT,
+            NimbusConstants.Status.PREVIEW,
+            NimbusConstants.Status.LIVE,
+        )
+
+    @property
     def audience_overlap_warnings(self):
         if self.status not in [
             NimbusConstants.Status.DRAFT,

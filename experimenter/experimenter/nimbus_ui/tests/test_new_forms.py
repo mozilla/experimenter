@@ -1725,6 +1725,7 @@ class TestRolloutStatusForms(
             publish_status=initial_publish_status,
             is_paused=False,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         if form_class is LiveToDisabledReviewRolloutForm:
             NimbusRolloutPhaseFactory.create(experiment=experiment)
@@ -1798,6 +1799,29 @@ class TestRolloutStatusForms(
         self.assertIn(
             "Cannot perform this action: experiment must be in state",
             form.errors["__all__"][0],
+        )
+
+    @parameterized.expand(
+        [
+            (DisabledToLiveReviewRolloutForm,),
+            (DisabledToLiveReviewApproveRolloutForm,),
+        ]
+    )
+    def test_reenable_below_min_version_rejects_transition(self, form_class):
+        experiment = NimbusExperimentFactory.create(
+            status=form_class.required_status,
+            status_next=form_class.required_status_next,
+            publish_status=form_class.required_publish_status,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+        )
+        form = form_class(data={}, instance=experiment, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_ROLLOUT_REENABLE_UNSUPPORTED_VERSION,
+            form.errors["__all__"],
         )
 
     @parameterized.expand(
@@ -2132,6 +2156,7 @@ class TestRolloutStatusForms(
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             is_rollout=True,
             population_percent=0,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         current_phase = NimbusRolloutPhaseFactory.create(
             experiment=experiment, population_percent=10
@@ -2172,6 +2197,7 @@ class TestRolloutStatusForms(
             status=NimbusExperiment.Status.DISABLED,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         final_phase = NimbusRolloutPhaseFactory.create(
             experiment=experiment,
@@ -2214,6 +2240,7 @@ class TestRolloutStatusForms(
             status=NimbusExperiment.Status.DISABLED,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         current_phase = NimbusRolloutPhaseFactory.create(
             experiment=experiment, population_percent=25
@@ -2236,6 +2263,7 @@ class TestRolloutStatusForms(
             status=NimbusExperiment.Status.DISABLED,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         form = DisabledToLiveDuplicatePhaseReviewRolloutForm(
             data={}, instance=experiment, request=self.request
@@ -2294,6 +2322,7 @@ class TestRolloutStatusForms(
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
             enable_review_slack_notifications=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         if form_class is LiveToDisabledReviewRolloutForm:
             NimbusRolloutPhaseFactory.create(experiment=experiment)
