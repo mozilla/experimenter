@@ -470,6 +470,13 @@ features:
           ALWAYS: 'true'
           NEVER: 'false'
         string-alias: ConditionName
+  listen-to-page:
+    description: A feature that allows audio listening of a page
+    variables:
+      enabled:
+        description: If true, listen to page will be enabled
+        type: Boolean
+        default: false
   lna-blocking:
     description: Feature that allows blocking local network or device access.
     variables:
@@ -1262,6 +1269,16 @@ features:
         description: If true, voice search is shown in the display toolbar.
         type: Boolean
         default: true
+  webcompat-interventions:
+    description: Experimental controls for webcompat site interventions
+    variables:
+      disabled-intervention-2060611:
+        description: If `true`, disables the webcompat intervention tracked by bug 2060611 (background media playback). Unset or false leaves the intervention enabled.
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: extensions.webcompat.disabled_interventions.2060611
+          branch: default
   webcompat-reporter-enhancements:
     description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
     variables:

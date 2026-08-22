@@ -473,6 +473,14 @@ features:
   lna-blocking:
     description: Feature that allows blocking local network or device access.
     variables:
+      block-insecure-contexts:
+        description: |
+          Whether or not LNA requests coming from insecure contexts should be blocked outright, without prompting the user for permission
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: network.lna.block_insecure_contexts
+          branch: default
       block-trackers:
         description: |
           Whether or not to block trackers

@@ -6,3 +6,86 @@ data_source = 'clients_daily'
 select_expression = 'CAST(COALESCE(LOGICAL_OR(browser_backup_scheduler_enabled), FALSE) AS INT)'
 
 [metrics.backup_scheduler_enabled.statistics.binomial]
+
+[metrics.backup_scheduler_enabled_glean_v1]
+data_source = 'metrics'
+select_expression = 'CAST(COALESCE(LOGICAL_OR(metrics.boolean.browser_backup_scheduler_enabled), FALSE) AS INT)'
+
+[metrics.backup_scheduler_enabled_glean_v1.statistics.binomial]
+
+[metrics.backup_started_v1]
+data_source = 'backup_events_v1'
+select_expression = "CAST(COALESCE(COUNTIF(event_name = 'backup_start') > 0, FALSE) AS INT)"
+
+[metrics.backup_started_v1.statistics.binomial]
+
+[data_sources.backup_events_v1]
+from_expression = """(
+    SELECT
+      legacy_telemetry_client_id AS client_id,
+      profile_group_id,
+      DATE(submission_timestamp) AS submission_date,
+      event_category,
+      event_name
+    FROM
+      `mozdata.firefox_desktop.events_stream`
+    WHERE
+      event_category = 'browser.backup'
+)"""
+experiments_column_type = "none"
+analysis_units = ["client_id", "profile_group_id"]
+friendly_name = "Backup Events"
+description = "Glean events_stream filtered to browser.backup.* events"
+
+[metrics.restore_started_v1]
+data_source = 'profile_restore_events_v1'
+select_expression = "CAST(COALESCE(COUNTIF(event_name = 'restore_started') > 0, FALSE) AS INT)"
+
+[metrics.restore_started_v1.statistics.binomial]
+
+[metrics.restore_complete_v1]
+data_source = 'profile_restore_events_v1'
+select_expression = "CAST(COALESCE(COUNTIF(event_name = 'restore_complete') > 0, FALSE) AS INT)"
+
+[metrics.restore_complete_v1.statistics.binomial]
+
+[data_sources.profile_restore_events_v1]
+from_expression = """(
+    WITH legacy_ids AS (
+      SELECT
+        client_info.client_id AS glean_client_id,
+        ANY_VALUE(metrics.uuid.legacy_telemetry_client_id) AS legacy_telemetry_client_id,
+        ANY_VALUE(metrics.uuid.legacy_telemetry_profile_group_id) AS profile_group_id
+      FROM
+        `mozdata.firefox_desktop.metrics`
+      WHERE
+        metrics.uuid.legacy_telemetry_client_id IS NOT NULL
+        AND DATE(submission_timestamp) >= DATE_SUB(CURRENT_DATE(), INTERVAL 90 DAY)
+      GROUP BY
+        glean_client_id
+    )
+    SELECT
+      l.legacy_telemetry_client_id AS client_id,
+      l.profile_group_id,
+      DATE(p.submission_timestamp) AS submission_date,
+      event.category AS event_category,
+      event.name AS event_name
+    FROM
+      `mozdata.firefox_desktop.profile_restore` p
+    CROSS JOIN UNNEST(p.events) AS event
+    JOIN
+      legacy_ids l
+      ON l.glean_client_id = p.client_info.client_id
+    WHERE
+      event.category = 'browser.backup'
+)"""
+experiments_column_type = "none"
+analysis_units = ["client_id", "profile_group_id"]
+friendly_name = "Profile Restore Events"
+description = """
+    Glean profile-restore ping filtered to browser.backup.* events.
+    profile-restore only exposes the native Glean client_id for the profile
+    performing the restore (not legacy_telemetry_client_id or
+    profile_group_id), so this resolves both identifiers via a same-profile
+    join against the metrics ping, keyed on the shared Glean client_id.
+"""
