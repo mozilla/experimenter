@@ -1541,6 +1541,13 @@ name = "fxa_signed_in"
 friendly_name = "FxA Sign-in Rate"
 description = "Is the client signed in at any point during the experiment"
 
+[metrics.fxa_signed_in_glean]
+data_source = "metrics"
+select_expression = "CAST(COALESCE(SUM(CASE WHEN metrics.boolean.fxa_account_enabled IS TRUE THEN 1 ELSE 0 END),0) > 0 AS INT)"
+name = "fxa_signed_in_glean"
+friendly_name = "FxA Sign-in Rate (Glean)"
+description = "Is the client signed in at any point during the experiment, based on the Glean `fxa.account_enabled` metric"
+
 [metrics.retained]
 select_expression = "COALESCE(SUM(pings_aggregated_by_this_row), 0) > 0"
 data_source = "clients_daily"

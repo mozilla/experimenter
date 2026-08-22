@@ -3300,6 +3300,12 @@ localNetworkAccess:
       setPref:
         branch: default
         pref: "network.lna.enabled"
+    blockInsecureContexts:
+      description: Whether LNA requests from insecure contexts should be blocked outright, without prompting the user for permission.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.lna.block_insecure_contexts"
 
 essentialFallbackDomains:
   description: "Whether to retry failing system requests with a backup domain"
