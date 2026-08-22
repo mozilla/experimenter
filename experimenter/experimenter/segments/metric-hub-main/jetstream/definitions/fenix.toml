@@ -1,3 +1,106 @@
+[data_sources]
+
+[data_sources.baseline_clients_daily]
+from_expression = "mozdata.fenix.baseline_clients_daily"
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+experiments_column_type = "none"
+friendly_name = "Baseline Clients Daily"
+description = "Baseline Clients Daily"
+
+[data_sources.baseline_clients_last_seen]
+from_expression = "mozdata.fenix.baseline_clients_last_seen"
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+experiments_column_type = "none"
+friendly_name = "Baseline Clients Last Seen"
+description = "Baseline Clients Last Seen"
+
+[data_sources.metrics_clients_last_seen]
+from_expression = "mozdata.fenix.metrics_clients_last_seen"
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+experiments_column_type = "none"
+friendly_name = "Metrics Clients Last Seen"
+description = "Metrics Clients Last Seen"
+
+[data_sources.metrics_clients_daily]
+from_expression = "mozdata.fenix.metrics_clients_daily"
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+experiments_column_type = "none"
+friendly_name = "Metrics Clients Daily"
+description = "Metrics Clients Daily"
+
+# Metrics supporting analyzing background notification experiments.
+
+[metrics.notification_shown]
+friendly_name = "Notification Shown"
+description = "Number of times a user was shown a notification."
+select_expression = """
+    {{agg_any("event_name = 'message_shown'")}}
+"""
+data_source = "notification_messaging_events_stream"
+
+[metrics.notification_clicked]
+friendly_name = "Notification Clicked"
+description = "Number of times a user clicked a notification."
+select_expression = """
+    {{agg_any("event_name = 'message_clicked'")}}
+"""
+data_source = "notification_messaging_events_stream"
+
+[metrics.notification_dismissed]
+friendly_name = "Notification Dismissed"
+description = "Number of times a user dismissed a notification."
+select_expression = """
+    {{agg_any("event_name = 'message_dismissed'")}}
+"""
+data_source = "notification_messaging_events_stream"
+
+[data_sources.notification_messaging_events_stream]
+from_expression = """(
+    SELECT *, DATE(submission_timestamp) AS submission_date
+    FROM `moz-fx-data-shared-prod.fenix.events_stream`
+    WHERE event_category IN ('messaging')
+    AND event_name IN ('message_shown', 'message_dismissed', 'message_clicked')
+    -- Like 'all-users-day-5-reengagement-push-2-ai-controls:%'.
+    AND STARTS_WITH(extras.string.message_key,
+      CASE
+        -- An unfortunate wart from an early experiment.
+        WHEN '{{experiment.normandy_slug}}' = 'all-users-day-5-reengagement-push' THEN 'privacy-value'
+        ELSE '{{experiment.normandy_slug}}:'
+      END)
+)"""
+description = "Glean events_stream dataset (events ping unnested to a single row per event) filtered"
+friendly_name = "Glean Events Stream Filtered"
+experiments_column_type = "none"
+client_id_column = "client_id"
+
+# For context: be aware that metrics pings are not reliably sent for
+# users who don't run Firefox for Android to browse, so we need to be
+# defensive.  We care about users who we witnessed disabling
+# notifications in response to the experiment.  Remember that the
+# notification worker is only scheduled for users who (at one time,
+# see https://bugzilla.mozilla.org/show_bug.cgi?id=2048113) had the
+# notification permission allowed.
+
+[metrics.ever_not_notifications_allowed]
+friendly_name = "Were Notifications Ever Not Allowed"
+description = "Whether notifications were definitely not allowed at least once in the given period."
+select_expression = """
+    COALESCE(LOGICAL_OR(NOT notifications_allowed), FALSE)
+"""
+data_source = "metrics_clients_daily"
+
+[metrics.ever_not_marketing_notifications_allowed]
+friendly_name = "Were Marketing Notifications Ever Not Allowed"
+description = "Whether marketing notifications were definitely not allowed at any time in the given period."
+select_expression = """
+    COALESCE(LOGICAL_OR(NOT marketing_notifications_allowed), FALSE)
+"""
+data_source = "metrics_clients_daily"
+
 [metrics]
 
 [metrics.uri_count.statistics.bootstrap_mean]
@@ -49,3 +152,126 @@ drop_highest = 0
 [metrics.set_to_default_onboarding.statistics.binomial]
 [metrics.sign_in_onboarding.statistics.binomial]
 [metrics.at_least_1_cta_onboarding.statistics.binomial]
+
+[segments]
+
+[segments.data_sources.baseline_clients_daily]
+from_expression = "mozdata.fenix.baseline_clients_daily"
+window_start = 0
+window_end = 0
+
+[segments.data_sources.baseline_clients_last_seen]
+from_expression = "mozdata.fenix.baseline_clients_last_seen"
+window_start = 0
+window_end = 0
+
+[segments.data_sources.metrics_clients_last_seen]
+from_expression = "mozdata.fenix.metrics_clients_last_seen"
+window_start = 0
+window_end = 0
+
+[segments.data_sources.metrics_clients_daily]
+from_expression = "mozdata.fenix.metrics_clients_daily"
+window_start = 0
+window_end = 0
+
+# Segments supporting analyzing background notification experiments.
+
+# These segments help to understand client notification settings at
+# enrollment: what the state was when the experiment started.  We
+# derive this data from `mozdata.fenix.metrics_clients_last_seen`,
+# which has a 28-day lookback, so deeply lapsed clients are likely to
+# be in
+# `segment_notifications_allowed_and_marketing_notifications_allowed_not_both_known_at_enrollment`.
+#
+# Why is this so complicated?  Because we don't have great ways (yet)
+# of targeting exactly the clients that we can show a background
+# notification on Android; there's some on-device trial and error
+# involved, which these segments help elucidate.
+
+[segments.segment_notifications_allowed_and_marketing_notifications_allowed_at_enrollment]
+friendly_name = "Notifications and marketing notifications allowed at enrollment"
+description = "Clients who definitely reported allowing both notifications and marketing notifications in their last `metrics` ping before enrollment"
+select_expression = "COALESCE(LOGICAL_AND(notifications_allowed) AND LOGICAL_AND(marketing_notifications_allowed), FALSE)"
+data_source = "metrics_clients_last_seen"
+window_start = 0
+window_end = 0
+
+[segments.segment_notifications_allowed_and_not_marketing_notifications_allowed_at_enrollment]
+friendly_name = "Notifications or marketing notifications not allowed at enrollment"
+description = "Clients who definitely reported allowing notifications but not marketing notifications in their last `metrics` ping before enrollment"
+select_expression = "COALESCE(LOGICAL_AND(notifications_allowed) AND NOT LOGICAL_AND(marketing_notifications_allowed), FALSE)"
+data_source = "metrics_clients_last_seen"
+window_start = 0
+window_end = 0
+
+[segments.segment_not_notifications_allowed_at_enrollment]
+friendly_name = "Notifications and not allowed at enrollment"
+description = "Clients who definitely reported not allowing notifications in their last `metrics` ping before enrollment"
+select_expression = "COALESCE(NOT LOGICAL_AND(notifications_allowed), FALSE)"
+data_source = "metrics_clients_last_seen"
+window_start = 0
+window_end = 0
+
+[segments.segment_notifications_allowed_and_marketing_notifications_allowed_not_both_known_at_enrollment]
+friendly_name = "Notifications or marketing notifications are not both known at enrollment"
+description = "Clients who did not definitely report allowing or not allowing one or both notifications and marketing notifications in their last `metrics` ping (if any) before enrollment"
+select_expression = "LOGICAL_OR(notifications_allowed IS NULL OR marketing_notifications_allowed IS NULL)"
+data_source = "metrics_clients_last_seen"
+window_start = 0
+window_end = 0
+
+# These segments help to understand client behaviour _after_
+# interacting with a notification.  Why the complication of clicked,
+# dismissed, and the remaining category?  We simply don't receive
+# definitive events for a large portion of clients, about which we can
+# say less.  This might be because `events` pings are not reliably
+# sent from the
+# [`MessageNotificationWorker`](https://searchfox.org/firefox-main/source/mobile/android/fenix/app/src/main/java/org/mozilla/fenix/messaging/MessageNotificationWorker.kt);
+# at this time, we don't know, so the complexity leaks out.
+#
+# Note that we only look for events in the 28 days after enrollment.
+# For long-lived experiments, this might be impactful.
+
+[segments.segment_notification_clicked]
+friendly_name = "Notification clicked"
+description = "Clients who were shown the notification and clicked"
+select_expression = """
+    {{agg_any("event_name = 'message_shown'")}} AND {{agg_any("event_name = 'message_clicked'")}}
+"""
+data_source = "notification_messaging_events_stream"
+
+[segments.segment_notification_dismissed]
+friendly_name = "Notification dismissed"
+description = "Clients who were shown the notification and dismissed"
+select_expression = """
+    {{agg_any("event_name = 'message_shown'")}} AND {{agg_any("event_name = 'message_dismissed'")}}
+"""
+data_source = "notification_messaging_events_stream"
+
+[segments.segment_notification_not_clicked_and_not_dismissed]
+friendly_name = "Notification not clicked and not dismissed"
+description = "Clients who were shown the notification and did not click"
+select_expression = """
+    {{agg_any("event_name = 'message_shown'")}} AND NOT({{agg_any("event_name = 'message_clicked'")}}) AND NOT({{agg_any("event_name = 'message_dismissed'")}})
+"""
+data_source = "notification_messaging_events_stream"
+
+[segments.data_sources.notification_messaging_events_stream]
+from_expression = """(
+    SELECT
+      *,
+      DATE(submission_timestamp) AS submission_date
+    FROM `moz-fx-data-shared-prod.fenix.events_stream`
+    WHERE event_category IN ('messaging')
+    AND event_name IN ('message_shown', 'message_dismissed', 'message_clicked')
+    -- Like 'all-users-day-5-reengagement-push-2-ai-controls:%'.
+    AND STARTS_WITH(extras.string.message_key,
+      CASE
+        -- An unfortunate wart from an early experiment.
+        WHEN '{{experiment.normandy_slug}}' = 'all-users-day-5-reengagement-push' THEN 'privacy-value'
+        ELSE '{{experiment.normandy_slug}}:'
+      END)
+)"""
+window_start = 0
+window_end = 28

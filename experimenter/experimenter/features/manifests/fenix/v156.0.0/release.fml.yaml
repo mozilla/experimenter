@@ -380,6 +380,7 @@ features:
         - NO
         - PL
         - PT
+        - RO
         - SG
         - ZA
         - ES
@@ -498,6 +499,13 @@ features:
           ALWAYS: 'true'
           NEVER: 'false'
         string-alias: ConditionName
+  listen-to-page:
+    description: A feature that allows audio listening of a page
+    variables:
+      enabled:
+        description: If true, listen to page will be enabled
+        type: Boolean
+        default: false
   lna-blocking:
     description: Feature that allows blocking local network or device access.
     variables:
