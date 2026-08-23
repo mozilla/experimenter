@@ -107,6 +107,7 @@ class TestNimbusRolloutsCreateView(AuthTestCase):
 
         self.assertNotContains(response, 'id="new-delivery-button"')
         self.assertNotContains(response, 'id="create-new-rollout-button"')
+        self.assertNotContains(response, 'id="create-new-labs-button"')
         self.assertContains(response, 'id="create-new-button"')
 
     def test_new_delivery_menu_shown_when_flag_is_enabled(self):
@@ -117,6 +118,7 @@ class TestNimbusRolloutsCreateView(AuthTestCase):
         self.assertContains(response, 'id="new-delivery-button"')
         self.assertContains(response, 'id="create-new-experiment-button"')
         self.assertContains(response, 'id="create-new-rollout-button"')
+        self.assertContains(response, 'id="create-new-labs-button"')
         self.assertNotContains(response, 'id="create-new-button"')
 
     def test_post_creates_rollout_when_flag_is_enabled(self):
@@ -141,6 +143,68 @@ class TestNimbusRolloutsCreateView(AuthTestCase):
         self.assertEqual(rollout.owner, self.user)
         self.assertEqual(rollout.branches.count(), 1)
         self.assertEqual(rollout.reference_branch.name, "Control")
+
+
+class TestNimbusFirefoxLabsCreateView(AuthTestCase):
+    def setUp(self):
+        super().setUp()
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+
+    def test_post_creates_labs_and_redirects_to_legacy_detail(self):
+        response = self.client.post(
+            reverse("nimbus-ui-new-create-labs"),
+            {
+                "name": "Test Labs",
+                "hypothesis": "test",
+                "application": NimbusExperiment.Application.DESKTOP,
+            },
+        )
+
+        labs = NimbusExperiment.objects.get(slug="test-labs")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("nimbus-ui-detail", kwargs={"slug": labs.slug}),
+        )
+        self.assertTrue(labs.is_firefox_labs_opt_in)
+        self.assertTrue(labs.is_rollout)
+        self.assertEqual(labs.owner, self.user)
+        self.assertEqual(labs.branches.count(), 1)
+        self.assertEqual(labs.reference_branch.name, "Control")
+
+    def test_post_rejects_application_without_labs_support(self):
+        response = self.client.post(
+            reverse("nimbus-ui-new-create-labs"),
+            {
+                "name": "Test Labs",
+                "hypothesis": "test",
+                "application": NimbusExperiment.Application.IOS,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("application", response.context["form"].errors)
+        self.assertNotIn("HX-Redirect", response.headers)
+        self.assertFalse(NimbusExperiment.objects.filter(slug="test-labs").exists())
+
+    def test_new_rollout_ui_returns_404_for_labs(self):
+        labs = NimbusExperimentFactory.create(
+            slug="test-labs",
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": labs.slug})
+        )
+
+        self.assertEqual(response.status_code, 404)
 
 
 class TestRolloutStatusUpdateViews(AuthTestCase):

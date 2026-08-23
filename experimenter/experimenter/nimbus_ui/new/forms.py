@@ -306,6 +306,20 @@ class NimbusRolloutCreateForm(NimbusExperimentCreateForm):
         return super().save(*args, **kwargs)
 
 
+class NimbusFirefoxLabsCreateForm(NimbusRolloutCreateForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["application"].choices = [
+            (application.value, application.label)
+            for application in NimbusExperiment.Application
+            if NimbusExperiment.APPLICATION_CONFIGS[application].firefox_labs
+        ]
+
+    def save(self, *args, **kwargs):
+        self.instance.is_firefox_labs_opt_in = True
+        return super().save(*args, **kwargs)
+
+
 class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm):
     owner = forms.ModelChoiceField(
         User.objects.all(),

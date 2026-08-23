@@ -288,6 +288,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "for the selected versions."
     )
 
+    NEW_DELIVERY_LABS_DESCRIPTION = (
+        "Give users early access to your experimental feature. Start a foxfooding "
+        "campaign to get qualitative external feedback sooner."
+    )
+
     KEY_TAKEAWAYS_EMPTY_TEXT = """Was your hypothesis right, wrong, or somewhere in
     between? Call out what changed in a meaningful way (ideally things that were
     statistically significant)."""
