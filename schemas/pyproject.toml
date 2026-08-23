@@ -1,6 +1,6 @@
 [project]
 name = "mozilla-nimbus-schemas"
-version = "3004.0.0"
+version = "3005.0.0"
 description = "Schemas used by Mozilla Nimbus and related projects."
 authors = [{ name = "mikewilli" }]
 requires-python = ">=3.10,<4"

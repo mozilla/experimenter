@@ -331,11 +331,10 @@ SCHEMAS_RUFF = ruff check .
 SCHEMAS_DIFF_PYDANTIC = \
 	mkdir -p /tmp/schemas-diff/ && \
 	python generate_json_schema.py \
-		--output /tmp/schemas-diff/index.d.ts \
-		--json-schemas /tmp/schemas-diff/schemas/ \
-		--python-package-dir /tmp/schemas-diff/mozilla_nimbus_schemas/ && \
+		--output /tmp/schemas-diff/ && \
 	( \
-		diff index.d.ts /tmp/schemas-diff/index.d.ts && \
+		diff ./index.d.ts /tmp/schemas-diff/index.d.ts && \
+		diff -r ./types/ /tmp/schemas-diff/types/ && \
 		diff -r ./schemas /tmp/schemas-diff/schemas/ \
 	) || ( \
 		echo schemas packages are out of out of sync\: run make schemas_build; \
