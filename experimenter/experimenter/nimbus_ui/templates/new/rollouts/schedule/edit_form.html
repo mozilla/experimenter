@@ -17,6 +17,9 @@
     </div>
     {{ form.rollout_phases.management_form }}
     <div class="d-flex flex-column">
+      {% if form.rollout_phases|length %}
+        <div class="text-secondary mb-2" style="font-size: 12px">{{ NimbusUIConstants.ROLLOUT_SCHEDULE_DATES_NOTE }}</div>
+      {% endif %}
       {% for phase_form in form.rollout_phases %}
         {% with display=phase_form.card_status_display %}
           <div class="p-3 rounded"

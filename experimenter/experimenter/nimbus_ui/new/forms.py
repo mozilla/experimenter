@@ -1849,9 +1849,11 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
             if status == NimbusUIConstants.RolloutPhaseStatus.COMPLETE:
                 disabled_fields = NimbusUIConstants.ROLLOUT_PHASE_FIELDS
             elif status in NimbusUIConstants.RolloutPhaseStatus.CURRENT:
-                disabled_fields = ("population_percent",)
+                disabled_fields = ("population_percent", "start_date")
             else:
                 disabled_fields = ()
+            if phase and phase.effective_start_date:
+                phase_form.initial["start_date"] = phase.effective_start_date
             for field_name in disabled_fields:
                 phase_form.fields[field_name].disabled = True
 

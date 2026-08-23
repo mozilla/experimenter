@@ -7097,6 +7097,28 @@ class TestNimbusRolloutPhase(TestCase):
         phase = NimbusRolloutPhaseFactory.build(start_date=today - 2 * day, end_date=None)
         self.assertEqual(phase.days_elapsed_capped, 2)
 
+    def test_effective_start_date_prefers_actual_start_date(self):
+        phase = NimbusRolloutPhaseFactory.build(
+            start_date=datetime.date(2026, 1, 1),
+            actual_start_date=datetime.date(2026, 1, 5),
+        )
+        self.assertEqual(phase.effective_start_date, datetime.date(2026, 1, 5))
+
+        phase.actual_start_date = None
+        self.assertEqual(phase.effective_start_date, datetime.date(2026, 1, 1))
+
+    def test_duration_and_days_elapsed_use_actual_start_date(self):
+        today = timezone.now().date()
+        day = datetime.timedelta(days=1)
+
+        phase = NimbusRolloutPhaseFactory.build(
+            start_date=today - 10 * day,
+            actual_start_date=today - 4 * day,
+            end_date=today + 3 * day,
+        )
+        self.assertEqual(phase.duration_days, 7)
+        self.assertEqual(phase.days_elapsed, 4)
+
     def test_duration_none_without_dates(self):
         phase = NimbusRolloutPhaseFactory.build(start_date=None, end_date=None)
         self.assertIsNone(phase.duration_days)

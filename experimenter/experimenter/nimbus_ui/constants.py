@@ -384,6 +384,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ROLLOUT_PAUSE_OBSERVATIONS_LABEL = "Pause rollout if these observations occur"
     ROLLOUT_PHASE_FIELDS = ("start_date", "end_date", "population_percent")
+    ROLLOUT_SCHEDULE_DATES_NOTE = (
+        "Phase dates are used for planning and reminders only. Phases do not start or "
+        "end automatically, so these dates are optional."
+    )
     ROLLOUT_PREVIEW_MESSAGE = (
         "This rollout is in Preview mode and is live for testing now. It can take up "
         "to an hour before clients receive the preview. When you're ready, request "

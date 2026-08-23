@@ -4,7 +4,7 @@
   <div class="d-flex flex-column gap-4">
     {% if experiment.monitoring_data_updated_at %}
       <div class="text-secondary" style="font-size: 12px;">
-        Last updated: {{ experiment.monitoring_data_updated_at|date:"N j, Y" }}
+        Last updated: {{ experiment.monitoring_data_updated_at|date:"M j, Y" }}
       </div>
     {% endif %}
     {% if experiment.is_complete %}
