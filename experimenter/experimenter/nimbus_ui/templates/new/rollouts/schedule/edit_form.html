@@ -117,13 +117,20 @@
         </button>
         <div class="collapse mt-2{% if form.template_name.errors %} show{% endif %}"
              id="new-rollout-plan-field">
-          <div class="input-group">
+          <div class="d-flex gap-2">
             {{ form.template_name|add_error_class:"is-invalid" }}
             <button type="button"
-                    class="btn btn-primary"
+                    id="rollout-schedule-save-plan"
+                    class="btn btn-primary btn-sm flex-shrink-0"
                     hx-post="{% url 'nimbus-ui-new-create-rollout-plan' experiment.slug %}"
                     hx-target="#rollout-schedule-body"
                     hx-swap="outerHTML">Save plan</button>
+            <button type="button"
+                    id="rollout-schedule-cancel-plan"
+                    class="btn btn-outline-secondary btn-sm flex-shrink-0"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#new-rollout-plan-field"
+                    aria-controls="new-rollout-plan-field">Cancel</button>
           </div>
           {% if form.template_name.errors %}
             <div class="text-danger small mt-1">{{ form.template_name.errors|join:", " }}</div>
