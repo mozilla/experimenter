@@ -416,6 +416,13 @@ lna-blocking:
   hasExposure: true
   exposureDescription: ''
   variables:
+    block-insecure-contexts:
+      type: boolean
+      description: |
+        Whether or not LNA requests coming from insecure contexts should be blocked outright, without prompting the user for permission
+      setPref:
+        pref: network.lna.block_insecure_contexts
+        branch: default
     block-trackers:
       type: boolean
       description: |

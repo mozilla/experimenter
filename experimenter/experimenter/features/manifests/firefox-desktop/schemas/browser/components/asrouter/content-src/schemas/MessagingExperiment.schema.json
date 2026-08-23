@@ -778,6 +778,10 @@
               "items": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "A stable identifier for this button, reported as `event_context.source` on click telemetry. Defaults to `button_<index>` when omitted."
+                  },
                   "label": {
                     "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText",
                     "description": "The text label of the button."
@@ -1156,6 +1160,7 @@
               "enum": [
                 "VPN",
                 "PIN",
+                "RELAY",
                 "OTHER"
               ]
             },
@@ -1432,6 +1437,10 @@
             "imageDisplay": {
               "type": "string",
               "description": "Display style for the image."
+            },
+            "dismissable": {
+              "type": "boolean",
+              "description": "When true, shows moz-promo's built-in top-right close (X) button. Dismissing hides the promo and records telemetry. Defaults to false."
             },
             "primary_button": {
               "type": "object",
