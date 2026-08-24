@@ -3,11 +3,16 @@ import logging
 import time
 
 from pypom import Page
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    StaleElementReferenceException,
+    TimeoutException,
+)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.ui import WebDriverWait
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +31,9 @@ if (typeof window.__htmxPending === 'undefined') {
 
 class Base(Page):
     """Base page."""
+
+    RELOAD_POLL_TIMEOUT = 10
+    RELOAD_POLL_INTERVAL = 5
 
     def __init__(self, selenium, base_url, **kwargs):
         super().__init__(selenium, base_url, timeout=120, **kwargs)
@@ -81,34 +89,45 @@ class Base(Page):
         self._inject_htmx_tracker()
         return self
 
-    def wait_with_refresh(self, locator, message):
+    def _reload_until(self, locator, message, check=None):
         def _wait_for_it(selenium):
             try:
-                self.wait_for_page_to_load()
-                selenium.find_element(*locator)
-            except NoSuchElementException:
+                WebDriverWait(selenium, self.RELOAD_POLL_TIMEOUT).until(
+                    EC.presence_of_element_located(self._page_wait_locator)
+                )
+                self._inject_htmx_tracker()
+                element = selenium.find_element(*locator)
+                if check is not None:
+                    check(element)
+            except (
+                NoSuchElementException,
+                StaleElementReferenceException,
+                TimeoutException,
+                AssertionError,
+            ):
                 selenium.refresh()
-                time.sleep(5)
+                time.sleep(self.RELOAD_POLL_INTERVAL)
                 return False
             else:
                 return True
 
         self.wait.until(_wait_for_it, message=message)
+
+    def wait_with_refresh(self, locator, message):
+        self._reload_until(locator, message)
 
     def wait_with_refresh_and_assert(self, locator, expected_text, message):
-        def _wait_for_it(selenium):
-            try:
-                self.wait_for_page_to_load()
-                el = selenium.find_element(*locator)
-                assert el.text == expected_text
-            except (NoSuchElementException, AssertionError):
-                selenium.refresh()
-                time.sleep(5)
-                return False
-            else:
-                return True
+        def _has_text(element):
+            assert element.text == expected_text
 
-        self.wait.until(_wait_for_it, message=message)
+        self._reload_until(locator, message, check=_has_text)
+
+    def wait_with_refresh_until_enabled(self, locator, message):
+        def _is_enabled(element):
+            assert element.is_displayed()
+            assert element.is_enabled()
+
+        self._reload_until(locator, message, check=_is_enabled)
 
     def wait_for_locator(self, locator, description=None, refresh=False):
         message = f"{self.PAGE_TITLE}: could not find {description}"
