@@ -1,3 +1,4 @@
+import inspect
 import logging
 import os
 import time
@@ -53,6 +54,9 @@ def pytest_addoption(parser):
     )
 
 
+KINTO_DRIVING_FIXTURES = frozenset({"kinto_client", "live_rollout"})
+
+
 @pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(config, items):
     split = config.getoption("--split")
@@ -62,7 +66,12 @@ def pytest_collection_modifyitems(config, items):
         items[:] = [item for i, item in enumerate(items) if i % splits == split]
 
     for item in items:
-        if "kinto_client" not in getattr(item, "fixturenames", ()):
+        function = getattr(item, "function", None)
+        if function is None:
+            continue
+
+        argnames = inspect.signature(function).parameters
+        if KINTO_DRIVING_FIXTURES.isdisjoint(argnames):
             continue
 
         callspec = getattr(item, "callspec", None)
