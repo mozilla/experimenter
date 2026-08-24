@@ -176,6 +176,13 @@ jobs:
       matrix:
         channel: [release, beta, nightly]
         split: [0, 1]
+        include:
+          - channel: release
+            extra_paths: "experimenter/tests/firefox_desktop_release_build.env"
+          - channel: beta
+            extra_paths: "experimenter/tests/firefox_desktop_beta_build.env"
+          - channel: nightly
+            extra_paths: ""
     name: "Desktop Targeting (${{ matrix.channel }} ${{ matrix.split }})"
     runs-on: ubuntu-24.04
     permissions:
@@ -192,7 +199,7 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/ application-services/"
+          paths: "experimenter/experimenter/experiments/ experimenter/experimenter/targeting/ experimenter/tests/integration/ experimenter/tests/nimbus_integration_tests.sh experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock ${{ matrix.extra_paths }}"
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
