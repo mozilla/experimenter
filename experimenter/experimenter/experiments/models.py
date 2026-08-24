@@ -29,7 +29,13 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from prose.fields import RichTextField
 
-from experimenter.base.models import Country, Language, Locale
+from experimenter.base.models import (
+    Country,
+    Language,
+    Locale,
+    SiteFlag,
+    SiteFlagNameChoices,
+)
 from experimenter.experiments.constants import (
     ENROLLMENT_FUNNEL_STAGES,
     NIMBUS_TARGETING_CONTEXT_TABLE,
@@ -661,14 +667,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_absolute_url(self):
         return reverse("nimbus-ui-detail", kwargs={"slug": self.slug})
 
+    @cached_property
+    def is_new_rollout_ui_enabled(self):
+        return SiteFlag.objects.filter(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        ).exists()
+
     def get_detail_url(self):
+        if self.is_rollout and self.is_new_rollout_ui_enabled:
+            return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.slug})
+
         return reverse("nimbus-ui-detail", kwargs={"slug": self.slug})
 
     def get_history_url(self):
         return reverse("nimbus-ui-history", kwargs={"slug": self.slug})
-
-    def get_rollout_url(self):
-        return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.slug})
 
     def get_update_overview_url(self):
         return reverse("nimbus-ui-update-overview", kwargs={"slug": self.slug})
@@ -1175,7 +1188,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_preview_complete(self):
-        return self.preview_date is not None and self.status not in (
+        return self.status not in (
             self.Status.DRAFT,
             self.Status.PREVIEW,
         )
@@ -1382,9 +1395,42 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return phases[next_index] if next_index < len(phases) else None
 
     @property
-    def has_advanceable_rollout_phase(self):
+    def has_rollout_review_errors(self):
+        from experimenter.experiments.api.v5.serializers import (
+            NimbusRolloutReviewSerializer,
+        )
+
+        if not self.is_rollout:
+            return False
+        return bool(
+            self.get_invalid_fields_errors(serializer_class=NimbusRolloutReviewSerializer)
+        )
+
+    @property
+    def next_rollout_phase_number(self):
         next_phase = self.next_rollout_phase
-        return bool(next_phase and next_phase.population_percent)
+        if next_phase is None:
+            return None
+
+        phase_ids = [phase.id for phase in self.rollout_phases.all()]
+        return phase_ids.index(next_phase.id) + 1
+
+    @property
+    def should_advance_rollout_phase(self):
+        if not self.is_rolling_out or self.has_pending_rollout_transition:
+            return False
+
+        if self.rollout_phase_next_id is not None:
+            return False
+
+        next_phase = self.next_rollout_phase
+        if next_phase is None:
+            return False
+
+        if next_phase.start_date is None:
+            return False
+
+        return datetime.date.today() >= next_phase.start_date
 
     @property
     def rollout_review_controls(self):
@@ -1451,7 +1497,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         current_phase = self.rollout_phase
         next_phase = self.next_rollout_phase
 
-        if not next_phase or not next_phase.population_percent:
+        if next_phase is None or (
+            current_phase is None and not next_phase.population_percent
+        ):
             return
 
         resuming = self.status == NimbusExperiment.Status.DISABLED
@@ -1474,7 +1522,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         next_phase = self.next_rollout_phase
 
-        if next_phase is None or not next_phase.population_percent:
+        if next_phase is None:
+            return None
+
+        if self.rollout_phase_id is None and not next_phase.population_percent:
             return None
 
         self.rollout_phase_next = next_phase
@@ -1689,6 +1740,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for item in timeline:
             if item["is_active"]:
                 return item["step"]
+
+    @property
+    def active_rollout_stage(self):
+        if self.is_rolling_out:
+            return "rollout"
+        if self.is_preview:
+            return "preview"
+        if self.is_review_timeline:
+            review_request = (
+                self.changes.filter(
+                    new_status=self.Status.DRAFT,
+                    new_publish_status=self.PublishStatus.REVIEW,
+                )
+                .order_by("changed_on")
+                .last()
+            )
+            if review_request and review_request.old_status == self.Status.PREVIEW:
+                return "preview"
+            return "setup"
+        if self.is_draft:
+            return "setup"
+        return None
 
     @property
     def should_end(self):
@@ -3739,6 +3812,13 @@ class NimbusEmail(models.Model):
         NimbusExperiment,
         related_name="emails",
         on_delete=models.CASCADE,
+    )
+    rollout_phase = models.ForeignKey(
+        "NimbusRolloutPhase",
+        related_name="emails",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     type = models.CharField(max_length=255, choices=NimbusExperiment.EmailType.choices)
     sent_on = models.DateTimeField(auto_now_add=True)

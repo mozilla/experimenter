@@ -88,7 +88,7 @@
       <div>
         <button type="button"
                 id="rollout-schedule-add-phase"
-                class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small mt-1"
+                class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small{% if form.rollout_phases|length %} mt-3{% else %} mt-1{% endif %}"
                 hx-post="{% url 'nimbus-ui-new-create-rollout-phase' experiment.slug %}"
                 hx-include="closest form"
                 hx-target="#rollout-schedule-body"
@@ -97,11 +97,13 @@
           Add phase
         </button>
       </div>
-      {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_phases %}
-      {% include "new/common/validation_errors.html" with errors=validation_errors.population_percent %}
-      {% include "new/common/validation_errors.html" with errors=validation_errors.proposed_enrollment %}
-      {% include "new/common/validation_errors.html" with errors=validation_errors.proposed_duration %}
+      <div class="mt-2">
+        {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_phases %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.population_percent %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.proposed_enrollment %}
+        {% include "new/common/validation_errors.html" with errors=validation_errors.proposed_duration %}
 
+      </div>
     </div>
     {% if form.rollout_phases|length %}
       <div class="border-top pt-3">

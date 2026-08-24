@@ -181,6 +181,9 @@ class NimbusDocumentationLinkForm(forms.ModelForm):
         model = NimbusDocumentationLink
         fields = ("title", "link")
 
+    def _get_validation_exclusions(self):
+        return super()._get_validation_exclusions() | {"title", "link"}
+
 
 class SingleSelectWidget(SelectedFirstMixin, forms.Select):
     class_attrs = "selectpicker form-control"
@@ -287,11 +290,20 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         if experiment.branches.count() == 0:
             control = experiment.branches.create(name="Control", slug="control", ratio=1)
-            experiment.branches.create(name="Treatment A", slug="treatment-a", ratio=1)
+            if not experiment.is_rollout:
+                experiment.branches.create(
+                    name="Treatment A", slug="treatment-a", ratio=1
+                )
             experiment.reference_branch = control
             experiment.save(update_fields=["reference_branch"])
 
         return experiment
+
+
+class NimbusRolloutCreateForm(NimbusExperimentCreateForm):
+    def save(self, *args, **kwargs):
+        self.instance.is_rollout = True
+        return super().save(*args, **kwargs)
 
 
 class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -497,7 +509,6 @@ class RolloutOverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self):
         experiment = super().save()
         self.documentation_links.save()
-        experiment.documentation_links.filter(link="").delete()
         return experiment
 
     def get_changelog_message(self):
@@ -1738,22 +1749,12 @@ class RolloutPhaseForm(forms.ModelForm):
     )
     population_percent = forms.DecimalField(
         required=False,
-        min_value=0,
-        max_value=100,
-        widget=forms.NumberInput(attrs={"class": "form-control", "min": 0, "max": 100}),
+        widget=forms.NumberInput(attrs={"class": "form-control"}),
     )
 
     class Meta:
         model = NimbusRolloutPhase
         fields = ("start_date", "end_date", "population_percent")
-
-    def clean(self):
-        cleaned_data = super().clean()
-        start_date = cleaned_data.get("start_date")
-        end_date = cleaned_data.get("end_date")
-        if start_date and end_date and end_date < start_date:
-            self.add_error("end_date", NimbusUIConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER)
-        return cleaned_data
 
 
 class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):

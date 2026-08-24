@@ -1,3 +1,4 @@
+import json
 import random
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -711,6 +712,10 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     firefox_labs_description_links = forms.CharField(
         required=False, widget=forms.HiddenInput()
     )
+    # An alternative field shown when the application only supports a single link.
+    firefox_labs_description_link = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    )
     firefox_labs_group = forms.ChoiceField(
         required=False,
         widget=forms.Select(attrs={"class": "form-select"}),
@@ -815,6 +820,27 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         if firefox_labs := self.instance.application_config.firefox_labs:
             self.fields["firefox_labs_group"].choices = firefox_labs.group_choices
 
+            supported_link_keys = firefox_labs.supported_description_links
+            if (
+                not firefox_labs.supports_arbitrary_description_links
+                and len(supported_link_keys) == 1
+            ):
+                supported_link_key = supported_link_keys[0]
+                try:
+                    description_links = json.loads(
+                        self.instance.firefox_labs_description_links
+                    )
+                except Exception:
+                    description_links = None
+
+                if (
+                    description_links is not None
+                    and supported_link_key in description_links
+                ):
+                    self.fields[
+                        "firefox_labs_description_link"
+                    ].initial = description_links[supported_link_key]
+
         self.was_labs_opt_in = self.instance.is_firefox_labs_opt_in
 
     @property
@@ -833,7 +859,26 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         elif not cleaned_data["is_rollout"]:
             cleaned_data["is_firefox_labs_opt_in"] = False
 
-        if not cleaned_data["is_firefox_labs_opt_in"]:
+        firefox_labs = self.instance.application_config.firefox_labs
+
+        if (
+            cleaned_data["is_firefox_labs_opt_in"]
+            and not firefox_labs.supports_arbitrary_description_links
+            and len(firefox_labs.supported_description_links) == 1
+        ):
+            description_link_key = firefox_labs.supported_description_links[0]
+
+            if description_link := cleaned_data.pop(
+                "firefox_labs_description_link", ""
+            ).strip():
+                cleaned_data["firefox_labs_description_links"] = json.dumps(
+                    {
+                        description_link_key: description_link,
+                    }
+                )
+            else:
+                cleaned_data["firefox_labs_description_links"] = "null"
+        elif not cleaned_data["is_firefox_labs_opt_in"]:
             cleaned_data["firefox_labs_title"] = ""
             cleaned_data["firefox_labs_description"] = ""
             cleaned_data["firefox_labs_description_links"] = "null"

@@ -2,7 +2,7 @@
         class="{% if icon_only %}btn p-0 border-0 text-secondary d-none{% else %}btn btn-outline-secondary btn-sm{% endif %}"
         {% if icon_only %}data-card-action="cancel" aria-label="Cancel editing {{ card_id }}"{% endif %}
         data-toast-id="{{ NimbusUIConstants.TOAST_EDIT_CANCELLED }}"
-        {% if card_id == "overview" %} hx-post="{% url 'nimbus-ui-new-cancel-overview' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' {% else %} hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}" {% endif %}
+        hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
         hx-select="#rollout-card-{{ card_id }}"
         hx-target="#rollout-card-{{ card_id }}"
         hx-swap="outerHTML">

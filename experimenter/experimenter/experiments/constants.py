@@ -143,6 +143,13 @@ class FirefoxLabs:
         self.supported_description_links = supported_description_links
 
     @property
+    def supports_arbitrary_description_links(self) -> bool:
+        """Return whether this application supports arbitrary keys in the
+        firefox_labs_description_links field.
+        """
+        return self.supported_description_links is FirefoxLabs.ARBITRARY_KEYS
+
+    @property
     def supports_groups(self) -> bool:
         """Whether this application supports the firefox_labs_groups field."""
         return self.groups is not None
@@ -570,6 +577,7 @@ class NimbusConstants:
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
         ENROLLMENT_END = "enrollment end"
+        ROLLOUT_PHASE_ADVANCE = "rollout phase advance"
 
     class AlertType(models.TextChoices):
         ANALYSIS_ERROR = "analysis_error", "Analysis Error"
@@ -610,6 +618,11 @@ class NimbusConstants:
 
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
     EMAIL_ENROLLMENT_END_SUBJECT = "Action required: Please end experiment enrollment"
+    EMAIL_ROLLOUT_PHASE_ADVANCE_SUBJECT = (
+        "Action required: Your Rollout's next phase is scheduled to start today"
+    )
+
+    LOG_ROLLOUT_PHASE_ADVANCE_EMAIL_SENT = "{rollout} rollout phase advance email sent"
 
     LANGUAGES_APPLICATION_SUPPORTED_VERSION = {
         Application.FENIX: Version.FIREFOX_102,
@@ -728,6 +741,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_ROLLOUT_NO_PHASES = "Add at least one rollout phase to the schedule."
     ERROR_ROLLOUT_FIRST_PHASE_ZERO = (
         "The first rollout phase must have a population percent greater than 0."
+    )
+    ERROR_ROLLOUT_PHASE_DATE_ORDER = "The end date must be on or after the start date."
+    ERROR_ROLLOUT_PHASE_POPULATION_RANGE = (
+        "Each rollout phase population percent must be between 0 and 100."
     )
     ERROR_FIREFOX_VERSION_MIN = (
         "Ensure this value is less than or equal to the maximum version"
@@ -1092,6 +1109,7 @@ SIZING_WINDOW_DAYS = 7
 SIZING_FULL_SQL_TEMPLATE = """\
 -- Matches the 7-day window and 10% sample used by the population sizing ETL.
 -- Deduplicates on client_id, keeping the most recent ping per client.
+-- Returns the eligible client count within the 10% sample.
 WITH latest_per_client AS (
   SELECT
     *,
@@ -1108,13 +1126,11 @@ WITH latest_per_client AS (
 ),
 clients AS (SELECT * EXCEPT (rn) FROM latest_per_client WHERE rn = 1)
 SELECT
-  client_info.client_id,
-  DATE(submission_timestamp) AS submission_date
+  COUNT(*) AS estimated_client_count
 FROM clients
 WHERE (
     {predicate}
-)
-LIMIT 1000"""
+)"""
 
 RISK_QUESTIONS = {
     "BRAND": (

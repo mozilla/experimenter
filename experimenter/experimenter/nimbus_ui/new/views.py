@@ -4,7 +4,7 @@ from django import forms
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
-from django.views.generic import DetailView
+from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 
 from experimenter.experiments.api.v5.serializers import NimbusRolloutReviewSerializer
@@ -36,6 +36,7 @@ from experimenter.nimbus_ui.new.forms import (
     LiveToDisabledReviewRolloutForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    NimbusRolloutCreateForm,
     PreviewReviewRolloutForm,
     PreviewToDraftRolloutForm,
     RolloutAudienceForm,
@@ -112,6 +113,38 @@ class NimbusExperimentViewMixin:
             )
 
         return context
+
+
+class NimbusExperimentsCreateView(
+    NimbusExperimentViewMixin, RequestFormMixin, CreateView
+):
+    form_class = NimbusExperimentCreateForm
+    template_name = "nimbus_experiments/create.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["data"] = kwargs["data"].copy()
+        kwargs["data"]["owner"] = self.request.user
+        return kwargs
+
+    def get_redirect_url(self):
+        return reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+
+    def post(self, *args, **kwargs):
+        response = super().post(*args, **kwargs)
+
+        if response.status_code == 302:
+            response = HttpResponse()
+            response.headers["HX-Redirect"] = self.get_redirect_url()
+        return response
+
+
+class NimbusRolloutsCreateView(NimbusExperimentsCreateView):
+    form_class = NimbusRolloutCreateForm
+    template_name = "nimbus_experiments/create.html"
+
+    def get_redirect_url(self):
+        return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.object.slug})
 
 
 def build_experiment_context(experiment):
@@ -202,30 +235,6 @@ class UpdateRedirectViewMixin:
 
 
 class RolloutSetupProgressMixin:
-    SETUP_SECTIONS = {
-        "Overview": {
-            "card_id": "overview",
-            "fields": {*RolloutOverviewForm.Meta.fields},
-        },
-        "Risks": {
-            "card_id": "risks",
-            "fields": {*RolloutRisksForm.Meta.fields},
-        },
-        "Features": {
-            "card_id": "rollout-features",
-            "fields": {*RolloutFeaturesForm.Meta.fields},
-        },
-        "Audience": {
-            "card_id": "audience",
-            "fields": {*RolloutAudienceForm.Meta.fields},
-        },
-        "Rollout schedule": {
-            "card_id": "schedule",
-            "fields": {"rollout_phases"},
-            "labels": {"rollout_phases": "Rollout Schedule"},
-        },
-    }
-
     def flatten_errors(self, messages):
         if isinstance(messages, dict):
             return [m for value in messages.values() for m in self.flatten_errors(value)]
@@ -233,52 +242,72 @@ class RolloutSetupProgressMixin:
             return [m for value in messages for m in self.flatten_errors(value)]
         return [str(messages)]
 
+    def unique_messages(self, messages):
+        seen = set()
+        unique = []
+        for message in self.flatten_errors(messages):
+            if message not in seen:
+                seen.add(message)
+                unique.append(message)
+        return unique
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         field_errors = self.object.get_invalid_fields_errors(
             serializer_class=NimbusRolloutReviewSerializer
         )
-        validation_errors = {
-            field: self.flatten_errors(messages)
-            for field, messages in field_errors.items()
+        cards = NimbusUIConstants.ROLLOUT_CARD_FIELDS
+
+        routing = {
+            key: (card_id, card["section"], label)
+            for card_id, card in cards.items()
+            if card.get("tracked", True)
+            for label, keys in card["rows"]
+            for key in keys
         }
-        error_keys = set(field_errors)
+        tracked = set(routing)
+        broken = set(field_errors) & tracked
 
-        field_to_section = {
-            field: name
-            for name, section in self.SETUP_SECTIONS.items()
-            for field in section["fields"]
-        }
-
-        tracked_fields = set(field_to_section)
-        broken = error_keys & tracked_fields
-        context["setup_completion_percent"] = round(
-            100 * (len(tracked_fields) - len(broken)) / len(tracked_fields)
-        )
-
-        issues = []
+        groups = {}
         for field, messages in field_errors.items():
-            section = field_to_section.get(field)
-            if section is not None:
-                meta = self.SETUP_SECTIONS[section]
-                card_id = meta["card_id"]
-                label = meta.get("labels", {}).get(field, field.replace("_", " ").title())
-            else:
-                section = "Other"
-                card_id = None
-                label = field.replace("_", " ").title()
-            issues.append(
+            card_id, section, label = routing.get(
+                field, (None, "Other", field.replace("_", " ").title())
+            )
+            group = groups.setdefault(
+                card_id, {"card_id": card_id, "section": section, "fields": []}
+            )
+            group["fields"].append(
                 {
-                    "section": section,
-                    "card_id": card_id,
                     "label": label,
-                    "messages": self.flatten_errors(messages),
+                    "messages": self.unique_messages(messages),
                 }
             )
+        issues = [groups[card_id] for card_id in cards if card_id in groups]
+        if None in groups:
+            issues.append(groups[None])
 
+        raw_error_fields = ("reference_branch", "documentation_links")
+        context["validation_errors"] = {
+            field: (
+                messages if field in raw_error_fields else self.flatten_errors(messages)
+            )
+            for field, messages in field_errors.items()
+        }
         context["setup_issues"] = issues
-        context["setup_issues_count"] = len(issues)
-        context["validation_errors"] = validation_errors
+        context["setup_issues_count"] = sum(len(group["fields"]) for group in issues)
+        context["setup_issue_card_ids"] = [
+            issue["card_id"] for issue in issues if issue["card_id"]
+        ]
+        context["setup_completion_percent"] = round(
+            100 * (len(tracked) - len(broken)) / len(tracked)
+        )
+        context["card_summaries"] = {
+            card_id: [
+                {"label": label, "has_error": any(key in field_errors for key in keys)}
+                for label, keys in card["rows"]
+            ]
+            for card_id, card in cards.items()
+        }
         return context
 
 
@@ -354,17 +383,6 @@ class NewOverviewUpdateView(CardMixin, NewCardUpdateView):
     form_class = RolloutOverviewForm
     display_template = "new/rollouts/overview/card.html"
     template_name = "new/rollouts/overview/edit_form.html"
-
-
-class NewOverviewCancelView(NimbusRolloutDetailView):
-    template_name = "new/rollouts/overview/cancel_response.html"
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.documentation_links.filter(link="").delete()
-        context = self.get_context_data()
-        context["hx_swap_oob"] = True
-        return self.render_to_response(context)
 
 
 class NewRisksUpdateView(CardMixin, NewCardUpdateView):

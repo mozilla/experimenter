@@ -1,0 +1,13 @@
+{% if card_status %}
+  <div class="card-collapsed-subtitle d-flex flex-wrap align-items-center column-gap-2 row-gap-1 fw-normal mt-2 small"
+       id="rollout-card-{{ card_id }}-summary"
+       {% if oob %}hx-swap-oob="true"{% endif %}>
+    {% for field in card_status %}
+      {% if not forloop.first %}<span class="text-body-tertiary">·</span>{% endif %}
+      <span class="text-secondary">
+        {% if field.has_error %}<i class="fa-solid fa-triangle-exclamation fa-xs me-1 text-warning"></i>{% endif %}
+        {{ field.label }}
+      </span>
+    {% endfor %}
+  </div>
+{% endif %}

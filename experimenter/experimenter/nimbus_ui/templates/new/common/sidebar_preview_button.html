@@ -3,18 +3,24 @@
     <div class="d-flex flex-column gap-2 mt-2">
       <button type="button"
               id="rollout-preview-btn"
-              class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+              class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button"
               hx-post="{% url 'nimbus-ui-new-draft-to-preview-rollout' experiment.slug %}"
-              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+              hx-disabled-elt="this">
+        {% include "new/common/sidebar_transition_spinner.html" %}
+
         <i class="fa-regular fa-eye"></i>
         Preview
       </button>
       <button type="button"
               id="rollout-launch-btn"
-              class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+              class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button"
               hx-post="{% url 'nimbus-ui-new-draft-to-review-rollout' experiment.slug %}"
-              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-        <i class="fa-solid fa-rocket"></i>
+              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+              hx-disabled-elt="this">
+        {% include "new/common/sidebar_transition_spinner.html" %}
+
+        <i class="fa-regular fa-paper-plane"></i>
         Request Enrollment
       </button>
     </div>
@@ -23,7 +29,7 @@
           {% if experiment.is_draft and setup_issues_count %} data-bs-toggle="tooltip" data-bs-title="{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}"{% endif %}>
       <div class="d-flex flex-column gap-2">
         <button type="button"
-                class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
+                class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
                 disabled>
           <i class="fa-regular fa-eye"></i>
           Preview
@@ -31,7 +37,7 @@
         <button type="button"
                 class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
                 disabled>
-          <i class="fa-solid fa-rocket"></i>
+          <i class="fa-regular fa-paper-plane"></i>
           Request Enrollment
         </button>
       </div>

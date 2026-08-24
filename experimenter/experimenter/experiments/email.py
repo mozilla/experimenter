@@ -32,8 +32,23 @@ def nimbus_send_enrollment_ending_email(experiment):
     )
 
 
+def nimbus_send_rollout_phase_advance_email(experiment, phase, phase_number):
+    nimbus_format_and_send_html_email(
+        experiment,
+        "emails/rollout_phase_advance_email.html",
+        {
+            "experiment": experiment,
+            "phase": phase,
+            "phase_number": phase_number,
+        },
+        NimbusExperiment.EMAIL_ROLLOUT_PHASE_ADVANCE_SUBJECT,
+        NimbusExperiment.EmailType.ROLLOUT_PHASE_ADVANCE,
+        rollout_phase=phase,
+    )
+
+
 def nimbus_format_and_send_html_email(
-    experiment, file_string, template_vars, subject, email_type
+    experiment, file_string, template_vars, subject, email_type, rollout_phase=None
 ):
     content = render_to_string(file_string, template_vars)
 
@@ -64,4 +79,6 @@ def nimbus_format_and_send_html_email(
         thread_ts=thread_ts,
     )
 
-    NimbusEmail.objects.create(experiment=experiment, type=email_type)
+    NimbusEmail.objects.create(
+        experiment=experiment, type=email_type, rollout_phase=rollout_phase
+    )

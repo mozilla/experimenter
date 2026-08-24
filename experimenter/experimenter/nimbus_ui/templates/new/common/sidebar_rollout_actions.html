@@ -4,26 +4,33 @@
     {% with transition_pending=experiment.has_pending_rollout_transition %}
       <div class="d-flex flex-column gap-2">
         {% if experiment.is_disabled %}
-          {% if experiment.has_advanceable_rollout_phase %}
+          {% if experiment.next_rollout_phase %}
             {# Disabled to Live #}
-            <button type="button"
-                    id="rollout-resume-btn"
-                    class="btn btn-primary btn-sm w-100"
-                    hx-post="{% url 'nimbus-ui-new-disabled-to-live-rollout' experiment.slug %}"
-                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                    hx-disabled-elt="this"
-                    {% if transition_pending %}disabled{% endif %}>Start next phase</button>
+            <span class="d-inline-block w-100"
+                  {% if experiment.has_rollout_review_errors %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_HAS_ISSUES_TOOLTIP }}"{% elif transition_pending %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}"{% endif %}>
+              <button type="button"
+                      id="rollout-resume-btn"
+                      class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button{% if transition_pending or experiment.has_rollout_review_errors %} opacity-50{% endif %}"
+                      {% if transition_pending or experiment.has_rollout_review_errors %} disabled aria-disabled="true" {% else %} hx-post="{% url 'nimbus-ui-new-disabled-to-live-rollout' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt="this" {% endif %}>
+                {% include "new/common/sidebar_transition_spinner.html" %}
+
+                <i class="fa-regular fa-circle-play"></i>
+                Start next phase
+              </button>
+            </span>
           {% else %}
             {# Disabled to Live #}
             <div class="collapse show rollout-resume-swap" id="rollout-resume-trigger">
-              <button type="button"
-                      id="rollout-resume-btn"
-                      class="btn btn-primary btn-sm w-100"
-                      data-bs-toggle="collapse"
-                      data-bs-target=".rollout-resume-swap"
-                      aria-expanded="false"
-                      aria-controls="rollout-duplicate-phase-confirm"
-                      {% if transition_pending %}disabled{% endif %}>Start next phase</button>
+              <span class="d-inline-block w-100"
+                    {% if experiment.has_rollout_review_errors %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_HAS_ISSUES_TOOLTIP }}"{% elif transition_pending %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}"{% endif %}>
+                <button type="button"
+                        id="rollout-resume-btn"
+                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2{% if transition_pending or experiment.has_rollout_review_errors %} opacity-50{% endif %}"
+                        {% if transition_pending or experiment.has_rollout_review_errors %} disabled aria-disabled="true" {% else %} data-bs-toggle="collapse" data-bs-target=".rollout-resume-swap" aria-expanded="false" aria-controls="rollout-duplicate-phase-confirm" {% endif %}>
+                  <i class="fa-regular fa-circle-play"></i>
+                  Start next phase
+                </button>
+              </span>
             </div>
             <div class="collapse rollout-resume-swap"
                  id="rollout-duplicate-phase-confirm">
@@ -31,40 +38,53 @@
               <div class="d-flex flex-column gap-2">
                 <button type="button"
                         id="rollout-duplicate-phase-cancel-btn"
-                        class="btn btn-secondary btn-sm w-100"
+                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
                         data-bs-toggle="collapse"
                         data-bs-target=".rollout-resume-swap"
                         aria-expanded="false"
-                        aria-controls="rollout-resume-trigger">Cancel</button>
+                        aria-controls="rollout-resume-trigger">
+                  <i class="fa-regular fa-circle-xmark"></i>
+                  Cancel
+                </button>
                 <button type="button"
                         id="rollout-duplicate-phase-accept-btn"
-                        class="btn btn-success btn-sm w-100"
-                        hx-post="{% url 'nimbus-ui-new-disabled-to-live-duplicate-phase-rollout' experiment.slug %}"
-                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                        hx-disabled-elt="this"
-                        {% if transition_pending %}disabled{% endif %}>Accept</button>
+                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button{% if transition_pending or experiment.has_rollout_review_errors %} opacity-50{% endif %}"
+                        {% if transition_pending or experiment.has_rollout_review_errors %} disabled aria-disabled="true" {% else %} hx-post="{% url 'nimbus-ui-new-disabled-to-live-duplicate-phase-rollout' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt="this" {% endif %}>
+                  {% include "new/common/sidebar_transition_spinner.html" %}
+
+                  <i class="fa-regular fa-circle-check"></i>
+                  Accept
+                </button>
               </div>
             </div>
           {% endif %}
         {% else %}
           {# Live to Disabled #}
-          <button type="button"
-                  id="rollout-disable-btn"
-                  class="btn btn-secondary btn-sm w-100"
-                  hx-post="{% url 'nimbus-ui-new-live-to-disabled-rollout' experiment.slug %}"
-                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                  hx-disabled-elt="this"
-                  {% if transition_pending %}disabled{% endif %}>Disable rollout</button>
+          <span class="d-inline-block w-100"
+                {% if transition_pending %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}"{% endif %}>
+            <button type="button"
+                    id="rollout-disable-btn"
+                    class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button{% if transition_pending %} opacity-50{% endif %}"
+                    {% if transition_pending %} disabled aria-disabled="true" {% else %} hx-post="{% url 'nimbus-ui-new-live-to-disabled-rollout' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt="this" {% endif %}>
+              {% include "new/common/sidebar_transition_spinner.html" %}
+
+              <i class="fa-regular fa-circle-stop"></i>
+              Disable rollout
+            </button>
+          </span>
           {# Live to Live phase advance #}
-          <button type="button"
-                  id="rollout-next-phase-btn"
-                  class="btn btn-primary btn-sm w-100"
-                  hx-post="{% url 'nimbus-ui-new-advance-phase-review-rollout' experiment.slug %}"
-                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                  hx-disabled-elt="this"
-                  {% if transition_pending or setup_issues_count or not experiment.has_advanceable_rollout_phase %}disabled{% endif %}>
-            Start next phase
-          </button>
+          <span class="d-inline-block w-100"
+                {% if experiment.has_rollout_review_errors %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_HAS_ISSUES_TOOLTIP }}"{% elif transition_pending %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}"{% elif not experiment.next_rollout_phase %}data-bs-toggle="tooltip" title="{{ NimbusUIConstants.ROLLOUT_NO_NEXT_PHASE_TOOLTIP }}"{% endif %}>
+            <button type="button"
+                    id="rollout-next-phase-btn"
+                    class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button{% if transition_pending or not experiment.next_rollout_phase or experiment.has_rollout_review_errors %} opacity-50{% endif %}"
+                    {% if transition_pending or not experiment.next_rollout_phase or experiment.has_rollout_review_errors %} disabled aria-disabled="true" {% else %} hx-post="{% url 'nimbus-ui-new-advance-phase-review-rollout' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt="this" {% endif %}>
+              {% include "new/common/sidebar_transition_spinner.html" %}
+
+              <i class="fa-regular fa-circle-play"></i>
+              Start next phase
+            </button>
+          </span>
         {% endif %}
       </div>
     {% endwith %}

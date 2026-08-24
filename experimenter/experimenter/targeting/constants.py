@@ -51,10 +51,12 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
 
 HAS_PIN = "!doesAppNeedPin"
 NEED_DEFAULT = "!isDefaultBrowser"
+IS_DEFAULT = "isDefaultBrowser"
 PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
 PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 < 28"
 PROFILELESSTHAN1HOUR = "(currentDate|date - profileAgeCreated|date) / 3600000 < 1"
 PROFILELESSTHAN2DAYS = "(currentDate|date - profileAgeCreated|date) / 3600000 < 48"
+PROFILE2DAYS = "(currentDate|date - profileAgeCreated|date) / 3600000 >= 48"
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 PROFILEMORETHAN14DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 14"
 PROFILE1TO2DAYS = (
@@ -1943,6 +1945,60 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_ = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
+    name="Windows 10+ users, no MSIX, not pinned, not default",
+    slug="win10_plus_nomsix_notpinned_notdefault",
+    description=(
+        "Windows 10+ users who are not running MSIX, "
+        "who have not pinned Firefox to the taskbar, "
+        "and who do not have Firefox set as the default browser"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
+        "&& doesAppNeedPin && !isDefaultBrowser"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_10_PLUS_NOMSIX_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
+    name="Windows 10+ users, no MSIX, pinned, not default",
+    slug="win10_plus_nomsix_pinned_notdefault",
+    description=(
+        "Windows 10+ users who are not running MSIX, "
+        "who have pinned Firefox to the taskbar, "
+        "and who do not have Firefox set as the default browser"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
+        "&& !doesAppNeedPin && !isDefaultBrowser"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_10_PLUS_NOMSIX_NOT_PINNED_DEFAULT = NimbusTargetingConfig(
+    name="Windows 10+ users, no MSIX, not pinned, default",
+    slug="win10_plus_nomsix_notpinned_default",
+    description=(
+        "Windows 10+ users who are not running MSIX, "
+        "who have not pinned Firefox to the taskbar, "
+        "and who have Firefox set as the default browser"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
+        "&& doesAppNeedPin && isDefaultBrowser"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_AT_RISK_USER = NimbusTargetingConfig(
     name="At risk user background task notification",
     slug="background_task_notification_at_risk_user",
@@ -2614,6 +2670,25 @@ EXISTING_USER_ONLY_WIN10 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIN10_EXISTING_USER_STORIES_DISABLED = NimbusTargetingConfig(
+    name="Windows 10 existing users with HNT stories disabled.",
+    slug="win10_existing_user_stories_disabled",
+    description=(
+        "Windows 10 users with profiles older than 28 days, with HNT stories "
+        "disabled, with CFRs enabled, and without enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && {WIN10_NOT_WIN11.targeting} && "
+        f"{RECOMMENDED_OR_SPONSORED_STORIES_DISABLED} && "
+        "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'"
+        "|preferenceValue && !hasActiveEnterprisePolicies"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     name="New user (5 bookmarks)",
     slug="new_user_5_bookmarks",
@@ -2645,6 +2720,17 @@ USER_NOT_SET_TO_DEFAULT = NimbusTargetingConfig(
     slug="user_not_set_to_default",
     description="Users who have not set to default",
     targeting=f"{NEED_DEFAULT}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+USER_SET_TO_DEFAULT = NimbusTargetingConfig(
+    name="User set to default",
+    slug="user_set_to_default",
+    description="Users who have set to default",
+    targeting=f"{IS_DEFAULT}",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
@@ -4926,6 +5012,48 @@ FX_155_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_156_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx156 Aug-18 Trainhop",
+    slug="newtab-156-0818-trainhop",
+    description=(
+        "Desktop users having the New Tab 156.1.20260818.43226 train hop, "
+        "which includes users of Fx154"
+    ),
+    targeting="newtabAddonVersion|versionCompare('156.1.20260818.43226') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+PROFILE_UNDER_48_HOURS_FX_156_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx156 Aug-18 Trainhop, Profile Newer Than 48 Hours",
+    slug="newtab-156-0818-trainhop-profile-under-48-hours",
+    description=(
+        "Desktop users having the New Tab 156.1.20260818.43226 train hop, "
+        "which includes users of Fx154, whose profile is newer than 48 hours"
+    ),
+    targeting=f"{FX_156_TRAINHOP.targeting} && ({PROFILELESSTHAN2DAYS})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+PROFILE_48_HOURS_OR_OLDER_FX_156_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx156 Aug-18 Trainhop, Profile 48 Hours Or Older",
+    slug="newtab-156-0818-trainhop-profile-48-hours-or-older",
+    description=(
+        "Desktop users having the New Tab 156.1.20260818.43226 train hop, "
+        "which includes users of Fx154, whose profile is at least 48 hours old"
+    ),
+    targeting=f"{FX_156_TRAINHOP.targeting} && ({PROFILE2DAYS})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
     name="New Tab Lists/Timer Interaction, Neither Widget Disabled",
     slug="widgets-lists-timer-interacted-not-disabled",
@@ -5434,6 +5562,23 @@ EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED_7_28_DAY_PROFILE = NimbusTargetingCon
     targeting=(
         f"{PROFILEMORETHAN7DAYS} && {PROFILELESSTHAN28DAYS} && "
         f"{WINDOWS_ONLY.targeting} && {TASKBAR_TABS_ENABLED}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_WINDOWS_USER_NEED_PIN = NimbusTargetingConfig(
+    name="Existing Windows users needing pin, 7-28 day profiles",
+    slug="existing_windows_user_need_pin",
+    description=(
+        "Profile 7-28 days, Firefox not pinned, Windows build 19045+ "
+        "(Windows 10 22H2 and all Windows 11)"
+    ),
+    targeting=(
+        f"{PROFILEMORETHAN7DAYS} && {PROFILELESSTHAN28DAYS} && "
+        f"{WINDOWS_ONLY.targeting} && doesAppNeedPin && {WIN22H2}"
     ),
     desktop_telemetry="",
     sticky_required=True,

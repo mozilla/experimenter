@@ -2,231 +2,206 @@
 
 {% include "new/common/sidebar_review_controls.html" %}
 
-{# Set up card #}
-<div class="accordion accordion-flush rounded-3 bg-body-secondary"
-     style="--bs-accordion-btn-active-color: var(--bs-body-color);
-            --bs-accordion-btn-active-bg: transparent;
-            --bs-accordion-active-color: var(--bs-body-color)"
-     id="accordion-setup">
-  <div class="accordion-item border-0 bg-transparent rounded-3">
-    <h2 class="accordion-header">
-      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_draft %} collapsed{% endif %}"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#sidebar-setup"
-              aria-expanded="{% if experiment.is_draft %}true{% else %}false{% endif %}"
-              aria-controls="sidebar-setup">
-        {% if experiment.is_setup_complete %}
-          <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1 p-1">
-            <i class="fa-solid fa-check" style="font-size: 10px"></i>
-          </span>
-        {% else %}
-          <i class="fa-regular fa-pen-to-square text-secondary me-2 align-self-start mt-1"></i>
-        {% endif %}
-        <span class="d-flex flex-column">
-          <span>Set up</span>
-          {% if experiment.draft_date %}
-            <span class="text-secondary fw-normal mt-1" style="font-size: 11px">
-              {{ experiment.draft_date|date:"M j, Y" }}
-              <span class="text-body-tertiary">|</span>
-              {% with days=experiment.draft_date|days_since %}{{ days }} day{{ days|pluralize }}{% endwith %}
+{% with stage=experiment.active_rollout_stage %}
+  {# Set up card #}
+  <div class="accordion accordion-flush rounded-3 {% if stage == 'setup' %}bg-primary-subtle{% else %}bg-body-secondary{% endif %}"
+       style="--bs-accordion-btn-active-color: var(--bs-body-color);
+              --bs-accordion-btn-active-bg: transparent;
+              --bs-accordion-active-color: var(--bs-body-color)"
+       id="accordion-setup">
+    <div class="accordion-item border-0 bg-transparent rounded-3">
+      <h2 class="accordion-header">
+        <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_draft %} collapsed{% endif %}"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#sidebar-setup"
+                aria-expanded="{% if experiment.is_draft %}true{% else %}false{% endif %}"
+                aria-controls="sidebar-setup">
+          {% if experiment.is_setup_complete %}
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1 p-1">
+              <i class="fa-solid fa-check" style="font-size: 10px"></i>
             </span>
+          {% else %}
+            <i class="fa-regular fa-pen-to-square text-secondary me-2 align-self-start mt-1"></i>
           {% endif %}
-        </span>
-      </button>
-    </h2>
-    <div class="accordion-collapse collapse{% if experiment.is_draft %} show{% endif %}"
-         id="sidebar-setup"
-         data-bs-parent="#accordion-setup">
-      <div class="accordion-body pt-0 px-3 pb-3">
-        {% include "new/common/setup_progress.html" %}
+          <span class="d-flex flex-column">
+            <span>Set up</span>
+            {% if experiment.draft_date %}
+              <span class="text-secondary fw-normal mt-1" style="font-size: 11px">
+                {{ experiment.draft_date|date:"M j, Y" }}
+                <span class="text-body-tertiary">|</span>
+                {% with days=experiment.draft_date|days_since %}{{ days }} day{{ days|pluralize }}{% endwith %}
+              </span>
+            {% endif %}
+          </span>
+        </button>
+      </h2>
+      <div class="accordion-collapse collapse{% if experiment.is_draft %} show{% endif %}"
+           id="sidebar-setup"
+           data-bs-parent="#accordion-setup">
+        <div class="accordion-body pt-0 px-3 pb-3">
+          {% include "new/common/setup_progress.html" %}
 
-        <div class="d-flex flex-column gap-1">
-          {% for item in sidebar_setup_items %}
-            <a href="#rollout-card-{{ item.id }}"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
-              <span class="text-body" style="min-width: 16px; font-size: 12px;">{{ forloop.counter }}</span>
-              {{ item.label }}
-            </a>
-          {% empty %}
-            <a href="#rollout-card-overview"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">1</span>Overview</a>
-            <a href="#rollout-card-risks"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">2</span>Risks</a>
-            <a href="#rollout-card-signoff"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">3</span>Sign-Offs</a>
-            <a href="#rollout-card-configuration"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">4</span>Configuration &amp; Localization</a>
-            <a href="#rollout-card-audience"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">5</span>Audience</a>
-            <a href="#rollout-card-features"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">6</span>Rollout experience</a>
-            <a href="#rollout-card-schedule"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">7</span>Rollout schedule</a>
-            <a href="#rollout-card-qa"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body"><span class="text-body" style="min-width:16px;font-size:12px;">8</span>QA</a>
-          {% endfor %}
-          {% include "new/common/sidebar_preview_button.html" %}
+          <div class="d-flex flex-column gap-1">
+            {% include "new/common/sidebar_setup_nav.html" %}
+            {% include "new/common/sidebar_preview_button.html" %}
 
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-<div class="accordion accordion-flush rounded-3 bg-body-secondary"
-     style="--bs-accordion-btn-active-color: var(--bs-body-color);
-            --bs-accordion-btn-active-bg: transparent;
-            --bs-accordion-active-color: var(--bs-body-color)"
-     id="accordion-preview">
-  <div class="accordion-item border-0 bg-transparent rounded-3">
-    <h2 class="accordion-header">
-      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_preview %} collapsed{% endif %}"
-              type="button"
-              {% if experiment.preview_date and not experiment.is_draft %}data-bs-toggle="collapse" data-bs-target="#sidebar-preview" aria-controls="sidebar-preview" aria-expanded="{% if experiment.is_preview %}true{% else %}false{% endif %}
-              "
-              {% else %}
-              aria-expanded="false"
-              aria-disabled="true"
-              {% endif %}>
-        {% if experiment.is_preview_complete %}
-          <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1 p-1">
-            <i class="fa-solid fa-check" style="font-size: 10px"></i>
-          </span>
-        {% else %}
-          <i class="fa-regular fa-eye text-secondary me-2 align-self-start mt-1"></i>
-        {% endif %}
-        <span class="d-flex flex-column">
-          <span>Preview</span>
-          {% if experiment.preview_date and not experiment.is_draft %}
-            <span class="text-secondary fw-normal mt-1" style="font-size: 11px">
-              {{ experiment.preview_date|date:"M j, Y" }}
-              <span class="text-body-tertiary">|</span>
-              {% with days=experiment.preview_date|days_since %}{{ days }} day{{ days|pluralize }}{% endwith %}
+  <div class="accordion accordion-flush rounded-3 {% if stage == 'preview' %}bg-primary-subtle{% else %}bg-body-secondary{% endif %}"
+       style="--bs-accordion-btn-active-color: var(--bs-body-color);
+              --bs-accordion-btn-active-bg: transparent;
+              --bs-accordion-active-color: var(--bs-body-color)"
+       id="accordion-preview">
+    <div class="accordion-item border-0 bg-transparent rounded-3">
+      <h2 class="accordion-header">
+        <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_preview %} collapsed{% endif %}"
+                type="button"
+                {% if experiment.preview_date and not experiment.is_draft %}data-bs-toggle="collapse" data-bs-target="#sidebar-preview" aria-controls="sidebar-preview" aria-expanded="{% if experiment.is_preview %}true{% else %}false{% endif %}
+                "
+                {% else %}
+                aria-expanded="false"
+                aria-disabled="true"
+                {% endif %}>
+          {% if experiment.is_preview_complete %}
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1 p-1">
+              <i class="fa-solid fa-check" style="font-size: 10px"></i>
             </span>
+          {% else %}
+            <i class="fa-regular fa-eye text-secondary me-2 align-self-start mt-1"></i>
           {% endif %}
-        </span>
-      </button>
-    </h2>
-    <div class="accordion-collapse collapse{% if experiment.is_preview %} show{% endif %}"
-         id="sidebar-preview"
-         data-bs-parent="#accordion-preview">
-      <div class="accordion-body pt-0 px-3 pb-3">
-        {% if experiment.preview_date and not experiment.is_draft %}
-          <div class="d-flex flex-column gap-3">
-            <p class="mb-0 text-secondary" style="font-size: 12px;">
-              {{ NimbusUIConstants.ROLLOUT_PREVIEW_MESSAGE }}
-              <a href="{{ EXTERNAL_URLS.PREVIEW_LAUNCH_DOC }}"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 class="text-decoration-none">Learn more</a>
-            </p>
-            <a href="#rollout-card-preview"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
-              <i class="fa-regular fa-eye text-secondary"></i>
-              Preview and testing details
-            </a>
-            <div class="d-flex flex-column gap-2">
-              {# Preview to Draft #}
-              <button type="button"
-                      id="rollout-back-to-setup-btn"
-                      class="btn btn-secondary btn-sm w-100"
-                      hx-post="{% url 'nimbus-ui-new-preview-to-draft-rollout' experiment.slug %}"
-                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                      {% if not experiment.is_preview %}disabled{% endif %}>Back to Set Up</button>
-              {# Preview to Review #}
-              <button type="button"
-                      id="rollout-request-enrollment-btn"
-                      class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
-                      hx-post="{% url 'nimbus-ui-new-preview-review-rollout' experiment.slug %}"
-                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                      {% if not experiment.is_preview or setup_issues_count %}disabled{% endif %}>
-                <i class="fa-solid fa-rocket"></i>Request Enrollment
-              </button>
+          <span class="d-flex flex-column">
+            <span>Preview</span>
+            {% if experiment.preview_date and not experiment.is_draft %}
+              <span class="text-secondary fw-normal mt-1" style="font-size: 11px">
+                {{ experiment.preview_date|date:"M j, Y" }}
+                <span class="text-body-tertiary">|</span>
+                {% with days=experiment.preview_date|days_since %}{{ days }} day{{ days|pluralize }}{% endwith %}
+              </span>
+            {% endif %}
+          </span>
+        </button>
+      </h2>
+      <div class="accordion-collapse collapse{% if experiment.is_preview %} show{% endif %}"
+           id="sidebar-preview"
+           data-bs-parent="#accordion-preview">
+        <div class="accordion-body pt-0 px-3 pb-3">
+          {% if experiment.preview_date and not experiment.is_draft %}
+            <div class="d-flex flex-column gap-3">
+              <p class="mb-0 text-secondary" style="font-size: 12px;">
+                {{ NimbusUIConstants.ROLLOUT_PREVIEW_MESSAGE }}
+                <a href="{{ EXTERNAL_URLS.PREVIEW_LAUNCH_DOC }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="text-decoration-none">Learn more</a>
+              </p>
+              <div class="d-flex flex-column gap-2">
+                {# Preview to Draft #}
+                <button type="button"
+                        id="rollout-back-to-setup-btn"
+                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button{% if not experiment.is_preview %} opacity-50{% endif %}"
+                        {% if not experiment.is_preview %} disabled aria-disabled="true" {% else %} hx-post="{% url 'nimbus-ui-new-preview-to-draft-rollout' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt="this" {% endif %}>
+                  {% include "new/common/sidebar_transition_spinner.html" %}
+
+                  <i class="fa-solid fa-arrow-left-long"></i>
+                  Back to Set Up
+                </button>
+                {# Preview to Review #}
+                <button type="button"
+                        id="rollout-request-enrollment-btn"
+                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button{% if not experiment.is_preview or setup_issues_count %} opacity-50{% endif %}"
+                        {% if not experiment.is_preview or setup_issues_count %} disabled aria-disabled="true" {% else %} hx-post="{% url 'nimbus-ui-new-preview-review-rollout' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt="this" {% endif %}>
+                  {% include "new/common/sidebar_transition_spinner.html" %}
+
+                  <i class="fa-regular fa-paper-plane"></i>
+                  Request Enrollment
+                </button>
+              </div>
             </div>
-          </div>
-        {% endif %}
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
-</div>
-<div class="accordion accordion-flush rounded-3 bg-body-secondary"
-     style="--bs-accordion-btn-active-color: var(--bs-body-color);
-            --bs-accordion-btn-active-bg: transparent;
-            --bs-accordion-active-color: var(--bs-body-color)"
-     id="accordion-rollout">
-  <div class="accordion-item border-0 bg-transparent rounded-3">
-    <h2 class="accordion-header">
-      <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_rolling_out %} collapsed{% endif %}"
-              type="button"
-              {% if experiment.is_rolling_out %}data-bs-toggle="collapse" data-bs-target="#sidebar-rollout" aria-expanded="true" aria-controls="sidebar-rollout"{% else %}aria-expanded="false" aria-disabled="true"{% endif %}>
-        <i class="fa-solid fa-rocket text-secondary me-2 align-self-start mt-1"></i>
-        <span class="d-flex flex-column">
-          <span>Rollout</span>
-          {% if experiment.start_date %}
-            <span class="text-secondary fw-normal mt-1" style="font-size: 11px">
-              {{ experiment.start_date|date:"M j, Y" }}
-              <span class="text-body-tertiary">|</span>
-              {% if experiment.is_disabled %}
-                Disabled
+  <div class="accordion accordion-flush rounded-3 {% if stage == 'rollout' %}bg-primary-subtle{% else %}bg-body-secondary{% endif %}"
+       style="--bs-accordion-btn-active-color: var(--bs-body-color);
+              --bs-accordion-btn-active-bg: transparent;
+              --bs-accordion-active-color: var(--bs-body-color)"
+       id="accordion-rollout">
+    <div class="accordion-item border-0 bg-transparent rounded-3">
+      <h2 class="accordion-header">
+        <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_rolling_out %} collapsed{% endif %}"
+                type="button"
+                {% if experiment.is_rolling_out %}data-bs-toggle="collapse" data-bs-target="#sidebar-rollout" aria-expanded="true" aria-controls="sidebar-rollout"{% else %}aria-expanded="false" aria-disabled="true"{% endif %}>
+          {% if experiment.is_live_rollout %}
+            <i class="fa-regular fa-circle-play text-primary me-2 align-self-start mt-1"></i>
+          {% else %}
+            <i class="fa-regular fa-circle-stop text-secondary me-2 align-self-start mt-1"></i>
+          {% endif %}
+          <span class="d-flex flex-column">
+            <span>
+              {% if experiment.is_live_rollout %}
+                Enabled
               {% else %}
-                In Progress
+                Disabled
               {% endif %}
             </span>
-          {% endif %}
-        </span>
-      </button>
-    </h2>
-    <div class="accordion-collapse collapse{% if experiment.is_rolling_out %} show{% endif %}"
-         id="sidebar-rollout"
-         data-bs-parent="#accordion-rollout">
-      <div class="accordion-body pt-0 px-3 pb-3">
-        {% if experiment.is_rolling_out %}
-          <div class="d-flex flex-column gap-3">
-            {% with phase=experiment.current_rollout_phase_display %}
-              {% if phase %}
-                <div>
-                  <div class="small fw-semibold text-body mb-0">Phase {{ phase.number }}</div>
-                  <div class="text-secondary d-flex flex-wrap align-items-center gap-1"
-                       style="font-size: 12px">
-                    {% if phase.duration_days %}
-                      <span>{{ phase.days_elapsed }}/{{ phase.duration_days }} days complete</span>
-                    {% else %}
-                      <span>{{ phase.days_elapsed }} day{{ phase.days_elapsed|pluralize }} running</span>
-                    {% endif %}
-                    <span class="text-body-tertiary">|</span>
-                    <span>{{ phase.population_percent|floatformat:"-2" }}% population</span>
-                  </div>
-                  <div class="progress mt-1 bg-body"
-                       style="height: 6px"
-                       role="progressbar"
-                       aria-label="Phase {{ phase.number }} progress">
-                    <div class="progress-bar {% if experiment.is_disabled %}bg-secondary{% else %}bg-primary{% endif %}"
-                         style="width: {% if phase.duration_days %}{% widthratio phase.days_elapsed_capped phase.duration_days 100 %}{% else %}0{% endif %}%">
+            {% if experiment.start_date %}
+              <span class="text-secondary fw-normal mt-1" style="font-size: 11px">{{ experiment.start_date|date:"M j, Y" }}</span>
+            {% endif %}
+          </span>
+        </button>
+      </h2>
+      <div class="accordion-collapse collapse{% if experiment.is_rolling_out %} show{% endif %}"
+           id="sidebar-rollout"
+           data-bs-parent="#accordion-rollout">
+        <div class="accordion-body pt-0 px-3 pb-3">
+          {% if experiment.is_rolling_out %}
+            <div class="d-flex flex-column gap-3">
+              {% with phase=experiment.current_rollout_phase_display %}
+                {% if phase %}
+                  <div>
+                    <div class="small fw-semibold text-body mb-0">Phase {{ phase.number }}</div>
+                    <div class="text-secondary d-flex flex-wrap align-items-center gap-1"
+                         style="font-size: 12px">
+                      {% if phase.duration_days %}
+                        <span>{{ phase.days_elapsed }}/{{ phase.duration_days }} days complete</span>
+                      {% else %}
+                        <span>{{ phase.days_elapsed }} day{{ phase.days_elapsed|pluralize }} running</span>
+                      {% endif %}
+                      <span class="text-body-tertiary">|</span>
+                      <span>{{ phase.population_percent|floatformat:"-2" }}% population</span>
+                    </div>
+                    <div class="progress mt-1 bg-body"
+                         style="height: 6px"
+                         role="progressbar"
+                         aria-label="Phase {{ phase.number }} progress">
+                      <div class="progress-bar {% if experiment.is_disabled %}bg-secondary{% else %}bg-primary{% endif %}"
+                           style="width: {% if phase.duration_days %}{% widthratio phase.days_elapsed_capped phase.duration_days 100 %}{% else %}0{% endif %}%">
+                      </div>
                     </div>
                   </div>
-                </div>
-              {% endif %}
-            {% endwith %}
-            <p class="text-secondary mb-0" style="font-size: 12px;">
-              {% if experiment.is_disabled %}
-                {{ NimbusUIConstants.ROLLOUT_DISABLED_MESSAGE }}
-              {% else %}
-                {{ NimbusUIConstants.ROLLOUT_LIVE_MESSAGE }}
-              {% endif %}
-            </p>
-            <a href="#rollout-card-schedule"
-               class="text-decoration-none d-flex align-items-center gap-2 rounded-2 py-1 px-2 small text-body">
-              <i class="fa-regular fa-clock text-secondary"></i>
-              Rollout Schedule
-            </a>
-            {% include "new/common/sidebar_rollout_actions.html" %}
+                {% endif %}
+              {% endwith %}
+              <p class="text-secondary mb-0" style="font-size: 12px;">
+                {% if experiment.is_disabled %}
+                  {{ NimbusUIConstants.ROLLOUT_DISABLED_MESSAGE }}
+                {% else %}
+                  {{ NimbusUIConstants.ROLLOUT_LIVE_MESSAGE }}
+                {% endif %}
+              </p>
+              {% include "new/common/sidebar_rollout_actions.html" %}
 
-          </div>
-        {% endif %}
+            </div>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
-</div>
+{% endwith %}
 {# Links, History & Help #}
 <div class="d-flex flex-column gap-1">
   {% include "new/common/sidebar_links.html" %}

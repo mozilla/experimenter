@@ -100,11 +100,25 @@ const setupSetupIssueNav = () => {
     if (!card) {
       return;
     }
-    const scrollToCard = () =>
+    const scrollIntoView = () =>
       card.scrollIntoView({ behavior: "smooth", block: "start" });
+    const scrollWhenSettled = () =>
+      requestAnimationFrame(() => requestAnimationFrame(scrollIntoView));
+    const scrollToCard = () => {
+      const collapse = document.getElementById(`collapse-${cardId}`);
+      if (collapse && !collapse.classList.contains("show")) {
+        collapse.addEventListener("shown.bs.collapse", scrollWhenSettled, {
+          once: true,
+        });
+        window.bootstrap.Collapse.getOrCreateInstance(collapse).show();
+      } else {
+        scrollIntoView();
+      }
+    };
 
-    if (trigger.closest(".modal")) {
-      setTimeout(scrollToCard, 300);
+    const modal = trigger.closest(".modal");
+    if (modal) {
+      modal.addEventListener("hidden.bs.modal", scrollToCard, { once: true });
     } else {
       scrollToCard();
     }

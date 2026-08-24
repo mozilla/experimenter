@@ -44,16 +44,18 @@
               {% for error in validation_errors.feature_configs %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             </div>
           </div>
-          <div class="row mb-3">
-            <div class="col">
-              <div class="form-check">
-                {{ form.is_rollout }}
-                <label class="form-check-label" for="id_is_rollout">This is a rollout (single branch)</label>
-                <a target="_blank" href="https://experimenter.info/advanced/rollouts">Learn more</a>
+          {% if not site_flag_enabled.NEW_DELIVERY_MENU %}
+            <div class="row mb-3">
+              <div class="col">
+                <div class="form-check">
+                  {{ form.is_rollout }}
+                  <label class="form-check-label" for="id_is_rollout">This is a rollout (single branch)</label>
+                  <a target="_blank" href="https://experimenter.info/advanced/rollouts">Learn more</a>
+                </div>
+                {% for error in validation_errors.is_rollout %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
               </div>
-              {% for error in validation_errors.is_rollout %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
             </div>
-          </div>
+          {% endif %}
           <div class="row mb-3">
             <div class="col">
               <div class="form-check">
@@ -220,7 +222,7 @@
                             {% endwith %}
                           </div>
                           <div class="col-8">
-                            <div class=" d-flex align-items-end">
+                            <div class="d-flex align-items-end">
                               {{ screenshot_form.description|add_error_class:"is-invalid" }}
                               <button type="button"
                                       id="delete-screenshot-{{ screenshot_form.instance.id }}"
@@ -383,10 +385,17 @@
               </div>
               <div class="row mb-3">
                 <div class="col">
-                  <label class="d-block">
-                    Description Links (JSON)
-                    {{ form.firefox_labs_description_links }}
-                  </label>
+                  {% if experiment.application_config.firefox_labs.supports_arbitrary_description_links %}
+                    <label class="d-block">
+                      Description Links (JSON)
+                      {{ form.firefox_labs_description_links }}
+                    </label>
+                  {% else %}
+                    <label class="d-block">Feedback Link</label>
+                    {{ form.firefox_labs_description_link }}
+                    <div class="form-text">This link will be the target of the "Share Feedback" button on your Firefox Labs entry.</div>
+                  {% endif %}
+                  {# There are no firefox_labs_description_link errors: the field is always validated as firefox_labs_description_links #}
                   {{ form.firefox_labs_description_links.errors }}
                   {% for error in validation_errors.firefox_labs_description_links %}
                     <div class="form-text text-danger">{{ error }}</div>
