@@ -39,6 +39,13 @@ class RolloutBase(Base):
         )
         return self.wait_for_page_to_load()
 
+    def _click_transition_and_wait_for_refresh(self, locator, action):
+        self.wait_with_refresh_until_enabled(
+            locator,
+            f"{self.PAGE_TITLE}: {action} button never became enabled",
+        )
+        return self._click_and_wait_for_refresh(locator, action)
+
     def open_actions_dropdown(self):
         self.click_element(self._actions_dropdown_locator)
         return self
@@ -81,7 +88,7 @@ class RolloutBase(Base):
         )
 
     def transition_to_preview(self):
-        return self._click_and_wait_for_refresh(
+        return self._click_transition_and_wait_for_refresh(
             self._preview_button_locator,
             "preview transition",
         )
@@ -92,13 +99,13 @@ class RolloutBase(Base):
         return bool(self.selenium.find_elements(*self._preview_section_locator))
 
     def request_enrollment(self):
-        return self._click_and_wait_for_refresh(
+        return self._click_transition_and_wait_for_refresh(
             self._request_enrollment_button_locator,
             "enrollment request",
         )
 
     def approve_review(self):
-        return self._click_and_wait_for_refresh(
+        return self._click_transition_and_wait_for_refresh(
             self._review_approve_button_locator,
             "review approval",
         )
@@ -112,25 +119,25 @@ class RolloutBase(Base):
         return self
 
     def request_disable(self):
-        return self._click_and_wait_for_refresh(
+        return self._click_transition_and_wait_for_refresh(
             self._disable_button_locator,
             "disable request",
         )
 
     def request_reenable(self):
-        return self._click_and_wait_for_refresh(
+        return self._click_transition_and_wait_for_refresh(
             self._resume_button_locator,
             "re-enable request",
         )
 
     def request_phase_advance(self):
-        return self._click_and_wait_for_refresh(
+        return self._click_transition_and_wait_for_refresh(
             self._next_phase_button_locator,
             "phase advance request",
         )
 
     def wait_for_disabled_status(self):
-        self.wait_with_refresh(
+        self.wait_with_refresh_until_enabled(
             self._resume_button_locator,
             f"{self.PAGE_TITLE}: rollout did not reach disabled status",
         )
