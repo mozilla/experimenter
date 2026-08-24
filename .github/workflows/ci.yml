@@ -217,7 +217,7 @@ jobs:
       contents: read
     env:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -m nimbus_ui -n 4 --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -m nimbus_ui -n 4 --dist loadgroup --reruns 1 --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
