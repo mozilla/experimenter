@@ -51,6 +51,7 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
 
 HAS_PIN = "!doesAppNeedPin"
 NEED_DEFAULT = "!isDefaultBrowser"
+IS_DEFAULT = "isDefaultBrowser"
 PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
 PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 < 28"
 PROFILELESSTHAN1HOUR = "(currentDate|date - profileAgeCreated|date) / 3600000 < 1"
@@ -2719,6 +2720,17 @@ USER_NOT_SET_TO_DEFAULT = NimbusTargetingConfig(
     slug="user_not_set_to_default",
     description="Users who have not set to default",
     targeting=f"{NEED_DEFAULT}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+USER_SET_TO_DEFAULT = NimbusTargetingConfig(
+    name="User set to default",
+    slug="user_set_to_default",
+    description="Users who have set to default",
+    targeting=f"{IS_DEFAULT}",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,

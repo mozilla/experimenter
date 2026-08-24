@@ -375,6 +375,23 @@
   }
 }
 
+.sidebar-transition-button .sidebar-transition-spinner {
+  display: none;
+}
+
+.sidebar-transition-button.htmx-request {
+  opacity: 0.55;
+  pointer-events: none;
+
+  > i {
+    display: none;
+  }
+
+  .sidebar-transition-spinner {
+    display: inline-block;
+  }
+}
+
 .rollout-page {
   .cm-editor .cm-scroller {
     font-family: var(--bs-font-monospace);
