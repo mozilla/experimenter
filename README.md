@@ -465,7 +465,6 @@ This installs Firefox, Poetry dependencies, and runs pytest with your `PYTEST_AR
 | `make integration_test_vnc TEST="..."` | One-command setup: copies `.env`, rebuilds, starts stack, drops into VNC shell with `PYTEST_ARGS` pre-configured |
 | `make integration_vnc_shell` | Opens a bash shell in the Firefox/Selenium container with VNC enabled (manual env setup required) |
 | `make FIREFOX_CHANNEL=release integration_test_nimbus_desktop` | Runs the full desktop test suite (`release`, `beta`, or `nightly`) |
-| `make integration_test_nimbus_sdk` | Runs Nimbus SDK targeting integration tests |
 | `make integration_test_legacy` | Runs legacy experimenter integration tests |
 | `make integration_sdk_shell` | Opens a shell with the mobile SDK set up for testing |
 
