@@ -72,9 +72,13 @@ def pytest_collection_modifyitems(config, items):
         if application is None:
             continue
 
-        item.add_marker(
-            pytest.mark.xdist_group(APPLICATION_KINTO_COLLECTION[application.value])
+        collection = APPLICATION_KINTO_COLLECTION.get(
+            getattr(application, "value", application)
         )
+        if collection is None:
+            continue
+
+        item.add_marker(pytest.mark.xdist_group(collection))
 
 
 APPLICATION_KINTO_REVIEW_PATH = {
