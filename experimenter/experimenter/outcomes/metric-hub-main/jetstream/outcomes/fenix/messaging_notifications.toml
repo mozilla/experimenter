@@ -1,0 +1,54 @@
+friendly_name = "Messaging System Notification"
+description = "Metrics that describe a Mobile Messaging system notification experiment"
+
+# This outcome assumes a notification experiment similar to
+# https://experimenter.services.mozilla.com/nimbus/android-reengagement-push-world-cup/summary/.
+# The key assumptions are that:
+#
+# 1.  The `messages` keys are of the form
+# "{experiment}:{branch}{optional extra characters}", such as
+# "android-reengagement-push-world-cup:control:en".  This is used by
+# Jetstream to identify messages corresponding to the experiment under
+# test; without some such restriction other messages (such as the
+# default browser notification) could count as notifications.
+#
+# 2.  Each individual message has an `experiment` key with value
+# "{experiment}".  Without this, any control group will not report
+# Nimbus exposure events.
+#
+# Outcomes don't currently allow segments to be defined (see
+# https://github.com/mozilla/metric-hub/issues/1615).  For a
+# notification experiment, you might also want some or all of the
+# following segments:
+#
+# - "segment_notification_clicked",
+# - "segment_notification_dismissed",
+# - "segment_notification_not_clicked_and_not_dismissed",
+# - "segment_notifications_allowed_and_marketing_notifications_allowed_at_enrollment",
+# - "segment_notifications_allowed_and_not_marketing_notifications_allowed_at_enrollment",
+# - "segment_not_notifications_allowed_at_enrollment",
+
+# Number of notifications shown.
+[metrics.notification_shown.statistics.sum]
+# Shown rate.
+[metrics.notification_shown.statistics.binomial]
+
+# Number of clicks.
+[metrics.notification_clicked.statistics.sum]
+# Click through rate.
+[metrics.notification_clicked.statistics.binomial]
+
+# Number of dismisses.
+[metrics.notification_dismissed.statistics.sum]
+# Dismiss rate.
+[metrics.notification_dismissed.statistics.binomial]
+
+# Number of clients with notifications ever not allowed.
+[metrics.ever_not_notifications_allowed.statistics.sum]
+# Notifications ever not allowed rate.
+[metrics.ever_not_notifications_allowed.statistics.binomial]
+
+# Number of clients with marketing notifications ever not allowed.
+[metrics.ever_not_marketing_notifications_allowed.statistics.sum]
+# Marketing notifications ever not allowed rate.
+[metrics.ever_not_marketing_notifications_allowed.statistics.binomial]

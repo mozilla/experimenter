@@ -1,0 +1,8 @@
+friendly_name = "Firefox Sync Metrics"
+description = "Metrics for Firefox Sync"
+
+[metrics.sync_enabled_v1]
+data_source = 'metrics'
+select_expression = 'CAST(COALESCE(LOGICAL_OR(metrics.boolean.fxa_sync_enabled), FALSE) AS INT)'
+
+[metrics.sync_enabled_v1.statistics.binomial]
