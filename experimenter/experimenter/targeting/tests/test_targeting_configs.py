@@ -7,10 +7,14 @@ from experimenter.experiments.jexl_to_sql import (
     KNOWN_UNTRANSLATABLE,
     jexl_to_sql,
 )
-from experimenter.experiments.jexl_utils import extract_targeting_fields
+from experimenter.experiments.jexl_utils import (
+    extract_targeting_fields,
+    extract_transform_names,
+)
 from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.targeting.constants import (
     PRESERVED_TARGETING_KEYS_BY_APPLICATION,
+    TRANSFORMS_BY_APPLICATION,
     TargetingConstants,
 )
 from experimenter.targeting.targeting_context_parser import TargetingContextFields
@@ -64,6 +68,28 @@ class TestTargetingConfigs(TestCase):
                 f"{targeting_config.name}. Add it to "
                 f"JEXL_TO_BQ_COLUMN or KNOWN_UNTRANSLATABLE.",
             )
+
+    @parameterized.expand([(t,) for t in TargetingConstants.TARGETING_CONFIGS.values()])
+    def test_targeting_config_transforms_are_known(self, targeting_config):
+        if not targeting_config.targeting:
+            return
+
+        applications = [
+            Application[app]
+            for app in targeting_config.application_choice_names
+            if Application[app] in TRANSFORMS_BY_APPLICATION
+        ]
+
+        for transform in extract_transform_names(targeting_config.targeting):
+            for application in applications:
+                self.assertIn(
+                    transform,
+                    TRANSFORMS_BY_APPLICATION[application],
+                    f"Unknown JEXL transform '{transform}' in "
+                    f"{targeting_config.slug} for {application.name}. "
+                    f"Every transform must be supported by every application "
+                    f"the config targets.",
+                )
 
     def test_desktop_targeting_context_fields_are_mapped(self):
         """Every field in the Desktop targeting context must be in JEXL_TO_BQ_COLUMN

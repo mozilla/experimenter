@@ -95,6 +95,30 @@ def collect_exprs(expr):
     return exprs
 
 
+def extract_transform_names(expression):
+    """
+    Collect the names of every transform applied in a JEXL expression
+    """
+    nodes = [JEXLParser().parse(expression)]
+    names = set()
+
+    while nodes:
+        node = nodes.pop()
+
+        if isinstance(node, Transform):
+            names.add(node.name)
+
+        children = list(node.children)
+        if isinstance(node, ArrayLiteral):
+            children.extend(node.value)
+        elif isinstance(node, ObjectLiteral):
+            children.extend(node.value.values())
+
+        nodes += children
+
+    return names
+
+
 def format_jexl(expression):
     if not expression or expression == "true":
         return expression
