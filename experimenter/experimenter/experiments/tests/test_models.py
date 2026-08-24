@@ -644,7 +644,7 @@ class TestNimbusExperiment(TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
         )
         self.assertEqual(
-            experiment.sizing_sql,
+            experiment.sizing_sql_display,
             "(("
             "JSON_VALUE(metrics.object.nimbus_targeting_context_browser_settings,"
             " '$.update.channel') IN ('release'))\n"
@@ -668,7 +668,7 @@ class TestNimbusExperiment(TestCase):
         _pref_col = "metrics.object.nimbus_targeting_environment_pref_values"
         raw = f"JSON_VALUE({_pref_col}, '$.browser__urlbar__showSearchSuggestionsFirst')"
         coerced = f"({raw} IS NOT NULL AND {raw} != '' AND {raw} != 'false')"
-        self.assertEqual(experiment.sizing_sql_predicate, coerced)
+        self.assertEqual(experiment.sizing_sql_display_predicate, coerced)
 
     def test_sizing_full_sql_returns_none_when_no_predicate(self):
         experiment = NimbusExperimentFactory.create(
@@ -697,7 +697,7 @@ class TestNimbusExperiment(TestCase):
             risk_ai=False,
         )
         self.assertEqual(experiment.targeting, "true")
-        self.assertIsNone(experiment.sizing_sql)
+        self.assertIsNone(experiment.sizing_sql_display)
 
     def test_get_rollout_url(self):
         experiment = NimbusExperimentFactory.create(slug="my-rollout")

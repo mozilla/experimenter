@@ -2429,7 +2429,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return ensure_bool_sql(sql)
 
     @property
-    def sizing_sql(self):
+    def sizing_sql_display(self):
         sql = self.sizing_sql_predicate
         if sql:
             sql = sql.replace(" AND ", "\nAND ")
@@ -2437,7 +2437,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def sizing_full_sql(self):
-        predicate = self.sizing_sql
+        predicate = self.sizing_sql_display
         if not predicate:
             return None
         return SIZING_FULL_SQL_TEMPLATE.format(

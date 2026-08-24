@@ -23,7 +23,7 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/experimenter/experiments/jexl_to_sql.py experimenter/experimenter/targeting/constants.py experimenter/experimenter/features/manifests/firefox-desktop/"
+          paths: "experimenter/experimenter/experiments/jexl_to_sql.py experimenter/experimenter/experiments/constants.py experimenter/experimenter/experiments/models.py experimenter/experimenter/targeting/constants.py experimenter/experimenter/base/management/commands/export_targeting_sql.py experimenter/bin/validate_targeting_sql.py"
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
