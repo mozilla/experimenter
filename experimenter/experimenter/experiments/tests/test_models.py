@@ -668,7 +668,7 @@ class TestNimbusExperiment(TestCase):
         _pref_col = "metrics.object.nimbus_targeting_environment_pref_values"
         raw = f"JSON_VALUE({_pref_col}, '$.browser__urlbar__showSearchSuggestionsFirst')"
         coerced = f"({raw} IS NOT NULL AND {raw} != '' AND {raw} != 'false')"
-        self.assertEqual(experiment.sizing_sql_display_predicate, coerced)
+        self.assertEqual(experiment.sizing_sql_predicate, coerced)
 
     def test_sizing_full_sql_returns_none_when_no_predicate(self):
         experiment = NimbusExperimentFactory.create(
