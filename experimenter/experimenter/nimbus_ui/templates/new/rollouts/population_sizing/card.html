@@ -11,30 +11,59 @@
     {% endif %}
     {% if experiment.sizing_eligible_count is not None %}
       <section data-testid="sizing-callout">
-        <div class="row row-cols-1 row-cols-md-2 g-3">
-          <div class="col">
-            <div class="h-100 rounded-3 bg-body-tertiary p-3">
-              <div class="small text-secondary mb-1">Estimated eligible clients</div>
-              <div class="fs-4 fw-semibold text-body">~{{ experiment.sizing_eligible_count|short_number }}</div>
-            </div>
-          </div>
-          {% for estimate in rollout_phase_population_estimates %}
-            <div class="col" data-testid="sizing-phase-estimate">
-              <div class="h-100 rounded-3 bg-body-tertiary p-3">
-                <div class="small text-secondary mb-1">
-                  Phase {{ forloop.counter }} projected enrollment at
-                  {{ estimate.phase.population_percent|floatformat:"-2" }}%
-                </div>
-                <div class="fs-4 fw-semibold text-body">~{{ estimate.estimated_count|short_number }}</div>
-              </div>
-            </div>
-          {% endfor %}
+        <div class="d-flex align-items-baseline gap-2 mb-3">
+          <span class="fs-4 fw-semibold text-body">~{{ experiment.sizing_eligible_count|short_number }}</span>
+          <span class="small text-body">estimated eligible clients</span>
         </div>
+        {% if rollout_phase_population_estimates %}
+          <table class="table table-borderless table-sm align-middle mb-0 w-auto">
+            <thead>
+              <tr style="font-size: 11px">
+                <th class="border-0 text-secondary fw-normal py-1"
+                    style="padding-right: 10rem">Phase</th>
+                <th class="border-0 text-secondary fw-normal py-1"
+                    style="padding-right: 10rem">Population ratio</th>
+                <th class="border-0 text-secondary fw-normal py-1 text-end"
+                    style="padding-right: 1.5rem">Projected enrollment</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for estimate in rollout_phase_population_estimates %}
+                {% with phase=estimate.phase %}
+                  <tr data-testid="sizing-phase-estimate">
+                    <td class="small text-body py-2 text-nowrap fw-normal"
+                        style="padding-right: 6rem">Phase {{ phase.number }}</td>
+                    <td class="py-2" style="padding-right: 6rem">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="progress rounded-pill"
+                             style="height: 8px;
+                                    width: 18rem"
+                             role="progressbar"
+                             aria-label="Phase {{ phase.number }} population ratio">
+                          <div class="progress-bar bg-primary rounded-pill"
+                               style="width: {{ phase.population_percent }}%"></div>
+                        </div>
+                        <span class="text-secondary text-nowrap"
+                              style="font-size: 11px;
+                                     font-variant-numeric: tabular-nums">
+                          {{ phase.population_percent|floatformat:"-2" }}%
+                        </span>
+                      </div>
+                    </td>
+                    <td class="small text-body py-2 text-end text-nowrap"
+                        style="padding-right: 1.5rem;
+                               font-variant-numeric: tabular-nums">~{{ estimate.estimated_count|short_number }}</td>
+                  </tr>
+                {% endwith %}
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
         {% if experiment.sizing_warnings %}
           <div class="alert alert-warning small border-0 border-start border-warning border-4 rounded-0 mt-3 mb-0"
                role="alert">
-            <div>
-              <i class="fa-solid fa-triangle-exclamation me-1"></i>
+            <div class="text-body">
+              <i class="fa-solid fa-triangle-exclamation me-1 text-warning"></i>
               <strong>Estimate excludes:</strong> {{ experiment.sizing_warnings|join:", " }}
             </div>
             <div class="text-secondary mt-1">These attributes couldn't be translated to SQL</div>

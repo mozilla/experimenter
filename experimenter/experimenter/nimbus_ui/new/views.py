@@ -199,7 +199,7 @@ def get_rollout_phase_population_estimates(experiment):
             "phase": phase,
             "estimated_count": int(eligible_count * phase.population_percent / 100),
         }
-        for phase in experiment.rollout_phases.all()
+        for phase in experiment.annotated_rollout_phases()
     ]
 
 

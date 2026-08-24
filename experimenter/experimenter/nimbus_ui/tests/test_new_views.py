@@ -1068,12 +1068,31 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         )
 
         self.assertContains(response, 'data-testid="sizing-phase-estimate"', count=3)
-        self.assertContains(response, "Phase 1 projected enrollment at")
-        self.assertContains(response, "Phase 2 projected enrollment at")
-        self.assertContains(response, "Phase 3 projected enrollment at")
+        self.assertContains(response, "estimated eligible clients")
+        self.assertContains(response, "~100.0K")
+        self.assertContains(response, "Projected enrollment")
         self.assertContains(response, "~10.0K")
         self.assertContains(response, "~25.0K")
         self.assertContains(response, "~100.0K")
+        self.assertContains(response, "width: 10.0000%")
+        self.assertContains(response, "width: 25.0000%")
+        self.assertContains(response, "width: 100.0000%")
+
+    def test_population_sizing_card_without_phases_shows_eligible_count_only(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            sizing_data={"eligible_count": 100_000, "warnings": []},
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, "estimated eligible clients")
+        self.assertContains(response, "~100.0K")
+        self.assertNotContains(response, "Projected enrollment")
+        self.assertNotContains(response, 'data-testid="sizing-phase-estimate"')
 
 
 class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
@@ -2002,7 +2021,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         )
         self.assertTrue(response.context["hx_swap_oob"])
         self.assertContains(response, 'id="rollout-population-sizing-body"')
-        self.assertContains(response, "Phase 1 projected enrollment at")
+        self.assertContains(response, "Projected enrollment")
         self.assertContains(response, "~25.0K")
 
     def test_post_in_progress_phase_shows_progress(self):
