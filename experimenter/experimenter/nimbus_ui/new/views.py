@@ -196,6 +196,20 @@ def build_experiment_context(experiment):
     return context
 
 
+def get_rollout_phase_population_estimates(experiment):
+    eligible_count = experiment.sizing_eligible_count
+    if eligible_count is None:
+        return []
+
+    return [
+        {
+            "phase": phase,
+            "estimated_count": int(eligible_count * phase.population_percent / 100),
+        }
+        for phase in experiment.annotated_rollout_phases()
+    ]
+
+
 class NimbusExperimentDetailView(
     NimbusExperimentViewMixin,
     CloneExperimentFormMixin,
@@ -330,6 +344,9 @@ class NimbusRolloutDetailView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(build_experiment_context(self.object))
+        context["rollout_phase_population_estimates"] = (
+            get_rollout_phase_population_estimates(self.object)
+        )
         return context
 
     def get_queryset(self):
@@ -726,6 +743,9 @@ class NewRolloutScheduleUpdateView(NewCardUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["rollout_phase_population_estimates"] = (
+            get_rollout_phase_population_estimates(self.object)
+        )
         selected_plan = self.request.POST.get("template_name") or self.request.POST.get(
             "rollout_plan"
         )

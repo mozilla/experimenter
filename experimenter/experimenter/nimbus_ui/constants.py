@@ -83,6 +83,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     behaviour.  Running an experiment on multiple channels can create misleading or
     inaccurate results.  It is recommended to run experiments only on a single channel."""
 
+    POPULATION_SIZING_CARD_TITLE = "Audience Size Estimate"
     AUDIENCE_OVERLAP_WARNING = (
         "https://experimenter.info/advanced/warnings#audience-overlap"
     )
@@ -531,6 +532,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     ROLLOUT_CARD_ICONS = {
         "monitoring": "fa-regular fa-chart-bar",
+        "population_sizing": "fa-solid fa-user-group",
         "schedule": "fa-regular fa-calendar-days",
         "preview": "fa-regular fa-eye",
         "overview": "fa-regular fa-file-lines",

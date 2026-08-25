@@ -167,4 +167,10 @@
     {% include "new/common/sidebar_rollout_actions.html" with oob=True %}
 
   {% endif %}
+  {% if hx_swap_oob %}
+    {% if experiment.is_draft or experiment.sizing_eligible_count is not None %}
+      {% include "new/rollouts/population_sizing/card.html" with population_sizing_oob=True hx_swap_oob=False %}
+
+    {% endif %}
+  {% endif %}
 {% endblock %}
