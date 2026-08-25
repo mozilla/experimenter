@@ -1316,6 +1316,13 @@ features:
         description: If true, WebCompat Reporter enhancements is enabled.
         type: Boolean
         default: true
+  weekly-privacy-notification:
+    description: A feature that shows a recurring weekly notification summarizing Tracking Protection activity.
+    variables:
+      enabled:
+        description: If true, the weekly privacy notification will be scheduled.
+        type: Boolean
+        default: false
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
