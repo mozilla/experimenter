@@ -26,7 +26,7 @@ def test_create_new_rollout_approve_remote_settings_cirrus(
         reference_branch_value=demo_app.REFERENCE_BRANCH_VALUE,
     ).launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
@@ -50,7 +50,7 @@ def test_create_new_rollout_approve_remote_settings_cirrus(
     # Unenroll
     summary = SummaryPage(selenium, experiment_url).open()
     summary.end_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
@@ -87,7 +87,7 @@ def test_create_new_experiment_approve_remote_settings_cirrus(
         treatment_branch_value=demo_app.TREATMENT_BRANCH_VALUE,
     ).launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
@@ -131,7 +131,7 @@ def test_create_new_experiment_approve_remote_settings_cirrus(
     # Unenroll
     summary = SummaryPage(selenium, experiment_url).open()
     summary.end_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 
@@ -179,7 +179,7 @@ def test_check_cirrus_targeting(
         countries=True,
     ).launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
@@ -223,7 +223,7 @@ def test_check_cirrus_targeting(
     # Unenroll
     summary = SummaryPage(selenium, experiment_url).open()
     summary.end_and_approve()
-    kinto_client.approve()
+    kinto_client().approve()
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()
 

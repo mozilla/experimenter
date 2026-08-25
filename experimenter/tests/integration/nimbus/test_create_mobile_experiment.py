@@ -36,7 +36,7 @@ def test_create_mobile_experiment_for_integration_test(
     summary = SummaryPage(selenium, experiment_url).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    kinto_client().approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
