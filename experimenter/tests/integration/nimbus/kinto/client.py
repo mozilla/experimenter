@@ -33,8 +33,8 @@ class KintoClient:
     def _has_pending_review(self):
         return self._fetch_collection_data()["status"] == KINTO_REVIEW_STATUS
 
-    def approve(self):
-        for _ in range(self.RETRIES):
+    def approve(self, retries=RETRIES):
+        for _ in range(retries):
             if self._has_pending_review():
                 try:
                     self.kinto_http_client.patch_collection(
