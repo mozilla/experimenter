@@ -1,10 +1,8 @@
-name: Experimenter -- Build, Tag and Push Container Images to GAR Repository
+name: Experimenter -- PR Preview
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch: {}
+  pull_request:
+    types: [labeled, unlabeled, synchronize]
 
 env:
   PROJECT_ID: moz-fx-experimenter-prod-6cd5
@@ -13,8 +11,11 @@ env:
 jobs:
   build_and_push:
     if: >
-      github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch'
+      (
+        github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, 'pr-preview') &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      )
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
           fetch-tags: true
           fetch-depth: 0
@@ -41,31 +42,13 @@ jobs:
             ./scripts/store_git_info.sh
             make build_prod
 
-      - name: Generate MozCloud Tag
-        if: steps.check-paths.outputs.should-run == 'true'
-        id: mozcloud-tag
-        shell: bash
-        env:
-          REF_TYPE: ${{ github.ref_type }}
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          if [[ "${REF_TYPE}" == "tag" ]]; then
-            tag="${REF_NAME}"
-          else
-            tag="sha-$(git rev-parse --short=9 HEAD)"
-          fi
-
-          echo "Setting IMAGE_TAG=${tag} as output"
-          echo "image_tag=${tag}" >> "$GITHUB_OUTPUT"
-
       - name: Tag image(s) for GAR
         if: steps.check-paths.outputs.should-run == 'true'
         id: meta
         shell: bash
-        env:
-          IMAGE_TAG: ${{ steps.mozcloud-tag.outputs.image_tag }}
         run: |
-          docker tag experimenter:deploy "${IMAGE_BASE}:latest"
+          IMAGE_TAG="$(git rev-parse --short=10 HEAD)"
+
           docker tag experimenter:deploy "${IMAGE_BASE}:${IMAGE_TAG}"
           echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
 
@@ -74,7 +57,6 @@ jobs:
         uses: mozilla-it/deploy-actions/docker-push@ef0f037316873ff408a598f1cd98876dd7851e53 # v6.7.0
         with:
           image_tags: |-
-            ${{ env.IMAGE_BASE }}:latest
             ${{ env.IMAGE_BASE }}:${{ steps.meta.outputs.image_tag }}
           workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
           project_id: ${{ env.PROJECT_ID }}

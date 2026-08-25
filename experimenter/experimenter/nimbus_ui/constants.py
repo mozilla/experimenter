@@ -38,8 +38,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_ROLLOUT_REENABLE_REQUIRES_CURRENT_PHASE = (
         "Cannot duplicate the final phase because this rollout has no current phase."
     )
+    MESSAGE_CONSULT_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FPS/pages/2542436381/OMC+Team+2026+-+Onboarding+Messaging+Communication#OMC-Intake---Requesting-work%2FCode-Reviews%2FConsultation"
 
-    RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/getting-started/for-reviewers"
     VALIDATING_EXPERIMENTS_URL = (
         "https://experimenter.info/data-analysis/validating-experiments/"
@@ -196,7 +196,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     }
     OVERVIEW_PAGE_LINKS = {
         "risk_link": "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
-        "message_consult_link": "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation",
+        "message_consult_link": "https://mozilla-hub.atlassian.net/wiki/spaces/FPS/pages/2542436381/OMC+Team+2026+-+Onboarding+Messaging+Communication#OMC-Intake---Requesting-work%2FCode-Reviews%2FConsultation",
         "revenue_risk_link": "https://experimenter.info/workflow/risk-mitigation#vp-sign-off",
         "partner_related_risk_link": "https://experimenter.info/workflow/risk-mitigation#legal-sign-off",
     }

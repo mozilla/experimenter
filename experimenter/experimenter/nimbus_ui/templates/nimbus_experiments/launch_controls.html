@@ -113,35 +113,54 @@
           <div class="form-check">
             <input type="checkbox"
                    class="form-check-input"
-                   id="checkbox-1"
+                   id="id-launch-risk"
+                   data-required-for-launch
                    onchange="toggleSubmitButton()">
-            <label class="form-check-label" for="checkbox-1">I understand the risks associated with launching an experiment</label>
+            <label class="form-check-label" for="id-launch-risk">I understand the risks associated with launching an experiment</label>
           </div>
           <div class="form-check">
             <input type="checkbox"
                    class="form-check-input"
-                   id="checkbox-2"
+                   id="id-launch-onboarding"
+                   data-required-for-launch
                    onchange="toggleSubmitButton()">
-            <label class="form-check-label" for="checkbox-2">
+            <label class="form-check-label" for="id-launch-onboarding">
               I have gone through the <a href="{{ EXTERNAL_URLS.TRAINING_AND_PLANNING_DOC }}" target="_blank">experiment onboarding program</a>
             </label>
           </div>
-          <button type="button"
-                  class="btn btn-primary"
-                  id="request-launch-button"
-                  hx-post="{% url 'nimbus-ui-draft-to-review' slug=experiment.slug %}"
-                  hx-select="#content"
-                  hx-target="#content"
-                  hx-swap="outerHTML"
-                  disabled>Request Launch</button>
-          {% if experiment.can_publish_to_preview %}
+          {% if experiment.is_messaging_experiment and not experiment.message_reviewer_id %}
+            <div class="form-check">
+              <input type="checkbox"
+                     class="form-check-input"
+                     id="id-launch-override-message-review"
+                     data-required-for-launch
+                     onchange="toggleSubmitButton()">
+              <label class="form-check-label" for="id-launch-override-message-review">
+                  I acknowledge that I have <em>not</em> gone through the
+                  <a target="_blank"
+                     href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.message_consult_link }}">Message Review</a>
+                  for this {% if experiment.is_rollout %}rollout{% else %}experiment{% endif %}.
+              </label>
+            </div>
+          {% endif %}
+          <div class="mt-2">
             <button type="button"
-                    class="btn btn-secondary"
-                    hx-post="{% url 'nimbus-ui-review-to-draft' slug=experiment.slug %}"
+                    class="btn btn-primary"
+                    id="request-launch-button"
+                    hx-post="{% url 'nimbus-ui-draft-to-review' slug=experiment.slug %}"
                     hx-select="#content"
                     hx-target="#content"
-                    hx-swap="outerHTML">Cancel</button>
-          {% endif %}
+                    hx-swap="outerHTML"
+                    disabled>Request Launch</button>
+            {% if experiment.can_publish_to_preview %}
+              <button type="button"
+                      class="btn btn-secondary"
+                      hx-post="{% url 'nimbus-ui-review-to-draft' slug=experiment.slug %}"
+                      hx-select="#content"
+                      hx-target="#content"
+                      hx-swap="outerHTML">Cancel</button>
+            {% endif %}
+          </div>
         </div>
       </div>
       <!-- Preview Mode Controls -->
@@ -158,19 +177,36 @@
         <div class="form-check">
           <input type="checkbox"
                  class="form-check-input"
-                 id="checkbox-1"
+                 id="id-launch-risk"
+                 data-required-for-launch
                  onchange="toggleSubmitButton()">
-          <label class="form-check-label" for="checkbox-1">I understand the risks associated with launching an experiment</label>
+          <label class="form-check-label" for="id-launch-risk">I understand the risks associated with launching an experiment</label>
         </div>
         <div class="form-check">
           <input type="checkbox"
                  class="form-check-input"
-                 id="checkbox-2"
+                 id="id-launch-onboarding"
+                 data-required-for-launch
                  onchange="toggleSubmitButton()">
-          <label class="form-check-label" for="checkbox-2">
+          <label class="form-check-label" for="id-launch-onboarding">
             I have gone through the <a href="{{ EXTERNAL_URLS.TRAINING_AND_PLANNING_DOC }}" target="_blank">experiment onboarding program</a>
           </label>
         </div>
+        {% if experiment.is_messaging_experiment and not experiment.message_reviewer_id %}
+          <div class="form-check">
+            <input type="checkbox"
+                   class="form-check-input"
+                   id="id-launch-override-message-review"
+                   data-required-for-launch
+                   onchange="toggleSubmitButton()">
+            <label class="form-check-label" for="id-launch-override-message-review">
+                I acknowledge that I have <em>not</em> gone through the
+                <a target="_blank"
+                    href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.message_consult_link }}">Message Review</a>
+                for this {% if experiment.is_rollout %}rollout{% else %}experiment{% endif %}.
+            </label>
+          </div>
+        {% endif %}
         {% if experiment.can_preview_to_review %}
           <button type="button"
                   class="btn btn-primary"
@@ -241,7 +277,6 @@
 
       {% else %}
         {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="Launch Experiment" approval_url="nimbus-ui-review-to-approve" cancel_reject_url="nimbus-ui-review-to-draft" experiment=experiment %}
-
       {% endif %}
     {% elif experiment.is_enrolling or experiment.is_observation %}
       {% if experiment.is_rollout_update_requested %}
@@ -256,7 +291,6 @@
 
         {% else %}
           {% include "nimbus_experiments/approval_rejection_controls.html" with action_label="End Experiment" approval_url="nimbus-ui-approve-end-experiment" cancel_reject_url="nimbus-ui-cancel-end-experiment" experiment=experiment %}
-
         {% endif %}
       {% elif experiment.should_show_end_enrollment or experiment.should_show_end_experiment or experiment.should_show_end_rollout or experiment.should_show_rollout_request_update %}
         <div id="default-controls" class="alert alert-primary mt-3">
@@ -301,7 +335,6 @@
         </div>
         {% if experiment.should_show_end_experiment %}
           {% include "nimbus_experiments/end_experiment_modal.html" with experiment=experiment %}
-
         {% endif %}
       {% endif %}
     {% endif %}

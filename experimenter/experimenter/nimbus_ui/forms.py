@@ -393,13 +393,6 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
         widget=InlineRadioSelect,
         coerce=lambda x: x == "True",
     )
-    risk_message = forms.TypedChoiceField(
-        required=False,
-        choices=YES_NO_CHOICES,
-        widget=InlineRadioSelect,
-        coerce=lambda x: x == "True",
-    )
-
     public_description = forms.CharField(
         required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3})
     )
@@ -431,7 +424,6 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "risk_partner_related",
             "risk_revenue",
             "risk_brand",
-            "risk_message",
             "risk_ai",
         ]
 
@@ -447,7 +439,6 @@ class OverviewForm(NimbusChangeLogFormMixin, forms.ModelForm):
             data=self.data or None,
             instance=self.instance,
         )
-
     def is_valid(self):
         return super().is_valid() and self.documentation_links.is_valid()
 
@@ -727,6 +718,10 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
     )
     is_first_run = forms.BooleanField(required=False, widget=forms.HiddenInput())
+    message_review = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+    )
 
     update_on_change_fields = (
         "equal_branch_ratio",
@@ -734,6 +729,7 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         "is_firefox_labs_opt_in",
         "is_localized",
         "is_rollout",
+        "message_review",
     )
 
     class Meta:
@@ -843,6 +839,14 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         self.was_labs_opt_in = self.instance.is_firefox_labs_opt_in
 
+        if not self.instance.is_messaging_experiment:
+            self.fields.pop("message_review")
+        else:
+            if not self.request.user.has_perm("experiments.can_perform_message_review"):
+                self.fields["message_review"].disabled = True
+
+            self.fields["message_review"].initial = self.instance.message_reviewer_id is not None
+
     @property
     def errors(self):
         errors = super().errors
@@ -890,6 +894,24 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     @transaction.atomic
     def save(self, *args, **kwargs):
         self.branches.save()
+
+        if (
+            self.instance.is_messaging_experiment
+            and self.request.user.has_perm("experiments.can_perform_message_review")
+        ):
+            message_review = self.cleaned_data.pop("message_review", None)
+
+            if (
+                self.instance.message_reviewer_id is None
+                and message_review is True
+            ):
+                self.instance.message_reviewer_id = self.request.user.id
+            elif (
+                self.instance.message_reviewer_id is not None
+                and message_review is False
+            ):
+                self.instance.message_reviewer_id = None
+
         experiment = super().save(*args, **kwargs)
 
         if experiment.is_rollout:

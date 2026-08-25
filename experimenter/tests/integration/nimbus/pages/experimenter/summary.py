@@ -222,13 +222,13 @@ class SummaryPage(ExperimenterBase):
     class RequestReview(Region, Base):
         PAGE_TITLE = "Review Region"
         _root_locator = (By.CSS_SELECTOR, "#launch-controls")
-        _checkbox1_locator = (By.CSS_SELECTOR, "#checkbox-1")
-        _checkbox2_locator = (By.CSS_SELECTOR, "#checkbox-2")
+        _checkbox_launch_risk_locator = (By.CSS_SELECTOR, "#id-launch-risk")
+        _checkbox_launch_onboarding_locator = (By.CSS_SELECTOR, "#id-launch-onboarding")
         _request_launch_locator = (By.CSS_SELECTOR, "#request-launch-button")
 
         def click_launch_checkboxes(self):
-            checkbox1 = self.wait_for_and_find_element(*self._checkbox1_locator)
-            checkbox2 = self.wait_for_and_find_element(*self._checkbox2_locator)
+            checkbox1 = self.wait_for_and_find_element(*self._checkbox_launch_risk_locator)
+            checkbox2 = self.wait_for_and_find_element(*self._checkbox_launch_onboarding_locator)
             self.js_click(checkbox1)
             self.js_click(checkbox2)
 

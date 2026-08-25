@@ -125,20 +125,6 @@
               {% endfor %}
             </div>
           </div>
-          <div class="row mb-3">
-            <div class="col-10">
-              <label for="id_risk_message" class="form-label">
-                Does your experiment include ANY messages? If yes, this requires the
-                <a target="_blank"
-                   href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.message_consult_link }}">Message Consult</a>
-              </label>
-            </div>
-            <div class="col-2 text-end">
-              {{ form.risk_message|add_error_class:"is-invalid" }}
-              {% for error in form.risk_message.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-              {% for error in validation_errors.risk_message %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-            </div>
-          </div>
           <div class="row mb-2">
             <div class="col-12">
               <div>

@@ -1,0 +1,13 @@
+{% if experiment.is_draft and experiment.is_messaging_experiment and experiment.message_reviewer_id is None %}
+  <div class="alert alert-warning" role="alert">
+    <p>
+    This is a messaging {% if experiment.is_rollout %}rollout{% else %}experiment{% endif %} that has <em>not</em> gone through the
+    <a target="_blank"
+       href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.message_consult_link }}">Message Review</a>
+    process.
+    </p>
+    <p class="mb-0">
+    This process is optional, but is considered best practice in order to ensure that end users do not have degraded experiences due to multiple conflicting messages.
+    </p>
+  </div>
+{% endif %}
