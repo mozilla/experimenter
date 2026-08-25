@@ -150,7 +150,7 @@ jobs:
       contents: read
     env:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --rerun-show-tracebacks --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -189,7 +189,7 @@ jobs:
       contents: read
     env:
       FIREFOX_CHANNEL: ${{ matrix.channel }}
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --rerun-show-tracebacks --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -217,7 +217,7 @@ jobs:
       contents: read
     env:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -m nimbus_ui -n 4 --dist loadgroup --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -m nimbus_ui -n 4 --dist loadgroup --reruns 1 --rerun-show-tracebacks --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -254,7 +254,7 @@ jobs:
             marker: remote_settings_live_updates
     env:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m ${{ matrix.marker }} --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m ${{ matrix.marker }} --reruns 1 --rerun-show-tracebacks --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -281,7 +281,7 @@ jobs:
       contents: read
     env:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -m remote_settings_launch --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_ARGS: -m remote_settings_launch --reruns 1 --rerun-show-tracebacks --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
