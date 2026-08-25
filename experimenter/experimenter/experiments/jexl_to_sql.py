@@ -114,6 +114,103 @@ _USER_MONTHLY_ACTIVITY_COL = (
     "metrics.object.nimbus_targeting_context_user_monthly_activity"
 )
 
+# App slugs used to select the right mobile column map in jexl_to_sql().
+_FENIX_APP = "fenix"
+_IOS_APP = "ios"
+
+# Mobile BQ tables store all context as a JSON blob column. BOOL columns are wrapped in
+# CAST(col AS BOOL) so that _is_boolean_sql() detects them correctly and _coerce_to_bool()
+# does not try to compare a BOOL column against '' or 'false'.
+# Schema confirmed from live BQ queries against both tables.
+
+# Columns present as typed top-level fields in BOTH Fenix and iOS tables.
+_SHARED_MOBILE_COLUMNS = {
+    "locale": "locale",
+    "region": "region",
+    "language": "language",
+    "appVersion": "appVersion",
+    "app_version": "appVersion",
+    "isFirstRun": "CAST(isFirstRun AS BOOL)",
+    "is_first_run": "CAST(isFirstRun AS BOOL)",
+    "daysSinceInstall": "daysSinceInstall",
+    "days_since_install": "daysSinceInstall",
+    "daysSinceUpdate": "daysSinceUpdate",
+    "days_since_update": "daysSinceUpdate",
+    "eventQueryValues.daysOpenedInLast28": "eventQuery_daysOpenedInLast28",
+    "event_query_values.days_opened_in_last_28": "eventQuery_daysOpenedInLast28",
+    "userDisabledAi": "CAST(userDisabledAi AS BOOL)",
+    "user_disabled_ai": "CAST(userDisabledAi AS BOOL)",
+}
+
+# Fenix (Android) — moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context
+JEXL_TO_BQ_COLUMN_FENIX = {
+    **_SHARED_MOBILE_COLUMNS,
+    # Fenix-specific typed columns
+    "androidSdkVersion": "androidSdkVersion",
+    "android_sdk_version": "androidSdkVersion",
+    "deviceManufacturer": "deviceManufacturer",
+    "device_manufacturer": "deviceManufacturer",
+    "deviceModel": "deviceModel",
+    "device_model": "deviceModel",
+    "installReferrerResponseUtmSource": "installReferrerResponseUtmSource",
+    "install_referrer_response_utm_source": "installReferrerResponseUtmSource",
+    "installReferrerResponseUtmCampaign": "installReferrerResponseUtmCampaign",
+    "install_referrer_response_utm_campaign": "installReferrerResponseUtmCampaign",
+    "installReferrerResponseUtmMedium": "installReferrerResponseUtmMedium",
+    "install_referrer_response_utm_medium": "installReferrerResponseUtmMedium",
+    "installReferrerResponseUtmContent": "installReferrerResponseUtmContent",
+    "install_referrer_response_utm_content": "installReferrerResponseUtmContent",
+    "installReferrerResponseUtmTerm": "installReferrerResponseUtmTerm",
+    "install_referrer_response_utm_term": "installReferrerResponseUtmTerm",
+    "addonIds": "UNNEST(JSON_VALUE_ARRAY(addonIds))",
+    "addon_ids": "UNNEST(JSON_VALUE_ARRAY(addonIds))",
+    "userAcceptedTou": "CAST(userAcceptedTou AS BOOL)",
+    "user_accepted_tou": "CAST(userAcceptedTou AS BOOL)",
+    "noShortcutsOrStoriesOptOuts": "CAST(noShortcutsOrStoriesOptOuts AS BOOL)",
+    "no_shortcuts_or_stories_opt_outs": "CAST(noShortcutsOrStoriesOptOuts AS BOOL)",
+    "touPoints": "touPoints",
+    "tou_points": "touPoints",
+    "areNotificationsEnabled": "CAST(areNotificationsEnabled AS BOOL)",
+    "are_notifications_enabled": "CAST(areNotificationsEnabled AS BOOL)",
+    "areMarketingNotificationsEnabled": "CAST(areMarketingNotificationsEnabled AS BOOL)",
+    "are_marketing_notifications_enabled": (
+        "CAST(areMarketingNotificationsEnabled AS BOOL)"
+    ),
+    # JSON-only: in context blob but not a typed column on Fenix (iOS has it).
+    # Context keys are camelCase — confirmed from live data.
+    "isReviewCheckerEnabled": (
+        "CAST(JSON_VALUE(context, '$.isReviewCheckerEnabled') AS BOOL)"
+    ),
+    "is_review_checker_enabled": (
+        "CAST(JSON_VALUE(context, '$.isReviewCheckerEnabled') AS BOOL)"
+    ),
+}
+
+# iOS (Firefox for iOS)
+# moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context
+JEXL_TO_BQ_COLUMN_IOS = {
+    **_SHARED_MOBILE_COLUMNS,
+    # iOS-specific typed columns
+    "isDefaultBrowser": "CAST(isDefaultBrowser AS BOOL)",
+    "is_default_browser": "CAST(isDefaultBrowser AS BOOL)",
+    "isPhone": "CAST(isPhone AS BOOL)",
+    "is_phone": "CAST(isPhone AS BOOL)",
+    "isReviewCheckerEnabled": "CAST(isReviewCheckerEnabled AS BOOL)",
+    "is_review_checker_enabled": "CAST(isReviewCheckerEnabled AS BOOL)",
+    "isBottomToolbarUser": "CAST(isBottomToolbarUser AS BOOL)",
+    "is_bottom_toolbar_user": "CAST(isBottomToolbarUser AS BOOL)",
+    "hasEnabledTipsNotifications": "CAST(hasEnabledTipsNotifications AS BOOL)",
+    "has_enabled_tips_notifications": "CAST(hasEnabledTipsNotifications AS BOOL)",
+    "hasAcceptedTermsOfUse": "CAST(hasAcceptedTermsOfUse AS BOOL)",
+    "has_accepted_terms_of_use": "CAST(hasAcceptedTermsOfUse AS BOOL)",
+    "isAppleIntelligenceAvailable": "CAST(isAppleIntelligenceAvailable AS BOOL)",
+    "is_apple_intelligence_available": "CAST(isAppleIntelligenceAvailable AS BOOL)",
+    "cannotUseAppleIntelligence": "CAST(cannotUseAppleIntelligence AS BOOL)",
+    "cannot_use_apple_intelligence": "CAST(cannotUseAppleIntelligence AS BOOL)",
+    "touExperiencePoints": "touExperiencePoints",
+    "tou_experience_points": "touExperiencePoints",
+}
+
 # Attributes with no corresponding column in nimbus_targeting_context.
 KNOWN_UNTRANSLATABLE = {
     "attachedFxAOAuthClients",  # privacy-sensitive, will never be recorded
@@ -134,7 +231,10 @@ KNOWN_UNTRANSLATABLE = {
     "isDefaultHandler",  # file-type handler object, not directly queryable
     "localeLanguageCode",  # derived from locale, not recorded separately
     "homePageSettings",  # parent blocked; simple sub-fields mapped above
-    # Mobile-only attributes
+    # Mobile-only attributes — untranslatable on Desktop.
+    # Those in JEXL_TO_BQ_COLUMN_FENIX / JEXL_TO_BQ_COLUMN_IOS are handled
+    # by the mobile column maps when app="fenix" or app="ios".
+    # Those absent from the mobile maps are not recorded in the BQ context blob.
     "days_since_install",
     "days_since_update",
     "is_default_browser",
@@ -166,39 +266,47 @@ class JEXLToSQLResult:
     warnings: list[str]
 
 
-def jexl_to_sql(jexl_expression: str) -> JEXLToSQLResult:
+def jexl_to_sql(jexl_expression: str, app: Optional[str] = None) -> JEXLToSQLResult:
     """
     Translate a JEXL targeting expression into a BigQuery SQL WHERE clause.
 
+    Pass app="fenix" or app="ios" to use the mobile column mappings.
     Returns sql=None with a warnings list when nothing can be translated.
     Returns partial sql with warnings when only some clauses translate.
     """
+    if app == _FENIX_APP:
+        column_map = JEXL_TO_BQ_COLUMN_FENIX
+    elif app == _IOS_APP:
+        column_map = JEXL_TO_BQ_COLUMN_IOS
+    else:
+        column_map = JEXL_TO_BQ_COLUMN
+
     if not jexl_expression or jexl_expression == "true":
         return JEXLToSQLResult(sql=None, warnings=[])
 
     warnings: list[str] = []
     try:
         ast = JEXLParser().parse(jexl_expression)
-        sql = _node_to_sql(ast, warnings)
+        sql = _node_to_sql(ast, warnings, column_map)
     except Exception:
         return JEXLToSQLResult(sql=None, warnings=["__parse_error__"])
 
     return JEXLToSQLResult(sql=sql or None, warnings=warnings)
 
 
-def _node_to_sql(node, warnings: list[str]) -> Optional[str]:
+def _node_to_sql(node, warnings: list[str], column_map: dict[str, str]) -> Optional[str]:
     if isinstance(node, BinaryExpression):
-        return _binary_to_sql(node, warnings)
+        return _binary_to_sql(node, warnings, column_map)
     if isinstance(node, UnaryExpression):
-        return _unary_to_sql(node, warnings)
+        return _unary_to_sql(node, warnings, column_map)
     if isinstance(node, Identifier):
-        return _identifier_to_sql(node, warnings)
+        return _identifier_to_sql(node, warnings, column_map)
     if isinstance(node, Literal):
         return _literal_to_sql(node)
     if isinstance(node, ArrayLiteral):
-        return _array_to_sql(node, warnings)
+        return _array_to_sql(node, warnings, column_map)
     if isinstance(node, Transform):
-        return _transform_to_sql(node, warnings)
+        return _transform_to_sql(node, warnings, column_map)
     if isinstance(node, FilterExpression):
         subject_path = _identifier_path(node.subject)
         # addonsInfo.addons['addon-id'] — check addon ID membership in BQ array
@@ -212,17 +320,19 @@ def _node_to_sql(node, warnings: list[str]) -> Optional[str]:
     return None
 
 
-def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]:
+def _binary_to_sql(
+    node: BinaryExpression, warnings: list[str], column_map: dict[str, str]
+) -> Optional[str]:
     op = node.operator.symbol
 
     if _is_version_compare_node(node.left) and isinstance(node.right, Literal):
-        return _version_compare_binary_to_sql(node, warnings)
+        return _version_compare_binary_to_sql(node, warnings, column_map)
     if _is_version_compare_node(node.right) and isinstance(node.left, Literal):
-        return _version_compare_binary_to_sql_reversed(node, warnings)
+        return _version_compare_binary_to_sql_reversed(node, warnings, column_map)
 
     if op in ("&&", "||"):
-        left = _node_to_sql(node.left, warnings)
-        right = _node_to_sql(node.right, warnings)
+        left = _node_to_sql(node.left, warnings, column_map)
+        right = _node_to_sql(node.right, warnings, column_map)
         if left and right:
             sql_op = "AND" if op == "&&" else "OR"
             # BigQuery requires BOOL operands for AND/OR.
@@ -232,8 +342,8 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
             return f"({left} {sql_op} {right})"
         return left or right
 
-    left = _node_to_sql(node.left, warnings)
-    right = _node_to_sql(node.right, warnings)
+    left = _node_to_sql(node.left, warnings, column_map)
+    right = _node_to_sql(node.right, warnings, column_map)
     if left is None or right is None:
         return None
 
@@ -310,9 +420,11 @@ def _binary_to_sql(node: BinaryExpression, warnings: list[str]) -> Optional[str]
     return None
 
 
-def _unary_to_sql(node: UnaryExpression, warnings: list[str]) -> Optional[str]:
+def _unary_to_sql(
+    node: UnaryExpression, warnings: list[str], column_map: dict[str, str]
+) -> Optional[str]:
     if node.operator.symbol == "!":
-        inner = _node_to_sql(node.right, warnings)
+        inner = _node_to_sql(node.right, warnings, column_map)
         if inner:
             if _is_boolean_sql(inner):
                 return f"NOT ({inner})"
@@ -321,15 +433,18 @@ def _unary_to_sql(node: UnaryExpression, warnings: list[str]) -> Optional[str]:
     return None  # pragma: no cover — pyjexl only produces UnaryExpression for "!"
 
 
-def _identifier_to_sql(node: Identifier, warnings: list[str]) -> Optional[str]:
+def _identifier_to_sql(
+    node: Identifier, warnings: list[str], column_map: dict[str, str]
+) -> Optional[str]:
     path = _identifier_path(node)
 
     if path == "null":
         return "NULL"
 
-    # Explicit mappings take priority over parent being in KNOWN_UNTRANSLATABLE
-    if path in JEXL_TO_BQ_COLUMN:
-        return JEXL_TO_BQ_COLUMN[path]
+    # column_map takes priority — covers both direct columns and JSON_VALUE expressions.
+    # KNOWN_UNTRANSLATABLE is a secondary hint for Desktop paths we know will never map.
+    if path in column_map:
+        return column_map[path]
 
     if _is_untranslatable(path):
         _add_warning(warnings, path)
@@ -349,26 +464,34 @@ def _literal_to_sql(node: Literal) -> str:
     return str(value)
 
 
-def _array_to_sql(node: ArrayLiteral, warnings: list[str]) -> Optional[str]:
-    items = [_node_to_sql(item, warnings) for item in node.value]
+def _array_to_sql(
+    node: ArrayLiteral, warnings: list[str], column_map: dict[str, str]
+) -> Optional[str]:
+    items = [_node_to_sql(item, warnings, column_map) for item in node.value]
     items = [i for i in items if i is not None]
     if not items:
         return None
     return f"({', '.join(items)})"
 
 
-def _transform_to_sql(node: Transform, warnings: list[str]) -> Optional[str]:
+def _transform_to_sql(
+    node: Transform, warnings: list[str], column_map: dict[str, str]
+) -> Optional[str]:
     subject_path = _identifier_path(node.subject)
 
     # If the subject itself is untranslatable, warn about it rather than the transform
-    if subject_path and _is_untranslatable(subject_path):
+    if (
+        subject_path
+        and subject_path not in column_map
+        and _is_untranslatable(subject_path)
+    ):
         _add_warning(warnings, subject_path)
         return None
 
     if node.name == "date":
         # profileAgeCreated is epoch ms — return column directly for arithmetic
-        if subject_path == "profileAgeCreated":
-            return JEXL_TO_BQ_COLUMN["profileAgeCreated"]
+        if subject_path == "profileAgeCreated" and "profileAgeCreated" in column_map:
+            return column_map["profileAgeCreated"]
         if subject_path == "currentDate":
             return "UNIX_MILLIS(CURRENT_TIMESTAMP())"
         _add_warning(warnings, "|date")
@@ -377,18 +500,19 @@ def _transform_to_sql(node: Transform, warnings: list[str]) -> Optional[str]:
     if node.name == "length":
         # BigQuery has no JSON_ARRAY_LENGTH for STRING columns — metrics.object.*
         # columns are JSON strings, so use ARRAY_LENGTH(JSON_QUERY_ARRAY(...)).
-        subject_sql = _node_to_sql(node.subject, warnings)
+        subject_sql = _node_to_sql(node.subject, warnings, column_map)
         if subject_sql:
             return f"ARRAY_LENGTH(JSON_QUERY_ARRAY({subject_sql}))"
         _add_warning(warnings, "|length")
         return None
 
     if node.name == "preferenceValue":
+        # Desktop-only: pref data lives in a Glean metrics column that does not exist
+        # in mobile BQ tables. Warn and bail when running against a mobile column map.
+        if "firefoxVersion" not in column_map:
+            _add_warning(warnings, "|preferenceValue")
+            return None
         # Pref names stored with dots replaced by __ in BigQuery.
-        # Returns the raw JSON string value — callers that need a boolean comparison
-        # (e.g. pref == 'value') get a STRING they can compare against.
-        # Boolean prefs used as bare truthy values in JEXL (e.g. pref|preferenceValue
-        # in an && chain) are handled by _is_boolean_sql recognizing this pattern.
         pref_name = _literal_value(node.subject)
         if pref_name:
             bq_key = pref_name.replace(".", "__")
@@ -397,6 +521,10 @@ def _transform_to_sql(node: Transform, warnings: list[str]) -> Optional[str]:
         return None
 
     if node.name == "preferenceIsUserSet":
+        # Desktop-only: same reasoning as preferenceValue above.
+        if "firefoxVersion" not in column_map:
+            _add_warning(warnings, "|preferenceIsUserSet")
+            return None
         # user_set_prefs is a JSON array of pref names (using original dot notation)
         pref_name = _literal_value(node.subject)
         if pref_name:
@@ -422,7 +550,7 @@ def _extract_major_version(version_str: str) -> Optional[int]:
 
 
 def _version_compare_binary_to_sql(
-    node: BinaryExpression, warnings: list[str]
+    node: BinaryExpression, warnings: list[str], column_map: dict[str, str]
 ) -> Optional[str]:
     """version|versionCompare('X.!') <op> 0 → firefox_version <op> X"""
     return _version_compare_binary_to_sql_with(
@@ -430,11 +558,12 @@ def _version_compare_binary_to_sql(
         op_symbol=node.operator.symbol,
         comparand_value=node.right.value,
         warnings=warnings,
+        column_map=column_map,
     )
 
 
 def _version_compare_binary_to_sql_reversed(
-    node: BinaryExpression, warnings: list[str]
+    node: BinaryExpression, warnings: list[str], column_map: dict[str, str]
 ) -> Optional[str]:
     # 0 <= version|versionCompare('X') → flip operands and operator, reuse same logic
     reverse_op = {
@@ -457,11 +586,16 @@ def _version_compare_binary_to_sql_reversed(
         op_symbol=flipped_op,
         comparand_value=node.left.value,
         warnings=warnings,
+        column_map=column_map,
     )
 
 
 def _version_compare_binary_to_sql_with(
-    transform, op_symbol: str, comparand_value, warnings: list[str]
+    transform,
+    op_symbol: str,
+    comparand_value,
+    warnings: list[str],
+    column_map: dict[str, str],
 ) -> Optional[str]:
     if comparand_value != 0:
         _add_warning(warnings, "|versionCompare")
@@ -470,6 +604,11 @@ def _version_compare_binary_to_sql_with(
     subject_path = _identifier_path(transform.subject)
     if subject_path != "version":
         _add_warning(warnings, subject_path or "|versionCompare")
+        return None
+
+    version_col = column_map.get("firefoxVersion")
+    if version_col is None:
+        _add_warning(warnings, "|versionCompare")
         return None
 
     if not transform.args:
@@ -490,7 +629,7 @@ def _version_compare_binary_to_sql_with(
         _add_warning(warnings, "|versionCompare")
         return None
 
-    return f"{JEXL_TO_BQ_COLUMN['firefoxVersion']} {sql_op} {major}"
+    return f"{version_col} {sql_op} {major}"
 
 
 def _identifier_path(node) -> str:
