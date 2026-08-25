@@ -59,10 +59,10 @@
             {% if experiment.latest_review_requested_by == user.email %}
               <button type="button"
                       id="rollout-review-cancel-btn"
-                      class="btn btn-secondary btn-sm w-100 mb-2 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button"
+                      class="btn btn-secondary btn-sm w-100 mb-2 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
                       hx-post="{% url controls.reject_url experiment.slug %}"
                       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                      hx-disabled-elt="this"
+                      hx-disabled-elt=".sidebar-action-button"
                       hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}"}'>
                 {% include "new/common/sidebar_transition_spinner.html" %}
 
@@ -80,7 +80,7 @@
               <div class="d-flex flex-column gap-2">
                 <button type="button"
                         id="rollout-review-reject-btn"
-                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
                         data-bs-toggle="collapse"
                         data-bs-target="#rollout-reject-form"
                         aria-expanded="false"
@@ -90,12 +90,8 @@
                 </button>
                 <button type="button"
                         id="rollout-review-approve-btn"
-                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button"
-                        hx-post="{% url controls.approve_url experiment.slug %}"
-                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                        hx-disabled-elt="this"
-                        {% if setup_issues_count %}{% if experiment.is_draft or controls.action_label == "Advance to Next Phase" %}disabled{% endif %}
-                        {% endif %}>
+                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2{% if controls.approval_blocked_by_setup_issues and setup_issues_count %} opacity-50{% else %} sidebar-action-button{% endif %}"
+                        {% if controls.approval_blocked_by_setup_issues and setup_issues_count %} disabled aria-disabled="true" {% else %} hx-post="{% url controls.approve_url experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt=".sidebar-action-button" {% endif %}>
                   {% include "new/common/sidebar_transition_spinner.html" %}
 
                   <i class="fa-regular fa-circle-check"></i>
@@ -113,10 +109,10 @@
                           rows="3"></textarea>
                 <button type="button"
                         id="rollout-review-submit-reject-btn"
-                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button"
+                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
                         hx-post="{% url controls.reject_url experiment.slug %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                        hx-disabled-elt="this"
+                        hx-disabled-elt=".sidebar-action-button"
                         hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}"}'
                         hx-include="#rollout-reject-message">
                   {% include "new/common/sidebar_transition_spinner.html" %}

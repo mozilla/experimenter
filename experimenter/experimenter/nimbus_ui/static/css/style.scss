@@ -379,11 +379,11 @@
   }
 }
 
-.sidebar-transition-button .sidebar-transition-spinner {
+.sidebar-transition-spinner {
   display: none;
 }
 
-.sidebar-transition-button.htmx-request {
+.sidebar-action-button.htmx-request {
   opacity: 0.55;
   pointer-events: none;
 
@@ -394,6 +394,12 @@
   .sidebar-transition-spinner {
     display: inline-block;
   }
+}
+
+body:has(.sidebar-action-button.htmx-request)
+  .sidebar-action-button:not(.htmx-request) {
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .rollout-page {
