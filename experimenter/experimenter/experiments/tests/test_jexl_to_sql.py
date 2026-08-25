@@ -3,6 +3,7 @@ from parameterized import parameterized
 
 from experimenter.experiments.jexl_to_sql import (
     KNOWN_UNTRANSLATABLE,
+    ensure_bool_sql,
     jexl_to_sql,
 )
 from experimenter.targeting.constants import (
@@ -331,11 +332,62 @@ class TestJEXLToSQL(TestCase):
 
     # --- Transforms ---
 
+    def test_bool_arithmetic_casts_to_int64(self):
+        # JEXL pattern `(bool && 1 || 0) + (bool && 1 || 0)` sums booleans.
+        # BigQuery can't add BOOLs — each must be CAST to INT64.
+        result = jexl_to_sql("(isDefaultBrowser && 1 || 0) + (isFxASignedIn && 1 || 0)")
+        self.assertIsNotNone(result.sql)
+        self.assertIn("CAST(", result.sql)
+        self.assertIn("AS INT64)", result.sql)
+
+    def test_coerce_to_bool_numeric_truthy(self):
+        # JEXL pattern `bool && 1 || 0` uses literal 1/0 as ternary values.
+        # _coerce_to_bool("1") must not produce `1 != ''` (INT64 vs STRING).
+        result = jexl_to_sql("isDefaultBrowser && 1 || 0")
+        self.assertIsNotNone(result.sql)
+        self.assertNotIn("1 != ''", result.sql)
+        self.assertNotIn("0 != ''", result.sql)
+
+    def test_ensure_bool_sql_passes_through_bool_expression(self):
+        sql = "metrics.boolean.nimbus_targeting_context_is_default_browser"
+        self.assertEqual(ensure_bool_sql(sql), sql)
+
+    def test_ensure_bool_sql_coerces_json_value_string(self):
+        # Bare preferenceValue → STRING; ensure_bool_sql makes it BOOL-safe.
+        _pref = "metrics.object.nimbus_targeting_environment_pref_values"
+        sql = f"JSON_VALUE({_pref}, '$.pref')"
+        result = ensure_bool_sql(sql)
+        self.assertIn("IS NOT NULL", result)
+        self.assertIn("!= ''", result)
+        self.assertIn("!= 'false'", result)
+
     def test_preference_value_dots_to_underscores(self):
         result = jexl_to_sql("'browser.urlbar.quicksuggest'|preferenceValue")
         self.assertIn(_PREF, result.sql)
         self.assertIn("browser__urlbar__quicksuggest", result.sql)
         self.assertEqual(result.warnings, [])
+
+    def test_preference_value_compared_with_integer_casts_to_float(self):
+        # JSON_VALUE returns STRING; comparing with an integer requires SAFE_CAST.
+        result = jexl_to_sql("'termsofuse.acceptedVersion'|preferenceValue >= 4")
+        self.assertIsNotNone(result.sql)
+        self.assertIn("SAFE_CAST(", result.sql)
+        self.assertIn("AS FLOAT64)", result.sql)
+        self.assertIn(">= 4", result.sql)
+
+    def test_preference_value_multiplied_by_integer_casts_to_float(self):
+        # The pattern `pref|preferenceValue * 1` converts a string pref to a number.
+        result = jexl_to_sql("'termsofuse.acceptedDate'|preferenceValue * 1")
+        self.assertIsNotNone(result.sql)
+        self.assertIn("SAFE_CAST(", result.sql)
+        self.assertIn("AS FLOAT64)", result.sql)
+
+    def test_integer_compared_with_preference_value_casts_to_float(self):
+        # Reversed operand order: numeric literal on the left.
+        result = jexl_to_sql("4 <= 'termsofuse.acceptedVersion'|preferenceValue")
+        self.assertIsNotNone(result.sql)
+        self.assertIn("SAFE_CAST(", result.sql)
+        self.assertIn("AS FLOAT64)", result.sql)
 
     def test_preference_is_user_set(self):
         result = jexl_to_sql("'browser.newtabpage.enabled'|preferenceIsUserSet")

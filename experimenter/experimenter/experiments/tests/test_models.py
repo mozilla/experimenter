@@ -645,12 +645,31 @@ class TestNimbusExperiment(TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
         )
         self.assertEqual(
-            experiment.sizing_sql,
+            experiment.sizing_sql_display,
             "(("
             "JSON_VALUE(metrics.object.nimbus_targeting_context_browser_settings,"
             " '$.update.channel') IN ('release'))\n"
             "AND metrics.quantity.nimbus_targeting_context_firefox_version >= 120)",
         )
+
+    def test_sizing_sql_predicate_coerces_string_returning_expression(self):
+        # urlbar_firefox_suggest uses bare 'pref'|preferenceValue which returns a
+        # STRING from JSON_VALUE. sizing_sql_predicate must coerce it to BOOL so
+        # it is safe to use in a BigQuery WHERE clause or COUNTIF.
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug="urlbar_firefox_suggest",
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            locales=[],
+            countries=[],
+            languages=[],
+        )
+        _pref_col = "metrics.object.nimbus_targeting_environment_pref_values"
+        raw = f"JSON_VALUE({_pref_col}, '$.browser__urlbar__showSearchSuggestionsFirst')"
+        coerced = f"({raw} IS NOT NULL AND {raw} != '' AND {raw} != 'false')"
+        self.assertEqual(experiment.sizing_sql_predicate, coerced)
 
     def test_sizing_full_sql_returns_none_when_no_predicate(self):
         experiment = NimbusExperimentFactory.create(
@@ -679,7 +698,7 @@ class TestNimbusExperiment(TestCase):
             risk_ai=False,
         )
         self.assertEqual(experiment.targeting, "true")
-        self.assertIsNone(experiment.sizing_sql)
+        self.assertIsNone(experiment.sizing_sql_display)
 
     def test_get_detail_url_uses_legacy_url_for_experiment(self):
         experiment = NimbusExperimentFactory.create(slug="my-experiment")
