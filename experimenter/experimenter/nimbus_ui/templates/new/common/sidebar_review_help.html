@@ -1,0 +1,17 @@
+<p class="small text-body mb-2">
+  Ask someone on your team with
+  <a href="{{ NimbusUIConstants.REVIEW_URL }}"
+     target="_blank"
+     rel="noopener noreferrer"
+     class="text-decoration-none">review privileges</a>
+  or a qualified reviewer to {{ action }}.
+</p>
+<p class="small text-body mb-2">
+  If you don't have a team reviewer, paste the experiment URL in
+  <strong>#ask-experimenter</strong> and ask for a review.
+</p>
+<a href="#"
+   class="small text-decoration-none"
+   onclick="navigator.clipboard.writeText(window.location.href).then(() => alert('URL copied to clipboard!')); return false;">
+  Click here to copy the URL to send them.
+</a>

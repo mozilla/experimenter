@@ -28,6 +28,23 @@ document.addEventListener("click", (event) => {
   }
 });
 
+const expandCard = (card) => {
+  const collapse = card.querySelector(".accordion-collapse");
+  if (collapse && !collapse.classList.contains("show")) {
+    window.bootstrap?.Collapse.getOrCreateInstance(collapse, {
+      toggle: false,
+    }).show();
+  }
+};
+
+document.addEventListener("click", (event) => {
+  const editButton = event.target.closest?.("[data-card-action='edit']");
+  const card = editButton?.closest(".rollout-card");
+  if (card) {
+    expandCard(card);
+  }
+});
+
 let pendingCardId = null;
 
 document.addEventListener("htmx:beforeRequest", (event) => {

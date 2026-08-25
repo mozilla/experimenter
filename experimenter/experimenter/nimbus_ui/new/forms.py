@@ -983,35 +983,35 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         prefix = "branch-feature-value"
         total_forms_key = f"{prefix}-TOTAL_FORMS"
         total_forms = int(data[total_forms_key])
+        selected = self._get_selected_feature_config_ids(data)
 
-        for feature_config_id in self._get_new_feature_config_ids(
-            data, prefix, total_forms
-        ):
-            data[f"{prefix}-{total_forms}-feature_config"] = feature_config_id
-            data[f"{prefix}-{total_forms}-value"] = "{}"
-            total_forms += 1
+        for index in range(total_forms):
+            feature_config_id = data.get(f"{prefix}-{index}-feature_config")
+            if feature_config_id and int(feature_config_id) not in selected:
+                data[f"{prefix}-{index}-DELETE"] = "on"
 
-        data[total_forms_key] = str(total_forms)
-        return data
-
-    def _get_new_feature_config_ids(self, data, prefix, total_forms):
-        selected_values = self.fields["feature_configs"].widget.value_from_datadict(
-            data, self.files, "feature_configs"
-        )
-        selected = [
-            int(feature_config_id)
-            for feature_config_id in selected_values or []
-            if feature_config_id
-        ]
         submitted = {
             int(data[f"{prefix}-{index}-feature_config"])
             for index in range(total_forms)
             if data.get(f"{prefix}-{index}-feature_config")
         }
+        for feature_config_id in selected:
+            if feature_config_id not in submitted:
+                data[f"{prefix}-{total_forms}-feature_config"] = feature_config_id
+                data[f"{prefix}-{total_forms}-value"] = "{}"
+                total_forms += 1
+
+        data[total_forms_key] = str(total_forms)
+        return data
+
+    def _get_selected_feature_config_ids(self, data):
+        selected_values = self.fields["feature_configs"].widget.value_from_datadict(
+            data, self.files, "feature_configs"
+        )
         return [
-            feature_config_id
-            for feature_config_id in selected
-            if feature_config_id not in submitted
+            int(feature_config_id)
+            for feature_config_id in selected_values or []
+            if feature_config_id
         ]
 
     @property

@@ -29,6 +29,7 @@ from experimenter.experiments.models import (
 from experimenter.experiments.tests.factories import (
     TINY_PNG,
     NimbusBranchScreenshotFactory,
+    NimbusChangeLogFactory,
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -700,7 +701,11 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         setup_issues = response.context["setup_issues"]
         self.assertEqual(
             response.context["setup_issues_count"],
-            sum(len(group["fields"]) for group in setup_issues),
+            sum(
+                len(field["messages"])
+                for group in setup_issues
+                for field in group["fields"]
+            ),
         )
         for group in setup_issues:
             self.assertIn("section", group)
@@ -802,7 +807,269 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertContains(response, 'id="rollout-card-overview-summary"')
         self.assertContains(response, "Observations &amp; Problem Space")
 
-    def test_reference_branch_errors_deduped_into_one_field(self):
+    @parameterized.expand(
+        [
+            (NimbusExperiment.PublishStatus.APPROVED,),
+            (NimbusExperiment.PublishStatus.WAITING,),
+        ]
+    )
+    def test_sidebar_shows_waiting_state_for_review_requester(self, publish_status):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=publish_status,
+            is_rollout=True,
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=self.user,
+            old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(experiment.should_show_remote_settings_pending(self.user))
+        self.assertContains(response, "Waiting for Remote Settings")
+        self.assertContains(response, "review privileges")
+        self.assertContains(response, "#ask-experimenter")
+        self.assertContains(response, experiment.review_messages())
+        self.assertNotContains(response, "Open Remote Settings")
+        self.assertNotContains(response, 'id="rollout-remote-settings-link"')
+
+    @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
+    def test_sidebar_keeps_action_required_panel_for_reviewer(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            is_rollout=True,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
+        )
+
+        self.assertContains(response, "Action required")
+        self.assertContains(response, "Review this change in Remote Settings to")
+        self.assertContains(response, "Open Remote Settings")
+        self.assertNotContains(response, "Waiting for Remote Settings")
+
+    def test_sidebar_hides_waiting_state_when_publish_status_idle(self):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertNotContains(response, "Waiting for Remote Settings")
+        self.assertNotContains(response, 'id="rollout-remote-settings-link"')
+
+    @parameterized.expand(
+        [
+            ({"feature_values": [{"value": ["boom"]}]}, ["boom"], []),
+            ({"feature_values": [{"feature_config": ["boom"]}]}, ["boom"], []),
+            (["boom"], ["boom"], []),
+            ({"name": ["boom"]}, ["boom"], []),
+            ({"screenshots": [{"image": ["boom"]}]}, [], ["boom"]),
+            (
+                {"screenshots": [{"image": ["one"], "description": ["two"]}]},
+                [],
+                ["one", "two"],
+            ),
+        ]
+    )
+    def test_branch_errors_reach_the_readonly_card(
+        self, branch_errors, expected_features, expected_screenshots
+    ):
+        experiment = NimbusExperimentFactory.create(is_rollout=True)
+        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+
+        with mock.patch.object(
+            NimbusExperiment,
+            "get_invalid_fields_errors",
+            return_value={"reference_branch": branch_errors},
+        ):
+            response = self.client.get(url)
+
+        self.assertEqual(response.context["feature_value_errors"], expected_features)
+        self.assertEqual(response.context["screenshot_errors"], expected_screenshots)
+        for message in expected_features + expected_screenshots:
+            self.assertContains(response, message)
+
+    def test_screenshot_errors_reach_the_edit_form_per_screenshot(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+        experiment.reference_branch.screenshots.all().delete()
+        clean_screenshot = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+        broken_screenshot = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+        broken_screenshot.image = None
+        broken_screenshot.description = ""
+        broken_screenshot.save()
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-new-update-rollout-features",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+
+        screenshot_errors = response.context["validation_errors"][
+            "reference_branch_screenshots"
+        ]
+        self.assertEqual(screenshot_errors[0], {})
+        self.assertIn("image", screenshot_errors[1])
+        self.assertIn("description", screenshot_errors[1])
+        self.assertContains(response, "This field may not be blank.", count=2)
+        self.assertContains(response, clean_screenshot.description)
+
+    def test_documentation_link_errors_shown_when_there_are_no_links(self):
+        experiment = NimbusExperimentFactory.create(is_rollout=True)
+        experiment.documentation_links.all().delete()
+        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+
+        with mock.patch.object(
+            NimbusExperiment,
+            "get_invalid_fields_errors",
+            return_value={"documentation_links": [{"link": ["Enter a valid URL."]}]},
+        ):
+            response = self.client.get(url)
+
+        self.assertEqual(
+            response.context["documentation_link_errors"], ["Enter a valid URL."]
+        )
+        self.assertContains(response, "Enter a valid URL.")
+
+    @parameterized.expand(
+        [
+            ("new-nimbus-ui-rollout-detail",),
+            ("nimbus-ui-new-update-overview",),
+        ]
+    )
+    def test_documentation_link_errors_render_as_messages_not_raw_dicts(self, url_name):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, is_rollout=True
+        )
+        experiment.documentation_links.all().delete()
+        link = NimbusDocumentationLinkFactory.create(experiment=experiment)
+        link.title = ""
+        link.link = ""
+        link.save()
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": experiment.slug}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "ErrorDetail")
+        self.assertNotContains(response, "is not a valid choice")
+        self.assertContains(response, "This field may not be blank.")
+
+    def test_documentation_link_title_only_error_is_not_reported(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, is_rollout=True
+        )
+        experiment.documentation_links.all().delete()
+        link = NimbusDocumentationLinkFactory.create(experiment=experiment)
+        link.title = ""
+        link.save()
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertNotIn("documentation_links", response.context["validation_errors"])
+        self.assertEqual(response.context["documentation_link_errors"], [])
+        self.assertNotContains(response, "is not a valid choice")
+
+    def test_readonly_card_error_lists_empty_without_errors(self):
+        experiment = NimbusExperimentFactory.create(is_rollout=True)
+
+        with mock.patch.object(
+            NimbusExperiment, "get_invalid_fields_errors", return_value={}
+        ):
+            context = self.client.get(
+                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+            ).context
+
+        self.assertEqual(context["feature_value_errors"], [])
+        self.assertEqual(context["screenshot_errors"], [])
+        self.assertEqual(context["documentation_link_errors"], [])
+
+    def test_fields_sharing_a_row_are_merged_into_one_label(self):
+        experiment = NimbusExperimentFactory.create(is_rollout=True)
+        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+
+        with mock.patch.object(
+            NimbusExperiment,
+            "get_invalid_fields_errors",
+            return_value={
+                "reference_branch": {
+                    "feature_values": [
+                        {"value": ["This field may not be blank."]},
+                        {"value": ["This field may not be blank."]},
+                    ]
+                },
+                "feature_configs": ["You must select a feature configuration."],
+            },
+        ):
+            context = self.client.get(url).context
+
+        (features_group,) = [
+            group
+            for group in context["setup_issues"]
+            if group["card_id"] == "rollout-features"
+        ]
+        self.assertEqual(
+            features_group["fields"],
+            [
+                {
+                    "label": "Feature Configuration",
+                    "messages": [
+                        "This field may not be blank.",
+                        "This field may not be blank.",
+                        "You must select a feature configuration.",
+                    ],
+                },
+            ],
+        )
+        self.assertEqual(context["setup_issues_count"], 3)
+
+    def test_setup_issues_count_counts_every_message_not_every_field(self):
+        experiment = NimbusExperimentFactory.create(is_rollout=True)
+        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+
+        with mock.patch.object(
+            NimbusExperiment,
+            "get_invalid_fields_errors",
+            return_value={
+                "reference_branch": {
+                    "feature_values": [
+                        {"value": ["This field may not be blank."]},
+                        {"value": ["This field may not be blank."]},
+                    ]
+                },
+                "name": ["This field may not be blank."],
+            },
+        ):
+            response = self.client.get(url)
+
+        self.assertEqual(response.context["setup_issues_count"], 3)
+        self.assertContains(response, "3 issues detected")
+
+    def test_reference_branch_errors_grouped_into_one_field(self):
         experiment = NimbusExperimentFactory.create(is_rollout=True)
         url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
 
@@ -822,7 +1089,7 @@ class TestNimbusRolloutDetailView(AuthTestCase):
 
         self.assertEqual(
             context["validation_errors"]["reference_branch"],
-            reference_branch_errors,
+            {"feature_values": reference_branch_errors["feature_values"]},
         )
         (features_group,) = [
             group
@@ -836,11 +1103,16 @@ class TestNimbusRolloutDetailView(AuthTestCase):
                     "label": "Feature Configuration",
                     "messages": [
                         "This field may not be blank.",
-                        "This field is required.",
+                        "This field may not be blank.",
                     ],
+                },
+                {
+                    "label": "Screenshots",
+                    "messages": ["This field is required."],
                 },
             ],
         )
+        self.assertEqual(context["screenshot_errors"], ["This field is required."])
 
     def test_preview_card_hidden_when_not_in_preview(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1269,6 +1541,18 @@ class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
 class TestNewRolloutFeaturesUpdateView(AuthTestCase):
     url_name = "nimbus-ui-new-update-rollout-features"
 
+    def features_data(self, feature_value, **kwargs):
+        return {
+            "rollout_experience": "Original rollout experience",
+            "branch-feature-value-TOTAL_FORMS": "1",
+            "branch-feature-value-INITIAL_FORMS": "1",
+            "branch-feature-value-0-id": feature_value.id,
+            "branch-feature-value-0-feature_config": feature_value.feature_config_id,
+            "branch-feature-value-0-value": feature_value.value,
+            "rollout-screenshots-TOTAL_FORMS": "0",
+            "rollout-screenshots-INITIAL_FORMS": "0",
+        } | kwargs
+
     def test_post_valid_saves_and_returns_display_card(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1325,6 +1609,114 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         experiment.refresh_from_db()
         self.assertEqual(experiment.takeaways_summary, "Original rollout experience")
         self.assertEqual(experiment.feature_configs.count(), 0)
+
+    def test_post_deselecting_feature_hides_editor_without_saving(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-deselected",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature_config
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.features_data(feature_value, feature_configs=[]),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/rollout_features/edit_form.html")
+        self.assertNotContains(response, 'data-feature-id="rollout-feature-deselected"')
+        experiment.refresh_from_db()
+        self.assertEqual(list(experiment.feature_configs.all()), [feature_config])
+        self.assertTrue(
+            experiment.reference_branch.feature_values.filter(
+                id=feature_value.id
+            ).exists()
+        )
+
+    def test_post_deselecting_feature_leaves_no_editor_to_attach_to(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-orphan",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature_config
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.features_data(feature_value, feature_configs=[]),
+        )
+
+        content = response.content.decode()
+        self.assertNotContains(response, "feature-value-editor")
+        self.assertIn('name="branch-feature-value-0-value"', content)
+        self.assertNotIn("value-editor", content.split("branch-feature-value-0-value")[1])
+
+    def test_post_deselecting_feature_drops_its_validation_errors(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-invalid",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature_config
+        )
+        data = self.features_data(feature_value, feature_configs=[feature_config.id])
+        del data["branch-feature-value-0-id"]
+
+        selected = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}), data
+        )
+        self.assertIn("branch_feature_values", selected.context["form"].errors)
+
+        deselected = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            data | {"feature_configs": []},
+        )
+
+        self.assertNotIn("branch_feature_values", deselected.context["form"].errors)
+        self.assertNotContains(deselected, 'data-feature-id="rollout-feature-invalid"')
+
+    def test_post_deselecting_feature_and_saving_deletes_the_stored_json(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-saved-delete",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature_config
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.features_data(feature_value, feature_configs=[], save="True"),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/rollout_features/card.html")
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.feature_configs.count(), 0)
+        self.assertEqual(experiment.reference_branch.feature_values.count(), 0)
 
 
 class TestNewRolloutScreenshotCreateView(AuthTestCase):

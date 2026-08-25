@@ -451,7 +451,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
                 ("Feature Configuration", ("feature_configs", "reference_branch")),
                 ("Warn On Schema Failure", ("warn_feature_schema",)),
                 ("Prevent Pref Conflicts", ("prevent_pref_conflicts",)),
-                ("Screenshots", ()),
+                ("Screenshots", ("reference_branch_screenshots",)),
                 (
                     "Firefox Labs",
                     (
