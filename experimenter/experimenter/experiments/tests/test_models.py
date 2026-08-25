@@ -3452,6 +3452,92 @@ class TestNimbusExperiment(TestCase):
         ]
         self.assertEqual(len(version_issues), 1)
 
+    # Firefox Desktop 156 is the first version that supports re-enabling a rollout
+    # under the same slug, so anything below it cannot be re-enabled once disabled.
+    @parameterized.expand(
+        [
+            (
+                False,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_100,
+                True,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_100,
+                True,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.NO_VERSION,
+                False,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_100,
+                False,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_156,
+                True,
+            ),
+        ]
+    )
+    def test_supports_rollout_reenable(
+        self, is_rollout, application, firefox_min_version, expected
+    ):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=is_rollout,
+            application=application,
+            firefox_min_version=firefox_min_version,
+        )
+
+        self.assertEqual(experiment.supports_rollout_reenable, expected)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Version.FIREFOX_100,
+                NimbusExperiment.Status.DRAFT,
+                True,
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_100,
+                NimbusExperiment.Status.LIVE,
+                True,
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_156,
+                NimbusExperiment.Status.DRAFT,
+                False,
+            ),
+            (
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Status.DRAFT,
+                True,
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_100,
+                NimbusExperiment.Status.DISABLED,
+                False,
+            ),
+        ]
+    )
+    def test_show_rollout_reenable_warning(self, firefox_min_version, status, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=firefox_min_version,
+        )
+
+        self.assertEqual(experiment.show_rollout_reenable_warning, expected)
+
     def test_allocate_buckets_generates_bucket_range(self):
         feature = NimbusFeatureConfigFactory(slug="feature")
         experiment = NimbusExperimentFactory.create_with_lifecycle(

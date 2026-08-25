@@ -464,7 +464,9 @@ def configured_rollout(selenium, create_rollout, default_data):
     audience.edit()
     if default_data.application != "firefox-desktop":
         audience.channel = "Beta"
-    audience.min_version = default_data.audience.min_version
+        audience.min_version = default_data.audience.min_version
+    else:
+        audience.min_version = helpers.ROLLOUT_REENABLE_MIN_VERSION
     audience.countries = ["Canada"]
     audience.is_sticky = True
     audience.save()

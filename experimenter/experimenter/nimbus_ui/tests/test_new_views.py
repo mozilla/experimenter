@@ -242,6 +242,7 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
             status_next=form_class.required_status_next,
             publish_status=form_class.required_publish_status,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         if url_name == "nimbus-ui-new-live-to-disabled-rollout":
             NimbusRolloutPhaseFactory.create(experiment=experiment)
@@ -436,6 +437,7 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
             status=NimbusExperiment.Status.DISABLED,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         final_phase = NimbusRolloutPhaseFactory.create(
             experiment=experiment, population_percent=25
@@ -467,6 +469,7 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
             status=NimbusExperiment.Status.DISABLED,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
 
         response = self.client.post(
@@ -598,18 +601,49 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             publish_status=publish_status,
         )
         NimbusRolloutPhaseFactory.create(experiment=experiment)
+        disable_url = reverse(
+            "nimbus-ui-new-live-to-disabled-rollout", kwargs={"slug": experiment.slug}
+        )
 
         response = self.client.get(
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
         )
 
         self.assertEqual(response.status_code, 200)
-        content = response.content.decode()
-        start = content.index('id="rollout-disable-btn"')
-        button_tag = content[start : content.index(">", start)]
-        self.assertNotIn("hx-post", button_tag)
-        button_tag = button_tag.replace('hx-disabled-elt="this"', "")
-        self.assertIn("disabled", button_tag)
+        self.assertContains(response, 'id="rollout-disable-btn"')
+        self.assertNotContains(response, disable_url)
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Version.FIREFOX_100, False),
+            (NimbusExperiment.Version.FIREFOX_156, True),
+        ]
+    )
+    def test_resume_button_disabled_below_min_reenable_version(
+        self, firefox_min_version, expected_enabled
+    ):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            status=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=firefox_min_version,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment)
+        reenable_url = reverse(
+            "nimbus-ui-new-disabled-to-live-rollout", kwargs={"slug": experiment.slug}
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="rollout-resume-btn"')
+        if expected_enabled:
+            self.assertContains(response, reenable_url)
+        else:
+            self.assertNotContains(response, reenable_url)
 
     def test_get_returns_new_rollout_detail_context(self):
         tag = TagFactory.create()

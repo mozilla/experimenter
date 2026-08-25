@@ -228,6 +228,7 @@
     </div>
   </div>
   {% if hx_swap_oob %}
+    {% include "new/common/rollout_reenable_warning.html" with oob=True %}
     {% include "new/common/audience_overlap_warnings.html" with oob=True %}
 
   {% endif %}

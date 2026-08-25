@@ -188,7 +188,11 @@
               {% endwith %}
               <p class="text-secondary mb-0" style="font-size: 12px;">
                 {% if experiment.is_disabled %}
-                  {{ NimbusUIConstants.ROLLOUT_DISABLED_MESSAGE }}
+                  {% if not experiment.supports_rollout_reenable %}
+                    {{ NimbusUIConstants.ROLLOUT_REENABLE_UNSUPPORTED_MESSAGE }}
+                  {% else %}
+                    {{ NimbusUIConstants.ROLLOUT_DISABLED_MESSAGE }}
+                  {% endif %}
                 {% else %}
                   {{ NimbusUIConstants.ROLLOUT_LIVE_MESSAGE }}
                 {% endif %}

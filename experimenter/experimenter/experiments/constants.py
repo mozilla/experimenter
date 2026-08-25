@@ -651,6 +651,10 @@ class NimbusConstants:
         Application.IOS: Version.FIREFOX_116,
     }
 
+    ROLLOUT_REENABLE_MIN_SUPPORTED_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_156,
+    }
+
     LOCALIZATION_SUPPORTED_VERSION = {
         Application.DESKTOP: Version.FIREFOX_113,
     }

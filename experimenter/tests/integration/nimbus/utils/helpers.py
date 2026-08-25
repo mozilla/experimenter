@@ -16,6 +16,10 @@ FIXTURES_DIR = Path(__file__).resolve().parents[1] / "fixtures"
 TARGETING_CONFIGS_PATH = FIXTURES_DIR / "targeting_configs.json"
 FEATURE_CONFIGS_PATH = FIXTURES_DIR / "feature_configs.json"
 
+# Mirrors ROLLOUT_REENABLE_MIN_SUPPORTED_VERSION in experimenter.experiments.constants
+# Rollouts below this version cannot be re-enabled once disabled.
+ROLLOUT_REENABLE_MIN_VERSION = "156.!"
+
 NO_FEATURE_SLUGS = {
     BaseExperimentApplications.FIREFOX_DESKTOP.value: "no-feature-firefox-desktop",
     BaseExperimentApplications.FIREFOX_FENIX.value: "no-feature-fenix",

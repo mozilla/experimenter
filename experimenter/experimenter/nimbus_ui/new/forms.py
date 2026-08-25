@@ -1168,6 +1168,7 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     required_publish_status = None
     required_is_paused = None
     requires_valid_rollout_launch = False
+    requires_rollout_reenable_support = False
 
     class Meta:
         model = NimbusExperiment
@@ -1228,6 +1229,14 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 raise forms.ValidationError(
                     NimbusUIConstants.ERROR_INVALID_ROLLOUT_LAUNCH
                 )
+
+        if (
+            self.requires_rollout_reenable_support
+            and not self.instance.supports_rollout_reenable
+        ):
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_ROLLOUT_REENABLE_UNSUPPORTED_VERSION
+            )
 
         return cleaned_data
 
@@ -1568,6 +1577,7 @@ class LiveToDisabledReviewRejectRolloutForm(CancelRequestMixin, UpdateStatusForm
 
 
 class DisabledToLiveReviewRolloutForm(SlackNotificationMixin, UpdateStatusForm):
+    requires_rollout_reenable_support = True
     required_status = NimbusExperiment.Status.DISABLED
     required_status_next = None
     required_publish_status = NimbusExperiment.PublishStatus.IDLE
@@ -1612,6 +1622,7 @@ class DisabledToLiveDuplicatePhaseReviewRolloutForm(DisabledToLiveReviewRolloutF
 
 
 class DisabledToLiveReviewApproveRolloutForm(UpdateStatusForm):
+    requires_rollout_reenable_support = True
     required_status = NimbusExperiment.Status.DISABLED
     required_status_next = NimbusExperiment.Status.LIVE
     required_publish_status = NimbusExperiment.PublishStatus.REVIEW
