@@ -1059,3 +1059,11 @@ webcompat-reporter-enhancements:
     enabled:
       type: boolean
       description: If true, WebCompat Reporter enhancements is enabled.
+weekly-privacy-notification:
+  description: A feature that shows a recurring weekly notification summarizing Tracking Protection activity.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the weekly privacy notification will be scheduled.
