@@ -36,6 +36,7 @@ from experimenter.nimbus_ui.new.forms import (
     LiveToDisabledReviewRolloutForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    NimbusFirefoxLabsCreateForm,
     NimbusRolloutCreateForm,
     PreviewReviewRolloutForm,
     PreviewToDraftRolloutForm,
@@ -106,6 +107,7 @@ class NimbusExperimentViewMixin:
         )
         context["all_tags"] = Tag.objects.all().order_by("name")
         context["create_form"] = NimbusExperimentCreateForm()
+        context["create_labs_form"] = NimbusFirefoxLabsCreateForm()
 
         if experiment and experiment.slug:
             context["slack_notifications_form"] = ToggleReviewSlackNotificationsForm(
@@ -145,6 +147,11 @@ class NimbusRolloutsCreateView(NimbusExperimentsCreateView):
 
     def get_redirect_url(self):
         return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.object.slug})
+
+
+class NimbusFirefoxLabsCreateView(NimbusExperimentsCreateView):
+    form_class = NimbusFirefoxLabsCreateForm
+    template_name = "nimbus_experiments/create.html"
 
 
 def build_experiment_context(experiment):
@@ -326,7 +333,9 @@ class NimbusRolloutDetailView(
         return context
 
     def get_queryset(self):
-        return super().get_queryset().filter(is_rollout=True)
+        return (
+            super().get_queryset().filter(is_rollout=True, is_firefox_labs_opt_in=False)
+        )
 
 
 class CardMixin:

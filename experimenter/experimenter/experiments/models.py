@@ -675,7 +675,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         ).exists()
 
     def get_detail_url(self):
-        if self.is_rollout and self.is_new_rollout_ui_enabled:
+        if (
+            self.is_rollout
+            and not self.is_firefox_labs_opt_in
+            and self.is_new_rollout_ui_enabled
+        ):
             return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.slug})
 
         return reverse("nimbus-ui-detail", kwargs={"slug": self.slug})

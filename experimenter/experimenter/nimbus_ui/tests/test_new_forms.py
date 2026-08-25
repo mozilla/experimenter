@@ -52,6 +52,7 @@ from experimenter.nimbus_ui.new.forms import (
     NimbusBranchFeatureValueForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    NimbusFirefoxLabsCreateForm,
     NimbusRolloutCreateForm,
     PreviewReviewRolloutForm,
     PreviewToDraftRolloutForm,
@@ -197,6 +198,45 @@ class TestNimbusRolloutCreateForm(RequestFormTestCase):
         self.assertTrue(rollout.is_rollout)
         self.assertEqual(rollout.branches.count(), 1)
         self.assertEqual(rollout.reference_branch.name, "Control")
+
+
+class TestNimbusFirefoxLabsCreateForm(RequestFormTestCase):
+    def test_form_creates_labs_rollout(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Labs",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusFirefoxLabsCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        labs = form.save()
+
+        self.assertTrue(labs.is_firefox_labs_opt_in)
+        self.assertTrue(labs.is_rollout)
+        self.assertEqual(labs.branches.count(), 1)
+        self.assertEqual(labs.reference_branch.name, "Control")
+
+    def test_form_only_offers_applications_supporting_labs(self):
+        form = NimbusFirefoxLabsCreateForm(request=self.request)
+
+        self.assertEqual(
+            [value for value, _ in form.fields["application"].choices],
+            [NimbusExperiment.Application.DESKTOP, NimbusExperiment.Application.FENIX],
+        )
+
+    def test_form_rejects_application_without_labs_support(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Labs",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.IOS,
+        }
+        form = NimbusFirefoxLabsCreateForm(data, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("application", form.errors)
 
 
 class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):

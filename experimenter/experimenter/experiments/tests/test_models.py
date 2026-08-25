@@ -728,6 +728,25 @@ class TestNimbusExperiment(TestCase):
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
         )
 
+    def test_get_detail_url_uses_legacy_url_for_labs_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        experiment = NimbusExperimentFactory.create(
+            slug="my-labs",
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        self.assertEqual(
+            experiment.get_detail_url(),
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
     def test_get_detail_url_caches_site_flag_query(self):
         experiment = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
 

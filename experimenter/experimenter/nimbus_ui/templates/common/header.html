@@ -84,7 +84,7 @@
               </button>
               <button id="create-new-rollout-button"
                       type="button"
-                      class="dropdown-item d-flex align-items-start gap-3 rounded-2 p-2 text-wrap"
+                      class="dropdown-item d-flex align-items-start gap-3 rounded-2 p-2 mb-2 text-wrap"
                       data-bs-toggle="modal"
                       data-bs-target="#createRolloutModal">
                 <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 bg-success-subtle text-success p-2 fs-5">
@@ -95,6 +95,19 @@
                   <span class="d-block small text-secondary">
                     Deliver new features to users early and safely—expand exposure over time and roll back instantly if needed. Ideal for staged launches without change metrics or statistical tracking.
                   </span>
+                </span>
+              </button>
+              <button id="create-new-labs-button"
+                      type="button"
+                      class="dropdown-item d-flex align-items-start gap-3 rounded-2 p-2 text-wrap"
+                      data-bs-toggle="modal"
+                      data-bs-target="#createLabsModal">
+                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 bg-warning-subtle text-warning-emphasis p-2 fs-5">
+                  <i class="fa-solid fa-flask"></i>
+                </span>
+                <span>
+                  <span class="d-block fw-semibold">Lab</span>
+                  <span class="d-block small text-secondary">{{ NimbusUIConstants.NEW_DELIVERY_LABS_DESCRIPTION }}</span>
                 </span>
               </button>
             </div>
@@ -299,6 +312,34 @@
                 hx-post="{% url 'nimbus-ui-new-create-rollout' %}"
                 hx-target="#createRolloutForm">
             {% include "nimbus_experiments/create.html" with form=create_form %}
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade"
+       id="createLabsModal"
+       tabindex="-1"
+       aria-labelledby="createLabsModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createLabsModalLabel">
+            <i class="fa-regular fa-pen-to-square me-1"></i>
+            Create Lab
+          </h5>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body bg-body-tertiary">
+          <form id="createLabsForm"
+                hx-post="{% url 'nimbus-ui-new-create-labs' %}"
+                hx-target="#createLabsForm">
+            {% include "nimbus_experiments/create.html" with form=create_labs_form %}
 
           </form>
         </div>
