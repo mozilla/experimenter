@@ -18,6 +18,7 @@ from nimbus.kinto.client import (
     KINTO_COLLECTION_DESKTOP,
     KINTO_COLLECTION_MOBILE,
     KintoClient,
+    kinto_diag_log,
 )
 from nimbus.models.base_dataclass import (
     BaseExperimentApplications,
@@ -170,12 +171,22 @@ def selenium(selenium, experiment_slug, kinto_client):
 
     yield selenium
 
+    # TEMP DO NOT MERGE: diagnostic instrumentation only.
+    rollout = None
     try:
-        if not helpers.is_rollout(experiment_slug):
+        rollout = helpers.is_rollout(experiment_slug)
+        kinto_diag_log(f"teardown.enter slug={experiment_slug} is_rollout={rollout}")
+        if not rollout:
             helpers.end_experiment(experiment_slug)
+            kinto_diag_log(f"teardown.ended slug={experiment_slug}")
             kinto_client().approve(retries=TEARDOWN_APPROVAL_RETRIES)
-    except Exception:
-        pass
+            kinto_diag_log(f"teardown.approved slug={experiment_slug}")
+        else:
+            kinto_diag_log(f"teardown.skipped slug={experiment_slug}")
+    except Exception as e:
+        kinto_diag_log(
+            f"teardown.swallowed slug={experiment_slug} is_rollout={rollout} error={e!r}"
+        )
 
 
 @pytest.fixture

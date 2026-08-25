@@ -217,7 +217,8 @@ jobs:
       contents: read
     env:
       FIREFOX_CHANNEL: release
-      PYTEST_ARGS: -m nimbus_ui -n 4 --dist loadgroup --reruns 1 --rerun-show-tracebacks --base-url https://nginx/nimbus/
+      # TEMP DO NOT MERGE: --count 3 provokes the ~9.5% intermittent failure.
+      PYTEST_ARGS: -m nimbus_ui -n 4 --dist loadgroup --count 3 --reruns 1 --rerun-show-tracebacks --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
