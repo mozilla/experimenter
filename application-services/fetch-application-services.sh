@@ -17,7 +17,7 @@ function download_megazord {
 
     curl --proto '=https' \
          --tlsv1.2 \
-         -sSL \
+         -fsSL \
          --output "${PROJECT}.zip" \
          "${URL}"
 
@@ -46,10 +46,12 @@ function prepare_megazord {
 }
 
 source application-services.env
+source megazords.env
 echo APPLICATION SERVICES VERSION "${APPLICATION_SERVICES_BUILD_ID}"
 
-download_megazord cirrus
-download_megazord nimbus-experimenter
+for MEGAZORD in ${MEGAZORDS}; do
+    download_megazord "${MEGAZORD}"
+done
 
 TARGET=$(/tmp/cirrus/scripts/detect-target.sh)
 
@@ -60,5 +62,6 @@ fi
 
 echo TARGET "${TARGET}"
 
-prepare_megazord cirrus "${TARGET}"
-prepare_megazord nimbus-experimenter "${TARGET}"
+for MEGAZORD in ${MEGAZORDS}; do
+    prepare_megazord "${MEGAZORD}" "${TARGET}"
+done
