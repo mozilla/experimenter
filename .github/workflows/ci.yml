@@ -139,6 +139,34 @@ jobs:
         if: steps.check-paths.outputs.should-run == 'true'
         run: make schemas_check
 
+  integration-cirrus:
+    name: "Cirrus Enrollment (Demo App)"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      CIRRUS: 1
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -k DEMO_APP -m cirrus_enrollment --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/experimenter/experiments/ experimenter/experimenter/kinto/ cirrus/ application-services/ experimenter/tests/integration/ experimenter/tests/nimbus_integration_tests.sh experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/run-integration-test
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          artifact-name: cirrus-enrollment-test-report
+
   integration-desktop-enrollment:
     strategy:
       fail-fast: false
