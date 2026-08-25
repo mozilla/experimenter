@@ -69,7 +69,7 @@ dependencies = [
     "responses==0.26.0",
     "ruff>=0.16.0,<0.17",
     "scipy>=1.15.0,<2",
-    "sentry-sdk>=2.66.0,<3",
+    "sentry-sdk>=2.68.0,<3",
     "slack-sdk>=3.43.0,<4",
     "sqlparse==0.6.0",
     "tblib==1.7.0",
