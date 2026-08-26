@@ -43,40 +43,44 @@
         {% for branch_feature_values_form in branch_feature_values %}
           {{ branch_feature_values_form.id }}
           {{ branch_feature_values_form.feature_config }}
-          <div class="row mt-2">
-            <div class="col">
-              <label class="small mb-2 text-secondary">
-                {{ branch_feature_values_form.instance.feature_config.name }}
-                {% if branch_feature_values_form.instance.allow_coenrollment %}
-                  <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
-                {% endif %}
-              </label>
-              <div class="feature-value-editor position-relative"
-                   data-nimbus-devtools-feature-editor
-                   data-feature-id="{{ branch_feature_values_form.instance.feature_config.slug }}">
-                {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
-                <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
-                  <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
-                    <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
-                            type="button"
-                            title="Preview with about:messagepreview"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                      <span class="fa fa-eye"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end text-nowrap">
-                    </ul>
+          {% if branch_feature_values_form.DELETE.value %}
+            {{ branch_feature_values_form.value.as_hidden }}
+          {% else %}
+            <div class="row mt-2">
+              <div class="col">
+                <label class="small mb-2 text-secondary">
+                  {{ branch_feature_values_form.instance.feature_config.name }}
+                  {% if branch_feature_values_form.instance.allow_coenrollment %}
+                    <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
+                  {% endif %}
+                </label>
+                <div class="feature-value-editor position-relative"
+                     data-nimbus-devtools-feature-editor
+                     data-feature-id="{{ branch_feature_values_form.instance.feature_config.slug }}">
+                  {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
+                  <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
+                    <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
+                      <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
+                              type="button"
+                              title="Preview with about:messagepreview"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false">
+                        <span class="fa fa-eye"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end text-nowrap">
+                      </ul>
+                    </div>
                   </div>
                 </div>
+                {% for error in branch_feature_values_form.value.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+                {% with fv_errors=validation_errors.reference_branch.feature_values|get_item:forloop.counter0 %}
+                  {% for error in fv_errors.value %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                {% endwith %}
               </div>
-              {% for error in branch_feature_values_form.value.errors %}
-                <div class="form-text text-danger">{{ error }}</div>
-              {% endfor %}
-              {% with fv_errors=validation_errors.reference_branch.feature_values|get_item:forloop.counter0 %}
-                {% for error in fv_errors.value %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-              {% endwith %}
             </div>
-          </div>
+          {% endif %}
         {% endfor %}
       </div>
     {% endwith %}
@@ -107,7 +111,7 @@
         {{ rollout_screenshots.management_form }}
         <div class="d-flex flex-column gap-2 mt-4">
           {% for screenshot_form in rollout_screenshots %}
-            {% with ss_errors=validation_errors.reference_branch.screenshots|get_item:forloop.counter0 %}
+            {% with ss_errors=validation_errors.reference_branch_screenshots|get_item:forloop.counter0 %}
               <div>
                 {{ screenshot_form.id }}
                 <div class="d-flex gap-3">

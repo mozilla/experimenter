@@ -263,19 +263,48 @@ class RolloutSetupProgressMixin:
             return [m for value in messages for m in self.flatten_errors(value)]
         return [str(messages)]
 
-    def unique_messages(self, messages):
-        seen = set()
-        unique = []
-        for message in self.flatten_errors(messages):
-            if message not in seen:
-                seen.add(message)
-                unique.append(message)
-        return unique
+    def drop_documentation_link_title_errors(self, field_errors):
+        # The title select has no blank option so a just-added link always errors
+        # until the next save picks up its default
+        errors = field_errors.get("documentation_links")
+        if not isinstance(errors, (list, tuple)):
+            return field_errors
+
+        remaining = [
+            {key: value for key, value in link.items() if key != "title"}
+            if isinstance(link, dict)
+            else link
+            for link in errors
+        ]
+        if any(remaining):
+            field_errors["documentation_links"] = remaining
+        else:
+            field_errors.pop("documentation_links")
+        return field_errors
+
+    def split_branch_screenshot_errors(self, field_errors):
+        branch_errors = field_errors.get("reference_branch")
+        if not isinstance(branch_errors, dict) or "screenshots" not in branch_errors:
+            return field_errors
+
+        branch_errors = dict(branch_errors)
+        screenshots = branch_errors.pop("screenshots")
+        if any(screenshots):
+            field_errors["reference_branch_screenshots"] = screenshots
+        if branch_errors:
+            field_errors["reference_branch"] = branch_errors
+        else:
+            field_errors.pop("reference_branch")
+        return field_errors
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        field_errors = self.object.get_invalid_fields_errors(
-            serializer_class=NimbusRolloutReviewSerializer
+        field_errors = self.split_branch_screenshot_errors(
+            self.drop_documentation_link_title_errors(
+                self.object.get_invalid_fields_errors(
+                    serializer_class=NimbusRolloutReviewSerializer
+                )
+            )
         )
         cards = NimbusUIConstants.ROLLOUT_CARD_FIELDS
 
@@ -295,19 +324,23 @@ class RolloutSetupProgressMixin:
                 field, (None, "Other", field.replace("_", " ").title())
             )
             group = groups.setdefault(
-                card_id, {"card_id": card_id, "section": section, "fields": []}
+                card_id, {"card_id": card_id, "section": section, "fields": {}}
             )
-            group["fields"].append(
-                {
-                    "label": label,
-                    "messages": self.unique_messages(messages),
-                }
-            )
+            group["fields"].setdefault(label, []).extend(self.flatten_errors(messages))
+        for group in groups.values():
+            group["fields"] = [
+                {"label": label, "messages": messages}
+                for label, messages in group["fields"].items()
+            ]
         issues = [groups[card_id] for card_id in cards if card_id in groups]
         if None in groups:
             issues.append(groups[None])
 
-        raw_error_fields = ("reference_branch", "documentation_links")
+        raw_error_fields = (
+            "reference_branch",
+            "reference_branch_screenshots",
+            "documentation_links",
+        )
         context["validation_errors"] = {
             field: (
                 messages if field in raw_error_fields else self.flatten_errors(messages)
@@ -315,7 +348,9 @@ class RolloutSetupProgressMixin:
             for field, messages in field_errors.items()
         }
         context["setup_issues"] = issues
-        context["setup_issues_count"] = sum(len(group["fields"]) for group in issues)
+        context["setup_issues_count"] = sum(
+            len(field["messages"]) for group in issues for field in group["fields"]
+        )
         context["setup_issue_card_ids"] = [
             issue["card_id"] for issue in issues if issue["card_id"]
         ]
@@ -329,7 +364,21 @@ class RolloutSetupProgressMixin:
             ]
             for card_id, card in cards.items()
         }
+        context.update(self.readonly_card_errors(field_errors))
         return context
+
+    def readonly_card_errors(self, field_errors):
+        return {
+            "feature_value_errors": self.flatten_errors(
+                field_errors.get("reference_branch") or []
+            ),
+            "screenshot_errors": self.flatten_errors(
+                field_errors.get("reference_branch_screenshots") or []
+            ),
+            "documentation_link_errors": self.flatten_errors(
+                field_errors.get("documentation_links") or []
+            ),
+        }
 
 
 class NimbusRolloutDetailView(

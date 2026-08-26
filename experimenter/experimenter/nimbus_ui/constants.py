@@ -1,5 +1,7 @@
 from enum import Enum, IntEnum
 
+from django.conf import settings
+
 from experimenter.experiments.constants import NimbusConstants
 
 
@@ -50,6 +52,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     UNENROLLMENT_SPIKE_THRESHOLD_DISPLAY = "10%"
     SRM_P_VALUE_THRESHOLD_DISPLAY = "0.001"
+
+    SLACK_NIMBUS_CHANNEL = settings.SLACK_NIMBUS_CHANNEL
+    ASK_EXPERIMENTER_SLACK_CHANNEL = "ask-experimenter"
 
     ARCHIVE_DISABLED_TOOLTIP = (
         "Experiments can only be archived when in Draft or Complete."
@@ -475,7 +480,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
                 ("Feature Configuration", ("feature_configs", "reference_branch")),
                 ("Warn On Schema Failure", ("warn_feature_schema",)),
                 ("Prevent Pref Conflicts", ("prevent_pref_conflicts",)),
-                ("Screenshots", ()),
+                ("Screenshots", ("reference_branch_screenshots",)),
                 (
                     "Firefox Labs",
                     (
