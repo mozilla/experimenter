@@ -3241,9 +3241,13 @@ class NimbusRolloutPhase(models.Model):
         return f"Rollout phase ({self.population_percent}%)"
 
     @property
+    def effective_start_date(self):
+        return self.actual_start_date or self.start_date
+
+    @property
     def duration_days(self):
-        if self.start_date and self.end_date:
-            return max(0, (self.end_date - self.start_date).days)
+        if self.effective_start_date and self.end_date:
+            return max(0, (self.end_date - self.effective_start_date).days)
         return None
 
     @property
@@ -3255,9 +3259,9 @@ class NimbusRolloutPhase(models.Model):
 
     @property
     def days_elapsed(self):
-        if not self.start_date:
+        if not self.effective_start_date:
             return 0
-        return max(0, (timezone.now().date() - self.start_date).days)
+        return max(0, (timezone.now().date() - self.effective_start_date).days)
 
     @property
     def days_elapsed_capped(self):

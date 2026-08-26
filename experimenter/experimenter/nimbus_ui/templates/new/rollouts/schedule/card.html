@@ -20,7 +20,7 @@
                 <tr id="rollout-schedule-phase-{{ forloop.counter0 }}"
                     {% if phase.is_current %}style="--bs-table-bg: rgba(var(--bs-{{ display.color }}-rgb), 0.07)"{% endif %}>
                   {# Rollout Phase #}
-                  <td class="small text-body py-3 ps-3 {% if phase.is_current %}fw-bold{% else %}fw-semibold{% endif %}">
+                  <td class="small text-body py-3 ps-3 {% if phase.is_current %}fw-bold rounded-start{% else %}fw-semibold{% endif %}">
                     Phase {{ forloop.counter }}
                   </td>
                   {# Status #}
@@ -43,14 +43,18 @@
                     </div>
                   </td>
                   {# Estimated Duration #}
-                  <td class="small py-3 pe-3">
+                  <td class="small py-3 pe-3{% if phase.is_current %} rounded-end{% endif %}">
                     {% if phase.is_current %}
                       {% if phase.card_status == "disabled" %}
                         <div class="d-flex align-items-center gap-1 text-secondary mb-1">
-                          <span>Disabled</span>
-                          {% if phase.actual_start_date %}
+                          {% if phase.end_date %}
+                            <span>Disabled on {{ phase.end_date|date:"M j, Y" }}</span>
+                          {% else %}
+                            <span>Disabled</span>
+                          {% endif %}
+                          {% if phase.effective_start_date %}
                             <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                            <span>Started {{ phase.actual_start_date|date:"M j, Y" }}</span>
+                            <span>Started on {{ phase.effective_start_date|date:"M j, Y" }}</span>
                           {% endif %}
                         </div>
                         <div class="progress"
@@ -60,7 +64,7 @@
                              aria-label="Phase {{ forloop.counter }} duration progress">
                           <div class="progress-bar bg-secondary opacity-25" style="width: 100%"></div>
                         </div>
-                      {% elif phase.start_date and phase.end_date %}
+                      {% elif phase.effective_start_date and phase.end_date %}
                         <div class="d-flex align-items-center gap-1 text-secondary mb-1">
                           <span>{{ phase.days_elapsed }}/{{ phase.duration_days }} days complete</span>
                           <span class="mx-1" style="color: var(--bs-border-color);">•</span>
@@ -77,9 +81,13 @@
                         </div>
                       {% else %}
                         <div class="d-flex align-items-center gap-1 text-secondary mb-1">
-                          <span>In progress</span>
-                          <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                          <span>{{ phase.days_elapsed }} day{{ phase.days_elapsed|pluralize }} running</span>
+                          {% if phase.effective_start_date %}
+                            <span>{{ phase.days_elapsed }} day{{ phase.days_elapsed|pluralize }} complete</span>
+                            <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                            <span>Started on {{ phase.effective_start_date|date:"M j, Y" }}</span>
+                          {% else %}
+                            <span>In progress</span>
+                          {% endif %}
                         </div>
                         <div class="progress"
                              style="height: 6px;
@@ -92,9 +100,11 @@
                     {% elif phase.card_status == "complete" %}
                       <div class="d-flex align-items-center gap-1 text-secondary mb-1">
                         <span>Completed</span>
-                        {% if phase.actual_start_date and phase.end_date %}
+                        {% if phase.effective_start_date and phase.end_date %}
                           <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                          <span>{{ phase.actual_start_date|date:"M j" }} - {{ phase.end_date|date:"M j, Y" }}</span>
+                          <span>{{ phase.effective_start_date|date:"M j" }} - {{ phase.end_date|date:"M j, Y" }}</span>
+                          <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                          <span>{{ phase.duration_display }}</span>
                         {% endif %}
                       </div>
                       <div class="progress"
@@ -107,13 +117,11 @@
                     {% else %}
                       <div class="d-flex align-items-center gap-1 text-secondary mb-1">
                         <span>Not started</span>
-                        {% if phase.duration_display %}
-                          <span class="mx-1" style="color: var(--bs-border-color);">•</span>
-                          <span>{{ phase.duration_display }}</span>
-                        {% endif %}
                         {% if phase.start_date and phase.end_date %}
                           <span class="mx-1" style="color: var(--bs-border-color);">•</span>
                           <span>{{ phase.start_date|date:"M j" }} - {{ phase.end_date|date:"M j, Y" }}</span>
+                          <span class="mx-1" style="color: var(--bs-border-color);">•</span>
+                          <span>{{ phase.duration_display }}</span>
                         {% endif %}
                       </div>
                       <div class="progress"

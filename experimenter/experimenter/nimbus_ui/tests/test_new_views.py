@@ -9,6 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import resolve, reverse
 from django.utils import timezone
+from django.utils.dateformat import format as date_format
 from parameterized import parameterized
 
 from experimenter.base.models import SiteFlag, SiteFlagNameChoices
@@ -2152,7 +2153,149 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         self.assertTemplateUsed(response, "new/rollouts/schedule/card.html")
         self.assertContains(response, "3/7 days complete")
 
-    def test_post_can_change_in_progress_phase_dates(self):
+    def test_post_disabled_phase_shows_disabled_on_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=50,
+            start_date=datetime.date(2026, 1, 3),
+            actual_start_date=datetime.date(2026, 1, 3),
+            end_date=datetime.date(2026, 1, 20),
+        )
+        experiment.rollout_phase = phase
+        experiment.status = NimbusExperiment.Status.DISABLED
+        experiment.save()
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "1",
+                "rollout_phases-INITIAL_FORMS": "1",
+                "rollout_phases-0-id": phase.id,
+                "rollout_phases-0-end_date": "2026-01-20",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/schedule/card.html")
+        self.assertContains(response, "Disabled on Jan 20, 2026")
+        self.assertContains(response, "Started on Jan 3, 2026")
+
+    def test_post_completed_phase_shows_dates_and_days(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        completed = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=25,
+            start_date=datetime.date(2026, 1, 1),
+            actual_start_date=datetime.date(2026, 1, 3),
+            end_date=datetime.date(2026, 1, 15),
+        )
+        current = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=50,
+            actual_start_date=datetime.date(2026, 1, 15),
+        )
+        experiment.rollout_phase = current
+        experiment.save()
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "2",
+                "rollout_phases-INITIAL_FORMS": "2",
+                "rollout_phases-0-id": completed.id,
+                "rollout_phases-1-id": current.id,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/schedule/card.html")
+        self.assertContains(response, "Jan 3 - Jan 15, 2026")
+        self.assertContains(response, "12 days")
+
+    def test_post_in_progress_phase_uses_actual_start_date_for_progress(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+
+        today = timezone.now().date()
+        start = today - datetime.timedelta(days=6)
+        actual_start = today - datetime.timedelta(days=2)
+        end = today + datetime.timedelta(days=3)
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            start_date=start,
+            actual_start_date=actual_start,
+            end_date=end,
+        )
+        experiment.rollout_phase = phase
+        experiment.save()
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "1",
+                "rollout_phases-INITIAL_FORMS": "1",
+                "rollout_phases-0-id": phase.id,
+                "rollout_phases-0-end_date": end.isoformat(),
+                "rollout_phases-0-population_percent": "50",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "2/5 days complete")
+
+    def test_post_in_progress_phase_without_end_date_shows_start_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+
+        actual_start = timezone.now().date() - datetime.timedelta(days=3)
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            start_date=None,
+            actual_start_date=actual_start,
+            end_date=None,
+        )
+        experiment.rollout_phase = phase
+        experiment.save()
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "1",
+                "rollout_phases-INITIAL_FORMS": "1",
+                "rollout_phases-0-id": phase.id,
+                "rollout_phases-0-population_percent": "50",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f"Started on {date_format(actual_start, 'M j, Y')}")
+        self.assertContains(response, "3 days complete")
+
+    def test_get_locks_start_date_for_in_progress_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            start_date=datetime.date(2026, 1, 1),
+            actual_start_date=datetime.date(2026, 1, 3),
+            end_date=datetime.date(2026, 1, 15),
+        )
+        experiment.rollout_phase = phase
+        experiment.save()
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        phase_form = response.context["form"].rollout_phases.forms[0]
+        self.assertTrue(phase_form.fields["start_date"].disabled)
+        self.assertEqual(phase_form["start_date"].value(), datetime.date(2026, 1, 3))
+
+    def test_post_can_change_in_progress_phase_end_date_only(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_rollout=True,
@@ -2161,6 +2304,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
             experiment=experiment,
             population_percent=50,
             start_date=datetime.date(2026, 1, 1),
+            actual_start_date=datetime.date(2026, 1, 3),
             end_date=datetime.date(2026, 1, 15),
         )
         experiment.rollout_phase = phase
@@ -2178,7 +2322,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         phase.refresh_from_db()
-        self.assertEqual(phase.start_date, datetime.date(2026, 2, 1))
+        self.assertEqual(phase.start_date, datetime.date(2026, 1, 3))
         self.assertEqual(phase.end_date, datetime.date(2026, 2, 20))
         self.assertEqual(phase.population_percent, 50)
 
@@ -2421,7 +2565,7 @@ class TestNewRolloutPlanApplyView(AuthTestCase):
                 "rollout_phases-INITIAL_FORMS": "2",
                 "rollout_phases-0-id": done.id,
                 "rollout_phases-1-id": current.id,
-                "rollout_phases-1-start_date": "not-a-date",
+                "rollout_phases-1-end_date": "not-a-date",
                 "rollout_plan": plan_name,
             },
         )
