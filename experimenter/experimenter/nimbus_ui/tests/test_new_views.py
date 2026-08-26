@@ -835,6 +835,10 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertFalse(experiment.should_show_remote_settings_pending(self.user))
         self.assertContains(response, "Waiting for Remote Settings")
         self.assertContains(response, "review privileges")
+        self.assertContains(response, "If review Slack notifications are on")
+        self.assertContains(
+            response, f"#{NimbusUIConstants.SLACK_NIMBUS_CHANNEL}", html=False
+        )
         self.assertContains(response, "#ask-experimenter")
         self.assertContains(response, experiment.review_messages())
         self.assertNotContains(response, "Open Remote Settings")
