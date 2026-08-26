@@ -257,6 +257,13 @@ KNOWN_UNTRANSLATABLE = {
     "registered",
 }
 
+# Maps Experimenter application app_name to the jexl_to_sql app parameter.
+# "firefox_desktop" and all other app names map to None (desktop column map).
+APP_NAME_TO_JEXL_APP: dict[str, str] = {
+    "fenix": "fenix",
+    "firefox_ios": "ios",
+}
+
 _VERSION_PATTERN = re.compile(r"^(\d+)")
 
 

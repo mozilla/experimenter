@@ -5,7 +5,7 @@ import json
 from django.conf import settings
 from rest_framework import serializers
 
-from experimenter.experiments.jexl_to_sql import jexl_to_sql
+from experimenter.experiments.jexl_to_sql import APP_NAME_TO_JEXL_APP, jexl_to_sql
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBucketRange,
@@ -168,7 +168,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     def get_targetingSql(self, obj):
         if obj.status != NimbusExperiment.Status.DRAFT:
             return None
-        result = jexl_to_sql(obj.targeting)
+        app = APP_NAME_TO_JEXL_APP.get(obj.application_config.app_name)
+        result = jexl_to_sql(obj.targeting, app=app)
         if result.sql is None and not result.warnings:
             return None
 
