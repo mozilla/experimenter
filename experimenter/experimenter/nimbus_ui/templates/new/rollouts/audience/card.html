@@ -64,8 +64,18 @@
       <div>
         <div class="text-secondary mb-1" style="font-size: 12px;">
           {% if experiment.is_desktop %}
+            {% if experiment.exclude_locales %}
+              Excluded
+            {% else %}
+              Included
+            {% endif %}
             Locales
           {% else %}
+            {% if experiment.exclude_languages %}
+              Excluded
+            {% else %}
+              Included
+            {% endif %}
             Languages
           {% endif %}
         </div>
@@ -106,7 +116,14 @@
       </div>
       {# Countries #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Countries</div>
+        <div class="text-secondary mb-1" style="font-size: 12px;">
+          {% if experiment.exclude_countries %}
+            Excluded
+          {% else %}
+            Included
+          {% endif %}
+          Countries
+        </div>
         <div id="rollout-audience-countries" class="small text-body">
           {% with experiment.countries.all as countries %}
             {% if countries %}
