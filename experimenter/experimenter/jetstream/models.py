@@ -158,6 +158,8 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
         ]
 
     def separate_weekly_retention_data(self, weekly_data):
+        # Replace "retained" with one week_N_retention metric per week in "weekly_data",
+        # skipping week 1. Points are copied so the shared "weekly_data" is untouched.
         retention_data = []
 
         for jetstream_data_point in weekly_data or []:

@@ -61,6 +61,21 @@ class TestJetstreamData(TestCase):
 
         self.assertIn(retention, data)
 
+    def test_append_retention_3_days_extracts_legacy_data(self):
+        retention = JetstreamDataPoint(
+            metric=Metric.RETENTION_3_DAYS_LEGACY,
+            statistic=Statistic.BINOMIAL,
+            branch="control",
+            point=0.65,
+            segment=Segment.ALL,
+            window_index="4",
+        )
+
+        data = JetstreamData([])
+        data.append_retention_3_days([retention])
+
+        self.assertIn(retention, data)
+
     def test_remove_retention_data(self):
         retained = JetstreamDataPoint(
             metric=Metric.RETENTION,
@@ -107,6 +122,22 @@ class TestJetstreamData(TestCase):
                 (Metric.WEEKLY_RETENTION.format(6), "6", 0.6),
             ],
         )
+
+    def test_separate_weekly_retention_data_ignores_week_1_only_data(self):
+        week_1_retention = JetstreamDataPoint(
+            metric=Metric.RETENTION,
+            statistic=Statistic.BINOMIAL,
+            branch="control",
+            point=0.65,
+            segment=Segment.ALL,
+            window_index="1",
+        )
+        identity = JetstreamTestData.get_identity_row()
+        data = JetstreamData([identity])
+
+        data.separate_weekly_retention_data(JetstreamData([week_1_retention]))
+
+        self.assertEqual(data.root, [identity])
 
     def test_replace_retention_3_days_replaces_existing_entries(self):
         existing_retention_1 = JetstreamDataPoint(
