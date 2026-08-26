@@ -397,4 +397,9 @@
     font-family: var(--bs-font-monospace);
     font-size: 0.875rem;
   }
+
+  .bootstrap-select .dropdown-menu,
+  .bootstrap-select .dropdown-menu .inner {
+    overscroll-behavior: contain;
+  }
 }
