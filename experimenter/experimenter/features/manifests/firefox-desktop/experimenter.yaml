@@ -39,6 +39,19 @@ testFeature:
         pref: nimbus.testing.testSetString
       description: A string pref set by Nimbus tests
 
+testPlatformExposureFeature:
+    description: Test only feature
+    owner: beth@mozilla.com
+    applications:
+      - firefox-desktop
+    hasExposure: true
+    exposureDescription: Test feature for exposures.
+    isEarlyStartup: true
+    variables:
+      enabled:
+        type: boolean
+        description: Whether or not this feature is enabled
+
 nimbus-qa-1:
   description: A feature for testing pref-setting on the default branch.
   owner: beth@mozilla.com

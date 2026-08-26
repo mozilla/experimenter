@@ -815,6 +815,8 @@ features:
         - es
         - de
         - pt
+        - ja
+        - jp
   summarizer-permissive-guardrails-feature:
     description: |
       This feature enables permissive guardrails for the summarizer.
