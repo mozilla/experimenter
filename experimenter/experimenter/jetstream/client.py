@@ -343,14 +343,15 @@ def get_experiment_data(experiment: NimbusExperiment):
                 raw_data[window][AnalysisBasis.EXPOSURES] = {}
 
         for segment, segment_data in segment_points_enrollments.items():
-            data = raw_data[window][AnalysisBasis.ENROLLMENTS][segment] = JetstreamData(
-                segment_data
-            )
-            data.separate_weekly_retention_data(
-                raw_data.get(AnalysisWindow.WEEKLY, {})
-                .get(AnalysisBasis.ENROLLMENTS, {})
-                .get(segment)
-            )
+            raw_segment_data = JetstreamData(segment_data)
+            raw_data[window][AnalysisBasis.ENROLLMENTS][segment] = raw_segment_data
+            data = raw_segment_data.model_copy(deep=True)
+            if data:
+                data.separate_weekly_retention_data(
+                    raw_data.get(AnalysisWindow.WEEKLY, {})
+                    .get(AnalysisBasis.ENROLLMENTS, {})
+                    .get(segment)
+                )
             (
                 result_metrics,
                 primary_metrics_set,
@@ -399,7 +400,6 @@ def get_experiment_data(experiment: NimbusExperiment):
                     .get(AnalysisBasis.ENROLLMENTS, {})
                     .get(segment)
                 )
-                data.remove_retention_data()
 
                 ResultsObjectModel = create_results_object_model(data)
 
@@ -410,14 +410,15 @@ def get_experiment_data(experiment: NimbusExperiment):
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
 
         for segment, segment_data in segment_points_exposures.items():
-            data = raw_data[window][AnalysisBasis.EXPOSURES][segment] = JetstreamData(
-                segment_data
-            )
-            data.separate_weekly_retention_data(
-                raw_data.get(AnalysisWindow.WEEKLY, {})
-                .get(AnalysisBasis.EXPOSURES, {})
-                .get(segment)
-            )
+            raw_segment_data = JetstreamData(segment_data)
+            raw_data[window][AnalysisBasis.EXPOSURES][segment] = raw_segment_data
+            data = raw_segment_data.model_copy(deep=True)
+            if data:
+                data.separate_weekly_retention_data(
+                    raw_data.get(AnalysisWindow.WEEKLY, {})
+                    .get(AnalysisBasis.EXPOSURES, {})
+                    .get(segment)
+                )
             (
                 result_metrics,
                 primary_metrics_set,
@@ -466,7 +467,6 @@ def get_experiment_data(experiment: NimbusExperiment):
                     .get(AnalysisBasis.EXPOSURES, {})
                     .get(segment)
                 )
-                data.remove_retention_data()
 
                 ResultsObjectModel = create_results_object_model(data)
 

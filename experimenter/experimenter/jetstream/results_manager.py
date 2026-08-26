@@ -402,9 +402,9 @@ class ExperimentResultsManager:
             )
 
             match kpi["slug"]:
-                case NimbusConstants.RETENTION_2_WEEKS:
+                case NimbusConstants.RETENTION_WEEK_2:
                     kpi["displayed_window"] = "Week 2"
-                case NimbusConstants.RETENTION_4_WEEKS:
+                case NimbusConstants.RETENTION_WEEK_4:
                     kpi["displayed_window"] = "Week 4"
                 case (
                     NimbusConstants.RETENTION_3_DAYS
@@ -558,8 +558,8 @@ class ExperimentResultsManager:
         remaining_metrics = self.get_remaining_metrics_metadata(
             exclude_slugs=[
                 *all_outcome_metric_slugs,
-                NimbusConstants.RETENTION_2_WEEKS,
-                NimbusConstants.RETENTION_4_WEEKS,
+                NimbusConstants.RETENTION_WEEK_2,
+                NimbusConstants.RETENTION_WEEK_4,
             ],
             analysis_basis=analysis_basis,
             segment=segment,
