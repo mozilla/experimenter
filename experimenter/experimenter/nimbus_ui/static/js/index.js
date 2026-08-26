@@ -11,6 +11,7 @@ import {
   setupReadonlyJsonEditors,
   setupReadonlySqlEditors,
 } from "./codemirror_utils.js";
+import { updateAllViewThemes, observeThemeChanges } from "./theme_utils.js";
 import { setupDevtoolsBanner } from "./nimbus_devtools.js";
 
 window.bootstrap = bootstrap;
@@ -158,6 +159,7 @@ $(() => {
   setupSlugCopyToast();
   setupHTMXLoadingOverlay();
   setupReadonlyJsonEditors();
+  observeThemeChanges(updateAllViewThemes);
   document.addEventListener("shown.bs.modal", (event) => {
     setupReadonlySqlEditors(event.target);
   });
