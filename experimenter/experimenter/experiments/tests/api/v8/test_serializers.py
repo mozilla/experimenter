@@ -672,6 +672,8 @@ class TestNimbusExperimentSerializer(TestCase):
         data = serializer.data["targetingSql"]
         self.assertIsNotNone(data)
         # days_since_update < 7 && days_since_install >= 7
-        # → daysSinceUpdate < 7 AND daysSinceInstall >= 7 (iOS BQ columns)
-        self.assertEqual(data["sql"], "daysSinceUpdate < 7 AND daysSinceInstall >= 7")
+        # → (daysSinceUpdate < 7 AND daysSinceInstall >= 7) (iOS BQ columns)
+        self.assertEqual(
+            data["sql"], "(daysSinceUpdate < 7 AND daysSinceInstall >= 7)"
+        )
         self.assertEqual(data["warnings"], [])
