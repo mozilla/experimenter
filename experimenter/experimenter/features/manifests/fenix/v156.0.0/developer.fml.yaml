@@ -456,7 +456,7 @@ features:
             enabled: true
             extra-data:
               marketing-data:
-                body-line-one-text: nova_onboarding_marketing_body
+                body-line-one-text: nova_onboarding_marketing_body_2
                 body-line-one-link-text: nova_onboarding_marketing_body_link_text
             image-res: nova_onboarding_marketing
             ordering: 20
@@ -1290,13 +1290,6 @@ features:
         description: If true, WebCompat Reporter enhancements is enabled.
         type: Boolean
         default: true
-  weekly-privacy-notification:
-    description: A feature that shows a recurring weekly notification summarizing Tracking Protection activity.
-    variables:
-      enabled:
-        description: If true, the weekly privacy notification will be scheduled.
-        type: Boolean
-        default: false
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
@@ -1491,6 +1484,10 @@ objects:
         default: ''
       body-line-one-text:
         description: The text for line one of the body.
+        type: Text
+        default: ''
+      body-line-three-text:
+        description: The text for line three of the body.
         type: Text
         default: ''
       body-line-two-text:

@@ -822,7 +822,7 @@ features:
         description: |
           Whether the feature is enabled or not.
         type: Boolean
-        default: false
+        default: true
       supportedLocales:
         description: |
           The list of supported locale identifiers for the summarizer language expansion according to BCP47 standard. i.e "en-US" for English (United States).
@@ -834,6 +834,8 @@ features:
         - es
         - de
         - pt
+        - ja
+        - jp
   summarizer-permissive-guardrails-feature:
     description: |
       This feature enables permissive guardrails for the summarizer.
