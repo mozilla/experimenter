@@ -67,7 +67,9 @@ const setupCodemirror = (selector, textarea, extraExtensions) => {
 
 const setupCodemirrorFeatures = () => {
   const selector = ".value-editor";
-  const textareas = document.querySelectorAll(selector);
+  const textareas = document.querySelectorAll(
+    `.feature-value-editor ${selector}`,
+  );
 
   textareas.forEach((textarea) => {
     const extensions = [];
@@ -148,7 +150,7 @@ $(() => {
     initializeAllEditors();
     observeThemeChanges(updateAllViewThemes);
 
-    document.body.addEventListener("htmx:afterSwap", function (event) {
+    document.body.addEventListener("htmx:afterSettle", function (event) {
       if (
         event.detail.target.id === BRANCHES_FORM_ID ||
         event.detail.target.id === ROLLOUT_FEATURES_BODY_ID ||
