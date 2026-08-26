@@ -1904,7 +1904,11 @@ class RolloutPlanApplyForm(RolloutScheduleForm):
 class RolloutPlanCreateForm(RolloutScheduleForm):
     def clean_template_name(self):
         name = (self.cleaned_data.get("template_name") or "").strip()
-        if name and name in self.plans:
+        if not name:
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_ROLLOUT_PLAN_NAME_REQUIRED
+            )
+        if name in self.plans:
             raise forms.ValidationError(
                 NimbusUIConstants.ERROR_ROLLOUT_PLAN_NAME_DUPLICATE
             )
@@ -1921,13 +1925,12 @@ class RolloutPlanCreateForm(RolloutScheduleForm):
     @transaction.atomic
     def save(self):
         experiment = super().save()
-        name = self.cleaned_data.get("template_name")
-        if name:
-            phases = [
-                float(phase.population_percent)
-                for phase in experiment.rollout_phases.all()
-            ]
-            NimbusRolloutPlanTemplate.objects.create(name=name, phases=phases)
+        phases = [
+            float(phase.population_percent) for phase in experiment.rollout_phases.all()
+        ]
+        NimbusRolloutPlanTemplate.objects.create(
+            name=self.cleaned_data["template_name"], phases=phases
+        )
         return experiment
 
     def get_changelog_message(self):

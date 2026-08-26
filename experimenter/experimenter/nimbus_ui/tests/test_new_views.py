@@ -2083,6 +2083,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="new-rollout-plan-field"')
+        self.assertContains(response, 'id="rollout-schedule-cancel-plan"')
 
     def test_post_valid_saves_and_returns_display_card(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -2501,21 +2502,30 @@ class TestNewRolloutPlanCreateView(AuthTestCase):
             NimbusRolloutPlanTemplate.objects.filter(name="My plan").exists()
         )
 
-    def test_post_blank_name_creates_nothing(self):
+    def test_post_blank_name_shows_validation_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             is_rollout=True,
         )
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_phases-TOTAL_FORMS": "0",
-                "rollout_phases-INITIAL_FORMS": "0",
-                "template_name": "",
+                "rollout_phases-TOTAL_FORMS": "1",
+                "rollout_phases-INITIAL_FORMS": "1",
+                "rollout_phases-0-id": phase.id,
+                "rollout_phases-0-population_percent": "10",
+                "template_name": "   ",
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(NimbusRolloutPlanTemplate.objects.filter(name="").exists())
+        self.assertTemplateUsed(response, "new/rollouts/schedule/edit_form.html")
+        self.assertContains(response, NimbusUIConstants.ERROR_ROLLOUT_PLAN_NAME_REQUIRED)
+        self.assertContains(response, 'id="new-rollout-plan-field"')
+        self.assertContains(response, "collapse mt-2 show")
+        self.assertFalse(NimbusRolloutPlanTemplate.objects.exists())
 
     def test_post_duplicate_name_is_rejected(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

@@ -376,6 +376,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     checklist."""
     QA_TICKET_URL = "https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10212&issuetype=11290"
 
+    ERROR_ROLLOUT_PLAN_NAME_REQUIRED = "Please name this rollout plan before saving it."
     ERROR_ROLLOUT_PLAN_NAME_DUPLICATE = "A rollout plan with this name already exists."
     ERROR_ROLLOUT_PLAN_FIX_ERRORS = (
         "Resolve the highlighted errors above before saving this plan."
