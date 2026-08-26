@@ -595,3 +595,13 @@ wayback-machine-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+web-view-document-fetch-refactor-feature:
+  description: |
+    Determines whether we read PDF and document data for sharing directly from the authenticated WebView, rather than re-downloading via URLSession.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
