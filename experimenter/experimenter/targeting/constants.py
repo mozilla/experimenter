@@ -5087,6 +5087,20 @@ PROFILE_48_HOURS_OR_OLDER_FX_156_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_156_2_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx156 Aug-24 Trainhop",
+    slug="newtab-156-0824-trainhop",
+    description=(
+        "Desktop users having the New Tab 156.2.20260824.60102 train hop, "
+        "which includes users of Fx154"
+    ),
+    targeting="newtabAddonVersion|versionCompare('156.2.20260824.60102') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
     name="New Tab Lists/Timer Interaction, Neither Widget Disabled",
     slug="widgets-lists-timer-interacted-not-disabled",
