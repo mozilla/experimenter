@@ -1473,11 +1473,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if current_index is None or i > current_index:
                 phase.card_status = NimbusUIConstants.RolloutPhaseStatus.NOT_STARTED
             elif i == current_index:
-                phase.card_status = (
-                    NimbusUIConstants.RolloutPhaseStatus.DISABLED
-                    if self.is_disabled
-                    else NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
-                )
+                if self.is_complete:
+                    phase.card_status = NimbusUIConstants.RolloutPhaseStatus.COMPLETE
+                elif self.is_disabled:
+                    phase.card_status = NimbusUIConstants.RolloutPhaseStatus.DISABLED
+                else:
+                    phase.card_status = NimbusUIConstants.RolloutPhaseStatus.IN_PROGRESS
             else:
                 phase.card_status = NimbusUIConstants.RolloutPhaseStatus.COMPLETE
             phase.card_status_display = NimbusUIConstants.ROLLOUT_PHASE_STATUS_DISPLAY[
