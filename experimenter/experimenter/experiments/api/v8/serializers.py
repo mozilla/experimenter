@@ -168,7 +168,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     def get_targetingSql(self, obj):
         if obj.status != NimbusExperiment.Status.DRAFT:
             return None
-        app = APP_NAME_TO_JEXL_APP.get(obj.application_config.app_name)
+        config = obj.application_config
+        app = APP_NAME_TO_JEXL_APP.get(config.app_name) if config else None
         result = jexl_to_sql(obj.targeting, app=app)
         if result.sql is None and not result.warnings:
             return None

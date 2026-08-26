@@ -2504,7 +2504,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def sizing_sql_predicate(self):
-        app = APP_NAME_TO_JEXL_APP.get(self.application_config.app_name)
+        config = self.application_config
+        app = APP_NAME_TO_JEXL_APP.get(config.app_name) if config else None
         sql = jexl_to_sql(self.targeting, app=app).sql
         if sql is None:
             return None
