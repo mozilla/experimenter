@@ -69,6 +69,7 @@ class MultiSelectWidget(SelectedFirstMixin, forms.SelectMultiple):
                 "class": self.class_attrs,
                 "data-live-search": "true",
                 "data-live-search-placeholder": "Search",
+                "data-virtual-scroll": "false",
             }
         )
 
