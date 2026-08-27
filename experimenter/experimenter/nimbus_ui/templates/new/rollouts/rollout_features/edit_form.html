@@ -78,6 +78,24 @@
                 {% with fv_errors=validation_errors.reference_branch.feature_values|get_item:forloop.counter0 %}
                   {% for error in fv_errors.value %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
                 {% endwith %}
+                {% if branch_feature_values_form.instance.unversioned_schema %}
+                  <div class="mt-2">
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn show-schema-btn"
+                            data-target="rollout-schema-{{ forloop.counter0 }}">
+                      <i class="fa-solid fa-chevron-down"></i> Show Schema
+                    </button>
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn hide-schema-btn d-none"
+                            data-target="rollout-schema-{{ forloop.counter0 }}">
+                      <i class="fa-solid fa-chevron-up"></i> Hide feature schema
+                    </button>
+                    <div id="rollout-schema-{{ forloop.counter0 }}"
+                         class="schema-display d-none mt-2 mw-100 overflow-auto">
+                      <textarea class="readonly-json">{{ branch_feature_values_form.instance.unversioned_schema }}</textarea>
+                    </div>
+                  </div>
+                {% endif %}
               </div>
             </div>
           {% endif %}

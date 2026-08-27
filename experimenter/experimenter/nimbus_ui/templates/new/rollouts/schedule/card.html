@@ -152,9 +152,9 @@
         <div class="text-secondary mb-1" style="font-size: 12px;">
           {{ NimbusUIConstants.ROLLOUT_ADVANCE_OBSERVATIONS_LABEL }}
         </div>
-        <div id="rollout-schedule-advance-observations" class="small text-body">
-          {{ experiment.rollout_advance_observations|default:"—" }}
-        </div>
+        <div id="rollout-schedule-advance-observations"
+             class="small text-body"
+             style="white-space: pre-wrap">{{ experiment.rollout_advance_observations|default:"—" }}</div>
         {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_advance_observations %}
 
       </div>
@@ -163,9 +163,9 @@
         <div class="text-secondary mb-1" style="font-size: 12px;">
           {{ NimbusUIConstants.ROLLOUT_PAUSE_OBSERVATIONS_LABEL }}
         </div>
-        <div id="rollout-schedule-pause-observations" class="small text-body">
-          {{ experiment.rollout_pause_observations|default:"—" }}
-        </div>
+        <div id="rollout-schedule-pause-observations"
+             class="small text-body"
+             style="white-space: pre-wrap">{{ experiment.rollout_pause_observations|default:"—" }}</div>
         {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_pause_observations %}
 
       </div>

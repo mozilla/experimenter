@@ -99,7 +99,7 @@ export const setupReadonlySqlEditors = (container = document) => {
   container.querySelectorAll(".readonly-sql").forEach((textarea) => {
     const view = createReadonlySqlEditor(textarea);
     if (view) {
-      setupCopyButton(textarea, view);
+      setupCopyButton(textarea);
     }
   });
 };
@@ -113,18 +113,17 @@ export const setupReadonlyJsonEditors = () => {
 
     if (view) {
       setupCodemirrorCollapsibleDisplay(textarea);
-      setupCopyButton(textarea, view);
+      setupCopyButton(textarea);
     }
   });
 };
 
-const setupCopyButton = (textarea, view) => {
+const setupCopyButton = (textarea) => {
   const copyButton = textarea.parentNode.querySelector(".codemirror-copy-btn");
   if (!copyButton) return;
 
   copyButton.addEventListener("click", () => {
-    const content = view.state.doc.toString();
-    navigator.clipboard.writeText(content).then(() => {
+    navigator.clipboard.writeText(textarea.value).then(() => {
       const toast = document.getElementById("json-copy-toast");
       if (toast) {
         const bsToast = window.bootstrap.Toast.getOrCreateInstance(toast);
