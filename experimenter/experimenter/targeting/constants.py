@@ -1944,60 +1944,6 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_ = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-WINDOWS_10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
-    name="Windows 10+ users, no MSIX, not pinned, not default",
-    slug="win10_plus_nomsix_notpinned_notdefault",
-    description=(
-        "Windows 10+ users who are not running MSIX, "
-        "who have not pinned Firefox to the taskbar, "
-        "and who do not have Firefox set as the default browser"
-    ),
-    targeting=(
-        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
-        "&& doesAppNeedPin && !isDefaultBrowser"
-    ),
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
-WINDOWS_10_PLUS_NOMSIX_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
-    name="Windows 10+ users, no MSIX, pinned, not default",
-    slug="win10_plus_nomsix_pinned_notdefault",
-    description=(
-        "Windows 10+ users who are not running MSIX, "
-        "who have pinned Firefox to the taskbar, "
-        "and who do not have Firefox set as the default browser"
-    ),
-    targeting=(
-        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
-        "&& !doesAppNeedPin && !isDefaultBrowser"
-    ),
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
-WINDOWS_10_PLUS_NOMSIX_NOT_PINNED_DEFAULT = NimbusTargetingConfig(
-    name="Windows 10+ users, no MSIX, not pinned, default",
-    slug="win10_plus_nomsix_notpinned_default",
-    description=(
-        "Windows 10+ users who are not running MSIX, "
-        "who have not pinned Firefox to the taskbar, "
-        "and who have Firefox set as the default browser"
-    ),
-    targeting=(
-        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
-        "&& doesAppNeedPin && isDefaultBrowser"
-    ),
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
 WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_AT_RISK_USER = NimbusTargetingConfig(
     name="At risk user background task notification",
     slug="background_task_notification_at_risk_user",
@@ -4977,6 +4923,78 @@ FX_155_TRAINHOP = NimbusTargetingConfig(
     targeting="newtabAddonVersion|versionCompare('155.1.20260811.195042') >= 0",
     desktop_telemetry="",
     sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users, no MSIX, not pinned, not default, "
+        "with New Tab Fx155 Aug-11 Trainhop"
+    ),
+    slug="newtab-155-0811-trainhop-win10-plus-nomsix-notpinned-notdefault",
+    description=(
+        "Windows 10+ existing users with profiles older than 28 days, on Fx154+, "
+        "who are not running MSIX, who have not pinned Firefox to the taskbar, "
+        "and who do not have Firefox set as the default browser, "
+        "having the New Tab 155.1.20260811.195042 train hop"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
+        "&& doesAppNeedPin && !isDefaultBrowser "
+        "&& version|versionCompare('154.!') >= 0 "
+        f"&& {FX_155_TRAINHOP.targeting} && {PROFILE28DAYS}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users, no MSIX, pinned, not default, "
+        "with New Tab Fx155 Aug-11 Trainhop"
+    ),
+    slug="newtab-155-0811-trainhop-win10-plus-nomsix-pinned-notdefault",
+    description=(
+        "Windows 10+ existing users with profiles older than 28 days, on Fx154+, "
+        "who are not running MSIX, who have pinned Firefox to the taskbar, "
+        "and who do not have Firefox set as the default browser, "
+        "having the New Tab 155.1.20260811.195042 train hop"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
+        "&& !doesAppNeedPin && !isDefaultBrowser "
+        "&& version|versionCompare('154.!') >= 0 "
+        f"&& {FX_155_TRAINHOP.targeting} && {PROFILE28DAYS}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_DEFAULT = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users, no MSIX, not pinned, default, "
+        "with New Tab Fx155 Aug-11 Trainhop"
+    ),
+    slug="newtab-155-0811-trainhop-win10-plus-nomsix-notpinned-default",
+    description=(
+        "Windows 10+ existing users with profiles older than 28 days, on Fx154+, "
+        "who are not running MSIX, who have not pinned Firefox to the taskbar, "
+        "and who have Firefox set as the default browser, "
+        "having the New Tab 155.1.20260811.195042 train hop"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
+        "&& doesAppNeedPin && isDefaultBrowser "
+        "&& version|versionCompare('154.!') >= 0 "
+        f"&& {FX_155_TRAINHOP.targeting} && {PROFILE28DAYS}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
