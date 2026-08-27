@@ -1809,6 +1809,32 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         self.assertEqual(experiment.takeaways_summary, "Original rollout experience")
         self.assertEqual(experiment.feature_configs.count(), 0)
 
+    def test_post_selected_feature_renders_schema_toggle(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-schema",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature_config
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.features_data(feature_value, feature_configs=[feature_config.id]),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/rollout_features/edit_form.html")
+        self.assertContains(response, "toggle-schema-btn show-schema-btn")
+        self.assertContains(response, "toggle-schema-btn hide-schema-btn")
+        self.assertContains(response, 'id="rollout-schema-0"')
+        self.assertContains(response, "Show Schema")
+
     def test_post_deselecting_feature_hides_editor_without_saving(self):
         feature_config = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
