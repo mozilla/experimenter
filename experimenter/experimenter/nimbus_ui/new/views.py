@@ -433,6 +433,7 @@ class NewCardUpdateView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["hx_swap_oob"] = self.request.method not in ("GET", "HEAD")
+        context["editing_card"] = True
         return context
 
     def can_edit(self):
@@ -444,6 +445,7 @@ class NewCardUpdateView(
 
     def render_valid_response(self):
         context = self.get_context_data()
+        context["editing_card"] = False
         return trigger_toast(
             self.response_class(
                 request=self.request,

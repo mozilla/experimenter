@@ -415,6 +415,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ROLLOUT_PREVIEW_BLOCKED_TOOLTIP = (
         "Resolve the detected setup issues before previewing or launching"
     )
+    ROLLOUT_UNSAVED_CHANGES_CONFIRM = (
+        "A section is still open for editing. Click OK to continue and discard "
+        "those changes, or Cancel to go back and save them first."
+    )
     ROLLOUT_LIVE_MESSAGE = (
         "This rollout is live. You can advance to the next phase to adjust its "
         "population sizing, or disable it."

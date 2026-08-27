@@ -4,6 +4,7 @@
         data-toast-id="{{ NimbusUIConstants.TOAST_EDIT_CANCELLED }}"
         hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
         hx-select="#rollout-card-{{ card_id }}"
+        hx-select-oob="#sidebar-preview-button"
         hx-target="#rollout-card-{{ card_id }}"
         hx-swap="outerHTML">
   {% if icon_only %}
