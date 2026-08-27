@@ -80,7 +80,10 @@ from experimenter.nimbus_ui.forms import (
     ToggleReviewSlackNotificationsForm,
     UnsubscribeForm,
 )
-from experimenter.nimbus_ui.new.forms import NimbusFirefoxLabsCreateForm
+from experimenter.nimbus_ui.new.forms import (
+    NimbusFirefoxLabsCreateForm,
+    NimbusRolloutCreateForm,
+)
 
 
 class IntegrationTestBranchDataMixin:
@@ -208,6 +211,7 @@ class NimbusExperimentViewMixin:
             {tag.id for tag in experiment.tags.all()} if experiment else set()
         )
         context["create_form"] = NimbusExperimentCreateForm()
+        context["create_rollout_form"] = NimbusRolloutCreateForm()
         context["create_labs_form"] = NimbusFirefoxLabsCreateForm()
 
         return context
@@ -294,6 +298,7 @@ class NimbusExperimentsListView(NimbusExperimentViewMixin, FilterView):
             status_counts=status_counts,
             sort_choices=SortChoices,
             create_form=NimbusExperimentCreateForm(),
+            create_rollout_form=NimbusRolloutCreateForm(),
             create_labs_form=NimbusFirefoxLabsCreateForm(),
             **kwargs,
         )
@@ -1137,6 +1142,7 @@ class NimbusFeaturesView(TemplateView):
         }
 
         context["create_form"] = NimbusExperimentCreateForm()
+        context["create_rollout_form"] = NimbusRolloutCreateForm()
         context["create_labs_form"] = NimbusFirefoxLabsCreateForm()
 
         # Add subscribers form if a feature is selected
@@ -1253,6 +1259,7 @@ class NimbusExperimentsHomeView(FilterView):
 
         context["sortable_headers"] = HomeSortChoices.sortable_headers()
         context["create_form"] = NimbusExperimentCreateForm()
+        context["create_rollout_form"] = NimbusRolloutCreateForm()
         context["create_labs_form"] = NimbusFirefoxLabsCreateForm()
         return context
 

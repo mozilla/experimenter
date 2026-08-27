@@ -220,6 +220,8 @@ class FeatureConfigModelChoiceField(forms.ModelMultipleChoiceField):
 
 
 class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    hypothesis_placeholder = NimbusUIConstants.HYPOTHESIS_PLACEHOLDER
+
     owner = forms.ModelChoiceField(
         User.objects.all(),
         widget=forms.widgets.HiddenInput(),
@@ -239,7 +241,6 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
     hypothesis = forms.CharField(
         label="",
         widget=forms.widgets.Textarea(),
-        initial=NimbusUIConstants.HYPOTHESIS_PLACEHOLDER,
     )
     application = forms.ChoiceField(
         label="",
@@ -261,6 +262,10 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "application",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["hypothesis"].initial = self.hypothesis_placeholder
+
     def get_changelog_message(self):
         return f"{self.request.user} created {self.cleaned_data['name']}"
 
@@ -275,7 +280,7 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def clean_hypothesis(self):
         hypothesis = self.cleaned_data["hypothesis"]
-        if hypothesis.strip() == NimbusUIConstants.HYPOTHESIS_PLACEHOLDER.strip():
+        if hypothesis.strip() == self.hypothesis_placeholder.strip():
             raise forms.ValidationError(NimbusUIConstants.ERROR_HYPOTHESIS_PLACEHOLDER)
         return hypothesis
 
@@ -302,6 +307,8 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class NimbusRolloutCreateForm(NimbusExperimentCreateForm):
+    hypothesis_placeholder = NimbusUIConstants.ROLLOUT_HYPOTHESIS_PLACEHOLDER
+
     def save(self, *args, **kwargs):
         self.instance.is_rollout = True
         return super().save(*args, **kwargs)
