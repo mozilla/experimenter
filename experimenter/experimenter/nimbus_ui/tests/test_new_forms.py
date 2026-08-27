@@ -148,6 +148,14 @@ class TestNimbusExperimentCreateForm(RequestFormTestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_SLUG_DUPLICATE])
 
+    def test_form_prefills_the_experiment_hypothesis_placeholder(self):
+        form = NimbusExperimentCreateForm(request=self.request)
+
+        self.assertEqual(
+            form.fields["hypothesis"].initial,
+            NimbusUIConstants.HYPOTHESIS_PLACEHOLDER,
+        )
+
     def test_invalid_with_placeholder_hypothesis(self):
         data = {
             "owner": self.user,
@@ -199,6 +207,32 @@ class TestNimbusRolloutCreateForm(RequestFormTestCase):
         self.assertEqual(rollout.branches.count(), 1)
         self.assertEqual(rollout.reference_branch.name, "Control")
 
+    def test_form_prefills_the_rollout_hypothesis_placeholder(self):
+        form = NimbusRolloutCreateForm(request=self.request)
+
+        self.assertEqual(
+            form.fields["hypothesis"].initial,
+            NimbusUIConstants.ROLLOUT_HYPOTHESIS_PLACEHOLDER,
+        )
+        self.assertNotEqual(
+            NimbusUIConstants.ROLLOUT_HYPOTHESIS_PLACEHOLDER,
+            NimbusUIConstants.HYPOTHESIS_PLACEHOLDER,
+        )
+
+    def test_invalid_with_placeholder_hypothesis(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Rollout",
+            "hypothesis": NimbusUIConstants.ROLLOUT_HYPOTHESIS_PLACEHOLDER,
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusRolloutCreateForm(data, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["hypothesis"], [NimbusUIConstants.ERROR_HYPOTHESIS_PLACEHOLDER]
+        )
+
 
 class TestNimbusFirefoxLabsCreateForm(RequestFormTestCase):
     def test_form_creates_labs_rollout(self):
@@ -217,6 +251,14 @@ class TestNimbusFirefoxLabsCreateForm(RequestFormTestCase):
         self.assertTrue(labs.is_rollout)
         self.assertEqual(labs.branches.count(), 1)
         self.assertEqual(labs.reference_branch.name, "Control")
+
+    def test_form_prefills_the_rollout_hypothesis_placeholder(self):
+        form = NimbusFirefoxLabsCreateForm(request=self.request)
+
+        self.assertEqual(
+            form.fields["hypothesis"].initial,
+            NimbusUIConstants.ROLLOUT_HYPOTHESIS_PLACEHOLDER,
+        )
 
     def test_form_only_offers_applications_supporting_labs(self):
         form = NimbusFirefoxLabsCreateForm(request=self.request)

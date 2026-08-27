@@ -107,6 +107,7 @@ class NimbusExperimentViewMixin:
         )
         context["all_tags"] = Tag.objects.all().order_by("name")
         context["create_form"] = NimbusExperimentCreateForm()
+        context["create_rollout_form"] = NimbusRolloutCreateForm()
         context["create_labs_form"] = NimbusFirefoxLabsCreateForm()
 
         if experiment and experiment.slug:

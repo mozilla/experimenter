@@ -15,6 +15,17 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     """.strip()  # noqa: E501
 
+    ROLLOUT_HYPOTHESIS_PLACEHOLDER = """
+Observations: We have observed <this> for <these users> via <data source, UR, survey>.
+
+Context: <describe the problem, opportunity, or change in direction behind this rollout>.
+
+We are rolling out <this change> to <these users>.
+
+Optional - We expect this to <describe impact> on <core metric>.
+
+    """.strip()
+
     ERROR_NAME_INVALID = "This is not a valid name."
     ERROR_SLUG_DUPLICATE = "An experiment with this slug already exists."
     ERROR_SLUG_DUPLICATE_BRANCH = "A branch with this slug already exists."
