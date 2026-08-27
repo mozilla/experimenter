@@ -168,6 +168,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     targeting list - file a new targeting request with this link, and share the created
     request with either your feature engineering team or in #ask-experimenter
     so the new targeting can be added."""
+    STICKY_ENROLLMENT_DESCRIPTION = (
+        "Clients remain enrolled even if they no longer meet the targeting."
+    )
     TIMELINE_TOOLTIPS = {
         "Draft": (
             "The duration from the initial draft of the experiment to its entry "
