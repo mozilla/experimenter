@@ -21,6 +21,15 @@ document.addEventListener("showToast", (event) => {
   showToast(event.detail?.id);
 });
 
+document.addEventListener("keydown", (event) => {
+  if (
+    event.key === "Enter" &&
+    event.target.closest?.(".card-edit-form input")
+  ) {
+    event.preventDefault();
+  }
+});
+
 document.addEventListener("click", (event) => {
   const trigger = event.target.closest?.("[data-toast-id]");
   if (trigger) {
