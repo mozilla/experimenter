@@ -21,6 +21,9 @@ runs:
     - name: Check changed paths
       id: check
       shell: bash
+      env:
+        INPUT_PATHS: ${{ inputs.paths }}
+        INPUT_INTEGRATION: ${{ inputs.integration }}
       run: |
         if [[ "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           echo "should_run=true" >> "$GITHUB_OUTPUT"
@@ -54,9 +57,9 @@ runs:
           exit 0
         fi
 
-        PATTERNS="${{ inputs.paths }}"
+        PATTERNS="$INPUT_PATHS"
 
-        if [[ "${{ inputs.integration }}" == "true" ]]; then
+        if [[ "$INPUT_INTEGRATION" == "true" ]]; then
           PATTERNS="$PATTERNS experimenter/tests/integration/ experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock experimenter/Dockerfile experimenter/pyproject.toml experimenter/uv.lock experimenter/package.json experimenter/yarn.lock"
         fi
 
