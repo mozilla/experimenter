@@ -257,13 +257,6 @@ class UpdateRedirectViewMixin:
 
 
 class RolloutSetupProgressMixin:
-    def flatten_errors(self, messages):
-        if isinstance(messages, dict):
-            return [m for value in messages.values() for m in self.flatten_errors(value)]
-        if isinstance(messages, (list, tuple)):
-            return [m for value in messages for m in self.flatten_errors(value)]
-        return [str(messages)]
-
     def drop_documentation_link_title_errors(self, field_errors):
         # The title select has no blank option so a just-added link always errors
         # until the next save picks up its default
@@ -327,7 +320,9 @@ class RolloutSetupProgressMixin:
             group = groups.setdefault(
                 card_id, {"card_id": card_id, "section": section, "fields": {}}
             )
-            group["fields"].setdefault(label, []).extend(self.flatten_errors(messages))
+            group["fields"].setdefault(label, []).extend(
+                NimbusRolloutReviewSerializer.flatten_messages(messages)
+            )
         for group in groups.values():
             group["fields"] = [
                 {"label": label, "messages": messages}
@@ -344,7 +339,9 @@ class RolloutSetupProgressMixin:
         )
         context["validation_errors"] = {
             field: (
-                messages if field in raw_error_fields else self.flatten_errors(messages)
+                messages
+                if field in raw_error_fields
+                else NimbusRolloutReviewSerializer.flatten_messages(messages)
             )
             for field, messages in field_errors.items()
         }
@@ -370,13 +367,13 @@ class RolloutSetupProgressMixin:
 
     def readonly_card_errors(self, field_errors):
         return {
-            "feature_value_errors": self.flatten_errors(
+            "feature_value_errors": NimbusRolloutReviewSerializer.flatten_messages(
                 field_errors.get("reference_branch") or []
             ),
-            "screenshot_errors": self.flatten_errors(
+            "screenshot_errors": NimbusRolloutReviewSerializer.flatten_messages(
                 field_errors.get("reference_branch_screenshots") or []
             ),
-            "documentation_link_errors": self.flatten_errors(
+            "documentation_link_errors": NimbusRolloutReviewSerializer.flatten_messages(
                 field_errors.get("documentation_links") or []
             ),
         }

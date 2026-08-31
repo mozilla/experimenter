@@ -957,6 +957,7 @@ class TestNimbusReviewSerializerSingleFeature(
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
             warn_feature_schema=True,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
@@ -1057,6 +1058,7 @@ class TestNimbusReviewSerializerSingleFeature(
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
             warn_feature_schema=True,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
@@ -1110,6 +1112,7 @@ class TestNimbusReviewSerializerSingleFeature(
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
             warn_feature_schema=True,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
@@ -1626,160 +1629,53 @@ class TestNimbusReviewSerializerSingleFeature(
             },
         )
 
-    def test_bucket_namespace_warning_for_dupe_rollouts(self):
-        desktop = NimbusExperiment.Application.DESKTOP
-        channel = NimbusExperiment.Channel.NIGHTLY
-        targeting_config_slug = NimbusExperiment.TargetingConfig.MAC_ONLY
-        feature_configs = [NimbusFeatureConfigFactory(application=desktop)]
-
-        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
-            application=desktop,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[channel],
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
-            feature_configs=feature_configs,
-            is_sticky=False,
-            is_rollout=True,
-            targeting_config_slug=targeting_config_slug,
-        )
-        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+    @parameterized.expand(
+        [
+            (True, [NimbusExperiment.Channel.RELEASE], False),
+            (False, [NimbusExperiment.Channel.RELEASE], False),
+            (
+                True,
+                [NimbusExperiment.Channel.RELEASE, NimbusExperiment.Channel.BETA],
+                False,
+            ),
+            (
+                False,
+                [NimbusExperiment.Channel.RELEASE, NimbusExperiment.Channel.BETA],
+                True,
+            ),
+        ]
+    )
+    def test_desktop_multichannel_warning(self, is_rollout, channels, expected):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=desktop,
+            application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[channel],
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
-            feature_configs=feature_configs,
-            is_sticky=False,
-            is_rollout=True,
-            targeting_config_slug=targeting_config_slug,
+            channels=channels,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            is_rollout=is_rollout,
         )
 
-        for branch in chain(
-            experiment1.treatment_branches, experiment2.treatment_branches
-        ):
-            branch.delete()
-
-        experiment1.save()
-        experiment2.save()
+        if is_rollout:
+            for branch in experiment.treatment_branches:
+                branch.delete()
 
         serializer = NimbusReviewSerializer(
-            experiment2,
+            experiment,
             data=NimbusReviewSerializer(
-                experiment2,
+                experiment,
                 context={"user": self.user},
             ).data,
-            partial=True,
             context={"user": self.user},
         )
 
-        self.assertTrue(experiment1.is_rollout and experiment2.is_rollout)
-        self.assertTrue(serializer.is_valid())
-        self.assertEqual(
-            serializer.warnings["bucketing"],
-            [NimbusExperiment.ERROR_BUCKET_EXISTS],
-        )
-
-    def test_bucket_namespace_warning_for_non_dupe_rollouts(self):
-        lifecycle = NimbusExperimentFactory.Lifecycles.CREATED
-        channel = NimbusExperiment.Channel.NIGHTLY
-        feature_configs_fenix = [
-            NimbusFeatureConfigFactory(application=NimbusExperiment.Application.FENIX)
-        ]
-        feature_configs_ios = [
-            NimbusFeatureConfigFactory(application=NimbusExperiment.Application.IOS)
-        ]
-        targeting_config_slug = NimbusExperiment.TargetingConfig.MAC_ONLY
-
-        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle,
-            application=NimbusExperiment.Application.FENIX,
-            channel=channel,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
-            feature_configs=feature_configs_fenix,
-            is_sticky=False,
-            is_rollout=True,
-            targeting_config_slug=targeting_config_slug,
-        )
-        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle,
-            application=NimbusExperiment.Application.IOS,
-            channel=channel,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
-            feature_configs=feature_configs_ios,
-            is_sticky=False,
-            is_rollout=True,
-            targeting_config_slug=targeting_config_slug,
-        )
-
-        for branch in chain(
-            experiment1.treatment_branches, experiment2.treatment_branches
-        ):
-            branch.delete()
-
-        experiment1.save()
-        experiment2.save()
-
-        serializer = NimbusReviewSerializer(
-            experiment2,
-            data=NimbusReviewSerializer(
-                experiment2,
-                context={"user": self.user},
-            ).data,
-            partial=True,
-            context={"user": self.user},
-        )
-
-        self.assertTrue(experiment1.is_rollout and experiment2.is_rollout)
-        self.assertTrue(serializer.is_valid())
-        self.assertEqual(serializer.warnings, {})
-
-    def test_bucket_namespace_warning_for_experiments(self):
-        lifecycle = NimbusExperimentFactory.Lifecycles.CREATED
-        desktop = NimbusExperiment.Application.DESKTOP
-        channel = NimbusExperiment.Channel.NIGHTLY
-        feature_configs = [NimbusFeatureConfigFactory(application=desktop)]
-        targeting_config_slug = NimbusExperiment.TargetingConfig.MAC_ONLY
-
-        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle,
-            application=desktop,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[channel],
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
-            feature_configs=feature_configs,
-            is_sticky=False,
-            is_rollout=False,
-            targeting_config_slug=targeting_config_slug,
-        )
-        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle,
-            application=desktop,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[channel],
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
-            feature_configs=feature_configs,
-            is_sticky=False,
-            is_rollout=False,
-            targeting_config_slug=targeting_config_slug,
-        )
-
-        experiment1.save()
-        experiment2.save()
-
-        serializer = NimbusReviewSerializer(
-            experiment2,
-            data=NimbusReviewSerializer(
-                experiment2,
-                context={"user": self.user},
-            ).data,
-            partial=True,
-            context={"user": self.user},
-        )
-
-        self.assertFalse(experiment1.is_rollout and experiment2.is_rollout)
-        self.assertTrue(serializer.is_valid())
-        self.assertEqual(serializer.warnings, {})
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        if expected:
+            self.assertEqual(
+                serializer.warnings["channels"],
+                [NimbusConstants.EXPERIMENT_MULTICHANNEL_WARNING],
+            )
+        else:
+            self.assertNotIn("channels", serializer.warnings)
 
     def test_substitute_localizations(self):
         value = {
@@ -4016,6 +3912,8 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
             firefox_min_version=min_version,
             firefox_max_version=max_version,
             feature_configs=[feature],
@@ -4977,6 +4875,8 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
             firefox_min_version=min_version,
             firefox_max_version=max_version,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ATTRIBUTION_MEDIUM_EMAIL,
@@ -5009,6 +4909,8 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_119,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_119,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ATTRIBUTION_MEDIUM_EMAIL,
@@ -5066,6 +4968,11 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=app,
+            channels=(
+                [NimbusExperiment.Channel.RELEASE]
+                if app == NimbusExperiment.Application.DESKTOP
+                else []
+            ),
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_121,
             targeting_config_slug=targeting_config,
@@ -5421,6 +5328,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
             warn_feature_schema=True,
             feature_configs=[
                 self.feature_without_schema,
@@ -5474,6 +5382,7 @@ class TestNimbusReviewSerializerMultiFeature(MockFmlErrorMixin, TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
             warn_feature_schema=True,
             feature_configs=[
                 self.feature_without_schema,

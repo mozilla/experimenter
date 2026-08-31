@@ -679,6 +679,29 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             dict[NimbusFeatureConfig, NimbusVersionedSchema]
         ] = None
 
+    @staticmethod
+    def flatten_messages(messages):
+        if isinstance(messages, dict):
+            return [
+                m
+                for value in messages.values()
+                for m in NimbusReviewSerializer.flatten_messages(value)
+            ]
+        if isinstance(messages, (list, tuple)):
+            return [
+                m
+                for value in messages
+                for m in NimbusReviewSerializer.flatten_messages(value)
+            ]
+        return [str(messages)]
+
+    @property
+    def flat_warnings(self):
+        return {
+            field: list(dict.fromkeys(self.flatten_messages(messages)))
+            for field, messages in self.warnings.items()
+        }
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["feature_config"] = None
@@ -1459,25 +1482,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
-    def _validate_bucket_duplicates(self, data):
-        is_rollout = self.instance.is_rollout
-        if not self.instance or not is_rollout:
-            return data
-
-        count = NimbusExperiment.objects.filter(
-            status=NimbusExperiment.Status.LIVE,
-            channel=self.instance.channel,
-            application=self.instance.application,
-            targeting_config_slug=self.instance.targeting_config_slug,
-            feature_configs__in=self.instance.feature_configs.all(),
-            is_rollout=is_rollout,
-        ).count()
-
-        if count > 0:
-            self.warnings["bucketing"] = [NimbusConstants.ERROR_BUCKET_EXISTS]
-
-        return data
-
     def _validate_localizations(self, data):
         is_localized = data.get("is_localized")
         if not is_localized:
@@ -1680,6 +1684,15 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     )
                 }
             )
+
+        return data
+
+    def _validate_desktop_multichannel(self, data):
+        if data.get("is_rollout"):
+            return data
+
+        if len(data.get("channels", [])) > 1:
+            self.warnings["channels"] = [NimbusConstants.EXPERIMENT_MULTICHANNEL_WARNING]
 
         return data
 
@@ -1991,7 +2004,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_targeting_parses(data)
         data = self._validate_newtab_trainhop_targeting(data)
         data = self._validate_sticky_enrollment(data)
-        data = self._validate_bucket_duplicates(data)
         data = self._validate_proposed_release_date(data)
         data = self._validate_feature_value_variables(data)
         data = self._validate_primary_secondary_outcomes(data)
@@ -2000,6 +2012,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if application == NimbusExperiment.Application.DESKTOP:
             data = self._validate_desktop_pref_rollouts(data)
             data = self._validate_desktop_pref_flips(data)
+            data = self._validate_desktop_multichannel(data)
         return data
 
 

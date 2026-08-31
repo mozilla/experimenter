@@ -94,11 +94,6 @@ Optional - We expect this to <describe impact> on <core metric>.
         "within a healthy range — below the alert threshold."
     )
 
-    EXPERIMENT_MULTICHANNEL_WARNING = """WARNING: This experiment is targeting multiple
-    channels.  Each channel has significantly different population sizes and user
-    behaviour.  Running an experiment on multiple channels can create misleading or
-    inaccurate results.  It is recommended to run experiments only on a single channel."""
-
     POPULATION_SIZING_CARD_TITLE = "Audience Size Estimate"
     AUDIENCE_OVERLAP_WARNING = (
         "https://experimenter.info/advanced/warnings#audience-overlap"
@@ -150,12 +145,6 @@ Optional - We expect this to <describe impact> on <core metric>.
         "proportion accounts for this."
     )
 
-    # --- collision_warnings self-issue labels ---
-    COLLISION_SELF_ISSUE_VERSION_BELOW_MINIMUM = (
-        "Firefox version below the rollout minimum"
-    )
-    COLLISION_SELF_ISSUE_MULTICHANNEL = "Targeting multiple channels"
-
     # --- collision_warnings per-reason learn-more URLs ---
     # Only set where the doc page directly addresses the warning. Reasons
     # without a tight-fit doc page (Shares feature, Shares an audience,
@@ -171,10 +160,26 @@ Optional - We expect this to <describe impact> on <core metric>.
         "https://experimenter.info/advanced/warnings"
         "#rollouts-and-setpref-interaction-(desktop)"
     )
-    COLLISION_LEARN_MORE_VERSION_BELOW_MINIMUM = (
-        "https://experimenter.info/advanced/rollouts"
-        "#supported-platforms-and-minimum-versions"
-    )
+
+    # --- review serializer warning labels and learn-more URLs ---
+    REVIEW_WARNING_LABELS = {
+        "firefox_min_version": "Firefox version below the rollout minimum",
+        "channels": "Targeting multiple channels",
+        "pref_rollout_reenroll": "Rollout may re-enroll and override user pref changes",
+        "reference_branch": "Feature value warning",
+        "treatment_branches": "Feature value warning",
+        "targeting_config_slug": "Targeting field unsupported in some versions",
+        "proposed_release_date": "Release date set on a non-first-run experiment",
+    }
+
+    REVIEW_WARNING_LEARN_MORE = {
+        "firefox_min_version": (
+            "https://experimenter.info/advanced/rollouts"
+            "#supported-platforms-and-minimum-versions"
+        ),
+        "pref_rollout_reenroll": COLLISION_LEARN_MORE_SETS_SAME_PREFERENCE,
+    }
+
     TARGETING_CRITERIA_REQUEST_INFO = """If the option you need is not in the advanced
     targeting list - file a new targeting request with this link, and share the created
     request with either your feature engineering team or in #ask-experimenter
