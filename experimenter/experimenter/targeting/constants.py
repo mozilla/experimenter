@@ -5045,6 +5045,78 @@ FX_155_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users, no MSIX, not pinned, not default, "
+        "with New Tab Fx155 Aug-11 Trainhop"
+    ),
+    slug="newtab-155-0811-trainhop-win10-plus-nomsix-notpinned-notdefault",
+    description=(
+        "Windows 10+ existing users with profiles older than 28 days, on Fx154+, "
+        "who are not running MSIX, who have not pinned Firefox to the taskbar, "
+        "and who do not have Firefox set as the default browser, "
+        "having the New Tab 155.1.20260811.195042 train hop"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
+        "&& doesAppNeedPin && !isDefaultBrowser "
+        "&& version|versionCompare('154.!') >= 0 "
+        f"&& {FX_155_TRAINHOP.targeting} && {PROFILE28DAYS}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users, no MSIX, pinned, not default, "
+        "with New Tab Fx155 Aug-11 Trainhop"
+    ),
+    slug="newtab-155-0811-trainhop-win10-plus-nomsix-pinned-notdefault",
+    description=(
+        "Windows 10+ existing users with profiles older than 28 days, on Fx154+, "
+        "who are not running MSIX, who have pinned Firefox to the taskbar, "
+        "and who do not have Firefox set as the default browser, "
+        "having the New Tab 155.1.20260811.195042 train hop"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
+        "&& !doesAppNeedPin && !isDefaultBrowser "
+        "&& version|versionCompare('154.!') >= 0 "
+        f"&& {FX_155_TRAINHOP.targeting} && {PROFILE28DAYS}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_DEFAULT = NimbusTargetingConfig(
+    name=(
+        "Windows 10+ users, no MSIX, not pinned, default, "
+        "with New Tab Fx155 Aug-11 Trainhop"
+    ),
+    slug="newtab-155-0811-trainhop-win10-plus-nomsix-notpinned-default",
+    description=(
+        "Windows 10+ existing users with profiles older than 28 days, on Fx154+, "
+        "who are not running MSIX, who have not pinned Firefox to the taskbar, "
+        "and who have Firefox set as the default browser, "
+        "having the New Tab 155.1.20260811.195042 train hop"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && !isMSIX "
+        "&& doesAppNeedPin && isDefaultBrowser "
+        "&& version|versionCompare('154.!') >= 0 "
+        f"&& {FX_155_TRAINHOP.targeting} && {PROFILE28DAYS}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FX_156_TRAINHOP = NimbusTargetingConfig(
     name="New Tab Fx156 Aug-18 Trainhop",
     slug="newtab-156-0818-trainhop",
