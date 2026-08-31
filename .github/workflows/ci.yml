@@ -199,7 +199,7 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/experimenter/ experimenter/tests/nimbus_integration_tests.sh experimenter/tests/integration/ experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock experimenter/Dockerfile experimenter/pyproject.toml experimenter/uv.lock experimenter/package.json experimenter/yarn.lock application-services/ ${{ matrix.extra_paths }}"
+          paths: "experimenter/experimenter/experiments/ experimenter/experimenter/targeting/ experimenter/tests/integration/ experimenter/tests/nimbus_integration_tests.sh experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock experimenter/Dockerfile experimenter/pyproject.toml experimenter/uv.lock experimenter/package.json experimenter/yarn.lock ${{ matrix.extra_paths }}"
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
