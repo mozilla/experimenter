@@ -1,20 +1,23 @@
 {% load nimbus_extras %}
 
-{% with controls=experiment.rollout_review_controls timed_out=experiment.should_show_timeout_message rejection=experiment.rejection_block %}
-  {% if controls or experiment|should_show_remote_settings_pending:user or timed_out or rejection %}
+{% with controls=experiment.rollout_review_controls timed_out=experiment.should_show_timeout_message rejection=experiment.rejection_block rs_pending=experiment.remote_settings_pending_message %}
+  {% if controls or rs_pending or timed_out or rejection %}
     <div class="accordion accordion-flush rounded-3 bg-body-secondary"
          style="--bs-accordion-btn-active-color: var(--bs-body-color);
                 --bs-accordion-btn-active-bg: transparent;
                 --bs-accordion-active-color: var(--bs-body-color)">
       <div class="accordion-item border-0 bg-transparent rounded-3">
         <h2 class="accordion-header">
-          <div class="accordion-button bg-transparent shadow-none fw-semibold text-body small pb-1"
-               style="cursor: default;
-                      --bs-accordion-btn-icon: none;
-                      --bs-accordion-btn-active-icon: none">
+          <div class="accordion-button accordion-no-icon bg-transparent shadow-none fw-semibold text-body small pb-1"
+               style="cursor: default">
             {% if controls %}
               <i class="fa-regular fa-hourglass-half text-secondary me-2"></i>
               Review requested
+            {% elif rs_pending and not experiment|should_show_remote_settings_pending:user %}
+              <span class="spinner-border spinner-border-sm text-secondary me-2"
+                    role="status"
+                    aria-hidden="true"></span>
+              Waiting for Remote Settings
             {% elif rejection %}
               <i class="fa-regular fa-circle-xmark text-secondary me-2"></i>
               Review rejected
@@ -56,10 +59,13 @@
             {% if experiment.latest_review_requested_by == user.email %}
               <button type="button"
                       id="rollout-review-cancel-btn"
-                      class="btn btn-secondary btn-sm w-100 mb-2 d-flex align-items-center justify-content-center gap-2"
+                      class="btn btn-secondary btn-sm w-100 mb-2 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button"
                       hx-post="{% url controls.reject_url experiment.slug %}"
                       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                      hx-disabled-elt="this"
                       hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}"}'>
+                {% include "new/common/sidebar_transition_spinner.html" %}
+
                 <i class="fa-solid fa-rotate-left"></i>
                 Cancel Request
               </button>
@@ -84,11 +90,14 @@
                 </button>
                 <button type="button"
                         id="rollout-review-approve-btn"
-                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button"
                         hx-post="{% url controls.approve_url experiment.slug %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-disabled-elt="this"
                         {% if setup_issues_count %}{% if experiment.is_draft or controls.action_label == "Advance to Next Phase" %}disabled{% endif %}
                         {% endif %}>
+                  {% include "new/common/sidebar_transition_spinner.html" %}
+
                   <i class="fa-regular fa-circle-check"></i>
                   Approve
                 </button>
@@ -104,47 +113,37 @@
                           rows="3"></textarea>
                 <button type="button"
                         id="rollout-review-submit-reject-btn"
-                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button"
                         hx-post="{% url controls.reject_url experiment.slug %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-disabled-elt="this"
                         hx-vals='{"cancel_message": "cancelled the review request to {{ experiment.review_messages }}"}'
                         hx-include="#rollout-reject-message">
+                  {% include "new/common/sidebar_transition_spinner.html" %}
+
                   <i class="fa-regular fa-circle-xmark"></i>
                   Submit Rejection
                 </button>
               </div>
             {% else %}
-              <p class="small text-body mb-2">
-                Ask someone on your team with
-                <a href="{{ NimbusUIConstants.REVIEW_URL }}"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   class="text-decoration-none">review privileges</a>
-                or a qualified reviewer to {{ controls.action_label|lower }}.
-              </p>
-              <p class="small text-body mb-2">
-                If you don't have a team reviewer, paste the experiment URL in
-                <strong>#ask-experimenter</strong> and ask for a review.
-              </p>
-              <a href="#"
-                 class="small text-decoration-none"
-                 onclick="navigator.clipboard.writeText(window.location.href).then(() => alert('URL copied to clipboard!')); return false;">
-                Click here to copy the URL to send them.
-              </a>
+              {% include "new/common/sidebar_review_help.html" with action=controls.action_label|lower %}
+
             {% endif %}
-          {% elif experiment|should_show_remote_settings_pending:user %}
-            <p class="small text-secondary mb-2">
-              Review this change in Remote Settings to
-              {{ experiment.remote_settings_pending_message }}.
-            </p>
-            <a id="rollout-remote-settings-link"
-               href="{{ experiment.review_url }}"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
-              <i class="fa-regular fa-circle-right"></i>
-              Open Remote Settings
-            </a>
+          {% elif rs_pending %}
+            {% if experiment|should_show_remote_settings_pending:user %}
+              <p class="small text-secondary mb-2">Review this change in Remote Settings to {{ rs_pending }}.</p>
+              <a id="rollout-remote-settings-link"
+                 href="{{ experiment.review_url }}"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                <i class="fa-regular fa-circle-right"></i>
+                Open Remote Settings
+              </a>
+            {% else %}
+              {% include "new/common/sidebar_review_help.html" with action=rs_pending %}
+
+            {% endif %}
           {% endif %}
         </div>
       </div>

@@ -3,6 +3,7 @@ from parameterized import parameterized
 
 from experimenter.experiments.jexl_utils import (
     JEXLParser,
+    extract_transform_names,
     format_jexl,
     to_str,
 )
@@ -252,3 +253,26 @@ class TestToStr(TestCase):
     def test_invalid_expression_to_str(self):
         with self.assertRaises(Exception):
             to_str("a && || b")
+
+
+class TestExtractTransformNames(TestCase):
+    @parameterized.expand(
+        [
+            ("a == 1", set()),
+            ("a|length", {"length"}),
+            ("a|keys|length", {"keys", "length"}),
+            ("a|mapToProperty(b|keys)", {"mapToProperty", "keys"}),
+            ("a|date > b|date", {"date"}),
+            ("!(a|preferenceValue)", {"preferenceValue"}),
+            ("a ? b|keys : c|values", {"keys", "values"}),
+            ("items[a|length > 1]", {"length"}),
+            ("a in [b|keys, c|values]", {"keys", "values"}),
+            ("{a: b|keys}", {"keys"}),
+            (
+                "'x'|stableSample(0.5) && 'y'|versionCompare('1.0') >= 0",
+                {"stableSample", "versionCompare"},
+            ),
+        ]
+    )
+    def test_extract_transform_names(self, expression, expected_names):
+        self.assertEqual(extract_transform_names(expression), expected_names)

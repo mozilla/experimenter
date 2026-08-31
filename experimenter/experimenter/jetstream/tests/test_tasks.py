@@ -7,7 +7,12 @@ from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
 from django.utils import timezone
-from mozilla_nimbus_schemas.jetstream import Metadata, SampleSizes, SampleSizesFactory
+from mozilla_nimbus_schemas.jetstream import (
+    AnalysisBasis,
+    Metadata,
+    SampleSizes,
+    SampleSizesFactory,
+)
 from parameterized import parameterized
 from pydantic import ValidationError
 
@@ -22,6 +27,7 @@ from experimenter.jetstream.client import (
     expected_windows,
     get_data,
     get_enrollment_funnel_data,
+    get_experiment_data,
     get_featmon_slugs,
     get_latest_analysis_start_time,
     get_monitoring_data,
@@ -4462,6 +4468,31 @@ class TestSkipInvalidResults(TestCase):
         self.assertIn(valid_experiment.id, fetched_experiment_ids)
         self.assertNotIn(invalid_experiment.id, fetched_experiment_ids)
         mock_capture.assert_called_once()
+
+    def test_statistics_rows_without_analysis_basis_default_to_enrollments(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+        missing_basis_row = {
+            "metric": "identity",
+            "statistic": "count",
+            "branch": "control",
+            "point": 40,
+            "segment": "all",
+            "window_index": "1",
+        }
+
+        with (
+            patch(
+                "experimenter.jetstream.client.get_data",
+                return_value=[missing_basis_row],
+            ),
+            patch("experimenter.jetstream.client.get_metadata", return_value=None),
+            patch("experimenter.jetstream.client.get_analysis_errors", return_value=None),
+        ):
+            result = get_experiment_data(experiment)
+
+        self.assertIn(AnalysisBasis.ENROLLMENTS, result["v3"][AnalysisWindow.OVERALL])
 
 
 class TestFetchPopulationEstimatesDataTask(TestCase):

@@ -17,6 +17,7 @@ from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
 import experimenter.experiments.constants
+from experimenter.base.models import SiteFlag, SiteFlagNameChoices
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
@@ -644,12 +645,31 @@ class TestNimbusExperiment(TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
         )
         self.assertEqual(
-            experiment.sizing_sql,
+            experiment.sizing_sql_display,
             "(("
             "JSON_VALUE(metrics.object.nimbus_targeting_context_browser_settings,"
             " '$.update.channel') IN ('release'))\n"
             "AND metrics.quantity.nimbus_targeting_context_firefox_version >= 120)",
         )
+
+    def test_sizing_sql_predicate_coerces_string_returning_expression(self):
+        # urlbar_firefox_suggest uses bare 'pref'|preferenceValue which returns a
+        # STRING from JSON_VALUE. sizing_sql_predicate must coerce it to BOOL so
+        # it is safe to use in a BigQuery WHERE clause or COUNTIF.
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug="urlbar_firefox_suggest",
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            locales=[],
+            countries=[],
+            languages=[],
+        )
+        _pref_col = "metrics.object.nimbus_targeting_environment_pref_values"
+        raw = f"JSON_VALUE({_pref_col}, '$.browser__urlbar__showSearchSuggestionsFirst')"
+        coerced = f"({raw} IS NOT NULL AND {raw} != '' AND {raw} != 'false')"
+        self.assertEqual(experiment.sizing_sql_predicate, coerced)
 
     def test_sizing_full_sql_returns_none_when_no_predicate(self):
         experiment = NimbusExperimentFactory.create(
@@ -678,14 +698,61 @@ class TestNimbusExperiment(TestCase):
             risk_ai=False,
         )
         self.assertEqual(experiment.targeting, "true")
-        self.assertIsNone(experiment.sizing_sql)
+        self.assertIsNone(experiment.sizing_sql_display)
 
-    def test_get_rollout_url(self):
-        experiment = NimbusExperimentFactory.create(slug="my-rollout")
+    def test_get_detail_url_uses_legacy_url_for_experiment(self):
+        experiment = NimbusExperimentFactory.create(slug="my-experiment")
+
         self.assertEqual(
-            experiment.get_rollout_url(),
+            experiment.get_detail_url(),
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_get_detail_url_uses_legacy_url_for_rollout_when_flag_is_unset(self):
+        experiment = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        self.assertEqual(
+            experiment.get_detail_url(),
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_get_detail_url_uses_new_url_for_rollout_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        experiment = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        self.assertEqual(
+            experiment.get_detail_url(),
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
         )
+
+    def test_get_detail_url_uses_legacy_url_for_labs_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        experiment = NimbusExperimentFactory.create(
+            slug="my-labs",
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        self.assertEqual(
+            experiment.get_detail_url(),
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_get_detail_url_caches_site_flag_query(self):
+        experiment = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        with self.assertNumQueries(1):
+            experiment.get_detail_url()
+            experiment.get_detail_url()
 
     def test_latest_change_returns_most_recent(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -3403,6 +3470,92 @@ class TestNimbusExperiment(TestCase):
             if NimbusExperiment.Application(application).label in issue["detail"]
         ]
         self.assertEqual(len(version_issues), 1)
+
+    # Firefox Desktop 156 is the first version that supports re-enabling a rollout
+    # under the same slug, so anything below it cannot be re-enabled once disabled.
+    @parameterized.expand(
+        [
+            (
+                False,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_100,
+                True,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_100,
+                True,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.NO_VERSION,
+                False,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_100,
+                False,
+            ),
+            (
+                True,
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_156,
+                True,
+            ),
+        ]
+    )
+    def test_supports_rollout_reenable(
+        self, is_rollout, application, firefox_min_version, expected
+    ):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=is_rollout,
+            application=application,
+            firefox_min_version=firefox_min_version,
+        )
+
+        self.assertEqual(experiment.supports_rollout_reenable, expected)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Version.FIREFOX_100,
+                NimbusExperiment.Status.DRAFT,
+                True,
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_100,
+                NimbusExperiment.Status.LIVE,
+                True,
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_156,
+                NimbusExperiment.Status.DRAFT,
+                False,
+            ),
+            (
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Status.DRAFT,
+                True,
+            ),
+            (
+                NimbusExperiment.Version.FIREFOX_100,
+                NimbusExperiment.Status.DISABLED,
+                False,
+            ),
+        ]
+    )
+    def test_show_rollout_reenable_warning(self, firefox_min_version, status, expected):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=firefox_min_version,
+        )
+
+        self.assertEqual(experiment.show_rollout_reenable_warning, expected)
 
     def test_allocate_buckets_generates_bucket_range(self):
         feature = NimbusFeatureConfigFactory(slug="feature")
@@ -7068,6 +7221,28 @@ class TestNimbusRolloutPhase(TestCase):
         phase = NimbusRolloutPhaseFactory.build(start_date=today - 2 * day, end_date=None)
         self.assertEqual(phase.days_elapsed_capped, 2)
 
+    def test_effective_start_date_prefers_actual_start_date(self):
+        phase = NimbusRolloutPhaseFactory.build(
+            start_date=datetime.date(2026, 1, 1),
+            actual_start_date=datetime.date(2026, 1, 5),
+        )
+        self.assertEqual(phase.effective_start_date, datetime.date(2026, 1, 5))
+
+        phase.actual_start_date = None
+        self.assertEqual(phase.effective_start_date, datetime.date(2026, 1, 1))
+
+    def test_duration_and_days_elapsed_use_actual_start_date(self):
+        today = timezone.now().date()
+        day = datetime.timedelta(days=1)
+
+        phase = NimbusRolloutPhaseFactory.build(
+            start_date=today - 10 * day,
+            actual_start_date=today - 4 * day,
+            end_date=today + 3 * day,
+        )
+        self.assertEqual(phase.duration_days, 7)
+        self.assertEqual(phase.days_elapsed, 4)
+
     def test_duration_none_without_dates(self):
         phase = NimbusRolloutPhaseFactory.build(start_date=None, end_date=None)
         self.assertIsNone(phase.duration_days)
@@ -7770,6 +7945,125 @@ class TestRolloutSidebarStateHelpers(TestCase):
     def test_has_rollout_review_errors_false_when_not_rollout(self):
         experiment = NimbusExperimentFactory.create(is_rollout=False)
         self.assertFalse(experiment.has_rollout_review_errors)
+
+    def test_next_rollout_phase_number_returns_position_of_next_phase(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (1, 10, 50)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+        self.assertEqual(experiment.next_rollout_phase_number, 3)
+
+    def test_next_rollout_phase_number_none_on_last_phase(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent
+            )
+            for percent in (1, 10)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+        self.assertIsNone(experiment.next_rollout_phase_number)
+
+    def test_should_advance_rollout_phase_true_on_next_phase_start_date(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=percent,
+                start_date=datetime.date.today(),
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        self.assertTrue(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_false_before_next_phase_start_date(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=percent,
+                start_date=datetime.date.today() + datetime.timedelta(days=1),
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        self.assertFalse(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_false_without_next_phase_start_date(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=percent, start_date=None
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        self.assertFalse(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_false_when_not_rolling_out(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date.today(),
+        )
+        self.assertFalse(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_false_when_advance_already_staged(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=percent,
+                start_date=datetime.date.today(),
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        experiment.stage_rollout_phase_advance()
+        self.assertFalse(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_true_when_next_has_zero_population(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=percent,
+                start_date=datetime.date.today(),
+            )
+            for percent in (10, 0)
+        ]
+        experiment.rollout_phase = phases[0]
+        experiment.save()
+        self.assertTrue(experiment.should_advance_rollout_phase)
+
+    def test_should_advance_rollout_phase_false_on_last_phase(self):
+        experiment = self.live_rollout()
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=percent,
+                start_date=datetime.date.today(),
+            )
+            for percent in (10, 50)
+        ]
+        experiment.rollout_phase = phases[1]
+        experiment.save()
+        self.assertFalse(experiment.should_advance_rollout_phase)
 
     def test_active_rollout_stage_setup_when_draft(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

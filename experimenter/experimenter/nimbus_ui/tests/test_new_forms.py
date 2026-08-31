@@ -52,6 +52,8 @@ from experimenter.nimbus_ui.new.forms import (
     NimbusBranchFeatureValueForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    NimbusFirefoxLabsCreateForm,
+    NimbusRolloutCreateForm,
     PreviewReviewRolloutForm,
     PreviewToDraftRolloutForm,
     RolloutAudienceForm,
@@ -146,6 +148,14 @@ class TestNimbusExperimentCreateForm(RequestFormTestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_SLUG_DUPLICATE])
 
+    def test_form_prefills_the_experiment_hypothesis_placeholder(self):
+        form = NimbusExperimentCreateForm(request=self.request)
+
+        self.assertEqual(
+            form.fields["hypothesis"].initial,
+            NimbusUIConstants.HYPOTHESIS_PLACEHOLDER,
+        )
+
     def test_invalid_with_placeholder_hypothesis(self):
         data = {
             "owner": self.user,
@@ -178,6 +188,97 @@ class TestNimbusExperimentCreateForm(RequestFormTestCase):
         branch_names = set(experiment.branches.values_list("name", flat=True))
         self.assertIn("Control", branch_names)
         self.assertIn("Treatment A", branch_names)
+
+
+class TestNimbusRolloutCreateForm(RequestFormTestCase):
+    def test_form_creates_rollout(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Rollout",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusRolloutCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        rollout = form.save()
+
+        self.assertTrue(rollout.is_rollout)
+        self.assertEqual(rollout.branches.count(), 1)
+        self.assertEqual(rollout.reference_branch.name, "Control")
+
+    def test_form_prefills_the_rollout_hypothesis_placeholder(self):
+        form = NimbusRolloutCreateForm(request=self.request)
+
+        self.assertEqual(
+            form.fields["hypothesis"].initial,
+            NimbusUIConstants.ROLLOUT_HYPOTHESIS_PLACEHOLDER,
+        )
+        self.assertNotEqual(
+            NimbusUIConstants.ROLLOUT_HYPOTHESIS_PLACEHOLDER,
+            NimbusUIConstants.HYPOTHESIS_PLACEHOLDER,
+        )
+
+    def test_invalid_with_placeholder_hypothesis(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Rollout",
+            "hypothesis": NimbusUIConstants.ROLLOUT_HYPOTHESIS_PLACEHOLDER,
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusRolloutCreateForm(data, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["hypothesis"], [NimbusUIConstants.ERROR_HYPOTHESIS_PLACEHOLDER]
+        )
+
+
+class TestNimbusFirefoxLabsCreateForm(RequestFormTestCase):
+    def test_form_creates_labs_rollout(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Labs",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+        }
+        form = NimbusFirefoxLabsCreateForm(data, request=self.request)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        labs = form.save()
+
+        self.assertTrue(labs.is_firefox_labs_opt_in)
+        self.assertTrue(labs.is_rollout)
+        self.assertEqual(labs.branches.count(), 1)
+        self.assertEqual(labs.reference_branch.name, "Control")
+
+    def test_form_prefills_the_rollout_hypothesis_placeholder(self):
+        form = NimbusFirefoxLabsCreateForm(request=self.request)
+
+        self.assertEqual(
+            form.fields["hypothesis"].initial,
+            NimbusUIConstants.ROLLOUT_HYPOTHESIS_PLACEHOLDER,
+        )
+
+    def test_form_only_offers_applications_supporting_labs(self):
+        form = NimbusFirefoxLabsCreateForm(request=self.request)
+
+        self.assertEqual(
+            [value for value, _ in form.fields["application"].choices],
+            [NimbusExperiment.Application.DESKTOP, NimbusExperiment.Application.FENIX],
+        )
+
+    def test_form_rejects_application_without_labs_support(self):
+        data = {
+            "owner": self.user,
+            "name": "Test Labs",
+            "hypothesis": "test hypothesis",
+            "application": NimbusExperiment.Application.IOS,
+        }
+        form = NimbusFirefoxLabsCreateForm(data, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("application", form.errors)
 
 
 class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
@@ -1146,98 +1247,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("rollout_screenshots", form.errors)
 
-    def test_form_saves_firefox_labs_fields(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[],
-            takeaways_summary="",
-        )
-
-        labs_title = "labs-title-id"
-        labs_description = "labs-description-id"
-        labs_description_links = '{"link1": "https://example.com"}'
-        labs_group = NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
-        requires_restart = True
-
-        form = RolloutFeaturesForm(
-            instance=experiment,
-            data={
-                "rollout_experience": "Updated rollout experience",
-                "feature_configs": [],
-                "branch-feature-value-TOTAL_FORMS": "0",
-                "branch-feature-value-INITIAL_FORMS": "0",
-                "branch-feature-value-MIN_NUM_FORMS": "0",
-                "branch-feature-value-MAX_NUM_FORMS": "1000",
-                "rollout-screenshots-TOTAL_FORMS": "0",
-                "rollout-screenshots-INITIAL_FORMS": "0",
-                "rollout-screenshots-MIN_NUM_FORMS": "0",
-                "rollout-screenshots-MAX_NUM_FORMS": "1000",
-                "is_firefox_labs_opt_in": True,
-                "firefox_labs_title": labs_title,
-                "firefox_labs_description": labs_description,
-                "firefox_labs_description_links": labs_description_links,
-                "firefox_labs_group": labs_group,
-                "requires_restart": requires_restart,
-            },
-            request=self.request,
-        )
-
-        self.assertTrue(form.is_valid(), form.errors)
-        experiment = form.save()
-        experiment.refresh_from_db()
-
-        self.assertTrue(experiment.is_firefox_labs_opt_in)
-        self.assertEqual(experiment.firefox_labs_title, labs_title)
-        self.assertEqual(experiment.firefox_labs_description, labs_description)
-        self.assertEqual(
-            experiment.firefox_labs_description_links, labs_description_links
-        )
-        self.assertEqual(experiment.firefox_labs_group, labs_group)
-        self.assertTrue(experiment.requires_restart)
-
-    def test_form_clears_firefox_labs_fields_when_opt_out(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[],
-            takeaways_summary="",
-            is_firefox_labs_opt_in=True,
-            firefox_labs_title="labs-title-id",
-            firefox_labs_description="labs-description-id",
-            firefox_labs_description_links='{"link1": "https://example.com"}',
-            firefox_labs_group=NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
-            requires_restart=True,
-        )
-
-        form = RolloutFeaturesForm(
-            instance=experiment,
-            data={
-                "rollout_experience": "Updated rollout experience",
-                "feature_configs": [],
-                "branch-feature-value-TOTAL_FORMS": "0",
-                "branch-feature-value-INITIAL_FORMS": "0",
-                "branch-feature-value-MIN_NUM_FORMS": "0",
-                "branch-feature-value-MAX_NUM_FORMS": "1000",
-                "rollout-screenshots-TOTAL_FORMS": "0",
-                "rollout-screenshots-INITIAL_FORMS": "0",
-                "rollout-screenshots-MIN_NUM_FORMS": "0",
-                "rollout-screenshots-MAX_NUM_FORMS": "1000",
-            },
-            request=self.request,
-        )
-
-        self.assertTrue(form.is_valid(), form.errors)
-        experiment = form.save()
-        experiment.refresh_from_db()
-
-        self.assertFalse(experiment.is_firefox_labs_opt_in)
-        self.assertEqual(experiment.firefox_labs_title, "")
-        self.assertEqual(experiment.firefox_labs_description, "")
-        self.assertEqual(experiment.firefox_labs_description_links, "null")
-        self.assertEqual(experiment.firefox_labs_group, "")
-        self.assertFalse(experiment.requires_restart)
-
 
 class TestRolloutScreenshotCreateForm(RequestFormTestCase):
     def test_form_creates_empty_screenshot_and_logs_change(self):
@@ -1706,6 +1715,7 @@ class TestRolloutStatusForms(
             publish_status=initial_publish_status,
             is_paused=False,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         if form_class is LiveToDisabledReviewRolloutForm:
             NimbusRolloutPhaseFactory.create(experiment=experiment)
@@ -1779,6 +1789,29 @@ class TestRolloutStatusForms(
         self.assertIn(
             "Cannot perform this action: experiment must be in state",
             form.errors["__all__"][0],
+        )
+
+    @parameterized.expand(
+        [
+            (DisabledToLiveReviewRolloutForm,),
+            (DisabledToLiveReviewApproveRolloutForm,),
+        ]
+    )
+    def test_reenable_below_min_version_rejects_transition(self, form_class):
+        experiment = NimbusExperimentFactory.create(
+            status=form_class.required_status,
+            status_next=form_class.required_status_next,
+            publish_status=form_class.required_publish_status,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+        )
+        form = form_class(data={}, instance=experiment, request=self.request)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            NimbusUIConstants.ERROR_ROLLOUT_REENABLE_UNSUPPORTED_VERSION,
+            form.errors["__all__"],
         )
 
     @parameterized.expand(
@@ -2113,6 +2146,7 @@ class TestRolloutStatusForms(
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             is_rollout=True,
             population_percent=0,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         current_phase = NimbusRolloutPhaseFactory.create(
             experiment=experiment, population_percent=10
@@ -2153,6 +2187,7 @@ class TestRolloutStatusForms(
             status=NimbusExperiment.Status.DISABLED,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         final_phase = NimbusRolloutPhaseFactory.create(
             experiment=experiment,
@@ -2195,6 +2230,7 @@ class TestRolloutStatusForms(
             status=NimbusExperiment.Status.DISABLED,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         current_phase = NimbusRolloutPhaseFactory.create(
             experiment=experiment, population_percent=25
@@ -2217,6 +2253,7 @@ class TestRolloutStatusForms(
             status=NimbusExperiment.Status.DISABLED,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         form = DisabledToLiveDuplicatePhaseReviewRolloutForm(
             data={}, instance=experiment, request=self.request
@@ -2275,6 +2312,7 @@ class TestRolloutStatusForms(
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
             enable_review_slack_notifications=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         if form_class is LiveToDisabledReviewRolloutForm:
             NimbusRolloutPhaseFactory.create(experiment=experiment)

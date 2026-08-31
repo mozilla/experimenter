@@ -8,11 +8,13 @@ from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.email import (
     nimbus_send_enrollment_ending_email,
     nimbus_send_experiment_ending_email,
+    nimbus_send_rollout_phase_advance_email,
 )
 from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusRolloutPhaseFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.slack.constants import SlackConstants
@@ -308,3 +310,67 @@ class TestNimbusEmail(TestCase):
         self.assertEqual(len(sent_email.cc), 2)
         self.assertIn(experiment_subscriber1.email, sent_email.cc)
         self.assertIn(experiment_subscriber2.email, sent_email.cc)
+
+    @patch("experimenter.slack.tasks.nimbus_send_slack_notification.delay")
+    def test_send_rollout_phase_advance_email(self, mock_slack_task):
+        subscriber = UserFactory.create()
+        feature_subscriber = UserFactory.create()
+        feature_config = NimbusFeatureConfigFactory.create(
+            subscribers=[feature_subscriber]
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_rollout=True,
+            subscribers=[subscriber],
+            feature_configs=[feature_config],
+        )
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            start_date=datetime.date.today(),
+            population_percent=50,
+        )
+        launch_alert = NimbusAlert.objects.create(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.LAUNCH_REQUEST,
+            message="Launch request",
+            slack_thread_id="1234567890.123456",
+            slack_channel_id="C123456",
+        )
+
+        nimbus_send_rollout_phase_advance_email(experiment, phase, 2)
+
+        sent_email = mail.outbox[-1]
+
+        self.assertEqual(
+            sent_email.subject,
+            NimbusExperiment.EMAIL_ROLLOUT_PHASE_ADVANCE_SUBJECT,
+        )
+        self.assertEqual(sent_email.content_subtype, "html")
+        self.assertEqual(sent_email.to, [experiment.owner.email])
+        self.assertIn(subscriber.email, sent_email.cc)
+        self.assertIn(feature_subscriber.email, sent_email.cc)
+        self.assertIn(experiment.experiment_url, sent_email.body)
+        self.assertIn("Phase 2", sent_email.body)
+
+        self.assertTrue(
+            experiment.emails.filter(
+                type=NimbusExperiment.EmailType.ROLLOUT_PHASE_ADVANCE,
+                rollout_phase=phase,
+            ).exists()
+        )
+
+        mock_slack_task.assert_called_once()
+        call_args = mock_slack_task.call_args
+        self.assertEqual(call_args.kwargs["experiment_id"], experiment.id)
+        self.assertEqual(
+            set(call_args.kwargs["email_addresses"]),
+            {experiment.owner.email, subscriber.email, feature_subscriber.email},
+        )
+        self.assertEqual(
+            call_args.kwargs["action_text"],
+            SlackConstants.SLACK_EMAIL_ACTIONS[
+                NimbusExperiment.EmailType.ROLLOUT_PHASE_ADVANCE
+            ],
+        )
+        self.assertEqual(call_args.kwargs["link_url"], experiment.experiment_url)
+        self.assertEqual(call_args.kwargs["thread_ts"], launch_alert.slack_thread_id)

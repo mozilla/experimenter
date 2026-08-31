@@ -4,7 +4,7 @@ from django import forms
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
-from django.views.generic import DetailView
+from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 
 from experimenter.experiments.api.v5.serializers import NimbusRolloutReviewSerializer
@@ -36,6 +36,8 @@ from experimenter.nimbus_ui.new.forms import (
     LiveToDisabledReviewRolloutForm,
     NimbusExperimentCreateForm,
     NimbusExperimentSidebarCloneForm,
+    NimbusFirefoxLabsCreateForm,
+    NimbusRolloutCreateForm,
     PreviewReviewRolloutForm,
     PreviewToDraftRolloutForm,
     RolloutAudienceForm,
@@ -105,6 +107,8 @@ class NimbusExperimentViewMixin:
         )
         context["all_tags"] = Tag.objects.all().order_by("name")
         context["create_form"] = NimbusExperimentCreateForm()
+        context["create_rollout_form"] = NimbusRolloutCreateForm()
+        context["create_labs_form"] = NimbusFirefoxLabsCreateForm()
 
         if experiment and experiment.slug:
             context["slack_notifications_form"] = ToggleReviewSlackNotificationsForm(
@@ -112,6 +116,43 @@ class NimbusExperimentViewMixin:
             )
 
         return context
+
+
+class NimbusExperimentsCreateView(
+    NimbusExperimentViewMixin, RequestFormMixin, CreateView
+):
+    form_class = NimbusExperimentCreateForm
+    template_name = "nimbus_experiments/create.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["data"] = kwargs["data"].copy()
+        kwargs["data"]["owner"] = self.request.user
+        return kwargs
+
+    def get_redirect_url(self):
+        return reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+
+    def post(self, *args, **kwargs):
+        response = super().post(*args, **kwargs)
+
+        if response.status_code == 302:
+            response = HttpResponse()
+            response.headers["HX-Redirect"] = self.get_redirect_url()
+        return response
+
+
+class NimbusRolloutsCreateView(NimbusExperimentsCreateView):
+    form_class = NimbusRolloutCreateForm
+    template_name = "nimbus_experiments/create.html"
+
+    def get_redirect_url(self):
+        return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.object.slug})
+
+
+class NimbusFirefoxLabsCreateView(NimbusExperimentsCreateView):
+    form_class = NimbusFirefoxLabsCreateForm
+    template_name = "nimbus_experiments/create.html"
 
 
 def build_experiment_context(experiment):
@@ -154,6 +195,20 @@ def build_experiment_context(experiment):
         ),
     }
     return context
+
+
+def get_rollout_phase_population_estimates(experiment):
+    eligible_count = experiment.sizing_eligible_count
+    if eligible_count is None:
+        return []
+
+    return [
+        {
+            "phase": phase,
+            "estimated_count": int(eligible_count * phase.population_percent / 100),
+        }
+        for phase in experiment.annotated_rollout_phases()
+    ]
 
 
 class NimbusExperimentDetailView(
@@ -209,19 +264,48 @@ class RolloutSetupProgressMixin:
             return [m for value in messages for m in self.flatten_errors(value)]
         return [str(messages)]
 
-    def unique_messages(self, messages):
-        seen = set()
-        unique = []
-        for message in self.flatten_errors(messages):
-            if message not in seen:
-                seen.add(message)
-                unique.append(message)
-        return unique
+    def drop_documentation_link_title_errors(self, field_errors):
+        # The title select has no blank option so a just-added link always errors
+        # until the next save picks up its default
+        errors = field_errors.get("documentation_links")
+        if not isinstance(errors, (list, tuple)):
+            return field_errors
+
+        remaining = [
+            {key: value for key, value in link.items() if key != "title"}
+            if isinstance(link, dict)
+            else link
+            for link in errors
+        ]
+        if any(remaining):
+            field_errors["documentation_links"] = remaining
+        else:
+            field_errors.pop("documentation_links")
+        return field_errors
+
+    def split_branch_screenshot_errors(self, field_errors):
+        branch_errors = field_errors.get("reference_branch")
+        if not isinstance(branch_errors, dict) or "screenshots" not in branch_errors:
+            return field_errors
+
+        branch_errors = dict(branch_errors)
+        screenshots = branch_errors.pop("screenshots")
+        if any(screenshots):
+            field_errors["reference_branch_screenshots"] = screenshots
+        if branch_errors:
+            field_errors["reference_branch"] = branch_errors
+        else:
+            field_errors.pop("reference_branch")
+        return field_errors
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        field_errors = self.object.get_invalid_fields_errors(
-            serializer_class=NimbusRolloutReviewSerializer
+        field_errors = self.split_branch_screenshot_errors(
+            self.drop_documentation_link_title_errors(
+                self.object.get_invalid_fields_errors(
+                    serializer_class=NimbusRolloutReviewSerializer
+                )
+            )
         )
         cards = NimbusUIConstants.ROLLOUT_CARD_FIELDS
 
@@ -241,19 +325,23 @@ class RolloutSetupProgressMixin:
                 field, (None, "Other", field.replace("_", " ").title())
             )
             group = groups.setdefault(
-                card_id, {"card_id": card_id, "section": section, "fields": []}
+                card_id, {"card_id": card_id, "section": section, "fields": {}}
             )
-            group["fields"].append(
-                {
-                    "label": label,
-                    "messages": self.unique_messages(messages),
-                }
-            )
+            group["fields"].setdefault(label, []).extend(self.flatten_errors(messages))
+        for group in groups.values():
+            group["fields"] = [
+                {"label": label, "messages": messages}
+                for label, messages in group["fields"].items()
+            ]
         issues = [groups[card_id] for card_id in cards if card_id in groups]
         if None in groups:
             issues.append(groups[None])
 
-        raw_error_fields = ("reference_branch", "documentation_links")
+        raw_error_fields = (
+            "reference_branch",
+            "reference_branch_screenshots",
+            "documentation_links",
+        )
         context["validation_errors"] = {
             field: (
                 messages if field in raw_error_fields else self.flatten_errors(messages)
@@ -261,7 +349,9 @@ class RolloutSetupProgressMixin:
             for field, messages in field_errors.items()
         }
         context["setup_issues"] = issues
-        context["setup_issues_count"] = sum(len(group["fields"]) for group in issues)
+        context["setup_issues_count"] = sum(
+            len(field["messages"]) for group in issues for field in group["fields"]
+        )
         context["setup_issue_card_ids"] = [
             issue["card_id"] for issue in issues if issue["card_id"]
         ]
@@ -275,7 +365,21 @@ class RolloutSetupProgressMixin:
             ]
             for card_id, card in cards.items()
         }
+        context.update(self.readonly_card_errors(field_errors))
         return context
+
+    def readonly_card_errors(self, field_errors):
+        return {
+            "feature_value_errors": self.flatten_errors(
+                field_errors.get("reference_branch") or []
+            ),
+            "screenshot_errors": self.flatten_errors(
+                field_errors.get("reference_branch_screenshots") or []
+            ),
+            "documentation_link_errors": self.flatten_errors(
+                field_errors.get("documentation_links") or []
+            ),
+        }
 
 
 class NimbusRolloutDetailView(
@@ -290,10 +394,15 @@ class NimbusRolloutDetailView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(build_experiment_context(self.object))
+        context["rollout_phase_population_estimates"] = (
+            get_rollout_phase_population_estimates(self.object)
+        )
         return context
 
     def get_queryset(self):
-        return super().get_queryset().filter(is_rollout=True)
+        return (
+            super().get_queryset().filter(is_rollout=True, is_firefox_labs_opt_in=False)
+        )
 
 
 class CardMixin:
@@ -325,6 +434,7 @@ class NewCardUpdateView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["hx_swap_oob"] = self.request.method not in ("GET", "HEAD")
+        context["editing_card"] = True
         return context
 
     def can_edit(self):
@@ -336,6 +446,7 @@ class NewCardUpdateView(
 
     def render_valid_response(self):
         context = self.get_context_data()
+        context["editing_card"] = False
         return trigger_toast(
             self.response_class(
                 request=self.request,
@@ -684,6 +795,9 @@ class NewRolloutScheduleUpdateView(NewCardUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["rollout_phase_population_estimates"] = (
+            get_rollout_phase_population_estimates(self.object)
+        )
         selected_plan = self.request.POST.get("template_name") or self.request.POST.get(
             "rollout_plan"
         )

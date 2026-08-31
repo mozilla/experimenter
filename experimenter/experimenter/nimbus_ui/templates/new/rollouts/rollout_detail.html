@@ -7,10 +7,15 @@
 {% block main_content %}
   {% devtools_integration experiment "rollout" %}
   <div id="RolloutSummary" class="d-flex flex-column gap-4">
+    {% include "new/common/rollout_reenable_warning.html" %}
     {% include "new/common/audience_overlap_warnings.html" %}
 
     {% if experiment.monitoring_data %}
       {% include "new/rollouts/detail_card.html" with card_id="monitoring" title=NimbusUIConstants.MONITORING_CARD_TITLE subtitle="Enrollment funnel and branch health" show_edit_btn=False body_template="new/rollouts/monitoring/card.html" %}
+
+    {% endif %}
+    {% if experiment.is_draft or experiment.sizing_eligible_count is not None %}
+      {% include "new/rollouts/detail_card.html" with card_id="population_sizing" title=NimbusUIConstants.POPULATION_SIZING_CARD_TITLE subtitle="Estimated eligible and enrolled clients" show_edit_btn=False body_template="new/rollouts/population_sizing/card.html" %}
 
     {% endif %}
     {% if experiment.is_preview %}

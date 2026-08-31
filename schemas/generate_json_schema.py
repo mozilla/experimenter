@@ -7,6 +7,7 @@ import json
 import re
 import shutil
 import subprocess
+from enum import Enum
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Iterable
@@ -22,10 +23,52 @@ NEWLINES_RE = re.compile("\n+")
 # Add new sub-packages to list(s) below if you want them to have
 # JSON Schema and/or Typescript generated.
 JSON_SCHEMA_PACKAGES = [experiments, experiments_v7]
-TS_SCHEMA_PACKAGES = [experiments, jetstream, experiments_v7]
+TS_SCHEMA_PACKAGES = {
+    "experiments.d.ts": experiments,
+    "experiments-v7.d.ts": experiments_v7,
+    "jetstream.d.ts": jetstream,
+}
 
 
-def clean_output_file(ts_path: Path) -> None:
+BANNER_COMMENT_LINES = [
+    "/* tslint:disable */\n",
+    "/* eslint-disable */\n",
+    "/**\n",
+    "/* This file was automatically generated from pydantic models.\n",
+    "/* Do not modify by hand - update the pydantic models and re-run\n",
+    " * make schemas_build\n",
+    " */\n\n",
+]
+
+TYPE_REPLACEMENTS = {
+    experiments: {
+        "SetPref1": "SetPref",
+    }
+}
+
+
+def remove_lines_inclusive(lines: list[str], start: str, end: str):
+    """Remove the section of `lines` that begins with `start` ends with `end.`
+
+    `start` and `end` should not include trailing line separators.
+    """
+    start_idx = None
+    end_idx = None
+
+    for i, line in enumerate(lines):
+        stripped_line = line.rstrip("\r\n")
+        if stripped_line == start:
+            start_idx = i
+        elif start_idx is not None and stripped_line == end:
+            end_idx = i
+            break
+
+    lines = lines[:start_idx] + lines[(end_idx + 1) :]
+
+    return lines
+
+
+def clean_output_file(ts_path: Path, model_replacements: dict[str, str] | None) -> None:
     """Clean up the output file typescript definitions were written to by:
 
     1. Removing the 'top model'.
@@ -35,32 +78,25 @@ def clean_output_file(ts_path: Path) -> None:
        typescript file.
     2. Adding a banner comment with clear instructions for how to regenerate the
        typescript definitions.
+    3. Handle any model replacements due to generation of duplicated models.
     """
     with ts_path.open("r") as f:
         lines = f.readlines()
 
-    start, end = None, None
-    for i, line in enumerate(lines):
-        if line.rstrip("\r\n") == "export interface _TopModel_ {":
-            start = i
-        elif (start is not None) and line.rstrip("\r\n") == "}":
-            end = i
-            break
+    lines = remove_lines_inclusive(lines, "export interface _TopModel_ {", "}")
 
-    banner_comment_lines = [
-        "/* tslint:disable */\n",
-        "/* eslint-disable */\n",
-        "/**\n",
-        "/* This file was automatically generated from pydantic models.\n",
-        "/* Do not modify by hand - update the pydantic models and re-run\n",
-        " * make schemas_build\n",
-        " */\n\n",
-    ]
+    if model_replacements:
+        for from_model, to_model in model_replacements.items():
+            lines = remove_lines_inclusive(
+                lines, f"export interface {from_model} {{", "}"
+            )
 
-    new_lines = banner_comment_lines + lines[:start] + lines[(end + 1) :]
+            for i, line in enumerate(lines):
+                lines[i] = line.replace(from_model, to_model)
 
     with ts_path.open("w") as f:
-        f.writelines(new_lines)
+        f.writelines(BANNER_COMMENT_LINES)
+        f.writelines(lines)
 
 
 def clean_schema(schema: dict[str, Any]) -> None:
@@ -86,14 +122,10 @@ def clean_schema(schema: dict[str, Any]) -> None:
         schema["additionalProperties"] = False
 
 
-def iterate_models() -> dict[str, Any]:
+def create_module_schema(module) -> dict[str, Any]:
     models = [
         model
-        for model in (
-            getattr(package, model_name)
-            for package in TS_SCHEMA_PACKAGES
-            for model_name in package.__all__
-        )
+        for model in (getattr(module, model_name) for model_name in module.__all__)
         if not issubclass(model, ModelFactory)
     ]
 
@@ -101,7 +133,7 @@ def iterate_models() -> dict[str, Any]:
         "_TopModel_", **{m.__name__: (m, ...) for m in models}
     )
 
-    schema: dict = top_model.model_json_schema(mode="serialization")
+    schema: dict[str, Any] = top_model.model_json_schema(mode="serialization")
 
     for d in schema.get("$defs", {}).values():
         clean_schema(d)
@@ -237,34 +269,8 @@ def write_json_schemas(json_schemas_path: Path, python_package_dir: Path):
     shutil.copytree(json_schemas_path, schemas_dist_dir)
 
 
-@click.command()
-@click.option(
-    "--output",
-    "ts_output_path",
-    type=Path,
-    default=Path("index.d.ts"),
-    help="Output typescript file.",
-)
-@click.option(
-    "--json-schemas",
-    "json_schemas_path",
-    type=Path,
-    default=Path("schemas"),
-    help="Output JSON Schemas to this directory.",
-)
-@click.option(
-    "--python-package-dir",
-    "python_package_dir",
-    type=Path,
-    default=Path("mozilla_nimbus_schemas"),
-    help=(
-        "The directory to the mozilla-nimbus-schemas python package.\n"
-        "\n"
-        "Schemas will be installed inside this package at the schemas dir."
-    ),
-)
-def main(*, ts_output_path: Path, json_schemas_path: Path, python_package_dir: Path):
-    json_schema = iterate_models()
+def write_typescript_module(module_path: Path, module):
+    json_schema = create_module_schema(module)
 
     with TemporaryDirectory() as tmp_dir:
         tmp_dir = Path(tmp_dir)
@@ -280,16 +286,54 @@ def main(*, ts_output_path: Path, json_schemas_path: Path, python_package_dir: P
                 "-i",
                 str(schema_file_path),
                 "-o",
-                str(ts_output_path),
+                str(module_path),
                 "--bannerComment",
                 "",
             ],
             check=True,
         )
 
-        clean_output_file(ts_output_path)
+        clean_output_file(module_path, TYPE_REPLACEMENTS.get(module))
 
-    write_json_schemas(json_schemas_path, python_package_dir)
+
+def write_typescript_index(path: Path):
+    with path.open("w") as f:
+        f.writelines(BANNER_COMMENT_LINES)
+        models = set()
+        for filename, module in TS_SCHEMA_PACKAGES.items():
+            module_models = set()
+
+            for model_name in module.__all__:
+                model = getattr(module, model_name)
+
+                if model in models or not issubclass(model, (BaseModel, Enum)):
+                    continue
+
+                models.add(model)
+                module_models.add(model)
+
+            imports = ",\n  ".join(sorted([m.__name__ for m in module_models]))
+
+            print(f'export type {{\n  {imports},\n}} from "./types/{filename}";', file=f)
+
+
+@click.command()
+@click.option(
+    "--output",
+    "output_path",
+    type=Path,
+    default=Path("."),
+    help="Output files to this directory.",
+)
+def main(*, output_path: Path):
+    output_path.mkdir(exist_ok=True)
+
+    for filename, module in TS_SCHEMA_PACKAGES.items():
+        write_typescript_module(output_path / "types" / filename, module)
+
+    write_typescript_index(output_path / "index.d.ts")
+
+    write_json_schemas(output_path / "schemas", output_path / "mozilla_nimbus_schemas")
 
 
 if __name__ == "__main__":

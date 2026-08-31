@@ -12,6 +12,7 @@ from django.utils.html import escape
 from parameterized import parameterized
 from PIL import Image
 
+from experimenter.base.models import SiteFlag, SiteFlagNameChoices
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
@@ -1126,6 +1127,71 @@ class NimbusExperimentsListViewTest(AuthTestCase):
             ([experiment2.slug, experiment1.slug]),
         )
 
+    def test_delivery_links_use_legacy_detail_urls_when_flag_is_unset(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="test-experiment",
+        )
+        rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="test-rollout",
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse("nimbus-list"))
+
+        self.assertContains(response, f'href="{experiment.get_detail_url()}"')
+        self.assertContains(response, f'href="{rollout.get_detail_url()}"')
+        self.assertNotContains(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    def test_rollout_links_use_new_detail_url_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="test-rollout",
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse("nimbus-list"))
+
+        self.assertContains(response, f'href="{rollout.get_detail_url()}"')
+        self.assertNotContains(
+            response,
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    def test_labs_links_use_legacy_detail_url_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        labs = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+            slug="test-labs",
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        response = self.client.get(reverse("nimbus-list"))
+
+        self.assertContains(
+            response,
+            f'href="{reverse("nimbus-ui-detail", kwargs={"slug": labs.slug})}"',
+        )
+        self.assertNotContains(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": labs.slug}),
+        )
+
 
 class NimbusExperimentsListTableViewTest(AuthTestCase):
     def test_render_to_response(self):
@@ -2032,6 +2098,97 @@ class TestDocumentationLinkDeleteView(AuthTestCase):
 
 
 class TestBranchesUpdateViews(AuthTestCase):
+    def test_get_preserves_is_rollout_for_labs_when_new_delivery_menu_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertNotContains(response, 'id="id_is_rollout"')
+        self.assertContains(response, 'name="is_rollout" value="True"')
+        self.assertContains(response, 'id="labs"')
+        self.assertNotContains(response, 'id="id_is_firefox_labs_opt_in"')
+        self.assertContains(response, 'name="is_firefox_labs_opt_in" value="True"')
+
+    def test_get_hides_labs_card_for_non_labs_when_new_delivery_menu_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=False,
+            is_firefox_labs_opt_in=False,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertNotContains(response, 'id="labs"')
+        self.assertNotContains(response, 'name="is_firefox_labs_opt_in"')
+
+    def test_get_shows_labs_checkbox_when_new_delivery_menu_is_unset(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=False,
+            is_firefox_labs_opt_in=False,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'id="labs"')
+        self.assertContains(response, 'id="id_is_firefox_labs_opt_in"')
+        self.assertContains(response, 'id="id_is_rollout"')
+
+    def test_post_keeps_labs_flags_when_new_delivery_menu_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        self.client.post(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug}),
+            {
+                "is_rollout": "True",
+                "is_firefox_labs_opt_in": "True",
+                "firefox_labs_title": "test-fx-labs-title",
+                "firefox_labs_description": "test-fx-labs-description",
+                "firefox_labs_group": "group",
+            },
+        )
+
+        experiment.refresh_from_db()
+        self.assertTrue(experiment.is_rollout)
+        self.assertTrue(experiment.is_firefox_labs_opt_in)
+        self.assertEqual(experiment.firefox_labs_title, "test-fx-labs-title")
+
     def test_get_renders_for_draft_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED

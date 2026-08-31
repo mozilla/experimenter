@@ -67,7 +67,9 @@ const setupCodemirror = (selector, textarea, extraExtensions) => {
 
 const setupCodemirrorFeatures = () => {
   const selector = ".value-editor";
-  const textareas = document.querySelectorAll(selector);
+  const textareas = document.querySelectorAll(
+    `.feature-value-editor ${selector}`,
+  );
 
   textareas.forEach((textarea) => {
     const extensions = [];
@@ -105,13 +107,6 @@ const setupCodemirrorFeatures = () => {
   });
 };
 
-const setupCodemirrorLabs = () => {
-  const selector = "#id_firefox_labs_description_links";
-  const textarea = document.querySelector(selector);
-
-  setupCodemirror(selector, textarea, []);
-};
-
 const setupCodeMirrorLocalizations = () => {
   const selector = "#id_localizations";
   const textarea = document.querySelector(selector);
@@ -144,7 +139,6 @@ const setupSchemaToggleButtons = () => {
 
 const initializeAllEditors = () => {
   setupCodemirrorFeatures();
-  setupCodemirrorLabs();
   setupCodeMirrorLocalizations();
   setupSchemaToggleButtons();
 };
@@ -156,7 +150,7 @@ $(() => {
     initializeAllEditors();
     observeThemeChanges(updateAllViewThemes);
 
-    document.body.addEventListener("htmx:afterSwap", function (event) {
+    document.body.addEventListener("htmx:afterSettle", function (event) {
       if (
         event.detail.target.id === BRANCHES_FORM_ID ||
         event.detail.target.id === ROLLOUT_FEATURES_BODY_ID ||

@@ -1,0 +1,62 @@
+name: Experimenter -- PR Preview
+
+on:
+  pull_request:
+    types: [labeled, unlabeled, synchronize]
+
+env:
+  PROJECT_ID: moz-fx-experimenter-prod-6cd5
+  IMAGE_BASE: us-docker.pkg.dev/moz-fx-experimenter-prod-6cd5/experimenter-prod/experimenter
+
+jobs:
+  build_and_push:
+    if: >
+      (
+        github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, 'pr-preview') &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-tags: true
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/"
+
+      - uses: ./.github/actions/retry
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          label: Build experimenter prod image
+          run: |
+            ./scripts/store_git_info.sh
+            make build_prod
+
+      - name: Tag image(s) for GAR
+        if: steps.check-paths.outputs.should-run == 'true'
+        id: meta
+        shell: bash
+        run: |
+          IMAGE_TAG="$(git rev-parse --short=10 HEAD)"
+
+          docker tag experimenter:deploy "${IMAGE_BASE}:${IMAGE_TAG}"
+          echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Push to Google Artifact Registry
+        if: steps.check-paths.outputs.should-run == 'true'
+        uses: mozilla-it/deploy-actions/docker-push@ef0f037316873ff408a598f1cd98876dd7851e53 # v6.7.0
+        with:
+          image_tags: |-
+            ${{ env.IMAGE_BASE }}:${{ steps.meta.outputs.image_tag }}
+          workload_identity_pool_project_number: ${{ vars.GCPV2_WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+          project_id: ${{ env.PROJECT_ID }}

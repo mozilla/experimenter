@@ -41,6 +41,9 @@ class SlackConstants:
     SLACK_EMAIL_ACTIONS = {
         NimbusConstants.EmailType.EXPERIMENT_END: "🛑 Is ready to end",
         NimbusConstants.EmailType.ENROLLMENT_END: "⏸️ Is ready to end enrollment",
+        NimbusConstants.EmailType.ROLLOUT_PHASE_ADVANCE: (
+            "⏩ Is scheduled to advance to its next phase today"
+        ),
     }
 
     # Slack action to alert type mappings

@@ -69,6 +69,7 @@ class MultiSelectWidget(SelectedFirstMixin, forms.SelectMultiple):
                 "class": self.class_attrs,
                 "data-live-search": "true",
                 "data-live-search-placeholder": "Search",
+                "data-virtual-scroll": "false",
             }
         )
 
@@ -219,6 +220,8 @@ class FeatureConfigModelChoiceField(forms.ModelMultipleChoiceField):
 
 
 class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
+    hypothesis_placeholder = NimbusUIConstants.HYPOTHESIS_PLACEHOLDER
+
     owner = forms.ModelChoiceField(
         User.objects.all(),
         widget=forms.widgets.HiddenInput(),
@@ -238,7 +241,6 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
     hypothesis = forms.CharField(
         label="",
         widget=forms.widgets.Textarea(),
-        initial=NimbusUIConstants.HYPOTHESIS_PLACEHOLDER,
     )
     application = forms.ChoiceField(
         label="",
@@ -260,6 +262,10 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "application",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["hypothesis"].initial = self.hypothesis_placeholder
+
     def get_changelog_message(self):
         return f"{self.request.user} created {self.cleaned_data['name']}"
 
@@ -274,7 +280,7 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def clean_hypothesis(self):
         hypothesis = self.cleaned_data["hypothesis"]
-        if hypothesis.strip() == NimbusUIConstants.HYPOTHESIS_PLACEHOLDER.strip():
+        if hypothesis.strip() == self.hypothesis_placeholder.strip():
             raise forms.ValidationError(NimbusUIConstants.ERROR_HYPOTHESIS_PLACEHOLDER)
         return hypothesis
 
@@ -290,11 +296,36 @@ class NimbusExperimentCreateForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
         if experiment.branches.count() == 0:
             control = experiment.branches.create(name="Control", slug="control", ratio=1)
-            experiment.branches.create(name="Treatment A", slug="treatment-a", ratio=1)
+            if not experiment.is_rollout:
+                experiment.branches.create(
+                    name="Treatment A", slug="treatment-a", ratio=1
+                )
             experiment.reference_branch = control
             experiment.save(update_fields=["reference_branch"])
 
         return experiment
+
+
+class NimbusRolloutCreateForm(NimbusExperimentCreateForm):
+    hypothesis_placeholder = NimbusUIConstants.ROLLOUT_HYPOTHESIS_PLACEHOLDER
+
+    def save(self, *args, **kwargs):
+        self.instance.is_rollout = True
+        return super().save(*args, **kwargs)
+
+
+class NimbusFirefoxLabsCreateForm(NimbusRolloutCreateForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["application"].choices = [
+            (application.value, application.label)
+            for application in NimbusExperiment.Application
+            if NimbusExperiment.APPLICATION_CONFIGS[application].firefox_labs
+        ]
+
+    def save(self, *args, **kwargs):
+        self.instance.is_firefox_labs_opt_in = True
+        return super().save(*args, **kwargs)
 
 
 class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm):
@@ -855,36 +886,11 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         queryset=NimbusFeatureConfig.objects.all(),
         widget=FeatureConfigMultiSelectWidget(attrs={}),
     )
-    is_firefox_labs_opt_in = forms.BooleanField(
-        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
-    )
-    firefox_labs_title = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
-    )
-    firefox_labs_description = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
-    )
-    firefox_labs_description_links = forms.CharField(
-        required=False, widget=forms.HiddenInput()
-    )
-    firefox_labs_group = forms.ChoiceField(
-        required=False,
-        widget=forms.Select(attrs={"class": "form-select"}),
-    )
-    requires_restart = forms.BooleanField(
-        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
-    )
 
     class Meta:
         model = NimbusExperiment
         fields = (
             "feature_configs",
-            "is_firefox_labs_opt_in",
-            "firefox_labs_title",
-            "firefox_labs_description",
-            "firefox_labs_description_links",
-            "firefox_labs_group",
-            "requires_restart",
             "warn_feature_schema",
             "prevent_pref_conflicts",
         )
@@ -947,23 +953,6 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         # will remain unused as rollouts donot have results data
         self.fields["rollout_experience"].initial = self.instance.takeaways_summary
 
-        if firefox_labs := self.instance.application_config.firefox_labs:
-            self.fields["firefox_labs_group"].choices = firefox_labs.group_choices
-
-        self.was_labs_opt_in = self.instance.is_firefox_labs_opt_in
-
-        self.fields["is_firefox_labs_opt_in"].widget.attrs.update(
-            {
-                "hx-post": reverse(
-                    "nimbus-ui-new-update-rollout-features",
-                    kwargs={"slug": self.instance.slug},
-                ),
-                "hx-trigger": "change",
-                "hx-select": "#rollout-rollout-features-body",
-                "hx-target": "#rollout-rollout-features-body",
-            }
-        )
-
     def get_branch_feature_values_data(self):
         # Add temporary formset rows so newly selected, unsaved features get JSON
         # editors during the HTMX preview before Save persists them.
@@ -974,35 +963,35 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         prefix = "branch-feature-value"
         total_forms_key = f"{prefix}-TOTAL_FORMS"
         total_forms = int(data[total_forms_key])
+        selected = self._get_selected_feature_config_ids(data)
 
-        for feature_config_id in self._get_new_feature_config_ids(
-            data, prefix, total_forms
-        ):
-            data[f"{prefix}-{total_forms}-feature_config"] = feature_config_id
-            data[f"{prefix}-{total_forms}-value"] = "{}"
-            total_forms += 1
+        for index in range(total_forms):
+            feature_config_id = data.get(f"{prefix}-{index}-feature_config")
+            if feature_config_id and int(feature_config_id) not in selected:
+                data[f"{prefix}-{index}-DELETE"] = "on"
 
-        data[total_forms_key] = str(total_forms)
-        return data
-
-    def _get_new_feature_config_ids(self, data, prefix, total_forms):
-        selected_values = self.fields["feature_configs"].widget.value_from_datadict(
-            data, self.files, "feature_configs"
-        )
-        selected = [
-            int(feature_config_id)
-            for feature_config_id in selected_values or []
-            if feature_config_id
-        ]
         submitted = {
             int(data[f"{prefix}-{index}-feature_config"])
             for index in range(total_forms)
             if data.get(f"{prefix}-{index}-feature_config")
         }
+        for feature_config_id in selected:
+            if feature_config_id not in submitted:
+                data[f"{prefix}-{total_forms}-feature_config"] = feature_config_id
+                data[f"{prefix}-{total_forms}-value"] = "{}"
+                total_forms += 1
+
+        data[total_forms_key] = str(total_forms)
+        return data
+
+    def _get_selected_feature_config_ids(self, data):
+        selected_values = self.fields["feature_configs"].widget.value_from_datadict(
+            data, self.files, "feature_configs"
+        )
         return [
-            feature_config_id
-            for feature_config_id in selected
-            if feature_config_id not in submitted
+            int(feature_config_id)
+            for feature_config_id in selected_values or []
+            if feature_config_id
         ]
 
     @property
@@ -1020,18 +1009,6 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
             and self.branch_feature_values.is_valid()
             and self.rollout_screenshots.is_valid()
         )
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("is_firefox_labs_opt_in"):
-            cleaned_data["firefox_labs_title"] = ""
-            cleaned_data["firefox_labs_description"] = ""
-            cleaned_data["firefox_labs_description_links"] = "null"
-            cleaned_data["firefox_labs_group"] = ""
-            cleaned_data["requires_restart"] = False
-
-        return cleaned_data
 
     @transaction.atomic
     def save(self, *args, **kwargs):
@@ -1213,6 +1190,7 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
     required_publish_status = None
     required_is_paused = None
     requires_valid_rollout_launch = False
+    requires_rollout_reenable_support = False
 
     class Meta:
         model = NimbusExperiment
@@ -1273,6 +1251,14 @@ class UpdateStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 raise forms.ValidationError(
                     NimbusUIConstants.ERROR_INVALID_ROLLOUT_LAUNCH
                 )
+
+        if (
+            self.requires_rollout_reenable_support
+            and not self.instance.supports_rollout_reenable
+        ):
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_ROLLOUT_REENABLE_UNSUPPORTED_VERSION
+            )
 
         return cleaned_data
 
@@ -1613,6 +1599,7 @@ class LiveToDisabledReviewRejectRolloutForm(CancelRequestMixin, UpdateStatusForm
 
 
 class DisabledToLiveReviewRolloutForm(SlackNotificationMixin, UpdateStatusForm):
+    requires_rollout_reenable_support = True
     required_status = NimbusExperiment.Status.DISABLED
     required_status_next = None
     required_publish_status = NimbusExperiment.PublishStatus.IDLE
@@ -1657,6 +1644,7 @@ class DisabledToLiveDuplicatePhaseReviewRolloutForm(DisabledToLiveReviewRolloutF
 
 
 class DisabledToLiveReviewApproveRolloutForm(UpdateStatusForm):
+    requires_rollout_reenable_support = True
     required_status = NimbusExperiment.Status.DISABLED
     required_status_next = NimbusExperiment.Status.LIVE
     required_publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -1840,9 +1828,11 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
             if status == NimbusUIConstants.RolloutPhaseStatus.COMPLETE:
                 disabled_fields = NimbusUIConstants.ROLLOUT_PHASE_FIELDS
             elif status in NimbusUIConstants.RolloutPhaseStatus.CURRENT:
-                disabled_fields = ("population_percent",)
+                disabled_fields = ("population_percent", "start_date")
             else:
                 disabled_fields = ()
+            if phase and phase.effective_start_date:
+                phase_form.initial["start_date"] = phase.effective_start_date
             for field_name in disabled_fields:
                 phase_form.fields[field_name].disabled = True
 
@@ -1924,7 +1914,11 @@ class RolloutPlanApplyForm(RolloutScheduleForm):
 class RolloutPlanCreateForm(RolloutScheduleForm):
     def clean_template_name(self):
         name = (self.cleaned_data.get("template_name") or "").strip()
-        if name and name in self.plans:
+        if not name:
+            raise forms.ValidationError(
+                NimbusUIConstants.ERROR_ROLLOUT_PLAN_NAME_REQUIRED
+            )
+        if name in self.plans:
             raise forms.ValidationError(
                 NimbusUIConstants.ERROR_ROLLOUT_PLAN_NAME_DUPLICATE
             )
@@ -1941,13 +1935,12 @@ class RolloutPlanCreateForm(RolloutScheduleForm):
     @transaction.atomic
     def save(self):
         experiment = super().save()
-        name = self.cleaned_data.get("template_name")
-        if name:
-            phases = [
-                float(phase.population_percent)
-                for phase in experiment.rollout_phases.all()
-            ]
-            NimbusRolloutPlanTemplate.objects.create(name=name, phases=phases)
+        phases = [
+            float(phase.population_percent) for phase in experiment.rollout_phases.all()
+        ]
+        NimbusRolloutPlanTemplate.objects.create(
+            name=self.cleaned_data["template_name"], phases=phases
+        )
         return experiment
 
     def get_changelog_message(self):

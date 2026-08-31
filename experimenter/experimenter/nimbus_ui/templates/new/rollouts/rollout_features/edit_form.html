@@ -43,40 +43,62 @@
         {% for branch_feature_values_form in branch_feature_values %}
           {{ branch_feature_values_form.id }}
           {{ branch_feature_values_form.feature_config }}
-          <div class="row mt-2">
-            <div class="col">
-              <label class="small mb-2 text-secondary">
-                {{ branch_feature_values_form.instance.feature_config.name }}
-                {% if branch_feature_values_form.instance.allow_coenrollment %}
-                  <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
-                {% endif %}
-              </label>
-              <div class="feature-value-editor position-relative"
-                   data-nimbus-devtools-feature-editor
-                   data-feature-id="{{ branch_feature_values_form.instance.feature_config.slug }}">
-                {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
-                <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
-                  <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
-                    <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
-                            type="button"
-                            title="Preview with about:messagepreview"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                      <span class="fa fa-eye"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end text-nowrap">
-                    </ul>
+          {% if branch_feature_values_form.DELETE.value %}
+            {{ branch_feature_values_form.value.as_hidden }}
+          {% else %}
+            <div class="row mt-2">
+              <div class="col">
+                <label class="small mb-2 text-secondary">
+                  {{ branch_feature_values_form.instance.feature_config.name }}
+                  {% if branch_feature_values_form.instance.allow_coenrollment %}
+                    <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
+                  {% endif %}
+                </label>
+                <div class="feature-value-editor position-relative"
+                     data-nimbus-devtools-feature-editor
+                     data-feature-id="{{ branch_feature_values_form.instance.feature_config.slug }}">
+                  {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
+                  <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
+                    <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
+                      <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
+                              type="button"
+                              title="Preview with about:messagepreview"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false">
+                        <span class="fa fa-eye"></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end text-nowrap">
+                      </ul>
+                    </div>
                   </div>
                 </div>
+                {% for error in branch_feature_values_form.value.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+                {% with fv_errors=validation_errors.reference_branch.feature_values|get_item:forloop.counter0 %}
+                  {% for error in fv_errors.value %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                {% endwith %}
+                {% if branch_feature_values_form.instance.unversioned_schema %}
+                  <div class="mt-2">
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn show-schema-btn"
+                            data-target="rollout-schema-{{ forloop.counter0 }}">
+                      <i class="fa-solid fa-chevron-down"></i> Show Schema
+                    </button>
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn hide-schema-btn d-none"
+                            data-target="rollout-schema-{{ forloop.counter0 }}">
+                      <i class="fa-solid fa-chevron-up"></i> Hide feature schema
+                    </button>
+                    <div id="rollout-schema-{{ forloop.counter0 }}"
+                         class="schema-display d-none mt-2 mw-100 overflow-auto">
+                      <textarea class="readonly-json">{{ branch_feature_values_form.instance.unversioned_schema }}</textarea>
+                    </div>
+                  </div>
+                {% endif %}
               </div>
-              {% for error in branch_feature_values_form.value.errors %}
-                <div class="form-text text-danger">{{ error }}</div>
-              {% endfor %}
-              {% with fv_errors=validation_errors.reference_branch.feature_values|get_item:forloop.counter0 %}
-                {% for error in fv_errors.value %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-              {% endwith %}
             </div>
-          </div>
+          {% endif %}
         {% endfor %}
       </div>
     {% endwith %}
@@ -107,7 +129,7 @@
         {{ rollout_screenshots.management_form }}
         <div class="d-flex flex-column gap-2 mt-4">
           {% for screenshot_form in rollout_screenshots %}
-            {% with ss_errors=validation_errors.reference_branch.screenshots|get_item:forloop.counter0 %}
+            {% with ss_errors=validation_errors.reference_branch_screenshots|get_item:forloop.counter0 %}
               <div>
                 {{ screenshot_form.id }}
                 <div class="d-flex gap-3">
@@ -168,64 +190,6 @@
         </div>
       {% endwith %}
     </div>
-    {#  Firefox Labs  #}
-    {% if experiment.application_config.firefox_labs %}
-      <hr class="my-4 text-body-tertiary">
-      <div>
-        <div class="form-check">
-          {{ form.is_firefox_labs_opt_in }}
-          <label class="form-check-label small text-body"
-                 for="id_is_firefox_labs_opt_in">Is this a Firefox Labs rollout?</label>
-        </div>
-        {% for error in validation_errors.is_firefox_labs_opt_in %}
-          <div class="form-text text-danger">{{ error }}</div>
-        {% endfor %}
-        {% if experiment.is_firefox_labs_opt_in %}
-          <div class="mt-4">
-            <label class="small text-body mb-2 d-block">The title to display in Firefox Labs (Fluent ID)</label>
-            {{ form.firefox_labs_title }}
-            {{ form.firefox_labs_title.errors }}
-            {% for error in validation_errors.firefox_labs_title %}
-              <div class="form-text text-danger">{{ error }}</div>
-            {% endfor %}
-          </div>
-          <div class="mt-4">
-            <label class="small text-body mb-2 d-block">The description to display in Firefox Labs (Fluent ID)</label>
-            {{ form.firefox_labs_description }}
-            {{ form.firefox_labs_description.errors }}
-            {% for error in validation_errors.firefox_labs_description %}
-              <div class="form-text text-danger">{{ error }}</div>
-            {% endfor %}
-          </div>
-          <div class="mt-4">
-            <label class="small text-body mb-2 d-block">Description Links (JSON)</label>
-            {{ form.firefox_labs_description_links }}
-            {{ form.firefox_labs_description_links.errors }}
-            {% for error in validation_errors.firefox_labs_description_links %}
-              <div class="form-text text-danger">{{ error }}</div>
-            {% endfor %}
-          </div>
-          {% if experiment.application_config.firefox_labs.supports_groups %}
-            <div class="mt-4">
-              <label class="small text-body mb-2 d-block">Firefox Labs Group</label>
-              {{ form.firefox_labs_group }}
-              {{ form.firefox_labs_group.errors }}
-              {% for error in validation_errors.firefox_labs_group %}
-                <div class="form-text text-danger">{{ error }}</div>
-              {% endfor %}
-            </div>
-          {% endif %}
-          <div class="mt-4">
-            <div class="form-check">
-              {{ form.requires_restart }}
-              <label class="form-check-label small text-body" for="id_requires_restart">Requires restart to take effect?</label>
-            </div>
-            {{ form.requires_restart.errors }}
-            {% for error in validation_errors.requires_restart %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-          </div>
-        {% endif %}
-      </div>
-    {% endif %}
   </div>
 </div>
 {# Action buttons #}

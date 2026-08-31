@@ -778,6 +778,10 @@
               "items": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "A stable identifier for this button, reported as `event_context.source` on click telemetry. Defaults to `button_<index>` when omitted."
+                  },
                   "label": {
                     "$ref": "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json#/$defs/localizableText",
                     "description": "The text label of the button."

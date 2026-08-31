@@ -21,10 +21,36 @@ document.addEventListener("showToast", (event) => {
   showToast(event.detail?.id);
 });
 
+document.addEventListener("keydown", (event) => {
+  if (
+    event.key === "Enter" &&
+    event.target.closest?.(".card-edit-form input")
+  ) {
+    event.preventDefault();
+  }
+});
+
 document.addEventListener("click", (event) => {
   const trigger = event.target.closest?.("[data-toast-id]");
   if (trigger) {
     showToast(trigger.dataset.toastId);
+  }
+});
+
+const expandCard = (card) => {
+  const collapse = card.querySelector(".accordion-collapse");
+  if (collapse && !collapse.classList.contains("show")) {
+    window.bootstrap?.Collapse.getOrCreateInstance(collapse, {
+      toggle: false,
+    }).show();
+  }
+};
+
+document.addEventListener("click", (event) => {
+  const editButton = event.target.closest?.("[data-card-action='edit']");
+  const card = editButton?.closest(".rollout-card");
+  if (card) {
+    expandCard(card);
   }
 });
 

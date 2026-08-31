@@ -13,6 +13,7 @@ from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.email import (
     nimbus_send_enrollment_ending_email,
     nimbus_send_experiment_ending_email,
+    nimbus_send_rollout_phase_advance_email,
 )
 from experimenter.experiments.models import NimbusAlert, NimbusChangeLog, NimbusExperiment
 from experimenter.kinto.client import KintoClient
@@ -662,15 +663,15 @@ def nimbus_synchronize_preview_experiments_in_kinto():
 def nimbus_send_emails():
     """
     A scheduled task that checks for any experiments that
-    should end enrollment or end the experiment and sends
-    a reminder email
+    should end enrollment or end the experiment, and any rollouts
+    whose next phase is scheduled to start, and sends a reminder email
     """
     metrics.incr("nimbus_send_emails.started")
 
     experiments = list(
         NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.LIVE
-        ).prefetch_related("emails")
+        ).prefetch_related("emails", "rollout_phases")
     )
 
     for experiment in experiments:
@@ -686,13 +687,44 @@ def nimbus_send_emails():
             nimbus_send_enrollment_ending_email(experiment)
             logger.info(f"{experiment} end enrollment email sent")
 
-        if experiment.should_end and not any(
-            True
-            for email in experiment.emails.all()
-            if email.type == NimbusExperiment.EmailType.EXPERIMENT_END
+        if (
+            experiment.should_end
+            and not experiment.is_rollout_with_phases
+            and not any(
+                True
+                for email in experiment.emails.all()
+                if email.type == NimbusExperiment.EmailType.EXPERIMENT_END
+            )
         ):
             nimbus_send_experiment_ending_email(experiment)
             logger.info(f"{experiment} end email sent")
+
+    rollouts = list(
+        NimbusExperiment.objects.filter(
+            is_rollout=True,
+            status__in=(NimbusExperiment.Status.LIVE, NimbusExperiment.Status.DISABLED),
+        ).prefetch_related("emails", "rollout_phases")
+    )
+
+    for rollout in rollouts:
+        next_phase = rollout.next_rollout_phase
+        if next_phase is None or not rollout.should_advance_rollout_phase:
+            continue
+
+        if any(
+            True
+            for email in rollout.emails.all()
+            if email.type == NimbusExperiment.EmailType.ROLLOUT_PHASE_ADVANCE
+            and email.rollout_phase_id == next_phase.id
+        ):
+            continue
+
+        nimbus_send_rollout_phase_advance_email(
+            rollout, next_phase, rollout.next_rollout_phase_number
+        )
+        logger.info(
+            NimbusConstants.LOG_ROLLOUT_PHASE_ADVANCE_EMAIL_SENT.format(rollout=rollout)
+        )
 
     metrics.incr("nimbus_send_emails.completed")
 

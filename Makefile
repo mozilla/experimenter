@@ -50,6 +50,7 @@ LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.js
 LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
 GENERATE_TARGETING_CONFIGS = python manage.py generate_targeting_configs
+EXPORT_TARGETING_SQL = python manage.py export_targeting_sql
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_tags
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
@@ -165,6 +166,12 @@ lint: build_test  ## Running linting on source code
 
 check: lint
 
+export_targeting_sql: build_test  ## Export targeting SQL for BigQuery dry-run validation
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL)' > targeting_sql.json; \
+	status=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$status
+
 test: build_test  ## Run tests
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) python manage.py test --parallel'; \
 	status=$$?; \
@@ -254,9 +261,6 @@ integration_test_vnc: build_prod
 integration_test_nimbus_desktop: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) firefox sh -c "FIREFOX_CHANNEL=$(FIREFOX_CHANNEL) PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) ./experimenter/tests/nimbus_integration_tests.sh"
 
-integration_test_nimbus_sdk: build_integration_test build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION_RUN) -it rust-sdk sh -c "./experimenter/tests/nimbus_rust_tests.sh"
-
 integration_test_nimbus_fenix:
 	uv sync --project experimenter/tests --no-install-project
 	mkdir -p experimenter/tests/integration/test-reports
@@ -327,11 +331,10 @@ SCHEMAS_RUFF = ruff check .
 SCHEMAS_DIFF_PYDANTIC = \
 	mkdir -p /tmp/schemas-diff/ && \
 	python generate_json_schema.py \
-		--output /tmp/schemas-diff/index.d.ts \
-		--json-schemas /tmp/schemas-diff/schemas/ \
-		--python-package-dir /tmp/schemas-diff/mozilla_nimbus_schemas/ && \
+		--output /tmp/schemas-diff/ && \
 	( \
-		diff index.d.ts /tmp/schemas-diff/index.d.ts && \
+		diff ./index.d.ts /tmp/schemas-diff/index.d.ts && \
+		diff -r ./types/ /tmp/schemas-diff/types/ && \
 		diff -r ./schemas /tmp/schemas-diff/schemas/ \
 	) || ( \
 		echo schemas packages are out of out of sync\: run make schemas_build; \

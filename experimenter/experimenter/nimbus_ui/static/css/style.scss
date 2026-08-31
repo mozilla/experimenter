@@ -345,6 +345,10 @@
   grid-column: 1 / -1;
 }
 
+.accordion-no-icon::after {
+  display: none;
+}
+
 // Rollout card collapse/expand chevron rotation
 .rollout-card-toggle .chevron-icon {
   transition: transform 0.2s ease;
@@ -375,9 +379,31 @@
   }
 }
 
+.sidebar-transition-button .sidebar-transition-spinner {
+  display: none;
+}
+
+.sidebar-transition-button.htmx-request {
+  opacity: 0.55;
+  pointer-events: none;
+
+  > i {
+    display: none;
+  }
+
+  .sidebar-transition-spinner {
+    display: inline-block;
+  }
+}
+
 .rollout-page {
   .cm-editor .cm-scroller {
     font-family: var(--bs-font-monospace);
     font-size: 0.875rem;
+  }
+
+  .bootstrap-select .dropdown-menu,
+  .bootstrap-select .dropdown-menu .inner {
+    overscroll-behavior: contain;
   }
 }

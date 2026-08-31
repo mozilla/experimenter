@@ -332,11 +332,12 @@ def get_experiment_data(experiment: NimbusExperiment):
 
         for point in data_from_jetstream:
             segment_key = point["segment"]
-            if point["analysis_basis"] == AnalysisBasis.ENROLLMENTS:
+            analysis_basis = point.get("analysis_basis", AnalysisBasis.ENROLLMENTS)
+            if analysis_basis == AnalysisBasis.ENROLLMENTS:
                 segment_points_enrollments[segment_key].append(point)
                 experiment_data[window][AnalysisBasis.ENROLLMENTS] = {}
                 raw_data[window][AnalysisBasis.ENROLLMENTS] = {}
-            elif point["analysis_basis"] == AnalysisBasis.EXPOSURES:
+            elif analysis_basis == AnalysisBasis.EXPOSURES:
                 segment_points_exposures[segment_key].append(point)
                 experiment_data[window][AnalysisBasis.EXPOSURES] = {}
                 raw_data[window][AnalysisBasis.EXPOSURES] = {}

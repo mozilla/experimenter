@@ -1,5 +1,7 @@
 from enum import Enum, IntEnum
 
+from django.conf import settings
+
 from experimenter.experiments.constants import NimbusConstants
 
 
@@ -12,6 +14,17 @@ We believe this because we have observed <this> via <data source, UR, survey>.
 Optional - We believe this outcome will <describe impact> on <core metric>
 
     """.strip()  # noqa: E501
+
+    ROLLOUT_HYPOTHESIS_PLACEHOLDER = """
+Observations: We have observed <this> for <these users> via <data source, UR, survey>.
+
+Context: <describe the problem, opportunity, or change in direction behind this rollout>.
+
+We are rolling out <this change> to <these users>.
+
+Optional - We expect this to <describe impact> on <core metric>.
+
+    """.strip()
 
     ERROR_NAME_INVALID = "This is not a valid name."
     ERROR_SLUG_DUPLICATE = "An experiment with this slug already exists."
@@ -38,6 +51,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_ROLLOUT_REENABLE_REQUIRES_CURRENT_PHASE = (
         "Cannot duplicate the final phase because this rollout has no current phase."
     )
+    ERROR_ROLLOUT_REENABLE_UNSUPPORTED_VERSION = (
+        "Cannot perform this action: this rollout targets Firefox versions that do "
+        "not support re-enabling a rollout that has been disabled."
+    )
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/getting-started/for-reviewers"
@@ -46,6 +63,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     UNENROLLMENT_SPIKE_THRESHOLD_DISPLAY = "10%"
     SRM_P_VALUE_THRESHOLD_DISPLAY = "0.001"
+
+    SLACK_NIMBUS_CHANNEL = settings.SLACK_NIMBUS_CHANNEL
+    ASK_EXPERIMENTER_SLACK_CHANNEL = "ask-experimenter"
 
     ARCHIVE_DISABLED_TOOLTIP = (
         "Experiments can only be archived when in Draft or Complete."
@@ -79,6 +99,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     behaviour.  Running an experiment on multiple channels can create misleading or
     inaccurate results.  It is recommended to run experiments only on a single channel."""
 
+    POPULATION_SIZING_CARD_TITLE = "Audience Size Estimate"
     AUDIENCE_OVERLAP_WARNING = (
         "https://experimenter.info/advanced/warnings#audience-overlap"
     )
@@ -158,6 +179,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     targeting list - file a new targeting request with this link, and share the created
     request with either your feature engineering team or in #ask-experimenter
     so the new targeting can be added."""
+    STICKY_ENROLLMENT_DESCRIPTION = (
+        "Clients remain enrolled even if they no longer meet the targeting."
+    )
     TIMELINE_TOOLTIPS = {
         "Draft": (
             "The duration from the initial draft of the experiment to its entry "
@@ -288,6 +312,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "for the selected versions."
     )
 
+    NEW_DELIVERY_LABS_DESCRIPTION = (
+        "Give users early access to your experimental feature. Start a foxfooding "
+        "campaign to get qualitative external feedback sooner."
+    )
+
     KEY_TAKEAWAYS_EMPTY_TEXT = """Was your hypothesis right, wrong, or somewhere in
     between? Call out what changed in a meaningful way (ideally things that were
     statistically significant)."""
@@ -366,6 +395,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     checklist."""
     QA_TICKET_URL = "https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10212&issuetype=11290"
 
+    ERROR_ROLLOUT_PLAN_NAME_REQUIRED = "Please name this rollout plan before saving it."
     ERROR_ROLLOUT_PLAN_NAME_DUPLICATE = "A rollout plan with this name already exists."
     ERROR_ROLLOUT_PLAN_FIX_ERRORS = (
         "Resolve the highlighted errors above before saving this plan."
@@ -384,6 +414,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ROLLOUT_PAUSE_OBSERVATIONS_LABEL = "Pause rollout if these observations occur"
     ROLLOUT_PHASE_FIELDS = ("start_date", "end_date", "population_percent")
+    ROLLOUT_SCHEDULE_DATES_NOTE = (
+        "Phase dates are used for planning and reminders only. Phases do not start or "
+        "end automatically, so these dates are optional."
+    )
     ROLLOUT_PREVIEW_MESSAGE = (
         "This rollout is in Preview mode and is live for testing now. It can take up "
         "to an hour before clients receive the preview. When you're ready, request "
@@ -392,6 +426,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ROLLOUT_PREVIEW_BLOCKED_TOOLTIP = (
         "Resolve the detected setup issues before previewing or launching"
     )
+    ROLLOUT_UNSAVED_CHANGES_CONFIRM = (
+        "A section is still open for editing. Click OK to continue and discard "
+        "those changes, or Cancel to go back and save them first."
+    )
     ROLLOUT_LIVE_MESSAGE = (
         "This rollout is live. You can advance to the next phase to adjust its "
         "population sizing, or disable it."
@@ -399,6 +437,15 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ROLLOUT_DISABLED_MESSAGE = (
         "This rollout is currently disabled. You can re-enable it by starting the "
         "next phase."
+    )
+    ROLLOUT_REENABLE_UNSUPPORTED_MESSAGE = (
+        "This rollout cannot be re-enabled because Firefox Desktop versions under "
+        "156 do not support re-enabling a rollout that has been disabled."
+    )
+    ROLLOUT_REENABLE_VERSION_WARNING = (
+        "Firefox Desktop versions under 156 do not support re-enabling a rollout "
+        "once it has been disabled. If this rollout is disabled, it cannot be "
+        "started again."
     )
     ROLLOUT_DUPLICATE_PHASE_MESSAGE = (
         "There is no next phase to start. Accept to copy and launch the current "
@@ -451,7 +498,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
                 ("Feature Configuration", ("feature_configs", "reference_branch")),
                 ("Warn On Schema Failure", ("warn_feature_schema",)),
                 ("Prevent Pref Conflicts", ("prevent_pref_conflicts",)),
-                ("Screenshots", ()),
+                ("Screenshots", ("reference_branch_screenshots",)),
                 (
                     "Firefox Labs",
                     (
@@ -513,6 +560,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     ROLLOUT_CARD_ICONS = {
         "monitoring": "fa-regular fa-chart-bar",
+        "population_sizing": "fa-solid fa-user-group",
         "schedule": "fa-regular fa-calendar-days",
         "preview": "fa-regular fa-eye",
         "overview": "fa-regular fa-file-lines",

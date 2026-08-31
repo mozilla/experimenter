@@ -4,6 +4,12 @@
 <div id="rollout-schedule-body">
   {% include "new/common/sidebar_setup_refresh.html" %}
 
+  {% if hx_swap_oob %}
+    {% if experiment.is_draft or experiment.sizing_eligible_count is not None %}
+      {% include "new/rollouts/population_sizing/card.html" with population_sizing_oob=True hx_swap_oob=False %}
+
+    {% endif %}
+  {% endif %}
   <form hx-post="{% url 'nimbus-ui-new-update-schedule' experiment.slug %}"
         hx-target="#rollout-schedule-body"
         hx-swap="outerHTML"
@@ -17,6 +23,9 @@
     </div>
     {{ form.rollout_phases.management_form }}
     <div class="d-flex flex-column">
+      {% if form.rollout_phases|length %}
+        <div class="text-secondary mb-2" style="font-size: 12px">{{ NimbusUIConstants.ROLLOUT_SCHEDULE_DATES_NOTE }}</div>
+      {% endif %}
       {% for phase_form in form.rollout_phases %}
         {% with display=phase_form.card_status_display %}
           <div class="p-3 rounded"
@@ -117,13 +126,20 @@
         </button>
         <div class="collapse mt-2{% if form.template_name.errors %} show{% endif %}"
              id="new-rollout-plan-field">
-          <div class="input-group">
+          <div class="d-flex gap-2">
             {{ form.template_name|add_error_class:"is-invalid" }}
             <button type="button"
-                    class="btn btn-primary"
+                    id="rollout-schedule-save-plan"
+                    class="btn btn-primary btn-sm flex-shrink-0"
                     hx-post="{% url 'nimbus-ui-new-create-rollout-plan' experiment.slug %}"
                     hx-target="#rollout-schedule-body"
                     hx-swap="outerHTML">Save plan</button>
+            <button type="button"
+                    id="rollout-schedule-cancel-plan"
+                    class="btn btn-outline-secondary btn-sm flex-shrink-0"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#new-rollout-plan-field"
+                    aria-controls="new-rollout-plan-field">Cancel</button>
           </div>
           {% if form.template_name.errors %}
             <div class="text-danger small mt-1">{{ form.template_name.errors|join:", " }}</div>

@@ -62,6 +62,9 @@ collections-to-tab-groups-migration:
   hasExposure: true
   exposureDescription: ''
   variables:
+    enabled:
+      type: boolean
+      description: If true, run the one-time migration that converts existing Collections into Tab Groups.
     hide-collections-ui:
       type: boolean
       description: If true, the Collections UI is hidden.
@@ -403,6 +406,14 @@ juno-onboarding:
       type: json
       description: |
         A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
+listen-to-page:
+  description: A feature that allows audio listening of a page
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, listen to page will be enabled
 lna-blocking:
   description: Feature that allows blocking local network or device access.
   hasExposure: true
@@ -1029,6 +1040,17 @@ voice-search-in-display-mode:
     enabled:
       type: boolean
       description: If true, voice search is shown in the display toolbar.
+webcompat-interventions:
+  description: Experimental controls for webcompat site interventions
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    disabled-intervention-2060611:
+      type: boolean
+      description: If `true`, disables the webcompat intervention tracked by bug 2060611 (background media playback). Unset or false leaves the intervention enabled.
+      setPref:
+        pref: extensions.webcompat.disabled_interventions.2060611
+        branch: default
 webcompat-reporter-enhancements:
   description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
   hasExposure: true
@@ -1037,3 +1059,11 @@ webcompat-reporter-enhancements:
     enabled:
       type: boolean
       description: If true, WebCompat Reporter enhancements is enabled.
+weekly-privacy-notification:
+  description: A feature that shows a recurring weekly notification summarizing Tracking Protection activity.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the weekly privacy notification will be scheduled.

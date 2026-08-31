@@ -1,0 +1,17 @@
+<p>Hello,</p>
+<p>
+  This is an automatic email from the Nimbus Experimentation Platform to remind you that Phase {{ phase_number }} of your rollout,
+  <a target="_blank"
+     rel="noreferrer noopener"
+     href="{{ experiment.experiment_url }}">{{ experiment.name }}</a>,
+  is scheduled to start on {{ phase.start_date }} at {{ phase.population_percent|floatformat:"-2" }}% population.
+</p>
+<p>
+  Once you've confirmed with your engineering team, data scientist, and any important stakeholders that it's OK to end
+  the current phase, you, or someone with review credentials, should advance the rollout to its next phase
+  <a target="_blank"
+     rel="noreferrer noopener"
+     href="{{ experiment.experiment_url }}">on this page</a>.
+</p>
+<p>Thank you!</p>
+<p>Nimbus Engineering</p>

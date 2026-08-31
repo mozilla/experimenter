@@ -1,0 +1,58 @@
+name: Validate Targeting SQL
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  validate:
+    name: Validate Targeting SQL
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/experimenter/experiments/jexl_to_sql.py experimenter/experimenter/experiments/constants.py experimenter/experimenter/experiments/models.py experimenter/experimenter/targeting/constants.py experimenter/experimenter/base/management/commands/export_targeting_sql.py experimenter/bin/validate_targeting_sql.py"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/retry
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          label: Build experimenter test image
+          run: |
+            cp .env.sample .env
+            make build_test
+
+      - name: Export targeting SQL
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: make export_targeting_sql
+
+      - name: Authenticate to GCP
+        if: steps.check-paths.outputs.should-run == 'true'
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2
+        id: auth
+        with:
+          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DRYRUN_SERVICE_ACCOUNT_EMAIL }}
+          token_format: id_token
+          id_token_audience: https://us-central1-moz-fx-data-shared-prod.cloudfunctions.net/dryrun
+          id_token_include_email: true
+
+      - name: Validate targeting SQL
+        if: steps.check-paths.outputs.should-run == 'true'
+        env:
+          GOOGLE_GHA_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
+        run: python3 experimenter/bin/validate_targeting_sql.py targeting_sql.json

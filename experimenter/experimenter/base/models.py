@@ -3,6 +3,7 @@ from django.db import models
 
 class SiteFlagNameChoices(models.TextChoices):
     ADVERTISE_DEVTOOLS = "ADVERTISE_DEVTOOLS", "Advertise nimbus-devtools"
+    NEW_DELIVERY_MENU = "NEW_DELIVERY_MENU", "Enable the 'New Delivery' menu"
 
 
 class SiteFlagManager(models.Manager["SiteFlag"]):

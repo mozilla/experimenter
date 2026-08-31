@@ -16,6 +16,10 @@ FIXTURES_DIR = Path(__file__).resolve().parents[1] / "fixtures"
 TARGETING_CONFIGS_PATH = FIXTURES_DIR / "targeting_configs.json"
 FEATURE_CONFIGS_PATH = FIXTURES_DIR / "feature_configs.json"
 
+# Mirrors ROLLOUT_REENABLE_MIN_SUPPORTED_VERSION in experimenter.experiments.constants
+# Rollouts below this version cannot be re-enabled once disabled.
+ROLLOUT_REENABLE_MIN_VERSION = "156.!"
+
 NO_FEATURE_SLUGS = {
     BaseExperimentApplications.FIREFOX_DESKTOP.value: "no-feature-firefox-desktop",
     BaseExperimentApplications.FIREFOX_FENIX.value: "no-feature-fenix",
@@ -184,21 +188,12 @@ def _default_feature_config_ids(app):
     return []
 
 
-def load_targeting_configs(app=BaseExperimentApplications.FIREFOX_DESKTOP.value):
+def load_targeting_configs():
     targeting_configs = json.loads(TARGETING_CONFIGS_PATH.read_text())
     return [
         item["value"]
         for item in targeting_configs
-        if (
-            BaseExperimentApplications.FIREFOX_DESKTOP.value in app
-            and BaseExperimentApplications.FIREFOX_DESKTOP.value
-            in item["applicationValues"]
-        )
-        or (
-            BaseExperimentApplications.FIREFOX_DESKTOP.value not in app
-            and BaseExperimentApplications.FIREFOX_DESKTOP.value
-            not in item["applicationValues"]
-        )
+        if BaseExperimentApplications.FIREFOX_DESKTOP.value in item["applicationValues"]
     ]
 
 

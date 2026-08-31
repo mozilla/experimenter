@@ -29,7 +29,13 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from prose.fields import RichTextField
 
-from experimenter.base.models import Country, Language, Locale
+from experimenter.base.models import (
+    Country,
+    Language,
+    Locale,
+    SiteFlag,
+    SiteFlagNameChoices,
+)
 from experimenter.experiments.constants import (
     ENROLLMENT_FUNNEL_STAGES,
     NIMBUS_TARGETING_CONTEXT_TABLE,
@@ -41,7 +47,7 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
-from experimenter.experiments.jexl_to_sql import jexl_to_sql
+from experimenter.experiments.jexl_to_sql import ensure_bool_sql, jexl_to_sql
 from experimenter.experiments.jexl_utils import format_jexl
 from experimenter.experiments.monitoring_utils import (
     check_srm_mismatch,
@@ -661,14 +667,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def get_absolute_url(self):
         return reverse("nimbus-ui-detail", kwargs={"slug": self.slug})
 
+    @cached_property
+    def is_new_rollout_ui_enabled(self):
+        return SiteFlag.objects.filter(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        ).exists()
+
     def get_detail_url(self):
+        if (
+            self.is_rollout
+            and not self.is_firefox_labs_opt_in
+            and self.is_new_rollout_ui_enabled
+        ):
+            return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.slug})
+
         return reverse("nimbus-ui-detail", kwargs={"slug": self.slug})
 
     def get_history_url(self):
         return reverse("nimbus-ui-history", kwargs={"slug": self.slug})
-
-    def get_rollout_url(self):
-        return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.slug})
 
     def get_update_overview_url(self):
         return reverse("nimbus-ui-update-overview", kwargs={"slug": self.slug})
@@ -1392,6 +1409,32 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return bool(
             self.get_invalid_fields_errors(serializer_class=NimbusRolloutReviewSerializer)
         )
+
+    @property
+    def next_rollout_phase_number(self):
+        next_phase = self.next_rollout_phase
+        if next_phase is None:
+            return None
+
+        phase_ids = [phase.id for phase in self.rollout_phases.all()]
+        return phase_ids.index(next_phase.id) + 1
+
+    @property
+    def should_advance_rollout_phase(self):
+        if not self.is_rolling_out or self.has_pending_rollout_transition:
+            return False
+
+        if self.rollout_phase_next_id is not None:
+            return False
+
+        next_phase = self.next_rollout_phase
+        if next_phase is None:
+            return False
+
+        if next_phase.start_date is None:
+            return False
+
+        return datetime.date.today() >= next_phase.start_date
 
     @property
     def rollout_review_controls(self):
@@ -2456,19 +2499,22 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return None
 
     @property
-    def sizing_sql(self):
+    def sizing_sql_predicate(self):
         sql = jexl_to_sql(self.targeting).sql
+        if sql is None:
+            return None
+        return ensure_bool_sql(sql)
+
+    @property
+    def sizing_sql_display(self):
+        sql = self.sizing_sql_predicate
         if sql:
             sql = sql.replace(" AND ", "\nAND ")
         return sql
 
     @property
-    def sizing_sql_predicate(self):
-        return jexl_to_sql(self.targeting).sql
-
-    @property
     def sizing_full_sql(self):
-        predicate = self.sizing_sql
+        predicate = self.sizing_sql_display
         if not predicate:
             return None
         return SIZING_FULL_SQL_TEMPLATE.format(
@@ -2632,6 +2678,32 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "slugs": [],
                 "learn_more_link": None,
             }
+
+    @property
+    def supports_rollout_reenable(self):
+        if not self.is_rollout:
+            return True
+
+        min_required_version = NimbusConstants.ROLLOUT_REENABLE_MIN_SUPPORTED_VERSION.get(
+            self.application
+        )
+        if min_required_version is None:
+            return True
+
+        if not self.firefox_min_version:
+            return False
+
+        return NimbusExperiment.Version.parse(
+            self.firefox_min_version
+        ) >= NimbusExperiment.Version.parse(min_required_version)
+
+    @property
+    def show_rollout_reenable_warning(self):
+        return not self.supports_rollout_reenable and self.status in (
+            NimbusConstants.Status.DRAFT,
+            NimbusConstants.Status.PREVIEW,
+            NimbusConstants.Status.LIVE,
+        )
 
     @property
     def audience_overlap_warnings(self):
@@ -3169,9 +3241,13 @@ class NimbusRolloutPhase(models.Model):
         return f"Rollout phase ({self.population_percent}%)"
 
     @property
+    def effective_start_date(self):
+        return self.actual_start_date or self.start_date
+
+    @property
     def duration_days(self):
-        if self.start_date and self.end_date:
-            return max(0, (self.end_date - self.start_date).days)
+        if self.effective_start_date and self.end_date:
+            return max(0, (self.end_date - self.effective_start_date).days)
         return None
 
     @property
@@ -3183,9 +3259,9 @@ class NimbusRolloutPhase(models.Model):
 
     @property
     def days_elapsed(self):
-        if not self.start_date:
+        if not self.effective_start_date:
             return 0
-        return max(0, (timezone.now().date() - self.start_date).days)
+        return max(0, (timezone.now().date() - self.effective_start_date).days)
 
     @property
     def days_elapsed_capped(self):
@@ -3770,6 +3846,13 @@ class NimbusEmail(models.Model):
         NimbusExperiment,
         related_name="emails",
         on_delete=models.CASCADE,
+    )
+    rollout_phase = models.ForeignKey(
+        "NimbusRolloutPhase",
+        related_name="emails",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     type = models.CharField(max_length=255, choices=NimbusExperiment.EmailType.choices)
     sent_on = models.DateTimeField(auto_now_add=True)

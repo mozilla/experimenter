@@ -1,3 +1,4 @@
+import datetime
 from unittest import mock
 
 from django.conf import settings
@@ -2137,6 +2138,155 @@ class TestNimbusSendEmails(MockKintoClientMixin, TestCase):
         )
         self.assertEqual(experiment.emails.count(), 1)
         self.assertEqual(len(mail.outbox), 1)
+
+    def test_end_experiment_email_not_sent_for_rollouts_with_phases(self):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_rollout=True,
+            proposed_enrollment=10,
+            proposed_duration=0,
+            with_latest_change_now=True,
+        )
+        only_phase = NimbusRolloutPhaseFactory.create(
+            experiment=rollout,
+            population_percent=10,
+            start_date=datetime.date.today(),
+            end_date=datetime.date.today() + datetime.timedelta(days=30),
+        )
+        rollout.rollout_phase = only_phase
+        rollout.save()
+
+        self.assertTrue(rollout.should_end)
+
+        tasks.nimbus_send_emails()
+
+        self.assertFalse(
+            rollout.emails.filter(type=NimbusExperiment.EmailType.EXPERIMENT_END).exists()
+        )
+        self.assertEqual(len(mail.outbox), 0)
+
+    def _create_rollout_with_phases(self, next_phase_start_date, **kwargs):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_rollout=True,
+            proposed_enrollment=10,
+            proposed_duration=20,
+            with_latest_change_now=True,
+            **kwargs,
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=rollout, population_percent=10
+        )
+        next_phase = NimbusRolloutPhaseFactory.create(
+            experiment=rollout,
+            population_percent=25,
+            start_date=next_phase_start_date,
+        )
+        rollout.rollout_phase = current_phase
+        rollout.population_percent = current_phase.population_percent
+        rollout.save()
+        return rollout, next_phase
+
+    def test_rollout_phase_advance_email_sent_on_next_phase_start_date(self):
+        rollout, next_phase = self._create_rollout_with_phases(
+            datetime.date.today(),
+        )
+
+        tasks.nimbus_send_emails()
+
+        self.assertTrue(
+            rollout.emails.filter(
+                type=NimbusExperiment.EmailType.ROLLOUT_PHASE_ADVANCE,
+                rollout_phase=next_phase,
+            ).exists()
+        )
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_rollout_phase_advance_email_not_sent_before_next_phase_start_date(self):
+        rollout, _next_phase = self._create_rollout_with_phases(
+            datetime.date.today() + datetime.timedelta(days=1),
+        )
+
+        tasks.nimbus_send_emails()
+
+        self.assertEqual(rollout.emails.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_rollout_phase_advance_email_not_sent_without_next_phase_start_date(self):
+        rollout, _next_phase = self._create_rollout_with_phases(None)
+
+        tasks.nimbus_send_emails()
+
+        self.assertEqual(rollout.emails.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_rollout_phase_advance_email_not_sent_twice_for_same_phase(self):
+        rollout, next_phase = self._create_rollout_with_phases(datetime.date.today())
+        NimbusEmail.objects.create(
+            experiment=rollout,
+            type=NimbusExperiment.EmailType.ROLLOUT_PHASE_ADVANCE,
+            rollout_phase=next_phase,
+        )
+
+        tasks.nimbus_send_emails()
+
+        self.assertEqual(rollout.emails.count(), 1)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_rollout_phase_advance_email_sent_again_for_a_later_phase(self):
+        rollout, next_phase = self._create_rollout_with_phases(datetime.date.today())
+        third_phase = NimbusRolloutPhaseFactory.create(
+            experiment=rollout,
+            population_percent=50,
+            start_date=datetime.date.today(),
+        )
+        NimbusEmail.objects.create(
+            experiment=rollout,
+            type=NimbusExperiment.EmailType.ROLLOUT_PHASE_ADVANCE,
+            rollout_phase=next_phase,
+        )
+        rollout.rollout_phase = next_phase
+        rollout.save()
+
+        tasks.nimbus_send_emails()
+
+        self.assertTrue(
+            rollout.emails.filter(
+                type=NimbusExperiment.EmailType.ROLLOUT_PHASE_ADVANCE,
+                rollout_phase=third_phase,
+            ).exists()
+        )
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_rollout_phase_advance_email_not_sent_while_transition_pending(self):
+        rollout, _next_phase = self._create_rollout_with_phases(datetime.date.today())
+        rollout.stage_rollout_phase_advance()
+        rollout.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        rollout.save()
+
+        tasks.nimbus_send_emails()
+
+        self.assertEqual(rollout.emails.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_rollout_phase_advance_email_not_sent_when_no_phases_remain(self):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_rollout=True,
+            proposed_enrollment=10,
+            proposed_duration=20,
+            with_latest_change_now=True,
+        )
+        only_phase = NimbusRolloutPhaseFactory.create(
+            experiment=rollout, population_percent=10, start_date=datetime.date.today()
+        )
+        rollout.rollout_phase = only_phase
+        rollout.save()
+
+        tasks.nimbus_send_emails()
+
+        self.assertEqual(rollout.emails.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
 
 
 class TestNimbusSyncPublishedDto(MockKintoClientMixin, TestCase):
