@@ -30,7 +30,7 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/tests/integration/nimbus/ios/ experimenter/tests/firefox_ios_main_build.env"
+          paths: "experimenter/tests/integration/ experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock experimenter/tests/firefox_ios_main_build.env"
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
