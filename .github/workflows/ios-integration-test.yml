@@ -30,7 +30,8 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/experimenter/experiments/ experimenter/experimenter/targeting/ experimenter/experimenter/features/ experimenter/tests/firefox_ios_main_build.env experimenter/tests/integration/ experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock experimenter/Dockerfile experimenter/pyproject.toml experimenter/uv.lock experimenter/package.json experimenter/yarn.lock application-services/"
+          paths: "experimenter/experimenter/experiments/ experimenter/experimenter/targeting/ experimenter/experimenter/features/ experimenter/tests/firefox_ios_main_build.env application-services/"
+          integration: true
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
