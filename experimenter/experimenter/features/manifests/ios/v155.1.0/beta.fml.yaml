@@ -53,6 +53,20 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: true
+  background-audio-feature:
+    description: |
+      The feature flag to manage the roll out of background audio playback, allowing media to continue playing when the app is backgrounded.
+    variables:
+      default-on:
+        description: |
+          The default state of the user-facing toggle when no preference has been set. Independent of enabled, which only controls whether the feature is available.
+        type: Boolean
+        default: false
+      enabled:
+        description: |
+          Whether or not this feature is available
+        type: Boolean
+        default: false
   bookmarks-search-feature:
     description: |
       Configuration feature for the bookmarks search bar
@@ -822,7 +836,7 @@ features:
         description: |
           Whether the feature is enabled or not.
         type: Boolean
-        default: false
+        default: true
       supportedLocales:
         description: |
           The list of supported locale identifiers for the summarizer language expansion according to BCP47 standard. i.e "en-US" for English (United States).
@@ -834,6 +848,8 @@ features:
         - es
         - de
         - pt
+        - ja
+        - jp
   summarizer-permissive-guardrails-feature:
     description: |
       This feature enables permissive guardrails for the summarizer.
@@ -962,6 +978,15 @@ features:
   wayback-machine-feature:
     description: |
       This property determines whether we show the wayback entry point on the native error pages
+    variables:
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: false
+  web-view-document-fetch-refactor-feature:
+    description: |
+      Determines whether we read PDF and document data for sharing directly from the authenticated WebView, rather than re-downloading via URLSession.
     variables:
       enabled:
         description: |
