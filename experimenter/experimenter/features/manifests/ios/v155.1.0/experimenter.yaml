@@ -48,6 +48,20 @@ ai-kill-switch-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+background-audio-feature:
+  description: |
+    The feature flag to manage the roll out of background audio playback, allowing media to continue playing when the app is backgrounded.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    default-on:
+      type: boolean
+      description: |
+        The default state of the user-facing toggle when no preference has been set. Independent of enabled, which only controls whether the feature is available.
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is available
 bookmarks-search-feature:
   description: |
     Configuration feature for the bookmarks search bar
@@ -588,6 +602,16 @@ vpn-feature:
 wayback-machine-feature:
   description: |
     This property determines whether we show the wayback entry point on the native error pages
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+web-view-document-fetch-refactor-feature:
+  description: |
+    Determines whether we read PDF and document data for sharing directly from the authenticated WebView, rather than re-downloading via URLSession.
   hasExposure: true
   exposureDescription: ''
   variables:
