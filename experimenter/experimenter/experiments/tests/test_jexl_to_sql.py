@@ -547,13 +547,23 @@ class TestJEXLToSQLMobile(TestCase):
             # Fenix-specific columns
             ("android_sdk", "androidSdkVersion", FENIX_APP, "androidSdkVersion"),
             ("android_sdk_snake", "android_sdk_version", FENIX_APP, "androidSdkVersion"),
-            ("device_manufacturer", "deviceManufacturer", FENIX_APP, "deviceManufacturer"),
+            (
+                "device_manufacturer",
+                "deviceManufacturer",
+                FENIX_APP,
+                "deviceManufacturer",
+            ),
             ("device_model", "deviceModel", FENIX_APP, "deviceModel"),
             ("utm_source", _UTM_SRC, FENIX_APP, _UTM_SRC),
             ("utm_source_snake", _UTM_SRC_SNAKE, FENIX_APP, _UTM_SRC),
             # Fenix JSON-only (not a typed column; uses JSON_VALUE)
             ("rc_fenix", "isReviewCheckerEnabled", FENIX_APP, _REVIEW_CHECKER_JSON),
-            ("rc_snake_fenix", "is_review_checker_enabled", FENIX_APP, _REVIEW_CHECKER_JSON),
+            (
+                "rc_snake_fenix",
+                "is_review_checker_enabled",
+                FENIX_APP,
+                _REVIEW_CHECKER_JSON,
+            ),
             # iOS-specific columns
             ("default_browser_ios", "isDefaultBrowser", IOS_APP, _CAST_DFLT),
             ("default_browser_snake", "is_default_browser", IOS_APP, _CAST_DFLT),
@@ -577,14 +587,24 @@ class TestJEXLToSQLMobile(TestCase):
                 FENIX_APP,
                 "(region IN ('US', 'CA'))",
             ),
-            ("days_lt_fenix", "days_since_install < 7", FENIX_APP, "daysSinceInstall < 7"),
+            (
+                "days_lt_fenix",
+                "days_since_install < 7",
+                FENIX_APP,
+                "daysSinceInstall < 7",
+            ),
             (
                 "sdk_gte_fenix",
                 "android_sdk_version >= 28",
                 FENIX_APP,
                 "androidSdkVersion >= 28",
             ),
-            ("is_phone_eq_ios", "isPhone == true", IOS_APP, "CAST(isPhone AS BOOL) = TRUE"),
+            (
+                "is_phone_eq_ios",
+                "isPhone == true",
+                IOS_APP,
+                "CAST(isPhone AS BOOL) = TRUE",
+            ),
         ]
     )
     def test_comparison_translates(self, _name, jexl, app, expected_sql):
