@@ -8,6 +8,10 @@
   <div class="d-flex align-items-center justify-content-between">
     <h4 class="mb-0">
       <a href="#sizing" class="text-decoration-none text-body">{{ NimbusUIConstants.POPULATION_SIZING_CARD_TITLE }}</a>
+      <a href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.population_sizing_learn_more_url }}"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="ms-2 fs-6 fw-normal">Learn more</a>
     </h4>
     {% if experiment.sizing_data_updated_at %}
       <span class="text-muted small">Last updated: {{ experiment.sizing_data_updated_at|timesince }} ago</span>

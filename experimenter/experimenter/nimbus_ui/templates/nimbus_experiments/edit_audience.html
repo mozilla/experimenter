@@ -264,7 +264,13 @@
                  role="alert"
                  data-testid="sizing-callout">
               <div class="d-flex align-items-baseline justify-content-between mb-1">
-                <strong>Audience Size Estimate</strong>
+                <strong>
+                  Audience Size Estimate
+                  <a href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.population_sizing_learn_more_url }}"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     class="ms-1 small fw-normal">Learn more</a>
+                </strong>
                 {% if experiment.sizing_data_updated_at %}
                   <span class="text-muted small">Last updated: {{ experiment.sizing_data_updated_at|timesince }} ago</span>
                 {% endif %}
