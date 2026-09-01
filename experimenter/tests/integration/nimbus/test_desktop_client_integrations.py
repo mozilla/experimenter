@@ -119,12 +119,18 @@ def test_check_telemetry_pref_flip(
     experiment_url,
     application,
 ):
+    feature_id = int(
+        helpers.get_feature_id_as_string(
+            "nimbus-qa-1",
+            BaseExperimentApplications.FIREFOX_DESKTOP.value,
+        )
+    )
     about_config = AboutConfig(selenium)
     helpers.create_experiment(
         experiment_slug,
         BaseExperimentApplications.FIREFOX_DESKTOP.value,
         {
-            "feature_config_ids": [9],
+            "feature_config_ids": [feature_id],
             "reference_branch": {
                 "name": "Branch 1",
                 "description": "reference branch",
