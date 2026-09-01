@@ -114,7 +114,6 @@ _USER_MONTHLY_ACTIVITY_COL = (
     "metrics.object.nimbus_targeting_context_user_monthly_activity"
 )
 
-# App identifiers used to select the right mobile column map in jexl_to_sql().
 FENIX_APP = "fenix"
 IOS_APP = "ios"
 
@@ -254,14 +253,11 @@ KNOWN_UNTRANSLATABLE = {
     "registered",
 }
 
-# Maps Experimenter application app_name to the jexl_to_sql app parameter.
-# "firefox_desktop" and all other app names map to None (desktop column map).
 APP_NAME_TO_JEXL_APP: dict[str, str] = {
     "fenix": FENIX_APP,
     "firefox_ios": IOS_APP,
 }
 
-# Maps jexl_to_sql app parameter to the corresponding column map.
 _APP_COLUMN_MAP: dict[str, dict] = {
     FENIX_APP: JEXL_TO_BQ_COLUMN_FENIX,
     IOS_APP: JEXL_TO_BQ_COLUMN_IOS,
