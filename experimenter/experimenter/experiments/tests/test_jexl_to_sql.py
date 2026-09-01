@@ -32,7 +32,6 @@ _FF = "metrics.quantity.nimbus_targeting_context_firefox_version"
 
 
 class TestJEXLToSQL(TestCase):
-
     @parameterized.expand(
         [
             ("locale", "locale", "metrics.string.nimbus_targeting_context_locale"),
@@ -108,7 +107,6 @@ class TestJEXLToSQL(TestCase):
         result = jexl_to_sql(jexl)
         self.assertEqual(result.sql, expected_sql)
         self.assertEqual(result.warnings, [])
-
 
     @parameterized.expand(
         [
@@ -190,7 +188,6 @@ class TestJEXLToSQL(TestCase):
         self.assertEqual(result.sql, expected_sql)
         self.assertEqual(result.warnings, [])
 
-
     _VC = "|versionCompare"
 
     @parameterized.expand(
@@ -218,7 +215,6 @@ class TestJEXLToSQL(TestCase):
         result = jexl_to_sql(jexl)
         self.assertIsNone(result.sql)
         self.assertIn(expected_warning, result.warnings)
-
 
     @parameterized.expand(
         [
@@ -250,7 +246,6 @@ class TestJEXLToSQL(TestCase):
     def test_transform_warns(self, _name, jexl, expected_warning):
         result = jexl_to_sql(jexl)
         self.assertIn(expected_warning, result.warnings)
-
 
     def test_empty_expression_returns_none(self):
         result = jexl_to_sql("")
@@ -298,7 +293,6 @@ class TestJEXLToSQL(TestCase):
         result = jexl_to_sql('locale == "it-IT"')
         self.assertIn("'it-IT'", result.sql)
 
-
     def test_not_boolean_column(self):
         result = jexl_to_sql("!isDefaultBrowser")
         self.assertEqual(
@@ -321,7 +315,6 @@ class TestJEXLToSQL(TestCase):
         self.assertIn("NOT", result.sql)
         self.assertIn(_USER_PREFS, result.sql)
 
-
     def test_os_is_windows_derived_from_not_mac_not_linux(self):
         result = jexl_to_sql("os.isWindows")
         self.assertIsNotNone(result.sql)
@@ -329,7 +322,6 @@ class TestJEXLToSQL(TestCase):
         self.assertIn("isLinux", result.sql)
         self.assertIn("NOT", result.sql)
         self.assertEqual(result.warnings, [])
-
 
     def test_bool_arithmetic_casts_to_int64(self):
         # JEXL pattern `(bool && 1 || 0) + (bool && 1 || 0)` sums booleans.
@@ -413,7 +405,6 @@ class TestJEXLToSQL(TestCase):
         self.assertIn("UNIX_MILLIS", result.sql)
         self.assertEqual(result.warnings, [])
 
-
     def test_version_compare_gte(self):
         result = jexl_to_sql("version|versionCompare('120.!') >= 0")
         self.assertEqual(result.sql, f"{_FF} >= 120")
@@ -423,7 +414,6 @@ class TestJEXLToSQL(TestCase):
         result = jexl_to_sql("0 <= version|versionCompare('120.!')")
         self.assertEqual(result.sql, f"{_FF} >= 120")
         self.assertEqual(result.warnings, [])
-
 
     def test_addons_specific_addon_id_installed(self):
         # addon != null means installed → (id IN UNNEST(addons))
@@ -516,7 +506,6 @@ class TestJEXLToSQL(TestCase):
 
 
 class TestJEXLToSQLMobile(TestCase):
-
     _CAST_BOOL = "CAST(isFirstRun AS BOOL)"
     _CAST_DFLT = "CAST(isDefaultBrowser AS BOOL)"
     _CAST_PHONE = "CAST(isPhone AS BOOL)"
@@ -577,7 +566,6 @@ class TestJEXLToSQLMobile(TestCase):
         self.assertEqual(result.sql, expected_sql)
         self.assertEqual(result.warnings, [])
 
-
     @parameterized.expand(
         [
             ("locale_eq_fenix", "locale == 'en-US'", FENIX_APP, "locale = 'en-US'"),
@@ -612,7 +600,6 @@ class TestJEXLToSQLMobile(TestCase):
         self.assertEqual(result.sql, expected_sql)
         self.assertEqual(result.warnings, [])
 
-
     def test_bool_column_not_string_coerced_in_and_fenix(self):
         result = jexl_to_sql("isFirstRun && daysSinceInstall < 7", app=FENIX_APP)
         self.assertEqual(
@@ -624,7 +611,6 @@ class TestJEXLToSQLMobile(TestCase):
         result = jexl_to_sql("isDefaultBrowser && region == 'US'", app=IOS_APP)
         self.assertEqual(result.sql, "(CAST(isDefaultBrowser AS BOOL) AND region = 'US')")
         self.assertEqual(result.warnings, [])
-
 
     _PREF_JEXL = "'browser.urlbar.suggest.searches'|preferenceValue"
 
@@ -639,7 +625,6 @@ class TestJEXLToSQLMobile(TestCase):
         result = jexl_to_sql(jexl, app=app)
         self.assertIsNone(result.sql)
         self.assertIn(expected_warning, result.warnings)
-
 
     def test_no_app_uses_desktop_map(self):
         result = jexl_to_sql("firefoxVersion >= 120")
@@ -686,7 +671,6 @@ class TestJEXLToSQLMobile(TestCase):
         result = jexl_to_sql("version|versionCompare('120.!') >= 0", app=FENIX_APP)
         self.assertIsNone(result.sql)
         self.assertIn("|versionCompare", result.warnings)
-
 
     def test_real_config_mobile_new_user_fenix(self):
         result = jexl_to_sql(MOBILE_NEW_USER.targeting, app=FENIX_APP)
