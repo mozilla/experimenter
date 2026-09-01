@@ -2,6 +2,8 @@ from django.test import TestCase
 from parameterized import parameterized
 
 from experimenter.experiments.jexl_to_sql import (
+    FENIX_APP,
+    IOS_APP,
     KNOWN_UNTRANSLATABLE,
     ensure_bool_sql,
     jexl_to_sql,
@@ -16,8 +18,6 @@ from experimenter.targeting.constants import (
     WIN11_ONLY,
 )
 
-_FENIX = "fenix"
-_IOS = "ios"
 _REVIEW_CHECKER_JSON = "CAST(JSON_VALUE(context, '$.isReviewCheckerEnabled') AS BOOL)"
 
 _OS = "metrics.object.nimbus_targeting_context_os"
@@ -541,36 +541,36 @@ class TestJEXLToSQLMobile(TestCase):
     @parameterized.expand(
         [
             # Shared columns — same on Fenix and iOS
-            ("locale_fenix", "locale", _FENIX, "locale"),
-            ("locale_ios", "locale", _IOS, "locale"),
-            ("region_fenix", "region", _FENIX, "region"),
-            ("language_fenix", "language", _FENIX, "language"),
-            ("app_version_fenix", "appVersion", _FENIX, "appVersion"),
-            ("app_version_snake", "app_version", _FENIX, "appVersion"),
-            ("is_first_run_fenix", "isFirstRun", _FENIX, _CAST_BOOL),
-            ("is_first_run_snake", "is_first_run", _FENIX, _CAST_BOOL),
-            ("is_first_run_ios", "isFirstRun", _IOS, _CAST_BOOL),
-            ("days_install_fenix", "daysSinceInstall", _FENIX, "daysSinceInstall"),
-            ("days_install_snake", "days_since_install", _FENIX, "daysSinceInstall"),
-            ("days_update_fenix", "daysSinceUpdate", _FENIX, "daysSinceUpdate"),
-            ("event_query_fenix", _EQ_JEXL, _FENIX, _EQ_DAYS),
-            ("event_query_snake", _EQ_SNAKE, _FENIX, _EQ_DAYS),
+            ("locale_fenix", "locale", FENIX_APP, "locale"),
+            ("locale_ios", "locale", IOS_APP, "locale"),
+            ("region_fenix", "region", FENIX_APP, "region"),
+            ("language_fenix", "language", FENIX_APP, "language"),
+            ("app_version_fenix", "appVersion", FENIX_APP, "appVersion"),
+            ("app_version_snake", "app_version", FENIX_APP, "appVersion"),
+            ("is_first_run_fenix", "isFirstRun", FENIX_APP, _CAST_BOOL),
+            ("is_first_run_snake", "is_first_run", FENIX_APP, _CAST_BOOL),
+            ("is_first_run_ios", "isFirstRun", IOS_APP, _CAST_BOOL),
+            ("days_install_fenix", "daysSinceInstall", FENIX_APP, "daysSinceInstall"),
+            ("days_install_snake", "days_since_install", FENIX_APP, "daysSinceInstall"),
+            ("days_update_fenix", "daysSinceUpdate", FENIX_APP, "daysSinceUpdate"),
+            ("event_query_fenix", _EQ_JEXL, FENIX_APP, _EQ_DAYS),
+            ("event_query_snake", _EQ_SNAKE, FENIX_APP, _EQ_DAYS),
             # Fenix-specific columns
-            ("android_sdk", "androidSdkVersion", _FENIX, "androidSdkVersion"),
-            ("android_sdk_snake", "android_sdk_version", _FENIX, "androidSdkVersion"),
-            ("device_manufacturer", "deviceManufacturer", _FENIX, "deviceManufacturer"),
-            ("device_model", "deviceModel", _FENIX, "deviceModel"),
-            ("utm_source", _UTM_SRC, _FENIX, _UTM_SRC),
-            ("utm_source_snake", _UTM_SRC_SNAKE, _FENIX, _UTM_SRC),
+            ("android_sdk", "androidSdkVersion", FENIX_APP, "androidSdkVersion"),
+            ("android_sdk_snake", "android_sdk_version", FENIX_APP, "androidSdkVersion"),
+            ("device_manufacturer", "deviceManufacturer", FENIX_APP, "deviceManufacturer"),
+            ("device_model", "deviceModel", FENIX_APP, "deviceModel"),
+            ("utm_source", _UTM_SRC, FENIX_APP, _UTM_SRC),
+            ("utm_source_snake", _UTM_SRC_SNAKE, FENIX_APP, _UTM_SRC),
             # Fenix JSON-only (not a typed column; uses JSON_VALUE)
-            ("rc_fenix", "isReviewCheckerEnabled", _FENIX, _REVIEW_CHECKER_JSON),
-            ("rc_snake_fenix", "is_review_checker_enabled", _FENIX, _REVIEW_CHECKER_JSON),
+            ("rc_fenix", "isReviewCheckerEnabled", FENIX_APP, _REVIEW_CHECKER_JSON),
+            ("rc_snake_fenix", "is_review_checker_enabled", FENIX_APP, _REVIEW_CHECKER_JSON),
             # iOS-specific columns
-            ("default_browser_ios", "isDefaultBrowser", _IOS, _CAST_DFLT),
-            ("default_browser_snake", "is_default_browser", _IOS, _CAST_DFLT),
-            ("is_phone_ios", "isPhone", _IOS, _CAST_PHONE),
-            ("is_phone_snake", "is_phone", _IOS, _CAST_PHONE),
-            ("rc_ios", "isReviewCheckerEnabled", _IOS, _CAST_RC_IOS),
+            ("default_browser_ios", "isDefaultBrowser", IOS_APP, _CAST_DFLT),
+            ("default_browser_snake", "is_default_browser", IOS_APP, _CAST_DFLT),
+            ("is_phone_ios", "isPhone", IOS_APP, _CAST_PHONE),
+            ("is_phone_snake", "is_phone", IOS_APP, _CAST_PHONE),
+            ("rc_ios", "isReviewCheckerEnabled", IOS_APP, _CAST_RC_IOS),
         ]
     )
     def test_attribute_translates_to_column(self, _name, jexl, app, expected_sql):
@@ -582,21 +582,21 @@ class TestJEXLToSQLMobile(TestCase):
 
     @parameterized.expand(
         [
-            ("locale_eq_fenix", "locale == 'en-US'", _FENIX, "locale = 'en-US'"),
+            ("locale_eq_fenix", "locale == 'en-US'", FENIX_APP, "locale = 'en-US'"),
             (
                 "region_in_fenix",
                 "region in ['US', 'CA']",
-                _FENIX,
+                FENIX_APP,
                 "(region IN ('US', 'CA'))",
             ),
-            ("days_lt_fenix", "days_since_install < 7", _FENIX, "daysSinceInstall < 7"),
+            ("days_lt_fenix", "days_since_install < 7", FENIX_APP, "daysSinceInstall < 7"),
             (
                 "sdk_gte_fenix",
                 "android_sdk_version >= 28",
-                _FENIX,
+                FENIX_APP,
                 "androidSdkVersion >= 28",
             ),
-            ("is_phone_eq_ios", "isPhone == true", _IOS, "CAST(isPhone AS BOOL) = TRUE"),
+            ("is_phone_eq_ios", "isPhone == true", IOS_APP, "CAST(isPhone AS BOOL) = TRUE"),
         ]
     )
     def test_comparison_translates(self, _name, jexl, app, expected_sql):
@@ -607,14 +607,14 @@ class TestJEXLToSQLMobile(TestCase):
     # --- Boolean columns are not string-coerced in && / || ---
 
     def test_bool_column_not_string_coerced_in_and_fenix(self):
-        result = jexl_to_sql("isFirstRun && daysSinceInstall < 7", app=_FENIX)
+        result = jexl_to_sql("isFirstRun && daysSinceInstall < 7", app=FENIX_APP)
         self.assertEqual(
             result.sql, "(CAST(isFirstRun AS BOOL) AND daysSinceInstall < 7)"
         )
         self.assertEqual(result.warnings, [])
 
     def test_bool_column_not_string_coerced_in_and_ios(self):
-        result = jexl_to_sql("isDefaultBrowser && region == 'US'", app=_IOS)
+        result = jexl_to_sql("isDefaultBrowser && region == 'US'", app=IOS_APP)
         self.assertEqual(result.sql, "(CAST(isDefaultBrowser AS BOOL) AND region = 'US')")
         self.assertEqual(result.warnings, [])
 
@@ -624,9 +624,9 @@ class TestJEXLToSQLMobile(TestCase):
 
     @parameterized.expand(
         [
-            ("ff_version_fenix", "firefoxVersion >= 120", _FENIX, "firefoxVersion"),
-            ("fxa_signed_in_ios", "isFxASignedIn", _IOS, "isFxASignedIn"),
-            ("pref_value_fenix", _PREF_JEXL, _FENIX, "|preferenceValue"),
+            ("ff_version_fenix", "firefoxVersion >= 120", FENIX_APP, "firefoxVersion"),
+            ("fxa_signed_in_ios", "isFxASignedIn", IOS_APP, "isFxASignedIn"),
+            ("pref_value_fenix", _PREF_JEXL, FENIX_APP, "|preferenceValue"),
         ]
     )
     def test_desktop_attr_warns_on_mobile(self, _name, jexl, app, expected_warning):
@@ -642,7 +642,7 @@ class TestJEXLToSQLMobile(TestCase):
         self.assertEqual(result.warnings, [])
 
     def test_addon_ids_in_fenix(self):
-        result = jexl_to_sql("'uBlock0@raymondhill.net' in addon_ids", app=_FENIX)
+        result = jexl_to_sql("'uBlock0@raymondhill.net' in addon_ids", app=FENIX_APP)
         self.assertEqual(
             result.sql,
             "('uBlock0@raymondhill.net' IN UNNEST(JSON_VALUE_ARRAY(addonIds)))",
@@ -651,7 +651,7 @@ class TestJEXLToSQLMobile(TestCase):
 
     def test_addon_ids_not_in_fenix(self):
         result = jexl_to_sql(
-            "('uBlock0@raymondhill.net' in addon_ids) == false", app=_FENIX
+            "('uBlock0@raymondhill.net' in addon_ids) == false", app=FENIX_APP
         )
         self.assertEqual(
             result.sql,
@@ -660,12 +660,12 @@ class TestJEXLToSQLMobile(TestCase):
         self.assertEqual(result.warnings, [])
 
     def test_real_config_fenix_first_run_region(self):
-        result = jexl_to_sql("isFirstRun && region == 'US'", app=_FENIX)
+        result = jexl_to_sql("isFirstRun && region == 'US'", app=FENIX_APP)
         self.assertEqual(result.sql, "(CAST(isFirstRun AS BOOL) AND region = 'US')")
         self.assertEqual(result.warnings, [])
 
     def test_real_config_ios_default_browser_phone(self):
-        result = jexl_to_sql("isDefaultBrowser && isPhone", app=_IOS)
+        result = jexl_to_sql("isDefaultBrowser && isPhone", app=IOS_APP)
         self.assertEqual(
             result.sql,
             "(CAST(isDefaultBrowser AS BOOL) AND CAST(isPhone AS BOOL))",
@@ -673,28 +673,28 @@ class TestJEXLToSQLMobile(TestCase):
         self.assertEqual(result.warnings, [])
 
     def test_preference_is_user_set_warns_on_mobile(self):
-        result = jexl_to_sql("'browser.search.region'|preferenceIsUserSet", app=_FENIX)
+        result = jexl_to_sql("'browser.search.region'|preferenceIsUserSet", app=FENIX_APP)
         self.assertIsNone(result.sql)
         self.assertIn("|preferenceIsUserSet", result.warnings)
 
     def test_version_compare_warns_on_mobile(self):
-        result = jexl_to_sql("version|versionCompare('120.!') >= 0", app=_FENIX)
+        result = jexl_to_sql("version|versionCompare('120.!') >= 0", app=FENIX_APP)
         self.assertIsNone(result.sql)
         self.assertIn("|versionCompare", result.warnings)
 
     # --- Real targeting config strings ---
 
     def test_real_config_mobile_new_user_fenix(self):
-        result = jexl_to_sql(MOBILE_NEW_USER.targeting, app=_FENIX)
+        result = jexl_to_sql(MOBILE_NEW_USER.targeting, app=FENIX_APP)
         self.assertEqual(result.sql, "daysSinceInstall < 7")
         self.assertEqual(result.warnings, [])
 
     def test_real_config_mobile_recently_updated_fenix(self):
-        result = jexl_to_sql(MOBILE_RECENTLY_UPDATED.targeting, app=_FENIX)
+        result = jexl_to_sql(MOBILE_RECENTLY_UPDATED.targeting, app=FENIX_APP)
         self.assertEqual(result.sql, "(daysSinceUpdate < 7 AND daysSinceInstall >= 7)")
         self.assertEqual(result.warnings, [])
 
     def test_real_config_ios_existing_users(self):
-        result = jexl_to_sql(IOS_EXISTING_USERS.targeting, app=_IOS)
+        result = jexl_to_sql(IOS_EXISTING_USERS.targeting, app=IOS_APP)
         self.assertEqual(result.sql, "daysSinceInstall >= 28")
         self.assertEqual(result.warnings, [])

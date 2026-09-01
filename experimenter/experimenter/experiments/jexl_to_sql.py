@@ -114,9 +114,9 @@ _USER_MONTHLY_ACTIVITY_COL = (
     "metrics.object.nimbus_targeting_context_user_monthly_activity"
 )
 
-# App slugs used to select the right mobile column map in jexl_to_sql().
-_FENIX_APP = "fenix"
-_IOS_APP = "ios"
+# App identifiers used to select the right mobile column map in jexl_to_sql().
+FENIX_APP = "fenix"
+IOS_APP = "ios"
 
 # Mobile BQ tables store all context as a JSON blob column. BOOL columns are wrapped in
 # CAST(col AS BOOL) so that _is_boolean_sql() detects them correctly and _coerce_to_bool()
@@ -260,8 +260,14 @@ KNOWN_UNTRANSLATABLE = {
 # Maps Experimenter application app_name to the jexl_to_sql app parameter.
 # "firefox_desktop" and all other app names map to None (desktop column map).
 APP_NAME_TO_JEXL_APP: dict[str, str] = {
-    "fenix": "fenix",
-    "firefox_ios": "ios",
+    "fenix": FENIX_APP,
+    "firefox_ios": IOS_APP,
+}
+
+# Maps jexl_to_sql app parameter to the corresponding column map.
+_APP_COLUMN_MAP: dict[str, dict] = {
+    FENIX_APP: JEXL_TO_BQ_COLUMN_FENIX,
+    IOS_APP: JEXL_TO_BQ_COLUMN_IOS,
 }
 
 _VERSION_PATTERN = re.compile(r"^(\d+)")
@@ -281,12 +287,7 @@ def jexl_to_sql(jexl_expression: str, app: Optional[str] = None) -> JEXLToSQLRes
     Returns sql=None with a warnings list when nothing can be translated.
     Returns partial sql with warnings when only some clauses translate.
     """
-    if app == _FENIX_APP:
-        column_map = JEXL_TO_BQ_COLUMN_FENIX
-    elif app == _IOS_APP:
-        column_map = JEXL_TO_BQ_COLUMN_IOS
-    else:
-        column_map = JEXL_TO_BQ_COLUMN
+    column_map = _APP_COLUMN_MAP.get(app, JEXL_TO_BQ_COLUMN)
 
     if not jexl_expression or jexl_expression == "true":
         return JEXLToSQLResult(sql=None, warnings=[])
@@ -516,7 +517,7 @@ def _transform_to_sql(
     if node.name == "preferenceValue":
         # Desktop-only: pref data lives in a Glean metrics column that does not exist
         # in mobile BQ tables. Warn and bail when running against a mobile column map.
-        if "firefoxVersion" not in column_map:
+        if column_map is not JEXL_TO_BQ_COLUMN:
             _add_warning(warnings, "|preferenceValue")
             return None
         # Pref names stored with dots replaced by __ in BigQuery.
@@ -529,7 +530,7 @@ def _transform_to_sql(
 
     if node.name == "preferenceIsUserSet":
         # Desktop-only: same reasoning as preferenceValue above.
-        if "firefoxVersion" not in column_map:
+        if column_map is not JEXL_TO_BQ_COLUMN:
             _add_warning(warnings, "|preferenceIsUserSet")
             return None
         # user_set_prefs is a JSON array of pref names (using original dot notation)
