@@ -258,7 +258,7 @@ APP_NAME_TO_JEXL_APP: dict[str, str] = {
     "firefox_ios": IOS_APP,
 }
 
-_APP_COLUMN_MAP: dict[str, dict] = {
+_APP_COLUMN_MAP: dict[str, dict[str, str]] = {
     FENIX_APP: JEXL_TO_BQ_COLUMN_FENIX,
     IOS_APP: JEXL_TO_BQ_COLUMN_IOS,
 }
