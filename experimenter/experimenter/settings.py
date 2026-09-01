@@ -437,6 +437,7 @@ CELERY_BEAT_SCHEDULE = {
 }
 CELERY_TASK_ROUTES = {
     "experimenter.kinto.tasks.*": {"queue": "remote_settings"},
+    "experimenter.slack.tasks.*": {"queue": "remote_settings"},
 }
 
 # Recipe Configuration
