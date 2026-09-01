@@ -5,6 +5,10 @@ inputs:
   paths:
     description: "Space-separated list of path patterns to check (e.g. 'experimenter/ application-services/')"
     required: true
+  integration:
+    description: "Also match the shared integration test harness and the paths that rebuild the prod image"
+    required: false
+    default: "false"
 
 outputs:
   should-run:
@@ -17,6 +21,9 @@ runs:
     - name: Check changed paths
       id: check
       shell: bash
+      env:
+        INPUT_PATHS: ${{ inputs.paths }}
+        INPUT_INTEGRATION: ${{ inputs.integration }}
       run: |
         if [[ "${{ github.event_name }}" == "merge_group" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           echo "should_run=true" >> "$GITHUB_OUTPUT"
@@ -50,7 +57,13 @@ runs:
           exit 0
         fi
 
-        for pattern in ${{ inputs.paths }}; do
+        PATTERNS="$INPUT_PATHS"
+
+        if [[ "$INPUT_INTEGRATION" == "true" ]]; then
+          PATTERNS="$PATTERNS experimenter/tests/integration/ experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock experimenter/Dockerfile experimenter/pyproject.toml experimenter/uv.lock experimenter/package.json experimenter/yarn.lock"
+        fi
+
+        for pattern in $PATTERNS; do
           if echo "$CHANGED" | grep -q "^${pattern}"; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
             exit 0
