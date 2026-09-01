@@ -40,8 +40,21 @@ jobs:
         if: steps.check-paths.outputs.should-run == 'true'
         run: make export_targeting_sql
 
-      - name: Authenticate to GCP
+      - name: Check for GCP credentials
+        id: gcp-credentials
         if: steps.check-paths.outputs.should-run == 'true'
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.GCP_DRYRUN_SERVICE_ACCOUNT_EMAIL }}
+        run: |
+          if [ -n "$SERVICE_ACCOUNT" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping the BigQuery dry run: secrets are not available to Dependabot or fork pull requests. The merge queue run validates against BigQuery."
+          fi
+
+      - name: Authenticate to GCP
+        if: steps.gcp-credentials.outputs.available == 'true'
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         id: auth
         with:
@@ -52,7 +65,7 @@ jobs:
           id_token_include_email: true
 
       - name: Validate targeting SQL
-        if: steps.check-paths.outputs.should-run == 'true'
+        if: steps.gcp-credentials.outputs.available == 'true'
         env:
           GOOGLE_GHA_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
         run: python3 experimenter/bin/validate_targeting_sql.py targeting_sql.json
