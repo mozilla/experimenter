@@ -121,7 +121,6 @@ IOS_APP = "ios"
 # Mobile BQ tables store all context as a JSON blob column. BOOL columns are wrapped in
 # CAST(col AS BOOL) so that _is_boolean_sql() detects them correctly and _coerce_to_bool()
 # does not try to compare a BOOL column against '' or 'false'.
-# Schema confirmed from live BQ queries against both tables.
 
 # Columns present as typed top-level fields in BOTH Fenix and iOS tables.
 _SHARED_MOBILE_COLUMNS = {
@@ -145,7 +144,6 @@ _SHARED_MOBILE_COLUMNS = {
 # Fenix (Android) — moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context
 JEXL_TO_BQ_COLUMN_FENIX = {
     **_SHARED_MOBILE_COLUMNS,
-    # Fenix-specific typed columns
     "androidSdkVersion": "androidSdkVersion",
     "android_sdk_version": "androidSdkVersion",
     "deviceManufacturer": "deviceManufacturer",
@@ -190,7 +188,6 @@ JEXL_TO_BQ_COLUMN_FENIX = {
 # moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context
 JEXL_TO_BQ_COLUMN_IOS = {
     **_SHARED_MOBILE_COLUMNS,
-    # iOS-specific typed columns
     "isDefaultBrowser": "CAST(isDefaultBrowser AS BOOL)",
     "is_default_browser": "CAST(isDefaultBrowser AS BOOL)",
     "isPhone": "CAST(isPhone AS BOOL)",
