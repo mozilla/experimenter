@@ -160,7 +160,8 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/ application-services/"
+          paths: "experimenter/experimenter/ experimenter/tests/firefox_desktop_release_build.env experimenter/tests/nimbus_integration_tests.sh application-services/"
+          integration: true
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
@@ -199,7 +200,8 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/experimenter/experiments/ experimenter/experimenter/targeting/ experimenter/tests/integration/ experimenter/tests/nimbus_integration_tests.sh experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock ${{ matrix.extra_paths }}"
+          paths: "experimenter/experimenter/experiments/ experimenter/experimenter/targeting/ experimenter/tests/nimbus_integration_tests.sh ${{ matrix.extra_paths }}"
+          integration: true
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
@@ -227,7 +229,8 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/ application-services/"
+          paths: "experimenter/experimenter/ experimenter/tests/firefox_desktop_release_build.env experimenter/tests/nimbus_integration_tests.sh application-services/"
+          integration: true
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
@@ -264,7 +267,8 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/ application-services/"
+          paths: "experimenter/experimenter/ experimenter/tests/firefox_desktop_release_build.env experimenter/tests/nimbus_integration_tests.sh application-services/"
+          integration: true
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
@@ -291,7 +295,8 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/ application-services/"
+          paths: "experimenter/experimenter/ experimenter/tests/firefox_desktop_release_build.env experimenter/tests/nimbus_integration_tests.sh application-services/"
+          integration: true
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
@@ -300,3 +305,31 @@ jobs:
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           artifact-name: remote-settings-launch-test-report
+
+  integration-experimenter-cirrus:
+    name: "Experimenter Cirrus Integration"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      FIREFOX_CHANNEL: release
+      PYTEST_ARGS: -m experimenter_cirrus --reruns 1 --base-url https://nginx/nimbus/
+      PYTEST_BASE_URL: https://nginx/nimbus/
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/experimenter/ cirrus/ application-services/"
+          integration: true
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/run-integration-test
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          artifact-name: experimenter-cirrus-test-report

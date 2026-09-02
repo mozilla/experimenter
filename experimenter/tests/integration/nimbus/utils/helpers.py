@@ -363,3 +363,24 @@ def end_experiment(slug):
 
 def launch_to_preview(slug):
     _post_form(f"/nimbus/{slug}/draft-to-preview/")
+
+
+def launch_experiment(slug):
+    _post_form(f"/nimbus/{slug}/draft-to-review/")
+    _post_form(f"/nimbus/{slug}/review-to-approve/")
+
+
+def get_page_text(path):
+    resp = _get_page(path)
+    if resp.status_code != 200:
+        raise RuntimeError(f"GET {path} failed ({resp.status_code})")
+    return resp.text
+
+
+def wait_for_published_recipe(slug):
+    for _ in range(LOAD_DATA_RETRIES):
+        experiment = _get_api(f"/api/v6/experiments/{slug}/")
+        if experiment and "detail" not in experiment:
+            return experiment
+        time.sleep(LOAD_DATA_RETRY_DELAY)
+    raise RuntimeError(f"Recipe {slug} was never published to the v6 API")

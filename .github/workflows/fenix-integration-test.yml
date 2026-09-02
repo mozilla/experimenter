@@ -41,7 +41,8 @@ jobs:
       - uses: ./.github/actions/check-changed-paths
         id: check-paths
         with:
-          paths: "experimenter/experimenter/ experimenter/tests/integration/ experimenter/tests/firefox_fenix_beta_build.env experimenter/tests/firefox_fenix_release_build.env"
+          paths: "experimenter/experimenter/ experimenter/tests/firefox_fenix_beta_build.env experimenter/tests/firefox_fenix_release_build.env application-services/"
+          integration: true
 
       - uses: ./.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
