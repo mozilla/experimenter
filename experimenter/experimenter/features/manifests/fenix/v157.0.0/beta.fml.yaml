@@ -325,7 +325,7 @@ features:
       enabled:
         description: If true, trending and recent searches are shown on the Homepage Search.
         type: Boolean
-        default: false
+        default: true
   homepage-weather-widget:
     description: Feature to enable Homepage Weather Widget for users on Firefox for Android.
     variables:

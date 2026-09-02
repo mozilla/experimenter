@@ -6072,6 +6072,15 @@ smartWindowAgentWatch:
       description: >-
         Comma-separated list of region codes where the agent watch command is
         available, for example "US,CA".
+    monitorAnnouncement:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.smartwindow.agent.monitorAnnouncement
+      description: >-
+        Announces the agent monitor feature as new with a dot on its toolbar
+        button, until the user opens the panel or the rollout ends. Independent
+        of the dot that marks a task whose condition was met.
 
 contentSharing:
   description: Controls the content sharing feature, which allows users to share browser content.
