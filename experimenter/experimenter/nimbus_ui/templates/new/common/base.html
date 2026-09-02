@@ -62,7 +62,7 @@
                      rel="noopener noreferrer">{{ experiment.parent.name }}</a>
                 </p>
               {% endif %}
-              {% include "nimbus_experiments/experiment_tags.html" with show_status_badges=True hide_project_tags=True %}
+              {% include "new/common/experiment_status_badges.html" %}
 
             </div>
             {% if experiment.latest_change %}

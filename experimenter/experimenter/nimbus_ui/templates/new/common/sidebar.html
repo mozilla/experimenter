@@ -60,12 +60,7 @@
       <h2 class="accordion-header">
         <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_preview %} collapsed{% endif %}"
                 type="button"
-                {% if experiment.preview_date and not experiment.is_draft %}data-bs-toggle="collapse" data-bs-target="#sidebar-preview" aria-controls="sidebar-preview" aria-expanded="{% if experiment.is_preview %}true{% else %}false{% endif %}
-                "
-                {% else %}
-                aria-expanded="false"
-                aria-disabled="true"
-                {% endif %}>
+                {% if experiment.is_preview %} data-bs-toggle="collapse" data-bs-target="#sidebar-preview" aria-controls="sidebar-preview" aria-expanded="true" {% else %} aria-expanded="false" aria-disabled="true" {% endif %}>
           {% if experiment.is_preview_complete %}
             <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-2 align-self-start mt-1 p-1">
               <i class="fa-solid fa-check" style="font-size: 10px"></i>
@@ -89,7 +84,7 @@
            id="sidebar-preview"
            data-bs-parent="#accordion-preview">
         <div class="accordion-body pt-0 px-3 pb-3">
-          {% if experiment.preview_date and not experiment.is_draft %}
+          {% if experiment.is_preview %}
             <div class="d-flex flex-column gap-3">
               <p class="mb-0 text-secondary" style="font-size: 12px;">
                 {{ NimbusUIConstants.ROLLOUT_PREVIEW_MESSAGE }}
@@ -102,23 +97,28 @@
                 {# Preview to Draft #}
                 <button type="button"
                         id="rollout-back-to-setup-btn"
-                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button{% if not experiment.is_preview %} opacity-50{% endif %}"
-                        {% if not experiment.is_preview %} disabled aria-disabled="true" {% else %} hx-post="{% url 'nimbus-ui-new-preview-to-draft-rollout' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt="this" {% endif %}>
+                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
+                        hx-post="{% url 'nimbus-ui-new-preview-to-draft-rollout' experiment.slug %}"
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-disabled-elt=".sidebar-action-button">
                   {% include "new/common/sidebar_transition_spinner.html" %}
 
                   <i class="fa-solid fa-arrow-left-long"></i>
                   Back to Set Up
                 </button>
                 {# Preview to Review #}
-                <button type="button"
-                        id="rollout-request-enrollment-btn"
-                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button{% if not experiment.is_preview or setup_issues_count %} opacity-50{% endif %}"
-                        {% if not experiment.is_preview or setup_issues_count %} disabled aria-disabled="true" {% else %} hx-post="{% url 'nimbus-ui-new-preview-review-rollout' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt="this" {% endif %}>
-                  {% include "new/common/sidebar_transition_spinner.html" %}
+                <span class="d-inline-block w-100"
+                      {% if setup_issues_count %}data-bs-toggle="tooltip" data-bs-title="{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}"{% endif %}>
+                  <button type="button"
+                          id="rollout-request-enrollment-btn"
+                          class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2{% if setup_issues_count %} opacity-50{% else %} sidebar-action-button{% endif %}"
+                          {% if setup_issues_count %} disabled aria-disabled="true" {% else %} hx-post="{% url 'nimbus-ui-new-preview-review-rollout' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt=".sidebar-action-button" {% endif %}>
+                    {% include "new/common/sidebar_transition_spinner.html" %}
 
-                  <i class="fa-regular fa-paper-plane"></i>
-                  Request Enrollment
-                </button>
+                    <i class="fa-regular fa-paper-plane"></i>
+                    Request Enrollment
+                  </button>
+                </span>
               </div>
             </div>
           {% endif %}
@@ -143,7 +143,9 @@
           {% endif %}
           <span class="d-flex flex-column">
             <span>
-              {% if experiment.is_live_rollout %}
+              {% if not experiment.has_launched %}
+                Not launched
+              {% elif experiment.is_live_rollout %}
                 Enabled
               {% else %}
                 Disabled

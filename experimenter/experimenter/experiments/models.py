@@ -1196,10 +1196,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_preview_complete(self):
-        return self.status not in (
-            self.Status.DRAFT,
-            self.Status.PREVIEW,
-        )
+        return self.has_launched
 
     @property
     def days_since_enrollment_start(self):
@@ -1375,6 +1372,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.is_rollout and (self.is_live_rollout or self.is_disabled)
 
     @property
+    def has_launched(self):
+        return self.status not in (self.Status.DRAFT, self.Status.PREVIEW)
+
+    @property
     def has_pending_rollout_transition(self):
         return self.is_rollout and self.publish_status != self.PublishStatus.IDLE
 
@@ -1450,21 +1451,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "action_label": "Launch Rollout",
                 "approve_url": "nimbus-ui-new-draft-review-to-approve-rollout",
                 "reject_url": "nimbus-ui-new-draft-review-to-reject-rollout",
+                "approval_blocked_by_setup_issues": True,
             },
             (self.Status.LIVE, self.Status.LIVE): {
                 "action_label": "Advance to Next Phase",
                 "approve_url": "nimbus-ui-new-approve-advance-phase-review-rollout",
                 "reject_url": "nimbus-ui-new-reject-advance-phase-review-rollout",
+                "approval_blocked_by_setup_issues": True,
             },
             (self.Status.LIVE, self.Status.DISABLED): {
                 "action_label": "Disable Rollout",
                 "approve_url": "nimbus-ui-new-live-to-disabled-review-approve-rollout",
                 "reject_url": "nimbus-ui-new-live-to-disabled-review-reject-rollout",
+                "approval_blocked_by_setup_issues": False,
             },
             (self.Status.DISABLED, self.Status.LIVE): {
                 "action_label": "Start Next Phase",
                 "approve_url": "nimbus-ui-new-disabled-to-live-review-approve-rollout",
                 "reject_url": "nimbus-ui-new-disabled-to-live-review-reject-rollout",
+                "approval_blocked_by_setup_issues": True,
             },
         }
         return transitions.get((self.status, self.status_next))
@@ -1755,19 +1760,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return "rollout"
         if self.is_preview:
             return "preview"
-        if self.is_review_timeline:
-            review_request = (
-                self.changes.filter(
-                    new_status=self.Status.DRAFT,
-                    new_publish_status=self.PublishStatus.REVIEW,
-                )
-                .order_by("changed_on")
-                .last()
-            )
-            if review_request and review_request.old_status == self.Status.PREVIEW:
-                return "preview"
-            return "setup"
-        if self.is_draft:
+        if self.status == self.Status.DRAFT:
             return "setup"
         return None
 

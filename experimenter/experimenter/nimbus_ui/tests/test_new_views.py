@@ -649,6 +649,66 @@ class TestNimbusRolloutDetailView(AuthTestCase):
                 kwargs={"slug": experiment.slug},
             ),
         )
+        self.assertContains(response, "Not launched")
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Status.LIVE,),
+            (NimbusExperiment.Status.DISABLED,),
+        ]
+    )
+    def test_launched_rollout_hides_preview_and_enrollment_buttons(self, status):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, is_rollout=True
+        )
+        experiment.status = status
+        experiment.save()
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertNotContains(response, 'id="rollout-preview-btn"')
+        self.assertNotContains(response, 'id="rollout-launch-btn"')
+        self.assertNotContains(response, 'id="rollout-request-enrollment-btn"')
+        self.assertNotContains(response, "Not launched")
+
+    def test_review_pending_disables_setup_buttons_and_hides_other_stages(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED, is_rollout=True
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'id="rollout-preview-btn"')
+        self.assertContains(response, 'id="rollout-launch-btn"')
+        self.assertContains(response, NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP)
+        for url_name in (
+            "nimbus-ui-new-draft-to-preview-rollout",
+            "nimbus-ui-new-draft-to-review-rollout",
+        ):
+            self.assertNotContains(
+                response, reverse(url_name, kwargs={"slug": experiment.slug})
+            )
+        self.assertNotContains(response, 'id="rollout-back-to-setup-btn"')
+        self.assertNotContains(response, 'id="rollout-request-enrollment-btn"')
+
+    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
+    def test_preview_rollout_shows_only_preview_stage_buttons(self, _mock_errors):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW, is_rollout=True
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'id="rollout-back-to-setup-btn"')
+        self.assertContains(response, 'id="rollout-request-enrollment-btn"')
+        self.assertNotContains(response, 'id="rollout-preview-btn"')
+        self.assertNotContains(response, 'id="rollout-launch-btn"')
 
     @parameterized.expand(
         [
@@ -657,7 +717,7 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             (NimbusExperiment.PublishStatus.WAITING,),
         ]
     )
-    def test_disable_button_disabled_while_disable_transition_pending(
+    def test_rollout_actions_disabled_while_disable_transition_pending(
         self, publish_status
     ):
         experiment = NimbusExperimentFactory.create(
@@ -667,17 +727,20 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             publish_status=publish_status,
         )
         NimbusRolloutPhaseFactory.create(experiment=experiment)
-        disable_url = reverse(
-            "nimbus-ui-new-live-to-disabled-rollout", kwargs={"slug": experiment.slug}
-        )
 
         response = self.client.get(
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'id="rollout-disable-btn"')
-        self.assertNotContains(response, disable_url)
+        self.assertContains(response, NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP)
+        for url_name in (
+            "nimbus-ui-new-live-to-disabled-rollout",
+            "nimbus-ui-new-advance-phase-review-rollout",
+        ):
+            self.assertNotContains(
+                response, reverse(url_name, kwargs={"slug": experiment.slug})
+            )
 
     @parameterized.expand(
         [
@@ -1268,7 +1331,8 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertContains(response, screenshot_2.image.url)
 
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
-    def test_sidebar_shows_approve_control_for_dev_reviewer(self):
+    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
+    def test_sidebar_shows_approve_control_for_dev_reviewer(self, _mock_errors):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             status_next=NimbusExperiment.Status.LIVE,
@@ -1312,15 +1376,20 @@ class TestNimbusRolloutDetailView(AuthTestCase):
                 reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
             )
 
-        content = response.content.decode()
-        next_phase_button = content.split('id="rollout-next-phase-btn"', 1)[1].split(
-            "</button>", 1
-        )[0]
-        disable_button = content.split('id="rollout-disable-btn"', 1)[1].split(
-            "</button>", 1
-        )[0]
-        self.assertRegex(next_phase_button, r"\sdisabled(?:\s|>)")
-        self.assertNotRegex(disable_button, r"\sdisabled(?:\s|>)")
+        self.assertNotContains(
+            response,
+            reverse(
+                "nimbus-ui-new-advance-phase-review-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+        self.assertContains(
+            response,
+            reverse(
+                "nimbus-ui-new-live-to-disabled-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
 
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
     def test_setup_issues_disable_phase_advance_approval(self):
@@ -1341,11 +1410,64 @@ class TestNimbusRolloutDetailView(AuthTestCase):
                 **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
             )
 
-        content = response.content.decode()
-        approve_button = content.split('id="rollout-review-approve-btn"', 1)[1].split(
-            "</button>", 1
-        )[0]
-        self.assertRegex(approve_button, r"\sdisabled(?:\s|>)")
+        self.assertContains(response, 'id="rollout-review-approve-btn"')
+        self.assertNotContains(
+            response,
+            reverse(
+                "nimbus-ui-new-approve-advance-phase-review-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+                "nimbus-ui-new-draft-review-to-approve-rollout",
+                False,
+            ),
+            (
+                NimbusExperiment.Status.DISABLED,
+                NimbusExperiment.Status.LIVE,
+                "nimbus-ui-new-disabled-to-live-review-approve-rollout",
+                False,
+            ),
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperiment.Status.DISABLED,
+                "nimbus-ui-new-live-to-disabled-review-approve-rollout",
+                True,
+            ),
+        ]
+    )
+    @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
+    def test_setup_issues_block_approval_only_when_going_live(
+        self, status, status_next, approve_url_name, expect_actionable
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            status_next=status_next,
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            is_rollout=True,
+        )
+
+        with mock.patch.object(
+            NimbusExperiment,
+            "get_invalid_fields_errors",
+            return_value={"risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]},
+        ):
+            response = self.client.get(
+                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
+                **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
+            )
+
+        self.assertContains(response, 'id="rollout-review-approve-btn"')
+        approve_url = reverse(approve_url_name, kwargs={"slug": experiment.slug})
+        if expect_actionable:
+            self.assertContains(response, approve_url)
+        else:
+            self.assertNotContains(response, approve_url)
 
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
     def test_sidebar_shows_remote_settings_link_when_approved(self):
@@ -2136,6 +2258,34 @@ class TestNewQAUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(
             experiment.qa_run_testrail_url, "https://www.example.com/testrail"
         )
+
+    def test_post_swaps_header_qa_status_badge_out_of_band(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            qa_status=NimbusExperiment.QAStatus.NOT_SET,
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {"qa_status": NimbusExperiment.QAStatus.SELF_GREEN, "qa_comment": ""},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="qa-status-header"')
+        self.assertContains(response, 'hx-swap-oob="true"')
+        experiment.refresh_from_db()
+        self.assertContains(response, experiment.qa_status_badge_class, count=2)
+
+    def test_get_does_not_swap_header_qa_status_badge(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertNotContains(response, 'id="qa-status-header"')
 
 
 class TestNewSignoffUpdateView(NewViewTestMixin, AuthTestCase):

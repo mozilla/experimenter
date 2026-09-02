@@ -8087,7 +8087,7 @@ class TestRolloutSidebarStateHelpers(TestCase):
         self.assertTrue(experiment.is_review_timeline)
         self.assertEqual(experiment.active_rollout_stage, "setup")
 
-    def test_active_rollout_stage_preview_when_review_requested_from_preview(self):
+    def test_active_rollout_stage_setup_when_review_requested_from_preview(self):
         experiment = NimbusExperimentFactory.create(
             is_rollout=True,
             status=NimbusExperiment.Status.DRAFT,
@@ -8102,7 +8102,7 @@ class TestRolloutSidebarStateHelpers(TestCase):
             changed_on=datetime.datetime(2099, 1, 1),
         )
         self.assertTrue(experiment.is_review_timeline)
-        self.assertEqual(experiment.active_rollout_stage, "preview")
+        self.assertEqual(experiment.active_rollout_stage, "setup")
 
     def test_active_rollout_stage_rollout_when_live(self):
         self.assertEqual(self.live_rollout().active_rollout_stage, "rollout")
@@ -8118,3 +8118,17 @@ class TestRolloutSidebarStateHelpers(TestCase):
             publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
         self.assertIsNone(experiment.active_rollout_stage)
+
+    @parameterized.expand(
+        [
+            [NimbusExperimentFactory.Lifecycles.CREATED, False],
+            [NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED, False],
+            [NimbusExperimentFactory.Lifecycles.PREVIEW, False],
+            [NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE, True],
+        ]
+    )
+    def test_has_launched(self, lifecycle, expected):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=True
+        )
+        self.assertEqual(experiment.has_launched, expected)

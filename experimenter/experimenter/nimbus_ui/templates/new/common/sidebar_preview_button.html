@@ -1,48 +1,59 @@
 <div id="sidebar-preview-button" {% if oob %}hx-swap-oob="true"{% endif %}>
-  {% if experiment.is_draft and not setup_issues_count %}
-    <div class="d-flex flex-column gap-2 mt-2">
-      <button type="button"
-              id="rollout-preview-btn"
-              class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button"
-              hx-post="{% url 'nimbus-ui-new-draft-to-preview-rollout' experiment.slug %}"
-              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-              hx-disabled-elt="this"
-              {% if editing_card %}hx-confirm="{{ NimbusUIConstants.ROLLOUT_UNSAVED_CHANGES_CONFIRM }}"{% endif %}>
-        {% include "new/common/sidebar_transition_spinner.html" %}
-
-        <i class="fa-regular fa-eye"></i>
-        Preview
-      </button>
-      <button type="button"
-              id="rollout-launch-btn"
-              class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-transition-button"
-              hx-post="{% url 'nimbus-ui-new-draft-to-review-rollout' experiment.slug %}"
-              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-              hx-disabled-elt="this"
-              {% if editing_card %}hx-confirm="{{ NimbusUIConstants.ROLLOUT_UNSAVED_CHANGES_CONFIRM }}"{% endif %}>
-        {% include "new/common/sidebar_transition_spinner.html" %}
-
-        <i class="fa-regular fa-paper-plane"></i>
-        Request Enrollment
-      </button>
-    </div>
-  {% else %}
-    <span class="d-inline-block w-100 mt-2"
-          {% if experiment.is_draft and setup_issues_count %} data-bs-toggle="tooltip" data-bs-title="{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}"{% endif %}>
-      <div class="d-flex flex-column gap-2">
+  {% if experiment.active_rollout_stage == 'setup' %}
+    {% if experiment.is_draft and not setup_issues_count %}
+      <div class="d-flex flex-column gap-2 mt-2">
         <button type="button"
-                class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
-                disabled>
+                id="rollout-preview-btn"
+                class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
+                hx-post="{% url 'nimbus-ui-new-draft-to-preview-rollout' experiment.slug %}"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-disabled-elt=".sidebar-action-button"
+                {% if editing_card %}hx-confirm="{{ NimbusUIConstants.ROLLOUT_UNSAVED_CHANGES_CONFIRM }}"{% endif %}>
+          {% include "new/common/sidebar_transition_spinner.html" %}
+
           <i class="fa-regular fa-eye"></i>
           Preview
         </button>
         <button type="button"
-                class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
-                disabled>
+                id="rollout-launch-btn"
+                class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
+                hx-post="{% url 'nimbus-ui-new-draft-to-review-rollout' experiment.slug %}"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-disabled-elt=".sidebar-action-button"
+                {% if editing_card %}hx-confirm="{{ NimbusUIConstants.ROLLOUT_UNSAVED_CHANGES_CONFIRM }}"{% endif %}>
+          {% include "new/common/sidebar_transition_spinner.html" %}
+
           <i class="fa-regular fa-paper-plane"></i>
           Request Enrollment
         </button>
       </div>
-    </span>
+    {% else %}
+      <div class="d-flex flex-column gap-2 mt-2">
+        <span class="d-inline-block w-100"
+              data-bs-toggle="tooltip"
+              data-bs-title="{% if experiment.has_pending_rollout_transition %}{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}{% else %}{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}{% endif %}">
+          <button type="button"
+                  id="rollout-preview-btn"
+                  class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
+                  disabled
+                  aria-disabled="true">
+            <i class="fa-regular fa-eye"></i>
+            Preview
+          </button>
+        </span>
+        <span class="d-inline-block w-100"
+              data-bs-toggle="tooltip"
+              data-bs-title="{% if experiment.has_pending_rollout_transition %}{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}{% else %}{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}{% endif %}">
+          <button type="button"
+                  id="rollout-launch-btn"
+                  class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
+                  disabled
+                  aria-disabled="true">
+            <i class="fa-regular fa-paper-plane"></i>
+            Request Enrollment
+          </button>
+        </span>
+      </div>
+    {% endif %}
   {% endif %}
 </div>

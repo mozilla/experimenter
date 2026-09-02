@@ -1,0 +1,22 @@
+<div id="experiment-status-badges"
+     class="d-flex flex-wrap gap-1 align-items-center">
+  {% include "new/common/qa_status_badge.html" with badge_id="qa-status-header" %}
+
+  {% if experiment.is_archived %}
+    <span class="badge rounded-pill bg-danger" id="archive-badge">Archived</span>
+  {% endif %}
+  {% if experiment.is_rollout %}<span class="badge rounded-pill bg-primary" id="rollout-badge">Rollout</span>{% endif %}
+  {% if experiment.is_holdback %}
+    <span class="badge rounded-pill bg-danger" id="holdback-badge">Holdback</span>
+  {% endif %}
+  {% if experiment.project_impact %}
+    <span class="badge rounded-pill text-bg-warning border border-secondary-subtle"><i class="fa-solid fa-trophy me-2"></i>{{ experiment.project_impact|lower|capfirst }} impact</span>
+  {% endif %}
+  {% if experiment.is_rollout_dirty %}
+    <span class="badge rounded-pill bg-danger" id="unpublished-rollout-badge">Unpublished changes</span>
+  {% endif %}
+  {% if experiment.is_live_rollout %}
+    <span id="rollout-live-badge"
+          class="badge rounded-pill text-bg-success fw-medium small">Live</span>
+  {% endif %}
+</div>
