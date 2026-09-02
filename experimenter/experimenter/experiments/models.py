@@ -47,7 +47,11 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
-from experimenter.experiments.jexl_to_sql import ensure_bool_sql, jexl_to_sql
+from experimenter.experiments.jexl_to_sql import (
+    APP_NAME_TO_JEXL_APP,
+    ensure_bool_sql,
+    jexl_to_sql,
+)
 from experimenter.experiments.jexl_utils import format_jexl
 from experimenter.experiments.monitoring_utils import (
     check_srm_mismatch,
@@ -2500,7 +2504,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def sizing_sql_predicate(self):
-        sql = jexl_to_sql(self.targeting).sql
+        config = self.application_config
+        app = APP_NAME_TO_JEXL_APP.get(config.app_name) if config else None
+        sql = jexl_to_sql(self.targeting, app=app).sql
         if sql is None:
             return None
         return ensure_bool_sql(sql)

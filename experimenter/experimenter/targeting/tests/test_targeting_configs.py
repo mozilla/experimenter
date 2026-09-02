@@ -4,6 +4,8 @@ from parameterized import parameterized
 from experimenter.experiments.constants import Application
 from experimenter.experiments.jexl_to_sql import (
     JEXL_TO_BQ_COLUMN,
+    JEXL_TO_BQ_COLUMN_FENIX,
+    JEXL_TO_BQ_COLUMN_IOS,
     KNOWN_UNTRANSLATABLE,
     jexl_to_sql,
 )
@@ -90,6 +92,58 @@ class TestTargetingConfigs(TestCase):
                     f"Every transform must be supported by every application "
                     f"the config targets.",
                 )
+
+    @parameterized.expand(
+        [
+            (t,)
+            for t in TargetingConstants.TARGETING_CONFIGS.values()
+            if Application.FENIX.name in t.application_choice_names
+        ]
+    )
+    def test_fenix_targeting_config_jexl_attributes_are_known(self, targeting_config):
+        if not targeting_config.targeting or targeting_config.targeting == "true":
+            return
+        result = jexl_to_sql(targeting_config.targeting, app="fenix")
+        for warning in result.warnings:
+            if warning.startswith("|"):
+                continue
+            parts = warning.split(".")
+            self.assertTrue(
+                any(
+                    ".".join(parts[:i]) in KNOWN_UNTRANSLATABLE
+                    or warning in JEXL_TO_BQ_COLUMN_FENIX
+                    for i in range(1, len(parts) + 1)
+                ),
+                f"Unrecognized attribute '{warning}' in "
+                f"{targeting_config.name}. Add it to "
+                f"JEXL_TO_BQ_COLUMN_FENIX or KNOWN_UNTRANSLATABLE.",
+            )
+
+    @parameterized.expand(
+        [
+            (t,)
+            for t in TargetingConstants.TARGETING_CONFIGS.values()
+            if Application.IOS.name in t.application_choice_names
+        ]
+    )
+    def test_ios_targeting_config_jexl_attributes_are_known(self, targeting_config):
+        if not targeting_config.targeting or targeting_config.targeting == "true":
+            return
+        result = jexl_to_sql(targeting_config.targeting, app="ios")
+        for warning in result.warnings:
+            if warning.startswith("|"):
+                continue
+            parts = warning.split(".")
+            self.assertTrue(
+                any(
+                    ".".join(parts[:i]) in KNOWN_UNTRANSLATABLE
+                    or warning in JEXL_TO_BQ_COLUMN_IOS
+                    for i in range(1, len(parts) + 1)
+                ),
+                f"Unrecognized attribute '{warning}' in "
+                f"{targeting_config.name}. Add it to "
+                f"JEXL_TO_BQ_COLUMN_IOS or KNOWN_UNTRANSLATABLE.",
+            )
 
     def test_desktop_targeting_context_fields_are_mapped(self):
         """Every field in the Desktop targeting context must be in JEXL_TO_BQ_COLUMN
