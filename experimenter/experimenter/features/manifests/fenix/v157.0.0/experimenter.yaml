@@ -913,6 +913,15 @@ tab-groups-onboarding:
       type: boolean
       description: |
         Whether or not to enable onboarding for tab groups.
+tab-groups-ungroup:
+  description: Control whether the ungroup option is available for tab groups.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable ungrouping tab groups.
 tab-management-enhancements:
   description: Control the visibility of the tab management enhancements.
   hasExposure: true
