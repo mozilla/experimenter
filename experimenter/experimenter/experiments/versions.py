@@ -343,6 +343,7 @@ class Version(models.TextChoices):
     FIREFOX_155_3_0 = "155.3.0"
     FIREFOX_155_4_0 = "155.4.0"
     FIREFOX_156 = "156.!"
+    FIREFOX_156_B3 = "156.0b3"
     FIREFOX_156_0_1 = "156.0.1"
     FIREFOX_156_0_2 = "156.0.2"
     FIREFOX_156_0_3 = "156.0.3"
