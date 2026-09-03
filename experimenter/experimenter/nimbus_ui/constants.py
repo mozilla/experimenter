@@ -217,6 +217,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         "targeting_criteria_request_url": "https://github.com/mozilla/experimenter/issues/new?template=targeting_request_template.yml&title=Targeting%20criteria%20request",
         "sticky_targeting_url": "https://experimenter.info/advanced/custom-audiences#sticky-targeting",
         "experimentation_office_hours_url": "https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849684/Experimentation+Office+Hours",
+        "population_sizing_learn_more_url": "https://experimenter.info/advanced/population-sizing#automatic-population-sizing-in-experimenter",
     }
     OVERVIEW_PAGE_LINKS = {
         "risk_link": "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
