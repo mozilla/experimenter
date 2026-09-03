@@ -2654,31 +2654,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.publish_status == self.PublishStatus.WAITING and review_expired
 
     @property
-    def rollout_version_warning(self):
-        if not self.is_rollout or not self.firefox_min_version:
-            return None
-
-        min_required_version = (
-            NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.get(
-                self.application
-            )
-        )
-
-        parsed_required_version = NimbusExperiment.Version.parse(min_required_version)
-        parsed_current_version = NimbusExperiment.Version.parse(self.firefox_min_version)
-
-        if parsed_current_version < parsed_required_version:
-            return {
-                "text": NimbusConstants.ERROR_ROLLOUT_VERSION.format(
-                    application=NimbusExperiment.Application(self.application).label,
-                    version=parsed_required_version,
-                ),
-                "variant": "warning",
-                "slugs": [],
-                "learn_more_link": None,
-            }
-
-    @property
     def supports_rollout_reenable(self):
         if not self.is_rollout:
             return True
@@ -2704,6 +2679,38 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             NimbusConstants.Status.LIVE,
         )
 
+    @cached_property
+    def _review_serializer(self):
+        from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
+
+        serializer = NimbusReviewSerializer(self, data=NimbusReviewSerializer(self).data)
+        serializer.is_valid()
+        return serializer
+
+    @property
+    def review_warnings(self):
+        if self.status not in [
+            NimbusConstants.Status.DRAFT,
+            NimbusConstants.Status.PREVIEW,
+        ]:
+            return []
+
+        issues = []
+        for field, messages in self._review_serializer.flat_warnings.items():
+            label = NimbusUIConstants.REVIEW_WARNING_LABELS.get(
+                field, field.replace("_", " ").title()
+            )
+            learn_more_url = NimbusUIConstants.REVIEW_WARNING_LEARN_MORE.get(field)
+            issues.extend(
+                {
+                    "label": label,
+                    "detail": message,
+                    "learn_more_url": learn_more_url,
+                }
+                for message in messages
+            )
+        return issues
+
     @property
     def audience_overlap_warnings(self):
         if self.status not in [
@@ -2717,28 +2724,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             {"slug": d["slug"], "reasons": d["reasons"]} for d in collisions["deliveries"]
         ]
 
-        self_issues = []
-
-        if version_warning := self.rollout_version_warning:
-            self_issues.append(
-                {
-                    "label": (
-                        NimbusUIConstants.COLLISION_SELF_ISSUE_VERSION_BELOW_MINIMUM
-                    ),
-                    "detail": version_warning["text"],
-                    "learn_more_url": (
-                        NimbusUIConstants.COLLISION_LEARN_MORE_VERSION_BELOW_MINIMUM
-                    ),
-                }
-            )
-
-        if self.is_desktop and not self.is_rollout and len(self.channels) > 1:
-            self_issues.append(
-                {
-                    "label": NimbusUIConstants.COLLISION_SELF_ISSUE_MULTICHANNEL,
-                    "detail": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
-                }
-            )
+        self_issues = self.review_warnings
 
         if not entries and not self_issues:
             return []
@@ -2774,27 +2760,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return False
 
     def get_invalid_fields_errors(self, serializer_class=None):
-        from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
-
         if serializer_class is None:
-            serializer_class = NimbusReviewSerializer
+            serializer = self._review_serializer
+        else:
+            serializer = serializer_class(self, data=serializer_class(self).data)
+            serializer.is_valid()
 
-        serializer_data = serializer_class(self).data
-        serializer = serializer_class(self, data=serializer_data)
+        errors = dict(serializer.errors)
 
-        errors = {}
-        if not serializer.is_valid():
-            errors = serializer.errors
+        if "excluded_experiments" in errors:
+            errors["excluded_experiments_branches"] = errors.pop("excluded_experiments")
 
-            if "excluded_experiments" in errors:
-                errors["excluded_experiments_branches"] = errors.pop(
-                    "excluded_experiments"
-                )
-
-            if "required_experiments" in errors:
-                errors["required_experiments_branches"] = errors.pop(
-                    "required_experiments"
-                )
+        if "required_experiments" in errors:
+            errors["required_experiments_branches"] = errors.pop("required_experiments")
 
         return errors
 
