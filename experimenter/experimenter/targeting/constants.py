@@ -5553,6 +5553,17 @@ SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SPLIT_VIEW_HAS_BEEN_USED = NimbusTargetingConfig(
+    name="Users who have used Split View",
+    slug="split_view_has_been_used",
+    description="Desktop users who have previously used Split View",
+    targeting="'browser.tabs.splitview.hasUsed'|preferenceValue",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOVA_ENABLED = NimbusTargetingConfig(
     name="Nova enabled",
     slug="nova_enabled",
