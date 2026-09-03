@@ -2243,6 +2243,21 @@ autofill-ml:
         How long an idle ML autofill engine is kept alive, in milliseconds.
         Applies to every engine the active classifier creates. -1 means never
         time out. Defaults to 120000.
+    features:
+      description: >-
+        JSON array of mlData tokenizer feature keys to enable, e.g.
+        ["select_option", "input_attributes"]. Must match the model in use.
+      type: string
+      setPref:
+        branch: default
+        pref: extensions.formautofill.useml.features
+    modelVersion:
+      description: >-
+        Pin the ML model revision to load. Empty keeps the Remote Settings default.
+      type: string
+      setPref:
+        branch: default
+        pref: extensions.formautofill.useml.modelVersion
 
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
@@ -5054,13 +5069,6 @@ pqcrypto:
         pref: network.http.http3.enable_kyber
       description: >-
         Whether to enable mlkem768x25519 for H3/QUIC.
-    sendP256:
-      type: boolean
-      setPref:
-        branch: default
-        pref: security.tls.client_hello.send_p256_keyshare
-      description: >-
-        Whether to send a P256 share in the client hello in QUIC and TLS.
     dtlsWebRTCEnableMlkem:
       type: boolean
       setPref:
