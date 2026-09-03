@@ -452,7 +452,7 @@ features:
             enabled: true
             extra-data:
               marketing-data:
-                body-line-one-text: nova_onboarding_marketing_body
+                body-line-one-text: nova_onboarding_marketing_body_2
                 body-line-one-link-text: nova_onboarding_marketing_body_link_text
             image-res: nova_onboarding_marketing
             ordering: 20
@@ -1516,6 +1516,10 @@ objects:
         default: ''
       body-line-one-text:
         description: The text for line one of the body.
+        type: Text
+        default: ''
+      body-line-three-text:
+        description: The text for line three of the body.
         type: Text
         default: ''
       body-line-two-text:
