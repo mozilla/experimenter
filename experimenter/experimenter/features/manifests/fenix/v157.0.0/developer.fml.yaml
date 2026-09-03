@@ -1147,6 +1147,14 @@ features:
           Whether or not to enable onboarding for tab groups.
         type: Boolean
         default: true
+  tab-groups-strip:
+    description: Control whether the tab groups strip is shown.
+    variables:
+      enabled:
+        description: |
+          Whether or not to enable the tab groups strip.
+        type: Boolean
+        default: false
   tab-groups-ungroup:
     description: Control whether the ungroup option is available for tab groups.
     variables:
