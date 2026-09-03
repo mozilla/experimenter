@@ -636,3 +636,42 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         serializer = NimbusExperimentSerializer(experiment)
         self.assertIsNone(serializer.data["targetingSql"])
+
+    def test_targeting_sql_uses_fenix_column_map_for_fenix_experiment(self):
+        # days_since_install is KNOWN_UNTRANSLATABLE on Desktop but maps to
+        # daysSinceInstall in the Fenix column map. Verify the serializer routes
+        # Fenix experiments through jexl_to_sql(app="fenix").
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            targeting_config_slug="mobile_14_day_users",
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        data = serializer.data["targetingSql"]
+        self.assertIsNotNone(data)
+        # days_since_install < 15 → daysSinceInstall < 15 (Fenix BQ column)
+        self.assertEqual(data["sql"], "daysSinceInstall < 15")
+        self.assertEqual(data["warnings"], [])
+
+    def test_targeting_sql_uses_ios_column_map_for_ios_experiment(self):
+        # days_since_update is KNOWN_UNTRANSLATABLE on Desktop but maps to
+        # daysSinceUpdate in the iOS column map. Verify the serializer routes
+        # iOS experiments through jexl_to_sql(app="ios").
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.IOS,
+            targeting_config_slug="mobile_recently_updated_users",
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        data = serializer.data["targetingSql"]
+        self.assertIsNotNone(data)
+        # days_since_update < 7 && days_since_install >= 7
+        # → (daysSinceUpdate < 7 AND daysSinceInstall >= 7) (iOS BQ columns)
+        self.assertEqual(data["sql"], "(daysSinceUpdate < 7 AND daysSinceInstall >= 7)")
+        self.assertEqual(data["warnings"], [])

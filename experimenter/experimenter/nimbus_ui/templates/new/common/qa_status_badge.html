@@ -1,0 +1,3 @@
+<span id="{{ badge_id }}"
+      class="{{ experiment.qa_status_badge_class }}"
+      {% if oob %}hx-swap-oob="true"{% endif %}>{{ experiment.get_qa_status_display|default:"Not set" }}</span>

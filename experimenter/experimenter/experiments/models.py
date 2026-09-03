@@ -47,7 +47,11 @@ from experimenter.experiments.constants import (
     NimbusConstants,
     TargetingMultipleKintoCollectionsError,
 )
-from experimenter.experiments.jexl_to_sql import ensure_bool_sql, jexl_to_sql
+from experimenter.experiments.jexl_to_sql import (
+    APP_NAME_TO_JEXL_APP,
+    ensure_bool_sql,
+    jexl_to_sql,
+)
 from experimenter.experiments.jexl_utils import format_jexl
 from experimenter.experiments.monitoring_utils import (
     check_srm_mismatch,
@@ -1192,10 +1196,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def is_preview_complete(self):
-        return self.status not in (
-            self.Status.DRAFT,
-            self.Status.PREVIEW,
-        )
+        return self.has_launched
 
     @property
     def days_since_enrollment_start(self):
@@ -1371,6 +1372,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.is_rollout and (self.is_live_rollout or self.is_disabled)
 
     @property
+    def has_launched(self):
+        return self.status not in (self.Status.DRAFT, self.Status.PREVIEW)
+
+    @property
     def has_pending_rollout_transition(self):
         return self.is_rollout and self.publish_status != self.PublishStatus.IDLE
 
@@ -1446,21 +1451,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "action_label": "Launch Rollout",
                 "approve_url": "nimbus-ui-new-draft-review-to-approve-rollout",
                 "reject_url": "nimbus-ui-new-draft-review-to-reject-rollout",
+                "approval_blocked_by_setup_issues": True,
             },
             (self.Status.LIVE, self.Status.LIVE): {
                 "action_label": "Advance to Next Phase",
                 "approve_url": "nimbus-ui-new-approve-advance-phase-review-rollout",
                 "reject_url": "nimbus-ui-new-reject-advance-phase-review-rollout",
+                "approval_blocked_by_setup_issues": True,
             },
             (self.Status.LIVE, self.Status.DISABLED): {
                 "action_label": "Disable Rollout",
                 "approve_url": "nimbus-ui-new-live-to-disabled-review-approve-rollout",
                 "reject_url": "nimbus-ui-new-live-to-disabled-review-reject-rollout",
+                "approval_blocked_by_setup_issues": False,
             },
             (self.Status.DISABLED, self.Status.LIVE): {
                 "action_label": "Start Next Phase",
                 "approve_url": "nimbus-ui-new-disabled-to-live-review-approve-rollout",
                 "reject_url": "nimbus-ui-new-disabled-to-live-review-reject-rollout",
+                "approval_blocked_by_setup_issues": True,
             },
         }
         return transitions.get((self.status, self.status_next))
@@ -1751,19 +1760,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return "rollout"
         if self.is_preview:
             return "preview"
-        if self.is_review_timeline:
-            review_request = (
-                self.changes.filter(
-                    new_status=self.Status.DRAFT,
-                    new_publish_status=self.PublishStatus.REVIEW,
-                )
-                .order_by("changed_on")
-                .last()
-            )
-            if review_request and review_request.old_status == self.Status.PREVIEW:
-                return "preview"
-            return "setup"
-        if self.is_draft:
+        if self.status == self.Status.DRAFT:
             return "setup"
         return None
 
@@ -2500,7 +2497,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def sizing_sql_predicate(self):
-        sql = jexl_to_sql(self.targeting).sql
+        config = self.application_config
+        app = APP_NAME_TO_JEXL_APP.get(config.app_name) if config else None
+        sql = jexl_to_sql(self.targeting, app=app).sql
         if sql is None:
             return None
         return ensure_bool_sql(sql)
@@ -2655,31 +2654,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.publish_status == self.PublishStatus.WAITING and review_expired
 
     @property
-    def rollout_version_warning(self):
-        if not self.is_rollout or not self.firefox_min_version:
-            return None
-
-        min_required_version = (
-            NimbusConstants.ROLLOUT_LIVE_RESIZE_MIN_SUPPORTED_VERSION.get(
-                self.application
-            )
-        )
-
-        parsed_required_version = NimbusExperiment.Version.parse(min_required_version)
-        parsed_current_version = NimbusExperiment.Version.parse(self.firefox_min_version)
-
-        if parsed_current_version < parsed_required_version:
-            return {
-                "text": NimbusConstants.ERROR_ROLLOUT_VERSION.format(
-                    application=NimbusExperiment.Application(self.application).label,
-                    version=parsed_required_version,
-                ),
-                "variant": "warning",
-                "slugs": [],
-                "learn_more_link": None,
-            }
-
-    @property
     def supports_rollout_reenable(self):
         if not self.is_rollout:
             return True
@@ -2705,6 +2679,38 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             NimbusConstants.Status.LIVE,
         )
 
+    @cached_property
+    def _review_serializer(self):
+        from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
+
+        serializer = NimbusReviewSerializer(self, data=NimbusReviewSerializer(self).data)
+        serializer.is_valid()
+        return serializer
+
+    @property
+    def review_warnings(self):
+        if self.status not in [
+            NimbusConstants.Status.DRAFT,
+            NimbusConstants.Status.PREVIEW,
+        ]:
+            return []
+
+        issues = []
+        for field, messages in self._review_serializer.flat_warnings.items():
+            label = NimbusUIConstants.REVIEW_WARNING_LABELS.get(
+                field, field.replace("_", " ").title()
+            )
+            learn_more_url = NimbusUIConstants.REVIEW_WARNING_LEARN_MORE.get(field)
+            issues.extend(
+                {
+                    "label": label,
+                    "detail": message,
+                    "learn_more_url": learn_more_url,
+                }
+                for message in messages
+            )
+        return issues
+
     @property
     def audience_overlap_warnings(self):
         if self.status not in [
@@ -2718,28 +2724,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             {"slug": d["slug"], "reasons": d["reasons"]} for d in collisions["deliveries"]
         ]
 
-        self_issues = []
-
-        if version_warning := self.rollout_version_warning:
-            self_issues.append(
-                {
-                    "label": (
-                        NimbusUIConstants.COLLISION_SELF_ISSUE_VERSION_BELOW_MINIMUM
-                    ),
-                    "detail": version_warning["text"],
-                    "learn_more_url": (
-                        NimbusUIConstants.COLLISION_LEARN_MORE_VERSION_BELOW_MINIMUM
-                    ),
-                }
-            )
-
-        if self.is_desktop and not self.is_rollout and len(self.channels) > 1:
-            self_issues.append(
-                {
-                    "label": NimbusUIConstants.COLLISION_SELF_ISSUE_MULTICHANNEL,
-                    "detail": NimbusUIConstants.EXPERIMENT_MULTICHANNEL_WARNING,
-                }
-            )
+        self_issues = self.review_warnings
 
         if not entries and not self_issues:
             return []
@@ -2775,27 +2760,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return False
 
     def get_invalid_fields_errors(self, serializer_class=None):
-        from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
-
         if serializer_class is None:
-            serializer_class = NimbusReviewSerializer
+            serializer = self._review_serializer
+        else:
+            serializer = serializer_class(self, data=serializer_class(self).data)
+            serializer.is_valid()
 
-        serializer_data = serializer_class(self).data
-        serializer = serializer_class(self, data=serializer_data)
+        errors = dict(serializer.errors)
 
-        errors = {}
-        if not serializer.is_valid():
-            errors = serializer.errors
+        if "excluded_experiments" in errors:
+            errors["excluded_experiments_branches"] = errors.pop("excluded_experiments")
 
-            if "excluded_experiments" in errors:
-                errors["excluded_experiments_branches"] = errors.pop(
-                    "excluded_experiments"
-                )
-
-            if "required_experiments" in errors:
-                errors["required_experiments_branches"] = errors.pop(
-                    "required_experiments"
-                )
+        if "required_experiments" in errors:
+            errors["required_experiments_branches"] = errors.pop("required_experiments")
 
         return errors
 

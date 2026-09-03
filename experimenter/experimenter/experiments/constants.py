@@ -766,12 +766,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_BRANCH_SWAP = "You are trying to swap branch names. \
         Please choose another name for the branches."
 
-    ERROR_BUCKET_EXISTS = "WARNING: A rollout already exists for this combination \
-        of application, feature, channel, and advanced targeting! \
-        If this rollout is launched, a client meeting the advanced targeting criteria \
-        will be enrolled in one and not the other and \
-        you will not be able to adjust the sizing for this rollout."
-
     ERROR_ROLLOUT_VERSION = (
         "WARNING: Adjusting the population size while the "
         "rollout is live is not supported for {application} versions under {version}."
@@ -869,6 +863,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "rollout will re-enroll in this rollout, which will result in overriding their "
         "changes."
     )
+
+    EXPERIMENT_MULTICHANNEL_WARNING = """WARNING: This experiment is targeting multiple
+    channels.  Each channel has significantly different population sizes and user
+    behaviour.  Running an experiment on multiple channels can create misleading or
+    inaccurate results.  It is recommended to run experiments only on a single channel."""
 
     # There is a maximum size for prefs that Desktop can write. It will warn at
     # 4KiB and hard error at 1MiB.

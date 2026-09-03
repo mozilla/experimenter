@@ -18,6 +18,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.constants import EXTERNAL_URLS, NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranchFeatureValue,
@@ -1617,6 +1618,39 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["uses_secure_collection"])
+
+    def test_renders_review_warnings_in_a_single_validation_pass(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="multichannel-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[
+                NimbusExperiment.Channel.NIGHTLY,
+                NimbusExperiment.Channel.RELEASE,
+            ],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            is_rollout=False,
+        )
+
+        original_is_valid = NimbusReviewSerializer.is_valid
+        validated = []
+
+        def counting_is_valid(serializer, **kwargs):
+            validated.append(serializer)
+            return original_is_valid(serializer, **kwargs)
+
+        with patch.object(NimbusReviewSerializer, "is_valid", counting_is_valid):
+            response = self.client.get(
+                reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(validated), 1)
+        self.assertContains(
+            response,
+            NimbusUIConstants.REVIEW_WARNING_LABELS["channels"],
+        )
 
 
 class TestNimbusExperimentsCreateView(AuthTestCase):
