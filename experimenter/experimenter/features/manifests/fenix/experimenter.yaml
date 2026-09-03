@@ -913,6 +913,15 @@ tab-groups-onboarding:
       type: boolean
       description: |
         Whether or not to enable onboarding for tab groups.
+tab-groups-strip:
+  description: Control whether the tab groups strip is shown.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to enable the tab groups strip.
 tab-groups-ungroup:
   description: Control whether the ungroup option is available for tab groups.
   hasExposure: true
