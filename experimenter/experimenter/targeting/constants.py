@@ -3638,6 +3638,17 @@ CHATBOT_IS_HUGGINGCHAT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+CHATBOT_PROVIDER_SELECTED = NimbusTargetingConfig(
+    name="Chatbot provider selected",
+    slug="chatbot_provider_selected",
+    description="Users who have selected any provider in the AI chatbot sidebar.",
+    targeting="'browser.ml.chat.provider'|preferenceValue != ''",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
     name="Default PDF handler is a different browser",
     slug="default_pdf_is_different_browser",
