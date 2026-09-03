@@ -52,7 +52,6 @@ def test_fenix_enrollment(
                 "--preserve-bucketing",
                 "--reset-app",
                 "--no-validate",
-                "--legacy-open",
             ]
         )
 
