@@ -36,6 +36,7 @@ from experimenter.experiments.tests.factories import (
     NimbusVersionedSchemaFactory,
     TagFactory,
 )
+from experimenter.jetstream.models import Metric
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
@@ -3683,6 +3684,42 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["experiment"], experiment)
         self.assertTemplateUsed(response, "nimbus_experiments/results.html")
+
+    @patch("experimenter.nimbus_ui.views.ExperimentResultsManager.get_metric_data")
+    def test_results_view_hides_weekly_retention_metric_breakdowns(
+        self, mock_get_metric_data
+    ):
+        retention_slug = Metric.WEEKLY_RETENTION.format(6)
+        mock_get_metric_data.return_value = {
+            "Other Metrics": {
+                "metrics": [
+                    {
+                        "slug": retention_slug,
+                        "group": "other_metrics",
+                        "has_data": False,
+                    },
+                    {
+                        "slug": "days_of_use",
+                        "group": "other_metrics",
+                        "has_data": False,
+                    },
+                ],
+                "data": {},
+                "label_details": None,
+            }
+        }
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-results", kwargs={"slug": experiment.slug}),
+        )
+
+        self.assertIn(retention_slug, response.context["hidden_weekly_metrics"])
+        self.assertIn(retention_slug, response.context["hidden_daily_metrics"])
+        self.assertNotIn("days_of_use", response.context["hidden_weekly_metrics"])
+        self.assertNotIn("days_of_use", response.context["hidden_daily_metrics"])
 
     @parameterized.expand(
         [
