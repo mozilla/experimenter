@@ -2072,7 +2072,11 @@ pocketNewtab:
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.ctaButtonVariant
     regionStoriesConfig:
-      description: A comma-separated list of region to get stories for.
+      description: >-
+        Legacy, superseded by the stories-region-locale-config pref, which the
+        newtab extension reads directly. A region listed here
+        gets stories in the locales it was historically paired with. Do not set
+        it in new recipes.
       type: string
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-stories-config
@@ -2082,15 +2086,10 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.merino-provider.endpoint
       description: Merino endpoint to use for recommendations.
     regionStoriesBlock:
-      description: A comma-separated list of regions that do not get stories, regardless of locale-list-config.
+      description: A comma-separated list of regions that do not get stories, regardless of the stories-region-locale-config pref.
       type: string
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-stories-block
-    localeListConfig:
-      description: A comma-separated list of locales that get stories, regardless of region-stories-config.
-      type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.locale-list-config
     regionSpocsConfig:
       description: A comma-separated list of regions that get spocs by default.
       type: string
@@ -6229,3 +6228,15 @@ editContext:
         branch: default
         pref: dom.editcontext.enabled
       description: Whether the EditContext API is enabled.
+
+nova:
+  description: Nova UI
+  owner: dtownsend@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.nova.enabled
+      description: Whether Nova is enabled.
