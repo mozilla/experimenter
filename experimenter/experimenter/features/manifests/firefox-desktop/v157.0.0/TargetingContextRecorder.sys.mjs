@@ -227,6 +227,7 @@ export const PREFS = Object.freeze({
   "browser.newtabpage.enabled": PREF_BOOL,
   "browser.profiles.created": PREF_BOOL,
   "browser.startup.page": PREF_INT,
+  "browser.tabs.splitview.hasUsed": PREF_BOOL,
   "browser.toolbars.bookmarks.visibility": PREF_STRING,
   "browser.urlbar.lastUrlbarSearchSeconds": PREF_INT,
   "browser.urlbar.showSearchSuggestionsFirst": PREF_BOOL,
