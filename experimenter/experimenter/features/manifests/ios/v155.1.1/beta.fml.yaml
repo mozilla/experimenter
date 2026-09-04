@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- release
+- beta
 features:
   ad-blocker-feature:
     description: |
@@ -12,12 +12,12 @@ features:
         description: |
           Whether or not the Ad Blocker badge is shown in the Site Menu
         type: Boolean
-        default: false
+        default: true
       enabled:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
     variables:
@@ -33,12 +33,12 @@ features:
         description: |
           Decides if the interactive gesture can close tabs by dragging the tab up to the top edge of the screen
         type: Boolean
-        default: false
+        default: true
       enabled_interactive:
         description: |
           Decides if the interactive (fancier) version of this feature is enabled.
         type: Boolean
-        default: false
+        default: true
       enabled_swipe:
         description: |
           Decides if the swipe version of this feature is enabled. This will override the interactive gesture
@@ -76,15 +76,6 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: false
-  cellular-data-restricted-error-page-feature:
-    description: |
-      Controls restricted cellular data guidance on error pages
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
-        type: Boolean
-        default: false
   custom-reader-mode-scheme-feature:
     description: |
       Use a custom WKURLSchemeHandler for reader mode
@@ -102,7 +93,7 @@ features:
         description: |
           Variable description
         type: Boolean
-        default: false
+        default: true
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
@@ -111,7 +102,7 @@ features:
         description: |
           If true, the download live activities feature is enabled
         type: Boolean
-        default: false
+        default: true
   firefox-jp-guide-default-site:
     description: |
       This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
@@ -197,17 +188,17 @@ features:
         description: |
           Enables the hosted summarizer feature.
         type: Boolean
-        default: false
+        default: true
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: false
+        default: true
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: false
+        default: true
   https-upgrade-feature:
     description: |
       This feature enables automatic https upgrade. This is only available for 18.2+.
@@ -216,7 +207,7 @@ features:
         description: |
           Enables automatic https upgrade.
         type: Boolean
-        default: false
+        default: true
   improved-app-store-review-trigger-feature:
     description: |
       The feature flag to manage the App Store review request trigger.
@@ -278,7 +269,26 @@ features:
         description: |
           A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
         type: Map<MessageKey, MessageData>
-        default: {}
+        default:
+          homepage-microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+            - SECOND_HOMEPAGE_VIEW
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with your Firefox homepage?
+            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
+            should-randomize-options: false
+            microsurveyConfig:
+              utm-content: homepage
+              icon: homeLarge
+              options:
+              - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
+              - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -808,7 +818,7 @@ features:
       setting:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
-        default: disabled
+        default: afterFourHours
   summarizer-app-attest-auth-feature:
     description: |
       This feature enables app attest authentication for the summarizer.
@@ -848,7 +858,7 @@ features:
         description: |
           Enables permissive guardrails for the summarizer.
         type: Boolean
-        default: false
+        default: true
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.
@@ -1024,6 +1034,9 @@ enums:
       notifications:
         description: |
           Corresponding to the notifications image
+      notifications-ctd:
+        description: |
+          Corresponding to the notifications image for CTD
       search-widget:
         description: |
           Corresponding to the fox search widget image
@@ -1036,6 +1049,9 @@ enums:
       sync-devices:
         description: |
           Corresponding to the sync-devices image
+      sync-devices-ctd:
+        description: |
+          Corresponding to the sync image for CTD
       sync-with-icons:
         description: |
           Corresponding to the sync-devices image
@@ -1060,6 +1076,9 @@ enums:
       trackers-japan:
         description: |
           Corresponding to the trackers image for Japan variant (contains Japanese text)
+      welcome-ctd:
+        description: |
+          Corresponding to the welcome image for CTD
       welcome-globe:
         description: |
           Corresponding to the fox world image

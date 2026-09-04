@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: The root level Feature Manifest for Firefox for iOS
 channels:
-- release
+- developer
 features:
   ad-blocker-feature:
     description: |
@@ -12,19 +12,19 @@ features:
         description: |
           Whether or not the Ad Blocker badge is shown in the Site Menu
         type: Boolean
-        default: false
+        default: true
       enabled:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
     variables:
       status:
         description: If true, we will allow user to edit the address
         type: Boolean
-        default: false
+        default: true
   address-bar-gesture-to-open-tab-tray-feature:
     description: |
       Decides if the address bar interactive gesture to open the tab tray is enabled
@@ -33,12 +33,12 @@ features:
         description: |
           Decides if the interactive gesture can close tabs by dragging the tab up to the top edge of the screen
         type: Boolean
-        default: false
+        default: true
       enabled_interactive:
         description: |
           Decides if the interactive (fancier) version of this feature is enabled.
         type: Boolean
-        default: false
+        default: true
       enabled_swipe:
         description: |
           Decides if the swipe version of this feature is enabled. This will override the interactive gesture
@@ -66,19 +66,10 @@ features:
         description: |
           Whether or not this feature is available
         type: Boolean
-        default: false
+        default: true
   bookmarks-search-feature:
     description: |
       Configuration feature for the bookmarks search bar
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
-        type: Boolean
-        default: false
-  cellular-data-restricted-error-page-feature:
-    description: |
-      Controls restricted cellular data guidance on error pages
     variables:
       enabled:
         description: |
@@ -93,7 +84,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
@@ -102,7 +93,7 @@ features:
         description: |
           Variable description
         type: Boolean
-        default: false
+        default: true
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
@@ -111,7 +102,7 @@ features:
         description: |
           If true, the download live activities feature is enabled
         type: Boolean
-        default: false
+        default: true
   firefox-jp-guide-default-site:
     description: |
       This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
@@ -120,7 +111,7 @@ features:
         description: |
           Enables the feature.
         type: Boolean
-        default: false
+        default: true
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
     variables:
@@ -136,7 +127,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   google-lens-feature:
     description: |
       The feature flag to manage the rollout of Google Lens entry points.
@@ -145,7 +136,7 @@ features:
         description: |
           Enables Google Lens entry points.
         type: Boolean
-        default: false
+        default: true
   homepage-redesign-feature:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.
@@ -164,7 +155,7 @@ features:
         description: |
           If true, enables the categories flow in the stories
         type: Boolean
-        default: false
+        default: true
       jbi-section-default:
         description: |
           If true, enables the jump back in homepage section by default
@@ -174,7 +165,7 @@ features:
         description: |
           If true, enables the pinned newsfeed header on homepage.
         type: Boolean
-        default: false
+        default: true
       search-bar:
         description: |
           If true, enables the search bar feature on homepage for users.
@@ -188,7 +179,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
@@ -197,17 +188,17 @@ features:
         description: |
           Enables the hosted summarizer feature.
         type: Boolean
-        default: false
+        default: true
       shakeGesture:
         description: |
           Enables the shake gesture for the summarizer feature.
         type: Boolean
-        default: false
+        default: true
       toolbarEntrypoint:
         description: |
           Enables the toolbar entrypoint for the summarizer feature.
         type: Boolean
-        default: false
+        default: true
   https-upgrade-feature:
     description: |
       This feature enables automatic https upgrade. This is only available for 18.2+.
@@ -216,7 +207,7 @@ features:
         description: |
           Enables automatic https upgrade.
         type: Boolean
-        default: false
+        default: true
   improved-app-store-review-trigger-feature:
     description: |
       The feature flag to manage the App Store review request trigger.
@@ -278,7 +269,37 @@ features:
         description: |
           A growable collection of messages, where the Key is the message identifier and the value is its associated MessageData.
         type: Map<MessageKey, MessageData>
-        default: {}
+        default:
+          homepage-microsurvey-message:
+            surface: microsurvey
+            style: MICROSURVEY
+            trigger-if-all:
+            - SECOND_HOMEPAGE_VIEW
+            title: Microsurvey/Microsurvey.Prompt.TitleLabel.v127
+            text: How satisfied are you with your Firefox homepage?
+            button-label: Microsurvey/Microsurvey.Prompt.Button.v127
+            should-randomize-options: false
+            microsurveyConfig:
+              utm-content: homepage
+              icon: homeLarge
+              options:
+              - Microsurvey/Microsurvey.Survey.Options.VerySatisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.Satisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.Neutral.v132
+              - Microsurvey/Microsurvey.Survey.Options.Dissatisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.VeryDissatisfied.v132
+              - Microsurvey/Microsurvey.Survey.Options.NotApplicable.v132
+          survey-surface-message:
+            surface: survey
+            style: SURVEY
+            trigger-if-all:
+            - NEVER
+            text: ResearchSurface/Body.Text.v112
+            button-label: ResearchSurface/PrimaryButton.Label.v112
+            should-randomize-options: false
+            action: OPEN_URL
+            action-params:
+              url: https://www.macrumors.com
         string-alias: MessageKey
       on-control:
         description: What should be displayed when a control message is selected.
@@ -361,7 +382,7 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
@@ -375,12 +396,12 @@ features:
         description: |
           If true, the feature is active.
         type: Boolean
-        default: false
+        default: true
       no_internet_connection_error:
         description: |
           This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
-        default: false
+        default: true
   new-bookmark-folder-tree-feature:
     description: |
       This property determines weather we show the new bookmark folder tree UI
@@ -709,7 +730,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   quick-answers-feature:
     description: |
       The feature flag to manage the roll out of the quick answers feature.
@@ -754,7 +775,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
@@ -774,7 +795,7 @@ features:
         description: |
           Controls whether promo text is added to WhatsApp shares and an on/off toggle is added to Settings.
         type: Boolean
-        default: false
+        default: true
       isTreatmentA:
         description: |
           If true, shares the treatment A text. If false, shares the treatment B text.
@@ -786,12 +807,12 @@ features:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
         type: Boolean
-        default: false
+        default: true
       icon-type:
         description: |
           The icon that is displayed next to the item in the search results. If this is `null`, then no icon is displayed.
         type: Option<IconType>
-        default: letter
+        default: screenshot
       keep-for-days:
         description: |
           Number of days to keep the item before automatic deletion. If this is left `null`, then it is left to iOS's default.
@@ -808,7 +829,7 @@ features:
       setting:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
-        default: disabled
+        default: afterFourHours
   summarizer-app-attest-auth-feature:
     description: |
       This feature enables app attest authentication for the summarizer.
@@ -848,7 +869,7 @@ features:
         description: |
           Enables permissive guardrails for the summarizer.
         type: Boolean
-        default: false
+        default: true
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.
@@ -876,7 +897,7 @@ features:
         description: |
           If true, enables translucency for tab tray actions at the bottom.
         type: Boolean
-        default: false
+        default: true
   toolbar-refactor-feature:
     description: |
       This feature is for managing the roll out of the Toolbar refactor feature
@@ -964,7 +985,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   wayback-machine-feature:
     description: |
       This property determines whether we show the wayback entry point on the native error pages
@@ -982,7 +1003,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
 enums:
   ControlMessageBehavior:
     description: An enum to influence what should be displayed when a control message is selected.
@@ -1024,6 +1045,9 @@ enums:
       notifications:
         description: |
           Corresponding to the notifications image
+      notifications-ctd:
+        description: |
+          Corresponding to the notifications image for CTD
       search-widget:
         description: |
           Corresponding to the fox search widget image
@@ -1036,6 +1060,9 @@ enums:
       sync-devices:
         description: |
           Corresponding to the sync-devices image
+      sync-devices-ctd:
+        description: |
+          Corresponding to the sync image for CTD
       sync-with-icons:
         description: |
           Corresponding to the sync-devices image
@@ -1060,6 +1087,9 @@ enums:
       trackers-japan:
         description: |
           Corresponding to the trackers image for Japan variant (contains Japanese text)
+      welcome-ctd:
+        description: |
+          Corresponding to the welcome image for CTD
       welcome-globe:
         description: |
           Corresponding to the fox world image
