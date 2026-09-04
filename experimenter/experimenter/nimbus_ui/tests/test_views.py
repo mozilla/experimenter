@@ -3864,6 +3864,94 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/results-fragment.html")
 
+    def create_experiment_with_kpi_results(self, errors):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+            is_rollout=False,
+        )
+        experiment.delete_branches()
+        experiment.reference_branch = NimbusBranchFactory.create(
+            experiment=experiment, name="Control", slug="control"
+        )
+        NimbusBranchFactory.create(
+            experiment=experiment, name="Treatment A", slug="treatment-a"
+        )
+        empty_metric = {
+            "absolute": {"all": [], "first": {}},
+            "difference": {"control": {"all": [], "first": {}}},
+            "relative_uplift": {"control": {"all": [], "first": {}}},
+        }
+        branch_data = {
+            "branch_data": {
+                "other_metrics": {NimbusConstants.RETENTION: empty_metric},
+            }
+        }
+        experiment.results_data = {
+            "v3": {
+                "metadata": {
+                    "metrics": {
+                        NimbusConstants.RETENTION: {"friendly_name": "Retention"},
+                    }
+                },
+                "errors": errors,
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "control": branch_data,
+                            "treatment-a": branch_data,
+                        }
+                    }
+                },
+            }
+        }
+        experiment.save()
+        return experiment
+
+    def test_results_view_renders_error_state_for_metric_with_errors(self):
+        experiment = self.create_experiment_with_kpi_results(
+            {
+                NimbusConstants.RETENTION: [
+                    {"analysis_basis": "enrollments", "segment": "all"}
+                ]
+            }
+        )
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-results",
+                kwargs={"slug": experiment.slug},
+                query={"reference_branch": "control"},
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "fa-triangle-exclamation text-warning")
+        self.assertContains(response, NimbusUIConstants.METRIC_ERRORS_TOOLTIP)
+        self.assertContains(response, NimbusUIConstants.METRIC_ERRORS_TITLE)
+        self.assertContains(response, escape(NimbusUIConstants.METRIC_ERRORS_TEXT))
+        self.assertContains(response, "Contact Experimenter Support")
+
+    def test_results_view_renders_no_data_state_for_metric_without_data(self):
+        experiment = self.create_experiment_with_kpi_results({})
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-results",
+                kwargs={"slug": experiment.slug},
+                query={"reference_branch": "control"},
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "fa-circle-info text-info")
+        self.assertContains(response, NimbusUIConstants.METRIC_NO_DATA_TOOLTIP)
+        self.assertContains(response, NimbusUIConstants.METRIC_NO_DATA_TEXT)
+        self.assertNotContains(response, NimbusUIConstants.METRIC_ERRORS_TITLE)
+        self.assertNotContains(response, "Contact Experimenter Support")
+
     @parameterized.expand(
         [
             (
