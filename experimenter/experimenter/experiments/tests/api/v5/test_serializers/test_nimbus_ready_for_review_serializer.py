@@ -1677,6 +1677,236 @@ class TestNimbusReviewSerializerSingleFeature(
         else:
             self.assertNotIn("channels", serializer.warnings)
 
+    def test_fxms_message_coenrollment_warning(self):
+        NimbusFeatureConfigFactory.create(
+            slug="fxms-message",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=120, minor=0, patch=0
+                    ),
+                    schema=None,
+                    allow_coenrollment=True,
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-2",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-1",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertEqual(
+            serializer.warnings["fxms_message_coenrollment"],
+            [
+                NimbusConstants.WARNING_DESKTOP_FXMS_MESSAGE_COENROLLMENT.format(
+                    feature_slugs="fxms-message-1, fxms-message-2"
+                )
+            ],
+        )
+
+    def test_fxms_message_coenrollment_no_warning_below_min_versioned_version(self):
+        NimbusFeatureConfigFactory.create(
+            slug="fxms-message",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=120, minor=0, patch=0
+                    ),
+                    schema=None,
+                    allow_coenrollment=True,
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_105,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-1",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("fxms_message_coenrollment", serializer.warnings)
+
+    def test_fxms_message_coenrollment_no_warning_without_replacement_feature(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-1",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("fxms_message_coenrollment", serializer.warnings)
+
+    def test_fxms_message_coenrollment_no_warning_without_placeholder_feature(self):
+        NimbusFeatureConfigFactory.create(
+            slug="fxms-message",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=120, minor=0, patch=0
+                    ),
+                    schema=None,
+                    allow_coenrollment=True,
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="some-other-feature",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("fxms_message_coenrollment", serializer.warnings)
+
+    def test_fxms_message_coenrollment_no_warning_when_range_has_unsupported_version(
+        self,
+    ):
+        NimbusFeatureConfigFactory.create(
+            slug="fxms-message",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=152, minor=0, patch=0
+                    ),
+                    schema=None,
+                    allow_coenrollment=True,
+                ),
+            ],
+        )
+        NimbusFeatureConfigFactory.create(
+            slug="older-versioned-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=150, minor=0, patch=0
+                    ),
+                    schema=None,
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_150,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-1",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("fxms_message_coenrollment", serializer.warnings)
+
     def test_substitute_localizations(self):
         value = {
             "foo": {

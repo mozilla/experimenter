@@ -3587,6 +3587,52 @@ class TestNimbusExperiment(TestCase):
             experiment.review_warnings,
         )
 
+    def test_review_warnings_fxms_message_coenrollment(self):
+        NimbusFeatureConfigFactory.create(
+            slug="fxms-message",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=120, minor=0, patch=0
+                    ),
+                    schema=None,
+                    allow_coenrollment=True,
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-1",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        self.assertIn(
+            {
+                "label": NimbusUIConstants.REVIEW_WARNING_LABELS[
+                    "fxms_message_coenrollment"
+                ],
+                "detail": (
+                    NimbusConstants.WARNING_DESKTOP_FXMS_MESSAGE_COENROLLMENT.format(
+                        feature_slugs="fxms-message-1"
+                    )
+                ),
+                "learn_more_url": None,
+            },
+            experiment.review_warnings,
+        )
+
     def test_audience_overlap_warnings_renders_each_warning_once(self):
         feature = NimbusFeatureConfigFactory.create(
             slug="duplicate-rollout-feature",
