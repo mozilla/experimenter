@@ -2072,7 +2072,11 @@ pocketNewtab:
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.ctaButtonVariant
     regionStoriesConfig:
-      description: A comma-separated list of region to get stories for.
+      description: >-
+        Legacy, superseded by the stories-region-locale-config pref, which the
+        newtab extension reads directly. A region listed here
+        gets stories in the locales it was historically paired with. Do not set
+        it in new recipes.
       type: string
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-stories-config
@@ -2082,15 +2086,10 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.merino-provider.endpoint
       description: Merino endpoint to use for recommendations.
     regionStoriesBlock:
-      description: A comma-separated list of regions that do not get stories, regardless of locale-list-config.
+      description: A comma-separated list of regions that do not get stories, regardless of the stories-region-locale-config pref.
       type: string
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-stories-block
-    localeListConfig:
-      description: A comma-separated list of locales that get stories, regardless of region-stories-config.
-      type: string
-      fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.locale-list-config
     regionSpocsConfig:
       description: A comma-separated list of regions that get spocs by default.
       type: string
@@ -2258,6 +2257,29 @@ autofill-ml:
       setPref:
         branch: default
         pref: extensions.formautofill.useml.modelVersion
+
+# Deliberately a feature of its own rather than a variable of autofill-ml: a
+# field type that turns out to be badly classified needs a rollout of its own,
+# and Nimbus allows a single enrollment per feature.
+autofill-ml-ignore-field-types:
+  description: Field types excluded from machine-learning based form field detection
+  owner: dlee@mozilla.com
+  hasExposure: false
+  variables:
+    ignoreFieldTypes:
+      type: string
+      setPref:
+        branch: default
+        pref: extensions.formautofill.useml.ignoreFieldTypes
+      description: >-
+        Comma separated list of field types (for example
+        "cc-exp, cc-exp-month, cc-exp-year"; spaces after the commas are
+        ignored) the ML model is not trusted with. Those types are classified
+        by the regular expression based heuristics instead, and any prediction
+        the model makes for one of them is discarded. List related field types
+        together, as in the example: the heuristics only try the rules of the
+        listed types, so leaving one out can let a broader rule win over the
+        more specific one it would normally lose to.
 
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
@@ -6229,3 +6251,15 @@ editContext:
         branch: default
         pref: dom.editcontext.enabled
       description: Whether the EditContext API is enabled.
+
+nova:
+  description: Nova UI
+  owner: dtownsend@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.nova.enabled
+      description: Whether Nova is enabled.

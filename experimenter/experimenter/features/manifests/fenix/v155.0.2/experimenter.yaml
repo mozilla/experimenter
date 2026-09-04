@@ -6,15 +6,6 @@ add-shortcuts-improvement:
     enabled:
       type: boolean
       description: If true, Add Shortcuts improvement is enabled.
-addressbar-focus-mode:
-  description: |
-    When starting to edit the current URL show the website details in the awesomebar instead of the addressbar.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: Whether the feature is enabled
 ads-client-for-stories:
   description: Feature to enable the Mozilla Ads Client support for Sponsored Stories for users on Firefox on Android.
   hasExposure: true
@@ -59,23 +50,18 @@ baseline-fpp:
   variables:
     enabled:
       type: boolean
-      description: |
-        Enables / disables baseline fingerprinting protection. Unset leaves the existing setting alone.
+      description: Enables / disables baseline fingerprinting protection.
     feat-enabled:
       type: boolean
-      description: |
-        Deprecated and no longer read. Each of the values below is applied independently when a recipe supplies it; leaving a value unset means "leave the existing setting alone".
+      description: If true, the feature is active.
     overrides:
       type: string
-      description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
+      description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
 collections-to-tab-groups-migration:
   description: Feature to migrate Collections to Tab Groups for users on Firefox for Android.
   hasExposure: true
   exposureDescription: ''
   variables:
-    enabled:
-      type: boolean
-      description: If true, run the one-time migration that converts existing Collections into Tab Groups.
     hide-collections-ui:
       type: boolean
       description: If true, the Collections UI is hidden.
@@ -179,16 +165,15 @@ fingerprinting-protection:
   variables:
     enabled:
       type: boolean
-      description: |
-        Deprecated and no longer read. Each of the values below is applied independently when a recipe supplies it; leaving a value unset means "leave the existing setting alone".
+      description: If true, the feature is active.
     enabled-normal:
       type: boolean
       description: |
-        Enables / disables fingerprinting protection in normal browsing mode. Unset leaves the existing setting alone.
+        Enables / disables fingerprinting protection in normal browsing mode.
     enabled-private:
       type: boolean
       description: |
-        Enables / disables fingerprinting protection in private browsing mode. Unset leaves the existing setting alone.
+        Enables / disables fingerprinting protection in private browsing mode.
     fdlibm-math:
       type: boolean
       description: |
@@ -196,7 +181,7 @@ fingerprinting-protection:
     overrides:
       type: string
       description: |
-        The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
+        The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
 firefox-jp-guide-default-site:
   description: |
     This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
@@ -418,14 +403,6 @@ juno-onboarding:
       type: json
       description: |
         A collection of out the box conditional expressions to be used in determining whether a card should show or not. Each entry maps to a valid JEXL expression.
-listen-to-page:
-  description: A feature that allows audio listening of a page
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, listen to page will be enabled
 lna-blocking:
   description: Feature that allows blocking local network or device access.
   hasExposure: true
@@ -589,6 +566,72 @@ nimbus-is-ready:
     event-count:
       type: int
       description: The number of events that should be sent.
+nimbus-qa-bool-default:
+  description: A feature for testing boolean pref-setting on the default branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: boolean
+      description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-bool-default
+        branch: default
+nimbus-qa-bool-user:
+  description: A feature for testing boolean pref-setting on the user branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: boolean
+      description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-bool-user
+        branch: user
+nimbus-qa-int-default:
+  description: A feature for testing int pref-setting on the default branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: int
+      description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-int-default
+        branch: default
+nimbus-qa-int-user:
+  description: A feature for testing int pref-setting on the user branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: int
+      description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-int-user
+        branch: user
+nimbus-qa-string-default:
+  description: A feature for testing string pref-setting on the default branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: string
+      description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-string-default
+        branch: default
+nimbus-qa-string-user:
+  description: A feature for testing string pref-setting on the user branch.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    value:
+      type: string
+      description: The value to set for the pref.
+      setPref:
+        pref: nimbus.qa.pref-string-user
+        branch: user
 nimbus-system:
   description: |
     Configuration of the Nimbus System in Android.
@@ -841,14 +884,6 @@ shake-to-summarize:
     enabled:
       type: boolean
       description: If true, shake to summarize will be enabled
-show-more-shortcuts:
-  description: Feature to show expand/collapse buttons for shortcuts on the homepage.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, show the expand/collapse buttons on the homepage.
 splash-screen:
   description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
   hasExposure: true
@@ -916,24 +951,6 @@ tab-groups-onboarding:
       type: boolean
       description: |
         Whether or not to enable onboarding for tab groups.
-tab-groups-strip:
-  description: Control whether the tab groups strip is shown.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the tab groups strip.
-tab-groups-ungroup:
-  description: Control whether the ungroup option is available for tab groups.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable ungrouping tab groups.
 tab-management-enhancements:
   description: Control the visibility of the tab management enhancements.
   hasExposure: true
@@ -1070,17 +1087,6 @@ voice-search-in-display-mode:
     enabled:
       type: boolean
       description: If true, voice search is shown in the display toolbar.
-webcompat-interventions:
-  description: Experimental controls for webcompat site interventions
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    disabled-intervention-2060611:
-      type: boolean
-      description: If `true`, disables the webcompat intervention tracked by bug 2060611 (background media playback). Unset or false leaves the intervention enabled.
-      setPref:
-        pref: extensions.webcompat.disabled_interventions.2060611
-        branch: default
 webcompat-reporter-enhancements:
   description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
   hasExposure: true
@@ -1089,11 +1095,3 @@ webcompat-reporter-enhancements:
     enabled:
       type: boolean
       description: If true, WebCompat Reporter enhancements is enabled.
-weekly-privacy-notification:
-  description: A feature that shows a recurring weekly notification summarizing Tracking Protection activity.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, the weekly privacy notification will be scheduled.

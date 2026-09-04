@@ -39,19 +39,6 @@ testFeature:
         pref: nimbus.testing.testSetString
       description: A string pref set by Nimbus tests
 
-testPlatformExposureFeature:
-    description: Test only feature
-    owner: beth@mozilla.com
-    applications:
-      - firefox-desktop
-    hasExposure: true
-    exposureDescription: Test feature for exposures.
-    isEarlyStartup: true
-    variables:
-      enabled:
-        type: boolean
-        description: Whether or not this feature is enabled
-
 nimbus-qa-1:
   description: A feature for testing pref-setting on the default branch.
   owner: beth@mozilla.com
@@ -375,12 +362,6 @@ urlbar:
       type: int
       fallbackPref: browser.urlbar.merino.timeoutMs
       description: Timeout for Merino fetches (ms)
-    newtabFeatureGate:
-      type: boolean
-      fallbackPref: browser.urlbar.newtab.featureGate
-      description: >-
-        Feature gate that controls whether about:newtab and about:home show the
-        address bar in place of the handoff search bar.
     exposureResults:
       type: string
       setPref:
@@ -1381,6 +1362,13 @@ newtabPrivatePing:
         pref: browser.newtabpage.activity-stream.telemetry.privatePing.enabled
       description: >-
         Enables the private newtab-content ping sent through OHTTP
+    redactNewtabPing:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.redactNewtabPing.enabled
+      description: >-
+        Provides an option to redact content ids of users from click, impression and related events in the NewTab ping. Should be enabled when data colection has shefted to the more private NewTab_content ping.
     includeInferredInterests:
       type: boolean
       setPref:
@@ -2072,11 +2060,7 @@ pocketNewtab:
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.ctaButtonVariant
     regionStoriesConfig:
-      description: >-
-        Legacy, superseded by the stories-region-locale-config pref, which the
-        newtab extension reads directly. A region listed here
-        gets stories in the locales it was historically paired with. Do not set
-        it in new recipes.
+      description: A comma-separated list of region to get stories for.
       type: string
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-stories-config
@@ -2086,10 +2070,15 @@ pocketNewtab:
         browser.newtabpage.activity-stream.discoverystream.merino-provider.endpoint
       description: Merino endpoint to use for recommendations.
     regionStoriesBlock:
-      description: A comma-separated list of regions that do not get stories, regardless of the stories-region-locale-config pref.
+      description: A comma-separated list of regions that do not get stories, regardless of locale-list-config.
       type: string
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.region-stories-block
+    localeListConfig:
+      description: A comma-separated list of locales that get stories, regardless of region-stories-config.
+      type: string
+      fallbackPref: >-
+        browser.newtabpage.activity-stream.discoverystream.locale-list-config
     regionSpocsConfig:
       description: A comma-separated list of regions that get spocs by default.
       type: string
@@ -2211,75 +2200,6 @@ creditcards-autofill-enabled:
       setPref:
         branch: default
         pref: extensions.formautofill.creditCards.supported
-
-autofill-ml:
-  description: Machine-learning based form field detection for autofill
-  owner: dlee@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      description: >-
-        If true, use the ML model instead of the regular expression based
-        heuristics to classify form fields. Has no effect on Android.
-      type: boolean
-      setPref:
-        branch: default
-        pref: extensions.formautofill.useml
-    twoHeadEnabled:
-      type: boolean
-      setPref:
-        branch: default
-        pref: extensions.formautofill.useml.twoHead
-      description: >-
-        If true, classify form fields with the two-engine encoder + fusion head
-        model instead of the single text-classification model.
-    engineTimeoutMS:
-      type: int
-      setPref:
-        branch: default
-        pref: extensions.formautofill.useml.timeoutMS
-      description: >-
-        How long an idle ML autofill engine is kept alive, in milliseconds.
-        Applies to every engine the active classifier creates. -1 means never
-        time out. Defaults to 120000.
-    features:
-      description: >-
-        JSON array of mlData tokenizer feature keys to enable, e.g.
-        ["select_option", "input_attributes"]. Must match the model in use.
-      type: string
-      setPref:
-        branch: default
-        pref: extensions.formautofill.useml.features
-    modelVersion:
-      description: >-
-        Pin the ML model revision to load. Empty keeps the Remote Settings default.
-      type: string
-      setPref:
-        branch: default
-        pref: extensions.formautofill.useml.modelVersion
-
-# Deliberately a feature of its own rather than a variable of autofill-ml: a
-# field type that turns out to be badly classified needs a rollout of its own,
-# and Nimbus allows a single enrollment per feature.
-autofill-ml-ignore-field-types:
-  description: Field types excluded from machine-learning based form field detection
-  owner: dlee@mozilla.com
-  hasExposure: false
-  variables:
-    ignoreFieldTypes:
-      type: string
-      setPref:
-        branch: default
-        pref: extensions.formautofill.useml.ignoreFieldTypes
-      description: >-
-        Comma separated list of field types (for example
-        "cc-exp, cc-exp-month, cc-exp-year"; spaces after the commas are
-        ignored) the ML model is not trusted with. Those types are classified
-        by the regular expression based heuristics instead, and any prediction
-        the model makes for one of them is discarded. List related field types
-        together, as in the example: the heuristics only try the rules of the
-        listed types, so leaving one out can let a broader rule win over the
-        more specific one it would normally lose to.
 
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
@@ -2882,19 +2802,6 @@ pbNewtab:
     uri: "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json"
     path: "browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json"
   variables: {}
-
-privateWindowRedesign:
-  description: "Experimental features for the private browsing window redesign"
-  owner: omc-core@mozilla.com
-  hasExposure: false
-  variables:
-    pbwRedesignGate:
-      type: boolean
-      setPref:
-        branch: default
-        pref: "browser.privateWindowRedesign.enabled"
-      description: >-
-        Enables the new private browsing window redesign, including updated styling, promotions, animation and other visual improvements.
 
 backgroundTaskMessage:
   description: "A Firefox Messaging System message for the background task message channel"
@@ -4159,6 +4066,40 @@ legacyHeartbeat:
       type: json
       description: The Heartbeat survey parameters.
 
+queryStripping:
+  description: Query parameter stripping anti-tracking feature.
+  owner: emz@mozilla.com
+  hasExposure: false
+  variables:
+    enabledNormalBrowsing:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.query_stripping.enabled
+      description: Enables / disables URL query string stripping in normal browsing mode.
+    enabledPrivateBrowsing:
+      type: boolean
+      setPref:
+        branch: default
+        pref: privacy.query_stripping.enabled.pbmode
+      description: Enables / disables URL query string stripping in private browsing mode.
+    allowList:
+      type: string
+      setPref:
+        branch: default
+        pref: privacy.query_stripping.allow_list
+      description: >-
+        List of sites exempt from query stripping. This list will be merged with
+        records coming from RemoteSettings.
+    stripList:
+      type: string
+      setPref:
+        branch: default
+        pref: privacy.query_stripping.strip_list
+      description: >-
+        List of query params to be stripped from URIs. This list will be merged
+        with records coming from RemoteSettings.
+
 fingerprintingProtection:
   description: Control Fingerprinting Protection
   owner: tihuang@mozilla.com
@@ -5091,6 +5032,13 @@ pqcrypto:
         pref: network.http.http3.enable_kyber
       description: >-
         Whether to enable mlkem768x25519 for H3/QUIC.
+    sendP256:
+      type: boolean
+      setPref:
+        branch: default
+        pref: security.tls.client_hello.send_p256_keyshare
+      description: >-
+        Whether to send a P256 share in the client hello in QUIC and TLS.
     dtlsWebRTCEnableMlkem:
       type: boolean
       setPref:
@@ -6102,15 +6050,6 @@ smartWindowAgentWatch:
       description: >-
         Comma-separated list of region codes where the agent watch command is
         available, for example "US,CA".
-    monitorAnnouncement:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.smartwindow.agent.monitorAnnouncement
-      description: >-
-        Announces the agent monitor feature as new with a dot on its toolbar
-        button, until the user opens the panel or the rollout ends. Independent
-        of the dot that marks a task whose condition was met.
 
 contentSharing:
   description: Controls the content sharing feature, which allows users to share browser content.
@@ -6239,27 +6178,3 @@ webNotificationsPermissionUi:
         Fluent message id for the (Always) Block button, resolved in-tree.
         Takes precedence over secondaryCtaLabel; its .accesskey attribute, if
         present, sets the access key. Not applied in private browsing.
-
-editContext:
-  description: EditContext API
-  owner: ltenenbaum@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: default
-        pref: dom.editcontext.enabled
-      description: Whether the EditContext API is enabled.
-
-nova:
-  description: Nova UI
-  owner: dtownsend@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.nova.enabled
-      description: Whether Nova is enabled.
