@@ -274,6 +274,15 @@ Optional - We expect this to <describe impact> on <core metric>.
         "All statistically significant changes that have occurred in the experiment"
     )
     NOTABLE_CHANGES_ABSENT_TEXT = "There are no notable changes in this experiment"
+    METRIC_ERRORS_TOOLTIP = "No data available"
+    METRIC_ERRORS_TITLE = "Metric unavailable"
+    METRIC_ERRORS_TEXT = "Other metrics may not be affected."
+    METRIC_NO_DATA_TOOLTIP = "Not available yet"
+    METRIC_NO_DATA_TITLE = "Not available yet"
+    METRIC_NO_DATA_TEXT = (
+        "The analysis window for this metric has not been computed yet. "
+        "Results will appear once it has."
+    )
     FEATURE_MONITORING_CARD_TITLE = "Feature Monitoring"
     FEATURE_MONITORING_OPEN_DASHBOARD_TEXT = "Open in Grafana"
     FEATURE_MONITORING_DASHBOARD_INFO = (
