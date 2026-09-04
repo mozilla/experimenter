@@ -272,9 +272,9 @@
                       <div>
                         <small class="text-muted">{{ metric.friendly_name }}</small>
                         <small>
-                          <i class="fa-solid ms-1 me-2 {% if metric.has_errors or not metric.has_data %}fa-triangle-exclamation text-warning{% elif metric.overall_change == 'positive' %}fa-up-long text-success{% elif metric.overall_change == 'negative' %}fa-down-long text-danger{% elif metric.overall_change == 'mixed' %}fa-up-down text-warning{% elif metric.overall_change == 'neutral' %}fa-left-long text-muted{% endif %}"
+                          <i class="fa-solid ms-1 me-2 {% if metric.has_errors %}fa-triangle-exclamation text-warning{% elif not metric.has_data %}fa-circle-info text-info{% elif metric.overall_change == 'positive' %}fa-up-long text-success{% elif metric.overall_change == 'negative' %}fa-down-long text-danger{% elif metric.overall_change == 'mixed' %}fa-up-down text-warning{% elif metric.overall_change == 'neutral' %}fa-left-long text-muted{% endif %}"
                              data-bs-toggle="tooltip"
-                             title="{% if metric.has_errors or not metric.has_data %}No data available{% elif metric.overall_change == 'positive' %}Positive changes{% elif metric.overall_change == 'negative' %}Negative changes{% elif metric.overall_change == 'mixed' %}Mixed changes{% elif metric.overall_change == 'neutral' %}No notable change{% endif %}">
+                             title="{% if metric.has_errors %}{{ NimbusUIConstants.METRIC_ERRORS_TOOLTIP }}{% elif not metric.has_data %}{{ NimbusUIConstants.METRIC_NO_DATA_TOOLTIP }}{% elif metric.overall_change == 'positive' %}Positive changes{% elif metric.overall_change == 'negative' %}Negative changes{% elif metric.overall_change == 'mixed' %}Mixed changes{% elif metric.overall_change == 'neutral' %}No notable change{% endif %}">
                           </i>
                         </small>
                         {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
@@ -389,14 +389,22 @@
                                   {% if metric.has_errors or not metric.has_data %}
                                     {% if forloop.parentloop.parentloop.first %}
                                       <div class="d-flex align-items-center" style="height: 100px;">
-                                        <div class="position-absolute alert alert-warning d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
-                                          <i class="fa-solid fa-triangle-exclamation fs-5"></i>
-                                          <p class="mb-0 fw-semibold">Metric unavailable</p>
-                                          <p class="mb-0">Other metrics may not be affected.</p>
-                                          <a class="btn btn-secondary bg-secondary-subtle border-0 text-body fw-semibold"
-                                             target="_blank"
-                                             href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
-                                        </div>
+                                        {% if metric.has_errors %}
+                                          <div class="position-absolute alert alert-warning d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
+                                            <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                                            <p class="mb-0 fw-semibold">{{ NimbusUIConstants.METRIC_ERRORS_TITLE }}</p>
+                                            <p class="mb-0">{{ NimbusUIConstants.METRIC_ERRORS_TEXT }}</p>
+                                            <a class="btn btn-secondary bg-secondary-subtle border-0 text-body fw-semibold"
+                                               target="_blank"
+                                               href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
+                                          </div>
+                                        {% else %}
+                                          <div class="position-absolute alert alert-info d-flex align-items-center justify-content-center gap-2 end-0 start-0 {% if branch_data|length > 4 %}mx-5{% else %}mx-3{% endif %} mb-0">
+                                            <i class="fa-solid fa-circle-info fs-5"></i>
+                                            <p class="mb-0 fw-semibold">{{ NimbusUIConstants.METRIC_NO_DATA_TITLE }}</p>
+                                            <p class="mb-0">{{ NimbusUIConstants.METRIC_NO_DATA_TEXT }}</p>
+                                          </div>
+                                        {% endif %}
                                       </div>
                                     {% else %}
                                       <div class="invisible" style="height: 100px;" aria-hidden="true"></div>
