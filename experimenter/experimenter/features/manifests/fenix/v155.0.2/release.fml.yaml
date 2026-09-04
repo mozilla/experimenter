@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- nightly
+- release
 features:
   add-shortcuts-improvement:
     description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
@@ -11,14 +11,6 @@ features:
         description: If true, Add Shortcuts improvement is enabled.
         type: Boolean
         default: true
-  addressbar-focus-mode:
-    description: |
-      When starting to edit the current URL show the website details in the awesomebar instead of the addressbar.
-    variables:
-      enabled:
-        description: Whether the feature is enabled
-        type: Boolean
-        default: false
   ads-client-for-stories:
     description: Feature to enable the Mozilla Ads Client support for Sponsored Stories for users on Firefox on Android.
     variables:
@@ -60,26 +52,20 @@ features:
     description: Control Baseline Fingerprinting Protection
     variables:
       enabled:
-        description: |
-          Enables / disables baseline fingerprinting protection. Unset leaves the existing setting alone.
-        type: Option<Boolean>
-        default: null
+        description: Enables / disables baseline fingerprinting protection.
+        type: Boolean
+        default: true
       feat-enabled:
-        description: |
-          Deprecated and no longer read. Each of the values below is applied independently when a recipe supplies it; leaving a value unset means "leave the existing setting alone".
+        description: If true, the feature is active.
         type: Boolean
         default: false
       overrides:
-        description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
-        type: Option<String>
-        default: null
+        description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
+        type: String
+        default: ''
   collections-to-tab-groups-migration:
     description: Feature to migrate Collections to Tab Groups for users on Firefox for Android.
     variables:
-      enabled:
-        description: If true, run the one-time migration that converts existing Collections into Tab Groups.
-        type: Boolean
-        default: false
       hide-collections-ui:
         description: If true, the Collections UI is hidden.
         type: Boolean
@@ -177,20 +163,19 @@ features:
     description: Control Fingerprinting Protection
     variables:
       enabled:
-        description: |
-          Deprecated and no longer read. Each of the values below is applied independently when a recipe supplies it; leaving a value unset means "leave the existing setting alone".
+        description: If true, the feature is active.
         type: Boolean
         default: false
       enabled-normal:
         description: |
-          Enables / disables fingerprinting protection in normal browsing mode. Unset leaves the existing setting alone.
-        type: Option<Boolean>
-        default: null
+          Enables / disables fingerprinting protection in normal browsing mode.
+        type: Boolean
+        default: false
       enabled-private:
         description: |
-          Enables / disables fingerprinting protection in private browsing mode. Unset leaves the existing setting alone.
-        type: Option<Boolean>
-        default: null
+          Enables / disables fingerprinting protection in private browsing mode.
+        type: Boolean
+        default: true
       fdlibm-math:
         description: |
           Uses a different math backend for Math.sin/cos/tan in JavaScript that exposes less entropy
@@ -198,9 +183,9 @@ features:
         default: false
       overrides:
         description: |
-          The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
-        type: Option<String>
-        default: null
+          The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
+        type: String
+        default: ''
   firefox-jp-guide-default-site:
     description: |
       This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
@@ -222,7 +207,7 @@ features:
         description: |
           The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
         type: Int
-        default: 2
+        default: 0
       shouldUseNimbus:
         description: |
           If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
@@ -240,7 +225,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: true
+        default: false
   gecko-nimbus-validation:
     description: Feature for validating Nimbus Gecko functionality
     variables:
@@ -291,7 +276,7 @@ features:
       enabled:
         description: If true, Google Lens integration is enabled.
         type: Boolean
-        default: true
+        default: false
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -328,7 +313,7 @@ features:
       enabled:
         description: If true, trending and recent searches are shown on the Homepage Search.
         type: Boolean
-        default: true
+        default: false
   homepage-weather-widget:
     description: Feature to enable Homepage Weather Widget for users on Firefox for Android.
     variables:
@@ -366,7 +351,7 @@ features:
       enabled:
         description: If true, the import bookmarks feature will be enabled.
         type: Boolean
-        default: true
+        default: false
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
@@ -411,7 +396,7 @@ features:
       enabled:
         description: If true, IP Protection feature is enabled.
         type: Boolean
-        default: true
+        default: false
       promo-deadline:
         description: The final date for the promotion to end. This needs to be an ISO 8601 formatted date (i.e. YYYY-MM-DD).
         type: String
@@ -514,13 +499,6 @@ features:
           ALWAYS: 'true'
           NEVER: 'false'
         string-alias: ConditionName
-  listen-to-page:
-    description: A feature that allows audio listening of a page
-    variables:
-      enabled:
-        description: If true, listen to page will be enabled
-        type: Boolean
-        default: false
   lna-blocking:
     description: Feature that allows blocking local network or device access.
     variables:
@@ -567,7 +545,7 @@ features:
       enabled:
         description: enabled media notification improvements if true, else not enabled
         type: Boolean
-        default: true
+        default: false
   merino-client:
     description: Feature to enable the Merino Client for users on Firefox on Android.
     variables:
@@ -655,52 +633,6 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example-nightly:
-            title: microsurvey_prompt_printing_title
-            text: microsurvey_survey_printing_title
-            surface: microsurvey
-            trigger-if-all:
-            - RECENTLY_PRINTED
-            style: MICROSURVEY
-            microsurvey-config:
-              utm-content: homepage
-              icon: ic_print
-              answers:
-              - text: likert_scale_option_1
-                ordering: 0
-              - text: likert_scale_option_2
-                ordering: 1
-              - text: likert_scale_option_3
-                ordering: 2
-              - text: likert_scale_option_4
-                ordering: 3
-              - text: likert_scale_option_5
-                ordering: 4
-              - text: likert_scale_option_6
-                ordering: 5
-          microsurvey-uninstall-survey:
-            title: microsurvey_uninstall_survey_title
-            text: microsurvey_uninstall_survey_title
-            surface: microsurvey
-            trigger-if-all:
-            - NEVER
-            style: MICROSURVEY
-            microsurvey-config:
-              utm-content: uninstall_shortcut
-              icon: ic_delete_black
-              answers:
-              - text: uninstall_survey_option_1_v2
-                ordering: 0
-              - text: uninstall_survey_option_2_v2
-                ordering: 1
-              - text: uninstall_survey_option_3_v2
-                ordering: 2
-              - text: uninstall_survey_option_4_v2
-                ordering: 3
-              - text: uninstall_survey_option_5_v2
-                ordering: 4
-              - text: uninstall_survey_option_6_v2
-                ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -811,7 +743,7 @@ features:
       enabled:
         description: If true, Native Share Sheet is enabled.
         type: Boolean
-        default: true
+        default: false
   networking-happy-eyeballs:
     description: Networking (Necko) Happy Eyeballs V3 configuration
     variables:
@@ -851,6 +783,66 @@ features:
         description: The number of events that should be sent.
         type: Int
         default: 1
+  nimbus-qa-bool-default:
+    description: A feature for testing boolean pref-setting on the default branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-bool-default
+          branch: default
+  nimbus-qa-bool-user:
+    description: A feature for testing boolean pref-setting on the user branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-bool-user
+          branch: user
+  nimbus-qa-int-default:
+    description: A feature for testing int pref-setting on the default branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-int-default
+          branch: default
+  nimbus-qa-int-user:
+    description: A feature for testing int pref-setting on the user branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<Int>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-int-user
+          branch: user
+  nimbus-qa-string-default:
+    description: A feature for testing string pref-setting on the default branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<String>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-string-default
+          branch: default
+  nimbus-qa-string-user:
+    description: A feature for testing string pref-setting on the user branch.
+    variables:
+      value:
+        description: The value to set for the pref.
+        type: Option<String>
+        default: null
+        gecko-pref:
+          pref: nimbus.qa.pref-string-user
+          branch: user
   nimbus-system:
     description: |
       Configuration of the Nimbus System in Android.
@@ -955,7 +947,7 @@ features:
       enabled:
         description: If true, Private Mode and Stories Entry Point Experiment is enabled.
         type: Boolean
-        default: true
+        default: false
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -1107,13 +1099,6 @@ features:
         description: If true, shake to summarize will be enabled
         type: Boolean
         default: true
-  show-more-shortcuts:
-    description: Feature to show expand/collapse buttons for shortcuts on the homepage.
-    variables:
-      enabled:
-        description: If true, show the expand/collapse buttons on the homepage.
-        type: Boolean
-        default: false
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
@@ -1151,7 +1136,7 @@ features:
         description: |
           Whether or not to enable the tab groups feature.
         type: Boolean
-        default: true
+        default: false
   tab-groups-drag-and-drop:
     description: Control the visibility of drag and drop for tab groups.
     variables:
@@ -1159,7 +1144,7 @@ features:
         description: |
           Whether or not to enable drag and drop for tab groups.
         type: Boolean
-        default: true
+        default: false
   tab-groups-live-reorder:
     description: Control whether reorder happens live during a drag and drop action for Tab Groups.
     variables:
@@ -1176,29 +1161,13 @@ features:
           Whether or not to enable onboarding for tab groups.
         type: Boolean
         default: true
-  tab-groups-strip:
-    description: Control whether the tab groups strip is shown.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the tab groups strip.
-        type: Boolean
-        default: false
-  tab-groups-ungroup:
-    description: Control whether the ungroup option is available for tab groups.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable ungrouping tab groups.
-        type: Boolean
-        default: true
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
-        default: true
+        default: false
   tab-strip:
     description: Enables tab strip.
     variables:
@@ -1325,29 +1294,12 @@ features:
       enabled:
         description: If true, voice search is shown in the display toolbar.
         type: Boolean
-        default: true
-  webcompat-interventions:
-    description: Experimental controls for webcompat site interventions
-    variables:
-      disabled-intervention-2060611:
-        description: If `true`, disables the webcompat intervention tracked by bug 2060611 (background media playback). Unset or false leaves the intervention enabled.
-        type: Option<Boolean>
-        default: null
-        gecko-pref:
-          pref: extensions.webcompat.disabled_interventions.2060611
-          branch: default
+        default: false
   webcompat-reporter-enhancements:
     description: Feature to enable WebCompat Reporter enhancements for users on Firefox Android.
     variables:
       enabled:
         description: If true, WebCompat Reporter enhancements is enabled.
-        type: Boolean
-        default: true
-  weekly-privacy-notification:
-    description: A feature that shows a recurring weekly notification summarizing Tracking Protection activity.
-    variables:
-      enabled:
-        description: If true, the weekly privacy notification will be scheduled.
         type: Boolean
         default: false
 enums:

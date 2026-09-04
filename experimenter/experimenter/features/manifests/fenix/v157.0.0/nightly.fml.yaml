@@ -60,17 +60,19 @@ features:
     description: Control Baseline Fingerprinting Protection
     variables:
       enabled:
-        description: Enables / disables baseline fingerprinting protection.
-        type: Boolean
-        default: true
+        description: |
+          Enables / disables baseline fingerprinting protection. Unset leaves the existing setting alone.
+        type: Option<Boolean>
+        default: null
       feat-enabled:
-        description: If true, the feature is active.
+        description: |
+          Deprecated and no longer read. Each of the values below is applied independently when a recipe supplies it; leaving a value unset means "leave the existing setting alone".
         type: Boolean
         default: false
       overrides:
-        description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
-        type: String
-        default: ''
+        description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
+        type: Option<String>
+        default: null
   collections-to-tab-groups-migration:
     description: Feature to migrate Collections to Tab Groups for users on Firefox for Android.
     variables:
@@ -175,19 +177,20 @@ features:
     description: Control Fingerprinting Protection
     variables:
       enabled:
-        description: If true, the feature is active.
+        description: |
+          Deprecated and no longer read. Each of the values below is applied independently when a recipe supplies it; leaving a value unset means "leave the existing setting alone".
         type: Boolean
         default: false
       enabled-normal:
         description: |
-          Enables / disables fingerprinting protection in normal browsing mode.
-        type: Boolean
-        default: false
+          Enables / disables fingerprinting protection in normal browsing mode. Unset leaves the existing setting alone.
+        type: Option<Boolean>
+        default: null
       enabled-private:
         description: |
-          Enables / disables fingerprinting protection in private browsing mode.
-        type: Boolean
-        default: true
+          Enables / disables fingerprinting protection in private browsing mode. Unset leaves the existing setting alone.
+        type: Option<Boolean>
+        default: null
       fdlibm-math:
         description: |
           Uses a different math backend for Math.sin/cos/tan in JavaScript that exposes less entropy
@@ -195,9 +198,9 @@ features:
         default: false
       overrides:
         description: |
-          The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
-        type: String
-        default: ''
+          The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
+        type: Option<String>
+        default: null
   firefox-jp-guide-default-site:
     description: |
       This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
