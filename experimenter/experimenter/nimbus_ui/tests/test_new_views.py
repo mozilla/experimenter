@@ -627,6 +627,94 @@ class NewViewTestMixin:
 
 
 class TestNimbusRolloutDetailView(AuthTestCase):
+    @parameterized.expand([(True, False), (None, True)])
+    def test_setup_issues_disable_resume_button(self, risk_brand, expect_disabled):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            status=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+            risk_brand=risk_brand,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        resume_url = reverse(
+            "nimbus-ui-new-disabled-to-live-rollout", kwargs={"slug": experiment.slug}
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'id="rollout-resume-btn"')
+        if expect_disabled:
+            self.assertNotContains(response, resume_url)
+            self.assertContains(response, NimbusUIConstants.ROLLOUT_HAS_ISSUES_TOOLTIP)
+        else:
+            self.assertContains(response, resume_url)
+
+    @parameterized.expand([(True, False), (None, True)])
+    def test_setup_issues_disable_duplicate_phase_button(
+        self, risk_brand, expect_disabled
+    ):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            status=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+            risk_brand=risk_brand,
+        )
+        final_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
+        experiment.rollout_phase = final_phase
+        experiment.save()
+        duplicate_phase_url = reverse(
+            "nimbus-ui-new-disabled-to-live-duplicate-phase-rollout",
+            kwargs={"slug": experiment.slug},
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'id="rollout-duplicate-phase-accept-btn"')
+        if expect_disabled:
+            self.assertNotContains(response, duplicate_phase_url)
+            self.assertContains(response, NimbusUIConstants.ROLLOUT_HAS_ISSUES_TOOLTIP)
+        else:
+            self.assertContains(response, duplicate_phase_url)
+
+    @parameterized.expand([(True, False), (None, True)])
+    def test_setup_issues_disable_advance_phase_button(self, risk_brand, expect_disabled):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+            risk_brand=risk_brand,
+        )
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=20)
+        experiment.rollout_phase = current_phase
+        experiment.save()
+        advance_url = reverse(
+            "nimbus-ui-new-advance-phase-review-rollout", kwargs={"slug": experiment.slug}
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'id="rollout-next-phase-btn"')
+        if expect_disabled:
+            self.assertNotContains(response, advance_url)
+            self.assertContains(response, NimbusUIConstants.ROLLOUT_HAS_ISSUES_TOOLTIP)
+        else:
+            self.assertContains(response, advance_url)
+
     @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
     def test_ready_rollout_shows_preview_and_launch_actions(self, _mock_errors):
         experiment = NimbusExperimentFactory.create(
@@ -3387,6 +3475,33 @@ class TestNewToggleArchiveView(AuthTestCase):
 
         updated_experiment = NimbusExperiment.objects.get(slug=self.experiment.slug)
         self.assertFalse(updated_experiment.is_archived)
+
+    @parameterized.expand([(True, False), (None, True)])
+    def test_sidebar_resume_button_reflects_setup_issues(
+        self, risk_brand, expect_disabled
+    ):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            status=NimbusExperiment.Status.DISABLED,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+            risk_brand=risk_brand,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        resume_url = reverse(
+            "nimbus-ui-new-disabled-to-live-rollout", kwargs={"slug": experiment.slug}
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-new-toggle-archive", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'id="rollout-resume-btn"')
+        if expect_disabled:
+            self.assertNotContains(response, resume_url)
+        else:
+            self.assertContains(response, resume_url)
 
     def test_detail_page_renders_archive_button(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
