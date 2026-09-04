@@ -3269,6 +3269,9 @@ class TestNimbusExperiment(TestCase):
         warning = warnings[0]
         self.assertIn("WARNING:", warning["text"])
         self.assertEqual(warning["variant"], "warning")
+        self.assertEqual(
+            warning["learn_more_link"], NimbusUIConstants.AUDIENCE_OVERLAP_WARNING
+        )
         entry_slugs = [e["slug"] for e in warning["entries"]]
         self.assertEqual(
             entry_slugs,
@@ -3307,11 +3310,38 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(len(warnings), 1)
         warning = warnings[0]
         self.assertEqual([e["slug"] for e in warning["entries"]], [live.slug])
+        self.assertEqual(
+            warning["learn_more_link"], NimbusUIConstants.AUDIENCE_OVERLAP_WARNING
+        )
         labels = [issue["label"] for issue in warning["self_issues"]]
         self.assertIn("Targeting multiple channels", labels)
         self.assertIn(
             "Issues that may affect enrollment for this experiment", warning["text"]
         )
+
+    def test_audience_overlap_warnings_self_issues_only_omits_learn_more_link(self):
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="self-issues-only-draft",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="self-issues-only-feature",
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
+        )
+
+        warnings = draft.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        warning = warnings[0]
+        self.assertEqual(warning["entries"], [])
+        self.assertNotEqual(warning["self_issues"], [])
+        self.assertIsNone(warning["learn_more_link"])
 
     def test_collision_warnings_no_min_version_treats_feature_as_contesting(self):
         # Without firefox_min_version we can't resolve coenrollment schemas, so the
