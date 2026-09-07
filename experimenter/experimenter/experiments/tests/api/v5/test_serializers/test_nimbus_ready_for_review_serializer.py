@@ -594,6 +594,44 @@ class TestNimbusReviewSerializerSingleFeature(
             [NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER],
         )
 
+    def test_rollout_serializer_rejects_phases_out_of_sequence(self):
+        experiment = self.create_rollout()
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date(2026, 2, 1),
+            end_date=datetime.date(2026, 3, 1),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=20,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 1, 15),
+        )
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["rollout_phases"],
+            [NimbusConstants.ERROR_ROLLOUT_PHASE_SEQUENCE],
+        )
+
+    def test_rollout_serializer_accepts_contiguous_phases(self):
+        experiment = self.create_rollout()
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 2, 1),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=20,
+            start_date=datetime.date(2026, 2, 1),
+            end_date=datetime.date(2026, 3, 1),
+        )
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
     def test_rollout_serializer_rejects_phase_population_out_of_range(self):
         experiment = self.create_rollout()
         NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=150)
