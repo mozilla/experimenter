@@ -408,6 +408,15 @@ body:has(.sidebar-action-button.htmx-request)
     font-size: 0.875rem;
   }
 
+  .btn:focus-visible,
+  .accordion-button:focus-visible {
+    box-shadow: 0 0 0 var(--bs-focus-ring-width) var(--bs-focus-ring-color) !important;
+  }
+
+  .card-edit-form:focus {
+    outline: none;
+  }
+
   .bootstrap-select .dropdown-menu,
   .bootstrap-select .dropdown-menu .inner {
     overscroll-behavior: contain;
