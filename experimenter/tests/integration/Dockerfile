@@ -1,4 +1,4 @@
-FROM python:3.11-bullseye
+FROM python:3.11-trixie
 
 COPY --from=experimenter:megazords \
     /application-services/megazords/nimbus-experimenter /application-services/nimbus_megazord
