@@ -76,15 +76,6 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: false
-  cellular-data-restricted-error-page-feature:
-    description: |
-      Controls restricted cellular data guidance on error pages
-    variables:
-      enabled:
-        description: |
-          Whether or not this feature is enabled
-        type: Boolean
-        default: false
   custom-reader-mode-scheme-feature:
     description: |
       Use a custom WKURLSchemeHandler for reader mode
@@ -808,7 +799,7 @@ features:
       setting:
         description: This property provides a default setting for the start at home feature
         type: StartAtHome
-        default: disabled
+        default: afterFourHours
   summarizer-app-attest-auth-feature:
     description: |
       This feature enables app attest authentication for the summarizer.
@@ -826,7 +817,7 @@ features:
         description: |
           Whether the feature is enabled or not.
         type: Boolean
-        default: true
+        default: false
       supportedLocales:
         description: |
           The list of supported locale identifiers for the summarizer language expansion according to BCP47 standard. i.e "en-US" for English (United States).
@@ -1024,6 +1015,9 @@ enums:
       notifications:
         description: |
           Corresponding to the notifications image
+      notifications-ctd:
+        description: |
+          Corresponding to the notifications image for CTD
       search-widget:
         description: |
           Corresponding to the fox search widget image
@@ -1036,6 +1030,9 @@ enums:
       sync-devices:
         description: |
           Corresponding to the sync-devices image
+      sync-devices-ctd:
+        description: |
+          Corresponding to the sync image for CTD
       sync-with-icons:
         description: |
           Corresponding to the sync-devices image
@@ -1060,6 +1057,9 @@ enums:
       trackers-japan:
         description: |
           Corresponding to the trackers image for Japan variant (contains Japanese text)
+      welcome-ctd:
+        description: |
+          Corresponding to the welcome image for CTD
       welcome-globe:
         description: |
           Corresponding to the fox world image
