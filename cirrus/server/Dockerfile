@@ -1,7 +1,7 @@
 # python-builder
 # --------------
 # This image gathers all the required Python dependencies.
-FROM python:3.11-slim-trixie AS python-builder
+FROM python:3.14-slim-trixie AS python-builder
 
 # Set working directory for the container
 WORKDIR /cirrus
@@ -61,7 +61,7 @@ COPY . .
 # ------
 # This image contains a lightweight container intended for deployment.
 
-FROM python:3.11-slim-trixie AS deploy
+FROM python:3.14-slim-trixie AS deploy
 
 # Create a non-root user
 ARG USERNAME=cirrus
