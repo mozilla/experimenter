@@ -1660,8 +1660,8 @@ objects:
         default: ''
       card-type:
         description: The type of the card.
-        type: OnboardingCardType
-        default: default-browser
+        type: Option<OnboardingCardType>
+        default: null
       disqualifiers:
         description: |
           A list of strings corresponding to targeting expressions. The card will not be shown if any expression is `true`.
