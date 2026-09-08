@@ -1310,6 +1310,29 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertContains(response, "Rollout experience")
         self.assertContains(response, EXTERNAL_URLS["PREVIEW_LAUNCH_DOC"])
 
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.FENIX,),
+            (NimbusExperiment.Application.IOS,),
+            (NimbusExperiment.Application.MONITOR,),
+        ]
+    )
+    def test_preview_card_hidden_for_non_desktop_application(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            is_rollout=True,
+            application=application,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(experiment.is_preview)
+        self.assertFalse(experiment.is_desktop)
+        self.assertNotContains(response, "Preview links & testing details")
+
     def test_preview_card_lists_all_screenshots(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PREVIEW,
