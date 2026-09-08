@@ -10,7 +10,7 @@ dependencies = [
     "asgiref==3.12.1",
     "celery>=5.6.0,<6",
     "click==8.1.6",
-    "coverage>=7.15.0,<8",
+    "coverage>=7.16.0,<8",
     "datadog==0.53.0",
     "deepdiff>=8.6.2,<9",
     "dj-inmemorystorage>=2.1.0,<3",
