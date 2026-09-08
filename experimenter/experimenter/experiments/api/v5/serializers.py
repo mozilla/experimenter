@@ -2036,6 +2036,18 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
         # this skips the parent's non-empty check
         return value
 
+    def _validate_desktop_pref_flips_value(self, value, min_version, max_version):
+        # The schema check has already rejected a malformed prefs value, so skip
+        # the scan rather than raise while rendering the rollout page
+        try:
+            return super()._validate_desktop_pref_flips_value(
+                value, min_version, max_version
+            )
+        except (AttributeError, TypeError):
+            if isinstance(value, dict) and isinstance(value.get("prefs"), dict):
+                raise
+            return self.ValidateFeatureResult()
+
     def validate_rollout_phases(self, value):
         if self.instance and not self.instance.is_rollout:
             return value

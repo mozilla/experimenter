@@ -703,6 +703,45 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         )
         self.assertContains(response, "Not launched")
 
+    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
+    def test_pref_flips_rollout_disables_only_the_preview_button(self, _mock_errors):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertFalse(experiment.can_publish_to_preview)
+        self.assertContains(
+            response, NimbusUIConstants.ROLLOUT_PREVIEW_UNSUPPORTED_TOOLTIP
+        )
+        self.assertNotContains(
+            response,
+            reverse(
+                "nimbus-ui-new-draft-to-preview-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+        self.assertContains(
+            response,
+            reverse(
+                "nimbus-ui-new-draft-to-review-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+
     @parameterized.expand(
         [
             (NimbusExperiment.Status.LIVE,),
