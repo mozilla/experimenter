@@ -3,5 +3,30 @@
 friendly_name = 'Example config'
 description = 'Example Fenix config used for testing'
 
-[metrics.uri_count.statistics.bootstrap_mean]
-[metrics.uri_count.statistics.deciles]
+# Which metrics to include in each analysis window.
+# NOTE: If no period lists are declared, all metrics are calculated for weekly and overall only
+daily = [
+  'total_uri_count'
+]
+
+weekly = [
+  'total_uri_count'
+]
+
+# Pre-enrollment must be specified for any metrics/statistics using CUPED adjustment
+preenrollment_weekly = [
+  'total_uri_count'
+]
+
+overall = [
+  'total_uri_count'
+]
+
+# Metric and statistic definitions
+
+# Use these settings for CUPED adjustment
+[metrics.total_uri_count.statistics.linear_model_mean]
+[metrics.total_uri_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
+[metrics.total_uri_count.statistics.deciles]
