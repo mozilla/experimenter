@@ -2,9 +2,12 @@ import pytest
 
 
 @pytest.mark.nimbus_ui
-def test_rollout_can_be_launched(configured_rollout, kinto_client):
+def test_rollout_can_be_launched(
+    configured_rollout, kinto_client, mobile_apps, application
+):
     configured_rollout.transition_to_preview()
     assert configured_rollout.is_in_preview
+    assert configured_rollout.has_preview_card == (application not in mobile_apps)
 
     configured_rollout.request_enrollment()
     configured_rollout.approve_review()

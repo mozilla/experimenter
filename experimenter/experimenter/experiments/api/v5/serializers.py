@@ -2047,6 +2047,7 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
             raise serializers.ValidationError(
                 NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO
             )
+        previous_phase = None
         for phase in phases:
             if not (0 <= phase.population_percent <= 100):
                 raise serializers.ValidationError(
@@ -2056,6 +2057,13 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
                 raise serializers.ValidationError(
                     NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER
                 )
+            if previous_phase is not None:
+                boundary = previous_phase.end_date or previous_phase.start_date
+                if boundary and phase.start_date and phase.start_date < boundary:
+                    raise serializers.ValidationError(
+                        NimbusConstants.ERROR_ROLLOUT_PHASE_SEQUENCE
+                    )
+            previous_phase = phase
         return value
 
 
