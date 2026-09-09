@@ -56,6 +56,8 @@ jobs:
               gh pr close external-config --repo mozilla/experimenter 2>/dev/null || true
               git push origin external-config -f
               gh pr create -t "chore(nimbus): Update External Configs" -F /tmp/pr-body.txt --base main --head external-config --repo mozilla/experimenter
+              gh pr merge external-config --auto --squash --repo mozilla/experimenter \
+                || echo "::warning::Could not enable auto-merge on external-config; approve and merge it manually."
             fi
           else
             echo "No config changes, skipping"
@@ -109,6 +111,8 @@ jobs:
               gh pr close update-application-services --repo mozilla/experimenter 2>/dev/null || true
               git push origin update-application-services -f
               gh pr create -t "chore(nimbus): Update Application Services" -b "" --base main --head update-application-services --repo mozilla/experimenter
+              gh pr merge update-application-services --auto --squash --repo mozilla/experimenter \
+                || echo "::warning::Could not enable auto-merge on update-application-services; approve and merge it manually."
             fi
           else
             echo "No config changes, skipping"
