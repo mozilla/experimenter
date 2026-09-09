@@ -1,6 +1,6 @@
 #-------------------------
 # System packages
-FROM python:3.13-trixie AS system-builder
+FROM python:3.14-trixie AS system-builder
 
 RUN install -d /etc/apt/keyrings && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg -o /etc/apt/keyrings/yarn.asc
@@ -111,7 +111,7 @@ RUN yarn workspace @experimenter/nimbus_ui build
 
 # Deploy image
 #-------------------------
-FROM python:3.13-slim AS deploy
+FROM python:3.14-slim AS deploy
 
 # Create a non-root user with UID 10001
 RUN groupadd -g 10001 app && \
