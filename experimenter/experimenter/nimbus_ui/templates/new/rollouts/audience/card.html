@@ -157,7 +157,7 @@
       </div>
       {# Required experiments #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Include users from existing experiments</div>
+        <div class="text-secondary mb-1" style="font-size: 12px;">Include users from existing deliveries</div>
         {% with experiment.required_experiments_branches.all as required_branches %}
           {% if required_branches %}
             {% for branch in required_branches %}
@@ -179,7 +179,7 @@
       </div>
       {# Excluded experiments #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Exclude users from other experiments/rollouts</div>
+        <div class="text-secondary mb-1" style="font-size: 12px;">Exclude users from other deliveries</div>
         {% with experiment.excluded_experiments_branches.all as excluded_branches %}
           {% if excluded_branches %}
             {% for branch in excluded_branches %}
