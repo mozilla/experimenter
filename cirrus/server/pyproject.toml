@@ -8,7 +8,7 @@ requires-python = ">=3.11,<4"
 # https://docs.astral.sh/uv/concepts/projects/layout/#the-lockfile
 dependencies = [
     "ruff>=0.16.0,<0.17",
-    "coverage>=7.14.0,<8",
+    "coverage>=7.16.0,<8",
     "fastapi>=0.141.1,<0.142",
     "uvicorn>=0.52.1,<0.53",
     "pytest>=7.2.2,<8",

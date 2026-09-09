@@ -747,6 +747,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "The first rollout phase must have a population percent greater than 0."
     )
     ERROR_ROLLOUT_PHASE_DATE_ORDER = "The end date must be on or after the start date."
+    ERROR_ROLLOUT_PHASE_SEQUENCE = (
+        "Each phase must start after or when the previous phase ends."
+    )
     ERROR_ROLLOUT_PHASE_POPULATION_RANGE = (
         "Each rollout phase population percent must be between 0 and 100."
     )

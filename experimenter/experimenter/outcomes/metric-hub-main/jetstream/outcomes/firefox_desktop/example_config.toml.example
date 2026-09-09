@@ -3,6 +3,30 @@
 friendly_name = 'Example config'
 description = 'Example Firefox desktop config used for testing'
 
+# Which metrics to include in each analysis window.
+# NOTE: If no period lists are declared, all metrics are calculated for weekly and overall only
+daily = [
+  'urlbar_amazon_search_count',
+  'total_amazon_search_count'
+]
+
+weekly = [
+  'urlbar_amazon_search_count',
+  'total_amazon_search_count'
+]
+
+# Pre-enrollment must be specified for any metrics/statistics using CUPED adjustment
+preenrollment_weekly = [
+  'urlbar_amazon_search_count',
+  'total_amazon_search_count'
+]
+
+overall = [
+  'urlbar_amazon_search_count',
+  'total_amazon_search_count'
+]
+
+# Metric and statistic definitions
 [metrics.urlbar_amazon_search_count]
 select_expression = """
 SUM(CASE
@@ -11,11 +35,21 @@ SUM(CASE
         WHEN source = 'urlbar-searchmode' and engine like 'amazon%' then sap
         else 0 end)"""
 data_source = "search_clients_engines_sources_daily"
-[metrics.urlbar_amazon_search_count.statistics.bootstrap_mean]
+
+# Use these settings for CUPED adjustment
+[metrics.urlbar_amazon_search_count.statistics.linear_model_mean]
+[metrics.urlbar_amazon_search_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
 [metrics.urlbar_amazon_search_count.statistics.deciles]
+
 
 [metrics.total_amazon_search_count]
 select_expression = "SUM(CASE WHEN engine like 'amazon%' then sap else 0 end)"
 data_source = "search_clients_engines_sources_daily"
-[metrics.total_amazon_search_count.statistics.bootstrap_mean]
+
+[metrics.total_amazon_search_count.statistics.linear_model_mean]
+[metrics.total_amazon_search_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+
 [metrics.total_amazon_search_count.statistics.deciles]

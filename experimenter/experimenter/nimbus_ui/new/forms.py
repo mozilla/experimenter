@@ -1407,6 +1407,7 @@ class DraftToPreviewRolloutForm(UpdateStatusForm):
     @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
+        experiment.stage_rollout_phase_advance()
         experiment.allocate_bucket_range()
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
         return experiment
@@ -1427,6 +1428,7 @@ class PreviewToDraftRolloutForm(UpdateStatusForm):
     @transaction.atomic
     def save(self, commit=True):
         experiment = super().save(commit=commit)
+        experiment.revert_staged_rollout_phase_advance()
         nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
         return experiment
 
