@@ -867,6 +867,17 @@ features:
         description: If true, the one click search will be enabled.
         type: Boolean
         default: false
+  pairing-signin-prompt:
+    description: Controls the day 1 sign-in prompt for users who installed Firefox through a pairing link.
+    variables:
+      campaign-utm-content:
+        description: The "utm_content" value used to identify installs from the pairing campaign.
+        type: String
+        default: ''
+      enabled:
+        description: Whether the day 1 sign-in prompt can be shown.
+        type: Boolean
+        default: false
   pdf-viewer:
     description: Feature for the PDF viewer tools for users on Firefox for Android.
     variables:
@@ -1634,8 +1645,8 @@ objects:
         default: ''
       card-type:
         description: The type of the card.
-        type: OnboardingCardType
-        default: default-browser
+        type: Option<OnboardingCardType>
+        default: null
       disqualifiers:
         description: |
           A list of strings corresponding to targeting expressions. The card will not be shown if any expression is `true`.

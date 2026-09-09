@@ -98,7 +98,8 @@ search:
   hasExposure: true
   exposureDescription: >
     Exposure is recorded when the visual search context menu item is shown or
-    would have been shown.
+    would have been shown, or when the highlight to search actions menu is
+    shown after text is selected on a page.
   variables:
     scotchBonnetEnableOverride:
       type: boolean
@@ -138,6 +139,15 @@ search:
         pref: browser.search.visualSearch.featureGate
       description: >-
         Feature gate for visual search.
+    highlightToSearchEnabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.highlightToSearch.featureGate
+      description: >-
+        Feature gate for highlight to search, the actions menu shown when text
+        is selected on a page. Does not affect the user's own settings for the
+        menu or its individual actions.
 
 searchConfiguration:
   description: >-

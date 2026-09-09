@@ -628,6 +628,17 @@ one-click-search:
     enabled:
       type: boolean
       description: If true, the one click search will be enabled.
+pairing-signin-prompt:
+  description: Controls the day 1 sign-in prompt for users who installed Firefox through a pairing link.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    campaign-utm-content:
+      type: string
+      description: The "utm_content" value used to identify installs from the pairing campaign.
+    enabled:
+      type: boolean
+      description: Whether the day 1 sign-in prompt can be shown.
 pdf-viewer:
   description: Feature for the PDF viewer tools for users on Firefox for Android.
   hasExposure: true
