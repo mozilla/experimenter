@@ -326,6 +326,58 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         self.assertEqual(experiment.status_next, expected_status_next)
         self.assertEqual(experiment.publish_status, expected_publish_status)
 
+    def test_draft_to_preview_stages_the_phase_population(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            population_percent=Decimal("0"),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=Decimal("100")
+        )
+
+        self.client.post(
+            reverse(
+                "nimbus-ui-new-draft-to-preview-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.population_percent, Decimal("100"))
+        self.mock_allocate_bucket_range.assert_called_once()
+
+    def test_preview_to_draft_reverts_the_staged_phase(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            population_percent=Decimal("0"),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=Decimal("100")
+        )
+
+        self.client.post(
+            reverse(
+                "nimbus-ui-new-draft-to-preview-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+        self.client.post(
+            reverse(
+                "nimbus-ui-new-preview-to-draft-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+
+        experiment.refresh_from_db()
+        self.assertIsNone(experiment.rollout_phase_next)
+        self.assertEqual(experiment.population_percent, Decimal("0"))
+
     def test_htmx_transition_refreshes_page(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
