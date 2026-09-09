@@ -23,81 +23,86 @@
     </div>
     {{ form.rollout_phases.management_form }}
     <div class="d-flex flex-column">
-      {% if form.rollout_phases|length %}
+      {% if form.visible_phase_count %}
         <div class="text-secondary mb-2" style="font-size: 12px">{{ NimbusUIConstants.ROLLOUT_SCHEDULE_DATES_NOTE }}</div>
       {% endif %}
       {% for phase_form in form.rollout_phases %}
-        {% with display=phase_form.card_status_display %}
-          <div class="p-3 rounded"
-               {% if phase_form.is_current %}style="background-color: rgba(var(--bs-{{ display.color }}-rgb), 0.07)"{% endif %}>
-            {{ phase_form.id }}
-            {# Phase Number and Status #}
-            <div class="d-flex align-items-center gap-2 mb-2">
-              <span class="small text-body {% if phase_form.is_current %}fw-bold{% else %}fw-semibold{% endif %}">Phase {{ forloop.counter }}</span>
-              {% include "new/rollouts/schedule/phase_status_badge.html" %}
+        {% if phase_form.is_deleted %}
+          {{ phase_form.id }}
+          {{ phase_form.DELETE.as_hidden }}
+        {% else %}
+          {% with display=phase_form.card_status_display %}
+            <div class="p-3 rounded"
+                 {% if phase_form.is_current %}style="background-color: rgba(var(--bs-{{ display.color }}-rgb), 0.07)"{% endif %}>
+              {{ phase_form.id }}
+              {# Phase Number and Status #}
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="small text-body {% if phase_form.is_current %}fw-bold{% else %}fw-semibold{% endif %}">Phase {{ phase_form.number }}</span>
+                {% include "new/rollouts/schedule/phase_status_badge.html" %}
 
-            </div>
-            <div class="d-flex gap-4 align-items-end">
-              {# Population in % #}
-              <div class="flex-shrink-0 position-relative">
-                <label for="id_rollout_phases-{{ forloop.counter0 }}-population_percent"
-                       class="text-secondary mb-1"
-                       style="font-size: 12px">Population</label>
-                <div class="input-group">
-                  {{ phase_form.population_percent|add_error_class:"is-invalid" }}
-                  <span class="input-group-text">%</span>
-                </div>
-                {% if phase_form.population_percent.errors %}
-                  <div class="text-danger small position-absolute mt-1" style="top: 100%">
-                    {{ phase_form.population_percent.errors|join:", " }}
+              </div>
+              <div class="d-flex gap-4 align-items-end">
+                {# Population in % #}
+                <div class="flex-shrink-0 position-relative">
+                  <label for="id_rollout_phases-{{ forloop.counter0 }}-population_percent"
+                         class="text-secondary mb-1"
+                         style="font-size: 12px">Population</label>
+                  <div class="input-group">
+                    {{ phase_form.population_percent|add_error_class:"is-invalid" }}
+                    <span class="input-group-text">%</span>
                   </div>
+                  {% if phase_form.population_percent.errors %}
+                    <div class="text-danger small position-absolute mt-1" style="top: 100%">
+                      {{ phase_form.population_percent.errors|join:", " }}
+                    </div>
+                  {% endif %}
+                </div>
+                {# Duration #}
+                <div class="flex-grow-1" style="min-width: 0">
+                  <label class="text-secondary mb-1" style="font-size: 12px">Duration</label>
+                  <div class="d-flex gap-2 align-items-center">
+                    <div class="flex-grow-1 position-relative"
+                         style="min-width: 0;
+                                flex-basis: 0">
+                      {{ phase_form.start_date|add_error_class:"is-invalid" }}
+                      {% if phase_form.start_date.errors %}
+                        <div class="text-danger small position-absolute mt-1" style="top: 100%">
+                          {{ phase_form.start_date.errors|join:", " }}
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div class="flex-grow-1 position-relative"
+                         style="min-width: 0;
+                                flex-basis: 0">
+                      {{ phase_form.end_date|add_error_class:"is-invalid" }}
+                      {% if phase_form.end_date.errors %}
+                        <div class="text-danger small position-absolute mt-1" style="top: 100%">
+                          {{ phase_form.end_date.errors|join:", " }}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% if not phase_form.is_locked %}
+                  <button type="button"
+                          class="btn p-0 border-0 text-secondary flex-shrink-0 pb-2 pe-1"
+                          hx-post="{% url 'nimbus-ui-new-delete-rollout-phase' experiment.slug %}"
+                          hx-vals='{"phase_index": "{{ forloop.counter0 }}"}'
+                          hx-include="closest form"
+                          hx-target="#rollout-schedule-body"
+                          hx-swap="outerHTML">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
                 {% endif %}
               </div>
-              {# Duration #}
-              <div class="flex-grow-1" style="min-width: 0">
-                <label class="text-secondary mb-1" style="font-size: 12px">Duration</label>
-                <div class="d-flex gap-2 align-items-center">
-                  <div class="flex-grow-1 position-relative"
-                       style="min-width: 0;
-                              flex-basis: 0">
-                    {{ phase_form.start_date|add_error_class:"is-invalid" }}
-                    {% if phase_form.start_date.errors %}
-                      <div class="text-danger small position-absolute mt-1" style="top: 100%">
-                        {{ phase_form.start_date.errors|join:", " }}
-                      </div>
-                    {% endif %}
-                  </div>
-                  <div class="flex-grow-1 position-relative"
-                       style="min-width: 0;
-                              flex-basis: 0">
-                    {{ phase_form.end_date|add_error_class:"is-invalid" }}
-                    {% if phase_form.end_date.errors %}
-                      <div class="text-danger small position-absolute mt-1" style="top: 100%">
-                        {{ phase_form.end_date.errors|join:", " }}
-                      </div>
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
-              {% if not phase_form.is_locked %}
-                <button type="button"
-                        class="btn p-0 border-0 text-secondary flex-shrink-0 pb-2 pe-1"
-                        hx-post="{% url 'nimbus-ui-new-delete-rollout-phase' experiment.slug %}"
-                        hx-vals='{"phase_id": "{{ phase_form.instance.pk }}"}'
-                        hx-include="closest form"
-                        hx-target="#rollout-schedule-body"
-                        hx-swap="outerHTML">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              {% endif %}
             </div>
-          </div>
-        {% endwith %}
+          {% endwith %}
+        {% endif %}
       {% endfor %}
       <div>
         <button type="button"
                 id="rollout-schedule-add-phase"
-                class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small{% if form.rollout_phases|length %} mt-3{% else %} mt-1{% endif %}"
+                class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small{% if form.visible_phase_count %} mt-3{% else %} mt-1{% endif %}"
                 hx-post="{% url 'nimbus-ui-new-create-rollout-phase' experiment.slug %}"
                 hx-include="closest form"
                 hx-target="#rollout-schedule-body"
@@ -114,7 +119,7 @@
 
       </div>
     </div>
-    {% if form.rollout_phases|length %}
+    {% if form.visible_phase_count %}
       <div class="border-top pt-3">
         <div class="text-secondary mb-2" style="font-size: 12px">Reuse this schedule on other rollouts</div>
         <button type="button"

@@ -1735,6 +1735,12 @@ class RolloutPhaseForm(forms.ModelForm):
         model = NimbusRolloutPhase
         fields = ("start_date", "end_date", "population_percent")
 
+    def clean_population_percent(self):
+        population_percent = self.cleaned_data.get("population_percent")
+        if population_percent is None:
+            return Decimal(0)
+        return population_percent
+
 
 class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
     rollout_plan = forms.ChoiceField(
@@ -1783,11 +1789,19 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
             form=RolloutPhaseForm,
             extra=0,
         )
+        self.plans = self.available_plans()
+        annotated_phases = {
+            phase.id: phase for phase in self.instance.annotated_rollout_phases()
+        }
+        self.locked_phase_ids = {
+            phase_id
+            for phase_id, phase in annotated_phases.items()
+            if phase.card_status in NimbusUIConstants.RolloutPhaseStatus.LOCKED
+        }
         self.rollout_phases = self.NimbusRolloutPhaseFormSet(
-            data=self.data or None,
+            data=self.get_rollout_phases_data(),
             instance=self.instance,
         )
-        self.plans = self.available_plans()
         self.fields["rollout_plan"].choices = [("", "None")] + [
             (name, f"{name} ({NimbusRolloutPlanTemplate.summary(phases)})")
             for name, phases in self.plans.items()
@@ -1805,16 +1819,13 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
             }
         )
 
-        annotated_phases = {
-            phase.id: phase for phase in self.instance.annotated_rollout_phases()
-        }
-        self.locked_phase_ids = {
-            phase_id
-            for phase_id, phase in annotated_phases.items()
-            if phase.card_status in NimbusUIConstants.RolloutPhaseStatus.LOCKED
-        }
         not_started = NimbusUIConstants.RolloutPhaseStatus.NOT_STARTED
+        self.visible_phase_count = 0
         for phase_form in self.rollout_phases.forms:
+            phase_form.is_deleted = bool(phase_form["DELETE"].value())
+            if not phase_form.is_deleted:
+                self.visible_phase_count += 1
+                phase_form.number = self.visible_phase_count
             phase = annotated_phases.get(phase_form.instance.pk)
             status = phase.card_status if phase else not_started
             phase_form.card_status = status
@@ -1835,6 +1846,26 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 phase_form.initial["start_date"] = phase.effective_start_date
             for field_name in disabled_fields:
                 phase_form.fields[field_name].disabled = True
+
+    def get_rollout_phases_data(self):
+        # Preview schedule changes in the formset data so they are only written to
+        # the database when the card is saved.
+        if not self.is_bound:
+            return None
+
+        data = self.data.copy()
+        prefix = "rollout_phases"
+        total_forms = int(data[f"{prefix}-TOTAL_FORMS"])
+
+        for index in range(total_forms):
+            phase_id = data.get(f"{prefix}-{index}-id")
+            if phase_id and int(phase_id) in self.locked_phase_ids:
+                data.pop(f"{prefix}-{index}-DELETE", None)
+
+        return self.preview_rollout_phases(data)
+
+    def preview_rollout_phases(self, data):
+        return data
 
     @staticmethod
     def available_plans():
@@ -1857,58 +1888,49 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class RolloutPhaseCreateForm(RolloutScheduleForm):
-    @transaction.atomic
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.instance.rollout_phases.create()
-        return self.instance
-
-    def get_changelog_message(self):
-        return f"{self.request.user} added a rollout phase"
+    def preview_rollout_phases(self, data):
+        prefix = "rollout_phases"
+        total_forms_key = f"{prefix}-TOTAL_FORMS"
+        total_forms = int(data[total_forms_key])
+        data[f"{prefix}-{total_forms}-population_percent"] = "0"
+        data[total_forms_key] = str(total_forms + 1)
+        return data
 
 
 class RolloutPhaseDeleteForm(RolloutScheduleForm):
-    phase_id = forms.ModelChoiceField(queryset=NimbusRolloutPhase.objects.all())
+    def preview_rollout_phases(self, data):
+        prefix = "rollout_phases"
+        index = data.get("phase_index")
+        if not index:
+            return data
 
-    class Meta:
-        model = NimbusExperiment
-        fields = ["phase_id"]
-
-    def clean_phase_id(self):
-        phase = self.cleaned_data["phase_id"]
-        if phase.pk in self.locked_phase_ids:
-            raise forms.ValidationError(NimbusUIConstants.ERROR_ROLLOUT_PHASE_LOCKED)
-        return phase
-
-    @transaction.atomic
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.cleaned_data["phase_id"].delete()
-        return self.instance
-
-    def get_changelog_message(self):
-        return f"{self.request.user} removed a rollout phase"
+        phase_id = data.get(f"{prefix}-{index}-id")
+        if not (phase_id and int(phase_id) in self.locked_phase_ids):
+            data[f"{prefix}-{index}-DELETE"] = "on"
+        return data
 
 
 class RolloutPlanApplyForm(RolloutScheduleForm):
-    @transaction.atomic
-    def apply_plan(self):
-        plan_name = self.data.get("rollout_plan")
-        if plan_name and plan_name in self.plans:
-            self.instance.rollout_phases.exclude(id__in=self.locked_phase_ids).delete()
-            for population_percent in self.plans[plan_name]:
-                self.instance.rollout_phases.create(
-                    population_percent=Decimal(str(population_percent))
-                )
+    def preview_rollout_phases(self, data):
+        plan_name = data.get("rollout_plan")
+        if plan_name not in self.plans:
+            return data
 
-    @transaction.atomic
-    def save(self, *args, **kwargs):
-        experiment = super().save(*args, **kwargs)
-        self.apply_plan()
-        return experiment
+        prefix = "rollout_phases"
+        total_forms_key = f"{prefix}-TOTAL_FORMS"
+        total_forms = int(data[total_forms_key])
 
-    def get_changelog_message(self):
-        return f"{self.request.user} applied a rollout plan"
+        for index in range(total_forms):
+            phase_id = data.get(f"{prefix}-{index}-id")
+            if not (phase_id and int(phase_id) in self.locked_phase_ids):
+                data[f"{prefix}-{index}-DELETE"] = "on"
+
+        for population_percent in self.plans[plan_name]:
+            data[f"{prefix}-{total_forms}-population_percent"] = str(population_percent)
+            total_forms += 1
+
+        data[total_forms_key] = str(total_forms)
+        return data
 
 
 class RolloutPlanCreateForm(RolloutScheduleForm):
@@ -1932,19 +1954,17 @@ class RolloutPlanCreateForm(RolloutScheduleForm):
             )
         return cleaned_data
 
-    @transaction.atomic
     def save(self):
-        experiment = super().save()
-        phases = [
-            float(phase.population_percent) for phase in experiment.rollout_phases.all()
-        ]
         NimbusRolloutPlanTemplate.objects.create(
-            name=self.cleaned_data["template_name"], phases=phases
+            name=self.cleaned_data["template_name"],
+            phases=[
+                float(phase_form.cleaned_data["population_percent"])
+                for phase_form in self.rollout_phases.forms
+                if phase_form.cleaned_data.get("population_percent") is not None
+                and not phase_form.cleaned_data.get("DELETE")
+            ],
         )
-        return experiment
-
-    def get_changelog_message(self):
-        return f"{self.request.user} created a rollout plan template"
+        return self.instance
 
 
 class SubscribeForm(NimbusChangeLogFormMixin, forms.ModelForm):

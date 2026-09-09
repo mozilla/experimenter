@@ -405,7 +405,6 @@ Optional - We expect this to <describe impact> on <core metric>.
     ERROR_ROLLOUT_PLAN_FIX_ERRORS = (
         "Resolve the highlighted errors above before saving this plan."
     )
-    ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
     ROLLOUT_REVIEW_PENDING_TOOLTIP = "A review is currently pending."
     ROLLOUT_NO_NEXT_PHASE_TOOLTIP = "There is no further phase to start."
     ROLLOUT_HAS_ISSUES_TOOLTIP = "All rollout issues must be resolved first."
