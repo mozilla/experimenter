@@ -79,7 +79,6 @@ def main():
     id_token = get_id_token()
 
     failed = []
-    warned = []
     for entry in entries:
         slug = entry["slug"]
         query = entry["query"]
@@ -90,24 +89,13 @@ def main():
             else:
                 errors = response.get("errors", [])
                 msg = errors[0].get("message") if errors else "unknown error"
-                # Columns not yet present in the BQ table are an EXP-7326
-                # schema gap, not a SQL generation bug. Warn instead of failing
-                # so CI is not blocked while BQ schema catches up.
-                if "Unrecognized name" in msg:
-                    print(f"  ~ {slug}: {msg} (column not yet in BQ table)")
-                    warned.append(slug)
-                else:
-                    print(f"  ✗ {slug}: {msg}")
-                    failed.append(slug)
+                print(f"  ✗ {slug}: {msg}")
+                failed.append(slug)
         except Exception as e:
             print(f"  ✗ {slug}: {e}")
             failed.append(slug)
 
-    total = len(entries)
-    passed = total - len(failed) - len(warned)
-    print(f"\n{passed}/{total} passed, {len(warned)} warned (missing BQ columns), {len(failed)} failed.")
-    if warned:
-        print(f"Warned (missing BQ columns, will pass once EXP-7326 lands): {warned}")
+    print(f"\n{len(entries) - len(failed)}/{len(entries)} passed.")
     if failed:
         print(f"Failed: {failed}")
         sys.exit(1)

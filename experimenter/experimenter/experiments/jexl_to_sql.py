@@ -161,18 +161,12 @@ JEXL_TO_BQ_COLUMN_FENIX = {
     "install_referrer_response_utm_term": "installReferrerResponseUtmTerm",
     "addonIds": "UNNEST(JSON_VALUE_ARRAY(addonIds))",
     "addon_ids": "UNNEST(JSON_VALUE_ARRAY(addonIds))",
-    "userAcceptedTou": "CAST(userAcceptedTou AS BOOL)",
-    "user_accepted_tou": "CAST(userAcceptedTou AS BOOL)",
-    "noShortcutsOrStoriesOptOuts": "CAST(noShortcutsOrStoriesOptOuts AS BOOL)",
-    "no_shortcuts_or_stories_opt_outs": "CAST(noShortcutsOrStoriesOptOuts AS BOOL)",
-    "touPoints": "touPoints",
-    "tou_points": "touPoints",
+    # userAcceptedTou, noShortcutsOrStoriesOptOuts, touPoints not yet in the
+    # Fenix BQ table — see KNOWN_UNTRANSLATABLE and EXP-7326.
     "areNotificationsEnabled": "CAST(areNotificationsEnabled AS BOOL)",
     "are_notifications_enabled": "CAST(areNotificationsEnabled AS BOOL)",
     "areMarketingNotificationsEnabled": "CAST(areMarketingNotificationsEnabled AS BOOL)",
-    "are_marketing_notifications_enabled": (
-        "CAST(areMarketingNotificationsEnabled AS BOOL)"
-    ),
+    "are_marketing_notifications_enabled": "CAST(areMarketingNotificationsEnabled AS BOOL)",
     # JSON-only: in context blob but not a typed column on Fenix (iOS has it).
     # Context keys are camelCase — confirmed from live data.
     "isReviewCheckerEnabled": (
@@ -193,18 +187,9 @@ JEXL_TO_BQ_COLUMN_IOS = {
     "is_phone": "CAST(isPhone AS BOOL)",
     "isReviewCheckerEnabled": "CAST(isReviewCheckerEnabled AS BOOL)",
     "is_review_checker_enabled": "CAST(isReviewCheckerEnabled AS BOOL)",
-    "isBottomToolbarUser": "CAST(isBottomToolbarUser AS BOOL)",
-    "is_bottom_toolbar_user": "CAST(isBottomToolbarUser AS BOOL)",
-    "hasEnabledTipsNotifications": "CAST(hasEnabledTipsNotifications AS BOOL)",
-    "has_enabled_tips_notifications": "CAST(hasEnabledTipsNotifications AS BOOL)",
-    "hasAcceptedTermsOfUse": "CAST(hasAcceptedTermsOfUse AS BOOL)",
-    "has_accepted_terms_of_use": "CAST(hasAcceptedTermsOfUse AS BOOL)",
-    "isAppleIntelligenceAvailable": "CAST(isAppleIntelligenceAvailable AS BOOL)",
-    "is_apple_intelligence_available": "CAST(isAppleIntelligenceAvailable AS BOOL)",
-    "cannotUseAppleIntelligence": "CAST(cannotUseAppleIntelligence AS BOOL)",
-    "cannot_use_apple_intelligence": "CAST(cannotUseAppleIntelligence AS BOOL)",
-    "touExperiencePoints": "touExperiencePoints",
-    "tou_experience_points": "touExperiencePoints",
+    # isBottomToolbarUser, hasEnabledTipsNotifications, hasAcceptedTermsOfUse,
+    # isAppleIntelligenceAvailable, cannotUseAppleIntelligence, touExperiencePoints
+    # not yet in the iOS BQ table — see KNOWN_UNTRANSLATABLE and EXP-7326.
 }
 
 # Attributes with no corresponding column in nimbus_targeting_context.
@@ -230,21 +215,34 @@ KNOWN_UNTRANSLATABLE = {
     # Mobile-only attributes — untranslatable on Desktop.
     # Those in JEXL_TO_BQ_COLUMN_FENIX / JEXL_TO_BQ_COLUMN_IOS are handled
     # by the mobile column maps when app="fenix" or app="ios".
-    # Those absent from the mobile maps are not recorded in the BQ context blob.
+    # Those absent from the mobile maps are not yet recorded in the BQ context
+    # table (EXP-7326). Both camelCase and snake_case forms are listed so
+    # jexl_to_sql skips these configs at export time regardless of JEXL style.
     "days_since_install",
     "days_since_update",
     "is_default_browser",
     "is_phone",
-    "is_bottom_toolbar_user",
-    "is_apple_intelligence_available",
-    "cannot_use_apple_intelligence",
-    "has_accepted_terms_of_use",
-    "has_enabled_tips_notifications",
+    # Fenix columns pending EXP-7326
+    "userAcceptedTou",
     "user_accepted_tou",
+    "noShortcutsOrStoriesOptOuts",
+    "no_shortcuts_or_stories_opt_outs",
+    "touPoints",
     "tou_points",
+    # iOS columns pending EXP-7326
+    "isBottomToolbarUser",
+    "is_bottom_toolbar_user",
+    "hasEnabledTipsNotifications",
+    "has_enabled_tips_notifications",
+    "hasAcceptedTermsOfUse",
+    "has_accepted_terms_of_use",
+    "isAppleIntelligenceAvailable",
+    "is_apple_intelligence_available",
+    "cannotUseAppleIntelligence",
+    "cannot_use_apple_intelligence",
+    "touExperiencePoints",
     "tou_experience_points",
     "addon_ids",
-    "no_shortcuts_or_stories_opt_outs",
     "android_sdk_version",
     "install_referrer_response_utm_source",
     # Standalone sub-fields accessed without parent (default PDF handler context)
