@@ -467,8 +467,8 @@ Optional - We expect this to <describe impact> on <core metric>.
 
     TOASTS = {
         TOAST_SAVED: "Changes saved",
-        TOAST_SUBSCRIBED: "Subscribed to this experiment",
-        TOAST_UNSUBSCRIBED: "Unsubscribed from this experiment",
+        TOAST_SUBSCRIBED: "Subscribed to this delivery",
+        TOAST_UNSUBSCRIBED: "Unsubscribed from this delivery",
         TOAST_SLACK_ENABLED: "Review Slack notifications enabled",
         TOAST_SLACK_DISABLED: "Review Slack notifications disabled",
         TOAST_EDIT_CANCELLED: "Edit cancelled",
