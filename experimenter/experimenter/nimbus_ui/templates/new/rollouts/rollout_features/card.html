@@ -65,18 +65,25 @@
       <div class="text-secondary mb-1" style="font-size: 12px;">Rollout screenshots</div>
       {% with screenshots=experiment.reference_branch.screenshots.all %}
         {% if screenshots %}
-          <div class="d-flex flex-wrap gap-2">
+          <div class="d-flex flex-wrap gap-4">
             {% for screenshot in screenshots %}
               {% if screenshot.image %}
-                <div class="border border-secondary-subtle rounded overflow-hidden">
+                <figure class="mb-0 border border-secondary-subtle rounded overflow-hidden"
+                        style="width: min-content">
                   <img src="{{ screenshot.image.url }}"
                        alt="{{ screenshot.description }}"
                        title="{{ screenshot.description }}"
-                       class="rounded"
-                       style="height: 125px;
+                       style="display: block;
+                              height: 125px;
                               width: auto;
                               object-fit: cover">
-                </div>
+                  {% if screenshot.description %}
+                    <figcaption id="rollout-features-screenshot-description-{{ forloop.counter0 }}"
+                                class="small text-body border-top border-secondary-subtle px-2 py-1"
+                                style="overflow-wrap: anywhere;
+                                       white-space: pre-wrap">{{ screenshot.description }}</figcaption>
+                  {% endif %}
+                </figure>
               {% endif %}
             {% endfor %}
           </div>
