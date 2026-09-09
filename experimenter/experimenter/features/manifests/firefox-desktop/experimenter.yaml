@@ -5837,12 +5837,6 @@ xpcom:
   owner: tthorne@mozilla.com
   hasExposure: false
   variables:
-    idle_period_cross_process_scheduling:
-      description: Whether Firefox allows background processes to use idle time to schedule and run tasks.
-      type: boolean
-      setPref:
-        branch: user
-        pref: "idle_period.cross_process_scheduling"
     low_commit_space_threshold_mb:
       description: if defined(XP_WIN) || defined(XP_LINUX) - notify TabUnloader or send the memory pressure if the memory resource notification is signaled AND the available commit space is lower than this value.
       type: int
