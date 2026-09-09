@@ -406,7 +406,6 @@ Optional - We expect this to <describe impact> on <core metric>.
     ERROR_ROLLOUT_PLAN_FIX_ERRORS = (
         "Resolve the highlighted errors above before saving this plan."
     )
-    ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
     ROLLOUT_APPLICATION_TOOLTIP = (
         "Rollouts can only target one Application at a time. Application can "
         "not be changed after a rollout is created."
