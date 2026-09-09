@@ -1,6 +1,6 @@
 <div id="sidebar-preview-button" {% if oob %}hx-swap-oob="true"{% endif %}>
   {% if experiment.active_rollout_stage == 'setup' %}
-    {% if experiment.is_draft and not setup_issues_count %}
+    {% if experiment.is_draft and not setup_issues_count and not experiment.is_archived %}
       <div class="d-flex flex-column gap-2 mt-2">
         <button type="button"
                 id="rollout-preview-btn"
@@ -31,7 +31,7 @@
       <div class="d-flex flex-column gap-2 mt-2">
         <span class="d-inline-block w-100"
               data-bs-toggle="tooltip"
-              data-bs-title="{% if experiment.has_pending_rollout_transition %}{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}{% else %}{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}{% endif %}">
+              data-bs-title="{% if experiment.is_archived %}{{ NimbusUIConstants.ROLLOUT_ARCHIVED_TOOLTIP }}{% elif experiment.has_pending_rollout_transition %}{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}{% else %}{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}{% endif %}">
           <button type="button"
                   id="rollout-preview-btn"
                   class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
@@ -43,7 +43,7 @@
         </span>
         <span class="d-inline-block w-100"
               data-bs-toggle="tooltip"
-              data-bs-title="{% if experiment.has_pending_rollout_transition %}{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}{% else %}{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}{% endif %}">
+              data-bs-title="{% if experiment.is_archived %}{{ NimbusUIConstants.ROLLOUT_ARCHIVED_TOOLTIP }}{% elif experiment.has_pending_rollout_transition %}{{ NimbusUIConstants.ROLLOUT_REVIEW_PENDING_TOOLTIP }}{% else %}{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}{% endif %}">
           <button type="button"
                   id="rollout-launch-btn"
                   class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
