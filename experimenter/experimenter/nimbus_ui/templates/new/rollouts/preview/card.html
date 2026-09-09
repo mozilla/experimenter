@@ -1,5 +1,3 @@
-{% load static %}
-
 <div class="d-flex flex-column gap-3" id="rollout-preview-body">
   <p class="small text-body mb-0">
     <strong>Note:</strong> Before generating links, go to <code>about:config</code>
@@ -18,8 +16,8 @@
         </div>
         {# Screenshot from the rollout branch #}
         {% with shot=experiment.reference_branch.screenshots.first %}
-          <div class="position-relative border border-secondary-subtle rounded-3 overflow-hidden">
-            {% if shot and shot.image %}
+          {% if shot and shot.image %}
+            <div class="position-relative border border-secondary-subtle rounded-3 overflow-hidden">
               <img src="{{ shot.image.url }}"
                    alt="{{ shot.description|default:'Rollout experience screenshot' }}"
                    class="w-100"
@@ -33,14 +31,24 @@
                 <i class="fa-solid fa-up-right-and-down-left-from-center text-muted"
                    aria-hidden="true"></i>
               </button>
-            {% else %}
-              <img src="{% static 'assets/img-placeholder.svg' %}"
-                   alt="No screenshot uploaded yet"
-                   class="w-100"
-                   style="height: 160px;
-                          object-fit: cover" />
-            {% endif %}
-          </div>
+            </div>
+          {% else %}
+            <div id="rollout-preview-no-screenshots"
+                 class="d-flex flex-column align-items-center justify-content-center gap-1 rounded-3 border border-secondary-subtle p-4 text-center"
+                 style="border-style: dashed !important;
+                        min-height: 160px">
+              <i class="fa-regular fa-image fs-4 text-secondary mb-1"
+                 aria-hidden="true"></i>
+              <div class="small text-body">No images uploaded</div>
+              <div class="small text-secondary">
+                They can be added under Rollout screenshots in the
+                <button type="button"
+                        class="btn btn-link btn-sm align-baseline border-0 p-0 small text-decoration-none"
+                        data-setup-issue-target="rollout-features">Rollout Features</button>
+                card while the rollout is in draft.
+              </div>
+            </div>
+          {% endif %}
           {% if shot and shot.image %}
             <div class="modal fade"
                  id="rollout-preview-screenshot-modal"
