@@ -225,8 +225,10 @@ refresh_db:  # Rebuild the database
 
 dependabot_approve:
 	echo "Install and configure the Github CLI https://github.com/cli/cli"
-	gh pr list | grep "dependabot/" |  awk '{print $$1}' | xargs -n1 gh pr review -a -b "@dependabot squash and merge"
-	gh pr list | grep "dependabot/" |  awk '{print $$1}' | xargs -n1 gh pr merge
+	gh pr list --author "app/dependabot" --json number --jq '.[].number' \
+		| xargs -n1 -I{} sh -c 'gh pr review {} -a -b "@dependabot squash and merge" && (gh pr merge {} --auto --squash || gh pr merge {} --squash)'
+	gh pr list --author "app/experimenter-github-app" --json number --jq '.[].number' \
+		| xargs -n1 -I{} sh -c 'gh pr review {} -a && (gh pr merge {} --auto --squash || gh pr merge {} --squash)'
 
 # integration tests
 integration_shell:

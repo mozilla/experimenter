@@ -9,3 +9,16 @@ example-feature:
     enabled:
       type: boolean
       description: If the feature is enabled.
+promo-qr-mobile:
+  description: |
+    Value proposition A/B test for the QR mobile download promo shown in the authentication flow. The branch slug selects both the heading string and the matching QR code, because each QR points at a distinct Bitly link.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    branch:
+      type: string
+      description: |
+        The branch slug. An unknown slug falls back to the control, but the BranchSlug enum means Experimenter rejects one before that can happen.
+    enabled:
+      type: boolean
+      description: If the experiment is enabled. When false the control ships.

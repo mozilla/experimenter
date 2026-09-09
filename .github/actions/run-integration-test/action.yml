@@ -8,6 +8,9 @@ inputs:
   retries:
     description: "Number of retry attempts after the first failure"
     default: "1"
+  backoff-seconds:
+    description: "Seconds to sleep before each retry, multiplied by the attempt number"
+    default: "30"
   artifact-name:
     description: "Name for the uploaded test report artifact"
     required: true
@@ -20,6 +23,7 @@ runs:
       env:
         BUILDKIT_PROGRESS: plain
         COMPOSE_ANSI: never
+        RETRY_BACKOFF: ${{ inputs.backoff-seconds }}
       run: |
         cp .env.integration-tests .env
         attempts=$(( ${{ inputs.retries }} + 1 ))
@@ -35,6 +39,7 @@ runs:
             exit 1
           fi
           echo "::warning::Attempt $attempt failed, retrying..."
+          sleep $((attempt * RETRY_BACKOFF))
         done
 
     - name: Upload test report

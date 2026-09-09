@@ -79,3 +79,93 @@ updates:
     target-branch: main
     cooldown:
       default-days: 7
+  - package-ecosystem: "docker"
+    directory: "/application-services"
+    schedule:
+      interval: weekly
+    target-branch: main
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
+    directory: "/cirrus/server"
+    schedule:
+      interval: weekly
+    target-branch: main
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
+    directory: "/demo-app/frontend"
+    schedule:
+      interval: weekly
+    target-branch: main
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
+    directory: "/demo-app/server"
+    schedule:
+      interval: weekly
+    target-branch: main
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
+    directory: "/experimenter"
+    schedule:
+      interval: weekly
+    target-branch: main
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
+    directory: "/experimenter/tests/integration"
+    schedule:
+      interval: weekly
+    target-branch: main
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
+    directory: "/experimenter/tests/integration/nimbus/utils/ping_server"
+    schedule:
+      interval: weekly
+    target-branch: main
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
+    directory: "/nginx"
+    schedule:
+      interval: weekly
+    target-branch: main
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: "docker"
+    directory: "/schemas"
+    schedule:
+      interval: weekly
+    target-branch: main
+    cooldown:
+      default-days: 7
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
