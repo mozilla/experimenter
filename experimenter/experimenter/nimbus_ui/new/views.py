@@ -8,7 +8,11 @@ from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 
 from experimenter.experiments.api.v5.serializers import NimbusRolloutReviewSerializer
-from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
+from experimenter.experiments.constants import (
+    EXTERNAL_URLS,
+    RISK_QUESTIONS,
+    TargetingMultipleKintoCollectionsError,
+)
 from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
@@ -184,15 +188,20 @@ def build_experiment_context(experiment):
         )
         for segment in experiment.segments
     ]
+    try:
+        uses_secure_collection = (
+            experiment.kinto_collection == settings.KINTO_COLLECTION_NIMBUS_SECURE
+        )
+    except TargetingMultipleKintoCollectionsError:
+        uses_secure_collection = False
+
     context = {
         "RISK_QUESTIONS": RISK_QUESTIONS,
         "EXTERNAL_URLS": EXTERNAL_URLS,
         "primary_outcome_links": primary_outcome_links,
         "secondary_outcome_links": secondary_outcome_links,
         "segment_links": segment_links,
-        "uses_secure_collection": (
-            experiment.kinto_collection == settings.KINTO_COLLECTION_NIMBUS_SECURE
-        ),
+        "uses_secure_collection": uses_secure_collection,
     }
     return context
 
