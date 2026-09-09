@@ -164,7 +164,9 @@ JEXL_TO_BQ_COLUMN_FENIX = {
     "areNotificationsEnabled": "CAST(areNotificationsEnabled AS BOOL)",
     "are_notifications_enabled": "CAST(areNotificationsEnabled AS BOOL)",
     "areMarketingNotificationsEnabled": "CAST(areMarketingNotificationsEnabled AS BOOL)",
-    "are_marketing_notifications_enabled": "CAST(areMarketingNotificationsEnabled AS BOOL)",
+    "are_marketing_notifications_enabled": (
+        "CAST(areMarketingNotificationsEnabled AS BOOL)"
+    ),
     # JSON-only: in context blob but not a typed column on Fenix (iOS has it).
     # Context keys are camelCase — confirmed from live data.
     "isReviewCheckerEnabled": (
@@ -242,7 +244,6 @@ KNOWN_UNTRANSLATABLE = {
     "cannot_use_apple_intelligence",
     "touExperiencePoints",
     "tou_experience_points",
-    "addon_ids",
     "android_sdk_version",
     "install_referrer_response_utm_source",
     # Standalone sub-fields accessed without parent (default PDF handler context)
@@ -402,9 +403,13 @@ def _binary_to_sql(
         # result to a JEXL string literal 'true'/'false' produces BOOL = STRING,
         # which BigQuery rejects. Convert the string literal back to a BOOL.
         _str_to_bool = {"'true'": "TRUE", "'false'": "FALSE"}
-        if right in _str_to_bool and _is_boolean_sql(left) and not _is_json_string_expr(left):
+        if right in _str_to_bool and _is_boolean_sql(left) and not _is_json_string_expr(
+            left
+        ):
             right = _str_to_bool[right]
-        elif left in _str_to_bool and _is_boolean_sql(right) and not _is_json_string_expr(right):
+        elif left in _str_to_bool and _is_boolean_sql(right) and not _is_json_string_expr(
+            right
+        ):
             left = _str_to_bool[left]
         # In JEXL, pref|preferenceValue returns null when the pref is not explicitly set.
         # null != 'false' is true in JEXL — unset prefs should pass a != false check.
