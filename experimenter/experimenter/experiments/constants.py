@@ -1110,6 +1110,12 @@ ENROLLMENT_FUNNEL_STAGES = {
 NIMBUS_TARGETING_CONTEXT_TABLE = (
     "moz-fx-data-shared-prod.firefox_desktop.nimbus_targeting_context"
 )
+NIMBUS_TARGETING_CONTEXT_TABLE_FENIX = (
+    "moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context"
+)
+NIMBUS_TARGETING_CONTEXT_TABLE_IOS = (
+    "moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context"
+)
 SIZING_SAMPLE_ID_MAX = 10
 SIZING_WINDOW_DAYS = 7
 SIZING_FULL_SQL_TEMPLATE = """\

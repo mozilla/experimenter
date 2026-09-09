@@ -69,3 +69,125 @@ jobs:
         env:
           GOOGLE_GHA_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
         run: python3 experimenter/bin/validate_targeting_sql.py targeting_sql.json
+
+  validate-fenix:
+    name: Validate Fenix Targeting SQL
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/experimenter/experiments/jexl_to_sql.py experimenter/experimenter/experiments/constants.py experimenter/experimenter/experiments/models.py experimenter/experimenter/targeting/constants.py experimenter/experimenter/base/management/commands/export_targeting_sql.py experimenter/bin/validate_targeting_sql.py"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/retry
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          label: Build experimenter test image
+          run: |
+            cp .env.sample .env
+            make build_test
+
+      - name: Export Fenix targeting SQL
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: make export_targeting_sql_fenix
+
+      - name: Check for GCP credentials
+        id: gcp-credentials
+        if: steps.check-paths.outputs.should-run == 'true'
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.GCP_DRYRUN_SERVICE_ACCOUNT_EMAIL }}
+        run: |
+          if [ -n "$SERVICE_ACCOUNT" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping the BigQuery dry run: secrets are not available to Dependabot or fork pull requests. The merge queue run validates against BigQuery."
+          fi
+
+      - name: Authenticate to GCP
+        if: steps.gcp-credentials.outputs.available == 'true'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        id: auth
+        with:
+          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DRYRUN_SERVICE_ACCOUNT_EMAIL }}
+          token_format: id_token
+          id_token_audience: https://us-central1-moz-fx-data-shared-prod.cloudfunctions.net/dryrun
+          id_token_include_email: true
+
+      - name: Validate Fenix targeting SQL
+        if: steps.gcp-credentials.outputs.available == 'true'
+        env:
+          GOOGLE_GHA_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
+        run: python3 experimenter/bin/validate_targeting_sql.py targeting_sql_fenix.json
+
+  validate-ios:
+    name: Validate iOS Targeting SQL
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/check-changed-paths
+        id: check-paths
+        with:
+          paths: "experimenter/experimenter/experiments/jexl_to_sql.py experimenter/experimenter/experiments/constants.py experimenter/experimenter/experiments/models.py experimenter/experimenter/targeting/constants.py experimenter/experimenter/base/management/commands/export_targeting_sql.py experimenter/bin/validate_targeting_sql.py"
+
+      - uses: ./.github/actions/setup-cached-build
+        if: steps.check-paths.outputs.should-run == 'true'
+
+      - uses: ./.github/actions/retry
+        if: steps.check-paths.outputs.should-run == 'true'
+        with:
+          label: Build experimenter test image
+          run: |
+            cp .env.sample .env
+            make build_test
+
+      - name: Export iOS targeting SQL
+        if: steps.check-paths.outputs.should-run == 'true'
+        run: make export_targeting_sql_ios
+
+      - name: Check for GCP credentials
+        id: gcp-credentials
+        if: steps.check-paths.outputs.should-run == 'true'
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.GCP_DRYRUN_SERVICE_ACCOUNT_EMAIL }}
+        run: |
+          if [ -n "$SERVICE_ACCOUNT" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping the BigQuery dry run: secrets are not available to Dependabot or fork pull requests. The merge queue run validates against BigQuery."
+          fi
+
+      - name: Authenticate to GCP
+        if: steps.gcp-credentials.outputs.available == 'true'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        id: auth
+        with:
+          workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DRYRUN_SERVICE_ACCOUNT_EMAIL }}
+          token_format: id_token
+          id_token_audience: https://us-central1-moz-fx-data-shared-prod.cloudfunctions.net/dryrun
+          id_token_include_email: true
+
+      - name: Validate iOS targeting SQL
+        if: steps.gcp-credentials.outputs.available == 'true'
+        env:
+          GOOGLE_GHA_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
+        run: python3 experimenter/bin/validate_targeting_sql.py targeting_sql_ios.json

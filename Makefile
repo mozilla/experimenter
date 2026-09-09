@@ -172,6 +172,18 @@ export_targeting_sql: build_test  ## Export targeting SQL for BigQuery dry-run v
 	$(COMPOSE_TEST) down; \
 	exit $$status
 
+export_targeting_sql_fenix: build_test  ## Export Fenix targeting SQL for BigQuery dry-run validation
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL) --app fenix' > targeting_sql_fenix.json; \
+	status=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$status
+
+export_targeting_sql_ios: build_test  ## Export iOS targeting SQL for BigQuery dry-run validation
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL) --app ios' > targeting_sql_ios.json; \
+	status=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$status
+
 test: build_test  ## Run tests
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) python manage.py test --parallel'; \
 	status=$$?; \
