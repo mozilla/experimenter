@@ -593,6 +593,24 @@ class TestJEXLToSQLMobile(TestCase):
                 IOS_APP,
                 "CAST(isPhone AS BOOL) = TRUE",
             ),
+            (
+                "is_first_run_eq_string_true_fenix",
+                "isFirstRun == 'true'",
+                FENIX_APP,
+                "CAST(isFirstRun AS BOOL) = TRUE",
+            ),
+            (
+                "is_first_run_eq_string_true_ios",
+                "isFirstRun == 'true'",
+                IOS_APP,
+                "CAST(isFirstRun AS BOOL) = TRUE",
+            ),
+            (
+                "is_first_run_eq_string_false_fenix",
+                "isFirstRun == 'false'",
+                FENIX_APP,
+                "CAST(isFirstRun AS BOOL) = FALSE",
+            ),
         ]
     )
     def test_comparison_translates(self, _name, jexl, app, expected_sql):

@@ -399,6 +399,15 @@ def _binary_to_sql(
             right = f"'{right.lower()}'"
         elif left in ("TRUE", "FALSE") and _is_json_string_expr(right):
             left = f"'{left.lower()}'"
+        # CAST(col AS BOOL) = 'true'/'false' → CAST(col AS BOOL) = TRUE/FALSE.
+        # Mobile column maps wrap BOOL columns in CAST(...AS BOOL). Comparing the
+        # result to a JEXL string literal 'true'/'false' produces BOOL = STRING,
+        # which BigQuery rejects. Convert the string literal back to a BOOL.
+        _str_to_bool = {"'true'": "TRUE", "'false'": "FALSE"}
+        if right in _str_to_bool and _is_boolean_sql(left) and not _is_json_string_expr(left):
+            right = _str_to_bool[right]
+        elif left in _str_to_bool and _is_boolean_sql(right) and not _is_json_string_expr(right):
+            left = _str_to_bool[left]
         # In JEXL, pref|preferenceValue returns null when the pref is not explicitly set.
         # null != 'false' is true in JEXL — unset prefs should pass a != false check.
         # JSON_VALUE returns NULL for unset prefs; NULL != 'false' is NULL in SQL (falsy),
