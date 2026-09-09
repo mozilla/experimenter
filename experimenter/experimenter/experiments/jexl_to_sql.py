@@ -159,10 +159,8 @@ JEXL_TO_BQ_COLUMN_FENIX = {
     "install_referrer_response_utm_content": "installReferrerResponseUtmContent",
     "installReferrerResponseUtmTerm": "installReferrerResponseUtmTerm",
     "install_referrer_response_utm_term": "installReferrerResponseUtmTerm",
-    "addonIds": "UNNEST(JSON_VALUE_ARRAY(addonIds))",
-    "addon_ids": "UNNEST(JSON_VALUE_ARRAY(addonIds))",
-    # userAcceptedTou, noShortcutsOrStoriesOptOuts, touPoints not yet in the
-    # Fenix BQ table — see KNOWN_UNTRANSLATABLE and EXP-7326.
+    # addonIds, userAcceptedTou, noShortcutsOrStoriesOptOuts, touPoints not yet
+    # in the Fenix BQ table — see KNOWN_UNTRANSLATABLE and EXP-7326.
     "areNotificationsEnabled": "CAST(areNotificationsEnabled AS BOOL)",
     "are_notifications_enabled": "CAST(areNotificationsEnabled AS BOOL)",
     "areMarketingNotificationsEnabled": "CAST(areMarketingNotificationsEnabled AS BOOL)",
@@ -223,6 +221,8 @@ KNOWN_UNTRANSLATABLE = {
     "is_default_browser",
     "is_phone",
     # Fenix columns pending EXP-7326
+    "addonIds",
+    "addon_ids",
     "userAcceptedTou",
     "user_accepted_tou",
     "noShortcutsOrStoriesOptOuts",

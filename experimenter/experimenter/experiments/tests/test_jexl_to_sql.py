@@ -650,22 +650,18 @@ class TestJEXLToSQLMobile(TestCase):
         self.assertEqual(result.warnings, [])
 
     def test_addon_ids_in_fenix(self):
+        # addonIds not yet in the Fenix BQ table (EXP-7326) — untranslatable.
         result = jexl_to_sql("'uBlock0@raymondhill.net' in addon_ids", app=FENIX_APP)
-        self.assertEqual(
-            result.sql,
-            "('uBlock0@raymondhill.net' IN UNNEST(JSON_VALUE_ARRAY(addonIds)))",
-        )
-        self.assertEqual(result.warnings, [])
+        self.assertIsNone(result.sql)
+        self.assertIn("addon_ids", result.warnings)
 
     def test_addon_ids_not_in_fenix(self):
+        # addonIds not yet in the Fenix BQ table (EXP-7326) — untranslatable.
         result = jexl_to_sql(
             "('uBlock0@raymondhill.net' in addon_ids) == false", app=FENIX_APP
         )
-        self.assertEqual(
-            result.sql,
-            "('uBlock0@raymondhill.net' IN UNNEST(JSON_VALUE_ARRAY(addonIds))) = FALSE",
-        )
-        self.assertEqual(result.warnings, [])
+        self.assertIsNone(result.sql)
+        self.assertIn("addon_ids", result.warnings)
 
     def test_real_config_fenix_first_run_region(self):
         result = jexl_to_sql("isFirstRun && region == 'US'", app=FENIX_APP)
