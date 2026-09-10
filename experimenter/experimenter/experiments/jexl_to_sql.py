@@ -157,11 +157,7 @@ JEXL_TO_BQ_COLUMN_FENIX = {
     "install_referrer_response_utm_content": "installReferrerResponseUtmContent",
     "installReferrerResponseUtmTerm": "installReferrerResponseUtmTerm",
     "install_referrer_response_utm_term": "installReferrerResponseUtmTerm",
-    # addonIds, userAcceptedTou, noShortcutsOrStoriesOptOuts, touPoints,
-    # areNotificationsEnabled, areMarketingNotificationsEnabled not yet
-    # in the Fenix BQ table — see KNOWN_UNTRANSLATABLE and EXP-7326.
-    # JSON-only: in context blob but not a typed column on Fenix (iOS has it).
-    # Context keys are camelCase — confirmed from live data.
+    # JSON-only on Fenix: in context blob, not a typed column (iOS has a direct column).
     "isReviewCheckerEnabled": (
         "CAST(JSON_VALUE(context, '$.isReviewCheckerEnabled') AS BOOL)"
     ),
@@ -180,9 +176,6 @@ JEXL_TO_BQ_COLUMN_IOS = {
     "is_phone": "CAST(isPhone AS BOOL)",
     "isReviewCheckerEnabled": "CAST(isReviewCheckerEnabled AS BOOL)",
     "is_review_checker_enabled": "CAST(isReviewCheckerEnabled AS BOOL)",
-    # isBottomToolbarUser, hasEnabledTipsNotifications, hasAcceptedTermsOfUse,
-    # isAppleIntelligenceAvailable, cannotUseAppleIntelligence, touExperiencePoints
-    # not yet in the iOS BQ table — see KNOWN_UNTRANSLATABLE and EXP-7326.
 }
 
 # Attributes with no corresponding column in nimbus_targeting_context.
@@ -205,24 +198,19 @@ KNOWN_UNTRANSLATABLE = {
     "isDefaultHandler",  # file-type handler object, not directly queryable
     "localeLanguageCode",  # derived from locale, not recorded separately
     "homePageSettings",  # parent blocked; simple sub-fields mapped above
-    # Mobile-only attributes — untranslatable on Desktop.
-    # Those in JEXL_TO_BQ_COLUMN_FENIX / JEXL_TO_BQ_COLUMN_IOS are handled
-    # by the mobile column maps when app="fenix" or app="ios".
-    # Those absent from the mobile maps are not yet recorded in the BQ context
-    # table (EXP-7326). Both camelCase and snake_case forms are listed so
-    # jexl_to_sql skips these configs at export time regardless of JEXL style.
+    # Mobile-only attributes not recorded in the BQ targeting context tables.
+    # Both camelCase and snake_case forms are listed so configs using either
+    # style are skipped at export time.
     "days_since_install",
     "days_since_update",
     "is_default_browser",
     "is_phone",
-    # Not recorded in Fenix or iOS BQ tables (confirmed against live data)
     "userDisabledAi",
     "user_disabled_ai",
     "areNotificationsEnabled",
     "are_notifications_enabled",
     "areMarketingNotificationsEnabled",
     "are_marketing_notifications_enabled",
-    # Fenix columns pending EXP-7326
     "addonIds",
     "addon_ids",
     "userAcceptedTou",
@@ -231,7 +219,6 @@ KNOWN_UNTRANSLATABLE = {
     "no_shortcuts_or_stories_opt_outs",
     "touPoints",
     "tou_points",
-    # iOS columns pending EXP-7326
     "isBottomToolbarUser",
     "is_bottom_toolbar_user",
     "hasEnabledTipsNotifications",
