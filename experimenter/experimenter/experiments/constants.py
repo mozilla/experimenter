@@ -695,7 +695,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     DAILY_ACTIVE_USERS = "client_level_daily_active_users_v2"
     DAYS_OF_USE = "days_of_use"
-    RETENTION = "retained"
+    RETENTION_WEEK_2 = "week_2_retention"
+    RETENTION_WEEK_4 = "week_4_retention"
     RETENTION_3_DAYS = "active_in_last_3_days"
     RETENTION_3_DAYS_DESKTOP = "active_in_last_3_days_legacy"
     SEARCH_COUNT = "search_count"
@@ -713,8 +714,17 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     KPI_METRICS = [
         {
             "group": "other_metrics",
-            "slug": RETENTION,
+            "friendly_name": "Week 2 Retention",
+            "slug": RETENTION_WEEK_2,
             "display_type": "percentage",
+            "description": "Users who were active in Firefox during the second week after enrollment.",  # noqa
+        },
+        {
+            "group": "other_metrics",
+            "friendly_name": "Week 4 Retention",
+            "slug": RETENTION_WEEK_4,
+            "display_type": "percentage",
+            "description": "Users who were active in Firefox during the fourth week after enrollment.",  # noqa
         },
         {
             "group": "other_metrics",
@@ -750,6 +760,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "The first rollout phase must have a population percent greater than 0."
     )
     ERROR_ROLLOUT_PHASE_DATE_ORDER = "The end date must be on or after the start date."
+    ERROR_ROLLOUT_PHASE_SEQUENCE = (
+        "Each phase must start after or when the previous phase ends."
+    )
     ERROR_ROLLOUT_PHASE_POPULATION_RANGE = (
         "Each rollout phase population percent must be between 0 and 100."
     )
@@ -1116,6 +1129,12 @@ ENROLLMENT_FUNNEL_STAGES = {
 
 NIMBUS_TARGETING_CONTEXT_TABLE = (
     "moz-fx-data-shared-prod.firefox_desktop.nimbus_targeting_context"
+)
+NIMBUS_TARGETING_CONTEXT_TABLE_FENIX = (
+    "moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context"
+)
+NIMBUS_TARGETING_CONTEXT_TABLE_IOS = (
+    "moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context"
 )
 SIZING_SAMPLE_ID_MAX = 10
 SIZING_WINDOW_DAYS = 7

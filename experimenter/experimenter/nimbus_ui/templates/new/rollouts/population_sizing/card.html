@@ -14,6 +14,10 @@
         <div class="d-flex align-items-baseline gap-2 mb-3">
           <span class="fs-4 fw-semibold text-body">~{{ experiment.sizing_eligible_count|short_number }}</span>
           <span class="small text-body">estimated eligible clients</span>
+          <a href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.population_sizing_learn_more_url }}"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="small">Learn more</a>
         </div>
         {% if rollout_phase_population_estimates %}
           <table class="table table-borderless table-sm align-middle mb-0 w-auto">

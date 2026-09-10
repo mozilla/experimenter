@@ -1,3 +1,8 @@
 {% block card %}{% endblock %}
 {% include "new/common/sidebar_setup_refresh.html" %}
 {% include "new/rollouts/card_subtitles_refresh.html" %}
+
+{% block cross_card_validation_refresh %}
+  {% include "new/rollouts/rollout_features/validation_errors_refresh.html" %}
+
+{% endblock %}

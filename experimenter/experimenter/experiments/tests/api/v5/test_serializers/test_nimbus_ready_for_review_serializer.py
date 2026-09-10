@@ -594,6 +594,44 @@ class TestNimbusReviewSerializerSingleFeature(
             [NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER],
         )
 
+    def test_rollout_serializer_rejects_phases_out_of_sequence(self):
+        experiment = self.create_rollout()
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date(2026, 2, 1),
+            end_date=datetime.date(2026, 3, 1),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=20,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 1, 15),
+        )
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["rollout_phases"],
+            [NimbusConstants.ERROR_ROLLOUT_PHASE_SEQUENCE],
+        )
+
+    def test_rollout_serializer_accepts_contiguous_phases(self):
+        experiment = self.create_rollout()
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 2, 1),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=20,
+            start_date=datetime.date(2026, 2, 1),
+            end_date=datetime.date(2026, 3, 1),
+        )
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
     def test_rollout_serializer_rejects_phase_population_out_of_range(self):
         experiment = self.create_rollout()
         NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=150)
@@ -2938,6 +2976,105 @@ class TestNimbusReviewSerializerSingleFeature(
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @parameterized.expand(
+        (
+            json.dumps({"prefs": True}),
+            json.dumps({"prefs": "enabled"}),
+            json.dumps({"prefs": []}),
+            json.dumps(True),
+        )
+    )
+    def test_rollout_prefflips_non_object_prefs_reports_errors(self, value):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            is_rollout=True,
+            is_sticky=True,
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=100)
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = value
+        feature_value.save()
+
+        serializer = self.get_rollout_review_serializer(experiment)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("reference_branch", serializer.errors)
+
+    def test_rollout_prefflips_object_prefs_is_validated(self):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            is_rollout=True,
+            is_sticky=True,
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=100)
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps(
+            {"prefs": {"browser.test.pref": {"branch": "user", "value": True}}}
+        )
+        feature_value.save()
+
+        serializer = self.get_rollout_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_rollout_prefflips_unexpected_type_error_is_reraised(self):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            is_rollout=True,
+            is_sticky=True,
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=100)
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps(
+            {"prefs": {"browser.test.pref": {"branch": "user", "value": True}}}
+        )
+        feature_value.save()
+
+        with patch.object(
+            NimbusReviewSerializer,
+            "_validate_desktop_pref_flips_value",
+            side_effect=TypeError("unrelated failure"),
+        ):
+            serializer = self.get_rollout_review_serializer(experiment)
+            with self.assertRaises(TypeError):
+                serializer.is_valid()
 
     @parameterized.expand(
         (
