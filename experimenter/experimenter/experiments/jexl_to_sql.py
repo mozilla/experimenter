@@ -244,8 +244,6 @@ KNOWN_UNTRANSLATABLE = {
     "cannot_use_apple_intelligence",
     "touExperiencePoints",
     "tou_experience_points",
-    "android_sdk_version",
-    "install_referrer_response_utm_source",
     # Standalone sub-fields accessed without parent (default PDF handler context)
     "pdf",
     "knownBrowser",
