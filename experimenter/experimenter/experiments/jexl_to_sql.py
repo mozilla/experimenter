@@ -198,13 +198,33 @@ KNOWN_UNTRANSLATABLE = {
     "isDefaultHandler",  # file-type handler object, not directly queryable
     "localeLanguageCode",  # derived from locale, not recorded separately
     "homePageSettings",  # parent blocked; simple sub-fields mapped above
-    # Mobile-only attributes not recorded in the BQ targeting context tables.
-    # Both camelCase and snake_case forms are listed so configs using either
-    # style are skipped at export time.
+    # Mobile-only attributes. Those mapped in JEXL_TO_BQ_COLUMN_FENIX /
+    # JEXL_TO_BQ_COLUMN_IOS are listed here too so the Desktop validation
+    # test recognises them; the column map takes priority for mobile.
+    "androidSdkVersion",
+    "android_sdk_version",
+    "installReferrerResponseUtmSource",
+    "install_referrer_response_utm_source",
+    "installReferrerResponseUtmCampaign",
+    "install_referrer_response_utm_campaign",
+    "installReferrerResponseUtmMedium",
+    "install_referrer_response_utm_medium",
+    "installReferrerResponseUtmContent",
+    "install_referrer_response_utm_content",
+    "installReferrerResponseUtmTerm",
+    "install_referrer_response_utm_term",
+    "deviceManufacturer",
+    "device_manufacturer",
+    "deviceModel",
+    "device_model",
+    "isReviewCheckerEnabled",
+    "is_review_checker_enabled",
+    "isDefaultBrowser",
+    "is_default_browser",
+    "isPhone",
+    "is_phone",
     "days_since_install",
     "days_since_update",
-    "is_default_browser",
-    "is_phone",
     "userDisabledAi",
     "user_disabled_ai",
     "areNotificationsEnabled",
