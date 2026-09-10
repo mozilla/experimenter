@@ -222,6 +222,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         "targeting_criteria_request_url": "https://github.com/mozilla/experimenter/issues/new?template=targeting_request_template.yml&title=Targeting%20criteria%20request",
         "sticky_targeting_url": "https://experimenter.info/advanced/custom-audiences#sticky-targeting",
         "experimentation_office_hours_url": "https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849684/Experimentation+Office+Hours",
+        "population_sizing_learn_more_url": "https://experimenter.info/advanced/population-sizing#automatic-population-sizing-in-experimenter",
     }
     OVERVIEW_PAGE_LINKS = {
         "risk_link": "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
@@ -431,6 +432,13 @@ Optional - We expect this to <describe impact> on <core metric>.
     ROLLOUT_PREVIEW_BLOCKED_TOOLTIP = (
         "Resolve the detected setup issues before previewing or launching"
     )
+    ROLLOUT_ARCHIVED_TOOLTIP = (
+        "This rollout is archived. Unarchive it before previewing or launching."
+    )
+    ROLLOUT_PREVIEW_UNSUPPORTED_TOOLTIP = (
+        "This rollout uses features that prevent it from being launched to preview. "
+        "We highly recommend QAing this rollout on stage first."
+    )
     ROLLOUT_UNSAVED_CHANGES_CONFIRM = (
         "A section is still open for editing. Click OK to continue and discard "
         "those changes, or Cancel to go back and save them first."
@@ -466,8 +474,8 @@ Optional - We expect this to <describe impact> on <core metric>.
 
     TOASTS = {
         TOAST_SAVED: "Changes saved",
-        TOAST_SUBSCRIBED: "Subscribed to this experiment",
-        TOAST_UNSUBSCRIBED: "Unsubscribed from this experiment",
+        TOAST_SUBSCRIBED: "Subscribed to this delivery",
+        TOAST_UNSUBSCRIBED: "Unsubscribed from this delivery",
         TOAST_SLACK_ENABLED: "Review Slack notifications enabled",
         TOAST_SLACK_DISABLED: "Review Slack notifications disabled",
         TOAST_EDIT_CANCELLED: "Edit cancelled",

@@ -21,6 +21,7 @@ class RolloutBase(Base):
     _live_badge_locator = (By.ID, "rollout-live-badge")
     _preview_button_locator = (By.ID, "rollout-preview-btn")
     _preview_section_locator = (By.ID, "rollout-preview-section")
+    _back_to_setup_button_locator = (By.ID, "rollout-back-to-setup-btn")
     _request_enrollment_button_locator = (
         By.ID,
         "rollout-request-enrollment-btn",
@@ -95,6 +96,11 @@ class RolloutBase(Base):
 
     @property
     def is_in_preview(self):
+        self.wait_for_htmx()
+        return bool(self.selenium.find_elements(*self._back_to_setup_button_locator))
+
+    @property
+    def has_preview_card(self):
         self.wait_for_htmx()
         return bool(self.selenium.find_elements(*self._preview_section_locator))
 

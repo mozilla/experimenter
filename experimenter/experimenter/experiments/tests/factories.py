@@ -647,6 +647,18 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
         for metric in outcome_metrics
     }
 
+    control_weekly_retention = {
+        f"week_{week}_retention": build_metric_data(branch_key="control")
+        for week in (3, 5, 6)
+    }
+    treatment_weekly_retention = {
+        slug: build_metric_data(
+            branch_key="treatment",
+            comparative_branch_data=control_weekly_retention[slug],
+        )
+        for slug in control_weekly_retention
+    }
+
     results = {
         "v3": {
             "overall": {
@@ -667,8 +679,13 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
                                             },
                                         },
                                     },
-                                    "retained": (
-                                        control_retained := build_metric_data(
+                                    "week_2_retention": (
+                                        control_week_2_retention := build_metric_data(
+                                            branch_key="control"
+                                        )
+                                    ),
+                                    "week_4_retention": (
+                                        control_week_4_retention := build_metric_data(
                                             branch_key="control"
                                         )
                                     ),
@@ -682,6 +699,7 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
                                             branch_key="control"
                                         )
                                     ),
+                                    **control_weekly_retention,
                                     **control_outcome_metrics,
                                 },
                                 "search_metrics": {
@@ -710,9 +728,13 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
                                             },
                                         },
                                     },
-                                    "retained": build_metric_data(
+                                    "week_2_retention": build_metric_data(
                                         branch_key="treatment",
-                                        comparative_branch_data=control_retained,
+                                        comparative_branch_data=control_week_2_retention,
+                                    ),
+                                    "week_4_retention": build_metric_data(
+                                        branch_key="treatment",
+                                        comparative_branch_data=control_week_4_retention,
                                     ),
                                     "client_level_daily_active_users_v2": (
                                         build_metric_data(
@@ -724,6 +746,7 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
                                         branch_key="treatment",
                                         comparative_branch_data=control_three_day,
                                     ),
+                                    **treatment_weekly_retention,
                                     **treatment_outcome_metrics,
                                 },
                                 "search_metrics": {
@@ -755,8 +778,13 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
                                             },
                                         },
                                     },
-                                    "retained": (
-                                        control_retained := build_metric_data(
+                                    "week_2_retention": (
+                                        control_week_2_retention := build_metric_data(
+                                            branch_key="control"
+                                        )
+                                    ),
+                                    "week_4_retention": (
+                                        control_week_4_retention := build_metric_data(
                                             branch_key="control"
                                         )
                                     ),
@@ -770,6 +798,7 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
                                             branch_key="control"
                                         )
                                     ),
+                                    **control_weekly_retention,
                                     **control_outcome_metrics,
                                 },
                                 "search_metrics": {
@@ -798,9 +827,13 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
                                             },
                                         },
                                     },
-                                    "retained": build_metric_data(
+                                    "week_2_retention": build_metric_data(
                                         branch_key="treatment",
-                                        comparative_branch_data=control_retained,
+                                        comparative_branch_data=control_week_2_retention,
+                                    ),
+                                    "week_4_retention": build_metric_data(
+                                        branch_key="treatment",
+                                        comparative_branch_data=control_week_4_retention,
                                     ),
                                     "client_level_daily_active_users_v2": (
                                         build_metric_data(
@@ -812,6 +845,7 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
                                         branch_key="treatment",
                                         comparative_branch_data=control_three_day,
                                     ),
+                                    **treatment_weekly_retention,
                                     **treatment_outcome_metrics,
                                 },
                                 "search_metrics": {
@@ -825,6 +859,12 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
                             "is_control": False,
                         },
                     },
+                },
+            },
+            "other_metrics": {
+                "other_metrics": {
+                    slug: " ".join(word.title() for word in slug.split("_"))
+                    for slug in control_weekly_retention
                 },
             },
         },

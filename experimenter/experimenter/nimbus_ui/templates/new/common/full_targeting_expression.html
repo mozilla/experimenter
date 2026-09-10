@@ -1,0 +1,10 @@
+{% load static %}
+
+<div id="rollout-full-targeting-expression"
+     {% if oob %}hx-swap-oob="true"{% endif %}>
+  <div class="text-secondary mb-1" style="font-size: 12px;">Full targeting expression</div>
+  {% include "nimbus_experiments/readonly_targeting.html" with json_content=experiment.targeting_formatted %}
+  {% include "new/common/validation_errors.html" with errors=validation_errors.targeting %}
+  {% include "new/common/validation_errors.html" with errors=validation_errors.non_field_errors %}
+
+</div>

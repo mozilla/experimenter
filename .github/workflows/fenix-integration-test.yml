@@ -76,11 +76,13 @@ jobs:
         if: steps.check-paths.outputs.should-run == 'true'
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
 
-      - name: Bring up Experimenter stack
+      - uses: ./.github/actions/retry
         if: steps.check-paths.outputs.should-run == 'true'
-        run: |
-          cp .env.integration-tests .env
-          make refresh SKIP_DUMMY=1 up_prod_detached
+        with:
+          label: Bring up Experimenter stack
+          run: |
+            cp .env.integration-tests .env
+            make refresh SKIP_DUMMY=1 up_prod_detached
 
       - name: Wait for Experimenter backend to be ready
         if: steps.check-paths.outputs.should-run == 'true'

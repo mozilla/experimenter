@@ -1,9 +1,10 @@
 #-------------------------
 # System packages
-FROM python:3.13-bullseye AS system-builder
+FROM python:3.14-trixie AS system-builder
 
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN install -d /etc/apt/keyrings && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg -o /etc/apt/keyrings/yarn.asc
+RUN echo "deb [signed-by=/etc/apt/keyrings/yarn.asc] https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN apt-get update
 RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client yarn parallel
 
@@ -110,7 +111,7 @@ RUN yarn workspace @experimenter/nimbus_ui build
 
 # Deploy image
 #-------------------------
-FROM python:3.13-slim AS deploy
+FROM python:3.14-slim AS deploy
 
 # Create a non-root user with UID 10001
 RUN groupadd -g 10001 app && \

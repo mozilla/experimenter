@@ -135,6 +135,8 @@ if (($(git status --porcelain | wc -c) > 0)); then
         gh pr close "${BRANCH_NAME}" --repo mozilla/experimenter 2>/dev/null || true
         git push origin -f "${BRANCH_NAME}"
         gh pr create -t "${PR_TITLE}" -b "${PR_BODY}" --base main --head "${BRANCH_NAME}" --repo mozilla/experimenter
+        gh pr merge "${BRANCH_NAME}" --auto --squash --repo mozilla/experimenter \
+            || echo "::warning::Could not enable auto-merge on ${BRANCH_NAME}; approve and merge it manually."
     fi
 else
     echo "No config changes, skipping"
