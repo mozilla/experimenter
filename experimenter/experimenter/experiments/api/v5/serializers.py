@@ -2036,6 +2036,18 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
         # this skips the parent's non-empty check
         return value
 
+    def _validate_desktop_pref_flips_value(self, value, min_version, max_version):
+        # The schema check has already rejected a malformed prefs value, so skip
+        # the scan rather than raise while rendering the rollout page
+        try:
+            return super()._validate_desktop_pref_flips_value(
+                value, min_version, max_version
+            )
+        except (AttributeError, TypeError):
+            if isinstance(value, dict) and isinstance(value.get("prefs"), dict):
+                raise
+            return self.ValidateFeatureResult()
+
     def validate_rollout_phases(self, value):
         if self.instance and not self.instance.is_rollout:
             return value
@@ -2047,6 +2059,7 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
             raise serializers.ValidationError(
                 NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO
             )
+        previous_phase = None
         for phase in phases:
             if not (0 <= phase.population_percent <= 100):
                 raise serializers.ValidationError(
@@ -2056,6 +2069,13 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
                 raise serializers.ValidationError(
                     NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER
                 )
+            if previous_phase is not None:
+                boundary = previous_phase.end_date or previous_phase.start_date
+                if boundary and phase.start_date and phase.start_date < boundary:
+                    raise serializers.ValidationError(
+                        NimbusConstants.ERROR_ROLLOUT_PHASE_SEQUENCE
+                    )
+            previous_phase = phase
         return value
 
 

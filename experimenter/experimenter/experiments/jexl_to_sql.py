@@ -136,8 +136,6 @@ _SHARED_MOBILE_COLUMNS = {
     "days_since_update": "daysSinceUpdate",
     "eventQueryValues.daysOpenedInLast28": "eventQuery_daysOpenedInLast28",
     "event_query_values.days_opened_in_last_28": "eventQuery_daysOpenedInLast28",
-    "userDisabledAi": "CAST(userDisabledAi AS BOOL)",
-    "user_disabled_ai": "CAST(userDisabledAi AS BOOL)",
 }
 
 # Fenix (Android) — moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context
@@ -159,22 +157,7 @@ JEXL_TO_BQ_COLUMN_FENIX = {
     "install_referrer_response_utm_content": "installReferrerResponseUtmContent",
     "installReferrerResponseUtmTerm": "installReferrerResponseUtmTerm",
     "install_referrer_response_utm_term": "installReferrerResponseUtmTerm",
-    "addonIds": "UNNEST(JSON_VALUE_ARRAY(addonIds))",
-    "addon_ids": "UNNEST(JSON_VALUE_ARRAY(addonIds))",
-    "userAcceptedTou": "CAST(userAcceptedTou AS BOOL)",
-    "user_accepted_tou": "CAST(userAcceptedTou AS BOOL)",
-    "noShortcutsOrStoriesOptOuts": "CAST(noShortcutsOrStoriesOptOuts AS BOOL)",
-    "no_shortcuts_or_stories_opt_outs": "CAST(noShortcutsOrStoriesOptOuts AS BOOL)",
-    "touPoints": "touPoints",
-    "tou_points": "touPoints",
-    "areNotificationsEnabled": "CAST(areNotificationsEnabled AS BOOL)",
-    "are_notifications_enabled": "CAST(areNotificationsEnabled AS BOOL)",
-    "areMarketingNotificationsEnabled": "CAST(areMarketingNotificationsEnabled AS BOOL)",
-    "are_marketing_notifications_enabled": (
-        "CAST(areMarketingNotificationsEnabled AS BOOL)"
-    ),
-    # JSON-only: in context blob but not a typed column on Fenix (iOS has it).
-    # Context keys are camelCase — confirmed from live data.
+    # JSON-only on Fenix: in context blob, not a typed column (iOS has a direct column).
     "isReviewCheckerEnabled": (
         "CAST(JSON_VALUE(context, '$.isReviewCheckerEnabled') AS BOOL)"
     ),
@@ -193,18 +176,6 @@ JEXL_TO_BQ_COLUMN_IOS = {
     "is_phone": "CAST(isPhone AS BOOL)",
     "isReviewCheckerEnabled": "CAST(isReviewCheckerEnabled AS BOOL)",
     "is_review_checker_enabled": "CAST(isReviewCheckerEnabled AS BOOL)",
-    "isBottomToolbarUser": "CAST(isBottomToolbarUser AS BOOL)",
-    "is_bottom_toolbar_user": "CAST(isBottomToolbarUser AS BOOL)",
-    "hasEnabledTipsNotifications": "CAST(hasEnabledTipsNotifications AS BOOL)",
-    "has_enabled_tips_notifications": "CAST(hasEnabledTipsNotifications AS BOOL)",
-    "hasAcceptedTermsOfUse": "CAST(hasAcceptedTermsOfUse AS BOOL)",
-    "has_accepted_terms_of_use": "CAST(hasAcceptedTermsOfUse AS BOOL)",
-    "isAppleIntelligenceAvailable": "CAST(isAppleIntelligenceAvailable AS BOOL)",
-    "is_apple_intelligence_available": "CAST(isAppleIntelligenceAvailable AS BOOL)",
-    "cannotUseAppleIntelligence": "CAST(cannotUseAppleIntelligence AS BOOL)",
-    "cannot_use_apple_intelligence": "CAST(cannotUseAppleIntelligence AS BOOL)",
-    "touExperiencePoints": "touExperiencePoints",
-    "tou_experience_points": "touExperiencePoints",
 }
 
 # Attributes with no corresponding column in nimbus_targeting_context.
@@ -227,26 +198,58 @@ KNOWN_UNTRANSLATABLE = {
     "isDefaultHandler",  # file-type handler object, not directly queryable
     "localeLanguageCode",  # derived from locale, not recorded separately
     "homePageSettings",  # parent blocked; simple sub-fields mapped above
-    # Mobile-only attributes — untranslatable on Desktop.
-    # Those in JEXL_TO_BQ_COLUMN_FENIX / JEXL_TO_BQ_COLUMN_IOS are handled
-    # by the mobile column maps when app="fenix" or app="ios".
-    # Those absent from the mobile maps are not recorded in the BQ context blob.
+    # Mobile-only attributes. Those mapped in JEXL_TO_BQ_COLUMN_FENIX /
+    # JEXL_TO_BQ_COLUMN_IOS are listed here too so the Desktop validation
+    # test recognises them; the column map takes priority for mobile.
+    "androidSdkVersion",
+    "android_sdk_version",
+    "installReferrerResponseUtmSource",
+    "install_referrer_response_utm_source",
+    "installReferrerResponseUtmCampaign",
+    "install_referrer_response_utm_campaign",
+    "installReferrerResponseUtmMedium",
+    "install_referrer_response_utm_medium",
+    "installReferrerResponseUtmContent",
+    "install_referrer_response_utm_content",
+    "installReferrerResponseUtmTerm",
+    "install_referrer_response_utm_term",
+    "deviceManufacturer",
+    "device_manufacturer",
+    "deviceModel",
+    "device_model",
+    "isReviewCheckerEnabled",
+    "is_review_checker_enabled",
+    "is_default_browser",
+    "isPhone",
+    "is_phone",
     "days_since_install",
     "days_since_update",
-    "is_default_browser",
-    "is_phone",
-    "is_bottom_toolbar_user",
-    "is_apple_intelligence_available",
-    "cannot_use_apple_intelligence",
-    "has_accepted_terms_of_use",
-    "has_enabled_tips_notifications",
-    "user_accepted_tou",
-    "tou_points",
-    "tou_experience_points",
+    "userDisabledAi",
+    "user_disabled_ai",
+    "areNotificationsEnabled",
+    "are_notifications_enabled",
+    "areMarketingNotificationsEnabled",
+    "are_marketing_notifications_enabled",
+    "addonIds",
     "addon_ids",
+    "userAcceptedTou",
+    "user_accepted_tou",
+    "noShortcutsOrStoriesOptOuts",
     "no_shortcuts_or_stories_opt_outs",
-    "android_sdk_version",
-    "install_referrer_response_utm_source",
+    "touPoints",
+    "tou_points",
+    "isBottomToolbarUser",
+    "is_bottom_toolbar_user",
+    "hasEnabledTipsNotifications",
+    "has_enabled_tips_notifications",
+    "hasAcceptedTermsOfUse",
+    "has_accepted_terms_of_use",
+    "isAppleIntelligenceAvailable",
+    "is_apple_intelligence_available",
+    "cannotUseAppleIntelligence",
+    "cannot_use_apple_intelligence",
+    "touExperiencePoints",
+    "tou_experience_points",
     # Standalone sub-fields accessed without parent (default PDF handler context)
     "pdf",
     "knownBrowser",
@@ -399,6 +402,23 @@ def _binary_to_sql(
             right = f"'{right.lower()}'"
         elif left in ("TRUE", "FALSE") and _is_json_string_expr(right):
             left = f"'{left.lower()}'"
+        # CAST(col AS BOOL) = 'true'/'false' → CAST(col AS BOOL) = TRUE/FALSE.
+        # Mobile column maps wrap BOOL columns in CAST(...AS BOOL). Comparing the
+        # result to a JEXL string literal 'true'/'false' produces BOOL = STRING,
+        # which BigQuery rejects. Convert the string literal back to a BOOL.
+        _str_to_bool = {"'true'": "TRUE", "'false'": "FALSE"}
+        if (
+            right in _str_to_bool
+            and _is_boolean_sql(left)
+            and not _is_json_string_expr(left)
+        ):
+            right = _str_to_bool[right]
+        elif (
+            left in _str_to_bool
+            and _is_boolean_sql(right)
+            and not _is_json_string_expr(right)
+        ):
+            left = _str_to_bool[left]
         # In JEXL, pref|preferenceValue returns null when the pref is not explicitly set.
         # null != 'false' is true in JEXL — unset prefs should pass a != false check.
         # JSON_VALUE returns NULL for unset prefs; NULL != 'false' is NULL in SQL (falsy),
@@ -603,11 +623,14 @@ def _version_compare_binary_to_sql_with(
         return None
 
     subject_path = _identifier_path(transform.subject)
-    if subject_path != "version":
+    if subject_path == "version":
+        version_col = column_map.get("firefoxVersion")
+    elif subject_path and subject_path in column_map:
+        version_col = column_map[subject_path]
+    else:
         _add_warning(warnings, subject_path or "|versionCompare")
         return None
 
-    version_col = column_map.get("firefoxVersion")
     if version_col is None:
         _add_warning(warnings, "|versionCompare")
         return None

@@ -326,6 +326,58 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         self.assertEqual(experiment.status_next, expected_status_next)
         self.assertEqual(experiment.publish_status, expected_publish_status)
 
+    def test_draft_to_preview_stages_the_phase_population(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            population_percent=Decimal("0"),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=Decimal("100")
+        )
+
+        self.client.post(
+            reverse(
+                "nimbus-ui-new-draft-to-preview-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.population_percent, Decimal("100"))
+        self.mock_allocate_bucket_range.assert_called_once()
+
+    def test_preview_to_draft_reverts_the_staged_phase(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            is_rollout=True,
+            population_percent=Decimal("0"),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=Decimal("100")
+        )
+
+        self.client.post(
+            reverse(
+                "nimbus-ui-new-draft-to-preview-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+        self.client.post(
+            reverse(
+                "nimbus-ui-new-preview-to-draft-rollout",
+                kwargs={"slug": experiment.slug},
+            )
+        )
+
+        experiment.refresh_from_db()
+        self.assertIsNone(experiment.rollout_phase_next)
+        self.assertEqual(experiment.population_percent, Decimal("0"))
+
     def test_htmx_transition_refreshes_page(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
@@ -738,6 +790,45 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             ),
         )
         self.assertContains(response, "Not launched")
+
+    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
+    def test_pref_flips_rollout_disables_only_the_preview_button(self, _mock_errors):
+        experiment = NimbusExperimentFactory.create(
+            is_rollout=True,
+            status=NimbusExperiment.Status.DRAFT,
+            status_next=None,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertFalse(experiment.can_publish_to_preview)
+        self.assertContains(
+            response, NimbusUIConstants.ROLLOUT_PREVIEW_UNSUPPORTED_TOOLTIP
+        )
+        self.assertNotContains(
+            response,
+            reverse(
+                "nimbus-ui-new-draft-to-preview-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
+        self.assertContains(
+            response,
+            reverse(
+                "nimbus-ui-new-draft-to-review-rollout",
+                kwargs={"slug": experiment.slug},
+            ),
+        )
 
     @parameterized.expand(
         [
@@ -1397,6 +1488,29 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertContains(response, "Preview links & testing details")
         self.assertContains(response, "Rollout experience")
         self.assertContains(response, EXTERNAL_URLS["PREVIEW_LAUNCH_DOC"])
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.FENIX,),
+            (NimbusExperiment.Application.IOS,),
+            (NimbusExperiment.Application.MONITOR,),
+        ]
+    )
+    def test_preview_card_hidden_for_non_desktop_application(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            is_rollout=True,
+            application=application,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(experiment.is_preview)
+        self.assertFalse(experiment.is_desktop)
+        self.assertNotContains(response, "Preview links & testing details")
 
     def test_preview_card_lists_all_screenshots(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

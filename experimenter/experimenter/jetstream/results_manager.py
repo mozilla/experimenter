@@ -401,21 +401,22 @@ class ExperimentResultsManager:
                 kpi["slug"], kpi["group"], analysis_basis, segment, reference_branch
             )
 
-            if (
-                kpi["slug"] == NimbusConstants.RETENTION_3_DAYS
-                or kpi["slug"] == NimbusConstants.RETENTION_3_DAYS_DESKTOP
-            ):
-                kpi["displayed_window"] = "Day 4"
-            # TODO: EXP-5498 - We are still unclear on the best window to show for weekly
-            # retention, so for now we are defaulting to showing whatever window the
-            # latest results data is available for. Once we have clarity, we can
-            # hardcode a displayed_window value like we do for 3DR.
-            # if kpi["slug"] == NimbusConstants.RETENTION:
-            #     kpi["displayed_window"] = "Week 2"
+            match kpi["slug"]:
+                case NimbusConstants.RETENTION_WEEK_2:
+                    kpi["displayed_window"] = "Week 2"
+                case NimbusConstants.RETENTION_WEEK_4:
+                    kpi["displayed_window"] = "Week 4"
+                case (
+                    NimbusConstants.RETENTION_3_DAYS
+                    | NimbusConstants.RETENTION_3_DAYS_DESKTOP
+                ):
+                    kpi["displayed_window"] = "Day 4"
 
     def get_remaining_metrics_metadata(
         self, exclude_slugs=None, analysis_basis=None, segment=None, reference_branch=None
     ):
+        from experimenter.jetstream.models import Metric
+
         analysis_data = (
             self.experiment.results_data.get("v3", {})
             if self.experiment.results_data
@@ -425,11 +426,15 @@ class ExperimentResultsManager:
         metadata = analysis_data.get("metadata", {})
         metrics_metadata = metadata.get("metrics", {}) if metadata else {}
         defaults = []
+        retention_prefix, retention_suffix = Metric.WEEKLY_RETENTION.split("{}")
 
         for group, default_metrics in other_metrics.items():
             for slug, metric_friendly_name in default_metrics.items():
                 if exclude_slugs and slug in exclude_slugs:
                     continue
+                retention_week = slug.removeprefix(retention_prefix).removesuffix(
+                    retention_suffix
+                )
                 defaults.append(
                     {
                         "slug": slug,
@@ -451,6 +456,10 @@ class ExperimentResultsManager:
                         "has_data": self.metric_has_data(
                             slug, group, analysis_basis, segment, reference_branch
                         ),
+                        "displayed_window": (f"Week {retention_week}")
+                        if slug.startswith(retention_prefix)
+                        and slug.endswith(retention_suffix)
+                        else None,
                     }
                 )
 
@@ -547,7 +556,11 @@ class ExperimentResultsManager:
             }
 
         remaining_metrics = self.get_remaining_metrics_metadata(
-            exclude_slugs=all_outcome_metric_slugs,
+            exclude_slugs=[
+                *all_outcome_metric_slugs,
+                NimbusConstants.RETENTION_WEEK_2,
+                NimbusConstants.RETENTION_WEEK_4,
+            ],
             analysis_basis=analysis_basis,
             segment=segment,
             reference_branch=reference_branch,

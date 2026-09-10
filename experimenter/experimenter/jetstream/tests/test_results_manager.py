@@ -933,8 +933,8 @@ class TestExperimentResultsManager(TestCase):
                         "all": {
                             "branch-a": {
                                 "branch_data": {
-                                    "other_metrics": {
-                                        "retained": {
+                                    "search_metrics": {
+                                        "search_count": {
                                             "absolute": {
                                                 "all": [
                                                     {
@@ -978,8 +978,8 @@ class TestExperimentResultsManager(TestCase):
                             },
                             "branch-b": {
                                 "branch_data": {
-                                    "other_metrics": {
-                                        "retained": {
+                                    "search_metrics": {
+                                        "search_count": {
                                             "absolute": {
                                                 "all": [
                                                     {
@@ -1035,7 +1035,7 @@ class TestExperimentResultsManager(TestCase):
 
         self.assertIn("Notable Changes", metric_areas)
         self.assertIn(
-            "retained",
+            "search_count",
             [metric["slug"] for metric in metric_areas["Notable Changes"]["metrics"]],
         )
 
@@ -1299,9 +1299,26 @@ class TestExperimentResultsManager(TestCase):
                 [
                     {
                         "group": "other_metrics",
-                        "friendly_name": "Retention",
-                        "slug": "retained",
-                        "description": "Retention description",
+                        "friendly_name": "Week 2 Retention",
+                        "slug": "week_2_retention",
+                        "displayed_window": "Week 2",
+                        "description": (
+                            "Users who were active in Firefox during the second week "
+                            "after enrollment."
+                        ),
+                        "display_type": "percentage",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Week 4 Retention",
+                        "slug": "week_4_retention",
+                        "displayed_window": "Week 4",
+                        "description": (
+                            "Users who were active in Firefox during the fourth week "
+                            "after enrollment."
+                        ),
                         "display_type": "percentage",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
@@ -1339,9 +1356,26 @@ class TestExperimentResultsManager(TestCase):
                 [
                     {
                         "group": "other_metrics",
-                        "friendly_name": "Retention",
-                        "slug": "retained",
-                        "description": "Retention description",
+                        "friendly_name": "Week 2 Retention",
+                        "displayed_window": "Week 2",
+                        "slug": "week_2_retention",
+                        "description": (
+                            "Users who were active in Firefox during the second week "
+                            "after enrollment."
+                        ),
+                        "display_type": "percentage",
+                        "overall_change": MetricSignificance.NEUTRAL,
+                        "has_data": False,
+                    },
+                    {
+                        "group": "other_metrics",
+                        "friendly_name": "Week 4 Retention",
+                        "displayed_window": "Week 4",
+                        "slug": "week_4_retention",
+                        "description": (
+                            "Users who were active in Firefox during the fourth week "
+                            "after enrollment."
+                        ),
                         "display_type": "percentage",
                         "overall_change": MetricSignificance.NEUTRAL,
                         "has_data": False,
@@ -1396,9 +1430,19 @@ class TestExperimentResultsManager(TestCase):
                             "friendly_name": "Search Count",
                             "description": "Search Count description",
                         },
-                        "retained": {
-                            "friendly_name": "Retention",
-                            "description": "Retention description",
+                        "week_2_retention": {
+                            "friendly_name": "Week 2 Retention",
+                            "description": (
+                                "Users who were active in Firefox during the second "
+                                "week after enrollment."
+                            ),
+                        },
+                        "week_4_retention": {
+                            "friendly_name": "Week 4 Retention",
+                            "description": (
+                                "Users who were active in Firefox during the fourth "
+                                "week after enrollment."
+                            ),
                         },
                         "active_in_last_3_days_legacy": {
                             "friendly_name": "3-Day Retention",
@@ -1549,7 +1593,8 @@ class TestExperimentResultsManager(TestCase):
                 },
                 "other_metrics": {
                     "other_metrics": {
-                        "retained": "2 Week Retention",
+                        "retained": "Week 2 Retention",
+                        "week_6_retention": "Week 6 Retention",
                         "search_count": "Search Count",
                     }
                 },
@@ -1564,6 +1609,10 @@ class TestExperimentResultsManager(TestCase):
 
         self.assertIn("retained", metric_slugs)
         self.assertNotIn("search_count", metric_slugs)
+        weekly_retention = next(
+            metric for metric in remaining_metrics if metric["slug"] == "week_6_retention"
+        )
+        self.assertEqual(weekly_retention["displayed_window"], "Week 6")
 
     @parameterized.expand(
         [
@@ -2888,7 +2937,8 @@ class TestExperimentResultsManager(TestCase):
                 NimbusExperiment.Application.DESKTOP,
                 [
                     "client_level_daily_active_users_v2",
-                    "retained",
+                    "week_2_retention",
+                    "week_4_retention",
                     "search_count",
                     "active_in_last_3_days_legacy",
                 ],
@@ -2897,7 +2947,8 @@ class TestExperimentResultsManager(TestCase):
                 NimbusExperiment.Application.FENIX,
                 [
                     "client_level_daily_active_users_v2",
-                    "retained",
+                    "week_2_retention",
+                    "week_4_retention",
                     "search_count",
                     "active_in_last_3_days",
                 ],
@@ -2906,7 +2957,8 @@ class TestExperimentResultsManager(TestCase):
                 NimbusExperiment.Application.IOS,
                 [
                     "client_level_daily_active_users_v2",
-                    "retained",
+                    "week_2_retention",
+                    "week_4_retention",
                     "search_count",
                     "active_in_last_3_days",
                 ],

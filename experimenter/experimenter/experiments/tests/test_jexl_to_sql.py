@@ -593,6 +593,30 @@ class TestJEXLToSQLMobile(TestCase):
                 IOS_APP,
                 "CAST(isPhone AS BOOL) = TRUE",
             ),
+            (
+                "is_first_run_eq_string_true_fenix",
+                "isFirstRun == 'true'",
+                FENIX_APP,
+                "CAST(isFirstRun AS BOOL) = TRUE",
+            ),
+            (
+                "is_first_run_eq_string_true_ios",
+                "isFirstRun == 'true'",
+                IOS_APP,
+                "CAST(isFirstRun AS BOOL) = TRUE",
+            ),
+            (
+                "is_first_run_eq_string_false_fenix",
+                "isFirstRun == 'false'",
+                FENIX_APP,
+                "CAST(isFirstRun AS BOOL) = FALSE",
+            ),
+            (
+                "string_true_eq_bool_col_reversed_fenix",
+                "'true' == isFirstRun",
+                FENIX_APP,
+                "TRUE = CAST(isFirstRun AS BOOL)",
+            ),
         ]
     )
     def test_comparison_translates(self, _name, jexl, app, expected_sql):
@@ -632,22 +656,18 @@ class TestJEXLToSQLMobile(TestCase):
         self.assertEqual(result.warnings, [])
 
     def test_addon_ids_in_fenix(self):
+        # addonIds not yet in the Fenix BQ table (EXP-7326) — untranslatable.
         result = jexl_to_sql("'uBlock0@raymondhill.net' in addon_ids", app=FENIX_APP)
-        self.assertEqual(
-            result.sql,
-            "('uBlock0@raymondhill.net' IN UNNEST(JSON_VALUE_ARRAY(addonIds)))",
-        )
-        self.assertEqual(result.warnings, [])
+        self.assertIsNone(result.sql)
+        self.assertIn("addon_ids", result.warnings)
 
     def test_addon_ids_not_in_fenix(self):
+        # addonIds not yet in the Fenix BQ table (EXP-7326) — untranslatable.
         result = jexl_to_sql(
             "('uBlock0@raymondhill.net' in addon_ids) == false", app=FENIX_APP
         )
-        self.assertEqual(
-            result.sql,
-            "('uBlock0@raymondhill.net' IN UNNEST(JSON_VALUE_ARRAY(addonIds))) = FALSE",
-        )
-        self.assertEqual(result.warnings, [])
+        self.assertIsNone(result.sql)
+        self.assertIn("addon_ids", result.warnings)
 
     def test_real_config_fenix_first_run_region(self):
         result = jexl_to_sql("isFirstRun && region == 'US'", app=FENIX_APP)
@@ -671,6 +691,20 @@ class TestJEXLToSQLMobile(TestCase):
         result = jexl_to_sql("version|versionCompare('120.!') >= 0", app=FENIX_APP)
         self.assertIsNone(result.sql)
         self.assertIn("|versionCompare", result.warnings)
+
+    def test_android_sdk_version_compare_fenix(self):
+        result = jexl_to_sql(
+            "android_sdk_version|versionCompare('33') >= 0", app=FENIX_APP
+        )
+        self.assertEqual(result.sql, "androidSdkVersion >= 33")
+        self.assertEqual(result.warnings, [])
+
+    def test_android_sdk_version_compare_reversed_fenix(self):
+        result = jexl_to_sql(
+            "0 <= android_sdk_version|versionCompare('29')", app=FENIX_APP
+        )
+        self.assertEqual(result.sql, "androidSdkVersion >= 29")
+        self.assertEqual(result.warnings, [])
 
     def test_real_config_mobile_new_user_fenix(self):
         result = jexl_to_sql(MOBILE_NEW_USER.targeting, app=FENIX_APP)
