@@ -653,7 +653,13 @@ def _version_compare_binary_to_sql_with(
         _add_warning(warnings, "|versionCompare")
         return None
 
-    return f"{version_col} {sql_op} {major}"
+    # appVersion is a STRING column (e.g. "155.0.1") on mobile; extract major
+    # version as INT64 so the comparison is type-safe in BigQuery.
+    if version_col == "appVersion":
+        lhs = f"SAFE_CAST(SPLIT({version_col}, '.')[SAFE_OFFSET(0)] AS INT64)"
+    else:
+        lhs = version_col
+    return f"{lhs} {sql_op} {major}"
 
 
 def _identifier_path(node) -> str:
