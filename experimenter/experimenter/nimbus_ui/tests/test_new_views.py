@@ -1444,6 +1444,51 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertContains(response, screenshot_1.image.url)
         self.assertContains(response, screenshot_2.image.url)
 
+    @parameterized.expand([(True,), (False,)])
+    def test_preview_card_always_shows_preview_link(self, with_screenshot):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            is_rollout=True,
+        )
+        if with_screenshot:
+            NimbusBranchScreenshotFactory.create(branch=experiment.reference_branch)
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="rollout-preview-url"')
+        self.assertContains(response, 'id="rollout-preview-link-btn"')
+        self.assertContains(
+            response,
+            (
+                f"about:studies?optin_slug={experiment.slug}"
+                f"&amp;optin_branch={experiment.reference_branch.slug}"
+                "&amp;optin_collection=nimbus-preview"
+            ),
+        )
+
+    def test_preview_link_triggers_toast_instead_of_relabeling_the_button(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            is_rollout=True,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            f'data-toast-id="{NimbusUIConstants.TOAST_PREVIEW_LINK_COPIED}"',
+        )
+        self.assertContains(
+            response, f'<div id="{NimbusUIConstants.TOAST_PREVIEW_LINK_COPIED}"'
+        )
+        self.assertNotContains(response, "this.innerText='Copied'")
+
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
     @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
     def test_sidebar_shows_approve_control_for_dev_reviewer(self, _mock_errors):

@@ -471,6 +471,7 @@ Optional - We expect this to <describe impact> on <core metric>.
     TOAST_SLACK_ENABLED = "toast-slack-enabled"
     TOAST_SLACK_DISABLED = "toast-slack-disabled"
     TOAST_EDIT_CANCELLED = "toast-edit-cancelled"
+    TOAST_PREVIEW_LINK_COPIED = "toast-preview-link-copied"
 
     TOASTS = {
         TOAST_SAVED: "Changes saved",
@@ -479,6 +480,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         TOAST_SLACK_ENABLED: "Review Slack notifications enabled",
         TOAST_SLACK_DISABLED: "Review Slack notifications disabled",
         TOAST_EDIT_CANCELLED: "Edit cancelled",
+        TOAST_PREVIEW_LINK_COPIED: "Preview link copied to clipboard",
     }
 
     ROLLOUT_CARD_FIELDS = {
