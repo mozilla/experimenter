@@ -140,13 +140,22 @@ def sensitive_url():
     pass
 
 
-@pytest.fixture
-def firefox_options(firefox_options):
-    """Set Firefox Options."""
+def configure_firefox_options(firefox_options):
     firefox_options.log.level = "trace"
     firefox_options.set_preference("remote.system-access-check.enabled", False)
     firefox_options.add_argument("-remote-allow-system-access")
     return firefox_options
+
+
+def start_firefox(firefox_options):
+    firefox_service = Service("/usr/bin/geckodriver")
+    return webdriver.Firefox(service=firefox_service, options=firefox_options)
+
+
+@pytest.fixture
+def firefox_options(firefox_options):
+    """Set Firefox Options."""
+    return configure_firefox_options(firefox_options)
 
 
 @pytest.fixture
@@ -179,8 +188,7 @@ def selenium(selenium, experiment_slug, kinto_client):
 
 @pytest.fixture
 def driver(firefox_options):
-    firefox_service = Service("/usr/bin/geckodriver")
-    driver = webdriver.Firefox(service=firefox_service, options=firefox_options)
+    driver = start_firefox(firefox_options)
     yield driver
     driver.quit()
 
