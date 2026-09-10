@@ -1348,32 +1348,39 @@ WINDOWS_LAUNCH_AT_LOGIN_FINAL = NimbusTargetingConfig(
     name="Windows users eligible for launch at login - final",
     slug="windows_launch_at_login_eligible_final",
     description="Users eligible for the launch-at-login-infobar-existing-user treatment.",
-    targeting=(
-        "os.isWindows && os.windowsVersion >= 10 && !launchOnLoginEnabled && "
-        "launchOnLoginAllowedByPolicy && "
-        "'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue && "
-        "(!isMSIX || os.windowsBuildNumber >= 22000) && "
-        "profileAgeCreated < '2026-06-16'|date && "
-        "profileGroupProfileCount < 2 && "
-        "!hasActiveEnterprisePolicies && "
-        "userMonthlyActivity|length < 25 && "
-        "'browser.contentblocking.category'|preferenceValue == 'standard' && "
-        "!'privacy.globalprivacycontrol.enabled'|preferenceValue && "
-        "!'dom.security.https_only_mode'|preferenceValue && "
-        "!'dom.security.https_only_mode_pbm'|preferenceValue && "
-        "'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue && "
-        "'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue && "
-        "'browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceValue"
-        " && 'browser.newtabpage.activity-stream.showSponsored'|preferenceValue && "
-        "'browser.urlbar.suggest.quicksuggest.all'|preferenceValue && "
-        "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue && "
-        "!addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] && "
-        "!addonsInfo.addons['uBlock0@raymondhill.net'] && "
-        "!addonsInfo.addons['adguardadblocker@adguard.com'] && "
-        "!addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack'] && "
-        "!addonsInfo.addons['adblockultimate@adblockultimate.net'] && "
-        "!addonsInfo.addons['firefox@ghostery.com']"
-    ),
+    targeting="""
+        os.isWindows && os.windowsVersion >= 10
+        && !launchOnLoginEnabled
+        && launchOnLoginAllowedByPolicy
+        && 'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue
+        && (
+          !isMSIX
+          || os.windowsBuildNumber >= 22000
+          || version|versionCompare('157.!') >= 0
+        ) && profileAgeCreated < '2026-06-16'|date
+        && profileGroupProfileCount < 2
+        && !hasActiveEnterprisePolicies
+        && userMonthlyActivity|length < 25
+        && 'browser.contentblocking.category'|preferenceValue == 'standard'
+        && !'privacy.globalprivacycontrol.enabled'|preferenceValue
+        && !'dom.security.https_only_mode'|preferenceValue
+        && !'dom.security.https_only_mode_pbm'|preferenceValue
+        && !'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue
+        && 'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceIsUserSet
+        && !'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+        && !'browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceValue
+        && 'browser.newtabpage.activity-stream.showSponsored'|preferenceIsUserSet
+        && !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
+        && !'browser.urlbar.suggest.quicksuggest.all'|preferenceValue
+        && !'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet
+        && !'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue
+        && !addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}']
+        && !addonsInfo.addons['uBlock0@raymondhill.net']
+        && !addonsInfo.addons['adguardadblocker@adguard.com']
+        && !addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack']
+        && !addonsInfo.addons['adblockultimate@adblockultimate.net']
+        && !addonsInfo.addons['firefox@ghostery.com']
+    """,
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
