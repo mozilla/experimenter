@@ -388,12 +388,16 @@ def _binary_to_sql(
         # result to a JEXL string literal 'true'/'false' produces BOOL = STRING,
         # which BigQuery rejects. Convert the string literal back to a BOOL.
         _str_to_bool = {"'true'": "TRUE", "'false'": "FALSE"}
-        if right in _str_to_bool and _is_boolean_sql(left) and not _is_json_string_expr(
-            left
+        if (
+            right in _str_to_bool
+            and _is_boolean_sql(left)
+            and not _is_json_string_expr(left)
         ):
             right = _str_to_bool[right]
-        elif left in _str_to_bool and _is_boolean_sql(right) and not _is_json_string_expr(
-            right
+        elif (
+            left in _str_to_bool
+            and _is_boolean_sql(right)
+            and not _is_json_string_expr(right)
         ):
             left = _str_to_bool[left]
         # In JEXL, pref|preferenceValue returns null when the pref is not explicitly set.
