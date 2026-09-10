@@ -10,11 +10,24 @@ on:
 
 jobs:
   validate:
-    name: Validate Targeting SQL
+    name: "Validate Targeting SQL (${{ matrix.app }})"
     runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: desktop
+            make_target: export_targeting_sql
+            output_file: targeting_sql.json
+          - app: fenix
+            make_target: export_targeting_sql_fenix
+            output_file: targeting_sql_fenix.json
+          - app: ios
+            make_target: export_targeting_sql_ios
+            output_file: targeting_sql_ios.json
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -38,7 +51,7 @@ jobs:
 
       - name: Export targeting SQL
         if: steps.check-paths.outputs.should-run == 'true'
-        run: make export_targeting_sql
+        run: make ${{ matrix.make_target }}
 
       - name: Check for GCP credentials
         id: gcp-credentials
@@ -68,4 +81,4 @@ jobs:
         if: steps.gcp-credentials.outputs.available == 'true'
         env:
           GOOGLE_GHA_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
-        run: python3 experimenter/bin/validate_targeting_sql.py targeting_sql.json
+        run: python3 experimenter/bin/validate_targeting_sql.py ${{ matrix.output_file }}
