@@ -136,8 +136,6 @@ _SHARED_MOBILE_COLUMNS = {
     "days_since_update": "daysSinceUpdate",
     "eventQueryValues.daysOpenedInLast28": "eventQuery_daysOpenedInLast28",
     "event_query_values.days_opened_in_last_28": "eventQuery_daysOpenedInLast28",
-    "userDisabledAi": "CAST(userDisabledAi AS BOOL)",
-    "user_disabled_ai": "CAST(userDisabledAi AS BOOL)",
 }
 
 # Fenix (Android) — moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context
@@ -159,14 +157,9 @@ JEXL_TO_BQ_COLUMN_FENIX = {
     "install_referrer_response_utm_content": "installReferrerResponseUtmContent",
     "installReferrerResponseUtmTerm": "installReferrerResponseUtmTerm",
     "install_referrer_response_utm_term": "installReferrerResponseUtmTerm",
-    # addonIds, userAcceptedTou, noShortcutsOrStoriesOptOuts, touPoints not yet
+    # addonIds, userAcceptedTou, noShortcutsOrStoriesOptOuts, touPoints,
+    # areNotificationsEnabled, areMarketingNotificationsEnabled not yet
     # in the Fenix BQ table — see KNOWN_UNTRANSLATABLE and EXP-7326.
-    "areNotificationsEnabled": "CAST(areNotificationsEnabled AS BOOL)",
-    "are_notifications_enabled": "CAST(areNotificationsEnabled AS BOOL)",
-    "areMarketingNotificationsEnabled": "CAST(areMarketingNotificationsEnabled AS BOOL)",
-    "are_marketing_notifications_enabled": (
-        "CAST(areMarketingNotificationsEnabled AS BOOL)"
-    ),
     # JSON-only: in context blob but not a typed column on Fenix (iOS has it).
     # Context keys are camelCase — confirmed from live data.
     "isReviewCheckerEnabled": (
@@ -222,6 +215,13 @@ KNOWN_UNTRANSLATABLE = {
     "days_since_update",
     "is_default_browser",
     "is_phone",
+    # Not recorded in Fenix or iOS BQ tables (confirmed against live data)
+    "userDisabledAi",
+    "user_disabled_ai",
+    "areNotificationsEnabled",
+    "are_notifications_enabled",
+    "areMarketingNotificationsEnabled",
+    "are_marketing_notifications_enabled",
     # Fenix columns pending EXP-7326
     "addonIds",
     "addon_ids",
