@@ -623,11 +623,14 @@ def _version_compare_binary_to_sql_with(
         return None
 
     subject_path = _identifier_path(transform.subject)
-    if subject_path != "version":
+    if subject_path == "version":
+        version_col = column_map.get("firefoxVersion")
+    elif subject_path and subject_path in column_map:
+        version_col = column_map[subject_path]
+    else:
         _add_warning(warnings, subject_path or "|versionCompare")
         return None
 
-    version_col = column_map.get("firefoxVersion")
     if version_col is None:
         _add_warning(warnings, "|versionCompare")
         return None
