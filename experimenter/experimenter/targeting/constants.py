@@ -1380,6 +1380,24 @@ WINDOWS_LAUNCH_AT_LOGIN_FINAL = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_LAUNCH_AT_LOGIN_NEW_USERS = NimbusTargetingConfig(
+    name="New Windows users eligible for launch at login",
+    slug="windows_launch_at_login_new_users",
+    description="New users eligible for the launch-at-login-infobar-new-user treatment.",
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && "
+        "launchOnLoginAllowedByPolicy && "
+        "(!isMSIX || "
+        "os.windowsBuildNumber >= 22000 || "
+        "version|versionCompare('157.!') >= 0) && "
+        f"{NON_STUB_FIRST_RUN.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USERS_PDF_PROMO_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10+ users eligible for Split PDF promo",
     slug="win10_pdf_split_promo",
