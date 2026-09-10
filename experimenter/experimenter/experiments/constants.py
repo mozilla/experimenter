@@ -692,7 +692,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     DAILY_ACTIVE_USERS = "client_level_daily_active_users_v2"
     DAYS_OF_USE = "days_of_use"
-    RETENTION = "retained"
+    RETENTION_WEEK_2 = "week_2_retention"
+    RETENTION_WEEK_4 = "week_4_retention"
     RETENTION_3_DAYS = "active_in_last_3_days"
     RETENTION_3_DAYS_DESKTOP = "active_in_last_3_days_legacy"
     SEARCH_COUNT = "search_count"
@@ -710,8 +711,17 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     KPI_METRICS = [
         {
             "group": "other_metrics",
-            "slug": RETENTION,
+            "friendly_name": "Week 2 Retention",
+            "slug": RETENTION_WEEK_2,
             "display_type": "percentage",
+            "description": "Users who were active in Firefox during the second week after enrollment.",  # noqa
+        },
+        {
+            "group": "other_metrics",
+            "friendly_name": "Week 4 Retention",
+            "slug": RETENTION_WEEK_4,
+            "display_type": "percentage",
+            "description": "Users who were active in Firefox during the fourth week after enrollment.",  # noqa
         },
         {
             "group": "other_metrics",

@@ -76,7 +76,54 @@ class TestJetstreamData(TestCase):
 
         self.assertIn(retention, data)
 
-    def test_append_retention_data_ignores_week_1_only_data(self):
+    def test_remove_retention_data(self):
+        retained = JetstreamDataPoint(
+            metric=Metric.RETENTION,
+            statistic=Statistic.BINOMIAL,
+            branch="control",
+            point=0.65,
+            segment=Segment.ALL,
+        )
+        identity = JetstreamTestData.get_identity_row()
+        data = JetstreamData([retained, identity])
+
+        data.remove_retention_data()
+
+        self.assertEqual(data.root, [identity])
+
+    def test_separate_weekly_retention_data_splits_retention_by_week(self):
+        weekly_data = JetstreamData(
+            [
+                JetstreamDataPoint(
+                    metric=Metric.RETENTION,
+                    statistic=Statistic.BINOMIAL,
+                    branch="control",
+                    point=week / 10,
+                    segment=Segment.ALL,
+                    window_index=str(week),
+                )
+                for week in (1, 2, 3, 4, 5, 6)
+            ]
+        )
+        transformed_data = JetstreamData([])
+
+        transformed_data.separate_weekly_retention_data(weekly_data)
+
+        self.assertEqual(
+            [
+                (point.metric, point.window_index, point.point)
+                for point in transformed_data
+            ],
+            [
+                (Metric.WEEKLY_RETENTION.format(2), "2", 0.2),
+                (Metric.WEEKLY_RETENTION.format(3), "3", 0.3),
+                (Metric.WEEKLY_RETENTION.format(4), "4", 0.4),
+                (Metric.WEEKLY_RETENTION.format(5), "5", 0.5),
+                (Metric.WEEKLY_RETENTION.format(6), "6", 0.6),
+            ],
+        )
+
+    def test_separate_weekly_retention_data_ignores_week_1_only_data(self):
         week_1_retention = JetstreamDataPoint(
             metric=Metric.RETENTION,
             statistic=Statistic.BINOMIAL,
@@ -85,65 +132,12 @@ class TestJetstreamData(TestCase):
             segment=Segment.ALL,
             window_index="1",
         )
+        identity = JetstreamTestData.get_identity_row()
+        data = JetstreamData([identity])
 
-        data = JetstreamData([])
-        data.append_retention_data([week_1_retention])
+        data.separate_weekly_retention_data(JetstreamData([week_1_retention]))
 
-        self.assertNotIn(week_1_retention, data)
-
-    def test_append_retention_data_uses_week_2_data(self):
-        week_2_retention = JetstreamDataPoint(
-            metric=Metric.RETENTION,
-            statistic=Statistic.BINOMIAL,
-            branch="control",
-            point=0.65,
-            segment=Segment.ALL,
-            window_index="2",
-        )
-
-        data = JetstreamData([])
-        data.append_retention_data([week_2_retention])
-
-        self.assertIn(week_2_retention, data)
-
-    def test_replace_retention_replaces_existing_entries(self):
-        existing_retention_1 = JetstreamDataPoint(
-            metric=Metric.RETENTION,
-            statistic=Statistic.BINOMIAL,
-            branch="control",
-            point=0.5,
-            segment=Segment.ALL,
-            window_index="1",
-        )
-        kept_retention = JetstreamDataPoint(
-            metric=Metric.RETENTION,
-            statistic=Statistic.BINOMIAL,
-            branch="control",
-            point=0.25,
-            segment=Segment.ALL,
-            window_index="2",
-        )
-        existing_retention_2 = JetstreamDataPoint(
-            metric=Metric.RETENTION,
-            statistic=Statistic.BINOMIAL,
-            branch="control",
-            point=0.25,
-            segment=Segment.ALL,
-            window_index="3",
-        )
-
-        data = JetstreamData(
-            [
-                existing_retention_1,
-                kept_retention,
-                existing_retention_2,
-            ]
-        )
-        data.replace_retention_weeks(data)
-
-        self.assertNotIn(existing_retention_1, data)
-        self.assertNotIn(existing_retention_2, data)
-        self.assertIn(kept_retention, data)
+        self.assertEqual(data.root, [identity])
 
     def test_replace_retention_3_days_replaces_existing_entries(self):
         existing_retention_1 = JetstreamDataPoint(
