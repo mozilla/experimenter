@@ -219,7 +219,6 @@ KNOWN_UNTRANSLATABLE = {
     "device_model",
     "isReviewCheckerEnabled",
     "is_review_checker_enabled",
-    "isDefaultBrowser",
     "is_default_browser",
     "isPhone",
     "is_phone",
