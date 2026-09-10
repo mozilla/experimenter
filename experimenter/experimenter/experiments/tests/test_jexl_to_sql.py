@@ -611,6 +611,12 @@ class TestJEXLToSQLMobile(TestCase):
                 FENIX_APP,
                 "CAST(isFirstRun AS BOOL) = FALSE",
             ),
+            (
+                "string_true_eq_bool_col_reversed_fenix",
+                "'true' == isFirstRun",
+                FENIX_APP,
+                "TRUE = CAST(isFirstRun AS BOOL)",
+            ),
         ]
     )
     def test_comparison_translates(self, _name, jexl, app, expected_sql):
