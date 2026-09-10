@@ -113,7 +113,7 @@
 
     </div>
     <div>
-      <label for="id_name" class="small text-body mb-2">Include users from existing experiments</label>
+      <label for="id_name" class="small text-body mb-2">Include users from existing deliveries</label>
       {{ form.required_experiments_branches }}
       {% if form.required_experiments_branches.errors %}
         <div class="text-danger small mt-1">{{ form.required_experiments_branches.errors|join:", " }}</div>
@@ -123,7 +123,7 @@
       {% endfor %}
     </div>
     <div>
-      <label for="id_name" class="small text-body mb-2">Exclude users from other experiments/rollouts</label>
+      <label for="id_name" class="small text-body mb-2">Exclude users from other deliveries</label>
       {{ form.excluded_experiments_branches }}
       {% if form.excluded_experiments_branches.errors %}
         <div class="text-danger small mt-1">{{ form.excluded_experiments_branches.errors|join:", " }}</div>
