@@ -87,6 +87,7 @@ from experimenter.nimbus_ui.views import (
     PreviewToDraftView,
     PreviewToReviewView,
     QAStatusUpdateView,
+    ResultsExportView,
     ResultsView,
     ReviewToApproveView,
     ReviewToDraftView,
@@ -427,6 +428,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/results/$",
         ResultsView.as_view(),
         name="nimbus-ui-results",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/results/export/$",
+        ResultsExportView.as_view(),
+        name="nimbus-ui-results-export",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/create_branch_screenshot/$",
