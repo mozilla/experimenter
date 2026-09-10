@@ -6092,6 +6092,96 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(experiment.has_results_errors, expected_results)
 
+    @parameterized.expand(
+        [
+            (None, {}, 0),
+            ({"other_key": {}}, {}, 0),
+            ({"v3": {"errors": {"experiment": []}}}, {}, 0),
+            (
+                {
+                    "v3": {
+                        "errors": {
+                            "ad_clicks": [
+                                {"analysis_basis": "enrollments", "segment": "all"},
+                                {"analysis_basis": "exposures", "segment": "all"},
+                            ],
+                            "retained": [],
+                            "experiment": [{"analysis_basis": "enrollments"}],
+                        },
+                    }
+                },
+                {"ad_clicks": 2, "experiment": 1},
+                3,
+            ),
+        ]
+    )
+    def test_jetstream_errors(self, results_data, expected_by_key, expected_count):
+        experiment = NimbusExperimentFactory.create(results_data=results_data)
+
+        self.assertEqual(experiment.jetstream_errors_by_key, expected_by_key)
+        self.assertEqual(experiment.jetstream_errors_count, expected_count)
+
+    def test_reviewer_emails_returns_sorted_distinct_approvers(self):
+        experiment = NimbusExperimentFactory.create()
+        approver = UserFactory.create(email="zoe@example.com")
+
+        for changed_by, old_publish_status, new_publish_status in [
+            (
+                approver,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.APPROVED,
+            ),
+            (
+                approver,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.APPROVED,
+            ),
+            (
+                UserFactory.create(email="amy@example.com"),
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.APPROVED,
+            ),
+            (
+                UserFactory.create(email="requester@example.com"),
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.PublishStatus.REVIEW,
+            ),
+            (
+                UserFactory.create(email="rejecter@example.com"),
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+            ),
+        ]:
+            NimbusChangeLogFactory.create(
+                experiment=experiment,
+                changed_by=changed_by,
+                old_publish_status=old_publish_status,
+                new_publish_status=new_publish_status,
+            )
+
+        self.assertEqual(
+            experiment.reviewer_emails, ["amy@example.com", "zoe@example.com"]
+        )
+
+    def test_editor_emails_excludes_automated_changelog_user(self):
+        experiment = NimbusExperimentFactory.create()
+        editor = UserFactory.create(email="zoe@example.com")
+
+        for changed_by in [
+            editor,
+            editor,
+            UserFactory.create(email="amy@example.com"),
+            UserFactory.create(email=settings.KINTO_DEFAULT_CHANGELOG_USER),
+        ]:
+            NimbusChangeLogFactory.create(
+                experiment=experiment,
+                changed_by=changed_by,
+                old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            )
+
+        self.assertEqual(experiment.editor_emails, ["amy@example.com", "zoe@example.com"])
+
     def test_monitoring_summary_returns_none_when_no_monitoring_data(self):
         experiment = NimbusExperimentFactory.create(monitoring_data=None)
         self.assertIsNone(experiment.monitoring_summary)

@@ -15,10 +15,12 @@ from experimenter.experiments.tests.api.v5.test_serializers.mixins import (
     MockFmlErrorMixin,
 )
 from experimenter.experiments.tests.factories import (
+    NimbusChangeLogFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
     NimbusFmlErrorDataClass,
 )
+from experimenter.openidc.tests.factories import UserFactory
 
 
 @override_settings(
@@ -356,6 +358,68 @@ class TestNimbusExperimentYamlListView(TestCase):
             "search_metrics"
         ]["search_count"]
         self.assertEqual(search["significance"]["treatment"]["overall"]["1"], "positive")
+
+    def test_yaml_contains_reviewers_editors_and_jetstream_errors(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            name="Reviewed Experiment",
+            slug="reviewed-experiment",
+            application=application,
+            feature_configs=[feature_config],
+            owner=UserFactory.create(email="owner@example.com"),
+            results_data={
+                "v3": {
+                    "errors": {
+                        "ad_clicks": [
+                            {"analysis_basis": "enrollments", "segment": "all"},
+                            {"analysis_basis": "exposures", "segment": "all"},
+                        ],
+                        "retained": [],
+                        "experiment": [{"analysis_basis": "enrollments"}],
+                    },
+                }
+            },
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=UserFactory.create(email="reviewer@example.com"),
+            old_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            new_publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=UserFactory.create(email=settings.KINTO_DEFAULT_CHANGELOG_USER),
+            old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        data = self._get_yaml()
+        exp = next(e for e in data if e["slug"] == "reviewed-experiment")
+
+        self.assertEqual(
+            exp["reviewer_emails"], ["owner@example.com", "reviewer@example.com"]
+        )
+        self.assertEqual(
+            exp["editor_emails"], ["owner@example.com", "reviewer@example.com"]
+        )
+        self.assertEqual(
+            exp["jetstream_errors_by_key"], {"ad_clicks": 2, "experiment": 1}
+        )
+
+    def test_yaml_omits_empty_jetstream_errors(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=application,
+            feature_configs=[feature_config],
+            results_data={"v3": {"errors": {"experiment": []}}},
+        )
+
+        data = self._get_yaml()
+        self.assertNotIn("jetstream_errors_by_key", data[0])
 
     def test_default_hypothesis_excluded(self):
         application = NimbusExperiment.Application.DESKTOP

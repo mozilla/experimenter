@@ -229,6 +229,9 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
     feature_configs = serializers.SerializerMethodField()
     experiment_summary = serializers.CharField(source="experiment_url")
     results_url = serializers.SerializerMethodField()
+    conclusion_recommendations = serializers.SerializerMethodField()
+    reviewer_emails = serializers.SerializerMethodField()
+    editor_emails = serializers.SerializerMethodField()
 
     class Meta:
         model = NimbusExperiment
@@ -249,6 +252,12 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
             "takeaways_gain_amount",
             "takeaways_qbr_learning",
             "takeaways_summary",
+            "conclusion_recommendations",
+            "project_impact",
+            "next_steps",
+            "reviewer_emails",
+            "editor_emails",
+            "jetstream_errors_count",
         ]
 
     def get_feature_configs(self, obj):
@@ -259,6 +268,15 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
 
     def get_results_url(self, obj):
         return f"{obj.experiment_url}results" if obj.results_ready else ""
+
+    def get_conclusion_recommendations(self, obj):
+        return ",".join(obj.conclusion_recommendation_labels)
+
+    def get_reviewer_emails(self, obj):
+        return ",".join(obj.reviewer_emails)
+
+    def get_editor_emails(self, obj):
+        return ",".join(obj.editor_emails)
 
 
 class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
@@ -294,6 +312,8 @@ class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
             "hypothesis",
             "is_rollout",
             "owner",
+            "reviewer_emails",
+            "editor_emails",
             "application_display",
             "channels",
             "feature_configs",
@@ -338,6 +358,7 @@ class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
             "excluded_experiments",
             "parent_experiment",
             "results_data",
+            "jetstream_errors_by_key",
         ]
 
     def get_hypothesis(self, obj):

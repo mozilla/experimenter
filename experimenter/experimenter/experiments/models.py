@@ -2759,6 +2759,41 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     return True
         return False
 
+    @property
+    def jetstream_errors_by_key(self):
+        counts = {}
+        if self.results_data:
+            errors = self.results_data.get("v3", {}).get("errors", {})
+            for key, key_errors in errors.items():
+                if key_errors:
+                    counts[key] = len(key_errors)
+        return counts
+
+    @property
+    def jetstream_errors_count(self):
+        return sum(self.jetstream_errors_by_key.values())
+
+    @property
+    def reviewer_emails(self):
+        return sorted(
+            {
+                change.changed_by.email
+                for change in self.changes.all()
+                if change.old_publish_status == self.PublishStatus.REVIEW
+                and change.new_publish_status == self.PublishStatus.APPROVED
+            }
+        )
+
+    @property
+    def editor_emails(self):
+        return sorted(
+            {
+                change.changed_by.email
+                for change in self.changes.all()
+                if change.changed_by.email != settings.KINTO_DEFAULT_CHANGELOG_USER
+            }
+        )
+
     def get_invalid_fields_errors(self, serializer_class=None):
         if serializer_class is None:
             serializer = self._review_serializer

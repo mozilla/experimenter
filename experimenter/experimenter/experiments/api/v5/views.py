@@ -5,7 +5,7 @@ from collections import defaultdict
 
 import yaml
 from dateutil.relativedelta import relativedelta
-from django.db.models import F
+from django.db.models import F, Prefetch
 from django.http import HttpResponse
 from rest_framework.generics import ListAPIView, UpdateAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -32,7 +32,15 @@ class NimbusExperimentCsvListView(CachedListMixin, ListAPIView):
     cache_content_type = "text/csv; charset=utf-8"
     queryset = (
         NimbusExperiment.objects.select_related("owner")
-        .prefetch_related("feature_configs")
+        .prefetch_related(
+            "feature_configs",
+            Prefetch(
+                "changes",
+                queryset=NimbusChangeLog.objects.select_related("changed_by").defer(
+                    "experiment_data"
+                ),
+            ),
+        )
         .filter(is_archived=False)
     )
     serializer_class = NimbusExperimentCsvSerializer
@@ -195,6 +203,12 @@ class NimbusExperimentYamlListView(CachedListMixin, ListAPIView):
             "tags",
             "required_experiments",
             "excluded_experiments",
+            Prefetch(
+                "changes",
+                queryset=NimbusChangeLog.objects.select_related("changed_by").defer(
+                    "experiment_data"
+                ),
+            ),
         )
         .filter(is_archived=False, status=NimbusExperiment.Status.COMPLETE)
         .order_by(F("_start_date").desc(nulls_last=True), "-id")
