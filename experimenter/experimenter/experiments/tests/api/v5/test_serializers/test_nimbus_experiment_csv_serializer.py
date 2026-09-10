@@ -52,7 +52,7 @@ class TestNimbusExperimentCsvSerializer(TestCase):
                 "next_steps": None,
                 "reviewer_emails": experiment.owner.email,
                 "editor_emails": experiment.owner.email,
-                "jetstream_errors_count": 0,
+                "analysis_errors_count": 0,
             },
         )
 
@@ -105,7 +105,7 @@ class TestNimbusExperimentCsvSerializer(TestCase):
             data["editor_emails"],
             "editor@example.com,owner@example.com,reviewer@example.com",
         )
-        self.assertEqual(data["jetstream_errors_count"], 3)
+        self.assertEqual(data["analysis_errors_count"], 3)
         self.assertEqual(data["conclusion_recommendations"], "Rerun,Graduate")
         self.assertEqual(data["project_impact"], NimbusExperiment.ProjectImpact.HIGH)
         self.assertEqual(data["next_steps"], "Ship it.")

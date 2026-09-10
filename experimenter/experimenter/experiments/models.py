@@ -2760,7 +2760,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return False
 
     @property
-    def jetstream_errors_by_key(self):
+    def analysis_errors_by_key(self):
         counts = {}
         if self.results_data:
             errors = self.results_data.get("v3", {}).get("errors", {})
@@ -2770,8 +2770,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return counts
 
     @property
-    def jetstream_errors_count(self):
-        return sum(self.jetstream_errors_by_key.values())
+    def analysis_errors_count(self):
+        return sum(self.analysis_errors_by_key.values())
 
     @property
     def reviewer_emails(self):

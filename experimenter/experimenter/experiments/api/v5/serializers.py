@@ -257,7 +257,7 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
             "next_steps",
             "reviewer_emails",
             "editor_emails",
-            "jetstream_errors_count",
+            "analysis_errors_count",
         ]
 
     def get_feature_configs(self, obj):
@@ -358,7 +358,7 @@ class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
             "excluded_experiments",
             "parent_experiment",
             "results_data",
-            "jetstream_errors_by_key",
+            "analysis_errors_by_key",
         ]
 
     def get_hypothesis(self, obj):

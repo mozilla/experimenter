@@ -359,7 +359,7 @@ class TestNimbusExperimentYamlListView(TestCase):
         ]["search_count"]
         self.assertEqual(search["significance"]["treatment"]["overall"]["1"], "positive")
 
-    def test_yaml_contains_reviewers_editors_and_jetstream_errors(self):
+    def test_yaml_contains_reviewers_editors_and_analysis_errors(self):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -404,11 +404,9 @@ class TestNimbusExperimentYamlListView(TestCase):
         self.assertEqual(
             exp["editor_emails"], ["owner@example.com", "reviewer@example.com"]
         )
-        self.assertEqual(
-            exp["jetstream_errors_by_key"], {"ad_clicks": 2, "experiment": 1}
-        )
+        self.assertEqual(exp["analysis_errors_by_key"], {"ad_clicks": 2, "experiment": 1})
 
-    def test_yaml_omits_empty_jetstream_errors(self):
+    def test_yaml_omits_empty_analysis_errors(self):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         NimbusExperimentFactory.create_with_lifecycle(
@@ -419,7 +417,7 @@ class TestNimbusExperimentYamlListView(TestCase):
         )
 
         data = self._get_yaml()
-        self.assertNotIn("jetstream_errors_by_key", data[0])
+        self.assertNotIn("analysis_errors_by_key", data[0])
 
     def test_default_hypothesis_excluded(self):
         application = NimbusExperiment.Application.DESKTOP

@@ -6115,11 +6115,11 @@ class TestNimbusExperiment(TestCase):
             ),
         ]
     )
-    def test_jetstream_errors(self, results_data, expected_by_key, expected_count):
+    def test_analysis_errors(self, results_data, expected_by_key, expected_count):
         experiment = NimbusExperimentFactory.create(results_data=results_data)
 
-        self.assertEqual(experiment.jetstream_errors_by_key, expected_by_key)
-        self.assertEqual(experiment.jetstream_errors_count, expected_count)
+        self.assertEqual(experiment.analysis_errors_by_key, expected_by_key)
+        self.assertEqual(experiment.analysis_errors_count, expected_count)
 
     def test_reviewer_emails_returns_sorted_distinct_approvers(self):
         experiment = NimbusExperimentFactory.create()
