@@ -210,6 +210,7 @@ JEXL_TO_BQ_COLUMN_IOS = {
 # Attributes with no corresponding column in nimbus_targeting_context.
 KNOWN_UNTRANSLATABLE = {
     "attachedFxAOAuthClients",  # privacy-sensitive, will never be recorded
+    "allowedNotificationOrigins",  # not yet recorded to the targeting context
     "isFirstRun",  # Desktop uses isFirstStartup; also mobile-only
     "is_first_run",
     "isNonStubFirstRun",
