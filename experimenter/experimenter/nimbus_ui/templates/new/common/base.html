@@ -53,6 +53,13 @@
                 <span>{{ experiment.slug }}</span>
                 <i class="fa-regular fa-copy"></i>
               </button>
+              <div class="d-flex align-items-center gap-1 small text-secondary">
+                <span id="experiment-application">{{ experiment.get_application_display }}</span>
+                <i class="fa-regular fa-circle-question"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="right"
+                   title="{{ NimbusUIConstants.ROLLOUT_APPLICATION_TOOLTIP }}"></i>
+              </div>
               {% if experiment.parent %}
                 <p class="text-secondary small mb-0">
                   Cloned from
