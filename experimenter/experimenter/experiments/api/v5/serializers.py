@@ -1696,6 +1696,53 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_desktop_fxms_message_coenrollment(self, data):
+        placeholder_slugs = sorted(
+            fc.slug
+            for fc in data.get("feature_configs", [])
+            if fc.slug.startswith(NimbusConstants.DESKTOP_FXMS_MESSAGE_PLACEHOLDER_PREFIX)
+        )
+
+        if not placeholder_slugs:
+            return data
+
+        min_version = NimbusExperiment.Version.parse(data["firefox_min_version"])
+        min_versioned_version = NimbusExperiment.Version.parse(
+            NimbusConstants.MIN_VERSIONED_FEATURE_VERSION[
+                NimbusExperiment.Application.DESKTOP
+            ]
+        )
+
+        if min_version < min_versioned_version:
+            return data
+
+        replacement = NimbusFeatureConfig.objects.filter(
+            slug=NimbusConstants.DESKTOP_FXMS_MESSAGE_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        ).first()
+
+        if replacement is None:
+            return data
+
+        max_version = data.get("firefox_max_version")
+        schema_range = replacement.get_versioned_schema_range(
+            min_version,
+            NimbusExperiment.Version.parse(max_version) if max_version else None,
+        )
+
+        if (
+            schema_range.schemas
+            and not schema_range.unsupported_versions
+            and all(schema.allow_coenrollment for schema in schema_range.schemas)
+        ):
+            self.warnings["fxms_message_coenrollment"] = [
+                NimbusConstants.WARNING_DESKTOP_FXMS_MESSAGE_COENROLLMENT.format(
+                    feature_slugs=", ".join(placeholder_slugs)
+                )
+            ]
+
+        return data
+
     @classmethod
     def _validate_mobile_messaging(cls, value: str):
         json_value = None
@@ -2013,6 +2060,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_pref_rollouts(data)
             data = self._validate_desktop_pref_flips(data)
             data = self._validate_desktop_multichannel(data)
+            data = self._validate_desktop_fxms_message_coenrollment(data)
         return data
 
 
