@@ -37,6 +37,13 @@ document.addEventListener("click", (event) => {
   }
 });
 
+document.addEventListener("click", (event) => {
+  const trigger = event.target.closest?.("[data-copy-text]");
+  if (trigger) {
+    navigator.clipboard?.writeText(trigger.dataset.copyText);
+  }
+});
+
 const expandCard = (card) => {
   const collapse = card.querySelector(".accordion-collapse");
   if (collapse && !collapse.classList.contains("show")) {
