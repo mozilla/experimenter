@@ -67,15 +67,26 @@
           <div class="d-flex flex-wrap gap-4">
             {% for screenshot in screenshots %}
               {% if screenshot.image %}
-                <figure class="mb-0 border border-secondary-subtle rounded overflow-hidden"
+                <figure id="rollout-features-screenshot-{{ forloop.counter0 }}"
+                        class="mb-0 border border-secondary-subtle rounded overflow-hidden"
                         style="width: min-content">
-                  <img src="{{ screenshot.image.url }}"
-                       alt="{{ screenshot.description }}"
-                       title="{{ screenshot.description }}"
-                       style="display: block;
-                              height: 125px;
-                              width: auto;
-                              object-fit: cover">
+                  <div class="position-relative">
+                    <img src="{{ screenshot.image.url }}"
+                         alt="{{ screenshot.description }}"
+                         title="{{ screenshot.description }}"
+                         style="display: block;
+                                height: 125px;
+                                width: auto;
+                                object-fit: cover">
+                    <button type="button"
+                            class="position-absolute top-0 end-0 m-1 p-2 border-0 rounded lh-1 opacity-75 bg-body-secondary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#rollout-features-screenshot-modal-{{ forloop.counter0 }}"
+                            aria-label="Enlarge screenshot">
+                      <i class="fa-solid fa-up-right-and-down-left-from-center text-muted"
+                         aria-hidden="true"></i>
+                    </button>
+                  </div>
                   {% if screenshot.description %}
                     <figcaption id="rollout-features-screenshot-description-{{ forloop.counter0 }}"
                                 class="small text-body border-top border-secondary-subtle px-2 py-1"
@@ -83,6 +94,31 @@
                                        white-space: pre-wrap">{{ screenshot.description }}</figcaption>
                   {% endif %}
                 </figure>
+                <div class="modal fade"
+                     id="rollout-features-screenshot-modal-{{ forloop.counter0 }}"
+                     tabindex="-1"
+                     aria-labelledby="rollout-features-screenshot-modal-label-{{ forloop.counter0 }}"
+                     aria-hidden="true">
+                  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5"
+                            id="rollout-features-screenshot-modal-label-{{ forloop.counter0 }}">
+                          {{ screenshot.description|default:"Rollout screenshot" }}
+                        </h1>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body text-center">
+                        <img src="{{ screenshot.image.url }}"
+                             alt="{{ screenshot.description }}"
+                             class="img-fluid" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               {% endif %}
             {% endfor %}
           </div>
