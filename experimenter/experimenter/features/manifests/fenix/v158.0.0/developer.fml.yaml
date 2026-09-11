@@ -336,8 +336,6 @@ features:
         default:
           top-sites: true
           jump-back-in: true
-          bookmarks: true
-          recent-explorations: true
           pocket: true
           pocket-sponsored-stories: true
           synced-tabs: true
@@ -1089,7 +1087,7 @@ features:
       enabled:
         description: If true, show the expand/collapse buttons on the homepage.
         type: Boolean
-        default: false
+        default: true
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
@@ -1337,8 +1335,6 @@ enums:
   HomeScreenSection:
     description: The identifiers for the sections of the homescreen.
     variants:
-      bookmarks:
-        description: The sites the user has bookmarked.
       collections:
         description: The collections section of the homepage.
       jump-back-in:
@@ -1349,8 +1345,6 @@ enums:
         description: Subsection of the Pocket homescreen section which shows sponsored stories.
       privacy-report:
         description: The privacy report section showing trackers blocked.
-      recent-explorations:
-        description: The tab groups
       synced-tabs:
         description: The synced tabs section of the homepage.
       top-sites:
