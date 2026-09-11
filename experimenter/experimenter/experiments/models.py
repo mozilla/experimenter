@@ -2735,7 +2735,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "entries": entries,
                 "self_issues": self_issues,
                 "variant": "warning",
-                "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                "learn_more_link": (
+                    NimbusUIConstants.AUDIENCE_OVERLAP_WARNING if entries else None
+                ),
             }
         ]
 
