@@ -4571,6 +4571,39 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.context["displayed_window"], expected_window)
 
 
+class TestResultsExportView(AuthTestCase):
+    def test_exports_results_data(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            results_data={"v3": {"weekly": {"enrollments": {"all": {}}}}},
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-results-export", kwargs={"slug": experiment.slug}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
+        self.assertEqual(
+            response["Content-Disposition"],
+            f'attachment; filename="{experiment.slug}-results.json"',
+        )
+        self.assertEqual(json.loads(response.content), experiment.results_data)
+
+    def test_exports_empty_object_when_no_results(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            results_data=None,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-results-export", kwargs={"slug": experiment.slug}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content), {})
+
+
 class TestBranchScreenshotCreateView(AuthTestCase):
     def test_post_creates_screenshot(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
