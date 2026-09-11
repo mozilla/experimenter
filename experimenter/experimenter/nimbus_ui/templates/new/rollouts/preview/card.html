@@ -55,7 +55,7 @@
                  tabindex="-1"
                  aria-labelledby="rollout-preview-screenshot-modal-label"
                  aria-hidden="true">
-              <div class="modal-dialog modal-md modal-dialog-centered">
+              <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                   <div class="modal-header">
                     <h1 class="modal-title fs-5" id="rollout-preview-screenshot-modal-label">Rollout experience</h1>
@@ -64,14 +64,14 @@
                             data-bs-dismiss="modal"
                             aria-label="Close"></button>
                   </div>
-                  <div class="modal-body d-flex flex-column gap-3">
+                  <div class="modal-body d-flex flex-column gap-4">
                     {% for screenshot in experiment.reference_branch.screenshots.all %}
                       {% if screenshot.image %}
-                        <div>
+                        <div class="text-center border border-secondary-subtle rounded p-3">
                           <img src="{{ screenshot.image.url }}"
                                alt="{{ screenshot.description|default:'Rollout experience screenshot' }}"
-                               class="img-fluid w-100" />
-                          {% if screenshot.description %}<div class="mt-2 small text-body">{{ screenshot.description }}</div>{% endif %}
+                               class="img-fluid" />
+                          {% if screenshot.description %}<div class="mt-2 text-body">{{ screenshot.description }}</div>{% endif %}
                         </div>
                       {% endif %}
                     {% endfor %}
