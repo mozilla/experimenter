@@ -293,12 +293,14 @@ class RolloutSetupProgressMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        review_errors = self.object.get_invalid_fields_errors(
+            serializer_class=NimbusRolloutReviewSerializer
+        )
+        context["has_rollout_review_errors"] = self.object.is_rollout and bool(
+            review_errors
+        )
         field_errors = self.split_branch_screenshot_errors(
-            self.drop_documentation_link_title_errors(
-                self.object.get_invalid_fields_errors(
-                    serializer_class=NimbusRolloutReviewSerializer
-                )
-            )
+            self.drop_documentation_link_title_errors(review_errors)
         )
         cards = NimbusUIConstants.ROLLOUT_CARD_FIELDS
 
@@ -875,7 +877,9 @@ class NewCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
         return response
 
 
-class NewToggleArchiveView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class NewToggleArchiveView(
+    RolloutSetupProgressMixin, NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+):
     form_class = ToggleArchiveForm
     template_name = "new/common/base.html"
 

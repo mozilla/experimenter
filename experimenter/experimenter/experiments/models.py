@@ -1404,18 +1404,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return phases[next_index] if next_index < len(phases) else None
 
     @property
-    def has_rollout_review_errors(self):
-        from experimenter.experiments.api.v5.serializers import (
-            NimbusRolloutReviewSerializer,
-        )
-
-        if not self.is_rollout:
-            return False
-        return bool(
-            self.get_invalid_fields_errors(serializer_class=NimbusRolloutReviewSerializer)
-        )
-
-    @property
     def next_rollout_phase_number(self):
         next_phase = self.next_rollout_phase
         if next_phase is None:
