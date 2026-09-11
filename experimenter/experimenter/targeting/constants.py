@@ -38,6 +38,9 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
         "isNonStubFirstRun",
         "localeLanguageCode",
         "attachedFxAOAuthClients",
+        # Remove once the recorded targeting context manifest includes this
+        # attribute (Bug 2069104).
+        "allowedNotificationOrigins",
     },
     Application.FENIX: {
         "current_date",
@@ -5843,6 +5846,39 @@ EXISTING_USER_NO_ENTERPRISE = NimbusTargetingConfig(
         "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
         " && "
         "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+HAS_ALLOWED_NOTIFICATIONS = NimbusTargetingConfig(
+    name="Has allowed web notifications",
+    slug="has_allowed_notifications",
+    description=(
+        "Desktop users who have granted notification permission to at least one origin"
+    ),
+    targeting="allowedNotificationOrigins > 0",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+CBWN_DELIVERY_ESTABLISHED_PROFILES = NimbusTargetingConfig(
+    name="Closed-browser web notifications, established profiles",
+    slug="cbwn_delivery_established_profiles",
+    description=(
+        "Windows 10+ users with profiles 28 days or older, without active "
+        "enterprise policies, who have granted notification permission to at "
+        "least one origin"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && "
+        f"{PROFILE28DAYS} && "
+        f"{NO_ENTERPRISE.targeting} && "
+        f"{HAS_ALLOWED_NOTIFICATIONS.targeting}"
     ),
     desktop_telemetry="",
     sticky_required=True,
