@@ -865,6 +865,66 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         else:
             self.assertNotContains(response, reenable_url)
 
+    def test_rollout_targeting_multiple_collections_renders_with_errors(self):
+        default_feature = NimbusFeatureConfigFactory.create(
+            slug="abouthomecache",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        secure_feature = NimbusFeatureConfigFactory.create(
+            slug="prefFlips",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_139,
+            feature_configs=[default_feature, secure_feature],
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["uses_secure_collection"])
+        self.assertEqual(
+            response.context["validation_errors"]["feature_configs"],
+            [
+                NimbusConstants.ERROR_INCOMPATIBLE_FEATURES,
+                NimbusConstants.ERROR_FEATURE_TARGET_COLLECTION.format(
+                    feature_id="abouthomecache",
+                    collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+                ),
+                NimbusConstants.ERROR_FEATURE_TARGET_COLLECTION.format(
+                    feature_id="prefFlips",
+                    collection=settings.KINTO_COLLECTION_NIMBUS_SECURE,
+                ),
+            ],
+        )
+        self.assertContains(response, NimbusConstants.ERROR_INCOMPATIBLE_FEATURES)
+        features_issues = [
+            group
+            for group in response.context["setup_issues"]
+            if group["card_id"] == "rollout-features"
+        ]
+        self.assertEqual(len(features_issues), 1, response.context["setup_issues"])
+        self.assertIn(
+            NimbusConstants.ERROR_INCOMPATIBLE_FEATURES,
+            [
+                message
+                for field in features_issues[0]["fields"]
+                for message in field["messages"]
+            ],
+        )
+        self.assertNotContains(
+            response,
+            reverse(
+                "nimbus-ui-new-draft-to-review-rollout", kwargs={"slug": experiment.slug}
+            ),
+        )
+
     def test_get_returns_new_rollout_detail_context(self):
         tag = TagFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
