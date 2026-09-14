@@ -407,6 +407,10 @@ Optional - We expect this to <describe impact> on <core metric>.
         "Resolve the highlighted errors above before saving this plan."
     )
     ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
+    ROLLOUT_APPLICATION_TOOLTIP = (
+        "Rollouts can only target one Application at a time. Application can "
+        "not be changed after a rollout is created."
+    )
     ROLLOUT_REVIEW_PENDING_TOOLTIP = "A review is currently pending."
     ROLLOUT_NO_NEXT_PHASE_TOOLTIP = "There is no further phase to start."
     ROLLOUT_HAS_ISSUES_TOOLTIP = "All rollout issues must be resolved first."
@@ -488,7 +492,6 @@ Optional - We expect this to <describe impact> on <core metric>.
                 ("Name", ("name",)),
                 ("Observations & Problem Space", ("hypothesis",)),
                 ("Public Description", ("public_description",)),
-                ("Application", ("application",)),
                 ("Important Links", ("documentation_links",)),
                 ("Project Tags", ()),
                 ("Subscribers", ()),

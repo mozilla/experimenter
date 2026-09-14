@@ -1284,6 +1284,60 @@ class TestNimbusCheckKintoPushQueueByCollection(
             ),
         )
 
+    def test_remote_settings_update_approval_commits_phase_with_unchanged_population(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
+            application=NimbusExperiment.Application.FENIX,
+            is_rollout=True,
+        )
+        experiment.published_dto = {"id": experiment.slug}
+        current_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=50
+        )
+        next_phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=50
+        )
+        experiment.rollout_phase = current_phase
+        experiment.population_percent = current_phase.population_percent
+        experiment.save()
+        experiment.stage_rollout_phase_advance()
+
+        self.assertEqual(experiment.rollout_phase, current_phase)
+        self.assertEqual(experiment.rollout_phase_next, next_phase)
+
+        tasks.handle_updating_experiments(
+            [NimbusExperiment.Application.FENIX],
+            {
+                experiment.slug: {
+                    "id": experiment.slug,
+                    "last_modified": 1,
+                }
+            },
+            experiment.kinto_collection,
+        )
+
+        experiment.refresh_from_db()
+        current_phase.refresh_from_db()
+        next_phase.refresh_from_db()
+        self.assertEqual(experiment.rollout_phase, next_phase)
+        self.assertIsNone(experiment.rollout_phase_next)
+        self.assertEqual(current_phase.end_date, timezone.now().date())
+        self.assertEqual(next_phase.actual_start_date, timezone.now().date())
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertIsNone(experiment.status_next)
+        self.assertTrue(
+            experiment.changes.filter(
+                message=NimbusChangeLog.Messages.UPDATED_IN_KINTO
+            ).exists()
+        )
+        self.assertFalse(
+            experiment.changes.filter(
+                message=NimbusChangeLog.Messages.REJECTED_FROM_KINTO
+            ).exists()
+        )
+
     def test_remote_settings_rejection_reverts_staged_rollout_phase(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
