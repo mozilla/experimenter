@@ -3691,9 +3691,13 @@ class NimbusChangeLogManager(models.Manager["NimbusChangeLog"]):
 
     def latest_rejection(self):
         change = self.latest_change()
-        if change and change.has_filter(
-            NimbusChangeLog.Filters.IS_REJECTION
-            | NimbusChangeLog.Filters.IS_UPDATE_REJECTION
+        if (
+            change
+            and change.message != NimbusChangeLog.Messages.UPDATED_IN_KINTO
+            and change.has_filter(
+                NimbusChangeLog.Filters.IS_REJECTION
+                | NimbusChangeLog.Filters.IS_UPDATE_REJECTION
+            )
         ):
             return change
 
