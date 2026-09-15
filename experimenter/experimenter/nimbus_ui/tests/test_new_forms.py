@@ -918,6 +918,38 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         self.assertEqual(feature_value_form["value"].value(), "{}")
         self.assertEqual(experiment.feature_configs.count(), 0)
 
+    def test_selected_feature_without_value_gets_schema_for_autocomplete(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-autocomplete",
+            schemas=[NimbusVersionedSchemaFactory.build(version=None)],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+        )
+
+        form = RolloutFeaturesForm(
+            instance=experiment,
+            data={
+                "rollout_experience": "Updated rollout experience",
+                "feature_configs": [feature_config.id],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "branch-feature-value-MIN_NUM_FORMS": "0",
+                "branch-feature-value-MAX_NUM_FORMS": "1000",
+            },
+            request=self.request,
+        )
+
+        feature_value_form = form.branch_feature_values.forms[0]
+        schema = feature_config.schemas.get(version=None)
+        self.assertEqual(
+            json.loads(feature_value_form.fields["value"].widget.attrs["data-schema"]),
+            json.loads(schema.schema),
+        )
+
     def test_temporary_feature_value_form_saves_typed_value(self):
         feature_config = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
