@@ -3527,6 +3527,77 @@ class TestNimbusExperiment(TestCase):
             experiment.review_warnings,
         )
 
+    def test_rollout_review_warnings_survive_blank_branch_description(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10, end_date=None
+        )
+        experiment.reference_branch.description = ""
+        experiment.reference_branch.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertIn("reference_branch", experiment._review_serializer.errors)
+        self.assertEqual(experiment.review_warnings, [])
+        self.assertIn(
+            NimbusUIConstants.REVIEW_WARNING_LABELS["firefox_min_version"],
+            [issue["label"] for issue in experiment.rollout_review_warnings],
+        )
+        self.assertEqual(len(experiment.rollout_audience_overlap_warnings), 1)
+
+    def test_rollout_review_warnings_empty_while_rollout_has_review_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+            is_rollout=True,
+        )
+
+        self.assertIn("rollout_phases", experiment._rollout_review_serializer.errors)
+        self.assertEqual(experiment.rollout_review_warnings, [])
+        self.assertEqual(experiment.rollout_audience_overlap_warnings, [])
+
+    def test_review_warnings_unchanged_for_rollout_without_phases(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+            is_rollout=True,
+        )
+
+        self.assertEqual(experiment.rollout_phases.count(), 0)
+        self.assertIn(
+            NimbusUIConstants.REVIEW_WARNING_LABELS["firefox_min_version"],
+            [issue["label"] for issue in experiment.review_warnings],
+        )
+        self.assertEqual(len(experiment.audience_overlap_warnings), 1)
+
+    def test_rollout_review_warnings_match_review_warnings_for_experiments(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[
+                NimbusExperiment.Channel.NIGHTLY,
+                NimbusExperiment.Channel.RELEASE,
+            ],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            is_rollout=False,
+        )
+
+        self.assertIs(
+            experiment._rollout_review_serializer, experiment._review_serializer
+        )
+        self.assertEqual(experiment.rollout_review_warnings, experiment.review_warnings)
+        self.assertEqual(
+            experiment.rollout_audience_overlap_warnings,
+            experiment.audience_overlap_warnings,
+        )
+
     def test_review_warnings_proposed_release_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
