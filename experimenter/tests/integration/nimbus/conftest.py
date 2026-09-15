@@ -55,7 +55,6 @@ def pytest_addoption(parser):
 
 
 KINTO_DRIVING_FIXTURES = frozenset({"kinto_client", "live_rollout"})
-TEARDOWN_APPROVAL_RETRIES = 15
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -182,7 +181,6 @@ def selenium(selenium, experiment_slug, kinto_client):
     try:
         if not helpers.is_rollout(experiment_slug):
             helpers.end_experiment(experiment_slug)
-            kinto_client().approve(retries=TEARDOWN_APPROVAL_RETRIES)
     except Exception:
         pass
 
