@@ -711,7 +711,7 @@ class TestRolloutAudienceForm(RequestFormTestCase):
 
         self.assertFalse(updated_experiment.is_rollout_dirty)
 
-    def test_targeting_config_choices_filtered_by_application_and_sorted(self):
+    def test_targeting_config_choices_pin_no_targeting_then_sort(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
@@ -721,16 +721,20 @@ class TestRolloutAudienceForm(RequestFormTestCase):
 
         actual_choices = form.fields["targeting_config_slug"].choices
         application = NimbusExperiment.Application(experiment.application)
-        expected_choices = sorted(
+        expected_remaining_choices = sorted(
             [
                 (targeting.slug, f"{targeting.name} - {targeting.description}")
                 for targeting in NimbusTargetingConfig.targeting_configs
                 if application.name in targeting.application_choice_names
+                and targeting.slug != NimbusExperiment.TargetingConfig.NO_TARGETING
             ],
             key=lambda choice: choice[1].lower(),
         )
 
-        self.assertEqual(actual_choices, expected_choices)
+        self.assertEqual(
+            actual_choices[0][0], NimbusExperiment.TargetingConfig.NO_TARGETING
+        )
+        self.assertEqual(actual_choices[1:], expected_remaining_choices)
 
     def test_initial_experiment_branch_choices_include_existing_relations(self):
         required = NimbusExperimentFactory.create_with_lifecycle(
