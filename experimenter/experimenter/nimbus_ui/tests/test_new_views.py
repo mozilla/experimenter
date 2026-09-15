@@ -746,10 +746,19 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
             risk_brand=risk_brand,
         )
+        today = datetime.date.today()
         current_phase = NimbusRolloutPhaseFactory.create(
-            experiment=experiment, population_percent=10
+            experiment=experiment,
+            population_percent=10,
+            start_date=today,
+            end_date=today + datetime.timedelta(days=7),
         )
-        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=20)
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=20,
+            start_date=today + datetime.timedelta(days=7),
+            end_date=today + datetime.timedelta(days=14),
+        )
         experiment.rollout_phase = current_phase
         experiment.save()
         advance_url = reverse(
