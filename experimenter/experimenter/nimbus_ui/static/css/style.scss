@@ -379,6 +379,25 @@
   }
 }
 
+.card-body-spinner {
+  display: none;
+}
+
+.card-action-button.htmx-request {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.rollout-card:has(.card-action-button.htmx-request) .card-body-spinner {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--bs-body-bg-rgb), 0.6);
+}
+
 .sidebar-transition-spinner {
   display: none;
 }
