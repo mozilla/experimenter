@@ -275,6 +275,32 @@ urlbar:
     autoFillAdaptiveHistoryUseCountThreshold:
       type: string
       description: This value assumes float expression like "0.47". Threshold for use count of input history that we handle as adaptive history autofill. If the use count is this value or more, it will be a candidate.
+    autoFillAdaptiveHistoryUrlMinPicks:
+      type: int
+      setPref:
+        pref: browser.urlbar.autoFill.adaptiveHistory.urlMinPicks
+        branch: user
+      description: >-
+        Roughly how many times the user has to pick a specific page from the
+        address bar for a given typed string before Firefox starts autofilling
+        that page. Only applies to individual pages, not to domains: a domain
+        like example.com is still autofilled on the first pick, while a page
+        like example.com/dashboard needs this many. This is a rough count
+        rather than an exact one, because how often the user picks the page
+        matters as well as how many times: picking a page a handful of times
+        this week counts for more than the same number of picks spread over a
+        year. Raise it to autofill pages for fewer users, lower it to autofill
+        pages for more users.
+    autoFillAdaptiveHistoryUrlPicksAgeDays:
+      type: int
+      setPref:
+        pref: browser.urlbar.autoFill.adaptiveHistory.urlPicksAgeDays
+        branch: user
+      description: >-
+        How spread out over time the picks counted by
+        autoFillAdaptiveHistoryUrlMinPicks are allowed to be. Raise it to
+        qualify users who pick a page at a slower pace, lower it to require
+        picks to be more recent and more closely spaced.
     autoFillBackspaceBlockDurationMs:
       type: int
       setPref:
@@ -2065,12 +2091,6 @@ pocketNewtab:
       setPref:
         branch: user
         pref: "browser.newtabpage.activity-stream.discoverystream.endpoints"
-    spocsClearEndpoint:
-      description: URL for deleting any server data when a user opts out of sponsored content
-      type: string
-      setPref:
-        branch: user
-        pref: "browser.newtabpage.activity-stream.discoverystream.endpointSpocsClear"
     ctaButtonSponsors:
       description: A CSV list of sponsors that should use a button CTA.
       type: string
