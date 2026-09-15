@@ -5639,8 +5639,7 @@ SPLIT_VIEW_HAS_BEEN_USED = NimbusTargetingConfig(
         "enterprise policies"
     ),
     targeting=(
-        "'browser.tabs.splitview.hasUsed'|preferenceValue && "
-        "!hasActiveEnterprisePolicies"
+        "'browser.tabs.splitview.hasUsed'|preferenceValue && !hasActiveEnterprisePolicies"
     ),
     desktop_telemetry="",
     sticky_required=False,
