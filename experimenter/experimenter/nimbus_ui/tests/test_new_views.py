@@ -10,6 +10,7 @@ from django.test import TestCase, override_settings
 from django.urls import resolve, reverse
 from django.utils import timezone
 from django.utils.dateformat import format as date_format
+from django.utils.html import escape
 from parameterized import parameterized
 
 from experimenter.base.models import SiteFlag, SiteFlagNameChoices
@@ -3677,6 +3678,108 @@ class TestNewRolloutPlanCreateView(AuthTestCase):
         self.assertFalse(
             NimbusRolloutPlanTemplate.objects.filter(name=plan_name).exists()
         )
+
+    def test_post_duplicate_phases_is_rejected(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        plan_name, plan_phases = next(
+            iter(NimbusUIConstants.ROLLOUT_TEMPLATE_PLANS.items())
+        )
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=population_percent
+            )
+            for population_percent in plan_phases
+        ]
+        data = {
+            "rollout_phases-TOTAL_FORMS": str(len(phases)),
+            "rollout_phases-INITIAL_FORMS": str(len(phases)),
+            "template_name": "My duplicate plan",
+        }
+        for index, phase in enumerate(phases):
+            data[f"rollout_phases-{index}-id"] = phase.id
+            data[f"rollout_phases-{index}-population_percent"] = str(plan_phases[index])
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}), data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            escape(
+                NimbusUIConstants.ERROR_ROLLOUT_PLAN_PHASES_DUPLICATE.format(
+                    name=plan_name
+                )
+            ),
+        )
+        self.assertFalse(
+            NimbusRolloutPlanTemplate.objects.filter(name="My duplicate plan").exists()
+        )
+
+    def test_post_reordered_phases_are_allowed(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        phase1 = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=100
+        )
+        phase2 = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=50
+        )
+        NimbusRolloutPlanTemplate.objects.create(name="Ramp up", phases=[50.0, 100.0])
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "2",
+                "rollout_phases-INITIAL_FORMS": "2",
+                "rollout_phases-0-id": phase1.id,
+                "rollout_phases-0-population_percent": "100",
+                "rollout_phases-1-id": phase2.id,
+                "rollout_phases-1-population_percent": "50",
+                "template_name": "Ramp down",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        template = NimbusRolloutPlanTemplate.objects.get(name="Ramp down")
+        self.assertEqual(template.phases, [100.0, 50.0])
+
+    def test_post_excludes_removed_phases_from_duplicate_check(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        plan_name, plan_percentages = next(
+            (name, percentages)
+            for name, percentages in NimbusUIConstants.ROLLOUT_TEMPLATE_PLANS.items()
+            if len(percentages) > 1
+        )
+        data = {
+            "rollout_phases-TOTAL_FORMS": str(len(plan_percentages)),
+            "rollout_phases-INITIAL_FORMS": "0",
+            "rollout_phases-0-DELETE": "on",
+            "template_name": "Trimmed plan",
+        }
+        for index, population_percent in enumerate(plan_percentages):
+            data[f"rollout_phases-{index}-population_percent"] = str(population_percent)
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}), data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(
+            response,
+            escape(
+                NimbusUIConstants.ERROR_ROLLOUT_PLAN_PHASES_DUPLICATE.format(
+                    name=plan_name
+                )
+            ),
+        )
+        template = NimbusRolloutPlanTemplate.objects.get(name="Trimmed plan")
+        self.assertEqual(template.phases, [float(pct) for pct in plan_percentages[1:]])
 
 
 class TestNewSubscribeView(AuthTestCase):

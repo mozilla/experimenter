@@ -1949,23 +1949,41 @@ class RolloutPlanCreateForm(RolloutScheduleForm):
             )
         return name
 
+    def submitted_phases(self):
+        return [
+            float(phase_form.cleaned_data["population_percent"])
+            for phase_form in self.rollout_phases.forms
+            if phase_form.cleaned_data.get("population_percent") is not None
+            and not phase_form.cleaned_data.get("DELETE")
+        ]
+
+    def duplicate_plan_name(self):
+        phases = self.submitted_phases()
+        for name, plan_phases in self.plans.items():
+            if [float(percent) for percent in plan_phases] == phases:
+                return name
+        return None
+
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get("template_name") and not self.rollout_phases.is_valid():
-            self.add_error(
-                "template_name", NimbusUIConstants.ERROR_ROLLOUT_PLAN_FIX_ERRORS
-            )
+        if cleaned_data.get("template_name"):
+            if not self.rollout_phases.is_valid():
+                self.add_error(
+                    "template_name", NimbusUIConstants.ERROR_ROLLOUT_PLAN_FIX_ERRORS
+                )
+            elif duplicate_name := self.duplicate_plan_name():
+                self.add_error(
+                    "template_name",
+                    NimbusUIConstants.ERROR_ROLLOUT_PLAN_PHASES_DUPLICATE.format(
+                        name=duplicate_name
+                    ),
+                )
         return cleaned_data
 
     def save(self):
         NimbusRolloutPlanTemplate.objects.create(
             name=self.cleaned_data["template_name"],
-            phases=[
-                float(phase_form.cleaned_data["population_percent"])
-                for phase_form in self.rollout_phases.forms
-                if phase_form.cleaned_data.get("population_percent") is not None
-                and not phase_form.cleaned_data.get("DELETE")
-            ],
+            phases=self.submitted_phases(),
         )
         return self.instance
 

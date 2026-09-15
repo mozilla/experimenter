@@ -32,7 +32,7 @@
           {{ phase_form.DELETE.as_hidden }}
         {% else %}
           {% with display=phase_form.card_status_display %}
-            <div class="p-3 rounded"
+            <div class="px-3 pt-3 rounded {% if phase_form.errors %}pb-5{% else %}pb-3{% endif %}"
                  {% if phase_form.is_current %}style="background-color: rgba(var(--bs-{{ display.color }}-rgb), 0.07)"{% endif %}>
               {{ phase_form.id }}
               {# Phase Number and Status #}
@@ -149,6 +149,7 @@
           {% if form.template_name.errors %}
             <div class="text-danger small mt-1">{{ form.template_name.errors|join:", " }}</div>
           {% endif %}
+          <div class="text-secondary mt-1" style="font-size: 12px">{{ NimbusUIConstants.ROLLOUT_PLAN_VISIBILITY_NOTE }}</div>
         </div>
       </div>
     {% endif %}
