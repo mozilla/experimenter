@@ -4,6 +4,7 @@ import time
 
 from pypom import Page
 from selenium.common.exceptions import (
+    ElementClickInterceptedException,
     NoSuchElementException,
     StaleElementReferenceException,
     TimeoutException,
@@ -34,6 +35,8 @@ class Base(Page):
 
     RELOAD_POLL_TIMEOUT = 10
     RELOAD_POLL_INTERVAL = 5
+    CLICK_RETRY_TIMEOUT = 15
+    CLICK_RETRY_INTERVAL = 0.5
 
     def __init__(self, selenium, base_url, **kwargs):
         super().__init__(selenium, base_url, timeout=120, **kwargs)
@@ -57,6 +60,13 @@ class Base(Page):
         self.selenium.execute_script(
             "arguments[0].scrollIntoView({block: 'center'});", element
         )
+
+    def _dismiss_toasts(self):
+        with contextlib.suppress(Exception):
+            self.selenium.execute_script(
+                "document.querySelectorAll('.toast.show')"
+                ".forEach((toast) => toast.classList.remove('show'));"
+            )
 
     def _wait_clickable(self, locator):
         logger.info(f"_wait_clickable: {locator}")
@@ -186,8 +196,24 @@ class Base(Page):
 
     def click_element(self, locator):
         logger.info(f"click_element: {locator}")
-        el = self._wait_clickable(locator)
-        el.click()
+
+        def _attempt_click(driver):
+            try:
+                self._wait_clickable(locator).click()
+            except ElementClickInterceptedException:
+                logger.info(f"click_element: {locator} obscured, dismissing toasts")
+                self._dismiss_toasts()
+                return False
+            return True
+
+        WebDriverWait(
+            self.selenium,
+            self.CLICK_RETRY_TIMEOUT,
+            poll_frequency=self.CLICK_RETRY_INTERVAL,
+        ).until(
+            _attempt_click,
+            message=f"{self.PAGE_TITLE}: {locator} remained obscured",
+        )
         logger.info("click_element: done")
 
     def js_click(self, elem):
