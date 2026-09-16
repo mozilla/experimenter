@@ -135,6 +135,14 @@ firefox-suggest-feature:
       type: boolean
       description: |
         Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
+glean-server-knobs:
+  description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    metrics-enabled:
+      type: json
+      description: A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric.
 google-lens-feature:
   description: |
     The feature flag to manage the rollout of Google Lens entry points.
