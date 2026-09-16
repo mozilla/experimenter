@@ -39,7 +39,10 @@ from experimenter.base.models import (
 from experimenter.experiments.constants import (
     ENROLLMENT_FUNNEL_STAGES,
     NIMBUS_TARGETING_CONTEXT_TABLE,
+    NIMBUS_TARGETING_CONTEXT_TABLE_FENIX,
+    NIMBUS_TARGETING_CONTEXT_TABLE_IOS,
     SIZING_FULL_SQL_TEMPLATE,
+    SIZING_FULL_SQL_TEMPLATE_MOBILE,
     SIZING_SAMPLE_ID_MAX,
     SIZING_WINDOW_DAYS,
     BucketRandomizationUnit,
@@ -2516,8 +2519,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         predicate = self.sizing_sql_display
         if not predicate:
             return None
-        return SIZING_FULL_SQL_TEMPLATE.format(
-            table=NIMBUS_TARGETING_CONTEXT_TABLE,
+        config = self.application_config
+        app_name = config.app_name if config else None
+        if app_name == "fenix":
+            template = SIZING_FULL_SQL_TEMPLATE_MOBILE
+            table = NIMBUS_TARGETING_CONTEXT_TABLE_FENIX
+        elif app_name == "firefox_ios":
+            template = SIZING_FULL_SQL_TEMPLATE_MOBILE
+            table = NIMBUS_TARGETING_CONTEXT_TABLE_IOS
+        else:
+            template = SIZING_FULL_SQL_TEMPLATE
+            table = NIMBUS_TARGETING_CONTEXT_TABLE
+        return template.format(
+            table=table,
             window_days=SIZING_WINDOW_DAYS,
             sample_id_max=SIZING_SAMPLE_ID_MAX,
             predicate=predicate.replace("\n", "\n    "),
@@ -3691,9 +3705,13 @@ class NimbusChangeLogManager(models.Manager["NimbusChangeLog"]):
 
     def latest_rejection(self):
         change = self.latest_change()
-        if change and change.has_filter(
-            NimbusChangeLog.Filters.IS_REJECTION
-            | NimbusChangeLog.Filters.IS_UPDATE_REJECTION
+        if (
+            change
+            and change.message != NimbusChangeLog.Messages.UPDATED_IN_KINTO
+            and change.has_filter(
+                NimbusChangeLog.Filters.IS_REJECTION
+                | NimbusChangeLog.Filters.IS_UPDATE_REJECTION
+            )
         ):
             return change
 
