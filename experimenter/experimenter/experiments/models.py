@@ -1818,16 +1818,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         # referencing data that does not exist. Then, when we go to render the
         # list of slugs, we would attempt to generate links to these
         # non-existant recipes and cause a 500.
-        existing_slugs = set(
-            NimbusExperiment.objects.filter(
+        conflict_urls = {
+            conflict.slug: conflict.get_detail_url()
+            for conflict in NimbusExperiment.objects.filter(
                 slug__in={
                     slug for value in by_key.values() for slug in value["conflict_slugs"]
                 }
-            ).values_list("slug", flat=True)
-        )
+            )
+        }
 
         for value in by_key.values():
-            value["conflict_slugs"] &= existing_slugs
+            value["conflict_slugs"] &= conflict_urls.keys()
 
         def _build_stage(key, data):
             status, reason = key
@@ -1842,7 +1843,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "pct": (data["client_count"] / total * 100) if total else 0.0,
                 "color": stage_info[1] if stage_info else "secondary",
                 "text_color": stage_info[2] if stage_info else "dark",
-                "conflict_slugs": sorted(data["conflict_slugs"]),
+                "conflicts": [
+                    {"slug": slug, "detail_url": conflict_urls[slug]}
+                    for slug in sorted(data["conflict_slugs"])
+                ],
                 "has_null_conflict": (
                     reason == NimbusConstants.FunnelReason.FEATURE_CONFLICT
                     and not data["conflict_slugs"]
@@ -2396,6 +2400,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             entry = deliveries_by_slug.setdefault(slug, {"slug": slug, "reasons": []})
             entry["reasons"].append(reason)
 
+        detail_urls = {
+            delivery.slug: delivery.get_detail_url()
+            for delivery in NimbusExperiment.objects.filter(
+                slug__in=list(deliveries_by_slug)
+            )
+        }
+        for slug, entry in deliveries_by_slug.items():
+            entry["detail_url"] = detail_urls.get(slug)
+
         deliveries = sorted(deliveries_by_slug.values(), key=lambda d: d["slug"])
         return {"deliveries": deliveries}
 
@@ -2723,7 +2736,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         collisions = self.collision_warnings
         entries = [
-            {"slug": d["slug"], "reasons": d["reasons"]} for d in collisions["deliveries"]
+            {
+                "slug": d["slug"],
+                "reasons": d["reasons"],
+                "detail_url": d["detail_url"],
+            }
+            for d in collisions["deliveries"]
         ]
 
         self_issues = self.review_warnings

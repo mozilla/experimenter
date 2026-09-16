@@ -4641,6 +4641,72 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         self.assertIn(owned_exp, draft_or_preview_page)
         self.assertIn(subscribed_exp, draft_or_preview_page)
 
+    def test_rollout_links_use_new_detail_url_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            slug="home-rollout",
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+
+        self.assertContains(response, f'href="{rollout.get_detail_url()}"')
+        self.assertNotContains(
+            response,
+            f'href="{reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug})}"',
+        )
+
+    def test_rollout_links_use_legacy_detail_url_when_flag_is_disabled(self):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            slug="home-rollout",
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+
+        self.assertContains(
+            response,
+            f'href="{reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug})}"',
+        )
+        self.assertNotContains(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    def test_labs_links_use_legacy_detail_url_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        labs = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            slug="home-labs",
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+
+        self.assertContains(
+            response,
+            f'href="{reverse("nimbus-ui-detail", kwargs={"slug": labs.slug})}"',
+        )
+        self.assertNotContains(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": labs.slug}),
+        )
+
     def test_home_view_filter_archived_experiments(self):
         non_archived_exp = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED, owner=self.user, slug="owned-exp"

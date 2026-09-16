@@ -156,7 +156,7 @@
         {% with experiment.required_experiments_branches.all as required_branches %}
           {% if required_branches %}
             {% for branch in required_branches %}
-              <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
+              <a href="{{ branch.child_experiment.get_detail_url }}"
                  target="_blank"
                  class="small"
                  rel="noopener noreferrer">
@@ -178,7 +178,7 @@
         {% with experiment.excluded_experiments_branches.all as excluded_branches %}
           {% if excluded_branches %}
             {% for branch in excluded_branches %}
-              <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
+              <a href="{{ branch.child_experiment.get_detail_url }}"
                  target="_blank"
                  rel="noopener noreferrer"
                  class="small">
