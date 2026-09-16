@@ -404,10 +404,16 @@ Optional - We expect this to <describe impact> on <core metric>.
 
     ERROR_ROLLOUT_PLAN_NAME_REQUIRED = "Please name this rollout plan before saving it."
     ERROR_ROLLOUT_PLAN_NAME_DUPLICATE = "A rollout plan with this name already exists."
+    ERROR_ROLLOUT_PLAN_PHASES_DUPLICATE = (
+        "These phases are already saved as the rollout plan '{name}'."
+    )
     ERROR_ROLLOUT_PLAN_FIX_ERRORS = (
         "Resolve the highlighted errors above before saving this plan."
     )
-    ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
+    ROLLOUT_APPLICATION_TOOLTIP = (
+        "Rollouts can only target one Application at a time. Application can "
+        "not be changed after a rollout is created."
+    )
     ROLLOUT_REVIEW_PENDING_TOOLTIP = "A review is currently pending."
     ROLLOUT_NO_NEXT_PHASE_TOOLTIP = "There is no further phase to start."
     ROLLOUT_HAS_ISSUES_TOOLTIP = "All rollout issues must be resolved first."
@@ -424,6 +430,10 @@ Optional - We expect this to <describe impact> on <core metric>.
     ROLLOUT_SCHEDULE_DATES_NOTE = (
         "Phase dates are used for planning and reminders only. Phases do not start or "
         "end automatically, so these dates are optional."
+    )
+    ROLLOUT_PLAN_VISIBILITY_NOTE = (
+        "Saved plans are shared, so this plan will be visible to everyone creating a "
+        "rollout."
     )
     ROLLOUT_PREVIEW_MESSAGE = (
         "This rollout is in Preview mode and is live for testing now. It can take up "
@@ -472,6 +482,7 @@ Optional - We expect this to <describe impact> on <core metric>.
     TOAST_SLACK_ENABLED = "toast-slack-enabled"
     TOAST_SLACK_DISABLED = "toast-slack-disabled"
     TOAST_EDIT_CANCELLED = "toast-edit-cancelled"
+    TOAST_PREVIEW_LINK_COPIED = "toast-preview-link-copied"
 
     TOASTS = {
         TOAST_SAVED: "Changes saved",
@@ -480,6 +491,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         TOAST_SLACK_ENABLED: "Review Slack notifications enabled",
         TOAST_SLACK_DISABLED: "Review Slack notifications disabled",
         TOAST_EDIT_CANCELLED: "Edit cancelled",
+        TOAST_PREVIEW_LINK_COPIED: "Preview link copied to clipboard",
     }
 
     ROLLOUT_CARD_FIELDS = {
@@ -489,7 +501,6 @@ Optional - We expect this to <describe impact> on <core metric>.
                 ("Name", ("name",)),
                 ("Observations & Problem Space", ("hypothesis",)),
                 ("Public Description", ("public_description",)),
-                ("Application", ("application",)),
                 ("Important Links", ("documentation_links",)),
                 ("Project Tags", ()),
                 ("Subscribers", ()),

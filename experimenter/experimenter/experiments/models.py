@@ -39,7 +39,10 @@ from experimenter.base.models import (
 from experimenter.experiments.constants import (
     ENROLLMENT_FUNNEL_STAGES,
     NIMBUS_TARGETING_CONTEXT_TABLE,
+    NIMBUS_TARGETING_CONTEXT_TABLE_FENIX,
+    NIMBUS_TARGETING_CONTEXT_TABLE_IOS,
     SIZING_FULL_SQL_TEMPLATE,
+    SIZING_FULL_SQL_TEMPLATE_MOBILE,
     SIZING_SAMPLE_ID_MAX,
     SIZING_WINDOW_DAYS,
     BucketRandomizationUnit,
@@ -1404,18 +1407,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return phases[next_index] if next_index < len(phases) else None
 
     @property
-    def has_rollout_review_errors(self):
-        from experimenter.experiments.api.v5.serializers import (
-            NimbusRolloutReviewSerializer,
-        )
-
-        if not self.is_rollout:
-            return False
-        return bool(
-            self.get_invalid_fields_errors(serializer_class=NimbusRolloutReviewSerializer)
-        )
-
-    @property
     def next_rollout_phase_number(self):
         next_phase = self.next_rollout_phase
         if next_phase is None:
@@ -2516,8 +2507,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         predicate = self.sizing_sql_display
         if not predicate:
             return None
-        return SIZING_FULL_SQL_TEMPLATE.format(
-            table=NIMBUS_TARGETING_CONTEXT_TABLE,
+        config = self.application_config
+        app_name = config.app_name if config else None
+        if app_name == "fenix":
+            template = SIZING_FULL_SQL_TEMPLATE_MOBILE
+            table = NIMBUS_TARGETING_CONTEXT_TABLE_FENIX
+        elif app_name == "firefox_ios":
+            template = SIZING_FULL_SQL_TEMPLATE_MOBILE
+            table = NIMBUS_TARGETING_CONTEXT_TABLE_IOS
+        else:
+            template = SIZING_FULL_SQL_TEMPLATE
+            table = NIMBUS_TARGETING_CONTEXT_TABLE
+        return template.format(
+            table=table,
             window_days=SIZING_WINDOW_DAYS,
             sample_id_max=SIZING_SAMPLE_ID_MAX,
             predicate=predicate.replace("\n", "\n    "),
@@ -2735,7 +2737,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "entries": entries,
                 "self_issues": self_issues,
                 "variant": "warning",
-                "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                "learn_more_link": (
+                    NimbusUIConstants.AUDIENCE_OVERLAP_WARNING if entries else None
+                ),
             }
         ]
 
@@ -2758,6 +2762,41 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 if error:
                     return True
         return False
+
+    @property
+    def analysis_errors_by_key(self):
+        counts = {}
+        if self.results_data:
+            errors = self.results_data.get("v3", {}).get("errors", {})
+            for key, key_errors in errors.items():
+                if key_errors:
+                    counts[key] = len(key_errors)
+        return counts
+
+    @property
+    def analysis_errors_count(self):
+        return sum(self.analysis_errors_by_key.values())
+
+    @property
+    def reviewer_emails(self):
+        return sorted(
+            {
+                change.changed_by.email
+                for change in self.changes.all()
+                if change.old_publish_status == self.PublishStatus.REVIEW
+                and change.new_publish_status == self.PublishStatus.APPROVED
+            }
+        )
+
+    @property
+    def editor_emails(self):
+        return sorted(
+            {
+                change.changed_by.email
+                for change in self.changes.all()
+                if change.changed_by.email != settings.KINTO_DEFAULT_CHANGELOG_USER
+            }
+        )
 
     def get_invalid_fields_errors(self, serializer_class=None):
         if serializer_class is None:
@@ -3691,9 +3730,13 @@ class NimbusChangeLogManager(models.Manager["NimbusChangeLog"]):
 
     def latest_rejection(self):
         change = self.latest_change()
-        if change and change.has_filter(
-            NimbusChangeLog.Filters.IS_REJECTION
-            | NimbusChangeLog.Filters.IS_UPDATE_REJECTION
+        if (
+            change
+            and change.message != NimbusChangeLog.Messages.UPDATED_IN_KINTO
+            and change.has_filter(
+                NimbusChangeLog.Filters.IS_REJECTION
+                | NimbusChangeLog.Filters.IS_UPDATE_REJECTION
+            )
         ):
             return change
 

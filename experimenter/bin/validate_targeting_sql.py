@@ -100,6 +100,17 @@ def main():
         print(f"Failed: {failed}")
         sys.exit(1)
 
+    partial = [(e["slug"], e["warnings"]) for e in entries if e.get("warnings")]
+    if partial:
+        attrs = sorted({w for _, warns in partial for w in warns})
+        print(
+            f"\n{len(partial)} config(s) had partial translations "
+            f"(untranslatable clauses were dropped before validation):"
+        )
+        for slug, warns in partial:
+            print(f"  - {slug}: {', '.join(sorted(warns))}")
+        print(f"\nUntranslatable attributes: {', '.join(attrs)}")
+
 
 if __name__ == "__main__":
     main()
