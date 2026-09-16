@@ -15,11 +15,18 @@
   <div class="px-5 pt-4 pb-5 shadow-sm rounded-4 bg-body border border-1">
     <div class="d-flex mt-2 align-items-center justify-content-between">
       <h4 class="m-0">Overview</h4>
-      <div>
-        Results last calculated:
-        <span class="fw-bold">{{ experiment.results_data.v3.metadata.analysis_start_time|parse_date|date:"N j, Y g:i A"|default:"N/A" }}
-          {% if experiment.results_data.v3.metadata.analysis_start_time %}UTC{% endif %}
-        </span>
+      <div class="d-flex align-items-center gap-3">
+        <div>
+          Results last calculated:
+          <span class="fw-bold">{{ experiment.results_data.v3.metadata.analysis_start_time|parse_date|date:"N j, Y g:i A"|default:"N/A" }}
+            {% if experiment.results_data.v3.metadata.analysis_start_time %}UTC{% endif %}
+          </span>
+        </div>
+        <a class="btn btn-primary"
+           id="export-results-json-{{ experiment.slug }}"
+           href="{% url 'nimbus-ui-results-export' slug=experiment.slug %}">
+          <i class="fa-solid fa-download me-2"></i>Export JSON
+        </a>
       </div>
     </div>
     <div id="{{ experiment.slug }}-results-overview">

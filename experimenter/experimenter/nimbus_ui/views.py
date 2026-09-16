@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import View
@@ -944,6 +944,18 @@ class ResultsView(PrefetchExperimentQuerysetMixin, NimbusExperimentViewMixin, De
         )
 
         return context
+
+
+class ResultsExportView(View):
+    def get(self, request, slug):
+        experiment = get_object_or_404(NimbusExperiment, slug=slug)
+        response = JsonResponse(
+            experiment.results_data or {}, json_dumps_params={"indent": 2}
+        )
+        response["Content-Disposition"] = (
+            f'attachment; filename="{experiment.slug}-results.json"'
+        )
+        return response
 
 
 class NimbusFeaturesView(TemplateView):
