@@ -3923,14 +3923,16 @@ class TestResultsView(AuthTestCase):
         }
         branch_data = {
             "branch_data": {
-                "other_metrics": {NimbusConstants.RETENTION: empty_metric},
+                "other_metrics": {NimbusConstants.RETENTION_WEEK_2: empty_metric},
             }
         }
         experiment.results_data = {
             "v3": {
                 "metadata": {
                     "metrics": {
-                        NimbusConstants.RETENTION: {"friendly_name": "Retention"},
+                        NimbusConstants.RETENTION_WEEK_2: {
+                            "friendly_name": "Week 2 Retention"
+                        },
                     }
                 },
                 "errors": errors,
@@ -3950,7 +3952,7 @@ class TestResultsView(AuthTestCase):
     def test_results_view_renders_error_state_for_metric_with_errors(self):
         experiment = self.create_experiment_with_kpi_results(
             {
-                NimbusConstants.RETENTION: [
+                NimbusConstants.RETENTION_WEEK_2: [
                     {"analysis_basis": "enrollments", "segment": "all"}
                 ]
             }
