@@ -1154,6 +1154,32 @@ WHERE (
     {predicate}
 )"""
 
+SIZING_FULL_SQL_TEMPLATE_MOBILE = """\
+-- Matches the 7-day window and 10% sample used by the population sizing ETL.
+-- Deduplicates on client_id, keeping the most recent row per client.
+-- Returns the eligible client count within the 10% sample.
+WITH latest_per_client AS (
+  SELECT
+    *,
+    ROW_NUMBER() OVER (
+      PARTITION BY client_id
+      ORDER BY submission_date DESC
+    ) AS rn
+  FROM `{table}`
+  WHERE submission_date
+      BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL {window_days} DAY)
+      AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+    AND ABS(MOD(FARM_FINGERPRINT(client_id), 100)) < {sample_id_max}
+    AND client_id IS NOT NULL
+),
+clients AS (SELECT * EXCEPT (rn) FROM latest_per_client WHERE rn = 1)
+SELECT
+  COUNT(*) AS estimated_client_count
+FROM clients
+WHERE (
+    {predicate}
+)"""
+
 RISK_QUESTIONS = {
     "BRAND": (
         "If the public, users or press, were to discover this experiment and "
