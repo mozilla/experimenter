@@ -12,7 +12,7 @@ class TestExportTargetingSql(TestCase):
         entries = json.loads(out.getvalue())
         self.assertIsInstance(entries, list)
 
-    def test_entries_have_slug_and_query(self):
+    def test_entries_have_slug_query_and_warnings(self):
         out = StringIO()
         call_command("export_targeting_sql", stdout=out)
         entries = json.loads(out.getvalue())
@@ -20,6 +20,8 @@ class TestExportTargetingSql(TestCase):
         for entry in entries:
             self.assertIn("slug", entry)
             self.assertIn("query", entry)
+            self.assertIn("warnings", entry)
+            self.assertIsInstance(entry["warnings"], list)
 
     def test_queries_use_where_false(self):
         out = StringIO()

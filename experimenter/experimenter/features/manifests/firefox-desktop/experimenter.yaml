@@ -201,7 +201,7 @@ searchConfiguration:
       type: boolean
       setPref:
         branch: user
-        pref: browser.search.separatePrivateDefault.ui.enabled
+        pref: browser.search.separatePrivateDefault.featureGate
       description: Whether the UI for the separate private default feature is enabled.
     separatePrivateDefaultUrlbarResultEnabled:
       type: boolean

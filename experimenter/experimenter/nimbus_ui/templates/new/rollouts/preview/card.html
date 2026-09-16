@@ -3,6 +3,29 @@
     <strong>Note:</strong> Before generating links, go to <code>about:config</code>
     and enable the <code>nimbus.debug</code> configuration first.
   </p>
+  {# about:studies opt-in URL for the rollout branch, always shown under the note #}
+  <div class="d-flex flex-column align-items-start gap-2">
+    <code id="rollout-preview-url"
+          class="user-select-all text-break rounded-3 border border-secondary-subtle bg-body-tertiary px-3 py-2 small text-danger"
+          role="button"
+          tabindex="0"
+          title="Copy preview link"
+          data-copy-text="about:studies?optin_slug={{ experiment.slug }}&amp;optin_branch={{ experiment.reference_branch.slug }}&amp;optin_collection=nimbus-preview"
+          data-toast-id="{{ NimbusUIConstants.TOAST_PREVIEW_LINK_COPIED }}">about:studies?optin_slug={{ experiment.slug }}&amp;optin_branch={{ experiment.reference_branch.slug }}&amp;optin_collection=nimbus-preview</code>
+    <button type="button"
+            id="rollout-preview-link-btn"
+            class="btn btn-primary d-inline-flex align-items-center justify-content-center"
+            data-copy-text="about:studies?optin_slug={{ experiment.slug }}&amp;optin_branch={{ experiment.reference_branch.slug }}&amp;optin_collection=nimbus-preview"
+            data-toast-id="{{ NimbusUIConstants.TOAST_PREVIEW_LINK_COPIED }}">
+      <i class="fa-regular fa-copy me-2" aria-hidden="true"></i>Copy preview link
+    </button>
+  </div>
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      {% include "nimbus_devtools/opt_in_pane.html" %}
+
+    </div>
+  </div>
   {# Rollout experience card #}
   <div class="row g-3">
     <div class="col-12 col-md-6">
@@ -55,7 +78,7 @@
                  tabindex="-1"
                  aria-labelledby="rollout-preview-screenshot-modal-label"
                  aria-hidden="true">
-              <div class="modal-dialog modal-md modal-dialog-centered">
+              <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                   <div class="modal-header">
                     <h1 class="modal-title fs-5" id="rollout-preview-screenshot-modal-label">Rollout experience</h1>
@@ -64,14 +87,14 @@
                             data-bs-dismiss="modal"
                             aria-label="Close"></button>
                   </div>
-                  <div class="modal-body d-flex flex-column gap-3">
+                  <div class="modal-body d-flex flex-column gap-4">
                     {% for screenshot in experiment.reference_branch.screenshots.all %}
                       {% if screenshot.image %}
-                        <div>
+                        <div class="text-center border border-secondary-subtle rounded p-3">
                           <img src="{{ screenshot.image.url }}"
                                alt="{{ screenshot.description|default:'Rollout experience screenshot' }}"
-                               class="img-fluid w-100" />
-                          {% if screenshot.description %}<div class="mt-2 small text-body">{{ screenshot.description }}</div>{% endif %}
+                               class="img-fluid" />
+                          {% if screenshot.description %}<div class="mt-2 text-body">{{ screenshot.description }}</div>{% endif %}
                         </div>
                       {% endif %}
                     {% endfor %}
@@ -81,16 +104,6 @@
             </div>
           {% endif %}
         {% endwith %}
-        {% if experiment.is_desktop %}
-          {# about:studies opt-in URL for the rollout branch #}
-          <button type="button"
-                  class="btn btn-primary d-inline-flex align-items-center justify-content-center"
-                  onclick="navigator.clipboard.writeText('about:studies?optin_slug={{ experiment.slug }}&optin_branch={{ experiment.reference_branch.slug }}&optin_collection=nimbus-preview');this.innerText='Copied';">
-            <i class="fa-regular fa-eye me-2" aria-hidden="true"></i>Preview link
-          </button>
-          {% include "nimbus_devtools/opt_in_pane.html" %}
-
-        {% endif %}
       </div>
     </div>
   </div>

@@ -706,6 +706,22 @@ class TestJEXLToSQLMobile(TestCase):
         self.assertEqual(result.sql, "androidSdkVersion >= 29")
         self.assertEqual(result.warnings, [])
 
+    def test_app_version_compare_fenix(self):
+        result = jexl_to_sql("app_version|versionCompare('155.!') >= 0", app=FENIX_APP)
+        self.assertEqual(
+            result.sql,
+            "SAFE_CAST(SPLIT(appVersion, '.')[SAFE_OFFSET(0)] AS INT64) >= 155",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_app_version_compare_ios(self):
+        result = jexl_to_sql("app_version|versionCompare('156.1.0') >= 0", app=IOS_APP)
+        self.assertEqual(
+            result.sql,
+            "SAFE_CAST(SPLIT(appVersion, '.')[SAFE_OFFSET(0)] AS INT64) >= 156",
+        )
+        self.assertEqual(result.warnings, [])
+
     def test_real_config_mobile_new_user_fenix(self):
         result = jexl_to_sql(MOBILE_NEW_USER.targeting, app=FENIX_APP)
         self.assertEqual(result.sql, "daysSinceInstall < 7")

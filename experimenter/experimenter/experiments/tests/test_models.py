@@ -39,6 +39,7 @@ from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchScreenshot,
     NimbusBucketRange,
+    NimbusChangeLog,
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
@@ -684,6 +685,49 @@ class TestNimbusExperiment(TestCase):
             risk_ai=False,
         )
         self.assertIsNone(experiment.sizing_full_sql)
+
+    def test_sizing_full_sql_fenix_uses_mobile_template(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.FENIX,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            locales=[],
+            countries=[],
+            languages=[],
+        )
+        sql = experiment.sizing_full_sql
+        self.assertIsNotNone(sql)
+        self.assertIn(
+            "moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context", sql
+        )
+        self.assertIn("submission_date", sql)
+        self.assertIn("FARM_FINGERPRINT", sql)
+        self.assertNotIn("submission_timestamp", sql)
+        self.assertNotIn("client_info.client_id", sql)
+
+    def test_sizing_full_sql_ios_uses_mobile_template(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.IOS,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            locales=[],
+            countries=[],
+            languages=[],
+        )
+        sql = experiment.sizing_full_sql
+        self.assertIsNotNone(sql)
+        self.assertIn(
+            "moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context",
+            sql,
+        )
+        self.assertIn("submission_date", sql)
+        self.assertIn("FARM_FINGERPRINT", sql)
+        self.assertNotIn("submission_timestamp", sql)
+        self.assertNotIn("client_info.client_id", sql)
 
     def test_sizing_sql_none_for_match_all_targeting(self):
         experiment = NimbusExperimentFactory.create(
@@ -6742,6 +6786,25 @@ class TestNimbusChangeLogManager(TestCase):
         generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertIsNone(experiment.changes.latest_rejection())
+
+    def test_unchanged_published_dto_update_is_not_considered_latest_rejection(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
+            is_rollout=True,
+            published_dto={"id": "cool-cat", "test": False},
+        )
+
+        experiment.status = NimbusExperiment.Status.LIVE
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        experiment.save()
+        generate_nimbus_changelog(
+            experiment,
+            experiment.owner,
+            NimbusChangeLog.Messages.UPDATED_IN_KINTO,
+        )
+
+        self.assertIsNone(experiment.changes.latest_rejection())
+        self.assertIsNone(experiment.rejection_block)
 
     def test_stale_timeout_not_returned(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
