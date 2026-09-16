@@ -929,10 +929,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
 
     WARNING_DESKTOP_FXMS_MESSAGE_COENROLLMENT = (
-        "These feature IDs are deprecated placeholders that cannot co-enroll with "
-        "other deliveries: {feature_slugs}. Every Firefox version targeted by this "
-        f"delivery supports {DESKTOP_FXMS_MESSAGE_SLUG}, which allows multiple "
-        f"simultaneous enrollments. Consider using {DESKTOP_FXMS_MESSAGE_SLUG} instead."
+        "{feature_slugs} {verb} deprecated. Please use "
+        f"{DESKTOP_FXMS_MESSAGE_SLUG} instead, which allows multiple simultaneous "
+        "enrollments."
     )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"

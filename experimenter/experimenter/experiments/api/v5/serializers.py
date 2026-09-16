@@ -1758,7 +1758,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         ):
             self.warnings["fxms_message_coenrollment"] = [
                 NimbusConstants.WARNING_DESKTOP_FXMS_MESSAGE_COENROLLMENT.format(
-                    feature_slugs=", ".join(placeholder_slugs)
+                    feature_slugs=", ".join(placeholder_slugs),
+                    verb="is" if len(placeholder_slugs) == 1 else "are",
                 )
             ]
 

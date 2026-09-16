@@ -3698,9 +3698,8 @@ class TestNimbusExperiment(TestCase):
                     "fxms_message_coenrollment"
                 ],
                 "detail": (
-                    NimbusConstants.WARNING_DESKTOP_FXMS_MESSAGE_COENROLLMENT.format(
-                        feature_slugs="fxms-message-1"
-                    )
+                    "fxms-message-1 is deprecated. Please use fxms-message instead, "
+                    "which allows multiple simultaneous enrollments."
                 ),
                 "learn_more_url": None,
             },

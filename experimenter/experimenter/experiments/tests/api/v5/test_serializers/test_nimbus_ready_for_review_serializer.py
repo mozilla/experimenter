@@ -1766,8 +1766,10 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             serializer.warnings["fxms_message_coenrollment"],
             [
-                NimbusConstants.WARNING_DESKTOP_FXMS_MESSAGE_COENROLLMENT.format(
-                    feature_slugs="fxms-message-1, fxms-message-2"
+                (
+                    "fxms-message-1, fxms-message-2 are deprecated. Please use "
+                    "fxms-message instead, which allows multiple simultaneous "
+                    "enrollments."
                 )
             ],
         )
