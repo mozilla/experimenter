@@ -27,13 +27,6 @@
       {% include "new/common/validation_errors.html" with errors=validation_errors.public_description %}
 
     </div>
-    {# Application #}
-    <div>
-      <div class="text-secondary mb-1" style="font-size: 12px;">Application</div>
-      <div class="small text-body">{{ experiment.get_application_display }}</div>
-      {% include "new/common/validation_errors.html" with errors=validation_errors.application %}
-
-    </div>
     {# Important Links #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Important Links</div>

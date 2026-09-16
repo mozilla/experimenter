@@ -1365,15 +1365,18 @@ WINDOWS_LAUNCH_AT_LOGIN_FINAL = NimbusTargetingConfig(
         && !'privacy.globalprivacycontrol.enabled'|preferenceValue
         && !'dom.security.https_only_mode'|preferenceValue
         && !'dom.security.https_only_mode_pbm'|preferenceValue
-        && !'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue
-        && 'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceIsUserSet
-        && !'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
-        && !'browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceValue
-        && 'browser.newtabpage.activity-stream.showSponsored'|preferenceIsUserSet
-        && !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
-        && !'browser.urlbar.suggest.quicksuggest.all'|preferenceValue
-        && !'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet
-        && !'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue
+        && !(
+            'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceIsUserSet
+            && !'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+        )
+        && !(
+            'browser.newtabpage.activity-stream.showSponsored'|preferenceIsUserSet
+            && !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
+        )
+        && !(
+            'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet
+            && !'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue
+        )
         && !addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}']
         && !addonsInfo.addons['uBlock0@raymondhill.net']
         && !addonsInfo.addons['adguardadblocker@adguard.com']
@@ -5629,10 +5632,15 @@ SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
 )
 
 SPLIT_VIEW_HAS_BEEN_USED = NimbusTargetingConfig(
-    name="Users who have used Split View",
+    name="Users who have used Split View without active enterprise policies",
     slug="split_view_has_been_used",
-    description="Desktop users who have previously used Split View",
-    targeting="'browser.tabs.splitview.hasUsed'|preferenceValue",
+    description=(
+        "Desktop users who have previously used Split View and do not have active "
+        "enterprise policies"
+    ),
+    targeting=(
+        "'browser.tabs.splitview.hasUsed'|preferenceValue && !hasActiveEnterprisePolicies"
+    ),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

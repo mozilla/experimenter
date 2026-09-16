@@ -263,12 +263,13 @@ def handle_updating_experiments(applications, records, collection):
         stored_record = experiment.published_dto.copy()
         stored_record.pop("last_modified", None)
 
-        if published_record != stored_record:
+        is_advancing_rollout_phase = (
+            experiment.is_rollout_with_phases
+            and experiment.rollout_phase_next_id is not None
+        )
+
+        if published_record != stored_record or is_advancing_rollout_phase:
             logger.info(f"{experiment} is updated in Kinto".format(experiment=experiment))
-            is_advancing_rollout_phase = (
-                experiment.is_rollout_with_phases
-                and experiment.rollout_phase_next_id is not None
-            )
             with transaction.atomic():
                 next_status = experiment.status_next
                 if experiment.is_rollout_with_phases and experiment.rollout_phase_next_id:

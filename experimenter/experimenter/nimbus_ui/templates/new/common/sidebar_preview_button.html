@@ -2,18 +2,33 @@
   {% if experiment.active_rollout_stage == 'setup' %}
     {% if experiment.is_draft and not setup_issues_count and not experiment.is_archived %}
       <div class="d-flex flex-column gap-2 mt-2">
-        <button type="button"
-                id="rollout-preview-btn"
-                class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
-                hx-post="{% url 'nimbus-ui-new-draft-to-preview-rollout' experiment.slug %}"
-                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                hx-disabled-elt=".sidebar-action-button"
-                {% if editing_card %}hx-confirm="{{ NimbusUIConstants.ROLLOUT_UNSAVED_CHANGES_CONFIRM }}"{% endif %}>
-          {% include "new/common/sidebar_transition_spinner.html" %}
+        {% if experiment.can_publish_to_preview %}
+          <button type="button"
+                  id="rollout-preview-btn"
+                  class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
+                  hx-post="{% url 'nimbus-ui-new-draft-to-preview-rollout' experiment.slug %}"
+                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                  hx-disabled-elt=".sidebar-action-button"
+                  {% if editing_card %}hx-confirm="{{ NimbusUIConstants.ROLLOUT_UNSAVED_CHANGES_CONFIRM }}"{% endif %}>
+            {% include "new/common/sidebar_transition_spinner.html" %}
 
-          <i class="fa-regular fa-eye"></i>
-          Preview
-        </button>
+            <i class="fa-regular fa-eye"></i>
+            Preview
+          </button>
+        {% else %}
+          <span class="d-inline-block w-100"
+                data-bs-toggle="tooltip"
+                data-bs-title="{{ NimbusUIConstants.ROLLOUT_PREVIEW_UNSUPPORTED_TOOLTIP }}">
+            <button type="button"
+                    id="rollout-preview-btn"
+                    class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 opacity-50"
+                    disabled
+                    aria-disabled="true">
+              <i class="fa-regular fa-eye"></i>
+              Preview
+            </button>
+          </span>
+        {% endif %}
         <button type="button"
                 id="rollout-launch-btn"
                 class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
