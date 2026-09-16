@@ -629,13 +629,14 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def get_targeting_config_choices(self):
         application_name = NimbusExperiment.Application(self.instance.application).name
+        no_targeting = NimbusExperiment.TargetingConfig.NO_TARGETING
         return sorted(
             [
                 (targeting.slug, f"{targeting.name} - {targeting.description}")
                 for targeting in NimbusTargetingConfig.targeting_configs
                 if application_name in targeting.application_choice_names
             ],
-            key=lambda choice: choice[1].lower(),
+            key=lambda choice: (choice[0] != no_targeting, choice[1].lower()),
         )
 
     YES_NO_CHOICES = (
