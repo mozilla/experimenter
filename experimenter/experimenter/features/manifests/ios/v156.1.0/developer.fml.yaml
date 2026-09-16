@@ -762,7 +762,7 @@ features:
         description: |
           Whether or not to enable recent searches.
         type: Boolean
-        default: false
+        default: true
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int
@@ -981,7 +981,7 @@ features:
         description: |
           Whether or not to enable trending searches.
         type: Boolean
-        default: false
+        default: true
       max-suggestions:
         description: The number of maximum suggestions.
         type: Int

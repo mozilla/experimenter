@@ -39,6 +39,7 @@ from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchScreenshot,
     NimbusBucketRange,
+    NimbusChangeLog,
     NimbusExperiment,
     NimbusExperimentBranchThroughExcluded,
     NimbusExperimentBranchThroughRequired,
@@ -684,6 +685,49 @@ class TestNimbusExperiment(TestCase):
             risk_ai=False,
         )
         self.assertIsNone(experiment.sizing_full_sql)
+
+    def test_sizing_full_sql_fenix_uses_mobile_template(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.FENIX,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            locales=[],
+            countries=[],
+            languages=[],
+        )
+        sql = experiment.sizing_full_sql
+        self.assertIsNotNone(sql)
+        self.assertIn(
+            "moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context", sql
+        )
+        self.assertIn("submission_date", sql)
+        self.assertIn("FARM_FINGERPRINT", sql)
+        self.assertNotIn("submission_timestamp", sql)
+        self.assertNotIn("client_info.client_id", sql)
+
+    def test_sizing_full_sql_ios_uses_mobile_template(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.IOS,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            locales=[],
+            countries=[],
+            languages=[],
+        )
+        sql = experiment.sizing_full_sql
+        self.assertIsNotNone(sql)
+        self.assertIn(
+            "moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context",
+            sql,
+        )
+        self.assertIn("submission_date", sql)
+        self.assertIn("FARM_FINGERPRINT", sql)
+        self.assertNotIn("submission_timestamp", sql)
+        self.assertNotIn("client_info.client_id", sql)
 
     def test_sizing_sql_none_for_match_all_targeting(self):
         experiment = NimbusExperimentFactory.create(
@@ -3269,6 +3313,9 @@ class TestNimbusExperiment(TestCase):
         warning = warnings[0]
         self.assertIn("WARNING:", warning["text"])
         self.assertEqual(warning["variant"], "warning")
+        self.assertEqual(
+            warning["learn_more_link"], NimbusUIConstants.AUDIENCE_OVERLAP_WARNING
+        )
         entry_slugs = [e["slug"] for e in warning["entries"]]
         self.assertEqual(
             entry_slugs,
@@ -3307,11 +3354,38 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(len(warnings), 1)
         warning = warnings[0]
         self.assertEqual([e["slug"] for e in warning["entries"]], [live.slug])
+        self.assertEqual(
+            warning["learn_more_link"], NimbusUIConstants.AUDIENCE_OVERLAP_WARNING
+        )
         labels = [issue["label"] for issue in warning["self_issues"]]
         self.assertIn("Targeting multiple channels", labels)
         self.assertIn(
             "Issues that may affect enrollment for this experiment", warning["text"]
         )
+
+    def test_audience_overlap_warnings_self_issues_only_omits_learn_more_link(self):
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="self-issues-only-draft",
+            is_rollout=False,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="self-issues-only-feature",
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
+        )
+
+        warnings = draft.audience_overlap_warnings
+        self.assertEqual(len(warnings), 1)
+        warning = warnings[0]
+        self.assertEqual(warning["entries"], [])
+        self.assertNotEqual(warning["self_issues"], [])
+        self.assertIsNone(warning["learn_more_link"])
 
     def test_collision_warnings_no_min_version_treats_feature_as_contesting(self):
         # Without firefox_min_version we can't resolve coenrollment schemas, so the
@@ -6092,6 +6166,96 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(experiment.has_results_errors, expected_results)
 
+    @parameterized.expand(
+        [
+            (None, {}, 0),
+            ({"other_key": {}}, {}, 0),
+            ({"v3": {"errors": {"experiment": []}}}, {}, 0),
+            (
+                {
+                    "v3": {
+                        "errors": {
+                            "ad_clicks": [
+                                {"analysis_basis": "enrollments", "segment": "all"},
+                                {"analysis_basis": "exposures", "segment": "all"},
+                            ],
+                            "retained": [],
+                            "experiment": [{"analysis_basis": "enrollments"}],
+                        },
+                    }
+                },
+                {"ad_clicks": 2, "experiment": 1},
+                3,
+            ),
+        ]
+    )
+    def test_analysis_errors(self, results_data, expected_by_key, expected_count):
+        experiment = NimbusExperimentFactory.create(results_data=results_data)
+
+        self.assertEqual(experiment.analysis_errors_by_key, expected_by_key)
+        self.assertEqual(experiment.analysis_errors_count, expected_count)
+
+    def test_reviewer_emails_returns_sorted_distinct_approvers(self):
+        experiment = NimbusExperimentFactory.create()
+        approver = UserFactory.create(email="zoe@example.com")
+
+        for changed_by, old_publish_status, new_publish_status in [
+            (
+                approver,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.APPROVED,
+            ),
+            (
+                approver,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.APPROVED,
+            ),
+            (
+                UserFactory.create(email="amy@example.com"),
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.APPROVED,
+            ),
+            (
+                UserFactory.create(email="requester@example.com"),
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.PublishStatus.REVIEW,
+            ),
+            (
+                UserFactory.create(email="rejecter@example.com"),
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+            ),
+        ]:
+            NimbusChangeLogFactory.create(
+                experiment=experiment,
+                changed_by=changed_by,
+                old_publish_status=old_publish_status,
+                new_publish_status=new_publish_status,
+            )
+
+        self.assertEqual(
+            experiment.reviewer_emails, ["amy@example.com", "zoe@example.com"]
+        )
+
+    def test_editor_emails_excludes_automated_changelog_user(self):
+        experiment = NimbusExperimentFactory.create()
+        editor = UserFactory.create(email="zoe@example.com")
+
+        for changed_by in [
+            editor,
+            editor,
+            UserFactory.create(email="amy@example.com"),
+            UserFactory.create(email=settings.KINTO_DEFAULT_CHANGELOG_USER),
+        ]:
+            NimbusChangeLogFactory.create(
+                experiment=experiment,
+                changed_by=changed_by,
+                old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            )
+
+        self.assertEqual(experiment.editor_emails, ["amy@example.com", "zoe@example.com"])
+
     def test_monitoring_summary_returns_none_when_no_monitoring_data(self):
         experiment = NimbusExperimentFactory.create(monitoring_data=None)
         self.assertIsNone(experiment.monitoring_summary)
@@ -6712,6 +6876,25 @@ class TestNimbusChangeLogManager(TestCase):
         generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertIsNone(experiment.changes.latest_rejection())
+
+    def test_unchanged_published_dto_update_is_not_considered_latest_rejection(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
+            is_rollout=True,
+            published_dto={"id": "cool-cat", "test": False},
+        )
+
+        experiment.status = NimbusExperiment.Status.LIVE
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        experiment.save()
+        generate_nimbus_changelog(
+            experiment,
+            experiment.owner,
+            NimbusChangeLog.Messages.UPDATED_IN_KINTO,
+        )
+
+        self.assertIsNone(experiment.changes.latest_rejection())
+        self.assertIsNone(experiment.rejection_block)
 
     def test_stale_timeout_not_returned(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -8109,10 +8292,6 @@ class TestRolloutSidebarStateHelpers(TestCase):
         experiment.rollout_phase = phases[0]
         experiment.save()
         self.assertEqual(experiment.next_rollout_phase, phases[1])
-
-    def test_has_rollout_review_errors_false_when_not_rollout(self):
-        experiment = NimbusExperimentFactory.create(is_rollout=False)
-        self.assertFalse(experiment.has_rollout_review_errors)
 
     def test_next_rollout_phase_number_returns_position_of_next_phase(self):
         experiment = self.live_rollout()
