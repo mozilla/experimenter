@@ -97,7 +97,10 @@ install_nimbus_cli:  ## Install Nimbus client
 	curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh > "$(CLI_INSTALLER)"
 	$(SHELL) $(CLI_INSTALLER) --directory "$(CLI_DIR)"
 
-fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests  ## Fetch all external resources
+addon_versions: build_dev
+	$(COMPOSE_RUN) --no-deps experimenter python manage.py fetch_addon_versions
+
+fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests addon_versions  ## Fetch all external resources
 	echo "External Resources Fetched"
 
 update_kinto:  ## Update latest Kinto/Remote Settings container
