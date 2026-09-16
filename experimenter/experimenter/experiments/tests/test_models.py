@@ -686,6 +686,49 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertIsNone(experiment.sizing_full_sql)
 
+    def test_sizing_full_sql_fenix_uses_mobile_template(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.FENIX,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            locales=[],
+            countries=[],
+            languages=[],
+        )
+        sql = experiment.sizing_full_sql
+        self.assertIsNotNone(sql)
+        self.assertIn(
+            "moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context", sql
+        )
+        self.assertIn("submission_date", sql)
+        self.assertIn("FARM_FINGERPRINT", sql)
+        self.assertNotIn("submission_timestamp", sql)
+        self.assertNotIn("client_info.client_id", sql)
+
+    def test_sizing_full_sql_ios_uses_mobile_template(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.IOS,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channels=[],
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            locales=[],
+            countries=[],
+            languages=[],
+        )
+        sql = experiment.sizing_full_sql
+        self.assertIsNotNone(sql)
+        self.assertIn(
+            "moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context",
+            sql,
+        )
+        self.assertIn("submission_date", sql)
+        self.assertIn("FARM_FINGERPRINT", sql)
+        self.assertNotIn("submission_timestamp", sql)
+        self.assertNotIn("client_info.client_id", sql)
+
     def test_sizing_sql_none_for_match_all_targeting(self):
         experiment = NimbusExperimentFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
