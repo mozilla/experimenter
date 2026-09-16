@@ -380,8 +380,13 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         model = NimbusBranchFeatureValue
         fields = ("value",)
 
+    def get_feature_config(self):
+        return self.instance.feature_config if self.instance.feature_config_id else None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        feature_config = self.get_feature_config()
+
         if self.instance._state.adding and (
             self.instance.value is None or self.instance.value == {}
         ):
@@ -398,14 +403,10 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
                 self.instance.branch.experiment.slug
             )
 
-            if self.instance.feature_config:
+            if feature_config:
                 self.fields["value"].widget.attrs["data-feature-slug"] = (
-                    self.instance.feature_config.slug
+                    feature_config.slug
                 )
-
-        feature_config = (
-            self.instance.feature_config if self.instance.feature_config_id else None
-        )
 
         if (
             feature_config
@@ -433,9 +434,7 @@ class RolloutBranchFeatureValueForm(NimbusBranchFeatureValueForm):
         fields = ("feature_config", "value")
         widgets = {"feature_config": forms.HiddenInput()}
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    def get_feature_config(self):
         if (
             self.is_bound
             and not self.instance.feature_config_id
@@ -444,6 +443,7 @@ class RolloutBranchFeatureValueForm(NimbusBranchFeatureValueForm):
             self.instance.feature_config = NimbusFeatureConfig.objects.filter(
                 id=feature_config_id
             ).first()
+        return super().get_feature_config()
 
     def clean_feature_config(self):
         return self.cleaned_data.get("feature_config") or (
