@@ -123,6 +123,7 @@ export const ATTRIBUTE_TRANSFORMS = Object.freeze({
     hasInstalledAddons: !!addonsInfo?.hasInstalledAddons,
   }),
   addressesSaved: typeAssertions.quantity,
+  allowedNotificationOrigins: typeAssertions.quantity,
   archBits: typeAssertions.quantity,
   attributionData: pick("medium", "source", "ua"),
   browserSettings: pickWith({
