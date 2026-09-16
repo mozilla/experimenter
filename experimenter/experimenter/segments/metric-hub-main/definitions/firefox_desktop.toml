@@ -1939,6 +1939,126 @@ select_expression = "COALESCE(COUNTIF(metrics.string.os_environment_launch_metho
 data_source = "metrics"
 friendly_name = "Number of Launches without Using Taskbar Tabs"
 
+# Form autofill (address + credit card) field-level and submission metrics.
+# All of these read from the `form_autofill_forms` data source, which has one row
+# per form interaction ("flow"). See that data source for how a field is counted
+# as detected / auto-filled / modified.
+
+[metrics.form_autofill_address_fields_filled]
+friendly_name = "Address autofill: gross auto-filled fields"
+description = """
+    Per client: the number of address form fields Firefox auto-filled, summed
+    over every address form the client interacted with.
+
+    Only fields whose type Firefox had to *infer* are counted -- i.e. fields
+    identified by the regex heuristics, by Fathom, or by the ML field
+    classifier. Fields carrying an explicit `autocomplete` attribute are
+    excluded, since their type needs no inference and is therefore unaffected
+    by changes to the field classifier.
+
+    This is the gross figure: it equals
+    `form_autofill_address_fields_modified` +
+    `form_autofill_address_fields_net_kept`.
+"""
+select_expression = "COALESCE(SUM(IF(form_type = 'address', autofilled_fields, 0)), 0)"
+data_source = "form_autofill_forms"
+category = "autofill"
+type = "scalar"
+
+[metrics.form_autofill_address_fields_modified]
+friendly_name = "Address autofill: modified auto-filled fields"
+description = """
+    Per client: of the address fields Firefox auto-filled, the number the user
+    subsequently edited (a `filled_modified_address_form` event named the
+    field). Counted once per field per form interaction, however many times the
+    user edited it.
+
+    A field the user edits is one autofill got wrong, so this is the error
+    count against `form_autofill_address_fields_filled`.
+"""
+select_expression = "COALESCE(SUM(IF(form_type = 'address', modified_fields, 0)), 0)"
+data_source = "form_autofill_forms"
+category = "autofill"
+type = "scalar"
+
+[metrics.form_autofill_address_fields_net_kept]
+friendly_name = "Address autofill: net kept auto-filled fields"
+description = """
+    Per client: the number of auto-filled address fields the user left
+    untouched -- auto-filled and never subsequently edited. This is the
+    user-accepted yield of address autofill, and the counterpart to
+    `form_autofill_address_fields_modified`.
+"""
+select_expression = "COALESCE(SUM(IF(form_type = 'address', net_kept_fields, 0)), 0)"
+data_source = "form_autofill_forms"
+category = "autofill"
+type = "scalar"
+
+[metrics.form_autofill_credit_card_fields_filled]
+friendly_name = "Credit card autofill: gross auto-filled fields"
+description = """
+    Per client: the number of credit card form fields Firefox auto-filled,
+    summed over every credit card form the client interacted with. Same
+    inferred-field rule as `form_autofill_address_fields_filled`; note that
+    Fathom accounts for roughly half of all auto-filled credit card fields, so
+    excluding it here would halve this metric.
+
+    Equals `form_autofill_credit_card_fields_modified` +
+    `form_autofill_credit_card_fields_net_kept`.
+"""
+select_expression = "COALESCE(SUM(IF(form_type = 'credit_card', autofilled_fields, 0)), 0)"
+data_source = "form_autofill_forms"
+category = "autofill"
+type = "scalar"
+
+[metrics.form_autofill_credit_card_fields_modified]
+friendly_name = "Credit card autofill: modified auto-filled fields"
+description = """
+    Per client: of the credit card fields Firefox auto-filled, the number the
+    user subsequently edited (a `filled_modified_cc_form_v2` event named the
+    field). Counted once per field per form interaction.
+"""
+select_expression = "COALESCE(SUM(IF(form_type = 'credit_card', modified_fields, 0)), 0)"
+data_source = "form_autofill_forms"
+category = "autofill"
+type = "scalar"
+
+[metrics.form_autofill_credit_card_fields_net_kept]
+friendly_name = "Credit card autofill: net kept auto-filled fields"
+description = """
+    Per client: the number of auto-filled credit card fields the user left
+    untouched -- auto-filled and never subsequently edited.
+"""
+select_expression = "COALESCE(SUM(IF(form_type = 'credit_card', net_kept_fields, 0)), 0)"
+data_source = "form_autofill_forms"
+category = "autofill"
+type = "scalar"
+
+[metrics.form_autofill_address_form_submissions]
+friendly_name = "Address form submissions"
+description = """
+    Per client: the number of distinct address forms submitted
+    (`submitted_address_form` / `submitted_address_form_ext`), counted once per
+    form interaction regardless of how the fields were populated. Includes
+    forms Firefox did not auto-fill.
+"""
+select_expression = "COUNT(DISTINCT IF(form_type = 'address' AND form_submitted, flow, NULL))"
+data_source = "form_autofill_forms"
+category = "autofill"
+type = "scalar"
+
+[metrics.form_autofill_credit_card_form_submissions]
+friendly_name = "Credit card form submissions"
+description = """
+    Per client: the number of distinct credit card forms submitted
+    (`submitted_cc_form_v2`), counted once per form interaction regardless of
+    how the fields were populated. Includes forms Firefox did not auto-fill.
+"""
+select_expression = "COUNT(DISTINCT IF(form_type = 'credit_card' AND form_submitted, flow, NULL))"
+data_source = "form_autofill_forms"
+category = "autofill"
+type = "scalar"
+
 [dimensions]
 
 [dimensions.os]
@@ -2320,6 +2440,245 @@ from_expression = """(
 experiments_column_type = "events_stream"
 friendly_name = "Protections popup events"
 description = "Sheild icon 'Protections Popup' pings"
+
+[data_sources.form_autofill_forms]
+from_expression = """(
+    WITH autofill_events AS (
+        SELECT
+            client_id,
+            legacy_telemetry_client_id,
+            profile_group_id,
+            DATE(submission_timestamp) AS submission_date,
+            IF(event_category = 'creditcard', 'credit_card', 'address') AS form_type,
+            event_name,
+            event_extra,
+            -- autofill tags every event of one form interaction with a shared uuid
+            JSON_VALUE(event_extra, '$.value') AS flow,
+            -- only set on filled_modified_* events: the field the user edited
+            JSON_VALUE(event_extra, '$.field_name') AS modified_field
+        FROM `moz-fx-data-shared-prod.firefox_desktop.events_stream`
+        WHERE
+            event_category IN ('address', 'creditcard')
+            AND event_name IN (
+                'detected_address_form', 'detected_address_form_ext',
+                'filled_address_form', 'filled_address_form_ext',
+                'filled_modified_address_form',
+                'submitted_address_form', 'submitted_address_form_ext',
+                'detected_cc_form_v2', 'filled_cc_form_v2',
+                'filled_modified_cc_form_v2', 'submitted_cc_form_v2'
+            )
+            AND JSON_VALUE(event_extra, '$.value') IS NOT NULL
+    ),
+    -- One row per (form interaction, field, event): what the detected_* event
+    -- said about the field, and what the filled_* event did to it. The address
+    -- events split their fields across a base and an `_ext` event, so a key
+    -- absent from one variant simply comes back NULL and is dropped.
+    field_signals AS (
+        SELECT
+            client_id,
+            legacy_telemetry_client_id,
+            profile_group_id,
+            submission_date,
+            form_type,
+            flow,
+            f.field AS field,
+            IF(event_name LIKE 'detected_%', f.status, NULL) AS detected_as,
+            IF(event_name LIKE 'filled_%', f.status, NULL) AS fill_status
+        FROM
+            autofill_events,
+            UNNEST([
+                STRUCT('name' AS field, JSON_VALUE(event_extra, '$.name') AS status),
+                STRUCT('given-name', JSON_VALUE(event_extra, '$.given_name')),
+                STRUCT('family-name', JSON_VALUE(event_extra, '$.family_name')),
+                STRUCT('additional-name', JSON_VALUE(event_extra, '$.additional_name')),
+                STRUCT('organization', JSON_VALUE(event_extra, '$.organization')),
+                STRUCT('street-address', JSON_VALUE(event_extra, '$.street_address')),
+                STRUCT('address-line1', JSON_VALUE(event_extra, '$.address_line1')),
+                STRUCT('address-line2', JSON_VALUE(event_extra, '$.address_line2')),
+                STRUCT('address-line3', JSON_VALUE(event_extra, '$.address_line3')),
+                STRUCT('address-level1', JSON_VALUE(event_extra, '$.address_level1')),
+                STRUCT('address-level2', JSON_VALUE(event_extra, '$.address_level2')),
+                STRUCT('postal-code', JSON_VALUE(event_extra, '$.postal_code')),
+                STRUCT('country', JSON_VALUE(event_extra, '$.country')),
+                STRUCT('email', JSON_VALUE(event_extra, '$.email')),
+                STRUCT('tel', JSON_VALUE(event_extra, '$.tel'))
+            ]) AS f
+        WHERE
+            event_name IN (
+                'detected_address_form', 'detected_address_form_ext',
+                'filled_address_form', 'filled_address_form_ext'
+            )
+            AND f.status IS NOT NULL
+        UNION ALL
+        SELECT
+            client_id,
+            legacy_telemetry_client_id,
+            profile_group_id,
+            submission_date,
+            form_type,
+            flow,
+            f.field,
+            IF(event_name = 'detected_cc_form_v2', f.status, NULL),
+            IF(event_name = 'filled_cc_form_v2', f.status, NULL)
+        FROM
+            autofill_events,
+            UNNEST([
+                STRUCT('cc-name' AS field, JSON_VALUE(event_extra, '$.cc_name') AS status),
+                STRUCT('cc-number', JSON_VALUE(event_extra, '$.cc_number')),
+                STRUCT('cc-type', JSON_VALUE(event_extra, '$.cc_type')),
+                STRUCT('cc-exp', JSON_VALUE(event_extra, '$.cc_exp')),
+                STRUCT('cc-exp-month', JSON_VALUE(event_extra, '$.cc_exp_month')),
+                STRUCT('cc-exp-year', JSON_VALUE(event_extra, '$.cc_exp_year'))
+            ]) AS f
+        WHERE
+            event_name IN ('detected_cc_form_v2', 'filled_cc_form_v2')
+            AND f.status IS NOT NULL
+        UNION ALL
+        -- A modified event names the single field the user edited, using a finer
+        -- vocabulary than the detected/filled events report. Fold each edit onto
+        -- the label(s) those events use, so the edit can cancel out the fill.
+        SELECT
+            client_id,
+            legacy_telemetry_client_id,
+            profile_group_id,
+            submission_date,
+            form_type,
+            flow,
+            field,
+            NULL,
+            'modified'
+        FROM
+            autofill_events,
+            UNNEST(
+                CASE
+                    -- Sub-inputs of a split street address. Autofill writes the
+                    -- street into exactly one of these two and they co-occur in
+                    -- ~1% of forms, so credit both: naming a field that was not
+                    -- auto-filled is a no-op, since `modified` is only ever read
+                    -- for fields that were detected and filled.
+                    WHEN modified_field IN ('address-housenumber', 'address-extra-housesuffix')
+                        THEN ['street-address', 'address-line1']
+                    -- Same field, reported by name instead of by code.
+                    WHEN modified_field = 'country-name' THEN ['country']
+                    -- tel-national, tel-area-code, ... all roll up to tel.
+                    WHEN modified_field LIKE 'tel%' THEN ['tel']
+                    -- Components of the cardholder name.
+                    WHEN modified_field IN ('cc-given-name', 'cc-family-name', 'cc-additional-name')
+                        THEN ['cc-name']
+                    ELSE [modified_field]
+                END
+            ) AS field
+        WHERE event_name IN ('filled_modified_address_form', 'filled_modified_cc_form_v2')
+    ),
+    -- Collapse to one row per (form interaction, field). A field can be named by
+    -- several events within one interaction and still counts only once.
+    per_field AS (
+        SELECT
+            client_id,
+            legacy_telemetry_client_id,
+            profile_group_id,
+            submission_date,
+            form_type,
+            flow,
+            field,
+            -- A detected_* event reports, per field, how the field's type was
+            -- established: 'false' = field not on the form, 'true' = explicit
+            -- autocomplete attribute, '0' = regex heuristic, a number = Fathom
+            -- confidence, 'ml' = ML field classifier. Everything except
+            -- 'false'/'true' means Firefox inferred the type itself.
+            COALESCE(LOGICAL_OR(
+                detected_as = 'ml' OR SAFE_CAST(detected_as AS FLOAT64) IS NOT NULL
+            ), FALSE) AS detected,
+            COALESCE(LOGICAL_OR(fill_status = 'filled'), FALSE) AS autofilled,
+            COALESCE(LOGICAL_OR(fill_status = 'modified'), FALSE) AS modified
+        FROM field_signals
+        GROUP BY
+            client_id, legacy_telemetry_client_id, profile_group_id,
+            submission_date, form_type, flow, field
+    ),
+    per_form AS (
+        SELECT
+            client_id,
+            legacy_telemetry_client_id,
+            profile_group_id,
+            submission_date,
+            form_type,
+            flow,
+            COUNTIF(detected) AS detected_fields,
+            COUNTIF(detected AND autofilled) AS autofilled_fields,
+            COUNTIF(detected AND autofilled AND modified) AS modified_fields,
+            COUNTIF(detected AND autofilled AND NOT modified) AS net_kept_fields
+        FROM per_field
+        GROUP BY
+            client_id, legacy_telemetry_client_id, profile_group_id,
+            submission_date, form_type, flow
+    ),
+    submissions AS (
+        SELECT DISTINCT
+            client_id,
+            legacy_telemetry_client_id,
+            profile_group_id,
+            submission_date,
+            form_type,
+            flow
+        FROM autofill_events
+        WHERE event_name IN (
+            'submitted_address_form', 'submitted_address_form_ext', 'submitted_cc_form_v2'
+        )
+    )
+    -- A form can be submitted on a day its detected_* event did not land on
+    -- (interaction spanning midnight), and a form can be submitted having had
+    -- no inferred fields at all, so the two sides are unioned rather than
+    -- joined. An outer join here would also stop BigQuery pushing the caller's
+    -- submission_date filter down to the events_stream partition column.
+    SELECT
+        client_id,
+        legacy_telemetry_client_id,
+        profile_group_id,
+        submission_date,
+        form_type,
+        flow,
+        SUM(detected_fields) AS detected_fields,
+        SUM(autofilled_fields) AS autofilled_fields,
+        SUM(modified_fields) AS modified_fields,
+        SUM(net_kept_fields) AS net_kept_fields,
+        LOGICAL_OR(submitted) AS form_submitted
+    FROM (
+        SELECT
+            client_id, legacy_telemetry_client_id, profile_group_id,
+            submission_date, form_type, flow,
+            detected_fields, autofilled_fields, modified_fields, net_kept_fields,
+            FALSE AS submitted
+        FROM per_form
+        UNION ALL
+        SELECT
+            client_id, legacy_telemetry_client_id, profile_group_id,
+            submission_date, form_type, flow,
+            0, 0, 0, 0,
+            TRUE
+        FROM submissions
+    )
+    GROUP BY
+        client_id, legacy_telemetry_client_id, profile_group_id,
+        submission_date, form_type, flow
+)"""
+analysis_units = ["profile_group_id", "client_id"]
+client_id_column = "legacy_telemetry_client_id"
+glean_client_id_column = "client_id"
+legacy_client_id_column = "legacy_telemetry_client_id"
+submission_date_column = "submission_date"
+# Pre-aggregated, so the per-event `experiments`/branch info is not carried
+# through; day-0 pre-enrollment events cannot be filtered out.
+experiments_column_type = "none"
+friendly_name = "Form Autofill Form Interactions"
+description = """
+    One row per client per day per form autofill interaction ("flow"), for both
+    address and credit card forms, with per-field detected / auto-filled /
+    modified / net-kept counts and whether the form was submitted.
+
+    A form interaction is attributed to the day its events arrived, so an
+    interaction spanning midnight is split across two rows.
+"""
 
 
 [segments]
