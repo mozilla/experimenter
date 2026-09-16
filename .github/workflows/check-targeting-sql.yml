@@ -10,24 +10,11 @@ on:
 
 jobs:
   validate:
-    name: "Validate Targeting SQL (${{ matrix.app }})"
+    name: "Validate Targeting SQL"
     runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - app: desktop
-            make_target: export_targeting_sql
-            output_file: targeting_sql.json
-          - app: fenix
-            make_target: export_targeting_sql_fenix
-            output_file: targeting_sql_fenix.json
-          - app: ios
-            make_target: export_targeting_sql_ios
-            output_file: targeting_sql_ios.json
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -49,9 +36,9 @@ jobs:
             cp .env.sample .env
             make build_test
 
-      - name: Export targeting SQL
+      - name: Export targeting SQL (desktop, fenix, iOS)
         if: steps.check-paths.outputs.should-run == 'true'
-        run: make ${{ matrix.make_target }}
+        run: make export_targeting_sql_all
 
       - name: Check for GCP credentials
         id: gcp-credentials
@@ -77,8 +64,20 @@ jobs:
           id_token_audience: https://us-central1-moz-fx-data-shared-prod.cloudfunctions.net/dryrun
           id_token_include_email: true
 
-      - name: Validate targeting SQL
+      - name: Validate targeting SQL (desktop)
         if: steps.gcp-credentials.outputs.available == 'true'
         env:
           GOOGLE_GHA_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
-        run: python3 experimenter/bin/validate_targeting_sql.py ${{ matrix.output_file }}
+        run: python3 experimenter/bin/validate_targeting_sql.py targeting_sql.json
+
+      - name: Validate targeting SQL (fenix)
+        if: steps.gcp-credentials.outputs.available == 'true'
+        env:
+          GOOGLE_GHA_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
+        run: python3 experimenter/bin/validate_targeting_sql.py targeting_sql_fenix.json
+
+      - name: Validate targeting SQL (iOS)
+        if: steps.gcp-credentials.outputs.available == 'true'
+        env:
+          GOOGLE_GHA_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
+        run: python3 experimenter/bin/validate_targeting_sql.py targeting_sql_ios.json

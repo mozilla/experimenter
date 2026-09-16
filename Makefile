@@ -184,6 +184,16 @@ export_targeting_sql_ios: build_test  ## Export iOS targeting SQL for BigQuery d
 	$(COMPOSE_TEST) down; \
 	exit $$status
 
+export_targeting_sql_all: build_test  ## Export targeting SQL for all apps (desktop, fenix, iOS) with a single image build
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL)' > targeting_sql.json; \
+	status1=$$?; \
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL) --app fenix' > targeting_sql_fenix.json; \
+	status2=$$?; \
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL) --app ios' > targeting_sql_ios.json; \
+	status3=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$(( status1 | status2 | status3 ))
+
 test: build_test  ## Run tests
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) python manage.py test --parallel'; \
 	status=$$?; \
