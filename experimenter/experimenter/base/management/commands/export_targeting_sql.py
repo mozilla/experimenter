@@ -58,7 +58,13 @@ class Command(BaseCommand):
 
             sql = ensure_bool_sql(result.sql)
             query = f"SELECT COUNTIF({sql}) FROM `{table}` WHERE FALSE"
-            entries.append({"slug": config.slug, "query": query})
+            entries.append(
+                {
+                    "slug": config.slug,
+                    "query": query,
+                    "warnings": result.warnings,
+                }
+            )
 
         json.dump(entries, self.stdout, indent=2)
         self.stdout.write("\n")
