@@ -413,3 +413,10 @@ body:has(.sidebar-action-button.htmx-request)
     overscroll-behavior: contain;
   }
 }
+
+html:has(
+    .rollout-page .bootstrap-select .dropdown-toggle[aria-expanded="true"]
+  ) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
