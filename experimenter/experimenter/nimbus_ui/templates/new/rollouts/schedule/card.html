@@ -7,7 +7,7 @@
         <table class="table table-borderless align-middle mb-0"
                style="table-layout: fixed">
           <thead>
-            <tr style="font-size: 12px">
+            <tr style="font-size: 13px">
               <th class="border-0 text-secondary fw-normal ps-3" style="width: 14%">Rollout Phase</th>
               <th class="border-0 text-secondary fw-normal" style="width: 16%">Status</th>
               <th class="border-0 text-secondary fw-normal" style="width: 26%">Population Ratio</th>
@@ -149,23 +149,23 @@
     <div class="d-flex gap-5">
       {# Move to next phase observations #}
       <div class="flex-fill">
-        <div class="text-secondary mb-1" style="font-size: 12px;">
+        <div class="text-secondary mb-1" style="font-size: 13px;">
           {{ NimbusUIConstants.ROLLOUT_ADVANCE_OBSERVATIONS_LABEL }}
         </div>
         <div id="rollout-schedule-advance-observations"
              class="small text-body"
-             style="white-space: pre-wrap">{{ experiment.rollout_advance_observations|default:"—" }}</div>
+             style="white-space: pre-wrap">{{ experiment.rollout_advance_observations|default:"— Not Set" }}</div>
         {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_advance_observations %}
 
       </div>
       {# Pause rollout observations #}
       <div class="flex-fill">
-        <div class="text-secondary mb-1" style="font-size: 12px;">
+        <div class="text-secondary mb-1" style="font-size: 13px;">
           {{ NimbusUIConstants.ROLLOUT_PAUSE_OBSERVATIONS_LABEL }}
         </div>
         <div id="rollout-schedule-pause-observations"
              class="small text-body"
-             style="white-space: pre-wrap">{{ experiment.rollout_pause_observations|default:"—" }}</div>
+             style="white-space: pre-wrap">{{ experiment.rollout_pause_observations|default:"— Not Set" }}</div>
         {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_pause_observations %}
 
       </div>

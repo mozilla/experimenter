@@ -3,17 +3,17 @@
      {% if oob %}hx-swap-oob="true"{% endif %}>
   {# QA sign-off #}
   <div>
-    <div class="d-flex flex-row align-items-baseline gap-2">
+    <div class="d-flex flex-row align-items-baseline gap-3">
       {% if experiment.qa_signoff %}
-        <i id="rollout-signoff-qa"
-           class="fas fa-check text-success text-center"
-           style="min-width: 16px"></i>
+        <span class="small text-body" style="min-width: 68px">
+          <i id="rollout-signoff-qa" class="fas fa-check text-success"></i> Yes
+        </span>
       {% else %}
-        <i id="rollout-signoff-qa"
-           class="fas fa-times text-danger text-center"
-           style="min-width: 16px"></i>
+        <span class="small text-body" style="min-width: 68px">
+          <i id="rollout-signoff-qa" class="fas fa-times text-danger"></i> No
+        </span>
       {% endif %}
-      <div class="text-secondary" style="font-size: 12px;">QA sign-off</div>
+      <div class="text-secondary" style="font-size: 13px;">QA sign-off</div>
       {% include "new/common/signoff_recommendation.html" with recommended=experiment.signoff_recommendations.qa_signoff description="Please file a QA request." url="https://experimenter.info/workflow/risk-mitigation#qa-sign-off" %}
 
     </div>
@@ -22,17 +22,17 @@
   </div>
   {# VP sign-off #}
   <div>
-    <div class="d-flex flex-row align-items-baseline gap-2">
+    <div class="d-flex flex-row align-items-baseline gap-3">
       {% if experiment.vp_signoff %}
-        <i id="rollout-signoff-vp"
-           class="fas fa-check text-success text-center"
-           style="min-width: 16px"></i>
+        <span class="small text-body" style="min-width: 68px">
+          <i id="rollout-signoff-vp" class="fas fa-check text-success"></i> Yes
+        </span>
       {% else %}
-        <i id="rollout-signoff-vp"
-           class="fas fa-times text-danger text-center"
-           style="min-width: 16px"></i>
+        <span class="small text-body" style="min-width: 68px">
+          <i id="rollout-signoff-vp" class="fas fa-times text-danger"></i> No
+        </span>
       {% endif %}
-      <div class="text-secondary" style="font-size: 12px;">VP sign-off</div>
+      <div class="text-secondary" style="font-size: 13px;">VP sign-off</div>
       {% include "new/common/signoff_recommendation.html" with recommended=experiment.signoff_recommendations.vp_signoff description="Please email your VP." url="https://experimenter.info/workflow/risk-mitigation#vp-sign-off" %}
 
     </div>
@@ -41,17 +41,17 @@
   </div>
   {# Legal sign-off #}
   <div>
-    <div class="d-flex flex-row align-items-baseline gap-2">
+    <div class="d-flex flex-row align-items-baseline gap-3">
       {% if experiment.legal_signoff %}
-        <i id="rollout-signoff-legal"
-           class="fas fa-check text-success text-center"
-           style="min-width: 16px"></i>
+        <span class="small text-body" style="min-width: 68px">
+          <i id="rollout-signoff-legal" class="fas fa-check text-success"></i> Yes
+        </span>
       {% else %}
-        <i id="rollout-signoff-legal"
-           class="fas fa-times text-danger text-center"
-           style="min-width: 16px"></i>
+        <span class="small text-body" style="min-width: 68px">
+          <i id="rollout-signoff-legal" class="fas fa-times text-danger"></i> No
+        </span>
       {% endif %}
-      <div class="text-secondary" style="font-size: 12px;">Legal sign-off</div>
+      <div class="text-secondary" style="font-size: 13px;">Legal sign-off</div>
       {% include "new/common/signoff_recommendation.html" with recommended=experiment.signoff_recommendations.legal_signoff description="Please email legal." url="https://experimenter.info/workflow/risk-mitigation#legal-sign-off" %}
 
     </div>

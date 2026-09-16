@@ -4,17 +4,17 @@
   <div class="d-flex flex-column gap-3" id="rollout-qa-body">
     {# QA status #}
     <div>
-      <div class="text-secondary mb-1" style="font-size: 12px;">QA status</div>
+      <div class="text-secondary mb-1" style="font-size: 13px;">QA status</div>
       {% include "new/common/qa_status_badge.html" with badge_id="rollout-qa-status" %}
       {% include "new/common/validation_errors.html" with errors=validation_errors.qa_status %}
 
     </div>
     {# QA notes #}
     <div>
-      <div class="text-secondary mb-1" style="font-size: 12px;">QA notes</div>
+      <div class="text-secondary mb-1" style="font-size: 13px;">QA notes</div>
       <div id="rollout-qa-comment"
            class="small text-body"
-           style="white-space: pre-wrap">{{ experiment.qa_comment|default:"—" }}</div>
+           style="white-space: pre-wrap">{{ experiment.qa_comment|default:"— Not Set" }}</div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.qa_comment %}
 
     </div>
