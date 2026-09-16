@@ -5632,10 +5632,15 @@ SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
 )
 
 SPLIT_VIEW_HAS_BEEN_USED = NimbusTargetingConfig(
-    name="Users who have used Split View",
+    name="Users who have used Split View without active enterprise policies",
     slug="split_view_has_been_used",
-    description="Desktop users who have previously used Split View",
-    targeting="'browser.tabs.splitview.hasUsed'|preferenceValue",
+    description=(
+        "Desktop users who have previously used Split View and do not have active "
+        "enterprise policies"
+    ),
+    targeting=(
+        "'browser.tabs.splitview.hasUsed'|preferenceValue && !hasActiveEnterprisePolicies"
+    ),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
