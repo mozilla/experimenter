@@ -316,6 +316,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=NimbusConstants.Version.NO_VERSION,
         blank=True,
     )
+    newtab_addon_min_version = models.CharField(
+        "Minimum New Tab Addon Version",
+        max_length=255,
+        default="",
+        blank=True,
+    )
     application = models.CharField(
         "Application Type",
         max_length=255,
@@ -770,6 +776,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return expressions
 
+    def _get_targeting_newtab_addon_min_version(self):
+        expressions = []
+
+        if self.is_desktop and (min_version := self.newtab_addon_min_version):
+            expressions.append(f"newtabAddonVersion|versionCompare('{min_version}') >= 0")
+
+        return expressions
+
     def _get_targeting_pref_conflicts(self):
         prefs = []
 
@@ -815,6 +829,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())
+        sticky_expressions.extend(self._get_targeting_newtab_addon_min_version())
 
         if locales := self.locales.all():
             locales = [locale.code for locale in sorted(locales, key=lambda l: l.code)]

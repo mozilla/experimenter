@@ -346,6 +346,31 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(serializer.data["targeting"], experiment.targeting)
         DesktopAllVersionsNimbusExperiment.model_validate(serializer.data)
 
+    def test_serializer_outputs_newtab_addon_min_version_targeting(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            newtab_addon_min_version="153.3.20260605.21338",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=False,
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(
+            serializer.data["targeting"],
+            (
+                "(version|versionCompare('100.!') >= 0) "
+                "&& (newtabAddonVersion|versionCompare('153.3.20260605.21338') >= 0)"
+            ),
+        )
+        DesktopAllVersionsNimbusExperiment.model_validate(serializer.data)
+
     def test_serializer_outputs_empty_targeting(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
