@@ -26,8 +26,7 @@
       {% empty %}
         <div class="small text-body">—</div>
       {% endfor %}
-      {% include "new/common/validation_errors.html" with errors=validation_errors.feature_configs %}
-      {% include "new/common/validation_errors.html" with errors=feature_value_errors %}
+      {% include "new/rollouts/rollout_features/feature_validation_errors.html" %}
 
     </div>
     {# Warn only on feature schema validation failure #}
@@ -101,3 +100,4 @@
 
   {% endif %}
 {% endblock %}
+{% block cross_card_validation_refresh %}{% endblock %}

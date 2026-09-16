@@ -4,10 +4,20 @@ from functools import cache
 from pathlib import Path
 
 import pytest
+from selenium.webdriver.firefox.options import Options
 
+from nimbus.conftest import configure_firefox_options, start_firefox
 from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.pages.browser import Browser
 from nimbus.utils import helpers
+
+
+@pytest.fixture(scope="module")
+def driver():
+    """Share one browser per module: these tests only read, never mutate state."""
+    driver = start_firefox(configure_firefox_options(Options()))
+    yield driver
+    driver.quit()
 
 
 @pytest.fixture(scope="module")

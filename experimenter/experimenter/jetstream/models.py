@@ -28,6 +28,7 @@ class BranchComparison(StrEnum):
 
 class Metric(StrEnum):
     RETENTION = "retained"
+    WEEKLY_RETENTION = "week_{}_retention"
     RETENTION_3_DAYS = "active_in_last_3_days"
     RETENTION_3_DAYS_LEGACY = "active_in_last_3_days_legacy"
     SEARCH = "search_count"
@@ -78,7 +79,6 @@ GROUPED_METRICS = {
     Group.SEARCH: SEARCH_METRICS,
     Group.USAGE: USAGE_METRICS,
 }
-RETENTION_2_WEEKS_WINDOW_INDEX = 2
 RETENTION_3_DAYS_WINDOW_INDEX = 4
 RETENTION_3_DAYS_METRICS = (Metric.RETENTION_3_DAYS, Metric.RETENTION_3_DAYS_LEGACY)
 
@@ -154,29 +154,34 @@ class JetstreamData(RootModel[JetstreamDataPoint]):
             jetstream_data_point
             for jetstream_data_point in data
             if jetstream_data_point.window_index == str(window_index)
-            and jetstream_data_point.metric == metric.value
+            and jetstream_data_point.metric == metric
         ]
 
-    def append_retention_data(self, weekly_data):
-        # Only use two-week retention data.
-        retention_data = self.get_retention_by_window(
-            RETENTION_2_WEEKS_WINDOW_INDEX, weekly_data, Metric.RETENTION
-        )
+    def separate_weekly_retention_data(self, weekly_data):
+        # Replace "retained" with one week_N_retention metric per week in "weekly_data",
+        # skipping week 1. Points are copied so the shared "weekly_data" is untouched.
+        retention_data = []
 
+        for jetstream_data_point in weekly_data or []:
+            if (
+                jetstream_data_point.metric == Metric.RETENTION
+                and jetstream_data_point.window_index != "1"
+            ):
+                retention_data_point = jetstream_data_point.model_copy()
+                retention_data_point.metric = Metric.WEEKLY_RETENTION.format(
+                    retention_data_point.window_index
+                )
+                retention_data.append(retention_data_point)
+
+        self.remove_retention_data()
         self.extend(retention_data)
 
-    def replace_retention_weeks(self, weekly_data):
-        # Remove all weekly retention data except for week 2.
-        retention_data = self.get_retention_by_window(
-            RETENTION_2_WEEKS_WINDOW_INDEX, weekly_data, Metric.RETENTION
-        )
-
+    def remove_retention_data(self):
         self.root = [
             jetstream_data_point
             for jetstream_data_point in self.root
             if jetstream_data_point.metric != Metric.RETENTION
         ]
-        self.extend(retention_data)
 
     def get_retention_3_days_by_window(self, window_index, daily_data):
         retention_data = []
@@ -306,11 +311,10 @@ class ResultsObjectModelBase(BaseModel):
 
                 # Need window index for weekly DataPoint objects and for storing
                 # significance for each window. Overall should always be 1 because
-                # there is only ever one overall window, except retained data which
-                # is pulled from week 2.
+                # there is only ever one overall window.
                 window_index = (
                     "1"
-                    if window == AnalysisWindow.OVERALL and metric != Metric.RETENTION
+                    if window == AnalysisWindow.OVERALL
                     else jetstream_data_point.window_index
                 )
 

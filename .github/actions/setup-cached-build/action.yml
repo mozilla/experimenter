@@ -1,18 +1,9 @@
 name: "Setup Docker Build"
-description: "Free disk space, set up Buildx, and build megazords/schemas/cirrus images with retry"
+description: "Set up Buildx and build megazords/schemas/cirrus images with retry"
 
 runs:
   using: composite
   steps:
-    - name: Free disk space
-      shell: bash
-      run: |
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /usr/local/lib/android
-        sudo rm -rf /opt/ghc
-        docker system prune -af
-        df -h /
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       with:
