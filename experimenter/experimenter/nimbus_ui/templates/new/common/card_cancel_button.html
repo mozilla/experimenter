@@ -1,5 +1,5 @@
 <button type="button"
-        class="{% if icon_only %}btn p-0 border-0 text-secondary d-none card-action-button{% else %}btn btn-outline-secondary btn-sm{% endif %}"
+        class="btn btn-sm btn-outline-secondary{% if icon_only %} d-none card-action-button{% endif %}"
         {% if icon_only %}data-card-action="cancel" aria-label="Cancel editing {{ card_id }}"{% endif %}
         data-toast-id="{{ NimbusUIConstants.TOAST_EDIT_CANCELLED }}"
         hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
@@ -7,9 +7,6 @@
         hx-select-oob="#sidebar-preview-button"
         hx-target="#rollout-card-{{ card_id }}"
         hx-swap="outerHTML">
-  {% if icon_only %}
-    <i class="fa-solid fa-xmark"></i>
-  {% else %}
-    Cancel
-  {% endif %}
+  Cancel
+  {% if icon_only %}<i class="fa-solid fa-xmark ms-1"></i>{% endif %}
 </button>
