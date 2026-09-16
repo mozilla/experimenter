@@ -1249,6 +1249,35 @@
           "takeaways_summary": {
             "type": "string",
             "nullable": true
+          },
+          "conclusion_recommendations": {
+            "type": "string",
+            "readOnly": true
+          },
+          "project_impact": {
+            "enum": [
+              "HIGH",
+              "MODERATE",
+              "TARGETED"
+            ],
+            "type": "string",
+            "nullable": true
+          },
+          "next_steps": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewer_emails": {
+            "type": "string",
+            "readOnly": true
+          },
+          "editor_emails": {
+            "type": "string",
+            "readOnly": true
+          },
+          "analysis_errors_count": {
+            "type": "string",
+            "readOnly": true
           }
         },
         "required": [
@@ -1291,6 +1320,14 @@
             "type": "boolean"
           },
           "owner": {
+            "type": "string",
+            "readOnly": true
+          },
+          "reviewer_emails": {
+            "type": "string",
+            "readOnly": true
+          },
+          "editor_emails": {
             "type": "string",
             "readOnly": true
           },
@@ -1483,6 +1520,10 @@
             "readOnly": true
           },
           "results_data": {
+            "type": "string",
+            "readOnly": true
+          },
+          "analysis_errors_by_key": {
             "type": "string",
             "readOnly": true
           }

@@ -293,12 +293,14 @@ class RolloutSetupProgressMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        review_errors = self.object.get_invalid_fields_errors(
+            serializer_class=NimbusRolloutReviewSerializer
+        )
+        context["has_rollout_review_errors"] = self.object.is_rollout and bool(
+            review_errors
+        )
         field_errors = self.split_branch_screenshot_errors(
-            self.drop_documentation_link_title_errors(
-                self.object.get_invalid_fields_errors(
-                    serializer_class=NimbusRolloutReviewSerializer
-                )
-            )
+            self.drop_documentation_link_title_errors(review_errors)
         )
         cards = NimbusUIConstants.ROLLOUT_CARD_FIELDS
 
@@ -795,43 +797,47 @@ class NewRolloutScheduleUpdateView(NewCardUpdateView):
         context["rollout_phase_population_estimates"] = (
             get_rollout_phase_population_estimates(self.object)
         )
-        selected_plan = self.request.POST.get("template_name") or self.request.POST.get(
-            "rollout_plan"
-        )
-        if selected_plan:
-            context["form"].initial["rollout_plan"] = selected_plan
         return context
 
     def can_edit(self):
         return self.object.is_draft or self.object.is_rolling_out
 
 
+class RolloutSchedulePreviewMixin:
+    def form_valid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
+
+
 class NewRolloutPhaseCreateView(
-    RenderParentDBResponseMixin, NewRolloutScheduleUpdateView
+    RolloutSchedulePreviewMixin, NewRolloutScheduleUpdateView
 ):
     form_class = RolloutPhaseCreateForm
 
 
-class NewRolloutPhaseDeleteView(CardMutationMixin, NewRolloutScheduleUpdateView):
+class NewRolloutPhaseDeleteView(
+    RolloutSchedulePreviewMixin, NewRolloutScheduleUpdateView
+):
     form_class = RolloutPhaseDeleteForm
 
-    def mutate(self, form):
-        phase_id = self.request.POST.get("phase_id")
-        if not phase_id:
-            return
-        if int(phase_id) not in form.locked_phase_ids:
-            self.object.rollout_phases.filter(id=phase_id).delete()
 
-
-class NewRolloutPlanCreateView(RenderParentDBResponseMixin, NewRolloutScheduleUpdateView):
-    form_class = RolloutPlanCreateForm
-
-
-class NewRolloutPlanApplyView(CardMutationMixin, NewRolloutScheduleUpdateView):
+class NewRolloutPlanApplyView(RolloutSchedulePreviewMixin, NewRolloutScheduleUpdateView):
     form_class = RolloutPlanApplyForm
 
-    def mutate(self, form):
-        form.apply_plan()
+
+class NewRolloutPlanCreateView(NewRolloutScheduleUpdateView):
+    form_class = RolloutPlanCreateForm
+
+    def form_valid(self, form):
+        form.save()
+        data = self.request.POST.copy()
+        data["rollout_plan"] = form.cleaned_data["template_name"]
+        return self.render_to_response(
+            self.get_context_data(
+                form=RolloutScheduleForm(
+                    data=data, instance=self.object, request=self.request
+                )
+            )
+        )
 
 
 class NewSubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
@@ -875,7 +881,9 @@ class NewCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
         return response
 
 
-class NewToggleArchiveView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class NewToggleArchiveView(
+    RolloutSetupProgressMixin, NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+):
     form_class = ToggleArchiveForm
     template_name = "new/common/base.html"
 
