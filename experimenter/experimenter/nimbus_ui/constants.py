@@ -527,7 +527,6 @@ Optional - We expect this to <describe impact> on <core metric>.
         "rollout-features": {
             "section": "Features",
             "rows": (
-                ("Rollout Experience", ("takeaways_summary",)),
                 ("Feature Configuration", ("feature_configs", "reference_branch")),
                 ("Warn On Schema Failure", ("warn_feature_schema",)),
                 ("Prevent Pref Conflicts", ("prevent_pref_conflicts",)),

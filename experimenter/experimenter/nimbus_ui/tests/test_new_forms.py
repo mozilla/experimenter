@@ -860,7 +860,7 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         self.assertIn("Rollout feature", rendered_field)
         self.assertIn('data-subtext="Rollout feature description"', rendered_field)
 
-    def test_form_sets_initial_rollout_experience_and_filters_feature_configs(self):
+    def test_form_filters_feature_configs_by_application(self):
         desktop_feature = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
             slug="desktop-rollout-feature",
@@ -874,16 +874,11 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            takeaways_summary="Existing rollout experience",
             feature_configs=[desktop_feature],
         )
 
         form = RolloutFeaturesForm(instance=experiment, request=self.request)
 
-        self.assertEqual(
-            form.fields["rollout_experience"].initial,
-            "Existing rollout experience",
-        )
         self.assertIn(desktop_feature, form.fields["feature_configs"].queryset)
         self.assertTrue(
             all(
@@ -906,7 +901,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         form = RolloutFeaturesForm(
             instance=experiment,
             data={
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [feature_config.id],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -937,7 +931,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         form = RolloutFeaturesForm(
             instance=experiment,
             data={
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [feature_config.id],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -968,7 +961,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         form = RolloutFeaturesForm(
             instance=experiment,
             data={
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [feature_config.id],
                 "branch-feature-value-TOTAL_FORMS": "1",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -1005,7 +997,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         form = RolloutFeaturesForm(
             instance=experiment,
             data={
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [feature_config.id],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -1042,7 +1033,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         form = RolloutFeaturesForm(
             instance=experiment,
             data={
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [feature_config.id],
                 "branch-feature-value-TOTAL_FORMS": "1",
                 "branch-feature-value-INITIAL_FORMS": "1",
@@ -1078,13 +1068,11 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
-            takeaways_summary="",
         )
 
         form = RolloutFeaturesForm(
             instance=experiment,
             data={
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [feature_config1.id, feature_config2.id],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -1102,7 +1090,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         experiment = form.save()
         experiment.refresh_from_db()
 
-        self.assertEqual(experiment.takeaways_summary, "Updated rollout experience")
         self.assertEqual(
             set(experiment.feature_configs.all()), {feature_config1, feature_config2}
         )
@@ -1128,7 +1115,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature_config],
-            takeaways_summary="Existing rollout experience",
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get(
@@ -1138,7 +1124,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         form = RolloutFeaturesForm(
             instance=experiment,
             data={
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "1",
                 "branch-feature-value-INITIAL_FORMS": "1",
@@ -1159,7 +1144,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         experiment = form.save()
         experiment.refresh_from_db()
 
-        self.assertEqual(experiment.takeaways_summary, "Updated rollout experience")
         self.assertEqual(experiment.feature_configs.count(), 0)
         self.assertFalse(
             experiment.reference_branch.feature_values.filter(
@@ -1176,7 +1160,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
-            takeaways_summary="",
         )
         experiment.reference_branch.screenshots.all().delete()
 
@@ -1184,7 +1167,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         form = RolloutFeaturesForm(
             instance=experiment,
             data={
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -1214,7 +1196,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
-            takeaways_summary="",
         )
         experiment.reference_branch.screenshots.all().delete()
 
@@ -1223,7 +1204,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         form = RolloutFeaturesForm(
             instance=experiment,
             data={
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -1260,7 +1240,6 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         form = RolloutFeaturesForm(
             instance=experiment,
             data={
-                "rollout_experience": "",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -1295,7 +1274,6 @@ class TestRolloutScreenshotCreateForm(RequestFormTestCase):
         form = RolloutScreenshotCreateForm(
             instance=experiment,
             data={
-                "rollout_experience": "",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -1334,7 +1312,6 @@ class TestRolloutScreenshotDeleteForm(RequestFormTestCase):
             instance=experiment,
             data={
                 "screenshot_id": screenshot.id,
-                "rollout_experience": "",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",

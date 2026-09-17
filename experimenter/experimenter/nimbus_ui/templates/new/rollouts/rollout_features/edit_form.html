@@ -16,184 +16,174 @@
         class="card-edit-form d-flex flex-column gap-4">
     {% csrf_token %}
     <div class="d-flex flex-column gap-4">
-      {#  Brand perception impact  #}
       <div>
-        <label for="id_name" class="small text-body mb-2">
-        Please describe the rollout experience. How can QA verify that the change has happened?</span>
-      </label>
-      {{ form.rollout_experience }}
-      {% if form.rollout_experience.errors %}
-        <div class="form-text text-danger">{{ form.rollout_experience.errors|join:", " }}</div>
-      {% endif %}
-      {% include "new/common/validation_errors.html" with errors=validation_errors.takeaways_summary %}
-
-    </div>
-    <div>
-      {#  Feature config  #}
-      <div>
-        <label for="id_name" class="small text-body mb-2">
-        Feature configuration</span>
-      </label>
-      {{ form.feature_configs }}
-      {% for error in validation_errors.feature_configs %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-    </div>
-    {% with branch_feature_values=form.branch_feature_values %}
-      <div>
-        {{ branch_feature_values.management_form }}
-        {% for branch_feature_values_form in branch_feature_values %}
-          {{ branch_feature_values_form.id }}
-          {{ branch_feature_values_form.feature_config }}
-          {% if branch_feature_values_form.DELETE.value %}
-            {{ branch_feature_values_form.value.as_hidden }}
-          {% else %}
-            <div class="row mt-2">
-              <div class="col">
-                <label class="small mb-2 text-secondary">
-                  {{ branch_feature_values_form.instance.feature_config.name }}
-                  {% if branch_feature_values_form.instance.allow_coenrollment %}
-                    <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
-                  {% endif %}
-                </label>
-                <div class="feature-value-editor position-relative"
-                     data-nimbus-devtools-feature-editor
-                     data-feature-id="{{ branch_feature_values_form.instance.feature_config.slug }}">
-                  {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
-                  <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
-                    <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
-                      <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
-                              type="button"
-                              title="Preview with about:messagepreview"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false">
-                        <span class="fa fa-eye"></span>
-                      </button>
-                      <ul class="dropdown-menu dropdown-menu-end text-nowrap">
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                {% for error in branch_feature_values_form.value.errors %}
-                  <div class="form-text text-danger">{{ error }}</div>
-                {% endfor %}
-                {% with fv_errors=validation_errors.reference_branch.feature_values|get_item:forloop.counter0 %}
-                  {% for error in fv_errors.value %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-                {% endwith %}
-                {% if branch_feature_values_form.instance.unversioned_schema %}
-                  <div class="mt-2">
-                    <button type="button"
-                            class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn show-schema-btn"
-                            data-target="rollout-schema-{{ forloop.counter0 }}">
-                      <i class="fa-solid fa-chevron-down"></i> Show Schema
-                    </button>
-                    <button type="button"
-                            class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn hide-schema-btn d-none"
-                            data-target="rollout-schema-{{ forloop.counter0 }}">
-                      <i class="fa-solid fa-chevron-up"></i> Hide feature schema
-                    </button>
-                    <div id="rollout-schema-{{ forloop.counter0 }}"
-                         class="schema-display d-none mt-2 mw-100 overflow-auto">
-                      <textarea class="readonly-json">{{ branch_feature_values_form.instance.unversioned_schema }}</textarea>
-                    </div>
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    {% endwith %}
-    {#  Feature validation and pref conflict options  #}
-    <div class="mt-4">
-      <div class="form-check">
-        {{ form.warn_feature_schema }}
-        <label class="form-check-label small text-body mb-2"
-               for="{{ form.warn_feature_schema.id_for_label }}">Warn only on feature schema validation failure</label>
-      </div>
-      {% for error in validation_errors.warn_feature_schema %}
-        <div class="form-text text-danger">{{ error }}</div>
-      {% endfor %}
-      <div class="form-check">
-        {{ form.prevent_pref_conflicts }}
-        <label class="form-check-label small text-body"
-               for="{{ form.prevent_pref_conflicts.id_for_label }}">
-          Prevent enrollment if users have changed any prefs set by this rollout
+        {#  Feature config  #}
+        <div>
+          <label for="id_name" class="small text-body mb-2">
+          Feature configuration</span>
         </label>
+        {{ form.feature_configs }}
+        {% for error in validation_errors.feature_configs %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
       </div>
-      {% for error in validation_errors.prevent_pref_conflicts %}
-        <div class="form-text text-danger">{{ error }}</div>
-      {% endfor %}
-    </div>
-    {#  Rollout screenshots  #}
-    <div>
-      {% with rollout_screenshots=form.rollout_screenshots %}
-        {{ rollout_screenshots.management_form }}
-        <div class="d-flex flex-column gap-2 mt-4">
-          {% for screenshot_form in rollout_screenshots %}
-            {% with ss_errors=validation_errors.reference_branch_screenshots|get_item:forloop.counter0 %}
-              <div>
-                {{ screenshot_form.id }}
-                <div class="d-flex gap-3">
-                  <label class="small text-secondary mb-1 flex-shrink-0" style="width: 360px;">Screenshot</label>
-                  <label class="small text-secondary mb-1 flex-grow-1">Description</label>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                  <div class="flex-shrink-0" style="width: 360px;">{{ screenshot_form.image }}</div>
-                  <div class="flex-grow-1">{{ screenshot_form.description }}</div>
-                  {% if screenshot_form.instance.pk %}
-                    <button type="button"
-                            class="btn p-0 border-0 text-secondary flex-shrink-0"
-                            title="Delete screenshot"
-                            hx-post="{% url 'nimbus-ui-new-delete-rollout-screenshot' experiment.slug %}"
-                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                            hx-vals='{"screenshot_id": "{{ screenshot_form.instance.pk }}"}'
-                            hx-target="#rollout-rollout-features-body"
-                            hx-swap="outerHTML">
-                      <i class="fa-solid fa-trash-can"></i>
-                    </button>
+      {% with branch_feature_values=form.branch_feature_values %}
+        <div>
+          {{ branch_feature_values.management_form }}
+          {% for branch_feature_values_form in branch_feature_values %}
+            {{ branch_feature_values_form.id }}
+            {{ branch_feature_values_form.feature_config }}
+            {% if branch_feature_values_form.DELETE.value %}
+              {{ branch_feature_values_form.value.as_hidden }}
+            {% else %}
+              <div class="row mt-2">
+                <div class="col">
+                  <label class="small mb-2 text-secondary">
+                    {{ branch_feature_values_form.instance.feature_config.name }}
+                    {% if branch_feature_values_form.instance.allow_coenrollment %}
+                      <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
+                    {% endif %}
+                  </label>
+                  <div class="feature-value-editor position-relative"
+                       data-nimbus-devtools-feature-editor
+                       data-feature-id="{{ branch_feature_values_form.instance.feature_config.slug }}">
+                    {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
+                    <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
+                      <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
+                        <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
+                                type="button"
+                                title="Preview with about:messagepreview"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                          <span class="fa fa-eye"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end text-nowrap">
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  {% for error in branch_feature_values_form.value.errors %}
+                    <div class="form-text text-danger">{{ error }}</div>
+                  {% endfor %}
+                  {% with fv_errors=validation_errors.reference_branch.feature_values|get_item:forloop.counter0 %}
+                    {% for error in fv_errors.value %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                  {% endwith %}
+                  {% if branch_feature_values_form.instance.unversioned_schema %}
+                    <div class="mt-2">
+                      <button type="button"
+                              class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn show-schema-btn"
+                              data-target="rollout-schema-{{ forloop.counter0 }}">
+                        <i class="fa-solid fa-chevron-down"></i> Show Schema
+                      </button>
+                      <button type="button"
+                              class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn hide-schema-btn d-none"
+                              data-target="rollout-schema-{{ forloop.counter0 }}">
+                        <i class="fa-solid fa-chevron-up"></i> Hide feature schema
+                      </button>
+                      <div id="rollout-schema-{{ forloop.counter0 }}"
+                           class="schema-display d-none mt-2 mw-100 overflow-auto">
+                        <textarea class="readonly-json">{{ branch_feature_values_form.instance.unversioned_schema }}</textarea>
+                      </div>
+                    </div>
                   {% endif %}
                 </div>
-                <div class="d-flex gap-3 mb-2">
-                  <div class="flex-shrink-0" style="width: 360px;">
-                    {% for error in screenshot_form.image.errors %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-                    {% for error in ss_errors.image %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-                  </div>
-                  <div class="flex-grow-1">
-                    {% for error in screenshot_form.description.errors %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-                    {% for error in ss_errors.description %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-                  </div>
-                </div>
-                {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
-                  <div class="border border-secondary-subtle rounded overflow-hidden mt-2 d-inline-block">
-                    <img src="{{ screenshot_form.instance.image.url }}"
-                         alt="{{ screenshot_form.instance.description }}"
-                         title="{{ screenshot_form.instance.description }}"
-                         class="rounded"
-                         style="height: 96px;
-                                width: auto;
-                                object-fit: cover">
-                  </div>
-                {% endif %}
               </div>
-            {% endwith %}
+            {% endif %}
           {% endfor %}
         </div>
-        <div {% if rollout_screenshots|length %}class="mt-2"{% endif %}>
-          <button type="button"
-                  class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small"
-                  hx-post="{% url 'nimbus-ui-new-create-rollout-screenshot' experiment.slug %}"
-                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                  hx-target="#rollout-rollout-features-body"
-                  hx-swap="outerHTML">
-            <i class="fa-solid fa-plus"></i>
-            Add screenshot
-          </button>
-        </div>
       {% endwith %}
+      {#  Feature validation and pref conflict options  #}
+      <div class="mt-4">
+        <div class="form-check">
+          {{ form.warn_feature_schema }}
+          <label class="form-check-label small text-body mb-2"
+                 for="{{ form.warn_feature_schema.id_for_label }}">
+            Warn only on feature schema validation failure
+          </label>
+        </div>
+        {% for error in validation_errors.warn_feature_schema %}
+          <div class="form-text text-danger">{{ error }}</div>
+        {% endfor %}
+        <div class="form-check">
+          {{ form.prevent_pref_conflicts }}
+          <label class="form-check-label small text-body"
+                 for="{{ form.prevent_pref_conflicts.id_for_label }}">
+            Prevent enrollment if users have changed any prefs set by this rollout
+          </label>
+        </div>
+        {% for error in validation_errors.prevent_pref_conflicts %}
+          <div class="form-text text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+      {#  Rollout screenshots  #}
+      <div>
+        {% with rollout_screenshots=form.rollout_screenshots %}
+          {{ rollout_screenshots.management_form }}
+          <div class="d-flex flex-column gap-2 mt-4">
+            {% for screenshot_form in rollout_screenshots %}
+              {% with ss_errors=validation_errors.reference_branch_screenshots|get_item:forloop.counter0 %}
+                <div>
+                  {{ screenshot_form.id }}
+                  <div class="d-flex gap-3">
+                    <label class="small text-secondary mb-1 flex-shrink-0" style="width: 360px;">Screenshot</label>
+                    <label class="small text-secondary mb-1 flex-grow-1">Description</label>
+                  </div>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="flex-shrink-0" style="width: 360px;">{{ screenshot_form.image }}</div>
+                    <div class="flex-grow-1">{{ screenshot_form.description }}</div>
+                    {% if screenshot_form.instance.pk %}
+                      <button type="button"
+                              class="btn p-0 border-0 text-secondary flex-shrink-0"
+                              title="Delete screenshot"
+                              hx-post="{% url 'nimbus-ui-new-delete-rollout-screenshot' experiment.slug %}"
+                              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                              hx-vals='{"screenshot_id": "{{ screenshot_form.instance.pk }}"}'
+                              hx-target="#rollout-rollout-features-body"
+                              hx-swap="outerHTML">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    {% endif %}
+                  </div>
+                  <div class="d-flex gap-3 mb-2">
+                    <div class="flex-shrink-0" style="width: 360px;">
+                      {% for error in screenshot_form.image.errors %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                      {% for error in ss_errors.image %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="flex-grow-1">
+                      {% for error in screenshot_form.description.errors %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                      {% for error in ss_errors.description %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                    </div>
+                  </div>
+                  {% if screenshot_form.instance.pk and screenshot_form.instance.image %}
+                    <div class="border border-secondary-subtle rounded overflow-hidden mt-2 d-inline-block">
+                      <img src="{{ screenshot_form.instance.image.url }}"
+                           alt="{{ screenshot_form.instance.description }}"
+                           title="{{ screenshot_form.instance.description }}"
+                           class="rounded"
+                           style="height: 96px;
+                                  width: auto;
+                                  object-fit: cover">
+                    </div>
+                  {% endif %}
+                </div>
+              {% endwith %}
+            {% endfor %}
+          </div>
+          <div {% if rollout_screenshots|length %}class="mt-2"{% endif %}>
+            <button type="button"
+                    class="btn p-0 border-0 text-primary d-inline-flex align-items-center gap-2 small"
+                    hx-post="{% url 'nimbus-ui-new-create-rollout-screenshot' experiment.slug %}"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-target="#rollout-rollout-features-body"
+                    hx-swap="outerHTML">
+              <i class="fa-solid fa-plus"></i>
+              Add screenshot
+            </button>
+          </div>
+        {% endwith %}
+      </div>
     </div>
   </div>
-</div>
-{# Action buttons #}
-{% include "new/common/card_form_actions.html" with card_id="rollout-features" submit_name="save" %}
+  {# Action buttons #}
+  {% include "new/common/card_form_actions.html" with card_id="rollout-features" submit_name="save" %}
 
 </form>
 </div>

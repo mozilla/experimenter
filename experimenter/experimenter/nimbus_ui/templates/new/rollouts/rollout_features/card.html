@@ -2,15 +2,6 @@
 
 {% block card %}
   <div class="d-flex flex-column gap-3" id="rollout-rollout-features-body">
-    {# Brand impact #}
-    <div>
-      <div class="text-secondary mb-1" style="font-size: 12px;">Rollout experience</div>
-      <div id="rollout-features-experience"
-           class="small text-body"
-           style="white-space: pre-wrap">{{ experiment.takeaways_summary|default:"—" }}</div>
-      {% include "new/common/validation_errors.html" with errors=validation_errors.takeaways_summary %}
-
-    </div>
     {# Feature configurations #}
     <div>
       <div class="text-secondary mb-1" style="font-size: 12px;">Feature configurations</div>
