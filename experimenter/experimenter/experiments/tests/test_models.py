@@ -3883,7 +3883,12 @@ class TestNimbusExperiment(TestCase):
             (
                 NimbusExperiment.Version.NO_VERSION,
                 NimbusExperiment.Status.DRAFT,
-                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Status.LIVE,
+                False,
             ),
             (
                 NimbusExperiment.Version.FIREFOX_100,

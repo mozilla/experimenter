@@ -2690,10 +2690,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def show_rollout_reenable_warning(self):
-        return not self.supports_rollout_reenable and self.status in (
-            NimbusConstants.Status.DRAFT,
-            NimbusConstants.Status.PREVIEW,
-            NimbusConstants.Status.LIVE,
+        return (
+            bool(self.firefox_min_version)
+            and not self.supports_rollout_reenable
+            and self.status
+            in (
+                NimbusConstants.Status.DRAFT,
+                NimbusConstants.Status.PREVIEW,
+                NimbusConstants.Status.LIVE,
+            )
         )
 
     @cached_property
