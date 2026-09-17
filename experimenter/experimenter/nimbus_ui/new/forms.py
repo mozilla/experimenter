@@ -1878,6 +1878,13 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
             for field_name in disabled_fields:
                 phase_form.fields[field_name].disabled = True
 
+        self.selected_rollout_plan = self.get_selected_rollout_plan()
+        if self.is_bound:
+            self.data = self.data.copy()
+            self.data["rollout_plan"] = self.selected_rollout_plan
+        else:
+            self.initial["rollout_plan"] = self.selected_rollout_plan
+
     def get_rollout_phases_data(self):
         # Preview schedule changes in the formset data so they are only written to
         # the database when the card is saved.
@@ -1908,8 +1915,30 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def is_valid(self):
         return super().is_valid() and self.rollout_phases.is_valid()
 
+    def rendered_phases(self):
+        percentages = []
+        for phase_form in self.rollout_phases.forms:
+            if phase_form.is_deleted or phase_form.is_locked:
+                continue
+            value = phase_form["population_percent"].value()
+            try:
+                percentages.append(float(value))
+            except (TypeError, ValueError):
+                return None
+        return percentages
+
+    def get_selected_rollout_plan(self):
+        name = self.data.get("rollout_plan") or self.instance.rollout_plan_name
+        if name not in self.plans:
+            return ""
+        plan_phases = [float(percent) for percent in self.plans[name]]
+        if self.rendered_phases() != plan_phases:
+            return ""
+        return name
+
     @transaction.atomic
     def save(self):
+        self.instance.rollout_plan_name = self.selected_rollout_plan
         experiment = super().save()
         self.rollout_phases.save()
         return experiment
